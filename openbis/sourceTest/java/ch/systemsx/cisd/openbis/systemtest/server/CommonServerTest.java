@@ -16,17 +16,14 @@
 
 package ch.systemsx.cisd.openbis.systemtest.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
 import junit.framework.Assert;
 
-import org.apache.commons.io.IOUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -172,9 +169,10 @@ public class CommonServerTest extends SystemTestCase
 
     private void testAdaptorCommon(EntityKind entityKind, String entityIdentifier, String scriptName)
     {
-        String script =
-                getResourceAsString("common_adaptor_test.py") + "\n"
-                        + getResourceAsString(scriptName);
+        TestResources resources = new TestResources(getClass());
+        String commonScript = FileUtilities.loadToString(resources.getResourceFile("common_adaptor_test.py"));
+        String specificScript = FileUtilities.loadToString(resources.getResourceFile(scriptName));
+        String script = commonScript + "\n" + specificScript;
 
         EntityValidationEvaluationInfo info =
                 new EntityValidationEvaluationInfo(entityKind, entityIdentifier, false,
@@ -182,18 +180,6 @@ public class CommonServerTest extends SystemTestCase
 
         String result = commonServer.evaluate(sessionToken, info);
         Assert.assertEquals("Validation OK", result);
-    }
-
-    private String getResourceAsString(String fileName)
-    {
-        try
-        {
-            return IOUtils.toString(new FileInputStream(new File("sourceTest/java/"
-                    + getClass().getName().replace(".", "/") + "Resources" + "/" + fileName)));
-        } catch (IOException ex)
-        {
-            throw new RuntimeException(ex);
-        }
     }
 
 }

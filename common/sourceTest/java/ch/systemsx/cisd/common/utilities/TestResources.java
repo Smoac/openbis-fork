@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 ETH Zuerich, CISD
+ * Copyright 2013 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.common.spring;
+package ch.systemsx.cisd.common.utilities;
+
+import java.io.File;
 
 /**
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public interface IInvocationLoggerContext
+public class TestResources
 {
-    public String tryToGetSessionToken();
 
-    public boolean invocationFinished();
+    private Class<?> testClass;
 
-    public boolean invocationWasSuccessful();
+    public TestResources(Class<?> testClass)
+    {
+        this.testClass = testClass;
+    }
 
-    public long getElapsedTime();
+    public File getResourcesDirectory()
+    {
+        return new File("sourceTest/java/"
+                + testClass.getName().replace(".", "/") + "Resources" + "/");
+    }
+
+    public File getResourceFile(String fileName)
+    {
+        return new File(getResourcesDirectory(), fileName);
+    }
+
 }
