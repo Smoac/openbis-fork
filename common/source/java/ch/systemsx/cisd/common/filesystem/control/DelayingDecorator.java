@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,13 +44,13 @@ public class DelayingDecorator implements IEventProvider
     }
 
     @Override
-    public Map<String, String> getNewEvents()
+    public Map<String, String> getNewEvents(Collection<String> parameters)
     {
         long currentTime = clock.getTime();
         if (currentTime - lastCall > interval)
         {
             lastCall = currentTime;
-            return provider.getNewEvents();
+            return provider.getNewEvents(parameters);
         } else
         {
             return new HashMap<String, String>();

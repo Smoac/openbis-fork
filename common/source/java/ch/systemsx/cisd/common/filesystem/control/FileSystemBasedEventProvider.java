@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.common.filesystem.control;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class FileSystemBasedEventProvider implements IEventProvider
     }
 
     @Override
-    public Map<String, String> getNewEvents()
+    public Map<String, String> getNewEvents(Collection<String> parameters)
     {
         Map<String, String> map = new HashMap<String, String>();
 
@@ -40,6 +41,12 @@ public class FileSystemBasedEventProvider implements IEventProvider
             if (file.isFile() && fileName.contains("-"))
             {
                 String key = fileName.substring(0, fileName.lastIndexOf("-"));
+
+                if (parameters.contains(key) == false)
+                {
+                    continue;
+                }
+
                 String value = fileName.substring(fileName.lastIndexOf("-") + 1);
                 map.put(key, value);
                 file.delete();

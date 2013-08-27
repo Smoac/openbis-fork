@@ -16,13 +16,10 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * @author anttil
  */
-public interface IEventProvider
+public interface IValueFilter
 {
-    Map<String, String> getNewEvents(Collection<String> parameters);
+    boolean isValid(String value);
 }

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.filesystem.control;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,18 +60,18 @@ public class DelayingDecoratorTest
                 {
                     Map<String, String> updates = new HashMap<String, String>();
                     updates.put("parameter", "update");
-                    exactly(2).of(provider).getNewEvents();
+                    exactly(2).of(provider).getNewEvents(Arrays.asList("parameter"));
                     will(returnValue(updates));
                 }
             });
 
-        assertThat(decorator.getNewEvents().size(), is(1));
+        assertThat(decorator.getNewEvents(Arrays.asList("parameter")).size(), is(1));
 
         clock.setTime(clock.getTime() + INTERVAL - 1);
-        assertThat(decorator.getNewEvents().size(), is(0));
+        assertThat(decorator.getNewEvents(Arrays.asList("parameter")).size(), is(0));
 
         clock.setTime(clock.getTime() + INTERVAL);
-        assertThat(decorator.getNewEvents().size(), is(1));
+        assertThat(decorator.getNewEvents(Arrays.asList("parameter")).size(), is(1));
 
         context.assertIsSatisfied();
     }

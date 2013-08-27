@@ -26,26 +26,60 @@ import java.util.Map;
 public class ParameterMap
 {
 
-    private final Map<String, String> map;
+    private final Map<String, String> values;
+
+    private final Map<String, IValueFilter> filters;
 
     private final IEventProvider eventProvider;
 
     public ParameterMap(IEventProvider eventProvider)
     {
         this.eventProvider = eventProvider;
-        map = new HashMap<String, String>();
+        this.values = new HashMap<String, String>();
+        this.filters = new HashMap<String, IValueFilter>();
     }
 
     public void addParameter(String key, String defaultValue)
     {
-        map.put(key, defaultValue);
+        addParameter(key, defaultValue, dummyFilter());
     }
 
-    public String get(String key)
+    public synchronized void addParameter(String key, String defaultValue, IValueFilter filter)
     {
-        Map<String, String> newEvents = eventProvider.getNewEvents();
-        map.putAll(newEvents);
-        return map.get(key);
+        if (filter.isValid(defaultValue) == false)
+        {
+            throw new IllegalArgumentException("Default value " + defaultValue + " is not valid value for parameter " + key);
+        }
+
+        filters.put(key, filter);
+        values.put(key, defaultValue);
+    }
+
+    public synchronized String get(String key)
+    {
+        Map<String, String> newEvents = eventProvider.getNewEvents(values.keySet());
+        for (String parameter : newEvents.keySet())
+        {
+            String newValue = newEvents.get(parameter);
+            if (filters.get(parameter).isValid(newValue))
+            {
+                values.put(parameter, newValue);
+            }
+        }
+        return values.get(key);
+    }
+
+    private IValueFilter dummyFilter()
+    {
+        return new IValueFilter()
+            {
+                @Override
+                public boolean isValid(String value)
+                {
+                    return true;
+                }
+
+            };
     }
 
     public static void main(String args[])

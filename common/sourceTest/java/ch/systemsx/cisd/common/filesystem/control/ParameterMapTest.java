@@ -19,9 +19,12 @@ package ch.systemsx.cisd.common.filesystem.control;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
@@ -52,7 +55,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents();
+                    allowing(eventProvider).getNewEvents(with(collectionContainingExactly("parameter")));
                     will(returnValue(new HashMap<String, String>()));
                 }
             });
@@ -61,18 +64,38 @@ public class ParameterMapTest
         assertThat(map.get("parameter"), is("value"));
     }
 
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void parametersCannotBeRegisteredWithInvalidValue() throws Exception
+    {
+        map.addParameter("parameter", "100", passNothingFilter());
+    }
+
     @Test
     public void parametersCanBeUpdated() throws Exception
     {
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents();
+                    allowing(eventProvider).getNewEvents(with(collectionContainingExactly("parameter")));
                     will(returnValue(getUpdateOn("parameter")));
                 }
             });
         map.addParameter("parameter", "default value");
         assertThat(map.get("parameter"), is("updated value"));
+    }
+
+    @Test
+    public void illegalParameterValuesAreNotUpdated() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(eventProvider).getNewEvents(with(collectionContainingExactly("parameter")));
+                    will(returnValue(getUpdateOn("parameter")));
+                }
+            });
+        map.addParameter("parameter", "default value", acceptValuesStartingWith("d"));
+        assertThat(map.get("parameter"), is("default value"));
     }
 
     private Map<String, String> getUpdateOn(String... keys)
@@ -83,6 +106,53 @@ public class ParameterMapTest
             updates.put(key, "updated value");
         }
         return updates;
+    }
+
+    private IValueFilter passNothingFilter()
+    {
+        return new IValueFilter()
+            {
+
+                @Override
+                public boolean isValid(String value)
+                {
+                    return false;
+                }
+
+            };
+    }
+
+    private IValueFilter acceptValuesStartingWith(final String string)
+    {
+        return new IValueFilter()
+            {
+
+                @Override
+                public boolean isValid(String value)
+                {
+                    return value.startsWith(string);
+                }
+
+            };
+    }
+
+    private <T> TypeSafeMatcher<Collection<T>> collectionContainingExactly(final T value)
+    {
+        return new TypeSafeMatcher<Collection<T>>()
+            {
+
+                @Override
+                public void describeTo(Description description)
+                {
+                    description.appendText("Collection containing " + value);
+                }
+
+                @Override
+                public boolean matchesSafely(Collection<T> collection)
+                {
+                    return collection.size() == 1 && collection.contains(value);
+                }
+            };
     }
 
 }
