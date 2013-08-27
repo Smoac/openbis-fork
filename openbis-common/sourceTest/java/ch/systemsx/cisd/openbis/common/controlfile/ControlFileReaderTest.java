@@ -47,13 +47,26 @@ public class ControlFileReaderTest
     }
 
     @Test
-    public void test() throws IOException
+    public void testSwitchOnAndOff() throws IOException
     {
         ControlFileReader reader = new ControlFileReader(getControlFileDirectory(), -1);
         Assert.assertFalse(reader.isLogServiceCallStartEnabled());
 
         new File(getControlFileDirectory(), "log-service-call-start-on").createNewFile();
         Assert.assertTrue(reader.isLogServiceCallStartEnabled());
+
+        new File(getControlFileDirectory(), "log-service-call-start-off").createNewFile();
+        Assert.assertFalse(reader.isLogServiceCallStartEnabled());
+    }
+
+    @Test
+    public void testWithNotExistingControlFileDirectory() throws IOException
+    {
+        ControlFileReader reader = new ControlFileReader(new File(getControlFileDirectory(), "notExisting"), -1);
+        Assert.assertFalse(reader.isLogServiceCallStartEnabled());
+
+        new File(getControlFileDirectory(), "log-service-call-start-on").createNewFile();
+        Assert.assertFalse(reader.isLogServiceCallStartEnabled());
 
         new File(getControlFileDirectory(), "log-service-call-start-off").createNewFile();
         Assert.assertFalse(reader.isLogServiceCallStartEnabled());

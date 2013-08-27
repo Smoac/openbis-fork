@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.common.controlfile;
 
 import java.io.File;
 
+import ch.systemsx.cisd.common.filesystem.control.ControlDirectoryEventFeed;
 import ch.systemsx.cisd.common.filesystem.control.DelayingDecorator;
-import ch.systemsx.cisd.common.filesystem.control.FileSystemBasedEventProvider;
 import ch.systemsx.cisd.common.filesystem.control.IValueFilter;
 import ch.systemsx.cisd.common.filesystem.control.ParameterMap;
 
@@ -49,7 +49,7 @@ public class ControlFileReader
     public ControlFileReader(File controlFileDirectory, long controlFileMaxDelay)
     {
         parameterMap =
-                new ParameterMap(new DelayingDecorator(controlFileMaxDelay, new FileSystemBasedEventProvider(controlFileDirectory)));
+                new ParameterMap(new DelayingDecorator(controlFileMaxDelay, new ControlDirectoryEventFeed(controlFileDirectory)));
         parameterMap.addParameter(LOG_SERVICE_CALL_START, OFF, new IValueFilter()
             {
 

@@ -43,6 +43,11 @@ public class ControlDirectoryEventFeed implements IEventFeed
     {
         List<String> events = new ArrayList<String>();
 
+        if (controlDir.exists() == false || controlDir.isDirectory() == false)
+        {
+            return events;
+        }
+
         List<File> files = Arrays.asList(controlDir.listFiles());
 
         Collections.sort(files, new Comparator<File>()
