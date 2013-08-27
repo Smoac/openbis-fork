@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.filesystem.control;
 
 /**
+ * System clock.
+ * 
  * @author anttil
  */
 class SystemClock implements IClock

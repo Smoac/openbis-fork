@@ -19,9 +19,8 @@ package ch.systemsx.cisd.common.filesystem.control;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -37,9 +36,9 @@ public class DelayingDecoratorTest
 
     private MockClock clock;
 
-    private IEventProvider provider;
+    private IEventFeed provider;
 
-    private IEventProvider decorator;
+    private IEventFeed decorator;
 
     private static final long INTERVAL = 500;
 
@@ -48,7 +47,7 @@ public class DelayingDecoratorTest
     {
         clock = new MockClock(System.currentTimeMillis());
         context = new Mockery();
-        provider = context.mock(IEventProvider.class);
+        provider = context.mock(IEventFeed.class);
         decorator = new DelayingDecorator(INTERVAL, provider, clock);
     }
 
@@ -58,21 +57,35 @@ public class DelayingDecoratorTest
         context.checking(new Expectations()
             {
                 {
-                    Map<String, String> updates = new HashMap<String, String>();
-                    updates.put("parameter", "update");
-                    exactly(2).of(provider).getNewEvents(Arrays.asList("parameter"));
-                    will(returnValue(updates));
+                    List<String> events = new ArrayList<String>();
+                    events.add("event-1");
+                    events.add("event-2");
+                    exactly(2).of(provider).getNewEvents(with(Matchers.eventFilterAccepting("event")));
+                    will(returnValue(events));
                 }
             });
 
-        assertThat(decorator.getNewEvents(Arrays.asList("parameter")).size(), is(1));
+        assertThat(decorator.getNewEvents(withName("event")).size(), is(2));
 
         clock.setTime(clock.getTime() + INTERVAL - 1);
-        assertThat(decorator.getNewEvents(Arrays.asList("parameter")).size(), is(0));
+        assertThat(decorator.getNewEvents(withName("event")).size(), is(0));
 
         clock.setTime(clock.getTime() + INTERVAL);
-        assertThat(decorator.getNewEvents(Arrays.asList("parameter")).size(), is(1));
+        assertThat(decorator.getNewEvents(withName("event")).size(), is(2));
 
         context.assertIsSatisfied();
+    }
+
+    private IEventFilter withName(final String name)
+    {
+        return new IEventFilter()
+            {
+
+                @Override
+                public boolean accepts(String value)
+                {
+                    return value.startsWith(name);
+                }
+            };
     }
 }

@@ -16,13 +16,17 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DelayingDecorator implements IEventProvider
+/**
+ * Decorator that can be used to limit the amount of getNewEvents() calls on the decorated event feed.
+ * 
+ * @author anttil
+ */
+public class DelayingDecorator implements IEventFeed
 {
-    private final IEventProvider provider;
+    private final IEventFeed eventFeed;
 
     private IClock clock;
 
@@ -30,30 +34,30 @@ public class DelayingDecorator implements IEventProvider
 
     private long lastCall;
 
-    public DelayingDecorator(long interval, IEventProvider provider)
+    public DelayingDecorator(long interval, IEventFeed eventFeed)
     {
-        this(interval, provider, new SystemClock());
+        this(interval, eventFeed, new SystemClock());
     }
 
-    DelayingDecorator(long interval, IEventProvider provider, IClock clock)
+    DelayingDecorator(long interval, IEventFeed eventFeed, IClock clock)
     {
-        this.provider = provider;
+        this.eventFeed = eventFeed;
         this.clock = clock;
         this.interval = interval;
         this.lastCall = 0;
     }
 
     @Override
-    public Map<String, String> getNewEvents(Collection<String> parameters)
+    public List<String> getNewEvents(IEventFilter filter)
     {
         long currentTime = clock.getTime();
         if (currentTime - lastCall > interval)
         {
             lastCall = currentTime;
-            return provider.getNewEvents(parameters);
+            return eventFeed.getNewEvents(filter);
         } else
         {
-            return new HashMap<String, String>();
+            return new ArrayList<String>();
         }
     }
 }

@@ -19,12 +19,10 @@ package ch.systemsx.cisd.common.filesystem.control;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
@@ -35,7 +33,7 @@ import org.testng.annotations.Test;
  */
 public class ParameterMapTest
 {
-    IEventProvider eventProvider;
+    IEventFeed eventProvider;
 
     Mockery context;
 
@@ -45,7 +43,7 @@ public class ParameterMapTest
     public void fixture()
     {
         context = new Mockery();
-        eventProvider = context.mock(IEventProvider.class);
+        eventProvider = context.mock(IEventFeed.class);
         map = new ParameterMap(eventProvider);
     }
 
@@ -55,8 +53,8 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(collectionContainingExactly("parameter")));
-                    will(returnValue(new HashMap<String, String>()));
+                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
+                    will(returnValue(new ArrayList<String>()));
                 }
             });
 
@@ -76,7 +74,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(collectionContainingExactly("parameter")));
+                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
                     will(returnValue(getUpdateOn("parameter")));
                 }
             });
@@ -85,12 +83,26 @@ public class ParameterMapTest
     }
 
     @Test
+    public void emptyValueIsAccepted() throws Exception
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
+                    will(returnValue(Arrays.asList("parameter-")));
+                }
+            });
+        map.addParameter("parameter", "default value");
+        assertThat(map.get("parameter"), is(""));
+    }
+
+    @Test
     public void illegalParameterValuesAreNotUpdated() throws Exception
     {
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(collectionContainingExactly("parameter")));
+                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
                     will(returnValue(getUpdateOn("parameter")));
                 }
             });
@@ -98,12 +110,12 @@ public class ParameterMapTest
         assertThat(map.get("parameter"), is("default value"));
     }
 
-    private Map<String, String> getUpdateOn(String... keys)
+    private List<String> getUpdateOn(String... keys)
     {
-        Map<String, String> updates = new HashMap<String, String>();
+        List<String> updates = new ArrayList<String>();
         for (String key : keys)
         {
-            updates.put(key, "updated value");
+            updates.add(key + "-updated value");
         }
         return updates;
     }
@@ -135,24 +147,4 @@ public class ParameterMapTest
 
             };
     }
-
-    private <T> TypeSafeMatcher<Collection<T>> collectionContainingExactly(final T value)
-    {
-        return new TypeSafeMatcher<Collection<T>>()
-            {
-
-                @Override
-                public void describeTo(Description description)
-                {
-                    description.appendText("Collection containing " + value);
-                }
-
-                @Override
-                public boolean matchesSafely(Collection<T> collection)
-                {
-                    return collection.size() == 1 && collection.contains(value);
-                }
-            };
-    }
-
 }

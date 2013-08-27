@@ -16,13 +16,14 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 /**
+ * Abstract source of events.
+ * 
  * @author anttil
  */
-public interface IEventProvider
+public interface IEventFeed
 {
-    Map<String, String> getNewEvents(Collection<String> parameters);
+    List<String> getNewEvents(IEventFilter filter);
 }

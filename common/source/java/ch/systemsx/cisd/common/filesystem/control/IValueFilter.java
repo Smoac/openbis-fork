@@ -16,9 +16,6 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-/**
- * @author anttil
- */
 public interface IValueFilter
 {
     boolean isValid(String value);

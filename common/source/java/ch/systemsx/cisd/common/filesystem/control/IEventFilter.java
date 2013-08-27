@@ -16,12 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-/**
- * Abstract clock. The implementation used in production is SystemClock. Tests can use their own implementations if needed.
- * 
- * @author anttil
- */
-interface IClock
+interface IEventFilter
 {
-    public long getTime();
+    boolean accepts(String value);
 }

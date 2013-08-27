@@ -20,8 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import org.testng.annotations.BeforeMethod;
@@ -34,65 +33,99 @@ public class FileSystemBasedEventProviderTest
 {
     File controlDir;
 
-    private IEventProvider provider;
+    private IEventFeed provider;
 
     @BeforeMethod
     public void fixture()
     {
         controlDir = new File("/tmp/" + UUID.randomUUID().toString());
         controlDir.mkdir();
-        provider = new FileSystemBasedEventProvider(controlDir);
+        provider = new ControlDirectoryEventFeed(controlDir);
     }
 
     @Test
     public void eventsAreReturnedOnlyOnce() throws Exception
     {
-        new File(controlDir, "parameter-x").createNewFile();
+        createEvent("event");
 
-        assertThat(provider.getNewEvents(Arrays.asList("parameter")).isEmpty(), is(false));
-        assertThat(provider.getNewEvents(Arrays.asList("parameter")).isEmpty(), is(true));
+        assertThat(provider.getNewEvents(eventFilterAccepting("event")).isEmpty(), is(false));
+        assertThat(provider.getNewEvents(eventFilterAccepting("event")).isEmpty(), is(true));
+    }
+
+    @Test
+    public void eventsAreReturnedInCorrectOrder() throws Exception
+    {
+        createEvent("this_event", 1000);
+        createEvent("that_event", 10000);
+        createEvent("this_event2", 100000);
+
+        List<String> events = provider.getNewEvents(allPassingEventFilter());
+
+        assertThat(events.size(), is(3));
+        assertThat(events.get(0), is("this_event"));
+        assertThat(events.get(1), is("that_event"));
+        assertThat(events.get(2), is("this_event2"));
     }
 
     @Test
     public void filesAreCleaned() throws Exception
     {
-        File event = new File(controlDir, "parameter-x");
+        File event = new File(controlDir, "event");
         event.createNewFile();
 
-        provider.getNewEvents(Arrays.asList("parameter"));
+        provider.getNewEvents(eventFilterAccepting("event"));
 
         assertThat(event.exists(), is(false));
     }
 
     @Test
-    public void unregisteredfilesAreNotCleaned() throws Exception
+    public void unrelatedFilesAreNotCleaned() throws Exception
     {
-        File event = new File(controlDir, "other_parameter-x");
+        File event = new File(controlDir, "other_event");
         event.createNewFile();
 
-        Map<String, String> events = provider.getNewEvents(Arrays.asList("parameter"));
+        List<String> events = provider.getNewEvents(eventFilterAccepting("event"));
 
         assertThat(events.isEmpty(), is(true));
         assertThat(event.exists(), is(true));
     }
 
-    @Test
-    public void keyAndValueAreParsedCorrectlyFromTheFileName() throws Exception
+    private IEventFilter eventFilterAccepting(final String event)
     {
-        new File(controlDir, "parameter-x").createNewFile();
+        return new IEventFilter()
+            {
 
-        Map<String, String> events = provider.getNewEvents(Arrays.asList("parameter"));
-
-        assertThat(events.get("parameter"), is("x"));
+                @Override
+                public boolean accepts(String value)
+                {
+                    return event.equals(value);
+                }
+            };
     }
 
-    @Test
-    public void emptyValueWorks() throws Exception
+    private IEventFilter allPassingEventFilter()
     {
-        new File(controlDir, "parameter-").createNewFile();
+        return new IEventFilter()
+            {
 
-        Map<String, String> events = provider.getNewEvents(Arrays.asList("parameter"));
-
-        assertThat(events.get("parameter"), is(""));
+                @Override
+                public boolean accepts(String value)
+                {
+                    return true;
+                }
+            };
     }
+
+    private void createEvent(String event) throws Exception
+    {
+        createEvent(event, System.currentTimeMillis());
+    }
+
+    private void createEvent(String event, long timestamp) throws Exception
+    {
+        File f = new File(controlDir, event);
+        f.createNewFile();
+        f.setLastModified(timestamp);
+    }
+
 }

@@ -16,32 +16,34 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
+ * Collection of key-value pairs that are updated by given event feed. Events have to be of format "key-value", other events are ignored.
+ * 
  * @author anttil
  */
 public class ParameterMap
 {
-
     private final Map<String, String> values;
 
     private final Map<String, IValueFilter> filters;
 
-    private final IEventProvider eventProvider;
+    private final IEventFeed eventFeed;
 
-    public ParameterMap(IEventProvider eventProvider)
+    public ParameterMap(IEventFeed eventFeed)
     {
-        this.eventProvider = eventProvider;
+        this.eventFeed = eventFeed;
         this.values = new HashMap<String, String>();
         this.filters = new HashMap<String, IValueFilter>();
     }
 
     public void addParameter(String key, String defaultValue)
     {
-        addParameter(key, defaultValue, dummyFilter());
+        addParameter(key, defaultValue, acceptAllFilter());
     }
 
     public synchronized void addParameter(String key, String defaultValue, IValueFilter filter)
@@ -57,19 +59,41 @@ public class ParameterMap
 
     public synchronized String get(String key)
     {
-        Map<String, String> newEvents = eventProvider.getNewEvents(values.keySet());
-        for (String parameter : newEvents.keySet())
+        List<String> events = eventFeed.getNewEvents(eventFilter(values.keySet()));
+        for (String event : events)
         {
-            String newValue = newEvents.get(parameter);
-            if (filters.get(parameter).isValid(newValue))
+            String parameter = event.substring(0, event.lastIndexOf("-"));
+            String value = event.substring(event.lastIndexOf("-") + 1);
+
+            if (filters.get(parameter).isValid(value))
             {
-                values.put(parameter, newValue);
+                values.put(parameter, value);
             }
         }
         return values.get(key);
     }
 
-    private IValueFilter dummyFilter()
+    private IEventFilter eventFilter(final Set<String> keySet)
+    {
+        return new IEventFilter()
+            {
+
+                @Override
+                public boolean accepts(String event)
+                {
+                    for (String parameter : keySet)
+                    {
+                        if (event.startsWith(parameter + "-"))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            };
+    }
+
+    private IValueFilter acceptAllFilter()
     {
         return new IValueFilter()
             {
@@ -80,25 +104,5 @@ public class ParameterMap
                 }
 
             };
-    }
-
-    public static void main(String args[])
-    {
-        ParameterMap map = new ParameterMap(
-                new DelayingDecorator(5000,
-                        new FileSystemBasedEventProvider(new File("/tmp/test"))));
-
-        map.addParameter("parameter", "100");
-
-        while (true)
-        {
-            System.out.println(map.get("parameter"));
-            try
-            {
-                Thread.sleep(100);
-            } catch (InterruptedException ex)
-            {
-            }
-        }
     }
 }
