@@ -21,7 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import org.hamcrest.Description;
@@ -56,7 +55,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAcceptingValueUpdatesOf("parameter")));
                     will(returnValue(new ArrayList<String>()));
                 }
             });
@@ -77,8 +76,8 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
-                    will(returnValue(getUpdateOn("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAcceptingValueUpdatesOf("parameter")));
+                    will(returnValue(Arrays.asList("parameter-updated value")));
                 }
             });
         map.addParameter("parameter", "default value");
@@ -91,7 +90,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAcceptingValueUpdatesOf("parameter")));
                     will(returnValue(Arrays.asList("parameter-")));
                 }
             });
@@ -105,35 +104,23 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
-                    will(returnValue(getUpdateOn("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAcceptingValueUpdatesOf("parameter")));
+                    will(returnValue(Arrays.asList("parameter-updated value")));
                 }
             });
         map.addParameter("parameter", "default value", acceptValuesStartingWith("d"));
         assertThat(map.get("parameter"), is("default value"));
     }
 
-    private List<String> getUpdateOn(String... keys)
-    {
-        List<String> updates = new ArrayList<String>();
-        for (String key : keys)
-        {
-            updates.add(key + "-updated value");
-        }
-        return updates;
-    }
-
     private IValueFilter passNothingFilter()
     {
         return new IValueFilter()
             {
-
                 @Override
                 public boolean isValid(String value)
                 {
                     return false;
                 }
-
             };
     }
 
@@ -151,7 +138,7 @@ public class ParameterMapTest
             };
     }
 
-    static TypeSafeMatcher<IEventFilter> eventFilterAccepting(final String value)
+    static TypeSafeMatcher<IEventFilter> eventFilterAcceptingValueUpdatesOf(final String value)
     {
         return new TypeSafeMatcher<IEventFilter>()
             {
