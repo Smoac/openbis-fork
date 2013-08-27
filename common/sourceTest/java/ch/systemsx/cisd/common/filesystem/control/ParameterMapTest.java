@@ -22,7 +22,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
@@ -53,7 +56,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
                     will(returnValue(new ArrayList<String>()));
                 }
             });
@@ -74,7 +77,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
                     will(returnValue(getUpdateOn("parameter")));
                 }
             });
@@ -88,7 +91,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
                     will(returnValue(Arrays.asList("parameter-")));
                 }
             });
@@ -102,7 +105,7 @@ public class ParameterMapTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(eventProvider).getNewEvents(with(Matchers.eventFilterAccepting("parameter")));
+                    allowing(eventProvider).getNewEvents(with(eventFilterAccepting("parameter")));
                     will(returnValue(getUpdateOn("parameter")));
                 }
             });
@@ -145,6 +148,25 @@ public class ParameterMapTest
                     return value.startsWith(string);
                 }
 
+            };
+    }
+
+    static TypeSafeMatcher<IEventFilter> eventFilterAccepting(final String value)
+    {
+        return new TypeSafeMatcher<IEventFilter>()
+            {
+
+                @Override
+                public void describeTo(Description description)
+                {
+                    description.appendText("IEventFilter accepting '" + value + "-*'");
+                }
+
+                @Override
+                public boolean matchesSafely(IEventFilter filter)
+                {
+                    return filter.accepts(value + "-" + UUID.randomUUID().toString());
+                }
             };
     }
 }

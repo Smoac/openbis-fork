@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
+import org.jmock.Expectations;
+import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -35,31 +37,54 @@ public class FileSystemBasedEventProviderTest
 
     private IEventFeed provider;
 
+    private IEventFilter filter;
+
+    private Mockery context;
+
     @BeforeMethod
     public void fixture()
     {
         controlDir = new File("/tmp/" + UUID.randomUUID().toString());
         controlDir.mkdir();
         provider = new ControlDirectoryEventFeed(controlDir);
+
+        context = new Mockery();
+        filter = context.mock(IEventFilter.class);
+
     }
 
     @Test
     public void eventsAreReturnedOnlyOnce() throws Exception
     {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(filter).accepts("event");
+                    will(returnValue(true));
+                }
+            });
         createEvent("event");
 
-        assertThat(provider.getNewEvents(eventFilterAccepting("event")).isEmpty(), is(false));
-        assertThat(provider.getNewEvents(eventFilterAccepting("event")).isEmpty(), is(true));
+        assertThat(provider.getNewEvents(filter).isEmpty(), is(false));
+        assertThat(provider.getNewEvents(filter).isEmpty(), is(true));
     }
 
     @Test
     public void eventsAreReturnedInCorrectOrder() throws Exception
     {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(filter).accepts(with(any(String.class)));
+                    will(returnValue(true));
+                }
+            });
+
         createEvent("this_event", 1000);
         createEvent("that_event", 10000);
         createEvent("this_event2", 100000);
 
-        List<String> events = provider.getNewEvents(allPassingEventFilter());
+        List<String> events = provider.getNewEvents(filter);
 
         assertThat(events.size(), is(3));
         assertThat(events.get(0), is("this_event"));
@@ -70,10 +95,18 @@ public class FileSystemBasedEventProviderTest
     @Test
     public void filesAreCleaned() throws Exception
     {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(filter).accepts("event");
+                    will(returnValue(true));
+                }
+            });
+
         File event = new File(controlDir, "event");
         event.createNewFile();
 
-        provider.getNewEvents(eventFilterAccepting("event"));
+        provider.getNewEvents(filter);
 
         assertThat(event.exists(), is(false));
     }
@@ -81,39 +114,21 @@ public class FileSystemBasedEventProviderTest
     @Test
     public void unrelatedFilesAreNotCleaned() throws Exception
     {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(filter).accepts("other_event");
+                    will(returnValue(false));
+                }
+            });
+
         File event = new File(controlDir, "other_event");
         event.createNewFile();
 
-        List<String> events = provider.getNewEvents(eventFilterAccepting("event"));
+        List<String> events = provider.getNewEvents(filter);
 
         assertThat(events.isEmpty(), is(true));
         assertThat(event.exists(), is(true));
-    }
-
-    private IEventFilter eventFilterAccepting(final String event)
-    {
-        return new IEventFilter()
-            {
-
-                @Override
-                public boolean accepts(String value)
-                {
-                    return event.equals(value);
-                }
-            };
-    }
-
-    private IEventFilter allPassingEventFilter()
-    {
-        return new IEventFilter()
-            {
-
-                @Override
-                public boolean accepts(String value)
-                {
-                    return true;
-                }
-            };
     }
 
     private void createEvent(String event) throws Exception
@@ -127,5 +142,4 @@ public class FileSystemBasedEventProviderTest
         f.createNewFile();
         f.setLastModified(timestamp);
     }
-
 }

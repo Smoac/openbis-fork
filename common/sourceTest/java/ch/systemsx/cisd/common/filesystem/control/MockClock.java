@@ -24,9 +24,9 @@ public class MockClock implements IClock
 
     private long time;
 
-    public MockClock(long time)
+    public MockClock()
     {
-        this.time = time;
+        this.time = System.currentTimeMillis();
     }
 
     public void setTime(long time)

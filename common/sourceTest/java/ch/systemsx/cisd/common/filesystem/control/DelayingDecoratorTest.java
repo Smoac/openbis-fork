@@ -40,19 +40,22 @@ public class DelayingDecoratorTest
 
     private IEventFeed decorator;
 
+    private IEventFilter filter;
+
     private static final long INTERVAL = 500;
 
     @BeforeMethod
     public void fixture()
     {
-        clock = new MockClock(System.currentTimeMillis());
+        clock = new MockClock();
         context = new Mockery();
         provider = context.mock(IEventFeed.class);
+        filter = context.mock(IEventFilter.class);
         decorator = new DelayingDecorator(INTERVAL, provider, clock);
     }
 
     @Test
-    public void eventsAreDelayed() throws Exception
+    public void callsToDecoratedEventFeedAreDelayedByTheGivenInterval() throws Exception
     {
         context.checking(new Expectations()
             {
@@ -60,32 +63,21 @@ public class DelayingDecoratorTest
                     List<String> events = new ArrayList<String>();
                     events.add("event-1");
                     events.add("event-2");
-                    exactly(2).of(provider).getNewEvents(with(Matchers.eventFilterAccepting("event")));
+                    exactly(2).of(provider).getNewEvents(filter);
                     will(returnValue(events));
                 }
             });
 
-        assertThat(decorator.getNewEvents(withName("event")).size(), is(2));
+        long firstTime = System.currentTimeMillis();
+        clock.setTime(firstTime);
+        assertThat(decorator.getNewEvents(filter).size(), is(2));
 
-        clock.setTime(clock.getTime() + INTERVAL - 1);
-        assertThat(decorator.getNewEvents(withName("event")).size(), is(0));
+        clock.setTime(firstTime + INTERVAL);
+        assertThat(decorator.getNewEvents(filter).size(), is(0));
 
-        clock.setTime(clock.getTime() + INTERVAL);
-        assertThat(decorator.getNewEvents(withName("event")).size(), is(2));
+        clock.setTime(firstTime + INTERVAL + 1);
+        assertThat(decorator.getNewEvents(filter).size(), is(2));
 
         context.assertIsSatisfied();
-    }
-
-    private IEventFilter withName(final String name)
-    {
-        return new IEventFilter()
-            {
-
-                @Override
-                public boolean accepts(String value)
-                {
-                    return value.startsWith(name);
-                }
-            };
     }
 }
