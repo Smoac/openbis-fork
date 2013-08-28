@@ -31,11 +31,11 @@ import org.testng.annotations.Test;
 /**
  * @author anttil
  */
-public class FileSystemBasedEventProviderTest
+public class ControlDirectoryEventFeedTest
 {
     File controlDir;
 
-    private IEventFeed provider;
+    private IEventFeed eventFeed;
 
     private IEventFilter filter;
 
@@ -46,7 +46,7 @@ public class FileSystemBasedEventProviderTest
     {
         controlDir = new File("/tmp/" + UUID.randomUUID().toString());
         controlDir.mkdir();
-        provider = new ControlDirectoryEventFeed(controlDir);
+        eventFeed = new ControlDirectoryEventFeed(controlDir);
 
         context = new Mockery();
         filter = context.mock(IEventFilter.class);
@@ -65,8 +65,8 @@ public class FileSystemBasedEventProviderTest
             });
         createEvent("event");
 
-        assertThat(provider.getNewEvents(filter).isEmpty(), is(false));
-        assertThat(provider.getNewEvents(filter).isEmpty(), is(true));
+        assertThat(eventFeed.getNewEvents(filter).isEmpty(), is(false));
+        assertThat(eventFeed.getNewEvents(filter).isEmpty(), is(true));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class FileSystemBasedEventProviderTest
         createEvent("that_event", 10000);
         createEvent("this_event2", 100000);
 
-        List<String> events = provider.getNewEvents(filter);
+        List<String> events = eventFeed.getNewEvents(filter);
 
         assertThat(events.size(), is(3));
         assertThat(events.get(0), is("this_event"));
@@ -106,7 +106,7 @@ public class FileSystemBasedEventProviderTest
         File event = new File(controlDir, "event");
         event.createNewFile();
 
-        provider.getNewEvents(filter);
+        eventFeed.getNewEvents(filter);
 
         assertThat(event.exists(), is(false));
     }
@@ -125,7 +125,7 @@ public class FileSystemBasedEventProviderTest
         File event = new File(controlDir, "other_event");
         event.createNewFile();
 
-        List<String> events = provider.getNewEvents(filter);
+        List<String> events = eventFeed.getNewEvents(filter);
 
         assertThat(events.isEmpty(), is(true));
         assertThat(event.exists(), is(true));
