@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.verifier;
 
+import static ch.systemsx.cisd.common.io.IOUtilities.crc32ToString;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -92,11 +94,13 @@ public class ZipFileHeaderVerifier extends AbstractZipFileVerifier
 
                 } else if (externalCrc != entry.getCrc())
                 {
-                    errors.add(entryName + ": CRC32 in archive file: " + entry.getCrc() + ", CRC32 in " + repositoryName + ": " + externalCrc);
+                    errors.add(entryName + ": CRC32 in archive file: " + crc32ToString((int) entry.getCrc()) + ", CRC32 in " + repositoryName + ": "
+                            + crc32ToString((int) externalCrc.longValue()));
                 }
             } else if (externalCrc != null)
             {
-                errors.add(entryName + ": CRC32 found in " + repositoryName + " even it should be disabled. Value was " + externalCrc);
+                errors.add(entryName + ": CRC32 found in " + repositoryName + " even it should be disabled. Value was "
+                        + crc32ToString((int) externalCrc.longValue()));
             }
         }
         return errors;

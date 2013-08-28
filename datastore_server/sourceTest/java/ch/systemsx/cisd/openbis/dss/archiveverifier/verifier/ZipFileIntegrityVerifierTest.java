@@ -54,7 +54,6 @@ public class ZipFileIntegrityVerifierTest
     public void verificationOfValidZipFileSucceeds() throws Exception
     {
         List<String> errors = verifier.verify(VALID_ZIP_FILE);
-        System.out.println(errors);
         assertThat(errors.isEmpty(), is(true));
     }
 
