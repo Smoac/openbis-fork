@@ -1,8 +1,8 @@
 //
 // Configuration
 //
-var profile = new YeastLabProfile();
-var openbisServer = new openbis(profile.openbisUrl, profile.dssUrl);
+var profile = new DefaultProfile();
+var openbisServer = new openbis();
 
 //
 // Global Variables
@@ -61,6 +61,10 @@ function enterApp(data) {
 	//
 	// Start App if credentials are ok
 	//
+	profile.skeuomorphism = false;
+	$('body').css('background-image', 'none');
+	$('body').css('background-repeat', 'none');
+	
 	Util.blockUI();
 	$("#login-form-div").hide();
 	$("#main").show();
