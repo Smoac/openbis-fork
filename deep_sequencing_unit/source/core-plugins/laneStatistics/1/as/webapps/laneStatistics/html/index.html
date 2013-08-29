@@ -2,65 +2,16 @@
 <html>
   <head>
     <title>Lane Statistics</title>
-    <script type="text/javascript" src="d3.v3.min.js"></script>
-    <script type="text/javascript" src="d3.layout.js"></script>
+    <script type="text/javascript" src="/openbis/resources/js/d3.v3.min.js"></script>
+    <script type="text/javascript" src="/openbis/resources/js/d3.layout.js"></script>
     <script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
-    <script type="text/javascript" src="pie.js"></script>
+    <script type="text/javascript" src="/openbis/resources/js/pie.js"></script>
     <script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
-    <script type="text/javascript" src="openbis-dsu.js"></script>
-    <script type="text/javascript" src="FileSaver.js"></script>
+    <script type="text/javascript" src="/openbis/resources/js/openbis-dsu.js"></script>
+    <script type="text/javascript" src="/openbis/resources/js/FileSaver.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css" />
     <style type="text/css">
-
-        .axis path,
-        .axis line {
-          fill: none;
-          stroke: #000;
-          shape-rendering: crispEdges;
-        }
-
-	.axis text {
-	  font-family: sans-serif;
-	  font-size: 10px;
-        }
-
-        table.tableStats {
-	  font-family: sans-serif;
-	  font-size: 14px;
-          border-collapse:collapse;
-	}
-
-        .tableStats th {
-	  padding:6px 10px;
-	  color:#444;
-	  font-weight:bold;
-	  text-shadow:1px 1px 1px #fff;
-	  border-bottom:2px solid #444;
-        } 
-
-        .tableStats tr:nth-child(even) {
-          background: WhiteSmoke;
-        }
-        .tableStats td {
-
-          padding:0px 10px 10px 10px;
-
-       }
-         
-        div.tooltip {   
-          position: absolute;           
-	  text-align: center;           
-	  width: 100px;                  
-	  height: 42px;                 
-	  padding: 2px;             
-	  font: 12px sans-serif;        
-	  background: LightSalmon;
-	  border: 0px;      
-	  border-radius: 8px;           
-	  pointer-events: none;         
-	}
-
-</style>
   </head>
   <body>
   <script>
@@ -68,6 +19,10 @@
   dsu = new openbis_dsu('/openbis/openbis', '/datastore_server');
   var webAppContext = new openbisWebAppContext();
   dsu.server.useSession(webAppContext.getSessionId());
+
+  var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
   loadData()
 
@@ -176,7 +131,7 @@ function plotLaneTable (sums, withNOINDEX) {
 }
 
 function plotTable (statisticsArray) {
-  
+  console.log(statisticsArray) 
   /*
   d3.select("body").append("text")
     .text("Index Based Summary Table") 
@@ -189,8 +144,19 @@ function plotTable (statisticsArray) {
     .attr("class", "tableStats")
     ;
 
-  var header={"External Sample Name":1, "Index1":1, "Index2":1, "Passed Filtering(PF) in %":1, "Raw Reads":1, "PF Reads":1,"Raw Bases":1,
-              "PF Bases":1,"Raw Clusters in %":1, "Mean Phred Score":1, "> 30 Phred Score in %":1}
+  var header={"External Sample Name": "Name given by the customer",
+               "Index1": "First Index",
+               "Index2": "Second Index", 
+               "Passed Filtering(PF) in %": "Reads which passed the Illumina Filter",
+               "Raw Reads": "Number of all Reads",
+               "PF Reads": "Number of Reads which passed the Illumina Filter",
+               "Raw Bases": "Number of all Bases",
+               "PF Bases": "Number of all Bases which passed the Illumina Filter",
+               "% in Lane": "Percentage of this Index within the Lane",
+               "Mean Phred Score": "Mean Phred Score (0-40)",
+               "> 30 Phred Score in %": "How many Bases are above the Phred Score 30(0.001)?"
+  }
+
 
   // create the table header
   var thead = tableStats.selectAll("th")
@@ -198,6 +164,21 @@ function plotTable (statisticsArray) {
               .data(d3.keys(header))
               .enter().append("th")
               .text(function(d){return d})
+              .data(d3.values(header))
+              .on("mouseover", function(d) {
+                  div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                 div.style("width", "120px")
+                 div.html(d)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 42) + "px");
+              })
+             .on("mouseout", function(d) {
+                 div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+              })
               ;
 
   // fill the table
@@ -214,6 +195,8 @@ function plotTable (statisticsArray) {
     //.on("mouseout", function(){d3.select(this).style("background-color", "white")})
     .style("text-align", function(d){if (isNumber(d)) {return "right"} return "left"})
     ;
+
+
 }
 
 function placeholder() {
@@ -501,11 +484,13 @@ function calculateSum(statisticsArray, withNOINDEX) {
     }
   }
   if (withNOINDEX) {penalty = -1} else {penalty = 0} 
-  
-  averagePercFilteringPass = roundFloat(averagePercFilteringPass / (statisticsArray.length + penalty));
-  averagePercRawClustersPerLane = roundFloat(averagePercRawClustersPerLane / (statisticsArray.length + penalty));
-  averagePfMeanQualityScore = roundFloat(averagePfMeanQualityScore / (statisticsArray.length + penalty));
-  averagePfYieldq30Percentage = roundFloat(averagePfYieldq30Percentage / (statisticsArray.length + penalty));
+ 
+  // added the Math.max function to make sure that there is no division by zero,
+  // can happen when a single sample is on a lane (no multiplexing) 
+  averagePercFilteringPass = roundFloat(averagePercFilteringPass / Math.max((statisticsArray.length + penalty),1));
+  averagePercRawClustersPerLane = roundFloat(averagePercRawClustersPerLane /Math.max((statisticsArray.length + penalty),1));
+  averagePfMeanQualityScore = roundFloat(averagePfMeanQualityScore / Math.max((statisticsArray.length + penalty),1));
+  averagePfYieldq30Percentage = roundFloat(averagePfYieldq30Percentage / Math.max((statisticsArray.length + penalty),1));
 
   sums.push({
                             'averagePercFilteringPass' : averagePercFilteringPass,
@@ -525,10 +510,6 @@ function calculateSum(statisticsArray, withNOINDEX) {
 
 
 function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
-
-  var div = d3.select("body").append("div")   
-    .attr("class", "tooltip")               
-    .style("opacity", 0);
 
   var colorRange = d3.scale.ordinal()
       .range(colors)
@@ -595,7 +576,7 @@ function plotPercRawClustersPerLane (percRawClustersPerLaneArray) {
 
 
   svgPercRawClustersPerLaneChart.append('text')
-                   .text("Raw Clusters in %")
+                   .text("% in Lane")
                    .attr("fill", "black")
                    .attr("transform", "translate(" + "0" + "," + (height -220) + ")")
                    .attr("font-family", "sans-serif")
