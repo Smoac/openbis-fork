@@ -31,7 +31,8 @@ $(document).ready(function() {
 	}
 	
 	$('#login-form').submit(function() {
-		 openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
+		Util.blockUI();
+		openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { enterApp(data) })
 	});
 	
 	openbisServer.ifRestoredSessionActive(function(data) { enterApp(data) });
@@ -64,8 +65,6 @@ function enterApp(data) {
 	profile.skeuomorphism = false;
 	$('body').css('background-image', 'none');
 	$('body').css('background-repeat', 'none');
-	
-	Util.blockUI();
 	$("#login-form-div").hide();
 	$("#main").show();
 	

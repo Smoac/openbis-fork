@@ -215,7 +215,11 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 									var propertyValue = d[propertyName];
 									if (propertyValue && searchRegexp.test(propertyValue)) {
 										if(propertyValue.indexOf("<root>") != -1) {
-											return Util.getHTMLTableFromXML(propertyValue);
+											if(profile.getHTMLTableFromXML) {
+												return profile.getHTMLTableFromXML(propertyValue);
+											} else {
+												return propertyValue;
+											}
 										} else {
 											return propertyValue;
 										}
