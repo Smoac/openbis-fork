@@ -20,40 +20,41 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
-import java.util.List;
+import java.util.Collection;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 
 public class ZipFileIntegrityVerifierTest
 {
     @Test
     public void verificationOfZipFileWithCRCErrorFails() throws Exception
     {
-        List<String> errors = verifier.verify(FILE_WITH_CRC_ERROR);
+        Collection<VerificationError> errors = verifier.verify(FILE_WITH_CRC_ERROR);
         assertThat(errors.isEmpty(), is(false));
     }
 
     @Test
     public void verificationOfInvalidZipFileFails() throws Exception
     {
-        List<String> errors = verifier.verify(INVALID_ZIP_FILE);
+        Collection<VerificationError> errors = verifier.verify(INVALID_ZIP_FILE);
         assertThat(errors.isEmpty(), is(false));
     }
 
     @Test
     public void verificationOfNonExistingFileFails() throws Exception
     {
-        List<String> errors = verifier.verify(NONEXISTING_FILE);
+        Collection<VerificationError> errors = verifier.verify(NONEXISTING_FILE);
         assertThat(errors.isEmpty(), is(false));
     }
 
     @Test
     public void verificationOfValidZipFileSucceeds() throws Exception
     {
-        List<String> errors = verifier.verify(VALID_ZIP_FILE);
+        Collection<VerificationError> errors = verifier.verify(VALID_ZIP_FILE);
         assertThat(errors.isEmpty(), is(true));
     }
 

@@ -21,11 +21,12 @@ import static ch.systemsx.cisd.common.io.IOUtilities.crc32ToString;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipException;
+
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationErrorType;
 
 import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipFile;
@@ -39,20 +40,24 @@ public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier
 {
 
     @Override
-    public List<String> verify(ZipFile zip)
+    public List<VerificationError> verify(ZipFile zip)
     {
-        List<String> errors = new ArrayList<String>();
+        List<VerificationError> errors = new ArrayList<VerificationError>();
 
         Enumeration<?> entries = zip.entries();
         while (entries.hasMoreElements())
         {
             ZipEntry entry = (ZipEntry) entries.nextElement();
-            errors.addAll(checkZipEntry(zip, entry));
+            VerificationError error = checkZipEntry(zip, entry);
+            if (error != null)
+            {
+                errors.add(error);
+            }
         }
         return errors;
     }
 
-    private Collection<String> checkZipEntry(ZipFile zip, ZipEntry entry)
+    private VerificationError checkZipEntry(ZipFile zip, ZipEntry entry)
     {
         InputStream input = null;
         try
@@ -61,16 +66,17 @@ public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier
             long crc = calculateCRC32(input);
             if (crc != entry.getCrc())
             {
-                return Arrays.asList(entry.getName() + ": CRC failure (got " + crc32ToString((int) crc) + ", should be "
+                return new VerificationError(VerificationErrorType.ERROR, entry.getName() + ": CRC failure (calculated: " + crc32ToString((int) crc)
+                        + ", zip file header: "
                         + crc32ToString((int) entry.getCrc()) + ")");
             }
 
         } catch (ZipException ex)
         {
-            return Arrays.asList(ex.getMessage());
+            return new VerificationError(VerificationErrorType.ERROR, ex.getMessage());
         } catch (IOException ex)
         {
-            return Arrays.asList(entry.getName() + ": " + ex.getMessage());
+            return new VerificationError(VerificationErrorType.ERROR, entry.getName() + ": " + ex.getMessage());
         } finally
         {
             if (input != null)
@@ -83,6 +89,6 @@ public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier
                 }
             }
         }
-        return new ArrayList<String>();
+        return null;
     }
 }

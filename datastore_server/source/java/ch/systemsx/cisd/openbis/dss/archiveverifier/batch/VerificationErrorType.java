@@ -16,32 +16,13 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.io.PrintStream;
-
 /**
- * Result of configuration failure.
+ * Severity of a verification error.
  * 
  * @author anttil
  */
-public class ConfigurationFailure implements IResult
+public enum VerificationErrorType
 {
-    private final String error;
-
-    public ConfigurationFailure(String error)
-    {
-        this.error = error;
-    }
-
-    @Override
-    public void printTo(String dataSet, PrintStream out)
-    {
-        out.println(error);
-    }
-
-    @Override
-    public ResultType getType()
-    {
-        return ResultType.FATAL;
-    }
-
+    // don't change the order as the code depends on it
+    WARNING, ERROR, FATAL;
 }

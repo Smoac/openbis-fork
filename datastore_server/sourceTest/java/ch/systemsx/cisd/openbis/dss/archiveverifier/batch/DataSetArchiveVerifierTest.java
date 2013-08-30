@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -33,22 +33,22 @@ public class DataSetArchiveVerifierTest
     @Test
     public void successfulVerificationCausesSuccessResult() throws Exception
     {
-        IResult result = verifier.run(CODE_OF_DATASET_WITH_GOOD_ARCHIVE);
+        DataSetArchiveVerificationResult result = verifier.run(CODE_OF_DATASET_WITH_GOOD_ARCHIVE);
         assertThat(result.getType(), is(ResultType.OK));
     }
 
     @Test
     public void failingVerificationCausesFailedResult() throws Exception
     {
-        IResult result = verifier.run(CODE_OF_DATASET_WITH_BAD_ARCHIVE);
-        assertThat(result.getType(), is(ResultType.FAILED));
+        DataSetArchiveVerificationResult result = verifier.run(CODE_OF_DATASET_WITH_BAD_ARCHIVE);
+        assertThat(result.getType(), is(ResultType.ERROR));
     }
 
     @Test
     public void failureToLocateArchiveFileCausesFailedResult() throws Exception
     {
-        IResult result = verifier.run(CODE_OF_DATASET_WITHOUT_AN_ARCHIVE_FILE);
-        assertThat(result.getType(), is(ResultType.SKIPPED));
+        DataSetArchiveVerificationResult result = verifier.run(CODE_OF_DATASET_WITHOUT_AN_ARCHIVE_FILE);
+        assertThat(result.getType(), is(ResultType.ERROR));
     }
 
     @BeforeMethod
@@ -66,13 +66,13 @@ public class DataSetArchiveVerifierTest
                     will(returnValue(GOOD_ARCHIVE_FILE));
 
                     allowing(fileVerifier).verify(GOOD_ARCHIVE_FILE);
-                    will(returnValue(new ArrayList<String>()));
+                    will(returnValue(new ArrayList<VerificationError>()));
 
                     allowing(fileRepository).getArchiveFileOf(CODE_OF_DATASET_WITH_BAD_ARCHIVE);
                     will(returnValue(BAD_ARCHIVE_FILE));
 
                     allowing(fileVerifier).verify(BAD_ARCHIVE_FILE);
-                    will(returnValue(Arrays.asList("error1, error2")));
+                    will(returnValue(Collections.singletonList(new VerificationError(VerificationErrorType.ERROR, "error"))));
 
                     allowing(fileRepository).getArchiveFileOf(CODE_OF_DATASET_WITHOUT_AN_ARCHIVE_FILE);
                     will(returnValue(NONEXISTING_FILE));

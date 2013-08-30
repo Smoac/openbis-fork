@@ -16,42 +16,30 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.util.List;
-
 /**
- * Result of verification with errors.
+ * Describes a single error in verifying an archive file.
  * 
  * @author anttil
  */
-public class FailedResult implements IResult
+public class VerificationError
 {
+    private VerificationErrorType type;
 
-    private final File file;
+    private String message;
 
-    private final List<String> errors;
-
-    public FailedResult(File file, List<String> errors)
+    public VerificationError(VerificationErrorType type, String message)
     {
-        this.file = file;
-        this.errors = errors;
+        this.type = type;
+        this.message = message;
     }
 
-    @Override
-    public void printTo(String dataSet, PrintStream out)
+    public VerificationErrorType getType()
     {
-        out.println("FAILED - " + dataSet + " (" + file + ")");
-        for (String error : errors)
-        {
-            out.println("  " + error);
-        }
+        return type;
     }
 
-    @Override
-    public ResultType getType()
+    public String getMessage()
     {
-        return ResultType.FAILED;
+        return this.message;
     }
-
 }

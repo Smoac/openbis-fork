@@ -16,37 +16,42 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * Runs archive verification for a list of datasets.
  * 
  * @author anttil
  */
-public class DataSetArchiveVerificationBatch implements IDataSetArchiveVerificationBatch
+public class SerialDataSetArchiveVerificationBatch implements IDataSetArchiveVerificationBatch
 {
 
     private final IDataSetArchiveVerifier verifier;
 
     private final String[] dataSets;
 
-    public DataSetArchiveVerificationBatch(IDataSetArchiveVerifier verifier, String... dataSets)
+    public SerialDataSetArchiveVerificationBatch(IDataSetArchiveVerifier verifier, String... dataSets)
     {
         this.verifier = verifier;
         this.dataSets = dataSets;
     }
 
     @Override
-    public SortedMap<String, IResult> run()
+    public BatchResult run()
     {
-        SortedMap<String, IResult> results = new TreeMap<String, IResult>();
+        BatchResult batchResult = new BatchResult(dataSets);
 
         for (String dataSet : dataSets)
         {
-            IResult result = verifier.run(dataSet);
-            results.put(dataSet, result);
+            DataSetArchiveVerificationResult result = verifier.run(dataSet);
+
+            try
+            {
+                batchResult.add(dataSet, result);
+            } catch (Exception e)
+            {
+                batchResult.add(dataSet, e);
+            }
         }
-        return results;
+        return batchResult;
     }
 }

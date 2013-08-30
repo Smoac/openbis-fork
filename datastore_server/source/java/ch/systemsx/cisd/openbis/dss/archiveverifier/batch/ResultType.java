@@ -17,11 +17,24 @@
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
 /**
- * Type of a verification result.
+ * Type of a result of verifiying a single data set archive.
  * 
  * @author anttil
  */
 public enum ResultType
 {
-    OK, FAILED, SKIPPED, FATAL;
+    OK(0), WARNING(1), ERROR(2), FATAL(2);
+
+    private final int exitCode;
+
+    private ResultType(int exitCode)
+    {
+        this.exitCode = exitCode;
+    }
+
+    public int getExitCode()
+    {
+        return this.exitCode;
+    }
+
 }

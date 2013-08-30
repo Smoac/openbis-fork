@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.zip.CRC32;
 
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
-
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationErrorType;
 
 import de.schlichtherle.util.zip.ZipFile;
 
@@ -37,19 +38,19 @@ import de.schlichtherle.util.zip.ZipFile;
 public abstract class AbstractZipFileVerifier implements IArchiveFileVerifier
 {
 
-    public abstract List<String> verify(ZipFile file);
+    public abstract List<VerificationError> verify(ZipFile file);
 
     @Override
-    public final List<String> verify(File file)
+    public final List<VerificationError> verify(File file)
     {
-        List<String> errors = new ArrayList<String>();
+        List<VerificationError> errors = new ArrayList<VerificationError>();
         ZipFile zip;
         try
         {
             zip = new ZipFile(file);
         } catch (IOException ex)
         {
-            errors.add("Reading zip file failed: " + ex.getMessage());
+            errors.add(new VerificationError(VerificationErrorType.ERROR, "Reading zip file failed: " + ex.getMessage()));
             return errors;
         }
 

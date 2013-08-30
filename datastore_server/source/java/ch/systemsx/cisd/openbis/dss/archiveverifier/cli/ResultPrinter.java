@@ -17,11 +17,15 @@
 package ch.systemsx.cisd.openbis.dss.archiveverifier.cli;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 
-import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IResult;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.BatchResult;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.DataSetArchiveVerificationResult;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.ResultType;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationErrorType;
 
 /**
  * Prints the results of a dataset archive batch verification.
@@ -38,19 +42,44 @@ public class ResultPrinter
         this.out = out;
     }
 
-    public void print(Map<String, IResult> results)
+    public void print(BatchResult result)
     {
         Map<ResultType, Integer> counts = createCountMap();
 
-        for (String dataSet : results.keySet())
+        for (String dataSet : result.getDataSets())
         {
-            IResult result = results.get(dataSet);
-            result.printTo(dataSet, out);
-            ResultType type = result.getType();
+            DataSetArchiveVerificationResult dataSetResult = result.getResult(dataSet);
+            printResult(dataSet, dataSetResult);
+
+            ResultType type = dataSetResult.getType();
             counts.put(type, counts.get(type) + 1);
         }
 
         printTotals(counts);
+    }
+
+    private void printResult(String dataSet, DataSetArchiveVerificationResult result)
+    {
+        Collection<VerificationError> errors = result.getErrors();
+
+        if (errors.isEmpty())
+        {
+            out.println("OK: " + dataSet + " (" + result.getFileName() + ")");
+            return;
+        }
+
+        for (VerificationError error : errors)
+        {
+            VerificationErrorType type = error.getType();
+            if (VerificationErrorType.FATAL.equals(type))
+            {
+                out.println(result.getErrors().get(0).getMessage());
+            } else
+            {
+                out.println(type + " in " + dataSet + " (" + result.getFileName() + "): " + error.getMessage());
+            }
+
+        }
     }
 
     private Map<ResultType, Integer> createCountMap()
@@ -66,10 +95,11 @@ public class ResultPrinter
     private void printTotals(Map<ResultType, Integer> counts)
     {
         int ok = counts.get(ResultType.OK);
-        int failed = counts.get(ResultType.FAILED);
-        int notTested = counts.get(ResultType.SKIPPED);
+        int warning = counts.get(ResultType.WARNING);
+        int error = counts.get(ResultType.ERROR);
         int fatal = counts.get(ResultType.FATAL);
-        int total = ok + failed;
+
+        int total = ok + warning + error;
 
         if (fatal > 0)
         {
@@ -80,17 +110,19 @@ public class ResultPrinter
         out.println("---");
         out.println("Total of " + total + " dataset archives tested.");
 
-        if (failed == 0)
+        if (warning + error == 0)
         {
             out.println("No errors found");
         } else
         {
-            out.println("Errors found in " + failed + " archive file(s).");
-        }
-
-        if (notTested > 0)
-        {
-            out.println("Could not find archive file for " + notTested + " dataset(s).");
+            if (error > 0)
+            {
+                out.println(error + " archive file(s) contained errors.");
+            }
+            if (warning > 0)
+            {
+                out.println(warning + " archive file(s) caused warnings");
+            }
         }
     }
 }

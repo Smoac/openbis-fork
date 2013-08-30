@@ -29,5 +29,5 @@ public interface IArchiveFileVerifier
     /**
      * Returns a list of errors. If verification is successful, the list is empty.
      */
-    public List<String> verify(File file);
+    public List<VerificationError> verify(File file);
 }
