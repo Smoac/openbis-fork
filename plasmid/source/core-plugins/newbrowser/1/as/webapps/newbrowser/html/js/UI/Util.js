@@ -16,4 +16,67 @@ var Util = new function() {
 	this.unblockUI = function() {
 		$.unblockUI();
 	}
+	
+	this.showError = function(withHTML) {
+		jError(
+				withHTML,
+				{
+				  autoHide : false,
+				  clickOverlay : true,
+				  MinWidth : 250,
+				  TimeShown : 2000,
+				  ShowTimeEffect : 200,
+				  HideTimeEffect : 200,
+				  LongTrip :20,
+				  HorizontalPosition : 'center',
+				  VerticalPosition : 'top',
+				  ShowOverlay : true,
+		   		  ColorOverlay : '#000',
+				  OpacityOverlay : 0.3,
+				  onClosed : function(){ },
+				  onCompleted : function(){ }
+		});
+	}
+	
+	this.showSuccess = function(withHTML) {
+		jSuccess(
+				withHTML,
+				{
+				  autoHide : false,
+				  clickOverlay : true,
+				  MinWidth : 250,
+				  TimeShown : 2000,
+				  ShowTimeEffect : 200,
+				  HideTimeEffect : 200,
+				  LongTrip :20,
+				  HorizontalPosition : 'center',
+				  VerticalPosition : 'top',
+				  ShowOverlay : true,
+		   		  ColorOverlay : '#000',
+				  OpacityOverlay : 0.3,
+				  onClosed : function(){ },
+				  onCompleted : function(){ }
+		});
+	}
+	
+	this.showInfo = function(withHTML) {
+		jNotify(
+				withHTML,
+				{
+				  autoHide : false,
+				  clickOverlay : true,
+				  MinWidth : 250,
+				  TimeShown : 2000,
+				  ShowTimeEffect : 200,
+				  HideTimeEffect : 200,
+				  LongTrip :20,
+				  HorizontalPosition : 'center',
+				  VerticalPosition : 'top',
+				  ShowOverlay : true,
+		   		  ColorOverlay : '#000',
+				  OpacityOverlay : 0.3,
+				  onClosed : function(){ },
+				  onCompleted : function(){ }
+		});
+	}
 } 

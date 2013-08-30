@@ -1,7 +1,7 @@
 //
 // Configuration
 //
-var profile = new DefaultProfile();
+var profile = new YeastLabProfile();
 var openbisServer = new openbis();
 
 //
@@ -54,8 +54,8 @@ function enterApp(data) {
 	//
 	if(data.result == null){
 		Util.unblockUI();
-		alert("Login or password incorrect");
 		$("#username").focus();
+		Util.showError('The given username or password is not correct.');
 		return;
 	}
 	
@@ -65,6 +65,7 @@ function enterApp(data) {
 	profile.skeuomorphism = false;
 	$('body').css('background-image', 'none');
 	$('body').css('background-repeat', 'none');
+	
 	$("#login-form-div").hide();
 	$("#main").show();
 	

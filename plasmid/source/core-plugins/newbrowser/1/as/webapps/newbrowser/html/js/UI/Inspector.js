@@ -8,7 +8,7 @@ function Inspector(containerId, profile) {
 		var allInspectors = ""
 		allInspectors += "<a class='btn' href='javascript:inspector.printInspectors()'><i class='icon-print'></i></a>";
 		allInspectors += "<div id='inspectorsContainer' class='inspectorsContainer'>";
-		allInspectors += this.getAllInspectors(false, true);
+		allInspectors += this.getAllInspectors(false, true, true, true);
 		allInspectors += "</div>";
 		
 		$("#"+containerId).append(allInspectors);
@@ -17,34 +17,50 @@ function Inspector(containerId, profile) {
 	this.containsSample = function(sampleId) {
 		for(var i = 0; i < this.inspectedSamples.length; i++) {
 			if(this.inspectedSamples[i].id === sampleId) {
-				return true;
+				return i;
 			}
 		}
+		return -1;
+	}
+	
+	this.addInspectSampleIfNotFound = function(sampleToInspect) {
+		var samplePosition = this.containsSample(sampleToInspect.id);
+		
+		if(samplePosition === -1) {
+			this.toggleInspectSample(sampleToInspect);
+			return true;
+		}
+		
 		return false;
 	}
 	
-	this.inspectSample = function(sampleToInspect) {
+	this.toggleInspectSample = function(sampleToInspect) {
+		var isInspected = null;
 		//Null Check
 		if(sampleToInspect === null || sampleToInspect === undefined) {
 			return;
 		}
 		
 		//Already inspected check
-		if(this.containsSample(sampleToInspect.id)) {
-			return;
+		var samplePosition = this.containsSample(sampleToInspect.id);
+		if(samplePosition !== -1) {
+			this.inspectedSamples.splice(samplePosition, 1);
+			isInspected = false;
+		} else {
+			this.inspectedSamples.push(sampleToInspect);
+			isInspected = true;
 		}
-		
-		//Update and show
-		this.inspectedSamples.push(sampleToInspect);
 		
 		$("#num-pins").empty();
 		$("#num-pins").append(this.inspectedSamples.length);
+		
+		return isInspected;
 	}
 	
-	this.getAllInspectors = function(withSeparator, withClose) {
+	this.getAllInspectors = function(withSeparator, withClose, withColors, withLinks) {
 		var inspectorsContent = "";
 		for(var i=0;i<this.inspectedSamples.length;i++) {
-			inspectorsContent += this.getInspectorTable(this.inspectedSamples[i], withClose);
+			inspectorsContent += this.getInspectorTable(this.inspectedSamples[i], withClose, withColors, withLinks);
 			if(withSeparator) {
 				inspectorsContent += "<hr>";
 			}
@@ -74,7 +90,7 @@ function Inspector(containerId, profile) {
 			pageToPrint += "<head>";
 			pageToPrint += "</head>";
 			pageToPrint += "<body stlye='font-family: '\"'Helvetica Neue\",Helvetica,Arial,sans-serif;'>";
-			pageToPrint += this.getAllInspectors(true, false);
+			pageToPrint += this.getAllInspectors(true, false, false, false);
 			pageToPrint += "</body>";
 			pageToPrint += "</html>";
 		
@@ -83,19 +99,30 @@ function Inspector(containerId, profile) {
 	
 	this.showSampleOnInspector = function(sampleTypeCode, sampleCode) {
 		var localReference = this;
+		
+		//Clean glow effect in case was used already with that div
+		var divID = sampleCode + "_INSPECTOR";
+		$("#"+divID).removeClass("glow");
+		
 		Search.searchWithType(sampleTypeCode, sampleCode, function(data) {
-			var before = localReference.inspectedSamples.length;
-			localReference.inspectSample(data[0]);
-			var after = localReference.inspectedSamples.length;
 			
-			if(before < after) {
-				var inspectorTable = localReference.getInspectorTable(data[0], true);
+			var isAdded = localReference.addInspectSampleIfNotFound(data[0]);
+			if(isAdded) {
+				var inspectorTable = localReference.getInspectorTable(data[0], true, true, true);
 				$("#inspectorsContainer").append(inspectorTable);
 			}
+			
+			//Move Scrollbar	
+			var objDiv = document.getElementById(divID);
+			var moveTo = moveTo = objDiv.offsetTop-50;
+			$('html,body').animate({scrollTop:  moveTo}, 200, "swing");
+			
+			//Make it Glow
+			$("#"+divID).addClass("glow");
 		});
 	}
 	
-	this.getParentsChildrenText = function(parentsChildrenList) {
+	this.getParentsChildrenText = function(parentsChildrenList, withLinks) {
 		var allParentCodesByType = {};
 		
 		if(parentsChildrenList) {
@@ -119,7 +146,11 @@ function Inspector(containerId, profile) {
 			var parents = allParentCodesByType[sampleType];
 			for(var i = 0; i < parents.length; i++) {
 				var parent = parents[i];
-				allParentCodesAsText += "<a href=\"javascript:inspector.showSampleOnInspector('" + parent.sampleTypeCode + "','" + parent.code + "');\">" + parent.code + "</a> ";
+				if(withLinks) {
+					allParentCodesAsText += "<a href=\"javascript:inspector.showSampleOnInspector('" + parent.sampleTypeCode + "','" + parent.code + "');\">" + parent.code + "</a> ";
+				} else {
+					allParentCodesAsText += parent.code + " ";
+				}
 			}
 			allParentCodesAsText += "</br>";
 		}
@@ -127,11 +158,14 @@ function Inspector(containerId, profile) {
 		return allParentCodesAsText;
 	}
 	
-	this.getInspectorTable = function(entity, showClose) {
+	this.getInspectorTable = function(entity, showClose, withColors, withLinks) {
 		
 		var defaultColor = "#ffc"
 		var profileColor = this.profile.colorForInspectors[entity.sampleTypeCode];
-		if(profileColor !== null && profileColor !== undefined) {
+		
+		if(!withColors) {
+			defaultColor = "#fff"
+		} else if(profileColor !== null && profileColor !== undefined) {
 			defaultColor = profileColor;
 		}
 		
@@ -155,10 +189,8 @@ function Inspector(containerId, profile) {
 				
 				var propertyCode = sampleTypePropertiesCode[i];
 				var propertyLabel = sampleTypePropertiesDisplayName[i];
-				
-				inspector += "<tr>";
-				
 				var propertyContent = entity.properties[propertyCode];
+				propertyContent = Util.getEmptyIfNull(propertyContent);
 				
 				var isSingleColumn = false;
 				if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
@@ -168,25 +200,26 @@ function Inspector(containerId, profile) {
 					propertyContent = propertyContent.replace(/\n/g, "<br />");
 				}
 				
-				if(isSingleColumn) {
-					inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
-				} else {
-					inspector += "<td class='property'>"+propertyLabel+"</td>";
-					propertyContent = Util.getEmptyIfNull(propertyContent);
-					inspector += "<td class='property'>"+propertyContent+"</td>";
+				if(propertyContent !== "") {
+					inspector += "<tr>";
+						
+					if(isSingleColumn) {
+						inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
+					} else {
+						inspector += "<td class='property'>"+propertyLabel+"</td>";
+						inspector += "<td class='property'>"+propertyContent+"</td>";
+					}
+					
+					inspector += "</tr>";
 				}
-				
-				inspector += "</tr>";
 			}
 			
 			//Show Properties not found on openBIS (TO-DO Clean duplicated code)
 			for(propertyCode in entity.properties) {
 				if($.inArray(propertyCode, sampleTypePropertiesCode) === -1) {
 					var propertyLabel = propertyCode;
-					
-					inspector += "<tr>";
-					
 					var propertyContent = entity.properties[propertyCode];
+					propertyContent = Util.getEmptyIfNull(propertyContent);
 					
 					var isSingleColumn = false;
 					if((propertyContent instanceof String) || (typeof propertyContent === "string")) {
@@ -196,20 +229,23 @@ function Inspector(containerId, profile) {
 						propertyContent = propertyContent.replace(/\n/g, "<br />");
 					}
 					
-					if(isSingleColumn) {
-						inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
-					} else {
-						inspector += "<td class='property'>"+propertyLabel+"</td>";
-						propertyContent = Util.getEmptyIfNull(propertyContent);
-						inspector += "<td class='property'>"+propertyContent+"</td>";
+					if(propertyContent !== "") {
+						inspector += "<tr>";
+							
+						if(isSingleColumn) {
+							inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
+						} else {
+							inspector += "<td class='property'>"+propertyLabel+"</td>";
+							inspector += "<td class='property'>"+propertyContent+"</td>";
+						}
+						
+						inspector += "</tr>";
 					}
-					
-					inspector += "</tr>";
 				}
 			}
 			
 			//Show Parent Codes
-			var allParentCodesAsText = this.getParentsChildrenText(entity.parents);
+			var allParentCodesAsText = this.getParentsChildrenText(entity.parents, withLinks);
 			if(allParentCodesAsText.length > 0) {
 				inspector += "<tr>";
 				inspector += "<td class='property'>Parents</td>";
@@ -218,7 +254,7 @@ function Inspector(containerId, profile) {
 			}
 			
 			//Show Children Codes
-			var allChildrenCodesAsText = this.getParentsChildrenText(entity.children);
+			var allChildrenCodesAsText = this.getParentsChildrenText(entity.children, withLinks);
 			if(allChildrenCodesAsText.length > 0) {
 				inspector += "<tr>";
 				inspector += "<td class='property'>Children</td>";

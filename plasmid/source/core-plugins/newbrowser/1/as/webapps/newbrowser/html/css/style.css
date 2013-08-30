@@ -1,10 +1,45 @@
 body {
 	margin-left: 50px;
+	overflow-y:scroll;
 }
+
+/* Glow Effect */
+.glow {
+    animation:glow 1200ms linear 200ms 2 alternate;
+    -moz-animation:glow 1200ms linear 200ms 2 alternate;
+    -webkit-animation:glow 1200ms linear 200ms 2 alternate;
+}
+
+/* Firefox */
+@-moz-keyframes glow {
+    0% {
+        box-shadow:0 0 1px 1px rgba(255,255,255,0.9);
+    }
+    20%, 100% {
+        box-shadow:0 0 1px 1px rgba(255,255,255,0.9), 0 0 3px 8px #4F8F27, 0 0 2px 12px #FFF;
+    }
+}
+
+/* Safari and Chrome */
+@-webkit-keyframes glow {
+    0% {
+        box-shadow:0 0 1px 1px #FFF;
+    }
+    20%, 100% {
+        box-shadow:0 0 1px 1px #FFF, 0 0 3px 8px #4F8F27, 0 0 2px 12px #FFF;
+    }
+}
+
+/* Pin button Fix for Chrome/Safari */
+.pinBtn {
+	width: 16px;
+}
+
 /* Navigation Bar */
 .navbar-inner {
 	margin-top: 0px !important;
 }
+
 /* Tooltip */
 .tooltip.in {
 	opacity: 1;
@@ -66,11 +101,6 @@ body {
 	-webkit-box-shadow: 6px 6px 8px rgba(50, 50, 50, 0.61);
 	-moz-box-shadow:    6px 6px 8px rgba(50, 50, 50, 0.61);
 	box-shadow:         6px 6px 8px rgba(50, 50, 50, 0.61);
-	/*
-	-webkit-border-radius: 20px;
-	-moz-border-radius: 20px;
-	border-radius: 20px;
-	*/
 }
 
 /* Main Table */
@@ -115,19 +145,20 @@ div.inspector {
 	-moz-transform: rotate(1deg);
 	*/
 	position: relative;
-	
 	/*
 	-moz-transition:-moz-transform .15s linear;
 	-o-transition:-o-transform .15s linear;
 	-webkit-transition:-webkit-transform .15s linear;
 	*/
+	
 }
 
 div.inspector:hover,div.inspector:focus{
+	/*
   box-shadow:10px 10px 7px rgba(0,0,0,.7);
   -moz-box-shadow:10px 10px 7px rgba(0,0,0,.7);
   -webkit-box-shadow: 10px 10px 7px rgba(0,0,0,.7);
-  /*
+  
   -webkit-transform: scale(1.25);
   -moz-transform: scale(1.25);
   -o-transform: scale(1.25);

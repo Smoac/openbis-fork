@@ -28,7 +28,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		}
 		
 		document.getElementById(attachTo).onmouseover = function(event){
-			var content = inspector.getInspectorTable(sample);
+			var content = inspector.getInspectorTable(sample, false, true, false);
 			
 			$("#navbar").tooltip({
 				html: true,
@@ -46,8 +46,12 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		}
 		
 		document.getElementById(attachTo).onclick = function() {
-			inspector.inspectSample(sample);
-			$('#'+attachTo).addClass('inspectorClicked');
+			var isInspected = inspector.toggleInspectSample(sample);
+			if(isInspected) {
+				$('#' + attachTo).addClass('inspectorClicked');
+			} else {
+				$('#' + attachTo).removeClass('inspectorClicked');
+			}
 		}
 	}
 	
@@ -191,10 +195,10 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 				
 				if(localReference.inspectEnabled) {
 					var inspectedClass = "";
-					if(inspector.containsSample(sample.id)) {
+					if(inspector.containsSample(sample.id) !== -1) {
 						inspectedClass = "inspectorClicked";
 					}
-					tableFields[tableFields.length] = "<center><a id='PIN_" + sample.code + "' class='btn " + inspectedClass + "' onmouseover=\"sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" href='#' ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></center>";
+					tableFields[tableFields.length] = "<center><a id='PIN_" + sample.code + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></center>";
 				}
 				
 				if(localReference.enableEdit) {

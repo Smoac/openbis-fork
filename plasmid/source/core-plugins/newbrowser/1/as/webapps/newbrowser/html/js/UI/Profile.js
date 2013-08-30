@@ -161,14 +161,14 @@ function YeastLabProfile() {
 		"GENERAL_PROTOCOL" : "#CCFFCC",
 		"PCR" : "#CCFFCC",
 		"WESTERN_BLOTTING" : "#CCFFCC",
-		"CHEMICAL" : "#A8A8A8",
-		"ANTIBODY" : "#A8A8A8",
-		"MEDIA" : "#A8A8A8",
-		"SOLUTIONS_BUFFERS" : "#A8A8A8",
-		"ENZYME" : "#A8A8A8",
-		"BACTERIA" : "#A8A8A8",
-		"OLIGO" : "#0099CC",
-		"PLASMID" : "#FFCB99",
+		"CHEMICAL" : "#E3E3E3",
+		"ANTIBODY" : "#E3E3E3",
+		"MEDIA" : "#E3E3E3",
+		"SOLUTIONS_BUFFERS" : "#E3E3E3",
+		"ENZYME" : "#E3E3E3",
+		"BACTERIA" : "#E3E3E3",
+		"OLIGO" : "#ACE8FC",
+		"PLASMID" : "#FCDEC0",
 		"YEAST" : "#CCCC99"
 	};
 	
@@ -223,12 +223,16 @@ function YeastLabProfile() {
 	}
 	
 	this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
+		
 		if(propertyContent.indexOf("<root>") != -1) {
 			return {
 				"isSingleColumn" : true,
 				"content" : this.getHTMLTableFromXML(propertyContent)
 			};
 		} else {
+			if(propertyContent === "<root/>\n") { //To clean empty XMLs and don't show them.
+				propertyContent = "";
+			}
 			return {
 				"isSingleColumn" : false,
 				"content" : propertyContent
@@ -256,15 +260,17 @@ function YeastLabProfile() {
 			var aCode = getChars(sampleA.code);
 			var bCode = getChars(sampleB.code);
 			
+			var returnValue = null;
 			if(aCode < bCode) {
-				return -1;
+				returnValue = -1;
 			} else if(aCode > bCode) {
-				return 1;
+				returnValue = 1;
 			} else {
 				var aNum = getNums(sampleA.code);
 				var bNum = getNums(sampleB.code);
-				return aNum - bNum;
+				returnValue = aNum - bNum;
 			}
+			return -1 * returnValue;
 		}
 		
 		var sortedResults = searchResults.sort(customSort);

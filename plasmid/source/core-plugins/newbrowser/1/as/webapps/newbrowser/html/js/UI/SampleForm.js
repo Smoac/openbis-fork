@@ -228,13 +228,13 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 
 	this.createSampleCallback = function(response) {
 		if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") {
-			window.alert("Lab. Experiment Created");
+			Util.showSuccess("Lab. Experiment Created.");
 			showCreateExperimentPage();
 		} else if (response.result.columns[1].title === "Error") {
-			window.alert("Error:" + response.result.rows[0][1].value);
+			Util.showError(response.result.rows[0][1].value);
 			Util.unblockUI();
 		} else {
-			window.alert("Unknown Error");
+			Util.showError("Unknown Error.");
 			Util.unblockUI();
 		}
 	}
