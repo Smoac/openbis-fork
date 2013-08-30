@@ -36,7 +36,8 @@ public class BatchResult
     {
         this.results = new TreeMap<String, DataSetArchiveVerificationResult>();
 
-        DataSetArchiveVerificationResult missingResult = new DataSetArchiveVerificationResult(VerificationErrorType.ERROR, "dataset not processed");
+        DataSetArchiveVerificationResult missingResult =
+                new DataSetArchiveVerificationResult(VerificationErrorType.ERROR, "Internal error, dataset archive not verified");
 
         for (String dataSet : dataSets)
         {

@@ -74,6 +74,9 @@ public class ResultPrinter
             if (VerificationErrorType.FATAL.equals(type))
             {
                 out.println(result.getErrors().get(0).getMessage());
+            } else if (VerificationErrorType.GENERAL_WARNING.equals(type))
+            {
+                out.println("WARNING: " + error.getMessage());
             } else
             {
                 out.println(type + " in " + dataSet + " (" + result.getFileName() + "): " + error.getMessage());
@@ -98,6 +101,7 @@ public class ResultPrinter
         int warning = counts.get(ResultType.WARNING);
         int error = counts.get(ResultType.ERROR);
         int fatal = counts.get(ResultType.FATAL);
+        int generalWarnings = counts.get(ResultType.GENERAL_WARNING);
 
         int total = ok + warning + error;
 
@@ -112,7 +116,7 @@ public class ResultPrinter
 
         if (warning + error == 0)
         {
-            out.println("No errors found");
+            out.println("No errors found.");
         } else
         {
             if (error > 0)
@@ -123,6 +127,11 @@ public class ResultPrinter
             {
                 out.println(warning + " archive file(s) caused warnings");
             }
+        }
+
+        if (generalWarnings > 0)
+        {
+            out.println(generalWarnings + " general warning(s).");
         }
     }
 }

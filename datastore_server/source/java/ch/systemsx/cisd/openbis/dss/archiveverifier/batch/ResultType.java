@@ -23,7 +23,7 @@ package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
  */
 public enum ResultType
 {
-    OK(0), WARNING(1), ERROR(2), FATAL(2);
+    OK(0), WARNING(1), GENERAL_WARNING(1), ERROR(2), FATAL(2);
 
     private final int exitCode;
 

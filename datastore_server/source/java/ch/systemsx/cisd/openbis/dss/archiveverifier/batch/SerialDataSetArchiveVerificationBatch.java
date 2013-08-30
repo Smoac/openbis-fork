@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * Runs archive verification for a list of datasets.
@@ -29,16 +32,28 @@ public class SerialDataSetArchiveVerificationBatch implements IDataSetArchiveVer
 
     private final String[] dataSets;
 
+    private BatchResult batchResult;
+
     public SerialDataSetArchiveVerificationBatch(IDataSetArchiveVerifier verifier, String... dataSets)
+    {
+        this(verifier, new HashSet<DataSetArchiveVerificationResult>(), dataSets);
+    }
+
+    public SerialDataSetArchiveVerificationBatch(IDataSetArchiveVerifier verifier, Collection<DataSetArchiveVerificationResult> initialResults,
+            String... dataSets)
     {
         this.verifier = verifier;
         this.dataSets = dataSets;
+        batchResult = new BatchResult(dataSets);
+        for (DataSetArchiveVerificationResult initialResult : initialResults)
+        {
+            batchResult.add(UUID.randomUUID().toString(), initialResult);
+        }
     }
 
     @Override
     public BatchResult run()
     {
-        BatchResult batchResult = new BatchResult(dataSets);
 
         for (String dataSet : dataSets)
         {

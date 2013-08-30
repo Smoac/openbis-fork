@@ -24,5 +24,5 @@ package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 public enum VerificationErrorType
 {
     // don't change the order as the code depends on it
-    WARNING, ERROR, FATAL;
+    WARNING, GENERAL_WARNING, ERROR, FATAL;
 }

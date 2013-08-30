@@ -47,7 +47,7 @@ public class DataSetArchiveVerificationResult
     public DataSetArchiveVerificationResult(Exception e)
     {
         this.file = null;
-        this.errors = Collections.singletonList(new VerificationError(VerificationErrorType.ERROR, e.getClass().getName()+":"+e.getMessage()));
+        this.errors = Collections.singletonList(new VerificationError(VerificationErrorType.ERROR, e.getClass().getName() + ":" + e.getMessage()));
     }
 
     public ResultType getType()
@@ -68,6 +68,8 @@ public class DataSetArchiveVerificationResult
         {
             case WARNING:
                 return ResultType.WARNING;
+            case GENERAL_WARNING:
+                return ResultType.GENERAL_WARNING;
             case ERROR:
                 return ResultType.ERROR;
             case FATAL:
