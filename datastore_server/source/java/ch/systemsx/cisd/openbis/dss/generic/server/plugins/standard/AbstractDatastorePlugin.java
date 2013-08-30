@@ -40,6 +40,9 @@ public abstract class AbstractDatastorePlugin implements Serializable
     static protected final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AbstractDatastorePlugin.class);
 
+    static protected final Logger notifyLog = LogFactory.getLogger(LogCategory.NOTIFY,
+            AbstractDatastorePlugin.class);
+
     private static final String SUB_DIRECTORY_NAME = "sub-directory-name";
 
     private static final long serialVersionUID = 1L;

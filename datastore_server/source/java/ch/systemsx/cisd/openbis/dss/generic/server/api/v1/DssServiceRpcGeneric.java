@@ -87,8 +87,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         implements IDssServiceRpcGenericInternal
 {
     /**
-     * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static
-     * for our purpose.
+     * Logger with {@link LogCategory#OPERATION} with name of the concrete class, needs to be static for our purpose.
      */
     @SuppressWarnings("hiding")
     protected static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -349,18 +348,15 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
     @Override
     public int getMinorVersion()
     {
-        return 7;
+        return 8;
     }
 
     /**
-     * Append file info for the requested node of a file or file hierarchy. Assumes that the
-     * parameters have been verified already.
+     * Append file info for the requested node of a file or file hierarchy. Assumes that the parameters have been verified already.
      * 
      * @param requestedFile A file known to be accessible by the user
-     * @param dataSetRoot The root of the file hierarchy; used to determine the absolute path of the
-     *            file
-     * @param listingRootNode The node which is a root of the list hierarchy; used to determine the
-     *            relative path of the file
+     * @param dataSetRoot The root of the file hierarchy; used to determine the absolute path of the file
+     * @param listingRootNode The node which is a root of the list hierarchy; used to determine the relative path of the file
      * @param list The list the files infos are appended to
      * @param isRecursive If true, directories will be recursively appended to the list
      */
@@ -418,17 +414,37 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
             String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
             IllegalArgumentException
     {
-        final File dataSetRootDirectory =
-                DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), dataSetCode,
-                        getShareIdManager().getShareId(dataSetCode), getHomeDatabaseInstance()
-                                .getUuid());
-        // see NOTE in interface documentation
+        final File dataSetRootDirectory = tryGetDataSetRootDirectory(dataSetCode);
+
+        // if container data set - see NOTE in interface documentation
         if (dataSetRootDirectory.exists() == false)
         {
             throw new IllegalArgumentException("Path to dataset '" + dataSetCode
                     + "' not available: this is a container dataset.");
         }
+
         return convertPath(getStoreDirectory(), dataSetRootDirectory, overrideStoreRootPathOrNull);
+    }
+
+    @Override
+    public String tryGetPathToDataSet(String sessionToken, String dataSetCode, String overrideStoreRootPathOrNull) throws IOExceptionUnchecked
+    {
+        final File dataSetRootDirectory = tryGetDataSetRootDirectory(dataSetCode);
+
+        // if container data set - see NOTE in interface documentation
+        if (dataSetRootDirectory.exists() == false)
+        {
+            return null;
+        }
+
+        return convertPath(getStoreDirectory(), dataSetRootDirectory, overrideStoreRootPathOrNull);
+    }
+
+    private File tryGetDataSetRootDirectory(String dataSetCode)
+    {
+        return DatasetLocationUtil.getDatasetLocationPath(getStoreDirectory(), dataSetCode,
+                getShareIdManager().getShareId(dataSetCode), getHomeDatabaseInstance()
+                        .getUuid());
     }
 
     @Override

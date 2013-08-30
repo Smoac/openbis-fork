@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.archiveverifier.verifier;
+
+import static ch.systemsx.cisd.common.io.IOUtilities.crc32ToString;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +31,7 @@ import de.schlichtherle.util.zip.ZipEntry;
 import de.schlichtherle.util.zip.ZipFile;
 
 /**
- * Verifies integrity of a zip file by comparing its header checksums with real checksums of extracted files.
+ * Verifies integrity of a zip file by comparing its header checksums with real checksums of extracted files, like command "unzip -t".
  * 
  * @author anttil
  */
@@ -59,8 +61,8 @@ public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier
             long crc = calculateCRC32(input);
             if (crc != entry.getCrc())
             {
-                return Arrays.asList(entry.getName() + ": CRC failure (got " + Long.toHexString(crc) + ", should be "
-                        + Long.toHexString(entry.getCrc()) + ")");
+                return Arrays.asList(entry.getName() + ": CRC failure (got " + crc32ToString((int) crc) + ", should be "
+                        + crc32ToString((int) entry.getCrc()) + ")");
             }
 
         } catch (ZipException ex)

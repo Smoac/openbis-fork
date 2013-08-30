@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.archiveverifier.filesystem;
 
 import java.io.File;
-import java.util.List;
 
 /**
+ * Locates dataset archive files from an archive directory when sharding is not in use.
+ * 
  * @author anttil
  */
-public interface IArchiveFileVerifier
+public class FlatFileLocator implements IFileLocator
 {
-    public List<String> verify(File file);
+    @Override
+    public File getPathToArchiveOfDataSet(File directory, String dataSetCode)
+    {
+        return new File(directory, dataSetCode + ".zip");
+    }
+
 }

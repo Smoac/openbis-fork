@@ -75,7 +75,7 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
             FileUtilities.delete(unzippedFile);
         }
     }
-    
+
     private IHierarchicalContent content;
 
     @BeforeMethod
@@ -83,7 +83,6 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
     {
         removeUnzippedFiles();
     }
-
 
     @AfterMethod
     public void closeContent()
@@ -109,9 +108,9 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         FileUtils.copyFile(TEST_HDF5_CONTAINER, originalHdf5ContainerFile, false);
         File zipFile = new File(workingDirectory, "data.zip");
         zip(zipFile, dataRoot);
-        
+
         content = new ZipBasedHierarchicalContent(zipFile);
-        
+
         IHierarchicalContentNode rootNode = content.getRootNode();
         assertDirectoryNode("", "", rootNode);
         List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
@@ -129,7 +128,11 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
         assertEquals(true, hdf5Node.isDirectory());
         assertEquals(-2098219814, hdf5Node.getChecksumCRC32());
         assertEquals(537641, hdf5Node.getFileLength());
-        assertEquals(originalHdf5ContainerFile.lastModified(), hdf5Node.getLastModified());
+
+        // allow 1 second difference as de.schlichtherle.util.zip.ZipEntry.setTime()
+        // method may cause such a side effect due to some OS compatibility conversion
+        assertTrue(Math.abs(originalHdf5ContainerFile.lastModified() - hdf5Node.getLastModified()) <= 1000);
+
         assertEquals(3, childNodes.size());
         File[] tempFiles = getUnzippedFiles();
         for (File tempFile : tempFiles)
@@ -137,7 +140,7 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
             assertEquals(0, tempFile.length());
         }
         assertEquals(1, tempFiles.length);
-        
+
         // now the file is lazy created
         assertEquals(hdf5Node.getFileLength(), hdf5Node.getFile().length());
         for (File tempFile : tempFiles)
@@ -145,9 +148,9 @@ public class ZipBasedHierarchicalContentTest extends AbstractFileSystemTestCase
             assertEquals(hdf5Node.getFile(), tempFile);
             assertEquals(537641, tempFile.length());
         }
-        
+
         HDF5ContainerBasedHierarchicalContentNodeTest.assertH5ExampleContent(hdf5Node);
-        
+
         content.close();
         assertEquals("[]", Arrays.asList(getUnzippedFiles()).toString());
     }

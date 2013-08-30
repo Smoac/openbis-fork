@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
 /**
- * Provides a CRC32 checksum for given file.
+ * Type of a verification result.
  * 
  * @author anttil
  */
-public interface ICrcProvider
+public enum ResultType
 {
-    Long getCrc(String name);
+    OK, FAILED, SKIPPED, FATAL;
 }

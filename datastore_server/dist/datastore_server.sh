@@ -265,6 +265,8 @@ case "$command" in
     echo "  $0 debug-db-connections on / off -  switch on / off database connection debug logging"
     echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
     echo "  $0 no-record-stacktrace-db-connections  -  switch off database connection stacktrace recording"
+    echo "  $0 verify-archives  -  verify integrity of dataset archives created by ZipArchiver"
+    
     ;;
   version)
     ${CMD} --version
@@ -278,6 +280,10 @@ case "$command" in
   show-command-queue)
     ${CMD} --show-command-queue
     ;;
+  verify-archives)
+    shift
+    java -cp "lib/*" ch.systemsx.cisd.openbis.dss.archiveverifier.cli.Main etc/service.properties $*
+    ;;    
   log-thread-dump)
     if [ -f $PIDFILE ]; then
       PID=`cat $PIDFILE 2> /dev/null`

@@ -163,6 +163,16 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     }
 
     @Override
+    public String tryGetPathToDataSet(String sessionToken, String dataSetCode,
+            String overrideStoreRootPathOrNull) throws IOExceptionUnchecked,
+            IllegalArgumentException
+    {
+        logAccess(sessionToken, "try_get_path_to_data_set", "DATA_SET(%s) STORE_ROOT_PATH(%s)",
+                dataSetCode, overrideStoreRootPathOrNull);
+        return null;
+    }
+
+    @Override
     public List<ShareInfo> listAllShares(String sessionToken)
     {
         logAccess(sessionToken, "list_all_shares");
@@ -238,7 +248,8 @@ public class DssServiceRpcGenericLogger extends AbstractServerLogger implements
     @DataSetAccessGuard
     public String getDownloadUrlForFileForDataSetWithTimeout(
             String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
+            @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
+            DataSetFileDTO fileOrFolder,
             long validityDurationInSeconds) throws IOExceptionUnchecked, IllegalArgumentException
     {
         logAccess(sessionToken, "get_download_url_for_file_for_data_set",

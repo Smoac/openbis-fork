@@ -63,11 +63,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.validation.ValidationS
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 
 /**
- * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and
- * multiple DSS servers.
+ * Implementation of the IDssComponent interface. It is a facade for interacting with openBIS and multiple DSS servers.
  * <p>
- * The DssComponent manages a connection to openBIS (IETLLIMSService) as well as connections to data
- * store servers (IDssServiceRpc) to present a simplified interface to downloading datasets.
+ * The DssComponent manages a connection to openBIS (IETLLIMSService) as well as connections to data store servers (IDssServiceRpc) to present a
+ * simplified interface to downloading datasets.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -103,8 +102,7 @@ public class DssComponent implements IDssComponent
     }
 
     /**
-     * Public factory method for creating a DssComponent for a user that has already been
-     * authenticated.
+     * Public factory method for creating a DssComponent for a user that has already been authenticated.
      * 
      * @param sessionToken The session token provided by authentication
      * @param openBISUrl The URL to openBIS
@@ -139,12 +137,11 @@ public class DssComponent implements IDssComponent
     /**
      * Create a DSS component that connects to the openBIS instance specified by the URL.
      * <p>
-     * The DSS component needs to connect to openBIS to find out which DSS manages a given data set.
-     * Once it has a connection to openBIS, it can figure out how to connect to DSS servers itself.
+     * The DSS component needs to connect to openBIS to find out which DSS manages a given data set. Once it has a connection to openBIS, it can
+     * figure out how to connect to DSS servers itself.
      * 
      * @param openBISURL The url to connect to openBIS
-     * @param sessionTokenOrNull A session token; If null is passed in, then login needs to be
-     *            called.
+     * @param sessionTokenOrNull A session token; If null is passed in, then login needs to be called.
      * @param timeoutInMillis a timeout for network operations
      */
     private DssComponent(String openBISURL, String sessionTokenOrNull, long timeoutInMillis)
@@ -158,8 +155,7 @@ public class DssComponent implements IDssComponent
      * 
      * @param service A proxy to the openBIS application server.
      * @param dssServiceFactory A proxy to the DSS server.
-     * @param sessionTokenOrNull A session token, if the user has already logged in, or null
-     *            otherwise.
+     * @param sessionTokenOrNull A session token, if the user has already logged in, or null otherwise.
      */
     public DssComponent(IGeneralInformationService service, IRpcServiceFactory dssServiceFactory,
             String sessionTokenOrNull)
@@ -206,8 +202,7 @@ public class DssComponent implements IDssComponent
      * Authenticates the <code>user</code> with given <code>password</code>.
      * 
      * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     void login(String user, String password) throws AuthorizationFailureException,
             EnvironmentFailureException
@@ -277,8 +272,7 @@ public class DssComponent implements IDssComponent
 /**
  * Superclass for component states, which make the state machine of the DSS component explicit.
  * <p>
- * By default, all methods just throw an exception. Subclasses should override the methods they
- * accept.
+ * By default, all methods just throw an exception. Subclasses should override the methods they accept.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -360,8 +354,7 @@ abstract class AbstractDssComponentState implements IDssComponent
      * Authenticates the <code>user</code> with given <code>password</code>.
      * 
      * @throws AuthorizationFailureException Thrown if the username / password do not authenticate.
-     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to
-     *             the server.
+     * @throws EnvironmentFailureException Thrown in cases where it is not possible to connect to the server.
      */
     abstract void login(final String user, final String password)
             throws AuthorizationFailureException, EnvironmentFailureException;
@@ -374,8 +367,8 @@ abstract class AbstractDssComponentState implements IDssComponent
 }
 
 /**
- * An object representing an unauthenticated state. Being in this state implies that the user has
- * not yet logged in. Only login and logout are allowed in this state.
+ * An object representing an unauthenticated state. Being in this state implies that the user has not yet logged in. Only login and logout are allowed
+ * in this state.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -420,8 +413,8 @@ class UnauthenticatedState extends AbstractDssComponentState
 }
 
 /**
- * An object representing an authenticated state. Being in this state means that the user has logged
- * in and all operations are available, except login.
+ * An object representing an authenticated state. Being in this state means that the user has logged in and all operations are available, except
+ * login.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -594,8 +587,7 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
-     * Package visible method to communicate with the server and get a list of files contained in
-     * this data set.
+     * Package visible method to communicate with the server and get a list of files contained in this data set.
      */
     FileInfoDssDTO[] listFiles(DataSetDss dataSetDss, String startPath, boolean isRecursive)
             throws InvalidSessionException
@@ -605,8 +597,7 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
-     * Package visible method to communicate with the server and get one file contained in this data
-     * set.
+     * Package visible method to communicate with the server and get one file contained in this data set.
      */
     InputStream getFile(DataSetDss dataSet, String path) throws InvalidSessionException
     {
@@ -666,9 +657,8 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
-     * Package visible method to communicate with the server and get a link to the file in the DSS.
-     * Returns null if link couldn't be retrieved (e.g. when the <var>dataSetDss</var> is a
-     * container).
+     * Package visible method to communicate with the server and get a link to the file in the DSS. Returns null if link couldn't be retrieved (e.g.
+     * when the <var>dataSetDss</var> is a container).
      */
     File tryLinkToContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
@@ -693,9 +683,8 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
-     * Package visible method to communicate with the server and get a link to the file in the DSS.
-     * Returns null if link couldn't be retrieved (e.g. when the <var>dataSetDss</var> is a
-     * container).
+     * Package visible method to communicate with the server and get a link to the file in the DSS. Returns null if link couldn't be retrieved (e.g.
+     * when the <var>dataSetDss</var> is a container).
      */
     String tryGetInternalPathInDataStore(DataSetDss dataSetDss, String overrideStoreRootPathOrNull)
             throws InvalidSessionException, EnvironmentFailureException
@@ -708,8 +697,15 @@ class AuthenticatedState extends AbstractDssComponentState
 
         try
         {
-            return dataSetDss.getService().getPathToDataSet(getSessionToken(),
-                    dataSetDss.getCode(), overrideStoreRootPathOrNull);
+            if (minorVersion < 8)
+            {
+                return dataSetDss.getService().getPathToDataSet(getSessionToken(),
+                        dataSetDss.getCode(), overrideStoreRootPathOrNull);
+            } else
+            {
+                return dataSetDss.getService().tryGetPathToDataSet(getSessionToken(),
+                        dataSetDss.getCode(), overrideStoreRootPathOrNull);
+            }
         } catch (IllegalArgumentException e)
         {
             // We could not create a link, return null
@@ -718,8 +714,7 @@ class AuthenticatedState extends AbstractDssComponentState
     }
 
     /**
-     * Package visible method to get a link to the contents of the data set in DSS', if possible,
-     * otherwise copy the contents locally.
+     * Package visible method to get a link to the contents of the data set in DSS', if possible, otherwise copy the contents locally.
      */
     File getLinkOrCopyOfContents(DataSetDss dataSetDss, String overrideStoreRootPathOrNull,
             File downloadDir, String pathInDataSetOrNull) throws InvalidSessionException

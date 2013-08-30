@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
+package ch.systemsx.cisd.openbis.dss.archiveverifier.verifier;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -23,6 +23,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
+
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
+
 
 import de.schlichtherle.util.zip.ZipFile;
 

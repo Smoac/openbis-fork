@@ -132,11 +132,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
                 //
                 @Override
                 protected final Object[] getAdvicesAndAdvisorsForBean(
-                        @SuppressWarnings("rawtypes") final Class beanClass, final String beanName,
+                        @SuppressWarnings("rawtypes")
+                        final Class beanClass, final String beanName,
                         final TargetSource customTargetSource) throws BeansException
                 {
                     return new Object[]
-                        { advisor };
+                    { advisor };
                 }
             };
         final Object proxy =
@@ -667,6 +668,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public String tryGetPathToDataSet(String sessionToken, String dataSetCode, String overrideStoreRootPathOrNull) throws IOExceptionUnchecked
+        {
+            return getPathToDataSet(sessionToken, dataSetCode, overrideStoreRootPathOrNull);
+        }
+
+        @Override
         public List<ShareInfo> listAllShares(String sessionToken)
         {
             return null;
@@ -741,7 +748,8 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         @DataSetAccessGuard
         public String getDownloadUrlForFileForDataSetWithTimeout(
                 String sessionToken,
-                @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class) DataSetFileDTO fileOrFolder,
+                @AuthorizationGuard(guardClass = DataSetFileDTOPredicate.class)
+                DataSetFileDTO fileOrFolder,
                 long validityDurationInSeconds) throws IOExceptionUnchecked,
                 IllegalArgumentException
         {
@@ -775,6 +783,12 @@ public class DssComponentTest extends AbstractFileSystemTestCase
         {
             return DssServiceRpcGeneric.convertPath(getStoreRootFile(), getDataSetFile(),
                     overrideStoreRootPathOrNull);
+        }
+
+        @Override
+        public String tryGetPathToDataSet(String sessionToken, String dataSetCode, String overrideStoreRootPathOrNull) throws IOExceptionUnchecked
+        {
+            return getPathToDataSet(sessionToken, dataSetCode, overrideStoreRootPathOrNull);
         }
 
     }
