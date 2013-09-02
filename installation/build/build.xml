@@ -34,7 +34,7 @@
 			<param name="test.suite" value="tests.xml" />
 		</antcall>
 	</target>
-	
+  
 	<target name="dist" depends="dist-standard-technologies">
 	</target>
 	
@@ -52,7 +52,20 @@
 	</target>
 	
 	<target name="create-installation-tarball">
-	  <property name="tarball.basename" value="openBIS-installation${variant}-${version.number}-r${revision.number}" />
+    <pathconvert property="extracted.version">
+      <path>
+        <fileset dir="${openbis.server.zip.folder}">
+          <include name="openBIS-server${variant}-*.zip"/>
+        </fileset>
+      </path>
+      <chainedmapper>
+        <flattenmapper/>
+        <filtermapper>
+          <replaceregex pattern="openBIS-server${variant}-(.*)\.zip" replace="\1"/>
+        </filtermapper>
+      </chainedmapper>
+    </pathconvert>
+	  <property name="tarball.basename" value="openBIS-installation${variant}-${extracted.version}" />
 		
     <antcall target="create-installer"/>
 		
