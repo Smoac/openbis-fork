@@ -1,5 +1,4 @@
 function DefaultProfile() {
-	this.skeuomorphism = true;
 	//
 	// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 	//
@@ -17,6 +16,8 @@ function DefaultProfile() {
 	};
 	
 	this.allTypes = [];
+	this.allVocabularies = [];
+	
 	this.typeGroups = {
 		"OTHERS" : {
 			"TYPE" : "OTHERS",
@@ -49,6 +50,17 @@ function DefaultProfile() {
 	//
 	// Utility methods used to navigate the configuration easily
 	//
+	
+	this.getVocabularyById = function(id) {
+		var idAsString = "" + id;
+		for (var i = 0; i < this.allVocabularies.length; i++) {
+			var vocabulary = this.allVocabularies[i];
+			if (vocabulary.id === idAsString) {
+				return vocabulary;
+			}
+		}
+		return null;
+	}
 	
 	this.getTypeForTypeCode = function(typeCode) {
 		for(var i = 0; i < this.allTypes.length; i++) {
@@ -143,6 +155,7 @@ function YeastLabProfile() {
 	};
 	
 	this.typePropertiesForTable = {
+		"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
 		"GENERAL_PROTOCOL" : ["NAME", "FOR_WHAT", "PROTOCOL_TYPE", "PUBLICATION"],
 		"PCR" : ["NAME", "FOR_WHAT", "TEMPLATE", "PUBLICATION"],
 		"WESTERN_BLOTTING" : ["NAME", "FOR_WHAT", "STORAGE", "PUBLICATION"],
@@ -290,14 +303,41 @@ function YeastLabProfile() {
 			for(var i = 0; i < datasets.result.length; i++) {
 				if(datasets.result[i].dataSetTypeCode === "SEQ_FILE") {
 					openbisServer.listFilesForDataSet(datasets.result[i].code, "/", true, function(files) {
+						var testImg = "https://localhost:8444/datastore_server/20111128110144092-8300/generated/FRP1.svg";
+						var downloadUrl = testImg + "?sessionID=" + openbisServer.getSession();
+						
+						//For Testing
+						/*
+						d3.xml(downloadUrl, "image/svg+xml", function(xml) {
+							var importedNode = document.importNode(xml.documentElement, true);
+							d3.select(importedNode)
+								.attr("width", 400 - 20)
+								.attr("height", 400 - 20)
+								.attr("viewBox", "200 200 650 650");
+								var inspector = inspectors.select("#"+extraContainerId);
+								inspector.node().appendChild(importedNode);
+							}
+						);
+						*/
+						
 						for(var i = 0; i < files.result.length; i++) {
 							if(!files.result[i].isDirectory) {
 								var pathInDataSet = files.result[i].pathInDataSet;
-								var downloadUrl = profile.dssUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + openbisServer.sessionToken;
-								var imageTag = "<img src='" + downloadUrl + "'/>"
-								$("#" + extraContainerId).append(imageTag);
+								var downloadUrl = profile.dssUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + openbisServer.getSession();
+								
+								d3.xml(downloadUrl, "image/svg+xml", function(xml) {
+									var importedNode = document.importNode(xml.documentElement, true);
+									d3.select(importedNode)
+										.attr("width", 400 - 20)
+										.attr("height", 400 - 20)
+										.attr("viewBox", "200 200 650 650");
+										var inspector = inspectors.select("#"+extraContainerId);
+										inspector.node().appendChild(importedNode);
+									}
+								);
 							}
 						}
+						
 					});
 				}
 			}

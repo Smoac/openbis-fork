@@ -29,6 +29,8 @@ def insertSample(tr, parameters, tableBuilder):
 	
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
+	
+	#Only used to create an experiment with the same code as the sample for the case of the ELN experiment
 	sampleExperimentCreate = parameters.get("sampleExperimentCreate"); #Boolean
 	sampleExperimentCode = parameters.get("sampleExperimentCode"); #String
 	sampleExperimentType = parameters.get("sampleExperimentType"); #String
@@ -39,10 +41,14 @@ def insertSample(tr, parameters, tableBuilder):
 	
 	#Assign sample properties
 	for key in sampleProperties.keySet():
-		sample.setPropertyValue(key,sampleProperties[key]);
+		propertyValue = str(sampleProperties[key]);
+		if propertyValue == "":
+			propertyValue = None;
+		
+		sample.setPropertyValue(key,propertyValue);
 	
 	#Assign sample to a newly created experiment
-	if sampleExperimentProject != None and sampleExperimentCode != None and sampleExperimentType != None and sampleExperimentCreate:
+	if sampleExperimentCreate and sampleExperimentProject != None and sampleExperimentCode != None and sampleExperimentType != None:
 		experiment = tr.createNewExperiment('/' +sampleSpace+ '/' + sampleExperimentProject + '/' +sampleExperimentCode, sampleExperimentType)
 		sample.setExperiment(experiment)
 	

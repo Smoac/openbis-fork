@@ -15,11 +15,6 @@ function MainMenu(containerId, profile) {
 			menuInner += "<h2>Laboratory</h2><hr>";
 			
 			menuInner += "<span class='mainMenuIcon'>";
-			menuInner += "<a href='javascript:showCreateExperimentPage();'>" + "<img src='./images/newexperiment-icon.png' />" + "</a> ";
-			menuInner += "<p>" + "Create Experiment" + "</p>";
-			menuInner += "</span>";
-			
-			menuInner += "<span class='mainMenuIcon'>";
 			menuInner += "<a href='javascript:showSamplesPage(\"SYSTEM_EXPERIMENT\");'>" + "<img src='./images/experiment-icon.png' />" + "</a> ";
 			menuInner += "<p>" + "Experiments" + "</p>";
 			menuInner += "</span>";

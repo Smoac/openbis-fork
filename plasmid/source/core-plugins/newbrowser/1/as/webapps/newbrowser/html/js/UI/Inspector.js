@@ -262,11 +262,6 @@ function Inspector(containerId, profile) {
 				inspector += "</tr>";
 			}
 			
-			var extraContainerId = entity.code+"_INSPECTOR_EXTRA";
-			inspector += "<div id='"+ extraContainerId + "'>";
-			inspector += this.profile.inspectorContentExtra(extraContainerId, entity);
-			inspector += "</div>"
-			
 			//Show Modification Date
 			inspector += "<tr>";
 			inspector += "<td class='property'>Modification Date</td>";
@@ -280,7 +275,13 @@ function Inspector(containerId, profile) {
 			inspector += "</tr>";
 			
 			inspector += "</table>"
+			
+			var extraContainerId = entity.code+"_INSPECTOR_EXTRA";
+			inspector += "<div id='"+ extraContainerId + "'></div>";
+			this.profile.inspectorContentExtra(extraContainerId, entity);
+			
 			inspector += "</div>"
+			
 			
 		return inspector;
 	}

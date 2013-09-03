@@ -10,7 +10,7 @@ var openbisServer = new openbis();
 var inspector = null; // The samples that are currently being inspected
 var navigationBar = null; //Top Bar
 var sampleTable = null; //Table that holds the samples
-var sampleForm = null; //From to Create a new Sample
+var sampleForm = null; //Form to Create a new Sample
 
 //
 // Setup
@@ -18,10 +18,8 @@ var sampleForm = null; //From to Create a new Sample
 $(document).ready(function() {
 	$('#main').hide();
 	
-	if(profile.skeuomorphism) {
-		$('body').css('background-image', 'url(./images/notebook_side.png)');
-		$('body').css('background-repeat', 'repeat-y');
-	}
+	$('body').css('background-image', 'url(./images/notebook_side.png)');
+	$('body').css('background-repeat', 'repeat-y');
 	
 	var username = $("#username").value;
 	if(username == null || username.length==0) {
@@ -62,7 +60,6 @@ function enterApp(data) {
 	//
 	// Start App if credentials are ok
 	//
-	profile.skeuomorphism = false;
 	$('body').css('background-image', 'none');
 	$('body').css('background-repeat', 'none');
 	
@@ -71,17 +68,27 @@ function enterApp(data) {
 	
 	openbisServer.listSampleTypes(
 		function(result) {
-			//Load Types
+		
+			//Load Sample Types
 			profile.allTypes = result.result;
-			profile.init();
 			
-			//Start App
-			inspector = new Inspector("mainContainer", profile);
-			navigationBar = new NavigationBar("sectionsContainer", null, profile);
-			navigationBar.repaint();
+			openbisServer.listVocabularies(
+				function(result) {
+					//Load Vocabularies
+					profile.allVocabularies = result.result;
+					
+					//Init profile
+					profile.init();
 			
-			showMainMenu();
-			Util.unblockUI();
+					//Start App
+					inspector = new Inspector("mainContainer", profile);
+					navigationBar = new NavigationBar("sectionsContainer", null, profile);
+					navigationBar.repaint();
+			
+					showMainMenu();
+					Util.unblockUI();
+				}
+			);
 		}
 	);
 }
@@ -90,10 +97,6 @@ function enterApp(data) {
 // Trigger View Updates
 //
 function showInspectors() {
-	if(profile.skeuomorphism) {
-		$('body').css('background-image', 'url(./images/carton.jpg)');
-		$('body').css('background-repeat', 'repeat');
-	}
 	//Update menu
 	navigationBar.updateMenu(null);
 	
@@ -102,11 +105,6 @@ function showInspectors() {
 }
 
 function showMainMenu() {
-	if(profile.skeuomorphism) {
-		$('body').css('background-image', 'url(./images/notebook_side.png)');
-		$('body').css('background-repeat', 'repeat-y');
-	}
-	
 	//Update menu
 	var breadCrumbPage = new BreadCrumbPage('main-menu', 'javascript:showMainMenu()', 'Main Menu');
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
@@ -117,11 +115,6 @@ function showMainMenu() {
 }
 
 function showSamplesPage(sampleTypeCode) {
-	if(profile.skeuomorphism) {
-		$('body').css('background-image', 'url(./images/notebook_side.png)');
-		$('body').css('background-repeat', 'repeat-y');
-	}
-	
 	//Update menu
 	var sampleType = profile.getTypeForTypeCode(sampleTypeCode);
 	var breadCrumbPage = new BreadCrumbPage(sampleTypeCode, "javascript:showSamplesPage(\"" + sampleTypeCode + "\")", sampleType.description);
@@ -132,25 +125,19 @@ function showSamplesPage(sampleTypeCode) {
 	sampleTable.init();
 }
 
-function showCreateExperimentPage() {
-	if(profile.skeuomorphism) {
-		$('body').css('background-image', 'url(./images/notebook_side.png)');
-		$('body').css('background-repeat', 'repeat-y');
-	}
+function showCreateSamplePage(sampleTypeCode) {
 	//Update menu
-	var breadCrumbPage = new BreadCrumbPage('new-experiment', 'javascript:showCreateExperimentPage()', 'Create Experiment');
+	var sampleTypeDisplayName = profile.getTypeForTypeCode(sampleTypeCode).description;
+	var breadCrumbPage = new BreadCrumbPage('new-sample', "javascript:showCreateSamplePage('" + sampleTypeCode + "')", 'Create '+sampleTypeDisplayName);
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
 
 	//Show Form
-	sampleForm = new SampleForm("mainContainer", profile, profile.ELNExperiment, true);
+	var isELNExperiment = sampleTypeCode === profile.ELNExperiment;
+	sampleForm = new SampleForm("mainContainer", profile, sampleTypeCode, isELNExperiment);
 	sampleForm.init();
 }
 
 function showSearchPage(event) {
-	if(profile.skeuomorphism) {
-		$('body').css('background-image', 'url(./images/notebook_side.png)');
-		$('body').css('background-repeat', 'repeat-y');
-	}
 	//Only search with at least 3 characters
 	if(event.target.value.length < 3) {
 		return;

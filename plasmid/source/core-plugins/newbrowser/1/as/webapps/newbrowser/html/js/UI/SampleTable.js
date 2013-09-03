@@ -18,6 +18,10 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		});
 	}
 	
+	this.createNewSample = function() {
+		showCreateSamplePage(this.sampleTypeCode);
+	}
+	
 	this.previewNote = function(sampleCode, attachTo) {
 		var sample = null;
 		for(var i = 0; i < this.samples.length; i++) {
@@ -106,14 +110,22 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 			for(var i=0; i<SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length;i++) {
 				tableTemplate += "<td style='border:none; border-collapse:collapse;'><input placeholder='"+SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+" filter' style=\"width: 100%\" id=\""+SAMPLE_TYPE_PROPERTIES[i]+"_filter\" type=\"text\"></td>";
 			}
+			tableTemplate += "<td></td>";
+			tableTemplate += "<td></td>";
 			tableTemplate += "</tr>";
 		}
 	
 		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
-		for(var i=0; i<SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length;i++) {
+		for (var i = 0; i < SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length; i++) {
 			tableTemplate += "<th>" + SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+ "</th>";
 		}
-		tableTemplate += "<th></th></tr></thead><tbody id='sample-data-holder'></tbody></table>";
+		tableTemplate += "<th></th>";
+		if (isEmbedded) {
+			tableTemplate += "<th></th>";
+		} else {
+			tableTemplate += "<th><center><a class='btn' href=\"javascript:sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></center></th>";
+		}
+		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 	
 		$("#tableContainer").append(tableTemplate);
 		
