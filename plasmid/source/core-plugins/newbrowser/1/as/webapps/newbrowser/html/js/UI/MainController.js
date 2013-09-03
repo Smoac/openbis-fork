@@ -160,3 +160,14 @@ function showEditSamplePage(sample) {
 	sampleForm.init();
 }
 
+function showViewSamplePage(sample) {
+	//Update menu
+	var sampleTypeDisplayName = profile.getTypeForTypeCode(sample.sampleTypeCode).description;
+	var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePage", sample, 'View '+sampleTypeDisplayName);
+	navigationBar.updateBreadCrumbPage(breadCrumbPage);
+
+	//Show Form
+	var isELNExperiment = sample.sampleTypeCode === profile.ELNExperiment;
+	sampleForm = new SampleForm("mainContainer", profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
+	sampleForm.init();
+}

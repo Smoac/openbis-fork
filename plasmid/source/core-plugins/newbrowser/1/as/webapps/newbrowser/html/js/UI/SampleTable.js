@@ -178,6 +178,10 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 				var sampleTypeGroup = localReference.profile.getGroupTypeCodeForTypeCode(sample.sampleTypeCode);
 				sampleForm.addLinkedSample(sampleTypeGroup, sample);
 			}
+		} else {
+			onClickFunction = function(sample) {
+				showViewSamplePage(sample);
+			}
 		}
 	
 		var searchText = $('#search').val();

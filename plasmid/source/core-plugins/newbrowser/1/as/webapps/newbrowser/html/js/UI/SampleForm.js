@@ -25,7 +25,8 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 				//Check Mode
 				if(localReference.mode === SampleFormMode.CREATE) {
 					//Do Nothing
-				} else if(localReference.mode === SampleFormMode.EDIT) {
+				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
+					
 					var sample = localReference.sample;
 					//Populate Project/Space and Code
 					if(localReference.isELNExperiment) {
@@ -42,6 +43,18 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 					//Populate fields
 					for (var samplePropertyKey in sample.properties) {
 						$("#"+samplePropertyKey).val(sample.properties[samplePropertyKey]);
+					}
+					
+					//Disable fields if needed
+					if (localReference.mode === SampleFormMode.VIEW) {
+						var sampleType = profile.getTypeForTypeCode(localReference.sampleTypeCode);
+						for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+							var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+							for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+								var propertyType = propertyTypeGroup.propertyTypes[j];
+								$("#"+propertyType.code).prop('disabled', true);
+							}
+						}	
 					}
 					
 					//Populate Links
@@ -156,25 +169,28 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	
 	this.getLinksToParentsComponent = function() {
 		var component = "<fieldset>";
-		component += "<legend>Components:</legend>";
-		//Print one drop down for each group
-		component += "<center>";
 		
-		for(typeGroupCode in this.profile.typeGroups) {
-			var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
+		if (this.mode !== SampleFormMode.VIEW) {
+			component += "<legend>Components:</legend>";
+			//Print one drop down for each group
+			component += "<center>";
+		
+			for(typeGroupCode in this.profile.typeGroups) {
+				var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
 			
-			component += "<select onchange='sampleForm.showSamplesWithoutPage(event)'>";
-			component += "<option value=''> -- "+sampleGroupTypeDisplayName+" --</a></option>";
-			for(var i = 0; i < this.profile.typeGroups[typeGroupCode]["LIST"].length; i++) {
-				var sampleType = this.profile.getTypeForTypeCode(this.profile.typeGroups[typeGroupCode]["LIST"][i]);
-				component += "<option value='"+sampleType.code+"'>"+sampleType.description+"</a></option>";
+				component += "<select onchange='sampleForm.showSamplesWithoutPage(event)'>";
+				component += "<option value=''> -- "+sampleGroupTypeDisplayName+" --</a></option>";
+				for(var i = 0; i < this.profile.typeGroups[typeGroupCode]["LIST"].length; i++) {
+					var sampleType = this.profile.getTypeForTypeCode(this.profile.typeGroups[typeGroupCode]["LIST"][i]);
+					component += "<option value='"+sampleType.code+"'>"+sampleType.description+"</a></option>";
+				}
+				component += "</select> ";
 			}
-			component += "</select> ";
+			
+			component += "</center>";
+			
+			component += "<div id='sampleSearchContainer'></div>";
 		}
-		
-		component += "</center>";
-		
-		component += "<div id='sampleSearchContainer'></div>";
 		
 		component += "<legend>Selected Components:</legend>";
 		
@@ -191,7 +207,8 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			component += "</div>";
 			component += "</div>";
 			
-			this.sampleTypesLinksTables[id] = new SampleLinksTable(id, this.profile);
+			var disableLinksTables = this.mode === SampleFormMode.VIEW;
+			this.sampleTypesLinksTables[id] = new SampleLinksTable(id, this.profile, disableLinksTables);
 		}
 		
 		component += "</fieldset>";

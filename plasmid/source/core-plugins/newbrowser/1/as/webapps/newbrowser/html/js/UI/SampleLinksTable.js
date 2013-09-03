@@ -4,7 +4,7 @@
  * sampleTableId : Id of the DIV that will hold this table.
  * profile : global configuraiton.
  */
-function SampleLinksTable(sampleTableId, profile) {
+function SampleLinksTable(sampleTableId, profile, isDisabled) {
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
 	this.samples = new Array();
@@ -30,7 +30,10 @@ function SampleLinksTable(sampleTableId, profile) {
 				var propertyToShowDisplayName = propertiesToShowDisplayNames[j];
 				table += "<td><span style='font-weight:bold;''>" + propertyToShowDisplayName + ":</span> <span>" + propertyToShow + "<span></td>";
 			}
-			table += "<td><button id='" + rowId + "' class='btn' type='button'><i class='icon-minus'></i></button></td>";
+			if(!isDisabled) {
+				table += "<td><button id='" + rowId + "' class='btn' type='button'><i class='icon-minus'></i></button></td>";
+			}
+			
 			table += "</tr>";
 		}
 		table += "</table>";
@@ -38,15 +41,17 @@ function SampleLinksTable(sampleTableId, profile) {
 		//2. Add Table to DOM
 		document.getElementById(this.sampleTableId).innerHTML = table;
 		
-		//3. Add Button Events
-		var localReference = this;
-		for(var i = 0; i < this.samples.length; i++) {
-			var selectedSample = this.samples[i];
-			var rowId = this.sampleTableId + "_" + selectedSample.code;
+		if(!isDisabled) {
+			//3. Add Button Events
+			var localReference = this;
+			for(var i = 0; i < this.samples.length; i++) {
+				var selectedSample = this.samples[i];
+				var rowId = this.sampleTableId + "_" + selectedSample.code;
 			
-			document.getElementById(rowId).onclick = function() {
-				localReference.removeSample(selectedSample);
-			};
+				document.getElementById(rowId).onclick = function() {
+					localReference.removeSample(selectedSample);
+				};
+			}
 		}
 	}
 	
