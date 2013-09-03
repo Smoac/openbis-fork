@@ -15,7 +15,7 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 			menu += "<div class='pull-left'>";
 			menu += "<ul class='nav'>";
 			for(var i = 0; i < this.breadcrumb.length; i++) {
-				menu += "<li id='" + this.breadcrumb[i].id + "'><a href='" + this.breadcrumb[i].href + "'>" + this.breadcrumb[i].displayName + "</a></li>";
+				menu += "<li id='" + this.breadcrumb[i].id + "'><a href=\"javascript:navigationBar.executeBreadCrumb(" + i + ")\">" + this.breadcrumb[i].displayName + "</a></li>";
 				
 				if( i !== this.breadcrumb.length - 1) {
 					menu += "<li><a href='#'>></a></li>";
@@ -63,6 +63,12 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 		this.activeMenuId = newActiveId;
 	}
 	
+	this.executeBreadCrumb = function(breadCrumbIndex) {
+		var href = this.breadcrumb[breadCrumbIndex].href;
+		var hrefArgs = this.breadcrumb[breadCrumbIndex].hrefArgs;
+		window[href](hrefArgs);
+	}
+	
 	this.updateBreadCrumbPage = function(breadCrumbPage) {
 		var isFound = false;
 		var i;
@@ -86,8 +92,9 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 	}
 }
 
-function BreadCrumbPage(id, href, displayName) {
+function BreadCrumbPage(id, href, hrefArgs, displayName) {
 	this.id = id;
 	this.href = href;
+	this.hrefArgs = hrefArgs;
 	this.displayName = displayName;
 }

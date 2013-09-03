@@ -52,10 +52,9 @@ function DefaultProfile() {
 	//
 	
 	this.getVocabularyById = function(id) {
-		var idAsString = "" + id;
 		for (var i = 0; i < this.allVocabularies.length; i++) {
 			var vocabulary = this.allVocabularies[i];
-			if (vocabulary.id === idAsString) {
+			if (vocabulary["@id"] === id || vocabulary["id"] === id) { //Either the id is a number or can be a string, are actually different ids.
 				return vocabulary;
 			}
 		}
@@ -111,6 +110,39 @@ function DefaultProfile() {
 		return allPropertiDisplayNames;
 	}
 	
+	this.initVocabulariesForSampleTypes = function() {
+		//Build Vocabularies from sample types
+		for(var sampleTypeIdx = 0; sampleTypeIdx < this.allTypes.length; sampleTypeIdx++) {
+			var sampleType = this.allTypes[sampleTypeIdx];
+			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+				var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
+				for(var j = 0; j < propertyGroup.length; j++) {
+					var propertyType = propertyGroup[j];
+					if (propertyType.dataType === "CONTROLLEDVOCABULARY" && isNaN(propertyType.vocabulary)) {
+						this.allVocabularies.push(propertyType.vocabulary);
+					}
+				}
+			}
+		}
+		
+		//Get all the Vocabularies from openbis and fix terms
+		var localReference = this;
+		openbisServer.listVocabularies(
+			function(result) {
+				//Load Vocabularies
+				var allVocabularies = result.result;
+				for (var i = 0; i < allVocabularies.length; i++) {
+					var vocabulary = allVocabularies[i];
+					for(var j = 0; j < localReference.allVocabularies.length; j++) {
+						var localVocabulary = localReference.allVocabularies[j];
+						if (vocabulary.code === localVocabulary.code) {
+							localVocabulary.terms = vocabulary.terms;
+						}
+					}
+				}
+			}
+		);
+	}
 	//
 	// Initializes the Others list with all sampleType codes that are neither in typeGroups or notShowTypes
 	//
@@ -123,6 +155,8 @@ function DefaultProfile() {
 				}
 			}
 		}
+		
+		this.initVocabulariesForSampleTypes();
 	}
 }
 

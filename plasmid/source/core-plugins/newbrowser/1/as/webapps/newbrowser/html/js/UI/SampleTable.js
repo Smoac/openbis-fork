@@ -314,11 +314,22 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 	};
 	
 	this.openEditWindowForSample = function(code, permId) {
+		var sample = null;
+		for(var i = 0; i < this.samples.length; i++) {
+			if (this.samples[i].permId === permId) {
+				sample = this.samples[i];
+				break;
+			}
+		}
+		showEditSamplePage(sample);
+		
+		/*
 		var editURLTemplate = this.profile.openbisUrl + "openbis/?viewMode=embedded#action=EDITING&entity=SAMPLE";
 		var codeParam = "&code="+code;
 		var permId = "&permId="+permId;
 		var sessionId = "&sessionID="+openbisServer.getSession();
 		window.open(editURLTemplate+codeParam+permId+sessionId,null,null);
+		*/
 	}
 	
 	this.reloadWithSamples = function(returnedSamples)

@@ -68,27 +68,21 @@ function enterApp(data) {
 	
 	openbisServer.listSampleTypes(
 		function(result) {
-		
+			
 			//Load Sample Types
 			profile.allTypes = result.result;
 			
-			openbisServer.listVocabularies(
-				function(result) {
-					//Load Vocabularies
-					profile.allVocabularies = result.result;
-					
-					//Init profile
-					profile.init();
+			//Init profile
+			profile.init();
 			
-					//Start App
-					inspector = new Inspector("mainContainer", profile);
-					navigationBar = new NavigationBar("sectionsContainer", null, profile);
-					navigationBar.repaint();
+			//Start App
+			inspector = new Inspector("mainContainer", profile);
+			navigationBar = new NavigationBar("sectionsContainer", null, profile);
+			navigationBar.repaint();
 			
-					showMainMenu();
-					Util.unblockUI();
-				}
-			);
+			showMainMenu();
+			Util.unblockUI();
+			
 		}
 	);
 }
@@ -106,7 +100,7 @@ function showInspectors() {
 
 function showMainMenu() {
 	//Update menu
-	var breadCrumbPage = new BreadCrumbPage('main-menu', 'javascript:showMainMenu()', 'Main Menu');
+	var breadCrumbPage = new BreadCrumbPage('main-menu', 'showMainMenu', null, 'Main Menu');
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
 	
 	//Show Main menu
@@ -117,24 +111,12 @@ function showMainMenu() {
 function showSamplesPage(sampleTypeCode) {
 	//Update menu
 	var sampleType = profile.getTypeForTypeCode(sampleTypeCode);
-	var breadCrumbPage = new BreadCrumbPage(sampleTypeCode, "javascript:showSamplesPage(\"" + sampleTypeCode + "\")", sampleType.description);
+	var breadCrumbPage = new BreadCrumbPage(sampleTypeCode, "showSamplesPage", sampleTypeCode, sampleType.description);
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
 	
 	//Show Sample Table
 	sampleTable = new SampleTable("mainContainer", profile, sampleTypeCode, true, true, false, false, false);
 	sampleTable.init();
-}
-
-function showCreateSamplePage(sampleTypeCode) {
-	//Update menu
-	var sampleTypeDisplayName = profile.getTypeForTypeCode(sampleTypeCode).description;
-	var breadCrumbPage = new BreadCrumbPage('new-sample', "javascript:showCreateSamplePage('" + sampleTypeCode + "')", 'Create '+sampleTypeDisplayName);
-	navigationBar.updateBreadCrumbPage(breadCrumbPage);
-
-	//Show Form
-	var isELNExperiment = sampleTypeCode === profile.ELNExperiment;
-	sampleForm = new SampleForm("mainContainer", profile, sampleTypeCode, isELNExperiment);
-	sampleForm.init();
 }
 
 function showSearchPage(event) {
@@ -153,3 +135,28 @@ function showSearchPage(event) {
 		Util.unblockUI();
 	});
 }
+
+function showCreateSamplePage(sampleTypeCode) {
+	//Update menu
+	var sampleTypeDisplayName = profile.getTypeForTypeCode(sampleTypeCode).description;
+	var breadCrumbPage = new BreadCrumbPage('new-sample', "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
+	navigationBar.updateBreadCrumbPage(breadCrumbPage);
+
+	//Show Form
+	var isELNExperiment = sampleTypeCode === profile.ELNExperiment;
+	sampleForm = new SampleForm("mainContainer", profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
+	sampleForm.init();
+}
+
+function showEditSamplePage(sample) {
+	//Update menu
+	var sampleTypeDisplayName = profile.getTypeForTypeCode(sample.sampleTypeCode).description;
+	var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePage", sample, 'Edit '+sampleTypeDisplayName);
+	navigationBar.updateBreadCrumbPage(breadCrumbPage);
+
+	//Show Form
+	var isELNExperiment = sample.sampleTypeCode === profile.ELNExperiment;
+	sampleForm = new SampleForm("mainContainer", profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, sample);
+	sampleForm.init();
+}
+

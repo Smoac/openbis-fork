@@ -1,31 +1,71 @@
-function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
+SampleFormMode = {
+    CREATE : 0,
+    EDIT : 1,
+    VIEW : 2
+}
+
+function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
 	this.isELNExperiment = isELNExperiment;
-	this.projects = null;
+	this.projects = [];
+	this.spaces = [];
 	this.sampleTypesLinksTables = {};
+	this.mode = mode;
+	this.sample = sample;
 	
 	this.init = function() {
 			Util.blockUI();
 			var localReference = this;
 			openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+				//Init Basic Form elements
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
 				localReference.repaint();
+				//Check Mode
+				if(localReference.mode === SampleFormMode.CREATE) {
+					//Do Nothing
+				} else if(localReference.mode === SampleFormMode.EDIT) {
+					var sample = localReference.sample;
+					//Populate Project/Space and Code
+					if(localReference.isELNExperiment) {
+						var project = sample.experimentIdentifierOrNull.split("/")[0] + "/" + sample.experimentIdentifierOrNull.split("/")[1];
+						$("#sampleSpaceProject").val(project);
+					} else {
+						$("#sampleSpaceProject").val(sample.spaceCode);
+					}
+					$("#sampleSpaceProject").prop('disabled', true);
+					
+					$("#sampleCode").val(sample.code);
+					$("#sampleCode").prop('disabled', true);
+					
+					//Populate fields
+					for (var samplePropertyKey in sample.properties) {
+						$("#"+samplePropertyKey).val(sample.properties[samplePropertyKey]);
+					}
+					
+					//Populate Links
+					for (var i = 0; i < sample.parents.length; i++) {
+						var parent = sample.parents[i];
+						var parentGroup = localReference.profile.getGroupTypeCodeForTypeCode(parent.sampleTypeCode);
+						var linkTableId = "sampleParents_" + parentGroup;
+						localReference.sampleTypesLinksTables[linkTableId].addSample(parent);
+					}
+				}
+				//Allow user input
 				Util.unblockUI();
 			});
 	}
 	
 	this.listSpacesWithProjectsAndRoleAssignmentsCallback = function(data) {
-		var projects = [];
 		for(var i = 0; i < data.result.length; i++) {
+			this.spaces.push(data.result[i].code);
 			if(data.result[i].projects) {
 				for(var j = 0; j < data.result[i].projects.length; j++) {
-					projects[projects.length] = "/" + data.result[i].projects[j].spaceCode + "/" + data.result[i].projects[j].code;
+					this.projects.push("/" + data.result[i].projects[j].spaceCode + "/" + data.result[i].projects[j].code);
 				}
 			}
 		}
-		this.projects = projects;
 	}
 	
 	this.getTextBox = function(id, alt, isRequired) {
@@ -77,7 +117,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 			component += ">";
 		}
 		
-		component += "<option disabled=\"disabled\" selected></option>";
+		component += "<option value='' selected></option>";
 		for(var i = 0; i < terms.length; i++) {
 			component += "<option value='" + terms[i].code + "'>" + terms[i].label + "</option>";
 		}
@@ -162,14 +202,24 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
 		
-		var sampleType = profile.getTypeForTypeCode(sampleTypeCode);
+		var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
 		var sampleTypeDisplayName = sampleType.description;
 		
 		var component = "";
 		
 			component += "<div class='row-fluid'>";
 			component += "<div class='span12'>";
-			component += "<h2>Create " + sampleTypeDisplayName + "</h2>";
+			
+			var message = null;
+			if (this.mode === SampleFormMode.CREATE) {
+				message = "Create";
+			} else if (this.mode === SampleFormMode.EDIT) {
+				message = "Update";
+			} else if (this.mode === SampleFormMode.VIEW) {
+				message = "View";
+			}
+			
+			component += "<h2>" + message + " " + sampleTypeDisplayName + "</h2>";
 			
 			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='sampleForm.createSample();'>";
 			
@@ -179,15 +229,28 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 			component += "<fieldset>";
 			component += "<legend>Identification Info:</legend>";
 			component += "<div class='control-group'>";
-			component += "<label class='control-label' for='inputSpace'>Project:</label>";
-			component += "<div class='controls'>";
-			component += "<select id='sampleSpaceProject' required>";
-			component += "<option disabled=\"disabled\" selected></option>";
-			for(var i = 0; i < this.projects.length; i++) {
-				component += "<option value='"+this.projects[i]+"'>"+this.projects[i]+"</option>";
+			if(this.isELNExperiment) {
+				component += "<label class='control-label' for='inputSpace'>Project:</label>";
+			} else {
+				component += "<label class='control-label' for='inputSpace'>Space:</label>";
 			}
-			component += "</select> (Required)";
 			
+			component += "<div class='controls'>";
+			if(this.isELNExperiment) {
+				component += "<select id='sampleSpaceProject' required>";
+				component += "<option disabled=\"disabled\" selected></option>";
+				for(var i = 0; i < this.projects.length; i++) {
+					component += "<option value='"+this.projects[i]+"'>"+this.projects[i]+"</option>";
+				}
+				component += "</select> (Required)";
+			} else {
+				component += "<select id='sampleSpaceProject' required>";
+				component += "<option disabled=\"disabled\" selected></option>";
+				for(var i = 0; i < this.spaces.length; i++) {
+					component += "<option value='"+this.spaces[i]+"'>"+this.spaces[i]+"</option>";
+				}
+				component += "</select> (Required)";
+			}
 			component += "</div>";
 			component += "</div>";
 			
@@ -262,13 +325,17 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 			//
 			// FORM SUBMIT
 			//
-			component += "<fieldset>";
-			component += "<div class='control-group'>";
-			component += "<div class='controls'>";
-			component += "<input type='submit' class='btn btn-primary' value='Create " + sampleTypeDisplayName + "'>";
-			component += "</div>";
-			component += "</div>";
-			component += "</fieldset>";
+			
+			if(!(this.mode === SampleFormMode.VIEW)) {
+				component += "<fieldset>";
+				component += "<div class='control-group'>";
+				component += "<div class='controls'>";
+				component += "<input type='submit' class='btn btn-primary' value='" + message + " " + sampleTypeDisplayName + "'>";
+				component += "</div>";
+				component += "</div>";
+				component += "</fieldset>";
+			}
+			
 			component += "</form>";
 			
 			component += "</div>";
@@ -297,9 +364,16 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 		Util.blockUI();
 		
 		//Identification Info
-		var sampleSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
-		var sampleProject = $("#sampleSpaceProject")[0].value.split("/")[2];
 		var sampleCode = $("#sampleCode")[0].value;
+		
+		var sampleSpace = null;
+		var sampleProject = null;
+		if(this.isELNExperiment) {
+			sampleSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
+			sampleProject = $("#sampleSpaceProject")[0].value.split("/")[2];
+		} else {
+			sampleSpace = $("#sampleSpaceProject").val();
+		}
 		
 		//Other properties
 		var properties = {};
@@ -329,9 +403,17 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 			sampleParentsFinal = sampleParentsFinal.concat(samplesIdentifiers);
 		}
 		
+		var method = "";
+		
+		if(this.mode === SampleFormMode.CREATE) {
+			method = "insertSample";
+		} else if(this.mode === SampleFormMode.EDIT) {
+			method = "updateSample";
+		}
+		
 		var parameters = {
 				//API Method
-				"method" : "insertSample",
+				"method" : method,
 				//Identification Info
 				"sampleSpace" : sampleSpace,
 				"sampleProject" : sampleProject,
@@ -342,13 +424,14 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 				//Parent links
 				"sampleParents": sampleParentsFinal,
 				//ELN Creation Related parameters
-				"sampleExperimentCreate": isELNExperiment,
+				"sampleExperimentCreate": isELNExperiment && (this.mode === SampleFormMode.CREATE),
 				"sampleExperimentCode": sampleCode,
 				"sampleExperimentType": this.sampleTypeCode,
 				"sampleExperimentProject": sampleProject
 		};
 		
 		var localReference = this;
+		
 		openbisServer.createReportFromAggregationService("DSS1", "newbrowserapi", parameters, function(response) {
 			localReference.createSampleCallback(response);
 		});
@@ -358,7 +441,17 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment) {
 
 	this.createSampleCallback = function(response) {
 		if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") {
-			Util.showSuccess("Lab. Experiment Created.");
+			var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
+			var sampleTypeDisplayName = sampleType.description;
+			
+			var message = "";
+			if(this.mode === SampleFormMode.CREATE) {
+				message = "Created.";
+			} else if(this.mode === SampleFormMode.EDIT) {
+				message = "Updated.";
+			}
+			
+			Util.showSuccess(sampleTypeDisplayName + " " + message);
 		} else if (response.result.columns[1].title === "Error") {
 			Util.showError(response.result.rows[0][1].value);
 		} else {
