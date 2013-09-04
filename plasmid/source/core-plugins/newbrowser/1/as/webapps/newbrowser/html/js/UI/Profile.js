@@ -2,8 +2,6 @@ function DefaultProfile() {
 	//
 	// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 	//
-	this.openbisUrl = 'https://localhost:8443/';
-	this.dssUrl = 'https://localhost:8444/datastore_server';
 	
 	this.ELNExperiment = "SYSTEM_EXPERIMENT";
 	this.notShowTypes = ["SYSTEM_EXPERIMENT"];
@@ -162,8 +160,7 @@ function DefaultProfile() {
 
 //YEASTLAB PROFILE
 function YeastLabProfile() {
-	//this.openbisUrl = 'https://openbis-lims.ethz.ch/';
-	//this.dssUrl = 'https://openbis-lims.ethz.ch/datastore_server';
+	
 	this.notShowTypes = ["SYSTEM_EXPERIMENT", "ILLUMINA_FLOW_CELL", "ILLUMINA_FLOW_LANE", "LIBRARY", "LIBRARY_POOL", "MASTER_SAMPLE","MS_INJECTION","RAW_SAMPLE","TEMPLATE_SAMPLE", "SEARCH"];
 	this.typeGroups = {
 		"METHODS" : {

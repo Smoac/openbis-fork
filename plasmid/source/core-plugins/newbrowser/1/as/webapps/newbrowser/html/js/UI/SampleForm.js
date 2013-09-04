@@ -41,10 +41,19 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 					$("#sampleCode").prop('disabled', true);
 					
 					//Populate fields
-					for (var samplePropertyKey in sample.properties) {
-						$("#"+samplePropertyKey).val(sample.properties[samplePropertyKey]);
+					var sampleType = profile.getTypeForTypeCode(localReference.sampleTypeCode);
+					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+						var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+							var propertyType = propertyTypeGroup.propertyTypes[j];
+							if(propertyType.dataType === "BOOLEAN") {
+								$("#"+propertyType.code).prop('checked', sample.properties[propertyType.code] === "true");
+							} else {
+								$("#"+propertyType.code).val(sample.properties[propertyType.code]);
+							}
+						}
 					}
-					
+						
 					//Disable fields if needed
 					if (localReference.mode === SampleFormMode.VIEW) {
 						var sampleType = profile.getTypeForTypeCode(localReference.sampleTypeCode);
@@ -241,7 +250,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='sampleForm.createSample();'>";
 			
 			//
-			// SELECT PROJECT AND CODE
+			// SELECT PROJECT/SPACE AND CODE
 			//
 			component += "<fieldset>";
 			component += "<legend>Identification Info:</legend>";

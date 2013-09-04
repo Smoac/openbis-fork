@@ -34,6 +34,7 @@ function Inspector(containerId, profile) {
 		return false;
 	}
 	
+	//Public method that should be used to add a page, is used by the MainController.js
 	this.toggleInspectSample = function(sampleToInspect) {
 		var isInspected = null;
 		//Null Check

@@ -326,14 +326,6 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 			}
 		}
 		showEditSamplePage(sample);
-		
-		/*
-		var editURLTemplate = this.profile.openbisUrl + "openbis/?viewMode=embedded#action=EDITING&entity=SAMPLE";
-		var codeParam = "&code="+code;
-		var permId = "&permId="+permId;
-		var sessionId = "&sessionID="+openbisServer.getSession();
-		window.open(editURLTemplate+codeParam+permId+sessionId,null,null);
-		*/
 	}
 	
 	this.reloadWithSamples = function(returnedSamples)

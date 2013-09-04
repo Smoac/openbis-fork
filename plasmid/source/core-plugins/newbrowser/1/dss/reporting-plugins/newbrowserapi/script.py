@@ -55,7 +55,7 @@ def insertSample(tr, parameters, tableBuilder):
 	
 	#Assign sample properties
 	for key in sampleProperties.keySet():
-		propertyValue = str(sampleProperties[key]);
+		propertyValue = unicode(sampleProperties[key]);
 		if propertyValue == "":
 			propertyValue = None;
 		

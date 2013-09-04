@@ -66,6 +66,7 @@ function enterApp(data) {
 	$("#login-form-div").hide();
 	$("#main").show();
 	
+	//Get Metadata from all sample types before showing the main menu
 	openbisServer.listSampleTypes(
 		function(result) {
 			
