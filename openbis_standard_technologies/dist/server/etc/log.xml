@@ -20,8 +20,21 @@
             -->
             <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
         </layout>
+        
+        <filter class="ch.systemsx.cisd.openbis.common.log.DefaultAppenderFilter"/>
 
     </appender>
+    
+    <appender name="SERVICE_CALL" class="ch.systemsx.cisd.openbis.common.log.ServiceCallAppender">
+
+        <param name="File" value="logs/openbis_service_calls.txt" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
+        </layout>
+    </appender>
+    
     <appender name="AUTH" class="org.apache.log4j.DailyRollingFileAppender">
 
         <param name="File" value="logs/openbis_auth_log.txt" />
@@ -93,6 +106,7 @@
     <category name="TRACKING">
         <priority value="info" />
         <appender-ref ref="USAGE" />
+        <appender-ref ref="SERVICE_CALL" />        
     </category>
 
     <!--
@@ -101,6 +115,7 @@
     <category name="ACCESS">
         <priority value="info" />
         <appender-ref ref="USAGE" />
+        <appender-ref ref="SERVICE_CALL" />        
     </category>
     
     <!-- 
