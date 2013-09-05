@@ -546,6 +546,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             return null;
         }
+
         final Session session = sessionManager.getSession(sessionToken);
         List<PersonPE> persons = null;
         PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(session.getUserName());
@@ -765,6 +766,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 final PersonPE person = session.tryGetPerson();
                 if (person != null)
                 {
+                    getDAOFactory().getPersonDAO().lock(person);
                     displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
                         {
                             @Override
@@ -809,6 +811,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
                 final PersonPE person = session.tryGetPerson();
                 if (person != null)
                 {
+                    getDAOFactory().getPersonDAO().lock(person);
                     displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
                         {
                             @Override

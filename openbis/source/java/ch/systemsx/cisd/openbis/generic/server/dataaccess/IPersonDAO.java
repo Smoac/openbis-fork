@@ -31,13 +31,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 public interface IPersonDAO extends IGenericDAO<PersonPE>
 {
     /**
-     * Finds the technical id of the person with the specified user id, where the case of the
-     * <var>userId</var> is ignored.
+     * Finds the technical id of the person with the specified user id, where the case of the <var>userId</var> is ignored.
      * 
      * @param userId user id. Can not be blank.
-     * @return <code>null</code>, if no person with that id exists. If multiple persons with the
-     *         given user id exist, then the userId is checked with case sensitivity and only an
-     *         exact match is accepted.
+     * @return <code>null</code>, if no person with that id exists. If multiple persons with the given user id exist, then the userId is checked with
+     *         case sensitivity and only an exact match is accepted.
      */
     public PersonPE tryFindPersonByUserId(String userId) throws DataAccessException;
 
@@ -52,18 +50,17 @@ public interface IPersonDAO extends IGenericDAO<PersonPE>
     /**
      * Inserts given <code>Person</code> into the database.
      * <p>
-     * As side effect the <i>unique identifier</i> returned by the database is set to given
-     * <code>Person</code> object using {@link PersonPE#setId(Long)}.
+     * As side effect the <i>unique identifier</i> returned by the database is set to given <code>Person</code> object using
+     * {@link PersonPE#setId(Long)}.
      * </p>
      * 
-     * @param person <code>Person</code> object to be inserted into the database. Can not be
-     *            <code>null</code>.
+     * @param person <code>Person</code> object to be inserted into the database. Can not be <code>null</code>.
      */
     public void createPerson(PersonPE person) throws DataAccessException;
 
     /**
-     * For the given <code>id</code> returns the corresponding <code>Person</code>, or throw
-     * {@link DataAccessException}, if a person with the given <var>id</var> does not exist.
+     * For the given <code>id</code> returns the corresponding <code>Person</code>, or throw {@link DataAccessException}, if a person with the given
+     * <var>id</var> does not exist.
      */
     public PersonPE getPerson(long id) throws DataAccessException;
 
@@ -88,9 +85,13 @@ public interface IPersonDAO extends IGenericDAO<PersonPE>
     public void updatePerson(final PersonPE person) throws DataAccessException;
 
     /**
-     * Returns the count of active persons. By active we understand persons with
-     * <code>is_active</code> flag set to <code>false</code> and with no roles/groups assignements
-     * defined.
+     * Returns the count of active persons. By active we understand persons with <code>is_active</code> flag set to <code>false</code> and with no
+     * roles/groups assignements defined.
      */
     public int countActivePersons() throws DataAccessException;
+
+    /**
+     * Locks the specified person.
+     */
+    public void lock(PersonPE person);
 }
