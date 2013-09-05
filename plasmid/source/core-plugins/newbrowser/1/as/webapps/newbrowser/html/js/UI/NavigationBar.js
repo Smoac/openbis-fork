@@ -1,12 +1,37 @@
-function NavigationBar(navigationBarId, activeMenuId, profile) {
-	this.navigationBarId = navigationBarId;
+/*
+ * Copyright 2013 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Creates an instance of NavigationBar.
+ *
+ * @constructor
+ * @this {NavigationBar}
+ * @param {string} containerId The Container where the Inspector DOM will be atached.
+ * @param {string} activeMenuId The selected menu item by default.
+ * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ */
+function NavigationBar(containerId, activeMenuId, profile) {
+	this.containerId = containerId;
 	this.activeMenuId = activeMenuId;
 	this.profile = profile;
 	this.menuStructure = profile.menuStructure;
 	this.breadcrumb = new Array(); 
 	
 	this.repaint = function() {
-		$("#"+this.navigationBarId).empty();
+		$("#"+this.containerId).empty();
 		
 		var menu = "";
 			menu += "<div class='navbar-wrapper'>";
@@ -14,7 +39,7 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 			menu += "<div class='navbar-inner'>";
 			
 			menu += "<div class='pull-left'>";
-			//BreadCrumb
+			
 			menu += "<ul class='nav'>";
 			// Drop Down
 			menu += "<li>";
@@ -37,7 +62,7 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 			menu += "</div>";
 			menu += "</li>";
 			// End Drop Down
-			
+			// BreadCrumb Slices
 			for(var i = 0; i < this.breadcrumb.length; i++) {
 				menu += "<li id='" + this.breadcrumb[i].id + "'><a href=\"javascript:navigationBar.executeBreadCrumb(" + i + ")\">" + this.breadcrumb[i].displayName + "</a></li>";
 				
@@ -67,7 +92,7 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 			menu += "</div> <!-- /.navbar -->";
 			menu += "</div> <!-- /.navbar-wrapper -->";
 		
-		$("#"+this.navigationBarId).append(menu);
+		$("#"+this.containerId).append(menu);
 	
 		$('#logout-button').click(function() { 
 			openbisServer.logout(function(data) { 

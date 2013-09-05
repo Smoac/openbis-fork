@@ -1,9 +1,37 @@
+/*
+ * Copyright 2013 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 SampleFormMode = {
     CREATE : 0,
     EDIT : 1,
     VIEW : 2
 }
 
+/**
+ * Creates an instance of SampleForm.
+ *
+ * @constructor
+ * @this {SampleForm}
+ * @param {string} containerId The Container where the Inspector DOM will be atached.
+ * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {string} sampleTypeCode The sample type code that will be used as template for the form.
+ * @param {boolean} isELNExperiment If the for should treat the sample type as an ELN Experiment, linking during creation an experiment with the same type and code.
+ * @param {SampleFormMode} mode The form accepts CREATE/EDIT/VIEW modes for common samples and ELNExperiment samples
+ * @param {Sample} sample The sample that will be used to populate the form if the mode is EDIT/VIEW, null can be provided for CREATE.
+ */
 function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
 	this.containerId = containerId;
 	this.profile = profile;
@@ -178,9 +206,29 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	
 	this.getLinksToParentsComponent = function() {
 		var component = "<fieldset>";
+				
+		component += "<legend>Connected Components:</legend>";
+		if (this.mode !== SampleFormMode.VIEW) {
+			component += "<p><i class='icon-info-sign'></i> To connect a component, please select the type from the drop down menu and click on the row of the table.</p>";
+		}
+		this.sampleTypesLinksTables = {};
+		
+		for(typeGroupCode in this.profile.typeGroups) {
+			var id = "sampleParents_" + typeGroupCode;
+			var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
+			
+			component += "<div class='control-group'>";
+			component += "<label class='control-label'>" + sampleGroupTypeDisplayName + ":</label>";
+			component += "<div class='controls'>";
+			component += "<div id='"+id+"'></div>";
+			component += "</div>";
+			component += "</div>";
+			
+			var disableLinksTables = this.mode === SampleFormMode.VIEW;
+			this.sampleTypesLinksTables[id] = new SampleLinksTable(id, this.profile, disableLinksTables);
+		}
 		
 		if (this.mode !== SampleFormMode.VIEW) {
-			component += "<legend>Components:</legend>";
 			//Print one drop down for each group
 			component += "<center>";
 		
@@ -199,25 +247,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			component += "</center>";
 			
 			component += "<div id='sampleSearchContainer'></div>";
-		}
-		
-		component += "<legend>Selected Components:</legend>";
-		
-		this.sampleTypesLinksTables = {};
-		
-		for(typeGroupCode in this.profile.typeGroups) {
-			var id = "sampleParents_" + typeGroupCode;
-			var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
-			
-			component += "<div class='control-group'>";
-			component += "<label class='control-label'>" + sampleGroupTypeDisplayName + ":</label>";
-			component += "<div class='controls'>";
-			component += "<div id='"+id+"'></div>";
-			component += "</div>";
-			component += "</div>";
-			
-			var disableLinksTables = this.mode === SampleFormMode.VIEW;
-			this.sampleTypesLinksTables[id] = new SampleLinksTable(id, this.profile, disableLinksTables);
+			component += "<br>";
 		}
 		
 		component += "</fieldset>";

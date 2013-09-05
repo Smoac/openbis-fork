@@ -1,11 +1,32 @@
 /*
- * This component is used by the new/edit sample form to show the links from different types of samples.
+ * Copyright 2013 ETH Zuerich, CISD
  *
- * sampleTableId : Id of the DIV that will hold this table.
- * profile : global configuraiton.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-function SampleLinksTable(sampleTableId, profile, isDisabled) {
-	this.sampleTableId = sampleTableId;
+
+/**
+ * Creates an instance of SampleLinksTable.
+ *
+ * This component is used to render the parents of a sample in a friendly manner.
+ *
+ * @constructor
+ * @this {SampleLinksTable}
+ * @param {string} containerId The Container where the Inspector DOM will be atached.
+ * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {boolean} isDisabled Disables the component.
+ */
+function SampleLinksTable(containerId, profile, isDisabled) {
+	this.containerId = containerId;
 	this.profile = profile;
 	this.samples = new Array();
 	
@@ -14,7 +35,7 @@ function SampleLinksTable(sampleTableId, profile, isDisabled) {
 		var table = "<table class='table'>";
 		for(var i = 0; i < this.samples.length; i++) {
 			var sampleToPrint = this.samples[i];
-			var rowId = this.sampleTableId + "_" + sampleToPrint.code;
+			var rowId = this.containerId + "_" + sampleToPrint.code;
 			
 			var propertiesToShow = this.profile.typePropertiesForTable[sampleToPrint.sampleTypeCode];
 			if(propertiesToShow === null || propertiesToShow === undefined) {
@@ -39,14 +60,14 @@ function SampleLinksTable(sampleTableId, profile, isDisabled) {
 		table += "</table>";
 		
 		//2. Add Table to DOM
-		document.getElementById(this.sampleTableId).innerHTML = table;
+		document.getElementById(this.containerId).innerHTML = table;
 		
 		if(!isDisabled) {
 			//3. Add Button Events
 			var localReference = this;
 			for(var i = 0; i < this.samples.length; i++) {
 				var selectedSample = this.samples[i];
-				var rowId = this.sampleTableId + "_" + selectedSample.code;
+				var rowId = this.containerId + "_" + selectedSample.code;
 			
 				document.getElementById(rowId).onclick = function() {
 					localReference.removeSample(selectedSample);

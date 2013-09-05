@@ -1,3 +1,33 @@
+/*
+ * Copyright 2013 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Creates an instance of SampleTable.
+ *
+ *
+ * @constructor
+ * @this {SampleTable}
+ * @param {string} sampleTableId The Container where the Inspector DOM will be atached.
+ * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {string} sampleTypeCode The code of the sample type to be displayed on the table.
+ * @param {boolean} inspectEnabled Enables the button that allows to pin samples.
+ * @param {boolean} enableAdd Enables the event that allows to add samples, this is hardwired thinking that a proper SampleLinksTable exists with certain id.
+ * @param {boolean} isSearch Enables search related behaviour that checks in what field was matched.
+ * @param {boolean} isEmbedded When enabled the sample table will be inside a box of limited height with his own scroll.
+ */
 function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enableEdit, enableAdd, isSearch, isEmbedded) {
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
