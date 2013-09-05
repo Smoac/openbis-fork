@@ -30,6 +30,20 @@ body {
     }
 }
 
+/* Quick Menu */
+.quickMenu {
+	height:40px !important;
+	margin-top:0 !important;
+	
+	-moz-box-shadow: 0 0px #000 inset;
+	-webkit-box-shadow: 0 0px #000 inset;
+	box-shadow: 0 0px #000 inset;
+	
+	border-bottom-left-radius: 0px !important;
+	border-top-left-radius: 0px !important;
+	border-bottom-right-radius: 0px !important;
+	border-top-right-radius: 0px !important;
+}
 /* Pin button Fix for Chrome/Safari */
 .pinBtn {
 	width: 16px;

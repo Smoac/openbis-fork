@@ -2,6 +2,7 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 	this.navigationBarId = navigationBarId;
 	this.activeMenuId = activeMenuId;
 	this.profile = profile;
+	this.menuStructure = profile.menuStructure;
 	this.breadcrumb = new Array(); 
 	
 	this.repaint = function() {
@@ -12,11 +13,36 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 			menu += "<div id='navbar' class='navbar navbar-fixed-top'>";
 			menu += "<div class='navbar-inner'>";
 			
-			//BreadCrumb
 			menu += "<div class='pull-left'>";
+			//BreadCrumb
 			menu += "<ul class='nav'>";
+			// Drop Down
+			menu += "<li>";
+			menu += "<div class='btn-group quickMenu'>";
+			menu += "<button class='btn dropdown-toggle quickMenu' data-toggle='dropdown'><span class='caret'></span></button>";
+			
+			menu += "<ul class='dropdown-menu'>"
+			for (var k = 0; k < this.menuStructure.length; k++) {
+				var groupOfMenuItems = this.menuStructure[k];
+				if (k > 0) {
+					menu += "<li class='divider'></li>";
+				}
+				for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
+					var menuItem = groupOfMenuItems.menuItems[i];
+					menu += "<li><a href='javascript:navigationBar.updateBreadCrumbToSecondLevelForQuickMenu(); " + menuItem.href+ "(\"" + menuItem.hrefArgs + "\");'>" + menuItem.displayName + "</a></li>";
+				}
+			}
+			menu += "</ul>";
+			
+			menu += "</div>";
+			menu += "</li>";
+			// End Drop Down
+			
 			for(var i = 0; i < this.breadcrumb.length; i++) {
 				menu += "<li id='" + this.breadcrumb[i].id + "'><a href=\"javascript:navigationBar.executeBreadCrumb(" + i + ")\">" + this.breadcrumb[i].displayName + "</a></li>";
+				
+				
+				
 				
 				if( i !== this.breadcrumb.length - 1) {
 					menu += "<li><a href='#'>></a></li>";
@@ -66,6 +92,10 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 		this.activeMenuId = newActiveId;
 	}
 	
+	this.updateBreadCrumbToSecondLevelForQuickMenu = function() {
+		 this.breadcrumb.length = 1;
+	}
+	
 	this.executeBreadCrumb = function(breadCrumbIndex) {
 		var href = this.breadcrumb[breadCrumbIndex].href;
 		var hrefArgs = this.breadcrumb[breadCrumbIndex].hrefArgs;
@@ -74,9 +104,8 @@ function NavigationBar(navigationBarId, activeMenuId, profile) {
 	
 	this.updateBreadCrumbPage = function(breadCrumbPage) {
 		var isFound = false;
-		var i;
 		
-		for(i = 0; i < this.breadcrumb.length; i++) {
+		for(var i = 0; i < this.breadcrumb.length; i++) {
 			isFound = this.breadcrumb[i].id === breadCrumbPage.id;
 			if(isFound) {
 				break;

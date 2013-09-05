@@ -1,6 +1,7 @@
 function MainMenu(containerId, profile) {
 	this.containerId = containerId;
 	this.profile = profile;
+	this.menuStructure = profile.menuStructure;
 	
 	this.init = function() {
 		this.repaint();
@@ -9,33 +10,41 @@ function MainMenu(containerId, profile) {
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
 		
+		//
+		// Main Menu
+		//
 		var menuInner = "<div class='mainMenuContainer'>";
-			
-			menuInner += "<div class='mainMenuIconContainer'>";
-			menuInner += "<h2>Laboratory</h2><hr>";
-			
-			menuInner += "<span class='mainMenuIcon'>";
-			menuInner += "<a href='javascript:showSamplesPage(\"SYSTEM_EXPERIMENT\");'>" + "<img src='./images/experiment-icon.png' />" + "</a> ";
-			menuInner += "<p>" + "Experiments" + "</p>";
-			menuInner += "</span>";
-			menuInner += "</div>";
-			
-			for(typeGroupCode in this.profile.typeGroups) {
+			for (var k = 0; k < this.menuStructure.length; k++) {
+				var groupOfMenuItems = this.menuStructure[k];
+				
 				menuInner += "<div class='mainMenuIconContainer'>";
-				menuInner += "<h2>" + this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"] + "</h2><hr>";
-				for(var i = 0; i < this.profile.typeGroups[typeGroupCode]["LIST"].length; i++) {
-					var sampleType = this.profile.getTypeForTypeCode(this.profile.typeGroups[typeGroupCode]["LIST"][i]);
+				menuInner += "<h2>" + groupOfMenuItems.displayName + "</h2><hr>";
+				
+				for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
+					var menuItem = groupOfMenuItems.menuItems[i];
 					
 					menuInner += "<span class='mainMenuIcon'>";
-					menuInner += "<a href='javascript:showSamplesPage(\""+sampleType.code+"\");'>" + "<img src='./images/notebook-icon.png' />" + "</a> ";
-					menuInner += "<p>" +sampleType.description + "</p>";
+					menuInner += "<a href='javascript:" + menuItem.href+ "(\"" + menuItem.hrefArgs + "\");'>" + "<img src='" + menuItem.image + "' />" + "</a> ";
+					menuInner += "<p>" + menuItem.displayName + "</p>";
 					menuInner += "</span>";
 				}
-				menuInner += "</div>";
 			}
 			
-			menuInner += "</div>";
-		
+		menuInner += "</div>";
+				
 		$("#"+this.containerId).append(menuInner);
 	}
+}
+
+function GroupOfMenuItems(key, displayName, menuItems) {
+	this.key = key;
+	this.displayName = displayName;
+	this.menuItems = menuItems;
+}
+
+function MenuItem(image, href, hrefArgs, displayName) {
+	this.image = image;
+	this.href = href;
+	this.hrefArgs = hrefArgs;
+	this.displayName = displayName;
 }

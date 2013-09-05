@@ -144,7 +144,7 @@ function showCreateSamplePage(sampleTypeCode) {
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
 
 	//Show Form
-	var isELNExperiment = sampleTypeCode === profile.ELNExperiment;
+	var isELNExperiment = profile.isELNExperiment(sampleTypeCode);
 	sampleForm = new SampleForm("mainContainer", profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
 	sampleForm.init();
 }
@@ -156,7 +156,7 @@ function showEditSamplePage(sample) {
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
 
 	//Show Form
-	var isELNExperiment = sample.sampleTypeCode === profile.ELNExperiment;
+	var isELNExperiment = profile.isELNExperiment(sample.sampleTypeCode);
 	sampleForm = new SampleForm("mainContainer", profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, sample);
 	sampleForm.init();
 }
@@ -168,7 +168,7 @@ function showViewSamplePage(sample) {
 	navigationBar.updateBreadCrumbPage(breadCrumbPage);
 
 	//Show Form
-	var isELNExperiment = sample.sampleTypeCode === profile.ELNExperiment;
+	var isELNExperiment = profile.isELNExperiment(sample.sampleTypeCode);
 	sampleForm = new SampleForm("mainContainer", profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
 	sampleForm.init();
 }

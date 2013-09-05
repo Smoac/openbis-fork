@@ -3,8 +3,9 @@ function DefaultProfile() {
 	// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 	//
 	
-	this.ELNExperiment = "SYSTEM_EXPERIMENT";
+	this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 	this.notShowTypes = ["SYSTEM_EXPERIMENT"];
+	this.menuStructure = [];
 	
 	this.searchType = {
 		"TYPE" : "SEARCH",
@@ -48,6 +49,9 @@ function DefaultProfile() {
 	//
 	// Utility methods used to navigate the configuration easily
 	//
+	this.isELNExperiment = function(sampleTypeCode) {
+		return $.inArray(sampleTypeCode, this.ELNExperiments) !== -1;
+	}
 	
 	this.getVocabularyById = function(id) {
 		for (var i = 0; i < this.allVocabularies.length; i++) {
@@ -141,6 +145,37 @@ function DefaultProfile() {
 			}
 		);
 	}
+	
+	this.initMenuStructure = function() {
+		//
+		// Build menu into an in memory structure (Can be used to render it in different manners Menu+Drop Down)
+		//
+		var groupOfMenuItems = new GroupOfMenuItems("EXPERIMENTS","Experiments",[]);
+		for(var i = 0; i < this.ELNExperiments.length; i++) {
+			var sampleTypeCode = this.ELNExperiments[i];
+			var sampleType = this.getTypeForTypeCode(sampleTypeCode);
+			
+			if(sampleType !== null) {
+				var menuItem = new MenuItem("./images/experiment-icon.png", "showSamplesPage", sampleType.code, sampleType.description);
+				groupOfMenuItems.menuItems.push(menuItem);
+			}
+		}
+		this.menuStructure.push(groupOfMenuItems);
+		
+		for(typeGroupCode in this.typeGroups) {
+			groupOfMenuItems = new GroupOfMenuItems(typeGroupCode,this.typeGroups[typeGroupCode]["DISPLAY_NAME"],[]);
+			
+			for(var i = 0; i < this.typeGroups[typeGroupCode]["LIST"].length; i++) {
+				var sampleType = this.getTypeForTypeCode(this.typeGroups[typeGroupCode]["LIST"][i]);
+				
+				if(sampleType !== null) {
+					var menuItem = new MenuItem("./images/notebook-icon.png", "showSamplesPage", sampleType.code, sampleType.description);
+					groupOfMenuItems.menuItems.push(menuItem);
+				}
+			}
+			this.menuStructure.push(groupOfMenuItems);
+		}
+	}
 	//
 	// Initializes the Others list with all sampleType codes that are neither in typeGroups or notShowTypes
 	//
@@ -155,6 +190,7 @@ function DefaultProfile() {
 		}
 		
 		this.initVocabulariesForSampleTypes();
+		this.initMenuStructure();
 	}
 }
 
@@ -162,6 +198,7 @@ function DefaultProfile() {
 function YeastLabProfile() {
 	
 	this.notShowTypes = ["SYSTEM_EXPERIMENT", "ILLUMINA_FLOW_CELL", "ILLUMINA_FLOW_LANE", "LIBRARY", "LIBRARY_POOL", "MASTER_SAMPLE","MS_INJECTION","RAW_SAMPLE","TEMPLATE_SAMPLE", "SEARCH"];
+	
 	this.typeGroups = {
 		"METHODS" : {
 			"TYPE" : "METHODS",

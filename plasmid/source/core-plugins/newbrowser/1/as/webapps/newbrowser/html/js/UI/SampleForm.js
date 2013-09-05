@@ -41,7 +41,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 					$("#sampleCode").prop('disabled', true);
 					
 					//Populate fields
-					var sampleType = profile.getTypeForTypeCode(localReference.sampleTypeCode);
+					var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
 					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 						var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
@@ -56,7 +56,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 						
 					//Disable fields if needed
 					if (localReference.mode === SampleFormMode.VIEW) {
-						var sampleType = profile.getTypeForTypeCode(localReference.sampleTypeCode);
+						var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
 						for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 							var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 							for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
