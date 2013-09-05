@@ -34,7 +34,6 @@ function MainMenu(containerId, profile) {
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
 		
-		
 		var $mainMenuContainer = $("<div>", {
 			class: "mainMenuContainer"
 		});
@@ -49,11 +48,16 @@ function MainMenu(containerId, profile) {
 			for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
 				var menuItem = groupOfMenuItems.menuItems[i];
 				
-				var $mainMenuIconLink = $("<a>", {
-					href: "#",
-					click: function() {
+				//this is necessary to avoid using the same menuItem reference in all clicks
+				var onClick = function(menuItem) {
+					return function() {
 						window[menuItem.href](menuItem.hrefArgs);
 					}
+				}
+				
+				var $mainMenuIconLink = $("<a>", {
+					href: "#",
+					click: onClick(menuItem)
 				}).append($("<img>", { src: menuItem.image }));
 					
 				var $mainMenuIcon = $("<span>", { class: "mainMenuIcon" })
