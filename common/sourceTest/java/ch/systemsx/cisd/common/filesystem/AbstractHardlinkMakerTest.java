@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.RetryTen;
 
 /**
  * The abstract superclass of tests for the various hardlink maker implementations.
@@ -128,7 +129,7 @@ public abstract class AbstractHardlinkMakerTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+        { "requires_unix" }, retryAnalyzer = RetryTen.class)
     public void testCopyWithHardLinks() throws IOException
     {
         File inputDir = createDirectory(workingDirectory, "resource-to-copy");
@@ -150,7 +151,7 @@ public abstract class AbstractHardlinkMakerTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+        { "requires_unix" }, retryAnalyzer = RetryTen.class)
     public void testCopyFile() throws IOException
     {
         File src = createFile(workingDirectory, "fileXXX");
@@ -180,7 +181,7 @@ public abstract class AbstractHardlinkMakerTest
     }
 
     @Test(groups =
-        { "requires_unix" })
+        { "requires_unix" }, retryAnalyzer = RetryTen.class)
     public void testDeleteWhileCopying() throws IOException
     {
         TestBigStructureCreator creator =
