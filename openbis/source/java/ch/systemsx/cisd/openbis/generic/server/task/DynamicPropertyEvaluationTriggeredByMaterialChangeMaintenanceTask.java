@@ -72,8 +72,6 @@ public class DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask i
     static final String DEFAULT_TIMESTAMP_FILE = "../../../data/"
             + DynamicPropertyEvaluationTriggeredByMaterialChangeMaintenanceTask.class.getSimpleName() + "-timestamp.txt";
 
-    static final String CANCEL_IF_NO_TIMESTAMP_FILE_KEY = "cancel-if-no-timestamp-file";
-
     static final String INITIAL_TIMESTAMP_KEY = "initial-timestamp";
 
     private final ICommonServerForInternalUse server;
