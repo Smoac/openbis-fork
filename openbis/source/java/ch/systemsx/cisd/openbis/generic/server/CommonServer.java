@@ -775,6 +775,18 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
+    public List<Sample> listSamplesByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    {
+        final Session session = getSession(sessionToken);
+
+        ISampleLister lister = businessObjectFactory.createSampleLister(session);
+        Collection<TechId> ids = lister.listSamplesByMaterialProperties(materialIds);
+        return lister.list(new ListOrSearchSampleCriteria(TechId.asLongs(ids)));
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleValidator.class)
     public List<Sample> searchForSamples(String sessionToken, DetailedSearchCriteria criteria)
     {
         final Session session = getSession(sessionToken);
@@ -1894,6 +1906,15 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final Session session = getSession(sessionToken);
         final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
         return materialLister.list(criteria, withProperties);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    {
+        final Session session = getSession(sessionToken);
+        final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
+        return materialLister.listMaterialsByMaterialProperties(materialIds);
     }
 
     @Override

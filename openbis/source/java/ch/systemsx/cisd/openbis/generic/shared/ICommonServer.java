@@ -308,6 +308,12 @@ public interface ICommonServer extends IServer
             final ListSampleCriteria criteria, String userId);
 
     /**
+     * Returns all samples which have at least one property of type MATERIAL referring to one of the specified materials.
+     */
+    @Transactional(readOnly = true)
+    public List<Sample> listSamplesByMaterialProperties(String sessionToken, Collection<TechId> materialIds);
+
+    /**
      * Lists experiments for metaproject.
      * 
      * @return a sorted list of {@link Experiment}.
@@ -724,6 +730,12 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public List<Material> listMaterials(String sessionToken, ListMaterialCriteria criteria,
             boolean withProperties);
+
+    /**
+     * Returns the technical ids of all materials which have at least one property of type MATERIAL referring to one of the specified materials.
+     */
+    @Transactional(readOnly = true)
+    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken, Collection<TechId> materialIds);
 
     /**
      * Lists materials for metaproject.

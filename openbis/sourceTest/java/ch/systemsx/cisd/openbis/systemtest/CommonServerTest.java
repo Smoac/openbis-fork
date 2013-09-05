@@ -20,6 +20,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -175,6 +177,35 @@ public class CommonServerTest extends SystemTestCase
         assertEquals("VARCHAR", assignedPropertyTypes.get(0).getPropertyType().getDataType().getCode().toString());
         assertEquals(1, assignedPropertyTypes.size());
         assertEquals("[DESCRIPTION: Adenovirus 3]", materialInfo.getProperties().toString());
+    }
+
+    @Test
+    public void testListMaterialIdsByMaterialProperties()
+    {
+        Collection<TechId> ids = commonServer.listMaterialIdsByMaterialProperties(systemSessionToken, Arrays.asList(new TechId(3736)));
+
+        assertEquals("[3735]", ids.toString());
+    }
+
+    @Test
+    public void testListSamplesByMaterialProperties()
+    {
+        List<TechId> materialIds = Arrays.asList(new TechId(34));
+        List<Sample> samples = commonServer.listSamplesByMaterialProperties(systemSessionToken, materialIds);
+
+        assertEntities("[/CISD/CP-TEST-1, /CISD/PLATE_WELLSEARCH:WELL-A01]", samples);
+
+        String observerSessionToken = commonServer.tryAuthenticate("observer", "a").getSessionToken();
+        samples = commonServer.listSamplesByMaterialProperties(observerSessionToken, materialIds);
+
+        assertEntities("[]", samples);
+
+        // delete a sample
+        commonServer.deleteSamples(systemSessionToken, Arrays.asList(new TechId(1051)), "test", DeletionType.TRASH);
+        samples = commonServer.listSamplesByMaterialProperties(systemSessionToken, materialIds);
+
+        assertEntities("[/CISD/CP-TEST-1]", samples);
+
     }
 
     private void assertAssignedPropertyTypes(String expected, EntityType entityType)

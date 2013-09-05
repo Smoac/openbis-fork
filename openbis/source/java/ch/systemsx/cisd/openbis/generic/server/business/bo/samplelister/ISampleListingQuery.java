@@ -29,6 +29,7 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
+
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
@@ -50,7 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { ExperimentProjectSpaceCodeRecord.class })
+{ ExperimentProjectSpaceCodeRecord.class })
 @Private
 public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
 {
@@ -82,7 +83,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = "SELECT sample_id_child FROM sample_relationships "
             + "    WHERE relationship_id=?{1} AND sample_id_parent = any(?{2})", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getChildrenIds(long relationshipId, LongSet parentSampleIds);
 
     /**
@@ -90,7 +91,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = "SELECT sample_id_parent FROM sample_relationships "
             + "    WHERE relationship_id=?{1} AND sample_id_child = any(?{2})", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getParentIds(long relationshipId, LongSet childrenSampleIds);
 
     /**
@@ -98,7 +99,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = "SELECT * FROM sample_relationships "
             + "    WHERE relationship_id=?{1} AND sample_id_child = any(?{2})", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getParentRelations(long relationshipId,
             LongSet childrenSampleIds);
 
@@ -107,7 +108,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = "SELECT * FROM sample_relationships "
             + "    WHERE relationship_id=?{1} AND sample_id_parent = any(?{2})", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getChildrenRelations(long relationshipId,
             LongSet parentSampleIds);
 
@@ -116,6 +117,15 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
 
     @Select(sql = "select * from sample_relationships", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getSampleRelationshipSkeletons();
+
+    /**
+     * Returns the technical ids of all samples (trashed ones excluded) which have at least one property of type MATERIAL referring to one of the
+     * specified materials.
+     */
+    @Select(sql = "select p.samp_id from sample_properties as p join samples_all as s on p.samp_id = s.id " +
+            "where s.del_id is null and p.mate_prop_id = any(?{1})", parameterBindings =
+            LongSetMapper.class, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getSampleIdsByMaterialProperties(LongSet materialIds);
 
     //
 
@@ -240,7 +250,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the samples for the given <var>sampleContainerIds</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " where s.samp_id_part_of=any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesForContainer(LongSet sampleContainerIds);
 
     //
@@ -262,7 +272,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     @Select(sql = SELECT_FROM_SAMPLES_S + " WHERE s.id IN "
             + "     (SELECT sample_id_parent FROM sample_relationships "
             + "      WHERE relationship_id=?{1} AND sample_id_child = any(?{2}))", parameterBindings =
-        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getParentSamplesForChildren(long relationshipId,
             LongSet sampleChildIds);
 
@@ -287,7 +297,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "                     (select id from property_types where code=?{2})"
             + "              ) and value=?{3}                                      "
             + "       ) and not id = any(?{4})", parameterBindings =
-        { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesWithPropertyValue(long sampleTypeId,
             String propertyTypeCode, String propertyValue, LongSet sampleIds);
 
@@ -303,7 +313,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "                        select id from controlled_vocabulary_terms where code=?{3}"
             + "                 )"
             + "       ) and not id = any(?{4})", parameterBindings =
-        { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class, TypeMapper.class, TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesWithControlledVocabularyWithPropertyValue(long sampleTypeId,
             String propertyTypeCode, String propertyValue, LongSet sampleIds);
 
@@ -366,14 +376,14 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the samples for the given <var>sampleIds</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " where s.id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamples(LongSet sampleIds);
 
     /**
      * Returns the samples for the given <var>sampleCodes</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " where s.code = any(?{1})", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesForCodes(String[] sampleCodes);
 
     /**
@@ -381,14 +391,14 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_FROM_SAMPLES_S
             + " where s.id in (select samp_id_part_of from samples where samp_id_part_of in (select id from samples where code = any(?{1})))", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getContainerSamplesForCodes(String[] sampleCodes);
 
     /**
      * Returns the samples for the given <var>permIds</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " where s.perm_id = any(?{1})", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSamplesForPermIds(String[] permIds);
 
     /**
@@ -396,7 +406,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_FROM_SAMPLES_S
             + " where s.id in (select samp_id_part_of from samples where samp_id_part_of in (select id from samples where permId = any(?{1})))", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getContainerSamplesForPermIds(String[] permIds);
 
     //
@@ -413,7 +423,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      LEFT OUTER JOIN scripts sc ON stpt.script_id = sc.id"
             + "     WHERE sp.value is not null AND sp.samp_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet sampleIds);
 
@@ -428,7 +438,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON sp.cvte_id=cvte.id"
             + "     WHERE sp.cvte_id is not null AND sp.samp_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
             LongSet sampleIds);
 
@@ -442,7 +452,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN sample_type_property_types stpt ON sp.stpt_id=stpt.id"
             + "      JOIN materials m ON sp.mate_prop_id=m.id "
             + "     WHERE sp.mate_prop_id is not null AND sp.samp_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet sampleIds);
 
@@ -450,7 +460,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
             + " m.private as is_private, m.creation_date as creation_date, ma.samp_id as entity_id "
             + " from metaprojects m, metaproject_assignments ma, persons p "
             + " where ma.samp_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id and m.owner = p.id", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
 }
