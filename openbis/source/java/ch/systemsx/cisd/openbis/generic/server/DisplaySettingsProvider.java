@@ -16,9 +16,13 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -32,91 +36,169 @@ public class DisplaySettingsProvider
 {
     // user id to display settings map
     private final Map<String, DisplaySettings> displaySettingsMap =
-            new HashMap<String, DisplaySettings>();
+            Collections.synchronizedMap(new HashMap<String, DisplaySettings>());
 
-    public synchronized void addDisplaySettingsForPerson(PersonPE person)
+    // user id to lock map
+    private final Map<String, Lock> locksMap = Collections.synchronizedMap(new HashMap<String, Lock>());
+
+    public void addDisplaySettingsForPerson(final PersonPE person)
     {
-        DisplaySettings settings = displaySettingsMap.get(person.getUserId());
-        if (settings == null)
-        {
-            settings = person.getDisplaySettings();
-            displaySettingsMap.put(person.getUserId(), settings);
-        }
+        executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
+            {
+                @Override
+                public Void execute(boolean didOperationSucceed)
+                {
+                    DisplaySettings settings = displaySettingsMap.get(person.getUserId());
+                    if (settings == null)
+                    {
+                        settings = person.getDisplaySettings();
+                        displaySettingsMap.put(person.getUserId(), settings);
+                    }
+                    return null;
+                }
+            });
     }
 
-    public synchronized DisplaySettings getCurrentDisplaySettings(PersonPE person)
+    public DisplaySettings getCurrentDisplaySettings(final PersonPE person)
     {
-        DisplaySettings settings = displaySettingsMap.get(person.getUserId());
-        if (settings == null)
-        {
-            settings = person.getDisplaySettings();
-            displaySettingsMap.put(person.getUserId(), settings);
-        }
-        settings = new DisplaySettings(settings);
-        return settings;
-    }
-
-    @SuppressWarnings("deprecation")
-    public synchronized DisplaySettings getRegularDisplaySettings(PersonPE person)
-    {
-        DisplaySettings settings = displaySettingsMap.get(person.getUserId());
-        if (settings == null)
-        {
-            settings = person.getDisplaySettings();
-            displaySettingsMap.put(person.getUserId(), settings);
-        }
-        settings = new DisplaySettings(settings);
-        settings.clearCustomWebAppSettings();
-        return settings;
-    }
-
-    public synchronized DisplaySettings replaceCurrentDisplaySettings(PersonPE person,
-            DisplaySettings settings)
-    {
-        displaySettingsMap.put(person.getUserId(), settings);
-        person.setDisplaySettings(settings);
-        return settings;
+        return executeActionWithPersonLock(person, new IDelegatedActionWithResult<DisplaySettings>()
+            {
+                @Override
+                public DisplaySettings execute(boolean didOperationSucceed)
+                {
+                    DisplaySettings settings = displaySettingsMap.get(person.getUserId());
+                    if (settings == null)
+                    {
+                        settings = person.getDisplaySettings();
+                        displaySettingsMap.put(person.getUserId(), settings);
+                    }
+                    settings = new DisplaySettings(settings);
+                    return settings;
+                }
+            });
     }
 
     @SuppressWarnings("deprecation")
-    public synchronized DisplaySettings replaceRegularDisplaySettings(PersonPE person,
-            DisplaySettings settings)
+    public DisplaySettings getRegularDisplaySettings(final PersonPE person)
     {
-        final DisplaySettings oldSettings = displaySettingsMap.get(person.getUserId());
-        if (oldSettings != null)
-        {
-            settings.overwriteCustomWebAppSettings(oldSettings);
-            settings.overwriteColumnSettings(oldSettings);
-        }
-        displaySettingsMap.put(person.getUserId(), settings);
-        person.setDisplaySettings(settings);
-        return settings;
+        return executeActionWithPersonLock(person, new IDelegatedActionWithResult<DisplaySettings>()
+            {
+                @Override
+                public DisplaySettings execute(boolean didOperationSucceed)
+                {
+                    DisplaySettings settings = displaySettingsMap.get(person.getUserId());
+                    if (settings == null)
+                    {
+                        settings = person.getDisplaySettings();
+                        displaySettingsMap.put(person.getUserId(), settings);
+                    }
+                    settings = new DisplaySettings(settings);
+                    settings.clearCustomWebAppSettings();
+                    return settings;
+                }
+            });
+    }
+
+    public DisplaySettings replaceCurrentDisplaySettings(final PersonPE person,
+            final DisplaySettings settings)
+    {
+        return executeActionWithPersonLock(person, new IDelegatedActionWithResult<DisplaySettings>()
+            {
+                @Override
+                public DisplaySettings execute(boolean didOperationSucceed)
+                {
+                    displaySettingsMap.put(person.getUserId(), settings);
+                    person.setDisplaySettings(settings);
+                    return settings;
+                }
+            });
     }
 
     @SuppressWarnings("deprecation")
-    public synchronized WebAppSettings getWebAppSettings(PersonPE person, String webAppId)
+    public DisplaySettings replaceRegularDisplaySettings(final PersonPE person,
+            final DisplaySettings settings)
     {
-        DisplaySettings settings = displaySettingsMap.get(person.getUserId());
-        if (settings == null)
-        {
-            settings = person.getDisplaySettings();
-            displaySettingsMap.put(person.getUserId(), settings);
-        }
-        return new WebAppSettings(webAppId, settings.getCustomWebAppSettings(webAppId));
+        return executeActionWithPersonLock(person, new IDelegatedActionWithResult<DisplaySettings>()
+            {
+                @Override
+                public DisplaySettings execute(boolean didOperationSucceed)
+                {
+                    final DisplaySettings oldSettings = displaySettingsMap.get(person.getUserId());
+                    if (oldSettings != null)
+                    {
+                        settings.overwriteCustomWebAppSettings(oldSettings);
+                        settings.overwriteColumnSettings(oldSettings);
+                    }
+                    displaySettingsMap.put(person.getUserId(), settings);
+                    person.setDisplaySettings(settings);
+                    return settings;
+                }
+            });
     }
 
     @SuppressWarnings("deprecation")
-    public synchronized DisplaySettings replaceWebAppSettings(PersonPE person,
-            WebAppSettings webAppSettings)
+    public WebAppSettings getWebAppSettings(final PersonPE person, final String webAppId)
     {
-        DisplaySettings settings = displaySettingsMap.get(person.getUserId());
-        if (settings == null)
-        {
-            settings = person.getDisplaySettings();
-            displaySettingsMap.put(person.getUserId(), settings);
-        }
-        settings.setCustomWebAppSettings(webAppSettings.getWebAppId(), webAppSettings.getSettings());
-        person.setDisplaySettings(settings);
-        return settings;
+        return executeActionWithPersonLock(person, new IDelegatedActionWithResult<WebAppSettings>()
+            {
+                @Override
+                public WebAppSettings execute(boolean didOperationSucceed)
+                {
+                    DisplaySettings settings = displaySettingsMap.get(person.getUserId());
+                    if (settings == null)
+                    {
+                        settings = person.getDisplaySettings();
+                        displaySettingsMap.put(person.getUserId(), settings);
+                    }
+                    return new WebAppSettings(webAppId, settings.getCustomWebAppSettings(webAppId));
+                }
+            });
     }
+
+    @SuppressWarnings("deprecation")
+    public DisplaySettings replaceWebAppSettings(final PersonPE person,
+            final WebAppSettings webAppSettings)
+    {
+        return executeActionWithPersonLock(person, new IDelegatedActionWithResult<DisplaySettings>()
+            {
+                @Override
+                public DisplaySettings execute(boolean didOperationSucceed)
+                {
+                    DisplaySettings settings = displaySettingsMap.get(person.getUserId());
+                    if (settings == null)
+                    {
+                        settings = person.getDisplaySettings();
+                        displaySettingsMap.put(person.getUserId(), settings);
+                    }
+                    settings.setCustomWebAppSettings(webAppSettings.getWebAppId(), webAppSettings.getSettings());
+                    person.setDisplaySettings(settings);
+                    return settings;
+                }
+            });
+    }
+
+    public <T> T executeActionWithPersonLock(PersonPE person, IDelegatedActionWithResult<T> action)
+    {
+        Lock lock = getPersonLock(person);
+        lock.lock();
+        try
+        {
+            return action.execute(true);
+        } finally
+        {
+            lock.unlock();
+        }
+    }
+
+    private synchronized Lock getPersonLock(PersonPE person)
+    {
+        Lock lock = locksMap.get(person.getUserId());
+        if (lock == null)
+        {
+            lock = new ReentrantLock();
+            locksMap.put(person.getUserId(), lock);
+        }
+        return lock;
+    }
+
 }

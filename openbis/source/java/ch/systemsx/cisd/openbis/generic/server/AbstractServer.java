@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.systemsx.cisd.authentication.IPrincipalProvider;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.authentication.Principal;
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -753,31 +754,36 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @SuppressWarnings("deprecation")
     @Override
-    public void saveDisplaySettings(String sessionToken, DisplaySettings displaySettings,
-            int maxEntityVisits)
+    public void saveDisplaySettings(String sessionToken, final DisplaySettings displaySettings,
+            final int maxEntityVisits)
     {
         try
         {
             final Session session = getSession(sessionToken);
             synchronized (session) // synchronized with OpenBisSessionManager.updateAllSessions()
             {
-                PersonPE person = session.tryGetPerson();
+                final PersonPE person = session.tryGetPerson();
                 if (person != null)
                 {
-                    synchronized (displaySettingsProvider)
-                    {
-                        if (maxEntityVisits >= 0)
+                    displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
                         {
-                            List<EntityVisit> visits = displaySettings.getVisits();
-                            sortAndRemoveMultipleVisits(visits);
-                            for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                            @Override
+                            public Void execute(boolean didOperationSucceed)
                             {
-                                visits.remove(i);
+                                if (maxEntityVisits >= 0)
+                                {
+                                    List<EntityVisit> visits = displaySettings.getVisits();
+                                    sortAndRemoveMultipleVisits(visits);
+                                    for (int i = visits.size() - 1; i >= maxEntityVisits; i--)
+                                    {
+                                        visits.remove(i);
+                                    }
+                                }
+                                displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
+                                getDAOFactory().getPersonDAO().updatePerson(person);
+                                return null;
                             }
-                        }
-                        displaySettingsProvider.replaceRegularDisplaySettings(person, displaySettings);
-                        getDAOFactory().getPersonDAO().updatePerson(person);
-                    }
+                        });
                 }
             }
         } catch (InvalidSessionException e)
@@ -788,7 +794,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
 
     @Override
     public void updateDisplaySettings(String sessionToken,
-            IDisplaySettingsUpdate displaySettingsUpdate)
+            final IDisplaySettingsUpdate displaySettingsUpdate)
     {
         if (displaySettingsUpdate == null)
         {
@@ -800,19 +806,24 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             final Session session = getSession(sessionToken);
             synchronized (session) // synchronized with OpenBisSessionManager.updateAllSessions()
             {
-                PersonPE person = session.tryGetPerson();
+                final PersonPE person = session.tryGetPerson();
                 if (person != null)
                 {
-                    synchronized (displaySettingsProvider)
-                    {
-                        DisplaySettings currentDisplaySettings =
-                                displaySettingsProvider.getCurrentDisplaySettings(person);
-                        DisplaySettings newDisplaySettings =
-                                displaySettingsUpdate.update(currentDisplaySettings);
-                        displaySettingsProvider.replaceCurrentDisplaySettings(person,
-                                newDisplaySettings);
-                        getDAOFactory().getPersonDAO().updatePerson(person);
-                    }
+                    displaySettingsProvider.executeActionWithPersonLock(person, new IDelegatedActionWithResult<Void>()
+                        {
+                            @Override
+                            public Void execute(boolean didOperationSucceed)
+                            {
+                                DisplaySettings currentDisplaySettings =
+                                        displaySettingsProvider.getCurrentDisplaySettings(person);
+                                DisplaySettings newDisplaySettings =
+                                        displaySettingsUpdate.update(currentDisplaySettings);
+                                displaySettingsProvider.replaceCurrentDisplaySettings(person,
+                                        newDisplaySettings);
+                                getDAOFactory().getPersonDAO().updatePerson(person);
+                                return null;
+                            }
+                        });
                 }
             }
         } catch (InvalidSessionException e)

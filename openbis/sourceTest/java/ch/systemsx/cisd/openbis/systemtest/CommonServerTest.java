@@ -242,14 +242,14 @@ public class CommonServerTest extends SystemTestCase
         assertEquals(expected, propertyCodes.toString());
     }
 
-    @Test(timeOut = 5000, enabled = false)
+    @Test(timeOut = 5000)
     @Transactional(propagation = Propagation.NEVER)
     public void testConcurrentDisplaySettingsUpdateForOneUserIsSafe()
     {
         testConcurrentDisplaySettingsUpdateForUsersIsSafe(new String[] { "test" }, 10, 10);
     }
 
-    @Test(timeOut = 5000, enabled = false)
+    @Test(timeOut = 5000)
     @Transactional(propagation = Propagation.NEVER)
     public void testConcurrentDisplaySettingsUpdateForDifferentUsersIsSafe()
     {
@@ -269,9 +269,11 @@ public class CommonServerTest extends SystemTestCase
 
         for (int u = 0; u < users.length; u++)
         {
+
             for (int i = 0; i < numberOfThreads; i++)
             {
                 sessionContext[u] = commonServer.tryAuthenticate(users[u], PASSWORD);
+                new SetPanelSizeRunnable(commonServer, sessionContext[u].getSessionToken(), PANEL_ID, 0).run();
                 IncrementPanelSizeRunnable runnable =
                         new IncrementPanelSizeRunnable(commonServer, sessionContext[u].getSessionToken(), PANEL_ID, numberOfIterations);
                 runnable.setSendChannel(sendChannel);
@@ -300,7 +302,7 @@ public class CommonServerTest extends SystemTestCase
         }
     }
 
-    @Test(timeOut = 5000, enabled = false)
+    @Test(timeOut = 5000)
     @Transactional(propagation = Propagation.NEVER)
     public void testLongRunninngDisplaySettingsUpdateForOneUserBlocksOtherUpdatesForThisUser() throws Exception
     {
@@ -341,6 +343,7 @@ public class CommonServerTest extends SystemTestCase
             /*
              * Will concurrently update the same person in two separate transactions.
              */
+
             IncrementPanelSizeRunnable runnable1 = new IncrementPanelSizeRunnable(commonServer, sessionContext1.getSessionToken(), PANEL_ID, 1);
             IncrementPanelSizeRunnable runnable2 = new IncrementPanelSizeRunnable(commonServer, sessionContext2.getSessionToken(), PANEL_ID, 1);
 
@@ -388,7 +391,7 @@ public class CommonServerTest extends SystemTestCase
         }
     }
 
-    @Test(timeOut = 5000, enabled = false)
+    @Test(timeOut = 5000)
     @Transactional(propagation = Propagation.NEVER)
     public void testLongRunninngDisplaySettingsUpdateForOneUserDoesNotBlockUpdatesForOtherUsers() throws Exception
     {
@@ -483,6 +486,45 @@ public class CommonServerTest extends SystemTestCase
             connection.rollback();
             connection.setAutoCommit(true);
             connection.close();
+        }
+    }
+
+    private static class SetPanelSizeRunnable implements Runnable
+    {
+        private ICommonServer server;
+
+        private String sessionToken;
+
+        private String panelId;
+
+        private int value;
+
+        public SetPanelSizeRunnable(ICommonServer server, String sessionToken, String panelId, int value)
+        {
+            this.server = server;
+            this.sessionToken = sessionToken;
+            this.panelId = panelId;
+            this.value = value;
+        }
+
+        @Override
+        public void run()
+        {
+            IDisplaySettingsUpdate update = new IDisplaySettingsUpdate()
+                {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public DisplaySettings update(DisplaySettings displaySettings)
+                    {
+                        Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
+                        panelSizeSettings.put(panelId, value);
+                        return displaySettings;
+                    }
+                };
+            server.updateDisplaySettings(sessionToken, update);
         }
     }
 
