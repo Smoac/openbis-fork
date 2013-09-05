@@ -242,14 +242,14 @@ public class CommonServerTest extends SystemTestCase
         assertEquals(expected, propertyCodes.toString());
     }
 
-    @Test(timeOut = 5000)
+    @Test(timeOut = 5000, enabled = false)
     @Transactional(propagation = Propagation.NEVER)
     public void testConcurrentDisplaySettingsUpdateForOneUserIsSafe()
     {
         testConcurrentDisplaySettingsUpdateForUsersIsSafe(new String[] { "test" }, 10, 10);
     }
 
-    @Test(timeOut = 5000)
+    @Test(timeOut = 5000, enabled = false)
     @Transactional(propagation = Propagation.NEVER)
     public void testConcurrentDisplaySettingsUpdateForDifferentUsersIsSafe()
     {
@@ -302,7 +302,7 @@ public class CommonServerTest extends SystemTestCase
         }
     }
 
-    @Test(timeOut = 5000)
+    @Test(timeOut = 5000, enabled = false)
     @Transactional(propagation = Propagation.NEVER)
     public void testLongRunninngDisplaySettingsUpdateForOneUserBlocksOtherUpdatesForThisUser() throws Exception
     {
@@ -391,7 +391,7 @@ public class CommonServerTest extends SystemTestCase
         }
     }
 
-    @Test(timeOut = 5000)
+    @Test(timeOut = 5000, enabled = false)
     @Transactional(propagation = Propagation.NEVER)
     public void testLongRunninngDisplaySettingsUpdateForOneUserDoesNotBlockUpdatesForOtherUsers() throws Exception
     {
