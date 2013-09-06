@@ -59,6 +59,45 @@
 
 @end
 
+// Internal class that synchronizes result data to the managed object context
+@interface CISDOBBackgroundDataSynchronizer : NSObject
+
+@property(weak, readonly) CISDOBIpadServiceManager *serviceManager;
+@property(strong, readonly) CISDOBIpadServiceManagerCall *managerCall;
+@property(strong, readonly) NSArray *rawEntities;
+@property(strong, readonly) NSManagedObjectContext *managedObjectContext;
+@property(copy, nonatomic) NSError *error;
+@property(strong, readonly) CISDOBIpadServerInfo *serverInfo;
+
+// Initialization
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities;
+
+// Actions
+- (void)run;
+- (void)notifyCallOfResult;
+
+@end
+
+// Internal class that prunes removed entites from the managed object context
+@interface CISDOBBackgroundDataPruner : NSObject
+
+@property(weak, readonly) CISDOBIpadServiceManager *serviceManager;
+@property(strong, readonly) CISDOBIpadServiceManagerCall *managerCall;
+@property(strong, readonly) NSManagedObjectContext *managedObjectContext;
+@property(copy, nonatomic) NSError *error;
+
+@property(strong, nonatomic) NSDate *pruneCutoffDate;
+@property(readonly) NSArray *deletedEntityPermIds;
+
+// Initialization
+- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call;
+
+// Actions
+- (void)run;
+- (void)notifyCallOfResult;
+
+@end
+
 // An object that carries out all the steps that need to run after the user has logged into the server
 @interface CISDOBIpadServiceManagerRetrieveRootSetCommand : NSObject
 
@@ -66,6 +105,7 @@
 @property(weak, nonatomic) CISDOBIpadServiceManager *serviceManager;
 @property(weak, nonatomic) CISDOBIpadServiceManagerCall *serviceManagerCall;
 @property(strong, nonatomic) NSArray *topLevelNavigationEntities;
+@property(strong, nonatomic) NSDate *callConstructionDate;
 
 // This property is updated while running
 @property(nonatomic) NSUInteger currentIndex;
@@ -79,4 +119,5 @@
 @interface CISDOBIpadServiceManager (CISDOBIpadServiceManagerInternal)
 - (BOOL)shouldRefreshRootLevelEntitiesCall;
 - (CISDOBAsyncCall *)retrieveRootLevelEntitiesFromServer;
+- (CISDOBIpadServerInfo *)serverInfoForOpenbisUrl:(NSURL *)openbisUrl;
 @end

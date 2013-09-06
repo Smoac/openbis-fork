@@ -27,6 +27,7 @@
 #import "CISDOBIpadService.h"
 #import "CISDOBIpadServiceInternal.h"
 #import "CISDOBIpadEntity.h"
+#import "CISDOBIpadServerInfo.h"
 #import "CISDOBConnection.h"
 
 NSString *const CISDOBIpadServiceWillLoginNotification = @"CISDOBIpadServiceWillLoginNotification";
@@ -46,43 +47,6 @@ NSString *const CISDOBIpadServiceDidSearchForEntitiesNotification = @"CISDOBIpad
 
 NSString *const CISDOBIpadServiceManagerErrorDomain = @"CISDOBIpadServiceManagerErrorDomain";
 
-// Internal class that synchronizes result data to the managed object context
-@interface CISDOBBackgroundDataSynchronizer : NSObject
-
-@property(weak, readonly) CISDOBIpadServiceManager *serviceManager;
-@property(strong, readonly) CISDOBIpadServiceManagerCall *managerCall;
-@property(strong, readonly) NSArray *rawEntities;
-@property(strong, readonly) NSManagedObjectContext *managedObjectContext;
-@property(copy, nonatomic) NSError *error;
-
-// Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities;
-
-// Actions
-- (void)run;
-- (void)notifyCallOfResult;
-
-@end
-
-// This class is not yet used, but is a sketch for seperating updates from pruning
-@interface CISDOBBackgroundDataPruner : NSObject
-
-@property(weak, readonly) CISDOBIpadServiceManager *serviceManager;
-@property(strong, readonly) CISDOBIpadServiceManagerCall *managerCall;
-@property(strong, readonly) NSManagedObjectContext *managedObjectContext;
-@property(copy, nonatomic) NSError *error;
-
-@property(strong, nonatomic) NSDate *pruneCutoffDate;
-@property(readonly) NSArray *deletedEntityPermIds;
-
-// Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call;
-
-// Actions
-- (void)run;
-- (void)notifyCallOfResult;
-
-@end
 
 static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl, NSError** error)
 {
@@ -115,7 +79,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     if (!(self = [super init])) return nil;
     
-    [self setOpenbisUrl: openbisUrl trusted: trusted];
     _storeUrl = [storeUrl copy];
     _managedObjectContext = GetMainThreadManagedObjectContext(self.storeUrl, error);
     _persistentStoreCoordinator = _managedObjectContext.persistentStoreCoordinator;
@@ -127,6 +90,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _queue = [[NSOperationQueue alloc] init];
         // Restrict this queue to processing operations serially
     [_queue setMaxConcurrentOperationCount: 1];
+    
+    [self setOpenbisUrl: openbisUrl trusted: trusted];
     self.online = NO;
     self.syncDone = NO;
     return self;
@@ -153,6 +118,30 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     connection.delegate = self;
     
     _service = [[CISDOBIpadService alloc] initWithConnection: connection];
+    
+    _serverInfo = [self serverInfoForOpenbisUrl: openbisUrl];
+}
+
+- (CISDOBIpadServerInfo *)serverInfoForOpenbisUrl:(NSURL *)openbisUrl
+{
+    return [self serverInfoForOpenbisUrl: openbisUrl inManagedObjectContext: _managedObjectContext];
+}
+
+- (CISDOBIpadServerInfo *)serverInfoForOpenbisUrl:(NSURL *)openbisUrl inManagedObjectContext:(NSManagedObjectContext *)moc
+{
+    NSEntityDescription *serverEntityDescription = [NSEntityDescription entityForName: @"CISDOBIpadServerInfo" inManagedObjectContext: moc];
+	NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    [request setEntity: serverEntityDescription];
+    NSError *error;
+    NSArray *results = [moc executeFetchRequest: request error: &error];
+    if ([results count] < 1) return nil;
+    return [results objectAtIndex: 0];
+}
+
+- (NSDate *)lastRootSetSyncDate
+{
+    if (!self.serverInfo) return nil;
+    return self.serverInfo.lastSyncDate;
 }
 
 - (NSString *)sessionToken
@@ -171,23 +160,45 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return success;
 }
 
-- (void)pruneEntitiesNotifying:(CISDOBIpadServiceManagerCall *)managerCall
+- (void)updateServerInfoWithLastUpdateDate:(NSDate *)updateDate
+{
+    if (nil == self.serverInfo) {
+        // First get all entities, so we can make them children of the server
+        NSError *error;
+        NSArray *allEntities = [self allIpadEntitiesOrError: &error];
+        // Do not update if we cannot assign all entities to the server
+        if (!allEntities) return;
+        // Create the server
+        CISDOBIpadServerInfo *serverInfo = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadServerInfo" inManagedObjectContext: self.managedObjectContext];
+        [serverInfo addEntities: [NSSet setWithArray: allEntities]];
+        self.serverInfo = serverInfo;
+    }
+
+    // update the last sync date
+    self.serverInfo.lastSyncDate = updateDate;
+}
+
+
+- (void)finishServerSyncTriggeredAtDate:(NSDate *)callConstructionDate notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
     void (^syncBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchEntitiesNotification object: self];
         
         CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self managerCall: managerCall];
-        pruner.pruneCutoffDate = self.lastRootSetUpdateDate;
+        pruner.pruneCutoffDate = self.lastRootSetSyncDate;
         [pruner run];
 
         
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchEntitiesNotification object: self];         
         
+        __weak CISDOBIpadServiceManager *weakSelf = self;
         void (^notifyBlock)(void) = ^ {
             // Save the MOC and notifiy the client on the main thread
             if(!pruner.error) {
                 NSError *error = nil;
-                [self saveManagedObjectContextDeleting: pruner.deletedEntityPermIds error: &error];
+                
+                [weakSelf updateServerInfoWithLastUpdateDate: callConstructionDate];
+                [weakSelf saveManagedObjectContextDeleting: pruner.deletedEntityPermIds error: &error];
                 pruner.error = error;
             }
             [pruner notifyCallOfResult];
@@ -294,6 +305,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     return managerCall;
 }
 
+- (void)serviceManagerDidGoOnline
+{
+    self.online = YES;
+}
+
 - (CISDOBAsyncCall *)loginUser:(NSString *)user password:(NSString *)password
 {
     CISDOBAsyncCall *call = [self.service loginUser: user password: password];
@@ -303,7 +319,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
     
     __weak CISDOBIpadServiceManager *weakSelf = self;
-    call.success = ^(id result) { weakSelf.online = YES; [managerCall notifySuccess: result]; };
+    call.success = ^(id result) { [weakSelf serviceManagerDidGoOnline]; [managerCall notifySuccess: result]; };
     managerCall.willCallNotificationName = CISDOBIpadServiceWillLoginNotification;
     managerCall.didCallNotificationName = CISDOBIpadServiceDidLoginNotification;
     return managerCall;
@@ -311,10 +327,10 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (BOOL)shouldRefreshRootLevelEntitiesCall
 {
-    if (!self.lastRootSetUpdateDate) return YES;
+    if (!self.lastRootSetSyncDate) return YES;
     if (!self.service.clientPreferences) return YES;
     NSTimeInterval rootSetRefreshInterval = self.service.clientPreferences.rootSetRefreshInterval;
-    if ([[NSDate date] timeIntervalSinceDate: self.lastRootSetUpdateDate] < rootSetRefreshInterval) return NO;
+    if ([[NSDate date] timeIntervalSinceDate: self.lastRootSetSyncDate] < rootSetRefreshInterval) return NO;
     return YES;
 }
 
@@ -324,17 +340,17 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     
     CISDOBIpadServiceManagerCall *managerCall = [[CISDOBIpadServiceManagerCall alloc] initWithServiceManager: self serviceCall: call];
     // Save the update date to be the time the call is constructed (i.e., before the call is made)
-    NSDate *timeOfCallConstruction = [NSDate date];
+    NSDate *callConstructionDate = [NSDate date];
     
     __weak CISDOBIpadServiceManager *weakSelf = self;
     
     call.success = ^(id result) {
         weakSelf.online = YES;
-        self.lastRootSetUpdateDate = timeOfCallConstruction;
         CISDOBIpadServiceManagerRetrieveRootSetCommand *command = [[CISDOBIpadServiceManagerRetrieveRootSetCommand alloc] init];
         command.serviceManager = weakSelf;
         command.serviceManagerCall = managerCall;
         command.topLevelNavigationEntities = result;
+        command.callConstructionDate = callConstructionDate;
         [command run];
     };    
     
@@ -560,6 +576,9 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
     _error = nil;
     
+    CISDOBIpadServerInfo *parentServerInfo = self.serviceManager.serverInfo;
+    _serverInfo = (parentServerInfo) ? [self.serviceManager serverInfoForOpenbisUrl: [NSURL URLWithString: parentServerInfo.serverUrlString] inManagedObjectContext: _managedObjectContext] : nil;
+    
     return self;
 }
 
@@ -580,6 +599,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     }
     entity.lastUpdateDate = date;
     entity.serverUrlString =  [((CISDOBLiveConnection *)(self.serviceManager.service.connection)).url absoluteString];
+    if (self.serverInfo)
+        entity.serverInfo = self.serverInfo;
     
     return YES;
 }
@@ -597,16 +618,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
             return;
         }
     }
-    // If pruning is requested, remove entities that were not updated since the prune cutoff date
-//    if (_prune && self.pruneCutoffDate) {
-//        // Remove all entities that were not mentioned
-//        NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
-//        NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
-//        for (CISDOBIpadEntity *entity in entitiesToDelete) {
-//            [(NSMutableArray *)_deletedEntities addObject: entity.permId];
-//            [self.managedObjectContext deleteObject: entity];
-//        }
-//    }
     
     success = [self.managedObjectContext save: &error];
     if (!success) {
@@ -629,7 +640,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 @end
 
-// This class is not yet used.
 @implementation CISDOBBackgroundDataPruner
 
 // Initialization
@@ -818,11 +828,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
     NSArray *permIds = [NSArray arrayWithObject: navEntity.permId];
     NSArray *refcons = [NSArray arrayWithObject: navEntity.refcon];
-    CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntities: permIds refcons: refcons];
+    CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetSyncDate rootLevelEntities: permIds refcons: refcons];
     call.success = ^(id result) {
         [self.serviceManager syncEntities: result notifying: nil];
         if (currentIndex+1 == count) {
-            [self.serviceManager pruneEntitiesNotifying: self.serviceManagerCall];
+            [self.serviceManager finishServerSyncTriggeredAtDate: self.callConstructionDate notifying: self.serviceManagerCall];
         } else {
             [self runNextCall];
         }
@@ -840,11 +850,11 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         // listRootLevelEntites without arguments
         NSArray *permIds = [NSArray array];
         NSArray *refcons = [NSArray array];
-        CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntities: permIds refcons: refcons];
+        CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetSyncDate rootLevelEntities: permIds refcons: refcons];
     
         call.success = ^(id result) {
-           [self.serviceManager syncEntities: result notifying: nil];
-           [self.serviceManager pruneEntitiesNotifying: self.serviceManagerCall];
+            [self.serviceManager syncEntities: result notifying: nil];
+            [self.serviceManager finishServerSyncTriggeredAtDate: self.callConstructionDate notifying: self.serviceManagerCall];
         };
         [self.serviceManager initializeFailureBlockOnServiceCall: call managerCall: self.serviceManagerCall];
         [call start];

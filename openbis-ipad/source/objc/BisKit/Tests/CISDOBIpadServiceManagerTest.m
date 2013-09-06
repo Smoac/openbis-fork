@@ -30,6 +30,7 @@
 #import "CISDOBConnection.h"
 #import "CISDOBConnectionInternal.h"
 #import "CISDOBIpadEntity.h"
+#import "CISDOBIpadServerInfo.h"
 
 static BOOL IsPermIdCompound(NSString *permId)
 {
@@ -288,12 +289,20 @@ static BOOL IsPermIdTarget(NSString *permId)
 
 - (void)performRootLevelCall
 {
+    NSDate *startTime = [NSDate date];
     CISDOBAsyncCall *call;
     [self assertBeforeRootLevelCall];
     call = [self.serviceManager retrieveRootLevelEntities];
     [self configureAndRunCallSynchronously: call];
     [self assertAfterRootLevelCall];
+    NSDate *endTime = [NSDate date];
+
     STAssertNotNil(_callResult, @"The service manager should have returned some entities.");
+    STAssertNotNil(self.serviceManager.serverInfo, @"The service manager should have a serverInfo");
+    NSDate *lastSyncDate = self.serviceManager.serverInfo.lastSyncDate;
+    STAssertNotNil(lastSyncDate, @"The server info should have a sync date");
+    STAssertTrue([lastSyncDate isGreaterThan: startTime], @"The sync date should be later than the start time");
+    STAssertTrue([endTime isGreaterThan: lastSyncDate], @"The sync date should be earlier than the end time");
 }
 
 - (void)performDrill:(CISDOBIpadEntity *)drillEntity
@@ -401,7 +410,7 @@ static BOOL IsPermIdTarget(NSString *permId)
     [self checkFindingChildren];
 }
 
-- (void)testSearc
+- (void)testSearch
 {
     [self performLogin];
     [self performSearch: @"5-hydroxytryptamine 3" domain: nil];

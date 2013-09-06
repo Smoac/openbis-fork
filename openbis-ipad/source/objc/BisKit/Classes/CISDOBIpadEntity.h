@@ -34,7 +34,7 @@
  * an empty value for string properties and an empty array signifies an empty value
  * for array properties.
  */
-@class CISDOBIpadRawEntity;
+@class CISDOBIpadRawEntity, CISDOBIpadServerInfo;
 @interface CISDOBIpadEntity : NSManagedObject
 
 // Non-nil properties
@@ -58,6 +58,7 @@
 @property (readonly)          NSArray * properties;
 
 @property (nonatomic, retain) NSNumber * rootLevel;
+@property (nonatomic, retain) CISDOBIpadServerInfo *serverInfo;
 
 
 // Actions

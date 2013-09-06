@@ -57,28 +57,7 @@
                   Identifier = "CISDOBAsyncTest">
                </Test>
                <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testDeletedEntities">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testNilUrl">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testPersistDrillAndDetailsOnCollections">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testPersistEntities">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testUnicode">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testImageRetrieval">
-               </Test>
-               <Test
                   Identifier = "CISDOBLiveConnectionTest">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest">
                </Test>
                <Test
                   Identifier = "CISDOBIpadServiceTest/testDetails">
@@ -97,6 +76,9 @@
                </Test>
                <Test
                   Identifier = "CISDOBIpadServiceTest/testSearchWithNilDomain">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceTest">
                </Test>
             </SkippedTests>
          </TestableReference>

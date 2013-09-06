@@ -23,6 +23,7 @@
 		36684F451678E43C00265367 /* CISDOBIpadService.m in Sources */ = {isa = PBXBuildFile; fileRef = 3680B1331611B5CE008BA207 /* CISDOBIpadService.m */; };
 		36684F471678E43C00265367 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81D1163FC32B00127554 /* CISDOBIpadServiceManager.m */; };
 		36684F481678E43C00265367 /* persistent-data-model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 36F71E4A1619829300C87277 /* persistent-data-model.xcdatamodeld */; };
+		3677A70E17D786DE00D596A6 /* CISDOBIpadServerInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 3677A70D17D786DE00D596A6 /* CISDOBIpadServerInfo.m */; };
 		368077A515D0F78700843AD5 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 368077A415D0F78700843AD5 /* Cocoa.framework */; };
 		368077AF15D0F78700843AD5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 368077AD15D0F78700843AD5 /* InfoPlist.strings */; };
 		368077B215D0F78700843AD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 368077B115D0F78700843AD5 /* main.m */; };
@@ -88,6 +89,8 @@
 		36684F2E1678DAD300265367 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		36684F311678DAD300265367 /* YeastLab-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YeastLab-Prefix.pch"; sourceTree = "<group>"; };
 		36684F351678DAD300265367 /* YeastLab.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = YeastLab.1; sourceTree = "<group>"; };
+		3677A70C17D786DE00D596A6 /* CISDOBIpadServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServerInfo.h; sourceTree = "<group>"; };
+		3677A70D17D786DE00D596A6 /* CISDOBIpadServerInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServerInfo.m; sourceTree = "<group>"; };
 		368077A015D0F78700843AD5 /* BisMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BisMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		368077A415D0F78700843AD5 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		368077A715D0F78700843AD5 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -297,6 +300,8 @@
 				3658B03716824B3A00C3F15C /* CISDOBConnectionInternal.h */,
 				36F71E4D1619834600C87277 /* CISDOBIpadEntity.h */,
 				36F71E4E1619834600C87277 /* CISDOBIpadEntity.m */,
+				3677A70C17D786DE00D596A6 /* CISDOBIpadServerInfo.h */,
+				3677A70D17D786DE00D596A6 /* CISDOBIpadServerInfo.m */,
 				3680B1321611B5CE008BA207 /* CISDOBIpadService.h */,
 				3680B1331611B5CE008BA207 /* CISDOBIpadService.m */,
 				3658B03316824A7300C3F15C /* CISDOBIpadServiceInternal.h */,
@@ -515,6 +520,7 @@
 				36F71E4C1619829300C87277 /* persistent-data-model.xcdatamodeld in Sources */,
 				36F71E4F1619834600C87277 /* CISDOBIpadEntity.m in Sources */,
 				362B81D2163FC32B00127554 /* CISDOBIpadServiceManager.m in Sources */,
+				3677A70E17D786DE00D596A6 /* CISDOBIpadServerInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -39,6 +39,7 @@
 @dynamic rootLevel;
 @dynamic serverUrlString;
 @dynamic lastUpdateDate;
+@dynamic serverInfo;
 
 - (void)setRefconJson:(NSString *)refconJson
 {

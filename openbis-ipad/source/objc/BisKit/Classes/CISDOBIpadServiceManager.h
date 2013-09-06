@@ -62,7 +62,7 @@ enum CISDOBIpadServiceManagerErrorCode {
     kCISDOBIpadServiceManagerError_ImageRetrievalCouldNotConnectToServer = 1,
 };
 
-@class CISDOBIpadService, CISDOBIpadServiceManager, CISDOBAsyncCall, CISDOBIpadEntity;
+@class CISDOBIpadService, CISDOBIpadServiceManager, CISDOBAsyncCall, CISDOBIpadEntity, CISDOBIpadServerInfo;
 
 //
 // Typedefs
@@ -94,7 +94,8 @@ typedef void (^MocPostSaveBlock)(CISDOBIpadServiceManager *serviceManager);
 @property (nonatomic, getter=isOnline) BOOL online;
 @property (getter=isSyncDone) BOOL syncDone;
 
-@property(strong, nonatomic) NSDate *lastRootSetUpdateDate;
+@property (strong) CISDOBIpadServerInfo *serverInfo;
+@property(readonly) NSDate *lastRootSetSyncDate;
 
 //! Called when the service encounters an authentication challenge
 @property (copy, nonatomic) AuthenticationChallengeBlock authenticationChallengeBlock;
