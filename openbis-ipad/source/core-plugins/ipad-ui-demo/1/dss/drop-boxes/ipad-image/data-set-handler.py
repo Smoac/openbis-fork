@@ -43,6 +43,6 @@ def create_image_data_set(tr, exp):
   return ds
 
 def add_image_to_folder(tr, samp, folder, filename):
-  new_filename = samp.getCode() + ".jpg"
+  new_filename = samp.getCode() + ".png"
   linked_path = os.path.join(folder, new_filename)
   os.link(os.path.join(folder, filename), linked_path)

@@ -26,13 +26,10 @@ Structuring data in iPad entities comes down to determining how the user will na
 
 On the other hand, there are situations where one openBIS entity might best map to several iPad entities to support the desired navigation structure. For example, one openBIS data set may contain three images. By mapping the openBIS data set to three iPad entities, it is possible to show each image on its own page.
 
-Once a navigational scheme has been decided up, the sections below explain the steps necessary to support it.
+Once a navigational scheme has been decided upon, it is necessary to implement a service to perform the mapping. (We may implement a generic service in the future, but there currently is none.) The iPad app is currently read-only, so there is only one service used by the iPad app, the ipad-read-service-v1. In the future, the iPad app may gain the ability to modify entities, requiring the creation of an additional service.
 
+The sections below explain how to implement the ipad-read-service-v1.
 
-The ipad-ui core plugin module
-==============================
-
-The ipad-ui core plugin module defines the services used by the openBIS iPad app. The iPad app is currently read-only, so there is only one service used by the iPad app, the ipad-read-service-v1. In the future, the iPad app may gain the ability to modify entities, requiring the creation of an additional service.
 
 The ipad-read-service-v1 Service
 ================================
@@ -289,8 +286,22 @@ Communication Model
 On startup, the iPad app requests the client preferences. These preferences configure how the client should behave. For example, the server can inform the client how often it should refresh its root set. This allows the server to control the load caused by ipad clients. Once the preferences have been retrieved, the client starts initializing its root data, if necessary. The root data contains all the entities that should be stored locally on the iPad. To initialize the root data, it first retrieves the categories from the server. The categories determine the groups shown at the very top level of navigation. These categories are typically not real openBIS entities; they are just there to aid navigation and group entities suitably. Once the categories have been retrieved, the client retrieves the root data for each category by specifying `{ requestKey : ROOT, category : [category ref con]}` as the request parameters.
 
 
-
 ### Communication diagram
 
 See the diagram in ...
+
+
+The ipad-ui core plugin module
+==============================
+
+The ipad-ui core plugin module defines core-plugins that can be used by any openBIS iPad app. At the moment, this is only a webapp called ipad-debug. This webapp can be used in the development of ipad uis.
+
+
+The ipad-ui-demo core plugin module
+===================================
+
+The ipad-ui-demo is an example module that includes a dropbox for registering data to display with the ipad-ui and a an implementation of the ipad-read-service-v1 specific to this instance.
+
+To use the ipad-ui-demo, install the ipad-ui-demo core-plugin module. 
+
 
