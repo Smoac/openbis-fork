@@ -290,17 +290,47 @@ static BOOL IsPermIdTarget(NSString *permId)
 - (void)performRootLevelCall
 {
     NSDate *startTime = [NSDate date];
+    NSDate *originalSyncDate = self.serviceManager.serverInfo.lastSyncDate;
     CISDOBAsyncCall *call;
     [self assertBeforeRootLevelCall];
     call = [self.serviceManager retrieveRootLevelEntities];
     [self configureAndRunCallSynchronously: call];
-    [self assertAfterRootLevelCall];
-    NSDate *endTime = [NSDate date];
+    
+    // If there was an originalSyncDate, then no new call was made
+    if (!originalSyncDate) [self assertAfterRootLevelCall];
 
     STAssertNotNil(_callResult, @"The service manager should have returned some entities.");
+    
+    NSDate *endTime = [NSDate date];
     STAssertNotNil(self.serviceManager.serverInfo, @"The service manager should have a serverInfo");
     NSDate *lastSyncDate = self.serviceManager.serverInfo.lastSyncDate;
     STAssertNotNil(lastSyncDate, @"The server info should have a sync date");
+    
+    if (!originalSyncDate) {
+        STAssertTrue([lastSyncDate isGreaterThan: startTime], @"The sync date should be later than the start time");
+        STAssertTrue([endTime isGreaterThan: lastSyncDate], @"The sync date should be earlier than the end time");
+    } else {
+        STAssertTrue([lastSyncDate isEqualToDate: originalSyncDate], @"The sync date should not have been updated");
+    }
+}
+
+/** Bypass the logic that decides if a call is necessary or not. */
+- (void)performRootLevelCallDirectlyToServer
+{
+    NSDate *startTime = [NSDate date];
+    CISDOBAsyncCall *call;
+    [self assertBeforeRootLevelCall];
+    call = [self.serviceManager retrieveRootLevelEntitiesFromServer];
+    [self configureAndRunCallSynchronously: call];
+    [self assertAfterRootLevelCall];
+
+    STAssertNotNil(_callResult, @"The service manager should have returned some entities.");
+    
+    NSDate *endTime = [NSDate date];
+    STAssertNotNil(self.serviceManager.serverInfo, @"The service manager should have a serverInfo");
+    NSDate *lastSyncDate = self.serviceManager.serverInfo.lastSyncDate;
+    STAssertNotNil(lastSyncDate, @"The server info should have a sync date");
+    
     STAssertTrue([lastSyncDate isGreaterThan: startTime], @"The sync date should be later than the start time");
     STAssertTrue([endTime isGreaterThan: lastSyncDate], @"The sync date should be earlier than the end time");
 }
@@ -408,6 +438,33 @@ static BOOL IsPermIdTarget(NSString *permId)
     
     // Check that the children could be found
     [self checkFindingChildren];
+}
+
+- (void)testRootLevelCallWithRefresh
+{
+    [self performLogin];
+    [self performRootLevelCall];
+    NSDate *firstSyncDate = self.serviceManager.serverInfo.lastSyncDate;
+    
+    // Fix test state before making this call again
+    self.willRetrieveRootLevel = NO;
+    self.didRetrieveRootLevel = NO;
+    self.willSynchEntities = NO;
+    self.didSynchEntities = NO;    
+    
+    [self performRootLevelCall];
+    NSDate *secondSyncDate = self.serviceManager.serverInfo.lastSyncDate;
+    STAssertEqualObjects(firstSyncDate, secondSyncDate, @"The second sync should have the same time as the fist");
+
+    // Fix test state before making this call again
+    self.willRetrieveRootLevel = NO;
+    self.didRetrieveRootLevel = NO;
+    self.willSynchEntities = NO;
+    self.didSynchEntities = NO;       
+    [self performRootLevelCallDirectlyToServer];
+
+    NSDate *thirdSyncDate = self.serviceManager.serverInfo.lastSyncDate;
+    STAssertTrue([firstSyncDate isLessThan: thirdSyncDate], @"The third sync should be later than the fist");
 }
 
 - (void)testSearch
