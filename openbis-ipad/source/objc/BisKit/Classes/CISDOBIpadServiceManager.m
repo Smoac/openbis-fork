@@ -818,7 +818,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
     NSArray *permIds = [NSArray arrayWithObject: navEntity.permId];
     NSArray *refcons = [NSArray arrayWithObject: navEntity.refcon];
-    CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntity: permIds refcons: refcons];
+    CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntities: permIds refcons: refcons];
     call.success = ^(id result) {
         [self.serviceManager syncEntities: result notifying: nil];
         if (currentIndex+1 == count) {
@@ -840,7 +840,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
         // listRootLevelEntites without arguments
         NSArray *permIds = [NSArray array];
         NSArray *refcons = [NSArray array];
-        CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntity: permIds refcons: refcons];
+        CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetUpdateDate rootLevelEntities: permIds refcons: refcons];
     
         call.success = ^(id result) {
            [self.serviceManager syncEntities: result notifying: nil];

@@ -96,7 +96,7 @@
     call = [_service listNavigationalEntities];
     [self configureAndRunCallSynchronously: call];
     CISDOBIpadRawEntity *entityForRoot = [self entityForRootCall: _callResult];
-    call = [_service listRootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
+    call = [_service listChangesSince: nil rootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
@@ -128,7 +128,7 @@
     call = [_service listNavigationalEntities];
     [self configureAndRunCallSynchronously: call];
     CISDOBIpadRawEntity *entityForRoot = [self entityForRootCall: _callResult];
-    call = [_service listRootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
+    call = [_service listChangesSince: nil rootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");
@@ -174,7 +174,7 @@
     call = [_service listNavigationalEntities];
     [self configureAndRunCallSynchronously: call];
     CISDOBIpadRawEntity *entityForRoot = [self entityForRootCall: _callResult];
-    call = [_service listRootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
+    call = [_service listChangesSince: nil rootLevelEntities: [NSArray arrayWithObject: entityForRoot.permId] refcons: [NSArray arrayWithObject: entityForRoot.refcon]];
     [self configureAndRunCallSynchronously: call];
     
     STAssertNotNil(_callResult, @"The iPad service should have returned some entities.");

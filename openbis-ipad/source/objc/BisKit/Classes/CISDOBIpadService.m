@@ -183,7 +183,7 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
     return serviceCall;
 }
 */
-- (CISDOBAsyncCall *)listChangesSince:(NSDate *)lastUpdateDate rootLevelEntity:(NSArray *)permIds refcons:(NSArray *)refcons
+- (CISDOBAsyncCall *)listChangesSince:(NSDate *)lastUpdateDate rootLevelEntities:(NSArray *)permIds refcons:(NSArray *)refcons
 {
     NSUInteger count = [permIds count];
     NSAssert([refcons count] == count, @"Drilling requires permIds and refcons. There must be an equal number of these.");
