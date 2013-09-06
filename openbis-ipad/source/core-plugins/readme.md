@@ -304,4 +304,6 @@ The ipad-ui-demo is an example module that includes a dropbox for registering da
 
 To use the ipad-ui-demo, install the ipad-ui-demo core-plugin module. 
 
+The tests require images to be jpg.
+
 
