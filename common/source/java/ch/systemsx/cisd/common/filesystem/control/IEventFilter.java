@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
-interface IEventFilter
+public interface IEventFilter
 {
     boolean accepts(String value);
 }

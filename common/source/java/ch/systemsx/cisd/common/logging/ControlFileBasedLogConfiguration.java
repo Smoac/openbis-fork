@@ -14,43 +14,50 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.common.controlfile;
+package ch.systemsx.cisd.common.logging;
 
 import java.io.File;
+import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.control.ControlDirectoryEventFeed;
 import ch.systemsx.cisd.common.filesystem.control.DelayingDecorator;
+import ch.systemsx.cisd.common.filesystem.control.IEventFilter;
 import ch.systemsx.cisd.common.filesystem.control.IValueFilter;
 import ch.systemsx.cisd.common.filesystem.control.ParameterMap;
 
 /**
  * @author pkupczyk
  */
-public class ControlFileReader
+public class ControlFileBasedLogConfiguration
 {
 
     private static final String CONTROL_FILE_DIRECTORY = ".control";
 
     private static final long CONTROL_FILE_MAX_DELAY = 10 * 1000L;
 
-    private static final String LOG_SERVICE_CALL_START = "log-service-call-start";
-
     private static final String ON = "on";
 
     private static final String OFF = "off";
 
+    private ControlDirectoryEventFeed eventFeed;
+
     private ParameterMap parameterMap;
 
-    public ControlFileReader()
+    public ControlFileBasedLogConfiguration()
     {
         this(new File(CONTROL_FILE_DIRECTORY), CONTROL_FILE_MAX_DELAY);
     }
 
-    public ControlFileReader(File controlFileDirectory, long controlFileMaxDelay)
+    public ControlFileBasedLogConfiguration(File controlFileDirectory, long controlFileMaxDelay)
     {
+        eventFeed = new ControlDirectoryEventFeed(controlFileDirectory);
         parameterMap =
-                new ParameterMap(new DelayingDecorator(controlFileMaxDelay, new ControlDirectoryEventFeed(controlFileDirectory)));
-        parameterMap.addParameter(LOG_SERVICE_CALL_START, OFF, new IValueFilter()
+                new ParameterMap(new DelayingDecorator(controlFileMaxDelay, eventFeed));
+    }
+
+    public void addBooleanParameter(String parameterName, boolean defaultValue)
+    {
+        parameterMap.addParameter(parameterName, defaultValue ? ON : OFF, new IValueFilter()
             {
 
                 @Override
@@ -61,10 +68,23 @@ public class ControlFileReader
             });
     }
 
-    public boolean isLogServiceCallStartEnabled()
+    public boolean getBooleanParameterValue(String parameterName)
     {
-        String value = parameterMap.get(LOG_SERVICE_CALL_START);
+        String value = parameterMap.get(parameterName);
         return ON.equalsIgnoreCase(value);
+    }
+
+    public boolean hasEvent(final String eventName)
+    {
+        List<String> events = eventFeed.getNewEvents(new IEventFilter()
+            {
+                @Override
+                public boolean accepts(String value)
+                {
+                    return eventName.equals(value);
+                }
+            });
+        return events != null && events.isEmpty() == false;
     }
 
 }

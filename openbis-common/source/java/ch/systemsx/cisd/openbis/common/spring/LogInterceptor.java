@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
-import ch.systemsx.cisd.openbis.common.controlfile.ControlFileReader;
+import ch.systemsx.cisd.openbis.common.logging.ServiceCallLogConfiguration;
 
 /**
  * Interceptor for objects which provide their own logger.
@@ -79,11 +79,11 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private ControlFileReader controlFileReader;
+    private ServiceCallLogConfiguration controlFileReader;
 
     public LogInterceptor()
     {
-        controlFileReader = new ControlFileReader();
+        controlFileReader = new ServiceCallLogConfiguration();
     }
 
     //
