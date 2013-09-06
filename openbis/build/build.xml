@@ -200,6 +200,7 @@
 				<include name="register-master-data.sh" />
 				<include name="export-master-data.sh" />
 				<include name="export-master-data.py" />
+				<include name="configure.sh" />				
 			</fileset>
 		</checksum>
 		<checksum todir="${dist}" pattern="{0}  etc/{1}">
@@ -306,6 +307,7 @@
       <zipfileset file="${original.openbis.server.dist}/check.sh" filemode="777" prefix="${server.folder.name}" />
       <zipfileset file="${original.openbis.server.dist}/version.sh" filemode="777" prefix="${server.folder.name}" />
       <zipfileset file="${original.openbis.server.dist}/watchdog.sh" filemode="777" prefix="${server.folder.name}" />
+      <zipfileset file="${original.openbis.server.dist}/configure.sh" filemode="777" prefix="${server.folder.name}" />
     </zip>
     <delete dir="${server.dist}" />
   </target>

@@ -53,6 +53,7 @@
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
         </layout>
+        <filter class="ch.systemsx.cisd.openbis.common.log.DefaultAppenderFilter"/>
     </appender>
 
     <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
