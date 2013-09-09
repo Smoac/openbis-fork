@@ -79,11 +79,11 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
 
     private static final long serialVersionUID = 1L;
 
-    private ServiceCallLogConfiguration controlFileReader;
+    private ServiceCallLogConfiguration logConfiguration;
 
     public LogInterceptor()
     {
-        controlFileReader = new ServiceCallLogConfiguration();
+        logConfiguration = new ServiceCallLogConfiguration();
     }
 
     //
@@ -114,7 +114,7 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         {
             timer.start();
 
-            if (controlFileReader.isLogServiceCallStartEnabled())
+            if (logConfiguration.isLogServiceCallStartEnabled())
             {
                 method.invoke(logger, arguments);
             }

@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.sql.CallableStatement;
@@ -42,25 +40,23 @@ import org.apache.commons.dbcp.DelegatingConnection;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
 import org.apache.commons.dbcp.DelegatingStatement;
 import org.apache.commons.dbcp.PoolingDataSource;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.logging.event.BooleanEvent;
+import ch.systemsx.cisd.common.logging.event.LongEvent;
+import ch.systemsx.cisd.dbmigration.logging.DbConnectionLogConfiguration;
 
 /**
- * A {@link PoolingDataSource} that can log usage of active connections to help investigating
- * connection leaks.
+ * A {@link PoolingDataSource} that can log usage of active connections to help investigating connection leaks.
  * 
  * @author Bernd Rinn
  */
 class MonitoringPoolingDataSource extends PoolingDataSource
 {
-    private static final String CONTROL_FILE_DIRECTORY = ".control";
-
     private static final long DEFAULT_PERIOD_TIMER_MILLIS = 10 * 1000L;
 
     private final static Logger machineLog =
@@ -77,7 +73,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             new ConcurrentHashMap<Integer, BorrowedConnectionRecord>();
 
     private static volatile boolean logStackTrace;
-    
+
     private static volatile Level configuredLogLevel;
 
     private final long activeConnectionsLogInterval;
@@ -130,75 +126,41 @@ class MonitoringPoolingDataSource extends PoolingDataSource
      */
     private static class DatabaseConnectionInfoController extends TimerTask
     {
-        private final File controlDir = new File(CONTROL_FILE_DIRECTORY);
 
-        private final FilenameFilter prefixFilter = new FilenameFilter()
-            {
-                @Override
-                public boolean accept(File dir, String name)
-                {
-                    return name.startsWith("db-connections-");
-                }
-            };
+        private DbConnectionLogConfiguration logConfiguration = new DbConnectionLogConfiguration();
 
         @Override
         public void run()
         {
-            final File[] controlFiles = controlDir.listFiles(prefixFilter);
-            if (controlFiles == null)
+            LongEvent printActiveEvent = logConfiguration.getDbConnectionsPrintActiveEvent();
+            if (printActiveEvent != null)
             {
-                return;
+                final long oldActiveConnTimeMillis = printActiveEvent.getValue() != null ? printActiveEvent.getValue() : 0;
+                logActiveDatabaseConnections(System.err, System.currentTimeMillis(),
+                        oldActiveConnTimeMillis);
             }
-            for (File f : controlFiles)
+
+            BooleanEvent stacktraceEvent = logConfiguration.getDbConnectionsStacktraceEvent();
+            if (stacktraceEvent != null && stacktraceEvent.getValue() != null)
             {
-                boolean knownCommand = false;
-                final String name = f.getName();
-                if (name.startsWith("db-connections-print-active"))
-                {
-                    final String[] split = StringUtils.split(name, '.');
-                    final long oldActiveConnTimeMillis =
-                            (split.length > 1) ? NumberUtils.toLong(split[1], 0) : 0;
-                    logActiveDatabaseConnections(System.err, System.currentTimeMillis(),
-                            oldActiveConnTimeMillis);
-                    knownCommand = true;
-                } else if ("db-connections-stacktrace-on".equals(name))
-                {
-                    setLogStackTrace(true);
-                    knownCommand = true;
-                } else if ("db-connections-stacktrace-off".equals(name))
-                {
-                    setLogStackTrace(false);
-                    knownCommand = true;
-                } else if ("db-connections-debug-on".equals(name))
+                setLogStackTrace(stacktraceEvent.getValue());
+            }
+
+            BooleanEvent debugEvent = logConfiguration.getDbConnectionsDebugEvent();
+            if (debugEvent != null && debugEvent.getValue() != null)
+            {
+                if (debugEvent.getValue())
                 {
                     configuredLogLevel = machineLog.getLevel();
                     machineLog.setLevel(Level.DEBUG);
                     machineLog.info("Enable debug log for database connections.");
-                    knownCommand = true;
-                } else if ("db-connections-debug-off".equals(name))
+                } else
                 {
                     final Level level = configuredLogLevel;
                     machineLog.setLevel((level == null) ? Level.INFO : level);
                     machineLog.info("Disable debug log for database connections.");
-                    knownCommand = true;
+
                 }
-                if (knownCommand == false)
-                {
-                    machineLog.warn("Don't know what to do with control file '" + name
-                            + "', ignoring.");
-                    machineLog.warn("Supported control files are:");
-                    machineLog.warn("db-connections-print-active[.nnn] - print all active " +
-                            "database connections older than nnn milli-seconds.");
-                    machineLog.warn("db-connections-stacktrace-on - switch on recording " +
-                            "stacktraces when handing out a database connection.");
-                    machineLog.warn("db-connections-stacktrace-off - switch off recording " +
-                            "stacktraces when handing out a database connection.");
-                    machineLog.warn("db-connections-debug-on - switch on detailed logging " +
-                    		"of db connection borrowing.");
-                    machineLog.warn("db-connections-debug-off - switch off detailed logging " +
-                            "of db connection borrowing.");
-                }
-                f.delete();
             }
         }
     }
@@ -215,8 +177,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     }
 
     /**
-     * Return <code>true</code>, if recording stack traces for database connection borrowing is
-     * switched on.
+     * Return <code>true</code>, if recording stack traces for database connection borrowing is switched on.
      */
     public static boolean isLogStackTrace()
     {
@@ -244,9 +205,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     }
 
     /**
-     * Print the active (borrowed) database connections older than
-     * <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when the
-     * connection was borrowed.
+     * Print the active (borrowed) database connections older than <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when
+     * the connection was borrowed.
      */
     public static void logActiveDatabaseConnections(PrintWriter out,
             long oldActiveConnTimeMillis)
@@ -255,9 +215,8 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     }
 
     /**
-     * Print the active (borrowed) database connections older than
-     * <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when the
-     * connection was borrowed.
+     * Print the active (borrowed) database connections older than <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when
+     * the connection was borrowed.
      */
     public static void logActiveDatabaseConnections(PrintStream out,
             long oldActiveConnTimeMillis)
@@ -349,8 +308,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     }
 
     /**
-     * Return a {@link java.sql.Connection} from my pool,
-     * according to the contract specified by {@link ObjectPool#borrowObject}.
+     * Return a {@link java.sql.Connection} from my pool, according to the contract specified by {@link ObjectPool#borrowObject}.
      */
     @SuppressWarnings("deprecation")
     @Override
@@ -442,7 +400,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         traceToString(builder, trace);
         return builder.toString();
     }
-    
+
     static void traceToString(StringBuilder builder, StackTraceElement[] trace)
     {
         boolean skip = true;
@@ -460,8 +418,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     }
 
     /**
-     * PoolGuardConnectionWrapper is a Connection wrapper that makes sure a
-     * closed connection cannot be used anymore.
+     * PoolGuardConnectionWrapper is a Connection wrapper that makes sure a closed connection cannot be used anymore.
      */
     private class PoolGuardConnectionWrapper extends DelegatingConnection
     {
@@ -607,7 +564,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         }
 
         @SuppressWarnings(
-            { "rawtypes", "unchecked" })
+        { "rawtypes", "unchecked" })
         @Override
         public Map getTypeMap() throws SQLException
         {
@@ -705,7 +662,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
 
         @Override
         @SuppressWarnings(
-            { "rawtypes", "unchecked" })
+        { "rawtypes", "unchecked" })
         public void setTypeMap(Map map) throws SQLException
         {
             checkOpen();

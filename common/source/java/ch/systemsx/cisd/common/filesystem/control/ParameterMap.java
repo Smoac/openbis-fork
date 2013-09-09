@@ -16,94 +16,142 @@
 
 package ch.systemsx.cisd.common.filesystem.control;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * Collection of key-value pairs that are updated by given event feed. Events have to be of format "key-value", other events are ignored.
- * 
  * @author anttil
  */
 public class ParameterMap
 {
-    private final Map<String, String> values;
+    private final Map<String, IValueFilter> parameterNameToValueFilterMap;
 
-    private final Map<String, IValueFilter> filters;
+    private final Map<String, Parameter> parameterNameToParameterMap;
 
     private final IEventFeed eventFeed;
 
     public ParameterMap(IEventFeed eventFeed)
     {
         this.eventFeed = eventFeed;
-        this.values = new HashMap<String, String>();
-        this.filters = new HashMap<String, IValueFilter>();
+        this.parameterNameToValueFilterMap = new HashMap<String, IValueFilter>();
+        this.parameterNameToParameterMap = new HashMap<String, Parameter>();
     }
 
-    public void addParameter(String key, String defaultValue)
+    public synchronized void addParameter(String parameterName, String defaultValue)
     {
-        addParameter(key, defaultValue, acceptAllFilter());
+        addParameter(parameterName, defaultValue, new AcceptAllValuesFilter());
     }
 
-    public synchronized void addParameter(String key, String defaultValue, IValueFilter filter)
+    public synchronized void addParameter(String parameterName, String defaultValue, IValueFilter valueFilter)
     {
-        if (filter.isValid(defaultValue) == false)
+        if (valueFilter.isValid(defaultValue) == false)
         {
-            throw new IllegalArgumentException("Default value " + defaultValue + " is not valid value for parameter " + key);
+            throw new IllegalArgumentException("Default value " + defaultValue + " is not valid value for parameter " + parameterName);
         }
 
-        filters.put(key, filter);
-        values.put(key, defaultValue);
+        parameterNameToValueFilterMap.put(parameterName, valueFilter);
+        if (defaultValue != null)
+        {
+            parameterNameToParameterMap.put(parameterName, new Parameter(parameterName, defaultValue));
+        }
     }
 
-    public synchronized String get(String key)
+    public synchronized Parameter getParameterValue(String parameterName)
     {
-        List<String> events = eventFeed.getNewEvents(eventFilter(values.keySet()));
+        List<Parameter> parameters = loadParameters();
+        for (Parameter parameter : parameters)
+        {
+            parameterNameToParameterMap.put(parameter.getName(), parameter);
+        }
+        return parameterNameToParameterMap.get(parameterName);
+    }
+
+    public synchronized void removeParameterValue(String parameterName)
+    {
+        parameterNameToParameterMap.remove(parameterName);
+    }
+
+    private List<Parameter> loadParameters()
+    {
+        List<String> events = eventFeed.getNewEvents(new AcceptEventsWithPrefixesFilter(getParameterNames()));
+        List<Parameter> parameters = new ArrayList<Parameter>();
+
         for (String event : events)
         {
-            String parameter = event.substring(0, event.lastIndexOf("-"));
-            String value = event.substring(event.lastIndexOf("-") + 1);
-            IValueFilter filter = filters.get(parameter);
+            String longestMatchingParameterName = null;
 
-            if (filter != null && filter.isValid(value))
+            for (String parameterName : getParameterNames())
             {
-                values.put(parameter, value);
+                if (event.startsWith(parameterName)
+                        && (longestMatchingParameterName == null || longestMatchingParameterName.length() < parameterName.length()))
+                {
+                    {
+                        longestMatchingParameterName = parameterName;
+                    }
+                }
+            }
+
+            if (longestMatchingParameterName != null)
+            {
+                String parameterValue = null;
+
+                if (event.length() > longestMatchingParameterName.length() && event.charAt(longestMatchingParameterName.length()) == '-')
+                {
+                    parameterValue = event.substring(longestMatchingParameterName.length() + 1);
+                }
+
+                IValueFilter valueFilter = parameterNameToValueFilterMap.get(longestMatchingParameterName);
+
+                if (valueFilter != null && valueFilter.isValid(parameterValue))
+                {
+                    Parameter parameter = new Parameter(longestMatchingParameterName, parameterValue);
+                    parameters.add(parameter);
+                }
             }
         }
-        return values.get(key);
+
+        return parameters;
     }
 
-    private IEventFilter eventFilter(final Set<String> keySet)
+    private Collection<String> getParameterNames()
     {
-        return new IEventFilter()
-            {
-
-                @Override
-                public boolean accepts(String event)
-                {
-                    for (String parameter : keySet)
-                    {
-                        if (event.startsWith(parameter + "-"))
-                        {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            };
+        return parameterNameToValueFilterMap.keySet();
     }
 
-    private IValueFilter acceptAllFilter()
+    private static class AcceptEventsWithPrefixesFilter implements IEventFilter
     {
-        return new IValueFilter()
+
+        private Collection<String> eventPrefixes;
+
+        public AcceptEventsWithPrefixesFilter(Collection<String> eventPrefixes)
+        {
+            this.eventPrefixes = eventPrefixes;
+        }
+
+        @Override
+        public boolean accepts(String event)
+        {
+            for (String eventPrefix : eventPrefixes)
             {
-                @Override
-                public boolean isValid(String value)
+                if (event.startsWith(eventPrefix))
                 {
                     return true;
                 }
+            }
+            return false;
+        }
+    }
 
-            };
+    private static class AcceptAllValuesFilter implements IValueFilter
+    {
+        @Override
+        public boolean isValid(String value)
+        {
+            return true;
+        }
+
     }
 }

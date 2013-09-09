@@ -17,13 +17,14 @@
 package ch.systemsx.cisd.common.logging;
 
 import java.io.File;
-import java.util.List;
 
 import ch.systemsx.cisd.common.filesystem.control.ControlDirectoryEventFeed;
 import ch.systemsx.cisd.common.filesystem.control.DelayingDecorator;
-import ch.systemsx.cisd.common.filesystem.control.IEventFilter;
 import ch.systemsx.cisd.common.filesystem.control.IValueFilter;
+import ch.systemsx.cisd.common.filesystem.control.Parameter;
 import ch.systemsx.cisd.common.filesystem.control.ParameterMap;
+import ch.systemsx.cisd.common.logging.event.BooleanEvent;
+import ch.systemsx.cisd.common.logging.event.LongEvent;
 
 /**
  * @author pkupczyk
@@ -39,9 +40,7 @@ public class ControlFileBasedLogConfiguration
 
     private static final String OFF = "off";
 
-    private ControlDirectoryEventFeed eventFeed;
-
-    private ParameterMap parameterMap;
+    private ParameterMap map;
 
     public ControlFileBasedLogConfiguration()
     {
@@ -50,16 +49,13 @@ public class ControlFileBasedLogConfiguration
 
     public ControlFileBasedLogConfiguration(File controlFileDirectory, long controlFileMaxDelay)
     {
-        eventFeed = new ControlDirectoryEventFeed(controlFileDirectory);
-        parameterMap =
-                new ParameterMap(new DelayingDecorator(controlFileMaxDelay, eventFeed));
+        map = new ParameterMap(new DelayingDecorator(controlFileMaxDelay, new ControlDirectoryEventFeed(controlFileDirectory)));
     }
 
-    public void addBooleanParameter(String parameterName, boolean defaultValue)
+    public synchronized void addBooleanParameter(String parameterName, boolean defaultValue)
     {
-        parameterMap.addParameter(parameterName, defaultValue ? ON : OFF, new IValueFilter()
+        map.addParameter(parameterName, defaultValue ? ON : OFF, new IValueFilter()
             {
-
                 @Override
                 public boolean isValid(String value)
                 {
@@ -68,23 +64,132 @@ public class ControlFileBasedLogConfiguration
             });
     }
 
-    public boolean getBooleanParameterValue(String parameterName)
+    public synchronized void addBooleanEvent(String eventName)
     {
-        String value = parameterMap.get(parameterName);
-        return ON.equalsIgnoreCase(value);
-    }
-
-    public boolean hasEvent(final String eventName)
-    {
-        List<String> events = eventFeed.getNewEvents(new IEventFilter()
+        map.addParameter(eventName, null, new IValueFilter()
             {
                 @Override
-                public boolean accepts(String value)
+                public boolean isValid(String value)
                 {
-                    return eventName.equals(value);
+                    return value == null || ON.equalsIgnoreCase(value) || OFF.equalsIgnoreCase(value);
                 }
             });
-        return events != null && events.isEmpty() == false;
+    }
+
+    public synchronized void addLongParameter(String parameterName, long defaultValue)
+    {
+        map.addParameter(parameterName, String.valueOf(defaultValue), new IValueFilter()
+            {
+                @Override
+                public boolean isValid(String value)
+                {
+                    if (value == null)
+                    {
+                        return false;
+                    } else
+                    {
+                        try
+                        {
+                            Long.valueOf(value);
+                            return true;
+                        } catch (NumberFormatException e)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            });
+    }
+
+    public synchronized void addLongEvent(String eventName)
+    {
+        map.addParameter(eventName, null, new IValueFilter()
+            {
+                @Override
+                public boolean isValid(String value)
+                {
+                    if (value == null)
+                    {
+                        return true;
+                    } else
+                    {
+                        try
+                        {
+                            Long.valueOf(value);
+                            return true;
+                        } catch (NumberFormatException e)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            });
+    }
+
+    public synchronized Boolean getBooleanParameterValue(String parameterName)
+    {
+        Parameter parameter = map.getParameterValue(parameterName);
+
+        if (parameter == null)
+        {
+            return null;
+        } else
+        {
+            if (parameter.getValue() == null)
+            {
+                return null;
+            } else
+            {
+                return ON.equalsIgnoreCase(parameter.getValue());
+            }
+        }
+    }
+
+    public synchronized Long getLongParameterValue(String parameterName)
+    {
+        Parameter parameter = map.getParameterValue(parameterName);
+
+        if (parameter == null)
+        {
+            return null;
+        } else
+        {
+            if (parameter.getValue() == null)
+            {
+                return null;
+            } else
+            {
+                return Long.valueOf(parameter.getValue());
+            }
+        }
+    }
+
+    public synchronized BooleanEvent getBooleanEvent(String eventName)
+    {
+        Parameter parameter = map.getParameterValue(eventName);
+
+        if (parameter == null)
+        {
+            return null;
+        } else
+        {
+            map.removeParameterValue(eventName);
+            return new BooleanEvent(eventName, parameter.getValue() != null ? ON.equalsIgnoreCase(parameter.getValue()) : null);
+        }
+    }
+
+    public synchronized LongEvent getLongEvent(String eventName)
+    {
+        Parameter parameter = map.getParameterValue(eventName);
+
+        if (parameter == null)
+        {
+            return null;
+        } else
+        {
+            map.removeParameterValue(eventName);
+            return new LongEvent(eventName, parameter.getValue() != null ? Long.valueOf(parameter.getValue()) : null);
+        }
     }
 
 }

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.dbmigration.logging;
 
 import ch.systemsx.cisd.common.logging.ControlFileBasedLogConfiguration;
+import ch.systemsx.cisd.common.logging.event.BooleanEvent;
+import ch.systemsx.cisd.common.logging.event.LongEvent;
 
 /**
  * @author pkupczyk
@@ -40,23 +42,24 @@ public class DbConnectionLogConfiguration
     DbConnectionLogConfiguration(ControlFileBasedLogConfiguration config)
     {
         this.config = config;
-        this.config.addBooleanParameter(DB_CONNECTIONS_STACKTRACE, false);
-        this.config.addBooleanParameter(DB_CONNECTIONS_DEBUG, false);
+        this.config.addLongEvent(DB_CONNECTIONS_PRINT_ACTIVE);
+        this.config.addBooleanEvent(DB_CONNECTIONS_STACKTRACE);
+        this.config.addBooleanEvent(DB_CONNECTIONS_DEBUG);
     }
 
-    public boolean isDbConnectionsPrintActiveRequested()
+    public LongEvent getDbConnectionsPrintActiveEvent()
     {
-        return config.hasEvent(DB_CONNECTIONS_PRINT_ACTIVE);
+        return config.getLongEvent(DB_CONNECTIONS_PRINT_ACTIVE);
     }
 
-    public boolean isDbConnectionsStacktraceEnabled()
+    public BooleanEvent getDbConnectionsStacktraceEvent()
     {
-        return config.getBooleanParameterValue(DB_CONNECTIONS_STACKTRACE);
+        return config.getBooleanEvent(DB_CONNECTIONS_STACKTRACE);
     }
 
-    public boolean isDbConnectionsDebugEnabled()
+    public BooleanEvent getDbConnectionsDebugEvent()
     {
-        return config.getBooleanParameterValue(DB_CONNECTIONS_DEBUG);
+        return config.getBooleanEvent(DB_CONNECTIONS_DEBUG);
     }
 
 }

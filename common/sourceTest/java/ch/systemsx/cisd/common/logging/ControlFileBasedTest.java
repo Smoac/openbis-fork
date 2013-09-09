@@ -25,6 +25,8 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.event.BooleanEvent;
+import ch.systemsx.cisd.common.logging.event.LongEvent;
 import ch.systemsx.cisd.common.utilities.TestResources;
 
 /**
@@ -46,26 +48,170 @@ public class ControlFileBasedTest
         deleteControlFileDirectory();
     }
 
-    protected void testEvent(String eventName, IDelegatedActionWithResult<Boolean> isEventAction) throws IOException
+    protected void testTriggerBooleanEvent(String eventName, IDelegatedActionWithResult<BooleanEvent> getEventAction) throws IOException
     {
-        Assert.assertFalse(isEventAction.execute(true));
+        BooleanEvent event = getEventAction.execute(true);
+        Assert.assertNull(event);
 
         new File(getControlFileDirectory(), eventName).createNewFile();
 
-        Assert.assertTrue(isEventAction.execute(true));
-        Assert.assertFalse(isEventAction.execute(true));
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertNull(event.getValue());
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName + "-on").createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertTrue(event.getValue());
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName + "-off").createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertFalse(event.getValue());
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName + "-invalid").createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        File onFile = new File(getControlFileDirectory(), eventName + "-on");
+        File offFile = new File(getControlFileDirectory(), eventName + "-off");
+
+        onFile.createNewFile();
+        offFile.createNewFile();
+
+        onFile.setLastModified(System.currentTimeMillis() - 5000);
+        offFile.setLastModified(System.currentTimeMillis());
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertFalse(event.getValue());
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+    }
+
+    protected void testTriggerLongEvent(String eventName, IDelegatedActionWithResult<LongEvent> getEventAction) throws IOException
+    {
+        LongEvent event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName).createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertNull(event.getValue());
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName + "-100").createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertEquals(event.getValue(), Long.valueOf(100));
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName + "-101").createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertEquals(event.getValue(), Long.valueOf(101));
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        new File(getControlFileDirectory(), eventName + "-invalid").createNewFile();
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
+
+        File onFile = new File(getControlFileDirectory(), eventName + "-102");
+        File offFile = new File(getControlFileDirectory(), eventName + "-103");
+
+        onFile.createNewFile();
+        offFile.createNewFile();
+
+        onFile.setLastModified(System.currentTimeMillis() - 5000);
+        offFile.setLastModified(System.currentTimeMillis());
+
+        event = getEventAction.execute(true);
+        Assert.assertNotNull(event);
+        Assert.assertEquals(event.getValue(), Long.valueOf(103));
+
+        event = getEventAction.execute(true);
+        Assert.assertNull(event);
     }
 
     protected void testSwitchBooleanParameter(String parameterName, boolean parameterDefault,
             IDelegatedActionWithResult<Boolean> getParameterValueAction) throws IOException
     {
-        Assert.assertFalse(getParameterValueAction.execute(true));
+        Assert.assertEquals(getParameterValueAction.execute(true), Boolean.valueOf(parameterDefault));
 
         new File(getControlFileDirectory(), parameterName + "-on").createNewFile();
         Assert.assertTrue(getParameterValueAction.execute(true));
 
+        new File(getControlFileDirectory(), parameterName + "-invalid").createNewFile();
+        Assert.assertTrue(getParameterValueAction.execute(true));
+
         new File(getControlFileDirectory(), parameterName + "-off").createNewFile();
         Assert.assertFalse(getParameterValueAction.execute(true));
+
+        new File(getControlFileDirectory(), parameterName + "-invalid").createNewFile();
+        Assert.assertFalse(getParameterValueAction.execute(true));
+
+        File onFile = new File(getControlFileDirectory(), parameterName + "-on");
+        File offFile = new File(getControlFileDirectory(), parameterName + "-off");
+
+        onFile.createNewFile();
+        offFile.createNewFile();
+
+        onFile.setLastModified(System.currentTimeMillis() - 5000);
+        offFile.setLastModified(System.currentTimeMillis());
+
+        Assert.assertFalse(getParameterValueAction.execute(true));
+    }
+
+    protected void testSwitchLongParameter(String parameterName, long parameterDefault,
+            IDelegatedActionWithResult<Long> getParameterValueAction) throws IOException
+    {
+        Assert.assertEquals(getParameterValueAction.execute(true), Long.valueOf(parameterDefault));
+
+        new File(getControlFileDirectory(), parameterName + "-100").createNewFile();
+        Assert.assertEquals(getParameterValueAction.execute(true), Long.valueOf(100));
+
+        new File(getControlFileDirectory(), parameterName + "-invalid").createNewFile();
+        Assert.assertEquals(getParameterValueAction.execute(true), Long.valueOf(100));
+
+        new File(getControlFileDirectory(), parameterName + "-101").createNewFile();
+        Assert.assertEquals(getParameterValueAction.execute(true), Long.valueOf(101));
+
+        new File(getControlFileDirectory(), parameterName + "-invalid").createNewFile();
+        Assert.assertEquals(getParameterValueAction.execute(true), Long.valueOf(101));
+
+        File onFile = new File(getControlFileDirectory(), parameterName + "-102");
+        File offFile = new File(getControlFileDirectory(), parameterName + "-103");
+
+        onFile.createNewFile();
+        offFile.createNewFile();
+
+        onFile.setLastModified(System.currentTimeMillis() - 5000);
+        offFile.setLastModified(System.currentTimeMillis());
+
+        Assert.assertEquals(getParameterValueAction.execute(true), Long.valueOf(103));
     }
 
     protected File getControlFileDirectory()

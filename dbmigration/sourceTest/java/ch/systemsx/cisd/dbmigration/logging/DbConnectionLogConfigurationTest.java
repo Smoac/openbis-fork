@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.logging.ControlFileBasedLogConfiguration;
 import ch.systemsx.cisd.common.logging.ControlFileBasedTest;
+import ch.systemsx.cisd.common.logging.event.BooleanEvent;
+import ch.systemsx.cisd.common.logging.event.LongEvent;
 
 /**
  * @author pkupczyk
@@ -35,12 +37,12 @@ public class DbConnectionLogConfigurationTest extends ControlFileBasedTest
     {
         final DbConnectionLogConfiguration config = createConfig();
 
-        testEvent(DbConnectionLogConfiguration.DB_CONNECTIONS_PRINT_ACTIVE, new IDelegatedActionWithResult<Boolean>()
+        testTriggerLongEvent(DbConnectionLogConfiguration.DB_CONNECTIONS_PRINT_ACTIVE, new IDelegatedActionWithResult<LongEvent>()
             {
                 @Override
-                public Boolean execute(boolean didOperationSucceed)
+                public LongEvent execute(boolean didOperationSucceed)
                 {
-                    return config.isDbConnectionsPrintActiveRequested();
+                    return config.getDbConnectionsPrintActiveEvent();
                 }
             });
     }
@@ -50,12 +52,12 @@ public class DbConnectionLogConfigurationTest extends ControlFileBasedTest
     {
         final DbConnectionLogConfiguration config = createConfig();
 
-        testSwitchBooleanParameter(DbConnectionLogConfiguration.DB_CONNECTIONS_DEBUG, false, new IDelegatedActionWithResult<Boolean>()
+        testTriggerBooleanEvent(DbConnectionLogConfiguration.DB_CONNECTIONS_DEBUG, new IDelegatedActionWithResult<BooleanEvent>()
             {
                 @Override
-                public Boolean execute(boolean didOperationSucceed)
+                public BooleanEvent execute(boolean didOperationSucceed)
                 {
-                    return config.isDbConnectionsDebugEnabled();
+                    return config.getDbConnectionsDebugEvent();
                 }
             });
     }
@@ -65,12 +67,12 @@ public class DbConnectionLogConfigurationTest extends ControlFileBasedTest
     {
         final DbConnectionLogConfiguration config = createConfig();
 
-        testSwitchBooleanParameter(DbConnectionLogConfiguration.DB_CONNECTIONS_STACKTRACE, false, new IDelegatedActionWithResult<Boolean>()
+        testTriggerBooleanEvent(DbConnectionLogConfiguration.DB_CONNECTIONS_STACKTRACE, new IDelegatedActionWithResult<BooleanEvent>()
             {
                 @Override
-                public Boolean execute(boolean didOperationSucceed)
+                public BooleanEvent execute(boolean didOperationSucceed)
                 {
-                    return config.isDbConnectionsStacktraceEnabled();
+                    return config.getDbConnectionsStacktraceEvent();
                 }
             });
     }

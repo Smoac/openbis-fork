@@ -61,7 +61,7 @@ public class ParameterMapTest
             });
 
         map.addParameter("parameter", "value");
-        assertThat(map.get("parameter"), is("value"));
+        assertThat(map.getParameterValue("parameter").getValue(), is("value"));
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
@@ -81,7 +81,7 @@ public class ParameterMapTest
                 }
             });
         map.addParameter("parameter", "default value");
-        assertThat(map.get("parameter"), is("updated value"));
+        assertThat(map.getParameterValue("parameter").getValue(), is("updated value"));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class ParameterMapTest
                 }
             });
         map.addParameter("parameter", "default value");
-        assertThat(map.get("parameter"), is(""));
+        assertThat(map.getParameterValue("parameter").getValue(), is(""));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ParameterMapTest
                 }
             });
         map.addParameter("parameter", "default value", acceptValuesStartingWith("d"));
-        assertThat(map.get("parameter"), is("default value"));
+        assertThat(map.getParameterValue("parameter").getValue(), is("default value"));
     }
 
     private IValueFilter passNothingFilter()

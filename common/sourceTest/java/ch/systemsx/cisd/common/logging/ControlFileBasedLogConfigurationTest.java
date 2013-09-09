@@ -22,6 +22,10 @@ import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
+import ch.systemsx.cisd.common.logging.event.BooleanEvent;
+import ch.systemsx.cisd.common.logging.event.LongEvent;
+
 /**
  * @author pkupczyk
  */
@@ -30,108 +34,206 @@ public class ControlFileBasedLogConfigurationTest extends ControlFileBasedTest
 
     private static final String TEST_EVENT_NAME = "test-event";
 
-    private static final String BOOLEAN_PARAMETER_NAME = "boolean-parameter";
+    private static final String TEST_PARAMETER_NAME = "test-parameter";
+
+    private static final String UNKNOWN_EVENT_NAME = "unknown-event";
+
+    private static final String UNKNOWN_PARAMETER_NAME = "unknown-parameter";
 
     @Test
-    public void testHasEvent() throws IOException
+    public void testTriggerBooleanEvent() throws IOException
     {
         final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
+        config.addBooleanEvent(TEST_EVENT_NAME);
 
-        Assert.assertFalse(config.hasEvent(TEST_EVENT_NAME));
+        testTriggerBooleanEvent(TEST_EVENT_NAME, new IDelegatedActionWithResult<BooleanEvent>()
+            {
 
-        new File(getControlFileDirectory(), TEST_EVENT_NAME).createNewFile();
-
-        Assert.assertTrue(config.hasEvent(TEST_EVENT_NAME));
-        Assert.assertFalse(config.hasEvent(TEST_EVENT_NAME));
+                @Override
+                public BooleanEvent execute(boolean didOperationSucceed)
+                {
+                    return config.getBooleanEvent(TEST_EVENT_NAME);
+                }
+            });
     }
 
     @Test
-    public void testHasEventAndSwitchBooleanParameter() throws IOException
+    public void testTriggerLongEvent() throws IOException
     {
         final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
-        config.addBooleanParameter(BOOLEAN_PARAMETER_NAME, false);
+        config.addLongEvent(TEST_EVENT_NAME);
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-        Assert.assertFalse(config.hasEvent(TEST_EVENT_NAME));
+        testTriggerLongEvent(TEST_EVENT_NAME, new IDelegatedActionWithResult<LongEvent>()
+            {
 
-        new File(getControlFileDirectory(), BOOLEAN_PARAMETER_NAME + "-on").createNewFile();
-        new File(getControlFileDirectory(), TEST_EVENT_NAME).createNewFile();
+                @Override
+                public LongEvent execute(boolean didOperationSucceed)
+                {
+                    return config.getLongEvent(TEST_EVENT_NAME);
+                }
+            });
+    }
 
-        Assert.assertTrue(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-        Assert.assertTrue(config.hasEvent(TEST_EVENT_NAME));
+    @Test
+    public void testTriggerUnknownEvent() throws IOException
+    {
+        final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
+        config.addBooleanEvent(TEST_EVENT_NAME);
 
-        Assert.assertTrue(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-        Assert.assertFalse(config.hasEvent(TEST_EVENT_NAME));
+        Assert.assertNull(config.getBooleanEvent(TEST_EVENT_NAME));
+        Assert.assertNull(config.getBooleanEvent(UNKNOWN_EVENT_NAME));
 
-        new File(getControlFileDirectory(), BOOLEAN_PARAMETER_NAME + "-off").createNewFile();
+        File testEventFile = new File(getControlFileDirectory(), TEST_EVENT_NAME);
+        File unknownEventFile = new File(getControlFileDirectory(), UNKNOWN_EVENT_NAME);
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-        Assert.assertFalse(config.hasEvent(TEST_EVENT_NAME));
+        testEventFile.createNewFile();
+        unknownEventFile.createNewFile();
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-        Assert.assertFalse(config.hasEvent(TEST_EVENT_NAME));
+        Assert.assertNotNull(config.getBooleanEvent(TEST_EVENT_NAME));
+        Assert.assertNull(config.getBooleanEvent(UNKNOWN_EVENT_NAME));
+
+        Assert.assertFalse(testEventFile.exists());
+        Assert.assertTrue(unknownEventFile.exists());
+    }
+
+    @Test
+    public void testTriggerEventsWithSamePrefixes() throws IOException
+    {
+        final String SOME = "some";
+        final String SOME_EVENT = "some-event";
+        final String SOME_EVENT_NAME = "some-event-name";
+
+        final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
+        config.addBooleanEvent(SOME);
+        config.addBooleanEvent(SOME_EVENT);
+        config.addBooleanEvent(SOME_EVENT_NAME);
+
+        Assert.assertNull(config.getBooleanEvent(SOME));
+        Assert.assertNull(config.getBooleanEvent(SOME));
+        Assert.assertNull(config.getBooleanEvent(SOME));
+
+        new File(getControlFileDirectory(), "some-on").createNewFile();
+
+        Assert.assertNotNull(config.getBooleanEvent(SOME));
+        Assert.assertNull(config.getBooleanEvent(SOME_EVENT));
+        Assert.assertNull(config.getBooleanEvent(SOME_EVENT_NAME));
+
+        new File(getControlFileDirectory(), "some-event-on").createNewFile();
+
+        Assert.assertNull(config.getBooleanEvent(SOME));
+        Assert.assertNotNull(config.getBooleanEvent(SOME_EVENT));
+        Assert.assertNull(config.getBooleanEvent(SOME_EVENT_NAME));
+
+        new File(getControlFileDirectory(), "some-event-name-on").createNewFile();
+
+        Assert.assertNull(config.getBooleanEvent(SOME));
+        Assert.assertNull(config.getBooleanEvent(SOME_EVENT));
+        Assert.assertNotNull(config.getBooleanEvent(SOME_EVENT_NAME));
     }
 
     @Test
     public void testSwitchBooleanParameter() throws IOException
     {
         final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
-        config.addBooleanParameter(BOOLEAN_PARAMETER_NAME, false);
+        config.addBooleanParameter(TEST_PARAMETER_NAME, true);
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-
-        new File(getControlFileDirectory(), BOOLEAN_PARAMETER_NAME + "-on").createNewFile();
-        Assert.assertTrue(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-
-        new File(getControlFileDirectory(), BOOLEAN_PARAMETER_NAME + "-off").createNewFile();
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
+        testSwitchBooleanParameter(TEST_PARAMETER_NAME, true, new IDelegatedActionWithResult<Boolean>()
+            {
+                @Override
+                public Boolean execute(boolean didOperationSucceed)
+                {
+                    return config.getBooleanParameterValue(TEST_PARAMETER_NAME);
+                }
+            });
     }
 
     @Test
-    public void testSwitchBooleanParameterWithValueInDifferentCase() throws IOException
+    public void testSwitchLongParameter() throws IOException
     {
-        ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
-        config.addBooleanParameter(BOOLEAN_PARAMETER_NAME, true);
+        final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
+        config.addLongParameter(TEST_PARAMETER_NAME, 123L);
 
-        Assert.assertTrue(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
-
-        new File(getControlFileDirectory(), BOOLEAN_PARAMETER_NAME + "-OFf").createNewFile();
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
+        testSwitchLongParameter(TEST_PARAMETER_NAME, 123L, new IDelegatedActionWithResult<Long>()
+            {
+                @Override
+                public Long execute(boolean didOperationSucceed)
+                {
+                    return config.getLongParameterValue(TEST_PARAMETER_NAME);
+                }
+            });
     }
 
     @Test
-    public void testSwitchBooleanParameterWithIncorrectValue() throws IOException
+    public void testSwitchUnknownParameter() throws IOException
     {
-        ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
-        config.addBooleanParameter(BOOLEAN_PARAMETER_NAME, false);
+        final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
+        config.addBooleanParameter(TEST_PARAMETER_NAME, false);
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
+        Assert.assertFalse(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNull(config.getBooleanParameterValue(UNKNOWN_PARAMETER_NAME));
 
-        new File(getControlFileDirectory(), BOOLEAN_PARAMETER_NAME + "-incorrect-value").createNewFile();
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
+        File testParameterFile = new File(getControlFileDirectory(), TEST_PARAMETER_NAME + "-on");
+        File unknownParameterFile = new File(getControlFileDirectory(), UNKNOWN_PARAMETER_NAME);
+
+        testParameterFile.createNewFile();
+        unknownParameterFile.createNewFile();
+
+        Assert.assertTrue(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNull(config.getBooleanParameterValue(UNKNOWN_PARAMETER_NAME));
+
+        Assert.assertFalse(testParameterFile.exists());
+        Assert.assertTrue(unknownParameterFile.exists());
     }
 
     @Test
-    public void testGetBooleanParameterWithNotExistingControlDirectory() throws IOException
+    public void testSwitchAndTriggerMixed() throws IOException
+    {
+        final ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(getControlFileDirectory(), -1);
+        config.addBooleanParameter(TEST_PARAMETER_NAME, false);
+        config.addBooleanEvent(TEST_EVENT_NAME);
+
+        Assert.assertFalse(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNull(config.getBooleanEvent(TEST_EVENT_NAME));
+
+        new File(getControlFileDirectory(), TEST_PARAMETER_NAME + "-on").createNewFile();
+        new File(getControlFileDirectory(), TEST_EVENT_NAME).createNewFile();
+
+        Assert.assertTrue(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNotNull(config.getBooleanEvent(TEST_EVENT_NAME));
+
+        Assert.assertTrue(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNull(config.getBooleanEvent(TEST_EVENT_NAME));
+
+        new File(getControlFileDirectory(), TEST_PARAMETER_NAME + "-off").createNewFile();
+
+        Assert.assertFalse(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNull(config.getBooleanEvent(TEST_EVENT_NAME));
+
+        Assert.assertFalse(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
+        Assert.assertNull(config.getBooleanEvent(TEST_EVENT_NAME));
+    }
+
+    @Test
+    public void testNotExistingControlDirectory() throws IOException
     {
         File notExistingFile = new File(getControlFileDirectory(), "notExisting");
 
         ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(notExistingFile, -1);
-        config.addBooleanParameter(BOOLEAN_PARAMETER_NAME, false);
+        config.addBooleanParameter(TEST_PARAMETER_NAME, false);
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
+        Assert.assertFalse(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
     }
 
     @Test
-    public void testGetBooleanParameterWithControlDirectoryThatIsAFile() throws IOException
+    public void testControlDirectoryThatIsAFile() throws IOException
     {
         File file = new File(getControlFileDirectory(), "aFile");
         file.createNewFile();
 
         ControlFileBasedLogConfiguration config = new ControlFileBasedLogConfiguration(file, -1);
-        config.addBooleanParameter(BOOLEAN_PARAMETER_NAME, false);
+        config.addBooleanParameter(TEST_PARAMETER_NAME, false);
 
-        Assert.assertFalse(config.getBooleanParameterValue(BOOLEAN_PARAMETER_NAME));
+        Assert.assertFalse(config.getBooleanParameterValue(TEST_PARAMETER_NAME));
     }
 
 }
