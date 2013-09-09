@@ -311,7 +311,7 @@ case "$command" in
     fi
   	mkdir -p .control
   	if [ "$2" != "" ]; then
-    	touch .control/db-connections-print-active.$2
+    	touch .control/db-connections-print-active-$2
    	else
     	touch .control/db-connections-print-active
    	fi

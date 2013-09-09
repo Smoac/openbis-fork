@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.dbmigration;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -136,8 +134,7 @@ class MonitoringPoolingDataSource extends PoolingDataSource
             if (printActiveEvent != null)
             {
                 final long oldActiveConnTimeMillis = printActiveEvent.getValue() != null ? printActiveEvent.getValue() : 0;
-                logActiveDatabaseConnections(System.err, System.currentTimeMillis(),
-                        oldActiveConnTimeMillis);
+                logActiveDatabaseConnections(oldActiveConnTimeMillis);
             }
 
             BooleanEvent stacktraceEvent = logConfiguration.getDbConnectionsStacktraceEvent();
@@ -204,36 +201,11 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         machineLog.info("Set loglevel to " + logLevel + ".");
     }
 
-    /**
-     * Print the active (borrowed) database connections older than <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when
-     * the connection was borrowed.
-     */
-    public static void logActiveDatabaseConnections(PrintWriter out,
-            long oldActiveConnTimeMillis)
+    static void logActiveDatabaseConnections(long oldActiveConnTimeMillis)
     {
-        logActiveDatabaseConnections(out, System.currentTimeMillis(), oldActiveConnTimeMillis);
-    }
+        long now = System.currentTimeMillis();
+        StringBuilder out = new StringBuilder();
 
-    /**
-     * Print the active (borrowed) database connections older than <var>oldActiveConnTimeMillis</var> to to <var>out</var>, sorted by the time when
-     * the connection was borrowed.
-     */
-    public static void logActiveDatabaseConnections(PrintStream out,
-            long oldActiveConnTimeMillis)
-    {
-        logActiveDatabaseConnections(new PrintWriter(out, true), System.currentTimeMillis(),
-                oldActiveConnTimeMillis);
-    }
-
-    static void logActiveDatabaseConnections(PrintStream out, long now,
-            long oldActiveConnTimeMillis)
-    {
-        logActiveDatabaseConnections(new PrintWriter(out, true), now, oldActiveConnTimeMillis);
-    }
-
-    static void logActiveDatabaseConnections(PrintWriter out, long now,
-            long oldActiveConnTimeMillis)
-    {
         final List<BorrowedConnectionRecord> records =
                 new ArrayList<BorrowedConnectionRecord>(activeConnections.values());
         Collections.sort(records, new Comparator<BorrowedConnectionRecord>()
@@ -248,39 +220,37 @@ class MonitoringPoolingDataSource extends PoolingDataSource
         if (records.isEmpty()
                 || now - records.get(0).timeOfBorrowing < oldActiveConnTimeMillis)
         {
-            out.printf("There are no active database connections older than %d ms.\n",
-                    oldActiveConnTimeMillis);
+            out.append(String.format("There are no active database connections older than %d ms.\n",
+                    oldActiveConnTimeMillis));
             return;
         }
-        out
-                .printf("\n>>>--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
-                        "---------------------------------->>>\n", now);
+        out.append(String.format("\n>>>--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
+                "---------------------------------->>>\n", now));
         if (oldActiveConnTimeMillis > 0)
         {
-            out
-                    .printf("Active database connection overview older than %d ms (sorted by age)\n",
-                            oldActiveConnTimeMillis);
+            out.append(String.format("Active database connection overview older than %d ms (sorted by age)\n",
+                    oldActiveConnTimeMillis));
         } else
         {
-            out.printf("Active database connection overview (sorted by age)\n");
+            out.append(String.format("Active database connection overview (sorted by age)\n"));
 
         }
-        out.printf("%-25s\t%-25s\t%-25s\n", "Time", "Thread", "Database");
+        out.append(String.format("%-25s\t%-25s\t%-25s\n", "Time", "Thread", "Database"));
         boolean hasStackTraces = false;
         for (BorrowedConnectionRecord record : records)
         {
             if (now - record.timeOfBorrowing > oldActiveConnTimeMillis)
             {
-                out.printf(
+                out.append(String.format(
                         "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL  \t%2$-25s\t%3$-25s\n",
-                        record.timeOfBorrowing, record.threadName, record.dbUrl);
+                        record.timeOfBorrowing, record.threadName, record.dbUrl));
                 hasStackTraces |= (record.borrowStackTraceOrNull != null);
             }
         }
 
         if (hasStackTraces)
         {
-            out.println("\nActive database connection stacktraces");
+            out.append(String.format("\nActive database connection stacktraces"));
             // Print stacktraces
             boolean noNewline = true;
             for (BorrowedConnectionRecord record : records)
@@ -293,18 +263,19 @@ class MonitoringPoolingDataSource extends PoolingDataSource
                         noNewline = false;
                     } else
                     {
-                        out.println();
+                        out.append("\n");
                     }
-                    out.printf("Time: %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL\n",
-                            record.timeOfBorrowing);
-                    out.printf("Database: %s\n", record.dbUrl);
-                    out.printf("Thread: %s\n", record.threadName);
-                    out.print("Stacktrace:\n" + traceToString(record.borrowStackTraceOrNull));
+                    out.append(String.format("Time: %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL\n",
+                            record.timeOfBorrowing));
+                    out.append(String.format("Database: %s\n", record.dbUrl));
+                    out.append(String.format("Thread: %s\n", record.threadName));
+                    out.append(String.format("Stacktrace:\n" + traceToString(record.borrowStackTraceOrNull)));
                 }
             }
         }
-        out.printf("<<<--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
-                "----------------------------------<<<\n", now);
+        out.append(String.format("<<<--- %1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL " +
+                "----------------------------------<<<\n", now));
+        machineLog.info(out.toString());
     }
 
     /**

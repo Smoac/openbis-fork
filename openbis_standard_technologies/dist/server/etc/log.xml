@@ -35,6 +35,16 @@
         </layout>
     </appender>
     
+    <appender name="DB_CONNECTIONS" class="org.apache.log4j.DailyRollingFileAppender">
+
+        <param name="File" value="logs/openbis_server_db_connections.txt" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
+        </layout>
+    </appender>
+    
     <appender name="AUTH" class="org.apache.log4j.DailyRollingFileAppender">
 
         <param name="File" value="logs/openbis_auth_log.txt" />
@@ -82,6 +92,11 @@
         </layout>
 
     </appender>
+    
+    <category name="MACHINE.MonitoringPoolingDataSource">
+      <priority value="info" />
+      <appender-ref ref="DB_CONNECTIONS" />        
+    </category>
 
     <!--
         // If we have the category 'NOTIFY' and we send a logging event with priority 'info', then an email will be sent.

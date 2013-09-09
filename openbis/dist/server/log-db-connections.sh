@@ -14,7 +14,7 @@ fi
 
 mkdir -p .control
 if [ "$1" != "" ]; then
- 	touch .control/db-connections-print-active.$1
+ 	touch .control/db-connections-print-active-$1
 else
  	touch .control/db-connections-print-active
 fi
