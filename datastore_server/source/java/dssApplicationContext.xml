@@ -236,6 +236,11 @@
 
     <bean class="ch.systemsx.cisd.openbis.common.spring.LogAdvisor" />
   
+     <!--
+      // Logging of long running threads
+    -->  
+    <bean class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor" />
+  
     <!-- 
         // FTP server
      -->

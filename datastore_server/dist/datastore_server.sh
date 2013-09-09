@@ -267,6 +267,7 @@ case "$command" in
     echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
     echo "  $0 no-record-stacktrace-db-connections  -  switch off database connection stacktrace recording"
     echo "  $0 log-service-calls on / off -  switch on / off logging of start and end of service calls to separate file"
+    echo "  $0 log-long-running-invocations on / off -  switch on / off logging of long running invocations"
     echo "  $0 verify-archives  -  verify integrity of dataset archives created by ZipArchiver"
     
     ;;
@@ -382,6 +383,22 @@ case "$command" in
   		echo "Switched on logging of service calls."
 	  fi
     ;;    
+  log-long-running-invocations)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/long-running-thread-logging-off
+  		echo "Switched off logging of long running invocations."
+	  else
+	  	touch .control/long-running-thread-logging-on
+  		echo "Switched on logging of long running invocations."
+	  fi
+    ;; 
   *)
     echo "Usage: $0 {start|stop|restart|status|help|version}"
     exit 200

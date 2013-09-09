@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.common.log;
+package ch.systemsx.cisd.openbis.generic.server;
 
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
@@ -22,27 +22,21 @@ import org.apache.log4j.spi.LoggingEvent;
 /**
  * @author anttil
  */
-public class DefaultAppenderFilter extends Filter
+public class LoggerNameFilter extends Filter
 {
+
+    private String name;
+
+    public void setLoggerName(String name)
+    {
+        this.name = name;
+    }
+
     @Override
     public int decide(LoggingEvent event)
     {
         String loggerName = event.getLoggerName();
-        Object message = event.getMessage();
-        if (message instanceof String)
-        {
-            return decide(loggerName, message.toString());
-        } else
-        {
-            return Filter.NEUTRAL;
-        }
-    }
-
-    private int decide(String logger, String message)
-    {
-        if ((logger.startsWith("ACCESS.") || logger.startsWith("TRACKING."))
-                && logger.endsWith("Logger")
-                && message.contains("(START)"))
+        if (loggerName.equals(name))
         {
             return Filter.DENY;
         } else
@@ -50,4 +44,5 @@ public class DefaultAppenderFilter extends Filter
             return Filter.NEUTRAL;
         }
     }
+
 }

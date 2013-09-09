@@ -13,7 +13,9 @@
     </layout>
 
     <filter class="ch.systemsx.cisd.openbis.common.log.DefaultAppenderFilter"/>
-
+    <filter class="ch.systemsx.cisd.openbis.generic.server.LoggerNameFilter">
+        <param name="LoggerName" value="ACCESS.LongRunningThreadLogger" />
+    </filter>
   </appender>
 
   <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
@@ -53,9 +55,17 @@
       <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
     </layout>
   </appender>
-  
-  <appender name="DB_CONNECTIONS" class="ch.systemsx.cisd.dbmigration.logging.DbConnectionLogAppender">
 
+  <appender name="LONG_RUNNING_THREAD" class="org.apache.log4j.DailyRollingFileAppender">
+      <param name="File" value="logs/datastore_server_long_running_threads.txt" />
+      <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+      <layout class="org.apache.log4j.PatternLayout">
+          <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
+      </layout>
+  </appender>  
+  
+   <appender name="DB_CONNECTIONS" class="ch.systemsx.cisd.dbmigration.logging.DbConnectionLogAppender">
     <param name="File" value="log/datastore_server_db_connections.txt" />
     <param name="DatePattern" value="'.'yyyy-MM-dd" />
 
@@ -84,7 +94,12 @@
     <priority value="info" />
     <appender-ref ref="SERVICE_CALL" />        
   </category>
-  
+
+  <category name="ACCESS.LongRunningThreadLogger">
+      <priority value="info" />
+      <appender-ref ref="LONG_RUNNING_THREAD" />        
+  </category>  
+
   <root>
     <priority value="info" />
     <appender-ref ref="DEFAULT" />

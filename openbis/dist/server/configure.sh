@@ -26,6 +26,16 @@ case "$command" in
 			echo "Switched on logging of service calls."
 		fi
 	;;
+	log-long-running-invocations)
+	 	mkdir -p ../.control
+		if [ "$2" == "off" ]; then
+			touch ../.control/long-running-thread-logging-off
+			echo "Switched off logging of long running invocations."
+		else
+			touch ../.control/long-running-thread-logging-on
+			echo "Switched on logging of long-running-invocations."
+		fi
+	;;	
 	debug-db-connections)
 		mkdir -p .control
 		if [ "$2" == "off" ]; then
@@ -68,6 +78,7 @@ case "$command" in
 	*)
 	echo "Usage:"
 	echo "$0 log-service-calls on|off - switch on / off logging of start and end of service calls to separate file"
+	echo "$0 log-long-running-invocations on|off - switch on / off logging of long running server method invocations"
 	echo "$0 debug-db-connections on|off - switch on / off database connection debug logging"
 	echo "$0 log-db-connections [min_connection_age_in_millis] - log the currently active database connections"
 	echo "$0 record-stacktrace-db-connections on|off - switch on / off database connection stacktrace recording"
