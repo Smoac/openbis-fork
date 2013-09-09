@@ -37,7 +37,7 @@
     
     <appender name="DB_CONNECTIONS" class="org.apache.log4j.DailyRollingFileAppender">
 
-        <param name="File" value="logs/openbis_server_db_connections.txt" />
+        <param name="File" value="logs/openbis_db_connections.txt" />
         <param name="DatePattern" value="'.'yyyy-MM-dd" />
 
         <layout class="org.apache.log4j.PatternLayout">
