@@ -125,25 +125,23 @@ class MonitoringPoolingDataSource extends PoolingDataSource
     private static class DatabaseConnectionInfoController extends TimerTask
     {
 
-        private DbConnectionLogConfiguration logConfiguration = new DbConnectionLogConfiguration();
-
         @Override
         public void run()
         {
-            LongEvent printActiveEvent = logConfiguration.getDbConnectionsPrintActiveEvent();
+            LongEvent printActiveEvent = DbConnectionLogConfiguration.getInstance().getDbConnectionsPrintActiveEvent();
             if (printActiveEvent != null)
             {
                 final long oldActiveConnTimeMillis = printActiveEvent.getValue() != null ? printActiveEvent.getValue() : 0;
                 logActiveDatabaseConnections(oldActiveConnTimeMillis);
             }
 
-            BooleanEvent stacktraceEvent = logConfiguration.getDbConnectionsStacktraceEvent();
+            BooleanEvent stacktraceEvent = DbConnectionLogConfiguration.getInstance().getDbConnectionsStacktraceEvent();
             if (stacktraceEvent != null && stacktraceEvent.getValue() != null)
             {
                 setLogStackTrace(stacktraceEvent.getValue());
             }
 
-            BooleanEvent debugEvent = logConfiguration.getDbConnectionsDebugEvent();
+            BooleanEvent debugEvent = DbConnectionLogConfiguration.getInstance().getDbConnectionsDebugEvent();
             if (debugEvent != null && debugEvent.getValue() != null)
             {
                 if (debugEvent.getValue())

@@ -26,15 +26,19 @@ import ch.systemsx.cisd.common.logging.event.LongEvent;
 public class DbConnectionLogConfiguration
 {
 
+    static final String DB_CONNECTIONS_SEPARATE_LOG_FILE = "db-connections-separate-log-file";
+
     static final String DB_CONNECTIONS_PRINT_ACTIVE = "db-connections-print-active";
 
     static final String DB_CONNECTIONS_STACKTRACE = "db-connections-stacktrace";
 
     static final String DB_CONNECTIONS_DEBUG = "db-connections-debug";
 
+    private static final DbConnectionLogConfiguration instance = new DbConnectionLogConfiguration();
+
     private ControlFileBasedLogConfiguration config;
 
-    public DbConnectionLogConfiguration()
+    DbConnectionLogConfiguration()
     {
         this(new ControlFileBasedLogConfiguration());
     }
@@ -42,9 +46,15 @@ public class DbConnectionLogConfiguration
     DbConnectionLogConfiguration(ControlFileBasedLogConfiguration config)
     {
         this.config = config;
+        this.config.addBooleanParameter(DB_CONNECTIONS_SEPARATE_LOG_FILE, false);
         this.config.addLongEvent(DB_CONNECTIONS_PRINT_ACTIVE);
         this.config.addBooleanEvent(DB_CONNECTIONS_STACKTRACE);
         this.config.addBooleanEvent(DB_CONNECTIONS_DEBUG);
+    }
+
+    public boolean isDbConnectionsSeparateLogFileEnabled()
+    {
+        return config.getBooleanParameterValue(DB_CONNECTIONS_SEPARATE_LOG_FILE);
     }
 
     public LongEvent getDbConnectionsPrintActiveEvent()
@@ -60,6 +70,11 @@ public class DbConnectionLogConfiguration
     public BooleanEvent getDbConnectionsDebugEvent()
     {
         return config.getBooleanEvent(DB_CONNECTIONS_DEBUG);
+    }
+
+    public static DbConnectionLogConfiguration getInstance()
+    {
+        return instance;
     }
 
 }

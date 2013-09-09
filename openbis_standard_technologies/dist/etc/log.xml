@@ -54,7 +54,7 @@
     </layout>
   </appender>
   
-  <appender name="DB_CONNECTIONS" class="org.apache.log4j.DailyRollingFileAppender">
+  <appender name="DB_CONNECTIONS" class="ch.systemsx.cisd.dbmigration.logging.DbConnectionLogAppender">
 
     <param name="File" value="log/datastore_server_db_connections.txt" />
     <param name="DatePattern" value="'.'yyyy-MM-dd" />

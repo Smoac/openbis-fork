@@ -26,9 +26,11 @@ public class ServiceCallLogConfiguration
 
     static final String LOG_SERVICE_CALL_START = "log-service-call-start";
 
+    private static final ServiceCallLogConfiguration instance = new ServiceCallLogConfiguration();
+
     private ControlFileBasedLogConfiguration config;
 
-    public ServiceCallLogConfiguration()
+    ServiceCallLogConfiguration()
     {
         this(new ControlFileBasedLogConfiguration());
     }
@@ -42,6 +44,11 @@ public class ServiceCallLogConfiguration
     public boolean isLogServiceCallStartEnabled()
     {
         return config.getBooleanParameterValue(LOG_SERVICE_CALL_START);
+    }
+
+    public static ServiceCallLogConfiguration getInstance()
+    {
+        return instance;
     }
 
 }

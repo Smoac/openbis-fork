@@ -260,7 +260,8 @@ case "$command" in
     echo "  $0 show-shredder  -  show the list of files / directories that wait to be shreddered"
     echo "  $0 show-updater-queue  -  show the queue of datasets that await updating their archiving status in openBIS AS"
     echo "  $0 show-command-queue  -  show the queue of commands from openBIS AS waiting to be executed"
-    echo "  $0 log-db-connections  -  log the currently active database connections to log/startup_log.txt"
+    echo "  $0 log-db-connections-separate-log-file on / off  -  switch on / off logging messages related to database connections to log/datastore_server_db_connections.txt"
+    echo "  $0 log-db-connections  -  log the currently active database connections"
     echo "  $0 log-thread-dump  -  log the current thread dump to log/startup_log.txt"
     echo "  $0 debug-db-connections on / off -  switch on / off database connection debug logging"
     echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
@@ -302,6 +303,22 @@ case "$command" in
      	exit 100
     fi
     ;;
+  log-db-connections-separate-log-file)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/db-connections-separate-log-file-off
+  		echo "Switched off logging messages to log/datastore_server_db_connections.txt"
+  	else
+	  	touch .control/db-connections-separate-log-file-on
+  		echo "Switched on logging messages to log/datastore_server_db_connections.txt"
+  	fi
+    ;;    
   log-db-connections)
     getStatus
     EXIT_STATUS=$?
@@ -315,7 +332,7 @@ case "$command" in
    	else
     	touch .control/db-connections-print-active
    	fi
-   	echo "Active database connections logged to log/startup_log.txt"
+   	echo "Active database connections will be logged"
     ;;
   debug-db-connections)
     getStatus

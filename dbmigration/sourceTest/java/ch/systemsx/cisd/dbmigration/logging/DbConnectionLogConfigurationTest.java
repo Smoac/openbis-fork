@@ -33,6 +33,21 @@ public class DbConnectionLogConfigurationTest extends ControlFileBasedTest
 {
 
     @Test
+    public void testDbConnectionsSeparateLogFile() throws IOException
+    {
+        final DbConnectionLogConfiguration config = createConfig();
+
+        testSwitchBooleanParameter(DbConnectionLogConfiguration.DB_CONNECTIONS_SEPARATE_LOG_FILE, false, new IDelegatedActionWithResult<Boolean>()
+            {
+                @Override
+                public Boolean execute(boolean didOperationSucceed)
+                {
+                    return config.isDbConnectionsSeparateLogFileEnabled();
+                }
+            });
+    }
+
+    @Test
     public void testDbConnectionsPrintActive() throws IOException
     {
         final DbConnectionLogConfiguration config = createConfig();
