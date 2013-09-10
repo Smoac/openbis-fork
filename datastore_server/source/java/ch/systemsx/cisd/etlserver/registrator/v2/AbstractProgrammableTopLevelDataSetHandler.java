@@ -420,7 +420,7 @@ public abstract class AbstractProgrammableTopLevelDataSetHandler<T extends DataS
                         public DataSetRegistrationContext getRegistrationContext()
                         {
                             return new DataSetRegistrationContext(recoveryState.getPersistentMap(),
-                                    state.getGlobalState());
+                                    state.getGlobalState(), null);
                         }
                     };
 

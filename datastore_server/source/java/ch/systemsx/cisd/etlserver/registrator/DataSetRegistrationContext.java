@@ -19,11 +19,14 @@ public class DataSetRegistrationContext
 
     private final TopLevelDataSetRegistratorGlobalState globalState;
 
+    private final String userSessionToken;
+
     public DataSetRegistrationContext(DataSetRegistrationPersistentMap persistentMap,
-            TopLevelDataSetRegistratorGlobalState globalState)
+            TopLevelDataSetRegistratorGlobalState globalState, String userSessionToken)
     {
         this.persistentMap = persistentMap;
         this.globalState = globalState;
+        this.userSessionToken = userSessionToken;
     }
 
     public DataSetRegistrationPersistentMap getPersistentMap()
@@ -34,6 +37,11 @@ public class DataSetRegistrationContext
     public TopLevelDataSetRegistratorGlobalState getGlobalState()
     {
         return globalState;
+    }
+
+    public String getUserSessionToken()
+    {
+        return userSessionToken;
     }
 
     DynamicTransactionQuery getDatabaseQuery(String dataSourceName)

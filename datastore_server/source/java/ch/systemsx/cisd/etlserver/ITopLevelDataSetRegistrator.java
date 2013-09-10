@@ -52,7 +52,7 @@ public interface ITopLevelDataSetRegistrator extends IPathHandler, ISelfTestable
      *            will want to use this as a template when they register data sets.
      * @param delegate The delegate to notify as activity happens.
      */
-    public void handle(File file, DataSetInformation callerDataSetInformation,
-            ITopLevelDataSetRegistratorDelegate delegate);
+    public void handle(File file, String userSessionToken,
+            DataSetInformation callerDataSetInformation, ITopLevelDataSetRegistratorDelegate delegate);
 
 }

@@ -62,8 +62,8 @@ public class PutDataSetServerPluginHolder extends AbstractTopLevelDataSetRegistr
     }
 
     @Override
-    public void handle(File file, DataSetInformation callerDataSetInformation,
-            ITopLevelDataSetRegistratorDelegate delegate)
+    public void handle(File file, String userSessionToken,
+            DataSetInformation callerDataSetInformation, ITopLevelDataSetRegistratorDelegate delegate)
     {
         throw new NotImplementedException();
     }

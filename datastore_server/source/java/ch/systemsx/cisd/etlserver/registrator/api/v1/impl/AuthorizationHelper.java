@@ -69,6 +69,10 @@ public class AuthorizationHelper
     public static <T> T filterToVisible(IEncapsulatedOpenBISService openBisService, String user,
             T entity, IMapper<T, String> codeMapper, EntityKind entityKind)
     {
+        if (entity == null)
+        {
+            return null;
+        }
         List<String> visible =
                 entityKind.filterToVisible(openBisService, user,
                         Collections.singletonList(codeMapper.map(entity)));

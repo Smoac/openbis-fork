@@ -156,7 +156,7 @@ class PutDataSetTopLevelDataSetHandler
         try
         {
             DataSetRegistratorDelegate delegate = new DataSetRegistratorDelegate();
-            registrator.handle(dataSet, getCallerDataSetInformation(), delegate);
+            registrator.handle(dataSet, sessionToken, getCallerDataSetInformation(), delegate);
             return delegate.registeredDataSets;
         } finally
         {

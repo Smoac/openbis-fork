@@ -202,15 +202,15 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory, String userSessionToken)
     {
         this(createNewRollbackStack(rollBackStackParentFolder), workingDirectory, stagingDirectory,
-                registrationService, registrationDetailsFactory);
+                registrationService, registrationDetailsFactory, userSessionToken);
     }
 
     DataSetRegistrationTransaction(RollbackStack rollbackStack, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
-            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
+            IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory, String userSessionToken)
     {
         state =
                 new LiveTransactionState<T>(this, rollbackStack, workingDirectory,
@@ -221,7 +221,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         .getOpenBisService();
         this.registrationContext =
                 new DataSetRegistrationContext(new DataSetRegistrationPersistentMap(),
-                        this.registrationService.getRegistratorContext().getGlobalState());
+                        this.registrationService.getRegistratorContext().getGlobalState(), userSessionToken);
         DssRegistrationLogger dssRegistrationLog = this.registrationService.getDssRegistrationLog();
         dssRegistrationLog.info(operationLog, "Start registration");
     }
