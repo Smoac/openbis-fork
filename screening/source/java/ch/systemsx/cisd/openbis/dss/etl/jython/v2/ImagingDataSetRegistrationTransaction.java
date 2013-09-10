@@ -95,10 +95,10 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             File workingDirectory, File stagingDirectory,
             DataSetRegistrationService<DataSetInformation> registrationService,
             IDataSetRegistrationDetailsFactory<DataSetInformation> registrationDetailsFactory,
-            String originalDirName)
+            String originalDirName, String userSessionToken)
     {
         super(rollBackStackParentFolder, workingDirectory, stagingDirectory, registrationService,
-                registrationDetailsFactory);
+                registrationDetailsFactory, userSessionToken);
 
         assert registrationDetailsFactory instanceof JythonPlateDatasetFactory : "JythonPlateDatasetFactory expected, but got: "
                 + registrationDetailsFactory.getClass().getCanonicalName();
