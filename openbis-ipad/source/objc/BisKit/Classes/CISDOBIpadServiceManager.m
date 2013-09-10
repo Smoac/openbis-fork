@@ -223,7 +223,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
             // Save the MOC and notifiy the client on the main thread
             if(!synchronizer.error) {
                 NSError *error = nil;
-                [self saveManagedObjectContextDeleting: [NSArray array] error: &error];
+                [self saveManagedObjectContextDeleting: synchronizer.deletedEntityPermIds error: &error];
                 synchronizer.error = error;
             }
             [synchronizer notifyCallOfResult];
@@ -575,6 +575,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSConfinementConcurrencyType];
     _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
     _error = nil;
+   _deletedEntityPermIds = [NSMutableArray array];
     
     CISDOBIpadServerInfo *parentServerInfo = self.serviceManager.serverInfo;
     _serverInfo = (parentServerInfo) ? [self.serviceManager serverInfoForOpenbisUrl: [NSURL URLWithString: parentServerInfo.serverUrlString] inManagedObjectContext: _managedObjectContext] : nil;
@@ -590,9 +591,18 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     // Run the fetch request against our own MOC -- running it against the serviceManager's MOC will cause problems (deadlocks)
     NSArray *matchedEntities = [self.managedObjectContext executeFetchRequest: fetchRequest error: error];
     if (!matchedEntities) return NO;
+    
+    
     if ([matchedEntities count] > 0) {
         entity = [matchedEntities objectAtIndex: 0];
-        [entity updateFromRawEntity: rawEntity];
+        BOOL hasBeenDeleted = rawEntity.hasBeenDeleted;
+        if (hasBeenDeleted) {
+            [(NSMutableArray *)_deletedEntityPermIds addObject: entity.permId];
+            [self.managedObjectContext deleteObject: entity];
+            
+            return YES;
+        } else
+            [entity updateFromRawEntity: rawEntity];
     } else {
         entity = [NSEntityDescription insertNewObjectForEntityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
         [entity initializeFromRawEntity: rawEntity];
