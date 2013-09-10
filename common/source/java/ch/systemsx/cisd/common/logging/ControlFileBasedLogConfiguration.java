@@ -27,6 +27,33 @@ import ch.systemsx.cisd.common.logging.event.BooleanEvent;
 import ch.systemsx.cisd.common.logging.event.LongEvent;
 
 /**
+ * <p>
+ * Reads parameters and events used by the logging configuration. It scans the specified control file directory for files that are named after
+ * parameters and events that have been added with addXXXParameter() and addXXXEvent() methods.
+ * </p>
+ * <p>
+ * Parameters: Adding 'test-parameter' boolean parameter with {@link #addBooleanParameter(String, boolean)} method makes it track 'test-parameter-on'
+ * and 'test-parameter-off' files. Whenever {@link #getBooleanParameterValue(String)} method is called it looks for such files and:
+ * <ul>
+ * <li>returns true if 'test-parameter-on' file is found</li>
+ * <li>returns false if 'test-parameter-off' file is found</li>
+ * <li>returns the previous parameter value if none of those files are found</li>
+ * <li>returns the default value if there was no previous value</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Events: Adding 'test-event' boolean event with {@link #addBooleanEvent(String)} method makes it track 'test-event', 'test-event-on' and
+ * 'test-event-off' files. Whenever {@link #getBooleanEvent(String)} method is called it looks for such files and:
+ * <ul>
+ * <li>returns an event with null value if 'test-event' file is found</li>
+ * <li>returns an event with true value if 'test-event-on' file is found</li>
+ * <li>returns an event with false value if 'test-event-off' file is found</li>
+ * <li>returns null if none of those files are found</li>
+ * </ul>
+ * If more than one file for the same parameter or event is found, then the one with the latest modification date is used. After the files are read
+ * they are removed. Long parameters and events work the same way, but instead of on/off value they expect a valid long number.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public class ControlFileBasedLogConfiguration
