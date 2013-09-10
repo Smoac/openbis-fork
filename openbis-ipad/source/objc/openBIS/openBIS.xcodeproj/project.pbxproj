@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3605B05C1653EE8500CEC7F8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3605B05B1653EE8500CEC7F8 /* Settings.bundle */; };
 		3611F7B1169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 3611F7B0169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m */; };
+		361A2B8C17DF33410054F797 /* CISDOBIpadServerInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 361A2B8B17DF33410054F797 /* CISDOBIpadServerInfo.m */; };
 		362B81EC163FFB6C00127554 /* CISDOBIpadServiceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */; };
 		3656C9B4165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3656C9B3165A7A7E00E9B0FA /* CISDOBImageViewPopoverController.m */; };
 		3656C9C6165ABC5D00E9B0FA /* Zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = 3656C9C5165ABC5D00E9B0FA /* Zoom.png */; };
@@ -296,6 +297,8 @@
 		3605B05B1653EE8500CEC7F8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		3611F7AF169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBAuthenticationChallengeConfirmationDialog.h; sourceTree = "<group>"; };
 		3611F7B0169D5D8E0072B61A /* CISDOBAuthenticationChallengeConfirmationDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBAuthenticationChallengeConfirmationDialog.m; sourceTree = "<group>"; };
+		361A2B8A17DF33410054F797 /* CISDOBIpadServerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServerInfo.h; sourceTree = "<group>"; };
+		361A2B8B17DF33410054F797 /* CISDOBIpadServerInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServerInfo.m; sourceTree = "<group>"; };
 		362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CISDOBIpadServiceManager.h; sourceTree = "<group>"; };
 		362B81EB163FFB6C00127554 /* CISDOBIpadServiceManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CISDOBIpadServiceManager.m; sourceTree = "<group>"; };
 		364D5098161C6A3600A739B0 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.md; sourceTree = "<group>"; };
@@ -964,6 +967,8 @@
 				36F71ECE161C453D00C87277 /* CISDOBConnection.m */,
 				36F71ECF161C453D00C87277 /* CISDOBIpadEntity.h */,
 				36F71ED0161C453D00C87277 /* CISDOBIpadEntity.m */,
+				361A2B8A17DF33410054F797 /* CISDOBIpadServerInfo.h */,
+				361A2B8B17DF33410054F797 /* CISDOBIpadServerInfo.m */,
 				36F71ED1161C453D00C87277 /* CISDOBIpadService.h */,
 				36F71ED2161C453D00C87277 /* CISDOBIpadService.m */,
 				362B81EA163FFB6C00127554 /* CISDOBIpadServiceManager.h */,
@@ -2030,6 +2035,7 @@
 				5D07C0301771C6E100555DE2 /* ZXRGBLuminanceSource.m in Sources */,
 				5D07C0331771C88400555DE2 /* CISDOBBarcodeViewController.m in Sources */,
 				5D01C3E5179FD10E00D355D9 /* CISDOBSplitViewController.m in Sources */,
+				361A2B8C17DF33410054F797 /* CISDOBIpadServerInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
