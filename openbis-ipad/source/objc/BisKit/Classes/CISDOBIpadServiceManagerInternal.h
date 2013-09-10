@@ -68,6 +68,7 @@
 @property(strong, readonly) NSManagedObjectContext *managedObjectContext;
 @property(copy, nonatomic) NSError *error;
 @property(strong, readonly) CISDOBIpadServerInfo *serverInfo;
+@property(readonly) NSArray *deletedEntityPermIds;
 
 // Initialization
 - (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call rawEntities:(NSArray *)rawEntities;

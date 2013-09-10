@@ -543,9 +543,6 @@ static BOOL IsPermIdTarget(NSString *permId)
     [self performLogin];
     [self performRootLevelCall];
     
-    // Figure out how many targets and compounds are available
-    NSUInteger targetsAndCompoundsCount = [[self targetsAndCompounds] count];
-    
     // Pick an entity to remove from the next result set to simulate deletion
     NSArray *navigationEntities = [self navigationEntities];
     CISDOBIpadEntity *categoryToRemove;
@@ -562,7 +559,7 @@ static BOOL IsPermIdTarget(NSString *permId)
         if ([entitiesToDelete count] < 1) return;
         
         [removedPermIds addObjectsFromArray: entitiesToDelete];
-        STAssertEquals((NSUInteger) targetsAndCompoundsCount + 1, [entitiesToDelete count], @"All targets and compounds should be deleted.");
+        STAssertEquals((NSUInteger) 1, [entitiesToDelete count], @"One navigational entity should have been deleted.");
         NSUInteger navCount = 0, compoundCount = 0, targetCount = 0;
         for (NSString *entityPermId in entitiesToDelete) {
             BOOL is5HTCompound = IsPermIdCompound(entityPermId);
@@ -574,8 +571,8 @@ static BOOL IsPermIdTarget(NSString *permId)
             if (isNav) ++navCount;
         }
         STAssertEquals((NSUInteger) 1, navCount, @"Only one navigational entity should have been deleted");
-        STAssertEquals((NSUInteger) 204, compoundCount, @"204 compound entities should have been deleted");
-        STAssertEquals((NSUInteger) 29, targetCount, @"29 target entities should have been deleted");
+        STAssertEquals((NSUInteger) 0, compoundCount, @"No compound entities should have been deleted");
+        STAssertEquals((NSUInteger) 0, targetCount, @"No target entities should have been deleted");
     };
 
     [self retrieveRootLevelEntitiesSimulatingRemovalOfCategory: categoryToRemove];
