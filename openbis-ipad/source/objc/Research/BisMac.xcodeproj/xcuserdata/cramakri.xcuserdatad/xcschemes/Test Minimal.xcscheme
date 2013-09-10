@@ -81,9 +81,6 @@
                   Identifier = "CISDOBIpadServiceTest">
                </Test>
                <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testDeletedEntities">
-               </Test>
-               <Test
                   Identifier = "CISDOBIpadServiceManagerTest/testImageRetrieval">
                </Test>
                <Test
@@ -105,7 +102,13 @@
                   Identifier = "CISDOBIpadServiceManagerTest/testUnicode">
                </Test>
                <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testPersistDrillAndDetailsOnCollections">
+               </Test>
+               <Test
                   Identifier = "CISDOBIpadServiceManagerTest/testPersistEntities">
+               </Test>
+               <Test
+                  Identifier = "CISDOBIpadServiceManagerTest/testRootLevelCallWithRefresh">
                </Test>
             </SkippedTests>
          </TestableReference>
