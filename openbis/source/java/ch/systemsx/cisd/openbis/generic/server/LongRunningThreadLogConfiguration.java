@@ -16,82 +16,54 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.io.File;
-
-import ch.systemsx.cisd.common.filesystem.control.ControlDirectoryEventFeed;
-import ch.systemsx.cisd.common.filesystem.control.DelayingDecorator;
-import ch.systemsx.cisd.common.filesystem.control.IValueFilter;
-import ch.systemsx.cisd.common.filesystem.control.ParameterMap;
+import ch.systemsx.cisd.common.logging.ControlFileBasedLogConfiguration;
 
 /**
  * @author anttil
  */
 public class LongRunningThreadLogConfiguration
 {
-    private static final String LONG_RUNNING_THREAD_LOGGING = "long-running-thread-logging";
+    static final String LONG_RUNNING_THREAD_LOGGING = "long-running-thread-logging";
 
-    private static final String LONG_RUNNING_THREAD_LOGGING_INTERVAL = "long-running-thread-logging-interval";
+    static final String LONG_RUNNING_THREAD_LOGGING_INTERVAL = "long-running-thread-logging-interval";
 
-    private static final String LONG_RUNNING_THREAD_ALERT_THRESHOLD = "long-running-thread-alert-threshold";
+    static final String LONG_RUNNING_THREAD_ALERT_THRESHOLD = "long-running-thread-alert-threshold";
 
-    private final ParameterMap pm;
+    private static final LongRunningThreadLogConfiguration instance = new LongRunningThreadLogConfiguration();
 
-    public LongRunningThreadLogConfiguration()
+    private ControlFileBasedLogConfiguration config;
+
+    LongRunningThreadLogConfiguration()
     {
-        pm = new ParameterMap(new DelayingDecorator(5000, new ControlDirectoryEventFeed(new File(".control"))));
-        pm.addParameter(LONG_RUNNING_THREAD_LOGGING, "on", new IValueFilter()
-            {
-                @Override
-                public boolean isValid(String value)
-                {
-                    return "on".equalsIgnoreCase(value) || "off".equalsIgnoreCase(value);
-                }
-            });
-        pm.addParameter(LONG_RUNNING_THREAD_LOGGING_INTERVAL, "60000", new IValueFilter()
-            {
-                @Override
-                public boolean isValid(String value)
-                {
-                    return isLong(value);
-                }
-            });
+        this(new ControlFileBasedLogConfiguration());
+    }
 
-        pm.addParameter(LONG_RUNNING_THREAD_ALERT_THRESHOLD, "15000", new IValueFilter()
-            {
-                @Override
-                public boolean isValid(String value)
-                {
-                    return isLong(value);
-                }
-            });
-
+    LongRunningThreadLogConfiguration(ControlFileBasedLogConfiguration config)
+    {
+        this.config = config;
+        this.config.addBooleanParameter(LONG_RUNNING_THREAD_LOGGING, true);
+        this.config.addLongParameter(LONG_RUNNING_THREAD_LOGGING_INTERVAL, 60000);
+        this.config.addLongParameter(LONG_RUNNING_THREAD_ALERT_THRESHOLD, 15000);
     }
 
     public boolean isLoggingEnabled()
     {
-        return "on".equals(pm.getParameterValue(LONG_RUNNING_THREAD_LOGGING).getValue());
+        return config.getBooleanParameterValue(LONG_RUNNING_THREAD_LOGGING);
     }
 
     public long logInterval()
     {
-        return Long.parseLong(pm.getParameterValue(LONG_RUNNING_THREAD_LOGGING_INTERVAL).getValue());
+        return config.getLongParameterValue(LONG_RUNNING_THREAD_LOGGING_INTERVAL);
     }
 
     public long maxValidInvocationLength()
     {
-        return Long.parseLong(pm.getParameterValue(LONG_RUNNING_THREAD_ALERT_THRESHOLD).getValue());
+        return config.getLongParameterValue(LONG_RUNNING_THREAD_ALERT_THRESHOLD);
     }
 
-    private boolean isLong(String value)
+    public static LongRunningThreadLogConfiguration getInstance()
     {
-        try
-        {
-            Long.parseLong(value);
-            return true;
-        } catch (NumberFormatException e)
-        {
-            return false;
-        }
+        return instance;
     }
 
 }

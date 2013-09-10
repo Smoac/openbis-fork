@@ -44,7 +44,7 @@ public class LongRunningThreadAdvisor extends DefaultPointcutAdvisor
     private final static Advice createAdvice()
     {
         LongRunningThreadInterceptor advice = new LongRunningThreadInterceptor();
-        new Thread(new LongRunningThreadLogger(advice, new LongRunningThreadLogConfiguration())).start();
+        new Thread(new LongRunningThreadLogger(advice, LongRunningThreadLogConfiguration.getInstance())).start();
         return advice;
     }
 
