@@ -37,7 +37,7 @@ case "$command" in
 		fi
 	;;	
 	debug-db-connections)
-		mkdir -p .control
+		mkdir -p ../.control
 		if [ "$2" == "off" ]; then
 		 	touch ../.control/db-connections-debug-off
 			echo "Switched off debug logging for database connections."
@@ -47,7 +47,7 @@ case "$command" in
 		fi
 	;;
 	log-db-connections)
-		mkdir -p .control
+		mkdir -p ../.control
 		if [ "$2" != "" ]; then
 		 	touch ../.control/db-connections-print-active-$2
 		else
@@ -56,7 +56,7 @@ case "$command" in
 		echo "Active database connections will be logged."
 	;;
 	record-stacktrace-db-connections)
-		mkdir -p .control
+		mkdir -p ../.control
 		if [ "$2" == "off" ]; then
 		 	touch ../.control/db-connections-stacktrace-off
 			echo "Switched off stacktrace recording for database connections."
@@ -66,7 +66,7 @@ case "$command" in
 		fi
 	;;
 	log-db-connections-separate-log-file)
-		mkdir -p .control
+		mkdir -p ../.control
   	if [ "$2" == "off" ]; then
 	  	touch ../.control/db-connections-separate-log-file-off
   		echo "Switched off logging messages to logs/openbis_db_connections.txt"
