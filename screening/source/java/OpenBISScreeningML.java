@@ -999,7 +999,7 @@ public class OpenBISScreeningML
             File file = new File(temporarySessionDir, code);
             if (file.exists() == false)
             {
-                file = dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull, temporarySessionDir);
+                file = getLinkOrCopyOfContents(overrideStoreRootPathOrNull, dataSet, file);
             }
             List<String> parents = dataSet.getParentCodes();
             Object[] parentCodes = new Object[parents.size()];
@@ -1012,6 +1012,28 @@ public class OpenBISScreeningML
                 { code, file.getPath(), dataSetProperties, parentCodes };
         }
         return result;
+    }
+
+    protected static File getLinkOrCopyOfContents(String overrideStoreRootPathOrNull, DataSet dataSet, File file)
+    {
+        try
+        {
+            return dataSet.getLinkOrCopyOfContents(overrideStoreRootPathOrNull, temporarySessionDir);
+        } catch (RuntimeException ex)
+        {
+            // In case of error we don't want any files remaining
+            if (file.exists())
+            {
+                try
+                {
+                    FileUtils.deleteDirectory(file);
+                } catch (IOException ioe)
+                {
+                    CheckedExceptionTunnel.wrapIfNecessary(ioe);
+                }
+            }
+            throw ex;
+        }
     }
 
     /**
