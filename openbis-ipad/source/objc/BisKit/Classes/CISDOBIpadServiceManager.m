@@ -454,6 +454,8 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 {
     NSFetchRequest *request = [self fetchRequestForEntitiesByPermId: permIds];
     NSArray *results = [self executeFetchRequest: request error: error];
+
+    // 1+2 below are to return the results in the same order as they were asked for by the caller
     
     //1. Put results on a map with the format <permId, result>
     NSMutableDictionary *resultsWithKeys = [NSMutableDictionary dictionaryWithCapacity:permIds.count];
@@ -466,7 +468,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     NSMutableArray *sortedResults = [NSMutableArray arrayWithCapacity:permIds.count];
     for (id key in permIds) {
         CISDOBIpadEntity *entity = [resultsWithKeys objectForKey:key];
-        [sortedResults addObject:entity];
+        if (entity) [sortedResults addObject:entity];
     }
     
     return sortedResults;
@@ -831,21 +833,34 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 @implementation CISDOBIpadServiceManagerRetrieveRootSetCommand
 
+- (void)callCompletionAction:(NSUInteger)currentIndex count:(NSUInteger)count
+{
+    if (currentIndex + 1 == count) {
+        [self.serviceManager finishServerSyncTriggeredAtDate: self.callConstructionDate notifying: self.serviceManagerCall];
+    } else {
+        [self runNextCall];
+    }
+}
+
 - (void)runNextCall
 {
     NSUInteger currentIndex = self.currentIndex, count = [self.topLevelNavigationEntities count];
-    CISDOBIpadEntity *navEntity = [self.topLevelNavigationEntities objectAtIndex:  currentIndex];
+    CISDOBIpadRawEntity *navEntity = [self.topLevelNavigationEntities objectAtIndex:  currentIndex];
+    
+    if (navEntity.hasBeenDeleted) {
+        self.currentIndex = currentIndex + 1;
+        // It is correct to use the currentIndex local variable, not the ivar in this call
+        [self callCompletionAction: currentIndex count: count];
+        return;
+    }
 
     NSArray *permIds = [NSArray arrayWithObject: navEntity.permId];
     NSArray *refcons = [NSArray arrayWithObject: navEntity.refcon];
     CISDOBAsyncCall *call = [self.serviceManager.service listChangesSince: self.serviceManager.lastRootSetSyncDate rootLevelEntities: permIds refcons: refcons];
     call.success = ^(id result) {
+        // Need to use self here to keep a reference to the command alive
         [self.serviceManager syncEntities: result notifying: nil];
-        if (currentIndex+1 == count) {
-            [self.serviceManager finishServerSyncTriggeredAtDate: self.callConstructionDate notifying: self.serviceManagerCall];
-        } else {
-            [self runNextCall];
-        }
+        [self callCompletionAction: currentIndex count: count];
     };    
     [self.serviceManager initializeFailureBlockOnServiceCall: call managerCall: self.serviceManagerCall];
     self.currentIndex = currentIndex + 1;
