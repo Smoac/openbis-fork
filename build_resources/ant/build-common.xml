@@ -29,6 +29,7 @@
 	<property name="output.test" value="${targets}/test-output" />
 	<property name="build.info.filename" value="BUILD-${ant.project.name}.INFO" />
 	<property name="build.info.file" value="${classes}/${build.info.filename}" />
+	<property name="log.configuration.file" location="etc/log.xml" />
 
 	<!-- The name of the file containing checksums for all properties files -->
 	<property name="checksum.file.name" value="configuration.MD5" />
@@ -112,17 +113,29 @@
       // Runs a TestNG test suite
       // Parameter: test.suite = path of test suite relative to the test source folder
       -->
-	
+
 	<target name="_run-testng">
-		
+
+		<condition property="log.configuration.file.jvmarg" value="-Dlog4j.configuration=file:${log.configuration.file}">
+			<available file="${log.configuration.file}" />
+		</condition>
+
+		<condition property="log.configuration.file.jvmarg" value="-Dlog4j.dummy.property">
+			<not>
+				<available file="${log.configuration.file}" />
+			</not>
+		</condition>
+
 		<testng classpath="${ecp}"
-		        workingDir="."
-		        outputdir="${output.test}"
-		        failureproperty="${failure.property}">
+				workingDir="."
+				outputdir="${output.test}"
+				failureproperty="${failure.property}">
 			<xmlfileset dir="${sources.test}" includes="${test.suite}" />
 			<jvmarg value="-Xmx1024M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
 			<jvmarg value="-Dant.project.name=${ant.project.name}" />
+			<jvmarg value="-Dlog4j.debug" />
+			<jvmarg value="${log.configuration.file.jvmarg}" />
 		</testng>
 		
 	</target>
