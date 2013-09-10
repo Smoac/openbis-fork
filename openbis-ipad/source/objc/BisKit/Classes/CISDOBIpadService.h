@@ -111,6 +111,8 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error);
 @property(readonly) NSString *imageUrl;     //<! Deprecated
 @property(readonly) NSString *properties;   //<! The properties as a JSON string.
 @property(readonly) NSString *rootLevel;
+@property(readonly) NSString *deleted;
+@property(readonly) BOOL hasBeenDeleted;
 
 @end
 

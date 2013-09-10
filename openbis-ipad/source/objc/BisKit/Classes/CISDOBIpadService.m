@@ -329,6 +329,8 @@ id ObjectFromJsonData(NSString *jsonDataString, NSError **error)
 - (NSString *)imageUrl { return [self stringContentValueAtName: @"IMAGE_URL"]; }
 - (NSString *)properties { return [self stringContentValueAtName: @"PROPERTIES"]; }
 - (NSString *)rootLevel { return [self stringContentValueAtName: @"ROOT_LEVEL"]; }
+- (NSString *)deleted { return [self stringContentValueAtName: @"DELETED"]; }
+- (BOOL)hasBeenDeleted { return [@"true" isEqualToString: self.deleted]; }
 
 @end
 

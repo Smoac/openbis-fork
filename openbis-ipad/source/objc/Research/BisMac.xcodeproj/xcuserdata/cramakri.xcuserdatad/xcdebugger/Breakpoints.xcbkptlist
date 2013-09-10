@@ -8,19 +8,6 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../BisKit/Classes/CISDOBIpadServiceManager.m"
-         timestampString = "400438262.658236"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "613"
-         endingLineNumber = "613"
-         landmarkName = "-synchEntity:lastUpdateDate:error:"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "No"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../BisKit/Classes/CISDOBIpadServiceManager.m"
          timestampString = "400434185.225155"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
@@ -59,13 +46,26 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../BisKit/Tests/CISDOBIpadServiceManagerTest.m"
-         timestampString = "400493014.915338"
+         filePath = "../BisKit/Classes/CISDOBIpadServiceManager.m"
+         timestampString = "400494206.59451"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "547"
-         endingLineNumber = "547"
-         landmarkName = "-testDeletedEntities"
+         startingLineNumber = "185"
+         endingLineNumber = "185"
+         landmarkName = "-finishServerSyncTriggeredAtDate:notifying:"
+         landmarkType = "5">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../BisKit/Classes/CISDOBIpadServiceManager.m"
+         timestampString = "400495021.048658"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "848"
+         endingLineNumber = "848"
+         landmarkName = "-callCompletionAction:count:"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>

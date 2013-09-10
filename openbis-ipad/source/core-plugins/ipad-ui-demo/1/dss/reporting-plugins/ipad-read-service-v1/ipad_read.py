@@ -354,6 +354,10 @@ class ExampleNavigationRequestHandler(NavigationRequestHandler):
 
 class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
 	"""A version of the NAVIGATION request handler designed for testing"""
+	
+	def __init__(self, parameters, builder, searchService):
+		ExampleNavigationRequestHandler.__init__(self, parameters, builder, searchService)
+		self.getHeaders().add("DELETED")
 
 	def addDataRows(self):
 		hidden_entities = self.parameters.get("HIDE")
@@ -367,6 +371,7 @@ class TestingNavigationRequestHandler(ExampleNavigationRequestHandler):
 		if 'PROBES' not in hidden_perm_ids:
 			probe_nav = navigation_dict('Probes', [])
 			self.addRows([probe_nav])
+		self.addRows([deleted_sample_to_dict(s) for s in hidden_perm_ids])
 
 class ExampleSearchRequestHandler(SearchRequestHandler):
 	"""Handler for the SEARCH request"""
