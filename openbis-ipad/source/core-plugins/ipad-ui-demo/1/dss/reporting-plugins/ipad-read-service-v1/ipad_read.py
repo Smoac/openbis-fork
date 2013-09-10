@@ -6,6 +6,7 @@ from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2 import Material
 from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
 from com.fasterxml.jackson.databind import ObjectMapper
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
+from java.util import Date
 
 from datetime import datetime
 
@@ -115,6 +116,13 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_p
 	sample_dict['ROOT_LEVEL'] = None
 	# Need to handle the material links as entity links: "TARGET", "COMPOUND"
 	return sample_dict
+	
+def deleted_sample_to_dict(sample_perm_id):
+	sample_dict = {}
+	sample_dict['PERM_ID'] = sample_perm_id
+	sample_dict['ROOT_LEVEL'] = None
+	sample_dict['DELETED'] = True
+	return sample_dict
 
 def image_url_for_sample(five_ht_sample, data_sets, compound):
 	image_data_set = None
@@ -219,6 +227,10 @@ class ExampleClientPreferencesRequestHandler(ClientPreferencesRequestHandler):
 
 class ExampleRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
+	
+	def __init__(self, parameters, builder, searchService):
+		RootRequestHandler.__init__(self, parameters, builder, searchService)
+		self.getHeaders().add("DELETED")
 
 	def entities_parameter(self):
 		entities = self.getEntitiesParameter()
@@ -232,6 +244,8 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		# Check which navigational entities are being requested here
 		nav_entities = self.entities_parameter()
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+		
+		self.deleted_samples = []
 
 		# Get the data and add a row for each data item
 		# TODO Change this to include the modification date in the search request
@@ -241,6 +255,23 @@ class ExampleRootRequestHandler(RootRequestHandler):
 			last_update = long(self.parameters['lastupdate'].split(".")[0])
 			updated_samples = [s for s in self.samples if s.sample.modificationDate.getTime()/1000 > last_update]
 			self.samples = updated_samples
+			
+			timestamp = Date(last_update);
+					
+			DATA_SOURCE = "openbis-db"
+			QUERY = """
+				SELECT identifiers
+				FROM events
+				WHERE entity_type = 'SAMPLE'
+				AND event_type = 'DELETION'
+				AND registration_timestamp >= ?{1}
+			"""
+			results = queryService.select(DATA_SOURCE, QUERY, [timestamp])
+			deleted_sample_perm_ids = []
+			for r in results:
+				identifiers = r.get("identifiers").split(", ")
+				deleted_samples.extend(identifiers)
+			self.deleted_samples = deleted_sample_perm_ids
 		material_identifiers = gather_materials(self.samples)
 		materials = self.searchService.listMaterials(material_identifiers)
 		self.material_dict_array = materials_to_dict(materials, {})
@@ -261,6 +292,8 @@ class ExampleRootRequestHandler(RootRequestHandler):
 			probe_nav = navigation_dict('Probes', children)
 			self.addRows([probe_nav])
 			self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+			
+		self.addRows([deleted_sample_to_dict(s) for s in self.deleted_samples])
 
 
 class ExampleDrillRequestHandler(DrillRequestHandler):
