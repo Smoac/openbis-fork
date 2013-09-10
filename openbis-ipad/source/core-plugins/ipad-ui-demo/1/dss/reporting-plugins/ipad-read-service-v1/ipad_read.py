@@ -234,7 +234,13 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
 
 		# Get the data and add a row for each data item
+		# TODO Change this to include the modification date in the search request
 		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
+		if self.parameters['lastupdate'] != None:
+			updated_samples = [];
+			last_update = long(self.parameters['lastupdate'].split(".")[0])
+			updated_samples = [s for s in self.samples if s.sample.modificationDate.getTime()/1000 > last_update]
+			self.samples = updated_samples
 		material_identifiers = gather_materials(self.samples)
 		materials = self.searchService.listMaterials(material_identifiers)
 		self.material_dict_array = materials_to_dict(materials, {})

@@ -454,7 +454,7 @@ static BOOL IsPermIdTarget(NSString *permId)
     
     [self performRootLevelCall];
     NSDate *secondSyncDate = self.serviceManager.serverInfo.lastSyncDate;
-    STAssertEqualObjects(firstSyncDate, secondSyncDate, @"The second sync should have the same time as the fist");
+    STAssertEqualObjects(firstSyncDate, secondSyncDate, @"The second sync should have the same time as the first");
 
     // Fix test state before making this call again
     self.willRetrieveRootLevel = NO;
@@ -464,7 +464,11 @@ static BOOL IsPermIdTarget(NSString *permId)
     [self performRootLevelCallDirectlyToServer];
 
     NSDate *thirdSyncDate = self.serviceManager.serverInfo.lastSyncDate;
-    STAssertTrue([firstSyncDate isLessThan: thirdSyncDate], @"The third sync should be later than the fist");
+    STAssertTrue([firstSyncDate isLessThan: thirdSyncDate], @"The third sync should be later than the first");
+    
+    NSArray *firstUpdatedentities = [self.serviceManager entitiesNotUpdatedSince: firstSyncDate error: nil];
+    NSArray *thirdUpdatedEntities = [self.serviceManager entitiesNotUpdatedSince: thirdSyncDate error: nil];
+    STAssertTrue([firstUpdatedentities count] < [thirdUpdatedEntities count], @"The earlier sync request should have returned more entities %u : %u",[firstUpdatedentities count], [thirdUpdatedEntities count]);
 }
 
 - (void)testSearch
