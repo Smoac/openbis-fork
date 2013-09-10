@@ -246,6 +246,7 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
 		
 		self.deleted_samples = []
+		self.updated_samples = None
 
 		# Get the data and add a row for each data item
 		# TODO Change this to include the modification date in the search request
@@ -254,7 +255,7 @@ class ExampleRootRequestHandler(RootRequestHandler):
 			updated_samples = [];
 			last_update = long(self.parameters['lastupdate'].split(".")[0])
 			updated_samples = [s for s in self.samples if s.sample.modificationDate.getTime()/1000 > last_update]
-			self.samples = updated_samples
+			self.updated_samples = updated_samples
 			
 			timestamp = Date(last_update);
 					
@@ -270,7 +271,7 @@ class ExampleRootRequestHandler(RootRequestHandler):
 			deleted_sample_perm_ids = []
 			for r in results:
 				identifiers = r.get("identifiers").split(", ")
-				deleted_samples.extend(identifiers)
+				deleted_sample_perm_ids.extend(identifiers)
 			self.deleted_samples = deleted_sample_perm_ids
 		material_identifiers = gather_materials(self.samples)
 		materials = self.searchService.listMaterials(material_identifiers)
@@ -291,7 +292,10 @@ class ExampleRootRequestHandler(RootRequestHandler):
 			children = [sample.getPermId() for sample in self.samples]
 			probe_nav = navigation_dict('Probes', children)
 			self.addRows([probe_nav])
-			self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+			if self.updated_samples:
+				self.addRows(samples_to_dict(self.updated_samples, self.material_by_perm_id, {}))
+			else:
+				self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
 			
 		self.addRows([deleted_sample_to_dict(s) for s in self.deleted_samples])
 
