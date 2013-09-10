@@ -79,26 +79,6 @@
 
 @end
 
-// Internal class that prunes removed entites from the managed object context
-@interface CISDOBBackgroundDataPruner : NSObject
-
-@property(weak, readonly) CISDOBIpadServiceManager *serviceManager;
-@property(strong, readonly) CISDOBIpadServiceManagerCall *managerCall;
-@property(strong, readonly) NSManagedObjectContext *managedObjectContext;
-@property(copy, nonatomic) NSError *error;
-
-@property(strong, nonatomic) NSDate *pruneCutoffDate;
-@property(readonly) NSArray *deletedEntityPermIds;
-
-// Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call;
-
-// Actions
-- (void)run;
-- (void)notifyCallOfResult;
-
-@end
-
 // An object that carries out all the steps that need to run after the user has logged into the server
 @interface CISDOBIpadServiceManagerRetrieveRootSetCommand : NSObject
 

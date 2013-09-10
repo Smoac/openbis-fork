@@ -80,36 +80,6 @@
                <Test
                   Identifier = "CISDOBIpadServiceTest">
                </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testImageRetrieval">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testInvalidSessionToken">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testInvalidSessionTokenRetry">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testNilUrl">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testSearch">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testSearchWithNilDomain">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testUnicode">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testPersistDrillAndDetailsOnCollections">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testPersistEntities">
-               </Test>
-               <Test
-                  Identifier = "CISDOBIpadServiceManagerTest/testRootLevelCallWithRefresh">
-               </Test>
             </SkippedTests>
          </TestableReference>
       </Testables>

@@ -181,31 +181,31 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 - (void)finishServerSyncTriggeredAtDate:(NSDate *)callConstructionDate notifying:(CISDOBIpadServiceManagerCall *)managerCall
 {
+
     void (^syncBlock)(void) = ^{
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchEntitiesNotification object: self];
         
-        CISDOBBackgroundDataPruner *pruner = [[CISDOBBackgroundDataPruner alloc] initWithServiceManager: self managerCall: managerCall];
-        pruner.pruneCutoffDate = self.lastRootSetSyncDate;
-        [pruner run];
-
+        self.syncDone = YES;
         
         [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchEntitiesNotification object: self];         
         
         __weak CISDOBIpadServiceManager *weakSelf = self;
         void (^notifyBlock)(void) = ^ {
             // Save the MOC and notifiy the client on the main thread
-            if(!pruner.error) {
-                NSError *error = nil;
-                
-                [weakSelf updateServerInfoWithLastUpdateDate: callConstructionDate];
-                [weakSelf saveManagedObjectContextDeleting: pruner.deletedEntityPermIds error: &error];
-                pruner.error = error;
+            NSError *error = nil;
+            
+            [weakSelf updateServerInfoWithLastUpdateDate: callConstructionDate];
+            [weakSelf saveManagedObjectContextDeleting: [NSArray array] error: &error];
+            
+            if (error) {
+                [managerCall notifyFailure: error];
+            } else if (managerCall.success) {
+                [managerCall notifySuccess: [NSArray array]];
             }
-            [pruner notifyCallOfResult];
         };
         [[NSOperationQueue mainQueue] addOperationWithBlock: notifyBlock];
     };
-    [_queue addOperationWithBlock: syncBlock];
+    [_queue addOperationWithBlock: syncBlock];    
 }
 
 - (void)syncEntities:(NSArray *)rawEntities notifying:(CISDOBIpadServiceManagerCall *)managerCall
@@ -652,64 +652,6 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
 
 @end
 
-@implementation CISDOBBackgroundDataPruner
-
-// Initialization
-- (id)initWithServiceManager:(CISDOBIpadServiceManager *)serviceManager managerCall:(CISDOBIpadServiceManagerCall *)call
-{
-    if (!(self = [super init])) return nil;
-    
-    _serviceManager = serviceManager;
-    _managerCall = call;
-    _managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType: NSConfinementConcurrencyType];
-    _managedObjectContext.parentContext = _serviceManager.managedObjectContext;
-    _error = nil;
-    _deletedEntityPermIds = [NSMutableArray array];
-    
-    return self;
-}
-
-// Actions
-- (void)run
-{
-    if (!self.pruneCutoffDate) return;
-    [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceWillSynchPruningEntitiesNotification object: self];
-    BOOL success;
-    NSError *error;
-    // Remove entities that were not updated since the prune cutoff date
-    // Remove all entities that were not mentioned
-    
-    // TODO Do not pune any more (change still in progress...)
-//    NSFetchRequest *fetchRequest = [self.serviceManager fetchRequestForEntitiesNotUpdatedSince: self.pruneCutoffDate];
-//    NSArray *entitiesToDelete = [self.managedObjectContext executeFetchRequest: fetchRequest error: &error];
-//    for (CISDOBIpadEntity *entity in entitiesToDelete) {
-//        [(NSMutableArray *)_deletedEntityPermIds addObject: entity.permId];
-//        [self.managedObjectContext deleteObject: entity];
-//    }
-    
-    // Could be an issue -- synchDone variable not updated in the main thread
-    self.serviceManager.syncDone = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName: CISDOBIpadServiceDidSynchPruningEntitiesNotification object: self];
-    success = [self.managedObjectContext save: &error];
-    if (!success) {
-        self.error = error;
-        return;
-    }
-    
-    self.error = nil;
-}
-
-- (void)notifyCallOfResult
-{
-    if (self.error) {
-        [self.managerCall notifyFailure: self.error];
-    } else if (self.managerCall.success) {
-        [self.managerCall notifySuccess: [NSArray array]];
-    }
-    
-}
-
-@end
 
 @implementation CISDOBIpadImage
 
