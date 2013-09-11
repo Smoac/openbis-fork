@@ -63,7 +63,6 @@ final class BioFormatsImageUtils
     static
     {
         MetadataTools.setDefaultDateEnabled(false);
-        CellomicsReader.setNoHiddenFiles(false);
     }
 
     /**
