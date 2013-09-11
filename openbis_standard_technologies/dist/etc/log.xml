@@ -110,4 +110,8 @@
     <level value="warn"/> 
   </logger>
   
+  <logger name="loci.formats.FormatHandler">
+    <!-- Print only messages of level error or above from the BioFormats library FormatHandler -->
+    <level value="error"/> 
+  </logger>
 </log4j:configuration>
