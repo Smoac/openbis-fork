@@ -178,7 +178,11 @@ function DefaultProfile() {
 			var sampleType = this.getTypeForTypeCode(sampleTypeCode);
 			
 			if(sampleType !== null) {
-				var menuItem = new MenuItem("./images/experiment-icon.png", "showSamplesPage", sampleType.code, sampleType.description);
+				var description = Util.getEmptyIfNull(sampleType.description);
+				if(description === "") {
+					description = sampleType.code;
+				}
+				var menuItem = new MenuItem("./images/experiment-icon.png", "showSamplesPage", sampleType.code, description);
 				groupOfMenuItems.menuItems.push(menuItem);
 			}
 		}
@@ -191,7 +195,11 @@ function DefaultProfile() {
 				var sampleType = this.getTypeForTypeCode(this.typeGroups[typeGroupCode]["LIST"][i]);
 				
 				if(sampleType !== null) {
-					var menuItem = new MenuItem("./images/notebook-icon.png", "showSamplesPage", sampleType.code, sampleType.description);
+					var description = Util.getEmptyIfNull(sampleType.description);
+					if(description === "") {
+						description = sampleType.code;
+					}
+					var menuItem = new MenuItem("./images/notebook-icon.png", "showSamplesPage", sampleType.code, description);
 					groupOfMenuItems.menuItems.push(menuItem);
 				}
 			}
