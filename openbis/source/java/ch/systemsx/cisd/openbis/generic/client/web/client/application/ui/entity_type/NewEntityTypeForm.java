@@ -329,6 +329,8 @@ public class NewEntityTypeForm extends ContentPanel
 
             newTypeWithAssigments.getAssigments().add(assigment);
         }
+
+        newTypeWithAssigments.updateOrdinalToGridOrder(); // Fixes gaps between positions for types created with the old UI.
     }
 
     private Button getSaveButton()
