@@ -236,8 +236,8 @@ public class GeneralInformationChangingService extends
     public IRequestContextProvider requestContextProvider;
 
     @Override
-    @Transactional(readOnly = false)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_OBSERVER)
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public final boolean registerSamples(
             final String sessionToken,
             final String sampleTypeCode,
@@ -340,7 +340,7 @@ public class GeneralInformationChangingService extends
 
     }
 
-    protected static UploadedFilesBean getUploadedFiles(String sessionKey, HttpSession session)
+    private static UploadedFilesBean getUploadedFiles(String sessionKey, HttpSession session)
     {
         if (session.getAttribute(sessionKey) == null
                 || session.getAttribute(sessionKey) instanceof UploadedFilesBean == false)
@@ -351,7 +351,7 @@ public class GeneralInformationChangingService extends
         return (UploadedFilesBean) session.getAttribute(sessionKey);
     }
 
-    protected static void cleanUploadedFiles(final String sessionKey, HttpSession session,
+    private static void cleanUploadedFiles(final String sessionKey, HttpSession session,
             UploadedFilesBean uploadedFiles)
     {
         if (uploadedFiles != null)
@@ -393,7 +393,7 @@ public class GeneralInformationChangingService extends
         }
     }
 
-    protected final HttpSession getHttpSession()
+    private final HttpSession getHttpSession()
     {
         return getOrCreateHttpSession(false);
     }
@@ -401,5 +401,40 @@ public class GeneralInformationChangingService extends
     private final HttpSession getOrCreateHttpSession(final boolean create)
     {
         return requestContextProvider.getHttpServletRequest().getSession(create);
+    }
+
+    //
+    // <TEST IMPLEMENTATION For updateSamples>
+    //
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final boolean updateSamples(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey,
+            final String defaultGroupIdentifier)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes = server.listSampleTypes(sessionToken);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType = null;
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType auxSampleType : sampleTypes)
+        {
+            if (auxSampleType.getCode().equals(sampleTypeCode))
+            {
+                sampleType = auxSampleType;
+                break;
+            }
+        }
+
+        BatchSamplesOperation info =
+                parseSamples(sessionToken, sampleType, sessionKey, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE);
+        try
+        {
+            genericServer.updateSamples(sessionToken, info.getSamples());
+            return true;
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        }
     }
 }

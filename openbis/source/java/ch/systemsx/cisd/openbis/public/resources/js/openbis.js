@@ -1036,22 +1036,6 @@ openbis.prototype.listAttachmentsForSample = function(sampleId, allVersions, act
  */
 
 /**
- * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
- * @method
- */
-openbis.prototype.registerSamples = function(sampleTypeCode, sessionKey, defaultGroupIdentifier, action) {
-	this._internal.ajaxRequest({
-		url: this._internal.generalInfoChangingServiceUrl,
-		data: { "method" : "registerSamples",
-				"params" : [ this.getSession(),
-							 sampleTypeCode,
-							 sessionKey,
-							 defaultGroupIdentifier] },
-		success: action
-	});
-}
-
-/**
  * @see IGeneralInformationChangingService.updateSampleProperties(String, long, Map<String,String>)
  * @method
  */
@@ -1166,6 +1150,38 @@ openbis.prototype.removeFromMetaproject = function(metaprojectId, assignmentsToR
 		url: this._internal.generalInfoChangingServiceUrl,
 		data: { "method" : "removeFromMetaproject",
 		params : [ this.getSession(), metaprojectId, assignmentsToRemove ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
+ * @method
+ */
+openbis.prototype.registerSamples = function(sampleTypeCode, sessionKey, defaultGroupIdentifier, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "registerSamples",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 sessionKey,
+							 defaultGroupIdentifier] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
+ * @method
+ */
+openbis.prototype.updateSamples = function(sampleTypeCode, sessionKey, defaultGroupIdentifier, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "updateSamples",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 sessionKey,
+							 defaultGroupIdentifier] },
 		success: action
 	});
 }
