@@ -138,4 +138,17 @@ public interface IGeneralInformationChangingService extends IRpcService
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove);
 
+    /**
+     * Registers samples parsing a file stored on the HTTP Session.
+     * 
+     * @param sampleTypeCode Sample type to parse
+     * @param sessionKey key of the file stored on the HTTP Session
+     * @param defaultGroupIdentifier key of the file stored on the HTTP Session
+     * @since 1.4
+     */
+    public boolean registerSamples(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey,
+            final String defaultGroupIdentifier);
 }
