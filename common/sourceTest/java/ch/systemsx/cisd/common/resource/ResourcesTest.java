@@ -63,30 +63,7 @@ public class ResourcesTest
     }
 
     @Test
-    public void testReleasingTwiceWithoutClearShouldReleaseTwice()
-    {
-        Mockery context = new Mockery();
-
-        final IReleasable resource = context.mock(IReleasable.class);
-
-        Resources resources = new Resources(null);
-        resources.add(resource);
-
-        context.checking(new Expectations()
-            {
-                {
-                    exactly(2).of(resource).release();
-                }
-            });
-
-        resources.release();
-        resources.release();
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testReleasingTwiceWithClearShouldReleaseOnce()
+    public void testReleasingTwiceWithoutClearShouldReleaseOnce()
     {
         Mockery context = new Mockery();
 
@@ -103,7 +80,6 @@ public class ResourcesTest
             });
 
         resources.release();
-        resources.clear();
         resources.release();
 
         context.assertIsSatisfied();

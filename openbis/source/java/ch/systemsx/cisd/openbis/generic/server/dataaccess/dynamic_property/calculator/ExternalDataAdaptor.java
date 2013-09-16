@@ -20,6 +20,7 @@ import org.apache.lucene.search.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import ch.systemsx.cisd.common.resource.ReleasableIterable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
@@ -64,7 +65,9 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public IExperimentAdaptor experiment()
     {
-        return EntityAdaptorFactory.create(externalDataPE.getExperiment(), evaluator, session);
+        IExperimentAdaptor adaptor = EntityAdaptorFactory.create(externalDataPE.getExperiment(), evaluator, session);
+        getResources().add(adaptor);
+        return adaptor;
     }
 
     @Override
@@ -73,7 +76,9 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         SamplePE sample = externalDataPE.tryGetSample();
         if (sample != null)
         {
-            return EntityAdaptorFactory.create(sample, evaluator, session);
+            ISampleAdaptor adaptor = EntityAdaptorFactory.create(sample, evaluator, session);
+            getResources().add(adaptor);
+            return adaptor;
         } else
         {
             return null;
@@ -89,8 +94,11 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public Iterable<IDataAdaptor> parentsOfType(String typeCodeRegexp)
     {
-        return new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
-                .parentsOfType(typeCodeRegexp);
+        ReleasableIterable<IDataAdaptor> iterable =
+                new ReleasableIterable<IDataAdaptor>(new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
+                        .parentsOfType(typeCodeRegexp));
+        getResources().add(iterable);
+        return iterable;
     }
 
     @Override
@@ -102,8 +110,11 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public Iterable<IDataAdaptor> childrenOfType(String typeCodeRegexp)
     {
-        return new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
-                .childrenOfType(typeCodeRegexp);
+        ReleasableIterable<IDataAdaptor> iterable =
+                new ReleasableIterable<IDataAdaptor>(new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
+                        .childrenOfType(typeCodeRegexp));
+        getResources().add(iterable);
+        return iterable;
     }
 
     @Override
@@ -112,7 +123,9 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         DataPE container = externalDataPE.getContainer();
         if (container != null)
         {
-            return EntityAdaptorFactory.create(container, evaluator, session);
+            IDataAdaptor adaptor = EntityAdaptorFactory.create(container, evaluator, session);
+            getResources().add(adaptor);
+            return adaptor;
         } else
         {
             return null;
@@ -135,7 +148,9 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
         Query query = and(typeConstraint, containerConstraint);
 
         ScrollableResults results = execute(query, DataPE.class, session);
-        return new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+        EntityAdaptorIterator<IDataAdaptor> iterator = new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+        getResources().add(iterator);
+        return iterator;
     }
 
 }

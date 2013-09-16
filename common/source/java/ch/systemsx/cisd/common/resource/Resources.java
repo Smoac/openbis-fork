@@ -71,10 +71,7 @@ public class Resources
                 logger.debug("Didn't have to release any resources");
             }
         }
-    }
 
-    public void clear()
-    {
         resources.clear();
     }
 

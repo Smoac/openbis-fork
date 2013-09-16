@@ -45,8 +45,7 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
     /**
      * Creates a calculator for given <code>expression</code>.
      * <p>
-     * Result of the calculation depends on whether the expression is multiline or not. Returned
-     * value will be equal to:
+     * Result of the calculation depends on whether the expression is multiline or not. Returned value will be equal to:
      * <ul>
      * <li>result of calculation of a *single line* expression
      * <li>result of invocation of 'calculate()' function for a *multiline* expression
@@ -105,8 +104,14 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
                 @Override
                 public String evaluate(Evaluator evaluator)
                 {
-                    evaluator.set(ENTITY_VARIABLE_NAME, entity);
-                    return evaluator.evalAsStringLegacy2_2();
+                    try
+                    {
+                        evaluator.set(ENTITY_VARIABLE_NAME, entity);
+                        return evaluator.evalAsStringLegacy2_2();
+                    } finally
+                    {
+                        evaluator.releaseResources();
+                    }
                 }
             });
     }

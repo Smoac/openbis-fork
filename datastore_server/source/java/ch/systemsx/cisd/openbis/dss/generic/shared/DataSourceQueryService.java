@@ -79,7 +79,6 @@ public class DataSourceQueryService implements IDataSourceQueryService, IReleasa
     public void release()
     {
         resources.release();
-        resources.clear();
     }
 
     private static class DataSetResource implements IReleasable

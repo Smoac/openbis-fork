@@ -76,7 +76,9 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
         Query query = and(typeConstraint, experimentCodeConstraint);
 
         ScrollableResults results = execute(query, SamplePE.class, session);
-        return new EntityAdaptorIterator<ISampleAdaptor>(results, evaluator, session);
+        EntityAdaptorIterator<ISampleAdaptor> iterator = new EntityAdaptorIterator<ISampleAdaptor>(results, evaluator, session);
+        getResources().add(iterator);
+        return iterator;
     }
 
     @Override
@@ -94,6 +96,8 @@ public class ExperimentAdaptor extends AbstractEntityAdaptor implements IExperim
         Query query = and(typeConstraint, experimentCodeConstraint);
 
         ScrollableResults results = execute(query, DataPE.class, session);
-        return new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+        EntityAdaptorIterator<IDataAdaptor> iterator = new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+        getResources().add(iterator);
+        return iterator;
     }
 }

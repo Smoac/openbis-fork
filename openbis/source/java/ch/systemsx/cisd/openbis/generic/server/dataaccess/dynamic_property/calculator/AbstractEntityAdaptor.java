@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -32,6 +33,9 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -51,6 +55,9 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityProp
  */
 public class AbstractEntityAdaptor implements IEntityAdaptor
 {
+
+    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+
     private final String code;
 
     protected final IEntityPropertiesHolder propertiesHolder;
@@ -58,6 +65,8 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     protected Map<String, IEntityPropertyAdaptor> propertiesByCode;
 
     protected final IDynamicPropertyEvaluator evaluator;
+
+    private Resources resources;
 
     protected static String ENTITY_TYPE_CODE_FIELD = SearchFieldConstants.PREFIX_ENTITY_TYPE
             + SearchFieldConstants.CODE;
@@ -225,4 +234,23 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
         ftQuery.setFetchSize(10);
         return ftQuery.scroll(ScrollMode.FORWARD_ONLY);
     }
+
+    @Override
+    public void release()
+    {
+        if (resources != null)
+        {
+            resources.release();
+        }
+    }
+
+    protected Resources getResources()
+    {
+        if (resources == null)
+        {
+            resources = new Resources(operationLog);
+        }
+        return resources;
+    }
+
 }
