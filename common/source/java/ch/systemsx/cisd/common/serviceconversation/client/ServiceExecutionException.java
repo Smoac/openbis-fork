@@ -22,8 +22,7 @@ import java.io.PrintWriter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
 /**
- * An exception that signals to the client that an exception happened during service execution on
- * the server.
+ * An exception that signals to the client that an exception happened during service execution on the server.
  * 
  * @author Bernd Rinn
  */
@@ -37,7 +36,7 @@ public class ServiceExecutionException extends RuntimeException
 
     ServiceExecutionException(String serviceConversationId, String description)
     {
-        super("Execution exception in service conversation " + serviceConversationId);
+        super(description + "(service conversation " + serviceConversationId + ")");
         this.serviceConversationId = serviceConversationId;
         this.description = description;
     }
