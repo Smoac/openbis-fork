@@ -61,22 +61,11 @@ function DefaultProfile() {
 		}
 		
 		//Convert to HSL
-		var rgb = hexToRgb(defaultColor);
-		var hsl = rgbToHsl(rgb[0], rgb[1], rgb[2]);
-		
-		//Increase light
-		hsl[2] = 0.9;
-		
-		//Convert back to RGB
-		rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
-		
-		defaultColor = rgbToHex(
-			Math.round(rgb[0]),
-			Math.round(rgb[1]),
-			Math.round(rgb[2])
-		);
-		
-		return defaultColor;
+		var rgb = d3.rgb(defaultColor);
+		var hsl =  rgb.hsl();
+		//Increase Light
+		var newColor = d3.hsl(hsl.h, hsl.s, Math.min(0.90, hsl.l + 0.75));
+		return newColor;
 	}
 	
 	this.searchSorter = function(searchResults) {
