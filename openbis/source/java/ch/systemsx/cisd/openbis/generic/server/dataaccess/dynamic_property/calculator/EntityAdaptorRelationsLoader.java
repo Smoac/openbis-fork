@@ -72,14 +72,14 @@ public class EntityAdaptorRelationsLoader
             return Collections.emptyList();
         } else
         {
-            List<Long> parentIds =
+            List<Long> entityIds =
                     entityIdsOfTypesLoader.loadEntityIdsOfTypes(entityId, matchingTypeIds);
 
-            if (parentIds != null && parentIds.size() > 0)
+            if (entityIds != null && entityIds.size() > 0)
             {
                 Criteria criteria = session.createCriteria(entityClass);
                 criteria.setFetchSize(10);
-                criteria.add(Restrictions.in("id", parentIds));
+                criteria.add(Restrictions.in("id", entityIds));
                 ScrollableResults results = criteria.scroll(ScrollMode.FORWARD_ONLY);
                 return new EntityAdaptorIterator<T>(results, evaluator, session);
             } else
