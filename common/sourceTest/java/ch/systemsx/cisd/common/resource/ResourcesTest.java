@@ -36,7 +36,7 @@ public class ResourcesTest
         final IReleasable notFailingResource1 = context.mock(IReleasable.class, "notFailingResource1");
         final IReleasable notFailingResource2 = context.mock(IReleasable.class, "notFailingResource2");
 
-        Resources resources = new Resources(null);
+        Resources resources = new Resources();
         resources.add(notFailingResource1);
         resources.add(failingResource1);
         resources.add(failingResource2);
@@ -69,7 +69,7 @@ public class ResourcesTest
 
         final IReleasable resource = context.mock(IReleasable.class);
 
-        Resources resources = new Resources(null);
+        Resources resources = new Resources();
         resources.add(resource);
 
         context.checking(new Expectations()

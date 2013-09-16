@@ -18,12 +18,22 @@ package ch.systemsx.cisd.openbis.systemtest.server;
 
 import junit.framework.Assert;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.utilities.TestResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.ExperimentAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.ExternalDataAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.MaterialAdaptor;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.SampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityValidationEvaluationInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -38,15 +48,31 @@ public class CommonServerTest extends SystemTestCase
 
     private String sessionToken;
 
+    private BufferedAppender logRecorder;
+
+    @BeforeClass
+    public void beforeClass()
+    {
+        Logger.getLogger("OPERATION.Resources").setLevel(Level.DEBUG);
+    }
+
+    @AfterClass
+    public void afterClass()
+    {
+        Logger.getLogger("OPERATION.Resources").setLevel(Level.INFO);
+    }
+
     @BeforeMethod
     public void beforeMethod()
     {
         sessionToken = commonServer.tryAuthenticate("test", "a").getSessionToken();
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
     }
 
     @AfterMethod
     public void afterMethod()
     {
+        logRecorder.reset();
         commonServer.logout(sessionToken);
     }
 
@@ -55,6 +81,7 @@ public class CommonServerTest extends SystemTestCase
     {
         testAdaptorCommon(EntityKind.EXPERIMENT, "/CISD/DEFAULT/EXP-REUSE",
                 "experiment_adaptor_test.py");
+        assertEntitiesReleased(EntityKind.EXPERIMENT, "EXP-REUSE");
     }
 
     @Test
@@ -62,6 +89,9 @@ public class CommonServerTest extends SystemTestCase
     {
         testAdaptorCommon(EntityKind.EXPERIMENT, "/CISD/DEFAULT/EXP-REUSE",
                 "experiment_adaptor_test__samples.py");
+        assertEntitiesReleased(EntityKind.EXPERIMENT, "EXP-REUSE");
+        assertEntitiesReleased(EntityKind.SAMPLE, "CP1-A1", "CP1-A2", "CP1-B1", "CP2-A1", "RP1-A2X", "RP1-B1X", "RP2-A1X");
+        assertScrollableResultsReleased(3);
     }
 
     @Test
@@ -180,6 +210,46 @@ public class CommonServerTest extends SystemTestCase
 
         String result = commonServer.evaluate(sessionToken, info);
         Assert.assertEquals("Validation OK", result);
+    }
+
+    private void assertEntitiesReleased(EntityKind kind, String... codes)
+    {
+        Class<?> adaptorClass = null;
+
+        if (EntityKind.EXPERIMENT.equals(kind))
+        {
+            adaptorClass = ExperimentAdaptor.class;
+        } else if (EntityKind.SAMPLE.equals(kind))
+        {
+            adaptorClass = SampleAdaptor.class;
+        } else if (EntityKind.DATA_SET.equals(kind))
+        {
+            adaptorClass = ExternalDataAdaptor.class;
+        } else if (EntityKind.MATERIAL.equals(kind))
+        {
+            adaptorClass = MaterialAdaptor.class;
+        } else
+        {
+            throw new RuntimeException("Unsupported entity kind: " + kind);
+        }
+
+        for (String code : codes)
+        {
+            AssertionUtil.assertContainsLines("DEBUG OPERATION.Resources - Successfully released a resource: " + adaptorClass.getSimpleName()
+                    + "{code="
+                    + code + "}",
+                    logRecorder.getLogContent());
+        }
+    }
+
+    private void assertScrollableResultsReleased(int count)
+    {
+        StringBuilder expected = new StringBuilder();
+        for (int i = 0; i < count; i++)
+        {
+            expected.append("DEBUG OPERATION.Resources - Successfully released a resource: ScrollableResultsIterator.ScrollableResultReleasable{}\n");
+        }
+        AssertionUtil.assertContainsLines(expected.toString(), logRecorder.getLogContent());
     }
 
 }

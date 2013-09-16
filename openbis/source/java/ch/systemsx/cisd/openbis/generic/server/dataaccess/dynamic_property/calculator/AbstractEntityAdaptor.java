@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -33,8 +33,8 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.LuceneQueryBuilder;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
@@ -53,10 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityProp
  * 
  * @author Piotr Buczek
  */
-public class AbstractEntityAdaptor implements IEntityAdaptor
+public class AbstractEntityAdaptor implements IEntityAdaptor, IReleasable
 {
-
-    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private final String code;
 
@@ -248,9 +246,19 @@ public class AbstractEntityAdaptor implements IEntityAdaptor
     {
         if (resources == null)
         {
-            resources = new Resources(operationLog);
+            resources = new Resources();
         }
         return resources;
+    }
+
+    @Override
+    public String toString()
+    {
+        final ToStringBuilder builder =
+                new ToStringBuilder(this,
+                        ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+        builder.append("code", code());
+        return builder.toString();
     }
 
 }

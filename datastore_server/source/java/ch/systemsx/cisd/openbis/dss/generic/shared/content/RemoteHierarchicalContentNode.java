@@ -23,14 +23,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
@@ -42,16 +38,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
- * A node of hierarchical content that stored on a remote datastore server. If file content is
- * queried, it is downloaded to session workspace and cached there.
+ * A node of hierarchical content that stored on a remote datastore server. If file content is queried, it is downloaded to session workspace and
+ * cached there.
  * 
  * @author anttil
  */
 public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
 {
-
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            RemoteHierarchicalContentNode.class);
 
     private ISingleDataSetPathInfoProvider provider;
 
@@ -89,7 +82,7 @@ public class RemoteHierarchicalContentNode implements IHierarchicalContentNode
         this.serviceFactory = serviceFactory;
         this.cache = contentCache;
         this.parentRelativePath = parentRelativePath;
-        this.resources = new Resources(operationLog);
+        this.resources = new Resources();
     }
 
     @Override

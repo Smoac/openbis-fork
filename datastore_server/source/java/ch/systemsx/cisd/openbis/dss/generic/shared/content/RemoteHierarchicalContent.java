@@ -19,10 +19,6 @@ package ch.systemsx.cisd.openbis.dss.generic.shared.content;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.common.server.ISessionTokenProvider;
@@ -39,9 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
  */
 public class RemoteHierarchicalContent implements IHierarchicalContent
 {
-
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            RemoteHierarchicalContent.class);
 
     private final IDatasetLocationNode location;
 
@@ -65,7 +58,7 @@ public class RemoteHierarchicalContent implements IHierarchicalContent
         this.serviceFactory = serviceFactory;
         this.sessionTokenProvider = sessionTokenProvider;
         this.cache = cache;
-        this.resources = new Resources(operationLog);
+        this.resources = new Resources();
     }
 
     @Override

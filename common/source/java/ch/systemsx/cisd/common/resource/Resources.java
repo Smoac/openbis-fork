@@ -21,24 +21,25 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+
 /**
  * @author pkupczyk
  */
 public class Resources
 {
 
-    private Logger logger;
+    private Logger logger = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     public Set<IReleasable> resources = new LinkedHashSet<IReleasable>();
 
-    public Resources(Logger logger)
+    public void add(Object resource)
     {
-        this.logger = logger;
-    }
-
-    public void add(IReleasable resource)
-    {
-        resources.add(resource);
+        if (resource instanceof IReleasable)
+        {
+            resources.add((IReleasable) resource);
+        }
     }
 
     public void release()
@@ -51,14 +52,14 @@ public class Resources
                 {
                     resource.release();
 
-                    if (logger != null)
+                    if (logger.isDebugEnabled())
                     {
                         logger.debug("Successfully released a resource: " + resource);
                     }
 
                 } catch (Exception e)
                 {
-                    if (logger != null)
+                    if (logger.isDebugEnabled())
                     {
                         logger.debug("Couldn't release a resource: " + resource, e);
                     }
@@ -66,7 +67,7 @@ public class Resources
             }
         } else
         {
-            if (logger != null)
+            if (logger.isDebugEnabled())
             {
                 logger.debug("Didn't have to release any resources");
             }

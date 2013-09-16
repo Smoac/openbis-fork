@@ -18,15 +18,13 @@ package ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api;
 
 import java.util.Collection;
 
-import ch.systemsx.cisd.common.resource.IReleasable;
-
 /**
  * Interface implemented by all entity adaptors
  * 
  * @author Piotr Buczek
  */
 // NOTE: All methods of this interface are part of the Dynamic Properties API.
-public interface IEntityAdaptor extends IReleasable
+public interface IEntityAdaptor
 {
     /** Returns the code. */
     public String code();

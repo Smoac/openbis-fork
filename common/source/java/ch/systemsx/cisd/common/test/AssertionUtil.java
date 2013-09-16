@@ -19,7 +19,6 @@ package ch.systemsx.cisd.common.test;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -125,14 +124,14 @@ public class AssertionUtil
         return stringValues;
     }
 
-    private static Collection<String> getLines(String text)
+    private static Set<String> getLines(String text)
     {
         if (text == null || text.isEmpty())
         {
-            return new ArrayList<String>();
+            return new HashSet<String>();
         } else
         {
-            return new ArrayList<String>(Arrays.asList(text.split("\n")));
+            return new HashSet<String>(Arrays.asList(text.split("\n")));
         }
     }
 

@@ -18,19 +18,13 @@ package ch.systemsx.cisd.common.resource;
 
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
-
 import ch.systemsx.cisd.common.collection.NullIterator;
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
  * @author pkupczyk
  */
 public class ReleasableIterator<T> implements Iterator<T>, IReleasable
 {
-
-    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private Iterator<T> originalIterator;
 
@@ -45,7 +39,7 @@ public class ReleasableIterator<T> implements Iterator<T>, IReleasable
         {
             if (originalIterator instanceof IReleasable)
             {
-                getResources().add((IReleasable) originalIterator);
+                getResources().add(originalIterator);
             }
             this.originalIterator = originalIterator;
         }
@@ -68,7 +62,7 @@ public class ReleasableIterator<T> implements Iterator<T>, IReleasable
             T item = originalIterator.next();
             if (item instanceof IReleasable)
             {
-                getResources().add((IReleasable) item);
+                getResources().add(item);
             }
             return item;
         }
@@ -93,7 +87,7 @@ public class ReleasableIterator<T> implements Iterator<T>, IReleasable
     {
         if (resources == null)
         {
-            resources = new Resources(operationLog);
+            resources = new Resources();
         }
         return resources;
     }

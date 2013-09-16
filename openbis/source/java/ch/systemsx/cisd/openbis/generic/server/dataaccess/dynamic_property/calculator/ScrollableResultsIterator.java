@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.ScrollableResults;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.ReleasableIterator;
 import ch.systemsx.cisd.common.resource.Resources;
@@ -32,8 +31,6 @@ import ch.systemsx.cisd.common.resource.Resources;
  */
 public abstract class ScrollableResultsIterator<T> implements Iterable<T>, IReleasable
 {
-
-    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private final ScrollableResults scroll;
 
@@ -105,18 +102,11 @@ public abstract class ScrollableResultsIterator<T> implements Iterable<T>, IRele
     @Override
     public void release()
     {
-        Resources resources = new Resources(operationLog);
+        Resources resources = new Resources();
 
         if (scroll != null)
         {
-            resources.add(new IReleasable()
-                {
-                    @Override
-                    public void release()
-                    {
-                        scroll.close();
-                    }
-                });
+            resources.add(new ScrollableResultReleasable(scroll));
         }
 
         if (releasableIterator != null)
@@ -126,4 +116,32 @@ public abstract class ScrollableResultsIterator<T> implements Iterable<T>, IRele
 
         resources.release();
     }
+
+    private static class ScrollableResultReleasable implements IReleasable
+    {
+
+        private ScrollableResults results;
+
+        public ScrollableResultReleasable(ScrollableResults results)
+        {
+            this.results = results;
+        }
+
+        @Override
+        public void release()
+        {
+            results.close();
+        }
+
+        @Override
+        public String toString()
+        {
+            final ToStringBuilder builder =
+                    new ToStringBuilder(this,
+                            ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+            return builder.toString();
+        }
+
+    }
+
 }
