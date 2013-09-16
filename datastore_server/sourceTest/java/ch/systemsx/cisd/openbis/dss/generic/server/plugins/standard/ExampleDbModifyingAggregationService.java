@@ -50,7 +50,7 @@ public class ExampleDbModifyingAggregationService extends
     public TableModel process(IDataSetRegistrationTransactionV2 transaction,
             Map<String, Object> parameters, DataSetProcessingContext context)
     {
-        transaction.createNewSpace("NewDummySpace", null);
+        transaction.createNewSpace(parameters.get("space").toString(), null);
 
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader("String");
