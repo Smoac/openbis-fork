@@ -52,6 +52,30 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		showCreateSamplePage(this.sampleTypeCode);
 	}
 	
+	this.registerSamples = function() {
+		var localReference = this;
+		$("#fileToRegister").unbind('change');
+		$("#fileToRegister").change(function() {
+			Util.fileUpload("fileToUpload", function(result) {
+				//Code After the upload
+				openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null,null);
+			});
+		});
+		$("#fileToRegister").click();
+	}
+	
+	this.updateSamples = function() {
+		var localReference = this;
+		$("#fileToUpdate").unbind('change');
+		$("#fileToUpdate").change(function() {
+			Util.fileUpload("fileToUpload", function(result) {
+				//Code After the upload
+				openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,null);
+			});
+		});
+		$("#fileToUpdate").click();
+	}
+	
 	this.previewNote = function(sampleCode, attachTo) {
 		var sample = null;
 		for(var i = 0; i < this.samples.length; i++) {
@@ -149,11 +173,14 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		for (var i = 0; i < SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length; i++) {
 			tableTemplate += "<th>" + SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+ "</th>";
 		}
-		tableTemplate += "<th></th>";
-		if (isEmbedded) {
+		
+		if (this.isEmbedded || this.isSearch) {
+			tableTemplate += "<th></th>";
 			tableTemplate += "<th></th>";
 		} else {
-			tableTemplate += "<th><center><a class='btn' href=\"javascript:sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></center></th>";
+			tableTemplate += "<th><input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:sampleTable.registerSamples();\"><i class='icon-upload'></i></a></th>";
+			tableTemplate += "<th><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:sampleTable.updateSamples();\"><i class='icon-refresh'></i></a></th>";
+			tableTemplate += "<th><a class='btn' href=\"javascript:sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></th>";
 		}
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 	
@@ -208,7 +235,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 				var sampleTypeGroup = localReference.profile.getGroupTypeCodeForTypeCode(sample.sampleTypeCode);
 				sampleForm.addLinkedSample(sampleTypeGroup, sample);
 			}
-		} else {
+		} else if (!this.isSearch){
 			onClickFunction = function(sample) {
 				showViewSamplePage(sample);
 			}
@@ -244,11 +271,12 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 					if(inspector.containsSample(sample.id) !== -1) {
 						inspectedClass = "inspectorClicked";
 					}
-					tableFields[tableFields.length] = "<center><a id='PIN_" + sample.code + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></center>";
+					tableFields[tableFields.length] = "<a id='PIN_" + sample.code + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<center><a class='btn' href=\"javascript:sampleTable.openEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\"><i class='icon-edit'></i></a></center>";
+					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:sampleTable.openEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\"><i class='icon-edit'></i></a>";
+					tableFields[tableFields.length] = "";
 				}
 				
 				return tableFields;

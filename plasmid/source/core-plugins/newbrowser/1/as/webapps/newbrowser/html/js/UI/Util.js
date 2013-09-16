@@ -30,15 +30,26 @@ var Util = new function() {
 		}
 	}
 	
+	this.blockUINoMessage = function() {
+		disable_scroll();
+		$('#navbar').block({ message: '', css: { width: '0px' } });
+		$.blockUI({ message: '', css: { width: '0px' } });
+	}
+	
 	this.blockUI = function() {
+		disable_scroll();
+		$('#navbar').block({ message: '', css: { width: '0px' } });
 		$.blockUI({ message: '<h1><img src="./js/busy.gif" /> Just a moment...</h1>' });
 	}
 	
 	this.unblockUI = function() {
+		enable_scroll();
+		$('#navbar').unblock();
 		$.unblockUI();
 	}
 	
-	this.showError = function(withHTML) {
+	this.showError = function(withHTML, andCallback) {
+		this.blockUINoMessage();
 		jError(
 				withHTML,
 				{
@@ -51,15 +62,16 @@ var Util = new function() {
 				  LongTrip :20,
 				  HorizontalPosition : 'center',
 				  VerticalPosition : 'top',
-				  ShowOverlay : true,
+				  ShowOverlay : false,
 		   		  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ },
+				  onClosed : function(){ if(andCallback) { andCallback();}},
 				  onCompleted : function(){ }
 		});
 	}
 	
-	this.showSuccess = function(withHTML) {
+	this.showSuccess = function(withHTML, andCallback) {
+		this.blockUINoMessage();
 		jSuccess(
 				withHTML,
 				{
@@ -72,15 +84,16 @@ var Util = new function() {
 				  LongTrip :20,
 				  HorizontalPosition : 'center',
 				  VerticalPosition : 'top',
-				  ShowOverlay : true,
+				  ShowOverlay : false,
 		   		  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ },
+				  onClosed : function(){ if(andCallback) { andCallback();}},
 				  onCompleted : function(){ }
 		});
 	}
 	
-	this.showInfo = function(withHTML) {
+	this.showInfo = function(withHTML, andCallback) {
+		this.blockUINoMessage();
 		jNotify(
 				withHTML,
 				{
@@ -93,11 +106,34 @@ var Util = new function() {
 				  LongTrip :20,
 				  HorizontalPosition : 'center',
 				  VerticalPosition : 'top',
-				  ShowOverlay : true,
+				  ShowOverlay : false,
 		   		  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ },
+				  onClosed : function(){ if(andCallback) { andCallback();}},
 				  onCompleted : function(){ }
+		});
+	}
+	
+	this.fileUpload = function(fileId, callbackHandler) {
+		//File
+		var file = document.getElementById(fileId).files[0];
+		
+		//Building Form Data Object for Multipart File Upload
+		var formData = new FormData();
+		formData.append("sessionKeysNumber", 1);
+		formData.append("sessionKey_0", "sample-file-upload");
+		formData.append("sample-file-upload", file);
+		formData.append("sessionID", openbisServer.getSession());
+		
+		$.ajax({
+			type: "POST",
+			url: "/openbis/openbis/upload",
+			contentType: false,
+			processData: false,
+			data: formData,
+			success: function(result) {
+				callbackHandler(result);
+			}
 		});
 	}
 } 

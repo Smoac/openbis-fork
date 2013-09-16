@@ -184,17 +184,14 @@ function Inspector(containerId, profile) {
 	}
 	
 	this.getInspectorTable = function(entity, showClose, withColors, withLinks) {
-		
-		var defaultColor = "#ffc"
-		var profileColor = this.profile.colorForInspectors[entity.sampleTypeCode];
+		var defaultColor = null;
 		
 		if(!withColors) {
-			defaultColor = "#fff"
-		} else if(profileColor !== null && profileColor !== undefined) {
-			defaultColor = profileColor;
-		}
-		
-		
+			defaultColor = "#ffffff"
+		} else {
+			defaultColor = this.profile.getColorForInspectors(entity.sampleTypeCode);
+		} 
+
 		var inspector = "";
 			inspector += "<div id='"+entity.code+"_INSPECTOR' class='inspector' style='background-color:" + defaultColor + ";' >";
 			

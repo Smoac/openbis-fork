@@ -51,6 +51,34 @@ function DefaultProfile() {
 	
 	this.colorForInspectors = {};
 	
+	this.getColorForInspectors = function(sampleTypeCode) {
+		//Get default color if found
+		var defaultColor = "#ffffc0"
+		var profileColor = this.colorForInspectors[sampleTypeCode];
+		
+		if (profileColor !== null && profileColor !== undefined) {
+			defaultColor = profileColor;
+		}
+		
+		//Convert to HSL
+		var rgb = hexToRgb(defaultColor);
+		var hsl = rgbToHsl(rgb[0], rgb[1], rgb[2]);
+		
+		//Increase light
+		hsl[2] = 0.9;
+		
+		//Convert back to RGB
+		rgb = hslToRgb(hsl[0], hsl[1], hsl[2]);
+		
+		defaultColor = rgbToHex(
+			Math.round(rgb[0]),
+			Math.round(rgb[1]),
+			Math.round(rgb[2])
+		);
+		
+		return defaultColor;
+	}
+	
 	this.searchSorter = function(searchResults) {
 		return searchResults;
 	}
@@ -265,7 +293,7 @@ function YeastLabProfile() {
 		"OLIGO" : ["TARGET", "DIRECTION", "RESTRICTION_ENZYME", "PROJECT"],
 		"PLASMID" : ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACTERIAL_ANTIBIOTIC_RESISTANCE", "YEAST_MARKER"],
 		"YEAST" : ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "PROJECT", "GENETIC_BACKGROUND", "MATING_TYPE"],
-		"BACTERIA" : ["BACTERIA_STRAIN_NAME", "BACTERIA_GENOTYPE", "WHAT_FOR", "SUPPLIER", "ARTICLE_NUMBER", "COMMENTS"]
+		"BACTERIA" : ["BACTERIA_STRAIN_NAME", "BACTERIA_GENOTYPE", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "COMMENTS"]
 	}
 	
 	this.colorForInspectors = {
@@ -280,7 +308,8 @@ function YeastLabProfile() {
 		"BACTERIA" : "#E3E3E3",
 		"OLIGO" : "#ACE8FC",
 		"PLASMID" : "#FCDEC0",
-		"YEAST" : "#CCCC99"
+		"YEAST" : "#CCCC99",
+		"SAMPLE_PROPERTY_TEST" : "#000000"
 	};
 	
 	this.getHTMLTableFromXML = function(xmlDocument) {

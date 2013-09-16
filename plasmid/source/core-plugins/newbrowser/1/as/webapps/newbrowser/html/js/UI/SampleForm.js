@@ -207,7 +207,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	this.getLinksToParentsComponent = function() {
 		var component = "<fieldset>";
 				
-		component += "<legend>Connected Components:</legend>";
+		component += "<legend>Connected Components</legend>";
 		if (this.mode !== SampleFormMode.VIEW) {
 			component += "<p><i class='icon-info-sign'></i> To connect a component, please select the type from the drop down menu and click on the row of the table.</p>";
 		}
@@ -255,6 +255,37 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 		return component;
 	}
 	
+	this.getEditButton = function() {
+		return "<a id='editButton' class='btn'><i class='icon-edit'></i></a>";
+	}
+	
+	this.enableEditButtonEvent = function() {
+		var localReference = this;
+		$( "#editButton" ).click(function() {
+			localReference.mode = SampleFormMode.EDIT;
+			localReference.init();
+		});
+	}
+	
+	this.getPINButton = function() {
+		var inspectedClass = "";
+		if(inspector.containsSample(this.sample.id) !== -1) {
+			inspectedClass = "inspectorClicked";
+		}
+		return "<a id='pinButton' class='btn pinBtn " + inspectedClass + "'><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
+	}
+	
+	this.enablePINButtonEvent = function() {
+		$( "#pinButton" ).click(function() {
+			var isInspected = inspector.toggleInspectSample(sample);
+			if(isInspected) {
+				$('#pinButton').addClass('inspectorClicked');
+			} else {
+				$('#pinButton').removeClass('inspectorClicked');
+			}
+		});
+	}
+	
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
 		
@@ -267,15 +298,21 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			component += "<div class='span12'>";
 			
 			var message = null;
+			var pinButton = "";
+			var editButton = "";
+			
 			if (this.mode === SampleFormMode.CREATE) {
 				message = "Create";
 			} else if (this.mode === SampleFormMode.EDIT) {
 				message = "Update";
+				pinButton = this.getPINButton();
 			} else if (this.mode === SampleFormMode.VIEW) {
 				message = "View";
+				pinButton = this.getPINButton();
+				editButton = this.getEditButton();
 			}
 			
-			component += "<h2>" + message + " " + sampleTypeDisplayName + "</h2>";
+			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + editButton + "</h2>";
 			
 			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='sampleForm.createSample();'>";
 			
@@ -283,7 +320,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			// SELECT PROJECT/SPACE AND CODE
 			//
 			component += "<fieldset>";
-			component += "<legend>Identification Info:</legend>";
+			component += "<legend>Identification Info</legend>";
 			component += "<div class='control-group'>";
 			if(this.isELNExperiment) {
 				component += "<label class='control-label' for='inputSpace'>Project:</label>";
@@ -331,7 +368,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 				component += "<fieldset>";
 				
 				if(propertyTypeGroup.name) {
-					component += "<legend>" + propertyTypeGroup.name + ":</legend>";
+					component += "<legend>" + propertyTypeGroup.name + "</legend>";
 				} else {
 					component += "<legend></legend>";
 				}
@@ -400,6 +437,14 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			
 		//Add form to layout
 		$("#"+this.containerId).append(component);
+		
+		if (this.mode !== SampleFormMode.CREATE) {
+			this.enablePINButtonEvent();
+		}
+		
+		if (this.mode === SampleFormMode.VIEW) {
+			this.enableEditButtonEvent();
+		}
 	}
 	
 	this.showSamplesWithoutPage = function(event) {
@@ -496,7 +541,11 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	}
 
 	this.createSampleCallback = function(response) {
-		if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") {
+		var callback = function() {Util.unblockUI();};
+		 
+		if(response.error) {
+			Util.showError(response.error.message, callback);
+		} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") {
 			var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
 			var sampleTypeDisplayName = sampleType.description;
 			
@@ -507,12 +556,12 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 				message = "Updated.";
 			}
 			
-			Util.showSuccess(sampleTypeDisplayName + " " + message);
+			Util.showSuccess(sampleTypeDisplayName + " " + message, callback);
 		} else if (response.result.columns[1].title === "Error") {
-			Util.showError(response.result.rows[0][1].value);
+			Util.showError(response.result.rows[0][1].value, callback);
 		} else {
-			Util.showError("Unknown Error.");
+			Util.showError("Unknown Error.", callback);
 		}
-		Util.unblockUI();
+		
 	}
 }
