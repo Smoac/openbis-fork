@@ -26,18 +26,18 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.ConfigurationFailure;
-import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.DataSetArchiveVerificationBatch;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.BatchResult;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.DataSetArchiveVerificationResult;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.DataSetArchiveVerifier;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileRepository;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IDataSetArchiveVerificationBatch;
-import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IResult;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.SerialDataSetArchiveVerificationBatch;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationErrorType;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.filesystem.FileSystemArchiveFileRepository;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.filesystem.FlatFileLocator;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.filesystem.IFileLocator;
@@ -84,7 +84,15 @@ public class DataSetArchiveVerificationBatchFactory
             List<IArchiveFileVerifier> verifiers = getVerifiers(properties, pathInfoRepository);
             DataSetArchiveVerifier verifier = new DataSetArchiveVerifier(archiveFileRepository, new CompositeVerifier(verifiers));
 
-            return new DataSetArchiveVerificationBatch(verifier, Arrays.copyOfRange(args, 1, args.length));
+            if (pathInfoRepository == null)
+            {
+                Collection<DataSetArchiveVerificationResult> init = new ArrayList<DataSetArchiveVerificationResult>();
+                init.add(new DataSetArchiveVerificationResult(VerificationErrorType.GENERAL_WARNING, "pathinfo db not configured"));
+                return new SerialDataSetArchiveVerificationBatch(verifier, init, Arrays.copyOfRange(args, 1, args.length));
+            } else
+            {
+                return new SerialDataSetArchiveVerificationBatch(verifier, Arrays.copyOfRange(args, 1, args.length));
+            }
 
         } catch (ConfigurationException e)
         {
@@ -92,10 +100,10 @@ public class DataSetArchiveVerificationBatchFactory
             return new IDataSetArchiveVerificationBatch()
                 {
                     @Override
-                    public SortedMap<String, IResult> run()
+                    public BatchResult run()
                     {
-                        SortedMap<String, IResult> result = new TreeMap<String, IResult>();
-                        result.put("Failed to start", new ConfigurationFailure(error));
+                        BatchResult result = new BatchResult();
+                        result.add("", new DataSetArchiveVerificationResult(VerificationErrorType.FATAL, error));
                         return result;
                     }
                 };

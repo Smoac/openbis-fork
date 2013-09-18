@@ -16,10 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.cli;
 
-import java.util.Map;
-
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.BatchResult;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IDataSetArchiveVerificationBatch;
-import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IResult;
 
 /**
  * Run a batch of dataset archive file verifications. First command line argument: path to service.properties of local DSS. Rest of the arguments:
@@ -32,7 +30,8 @@ public class Main
     public static void main(String[] args)
     {
         IDataSetArchiveVerificationBatch batch = new DataSetArchiveVerificationBatchFactory(args).build();
-        Map<String, IResult> result = batch.run();
+        BatchResult result = batch.run();
         new ResultPrinter(System.out).print(result);
+        System.exit(result.getExitCode());
     }
 }

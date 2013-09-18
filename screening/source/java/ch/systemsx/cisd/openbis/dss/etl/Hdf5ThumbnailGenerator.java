@@ -37,6 +37,7 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.FailureRecord;
 import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -363,6 +364,12 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         }
 
         List<String> params = new ArrayList<String>();
+
+        if (convertUtilityOrNull == null)
+        {
+            throw new EnvironmentFailureException("Trying to generate thimbnails with ImageMagic, but 'convert' executable not found on the OS path.");
+        }
+
         params.addAll(Arrays.asList(convertUtilityOrNull.getPath(), imageFilePath, "-scale", size));
         List<String> additionalParams = thumbnailsStorageFormat.getImageMagicParams();
         if (additionalParams != null)

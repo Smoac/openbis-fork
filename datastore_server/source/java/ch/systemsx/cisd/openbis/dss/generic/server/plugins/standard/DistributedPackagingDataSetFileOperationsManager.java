@@ -22,10 +22,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -45,7 +43,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalCont
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
-import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.verifier.ZipFileIntegrityVerifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
@@ -171,8 +169,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
                     if (Status.OK.equals(status))
                     {
-                        List<String> errors =
-                                verify(file, new ZipFileIntegrityVerifier());
+                        Collection<VerificationError> errors = new ZipFileIntegrityVerifier().verify(file);
 
                         if (errors.size() > 0)
                         {
@@ -190,16 +187,6 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             shareIdManager.releaseLock(dataSetCode);
         }
         return status;
-    }
-
-    private List<String> verify(File file, IArchiveFileVerifier... verifiers)
-    {
-        List<String> errors = new ArrayList<String>();
-        for (IArchiveFileVerifier verifier : verifiers)
-        {
-            errors.addAll(verifier.verify(file));
-        }
-        return errors;
     }
 
     private AbstractDataSetPackager createPackager(File file, DataSetExistenceChecker dataSetExistenceChecker)

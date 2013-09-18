@@ -56,6 +56,11 @@ public class JdbcPathInfoRepository implements IArchiveFileMetaDataRepository
 
             final Map<String, PathInfoEntry> data = new HashMap<String, PathInfoEntry>();
 
+            if (result.isBeforeFirst() == false)
+            {
+                return null;
+            }
+
             while (result.next())
             {
                 final String file = result.getString("relative_path");

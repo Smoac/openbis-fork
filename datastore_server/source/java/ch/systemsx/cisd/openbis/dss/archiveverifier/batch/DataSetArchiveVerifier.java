@@ -37,16 +37,16 @@ public class DataSetArchiveVerifier implements IDataSetArchiveVerifier
     }
 
     @Override
-    public IResult run(String dataSetCode)
+    public DataSetArchiveVerificationResult run(String dataSetCode)
     {
         File file = fileRepository.getArchiveFileOf(dataSetCode);
         if (file.exists())
         {
-            List<String> errors = verifier.verify(file);
-            return errors.isEmpty() ? new SuccessResult(file) : new FailedResult(file, errors);
+            List<VerificationError> errors = verifier.verify(file);
+            return new DataSetArchiveVerificationResult(file, errors);
         } else
         {
-            return new SkippedResult();
+            return new DataSetArchiveVerificationResult(VerificationErrorType.ERROR, "file not found");
         }
     }
 }

@@ -1918,6 +1918,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                     mySession.setPerson(person);
                     will(returnValue(mySession));
 
+                    one(personDAO).lock(person);
                     one(personDAO).updatePerson(person);
                 }
             });

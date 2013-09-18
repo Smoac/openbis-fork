@@ -225,7 +225,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
                         .getOpenBisService();
         this.registrationContext =
                 new DataSetRegistrationContext(new DataSetRegistrationPersistentMap(),
-                        this.registrationService.getRegistratorContext().getGlobalState());
+                        this.registrationService.getRegistratorContext().getGlobalState(), null);
     }
 
     @Override

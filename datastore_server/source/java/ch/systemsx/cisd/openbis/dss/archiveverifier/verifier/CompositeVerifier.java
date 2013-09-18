@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.IArchiveFileVerifier;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 
 /**
  * Combines multiple verifiers to one.
@@ -38,9 +39,9 @@ public class CompositeVerifier implements IArchiveFileVerifier
     }
 
     @Override
-    public List<String> verify(File file)
+    public List<VerificationError> verify(File file)
     {
-        List<String> errors = new ArrayList<String>();
+        List<VerificationError> errors = new ArrayList<VerificationError>();
         for (IArchiveFileVerifier verifier : verifiers)
         {
             errors.addAll(verifier.verify(file));

@@ -36,11 +36,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
- * A {@link TransactionQuery} interface for obtaining large sets of material-related entities from
- * the database.
+ * A {@link TransactionQuery} interface for obtaining large sets of material-related entities from the database.
  * <p>
- * This interface is intended to be used only in this package. The <code>public</code> modifier is
- * needed for creating a dynamic proxy by the EOD SQL library.
+ * This interface is intended to be used only in this package. The <code>public</code> modifier is needed for creating a dynamic proxy by the EOD SQL
+ * library.
  * 
  * @author Tomasz Pylak
  */
@@ -56,6 +55,13 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
     public static final String SELECT_MATERIALS_WHERE = SELECT_MATERIALS + " where";
 
     /**
+     * Returns the technical IDs of all materials which have at least one property of type MATERIAL referring to one of the specified materials.
+     */
+    @Select(sql = "select mate_id from material_properties where mate_prop_id = any(?{1})", parameterBindings =
+            LongSetMapper.class, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getMaterialIdsByMaterialProperties(LongSet materialIds);
+
+    /**
      * Returns the materials for the given <var>materialTypeId</var>
      */
     @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.maty_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
@@ -66,7 +72,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
     @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.id = any(?{2}) order by m.code", parameterBindings =
-        { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(long dbInstanceId,
             LongSet materialIds);
 
@@ -74,7 +80,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
     @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.code = any(?{2}) order by m.code", parameterBindings =
-        { TypeMapper.class/* default */, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { TypeMapper.class/* default */, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialRecord> getMaterialsForMaterialCodes(long dbInstanceId,
             String[] codes);
 
@@ -100,13 +106,12 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"
             + "     WHERE pr.value is not null AND pr.mate_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds);
 
     /**
-     * Returns all controlled vocabulary property values of all materials specified by
-     * <var>entityIds</var>.
+     * Returns all controlled vocabulary property values of all materials specified by <var>entityIds</var>.
      * 
      * @param entityIds The set of material ids to get the property values for.
      */
@@ -115,7 +120,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"
             + "     WHERE pr.cvte_id is not null AND pr.mate_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
             LongSet entityIds);
 
@@ -129,7 +134,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN material_type_property_types etpt ON pr.mtpt_id=etpt.id"
             + "      JOIN materials m ON pr.mate_prop_id=m.id "
             + "     WHERE pr.mate_prop_id is not null AND pr.mate_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
 
@@ -137,7 +142,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
             + " m.private as is_private, m.creation_date as creation_date, ma.mate_id as entity_id "
             + " from metaprojects m, metaproject_assignments ma, persons p "
             + " where ma.mate_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id and m.owner = p.id", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
 }

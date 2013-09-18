@@ -83,7 +83,7 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
                     @Override
                     public String map(AbstractExternalData item)
                     {
-                        return item.getCode();
+                        return item == null ? null : item.getCode();
                     }
                 };
 
@@ -92,7 +92,7 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
             @Override
             public String map(Sample item)
             {
-                return item.getIdentifier();
+                return item == null ? null : item.getIdentifier();
             }
         };
 
@@ -102,7 +102,7 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
                     @Override
                     public String map(Experiment item)
                     {
-                        return item.getIdentifier();
+                        return item == null ? null : item.getIdentifier();
                     }
                 };
 

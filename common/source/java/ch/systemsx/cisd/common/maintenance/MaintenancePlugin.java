@@ -45,7 +45,14 @@ public class MaintenancePlugin
         }
         // The following order is important because only after set up the task knows whether it
         // needs a lock or not.
-        task.setUp(parameters.getPluginName(), parameters.getProperties());
+        try
+        {
+            task.setUp(parameters.getPluginName(), parameters.getProperties());
+        } catch (Throwable t)
+        {
+            throw new ConfigurationFailureException("Set up of maintenance task '" + parameters.getPluginName() 
+                    + "' failed: " + t.getMessage(), t);
+        }
         this.requiresDataStoreLock = requiresDataStoreLock();
     }
     

@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.LockMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
@@ -67,8 +68,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
                     + ") as active_users                                                  ";
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     public static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PersonDAO.class);
@@ -164,9 +165,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     }
 
     /**
-     * Checks given <var>persons</var> and throws a {@link IncorrectResultSizeDataAccessException}
-     * if it contains more than one item and no person is found that exactly matches the
-     * <var>userId</var>.
+     * Checks given <var>persons</var> and throws a {@link IncorrectResultSizeDataAccessException} if it contains more than one item and no person is
+     * found that exactly matches the <var>userId</var>.
      * 
      * @return <code>null</code> or the entity found at index <code>0</code>.
      */
@@ -276,5 +276,12 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         final Criteria criteria = getSession().createCriteria(PersonPE.class);
         criteria.add(Restrictions.in("userId", userIds));
         return cast(criteria.list());
+    }
+
+    @Override
+    public void lock(PersonPE person)
+    {
+        PersonPE mergedPerson = (PersonPE) getHibernateTemplate().merge(person);
+        getHibernateTemplate().lock(mergedPerson, LockMode.PESSIMISTIC_WRITE);
     }
 }

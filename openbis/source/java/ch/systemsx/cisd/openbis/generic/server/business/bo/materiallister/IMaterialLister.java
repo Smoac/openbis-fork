@@ -16,8 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
+import java.util.Collection;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
@@ -45,5 +47,10 @@ public interface IMaterialLister
      * @param withProperties if true material properties will be fetched as well.
      */
     public List<Material> list(MetaprojectCriteria criteria, boolean withProperties);
+
+    /**
+     * Returns the technical IDs of all materials which have at least one property of type MATERIAL referring to one of the specified materials.
+     */
+    public Collection<TechId> listMaterialsByMaterialProperties(Collection<TechId> materialIds);
 
 }

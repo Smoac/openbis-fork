@@ -83,6 +83,8 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationService.class);
+    
+    protected String userSessionToken;
 
     /**
      * Keep track of errors we encounter while processing. Clients may want this information.
@@ -128,6 +130,11 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
         this.precommitDirectory = registratorContext.getGlobalState().getPreCommitDir();
     }
 
+    public void setUserSessionToken(String userSessionToken)
+    {
+        this.userSessionToken = userSessionToken;
+    }
+
     public OmniscientTopLevelDataSetRegistratorState getRegistratorContext()
     {
         return registratorContext;
@@ -166,7 +173,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
             IDataSetRegistrationDetailsFactory<T> registrationDetailsFactory)
     {
         return new DataSetRegistrationTransaction<T>(rollBackStackParentFolder, workingDirectory,
-                stagingDir, this, registrationDetailsFactory);
+                stagingDir, this, registrationDetailsFactory, userSessionToken);
 
     }
 

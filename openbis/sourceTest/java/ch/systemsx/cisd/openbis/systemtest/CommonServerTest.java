@@ -18,21 +18,36 @@ package ch.systemsx.cisd.openbis.systemtest;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
@@ -40,12 +55,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class CommonServerTest extends SystemTestCase
 {
+
+    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     @Test
     public void testDeleteGroupWithPersons()
@@ -177,6 +196,35 @@ public class CommonServerTest extends SystemTestCase
         assertEquals("[DESCRIPTION: Adenovirus 3]", materialInfo.getProperties().toString());
     }
 
+    @Test
+    public void testListMaterialIdsByMaterialProperties()
+    {
+        Collection<TechId> ids = commonServer.listMaterialIdsByMaterialProperties(systemSessionToken, Arrays.asList(new TechId(3736)));
+
+        assertEquals("[3735]", ids.toString());
+    }
+
+    @Test
+    public void testListSamplesByMaterialProperties()
+    {
+        List<TechId> materialIds = Arrays.asList(new TechId(34));
+        List<Sample> samples = commonServer.listSamplesByMaterialProperties(systemSessionToken, materialIds);
+
+        assertEntities("[/CISD/CP-TEST-1, /CISD/PLATE_WELLSEARCH:WELL-A01]", samples);
+
+        String observerSessionToken = commonServer.tryAuthenticate("observer", "a").getSessionToken();
+        samples = commonServer.listSamplesByMaterialProperties(observerSessionToken, materialIds);
+
+        assertEntities("[]", samples);
+
+        // delete a sample
+        commonServer.deleteSamples(systemSessionToken, Arrays.asList(new TechId(1051)), "test", DeletionType.TRASH);
+        samples = commonServer.listSamplesByMaterialProperties(systemSessionToken, materialIds);
+
+        assertEntities("[/CISD/CP-TEST-1]", samples);
+
+    }
+
     private void assertAssignedPropertyTypes(String expected, EntityType entityType)
     {
         List<? extends EntityTypePropertyType<?>> propTypes = entityType.getAssignedPropertyTypes();
@@ -193,4 +241,378 @@ public class CommonServerTest extends SystemTestCase
         Collections.sort(propertyCodes);
         assertEquals(expected, propertyCodes.toString());
     }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    public void testConcurrentDisplaySettingsUpdateForOneUserIsSafe()
+    {
+        testConcurrentDisplaySettingsUpdateForUsersIsSafe(new String[] { "test" }, 10, 10);
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    public void testConcurrentDisplaySettingsUpdateForDifferentUsersIsSafe()
+    {
+        testConcurrentDisplaySettingsUpdateForUsersIsSafe(new String[] { "test", "test_role" }, 5, 10);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void testConcurrentDisplaySettingsUpdateForUsersIsSafe(String[] users, int numberOfThreads, int numberOfIterations)
+    {
+        final String PASSWORD = "password";
+        final String PANEL_ID = "panel_id";
+        final String FINISHED_MESSAGE = "finished";
+
+        MessageChannel sendChannel = new MessageChannel(5000);
+        List<Thread> threads = new ArrayList<Thread>();
+        SessionContextDTO[] sessionContext = new SessionContextDTO[users.length];
+
+        for (int u = 0; u < users.length; u++)
+        {
+
+            for (int i = 0; i < numberOfThreads; i++)
+            {
+                sessionContext[u] = commonServer.tryAuthenticate(users[u], PASSWORD);
+                new SetPanelSizeRunnable(commonServer, sessionContext[u].getSessionToken(), PANEL_ID, 0).run();
+                IncrementPanelSizeRunnable runnable =
+                        new IncrementPanelSizeRunnable(commonServer, sessionContext[u].getSessionToken(), PANEL_ID, numberOfIterations);
+                runnable.setSendChannel(sendChannel);
+                runnable.setFinishedMessage(FINISHED_MESSAGE);
+                Thread thread = new Thread(runnable);
+                thread.setDaemon(true);
+                threads.add(thread);
+            }
+        }
+
+        for (Thread thread : threads)
+        {
+            thread.start();
+        }
+
+        for (int i = 0; i < threads.size(); i++)
+        {
+            sendChannel.assertNextMessage(FINISHED_MESSAGE);
+        }
+
+        for (int u = 0; u < users.length; u++)
+        {
+            sessionContext[u] = commonServer.tryGetSession(sessionContext[u].getSessionToken());
+            assertEquals(Integer.valueOf(numberOfThreads * numberOfIterations),
+                    sessionContext[u].getDisplaySettings().getPanelSizeSettings().get(PANEL_ID));
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    public void testLongRunninngDisplaySettingsUpdateForOneUserBlocksOtherUpdatesForThisUser() throws Exception
+    {
+        final String USER_ID = "test";
+        final String PASSWORD = "password";
+        final String PANEL_ID = "testPanelId";
+        final String FINISHED_MESSAGE = "finished";
+        final long TIMEOUT = 1000;
+
+        DataSource dataSource = (DataSource) applicationContext.getBean("data-source");
+        Connection connection = dataSource.getConnection();
+
+        try
+        {
+            connection.setAutoCommit(false);
+
+            /*
+             * DummyAuthenticationService always returns random principals and triggers a person update during login. As we don't want to hold any
+             * locks on the persons table at this point, we call tryAuthenticate methods in the main thread. The test method is marked with
+             * Propagation.NEVER, which makes each of these calls to be executed in a separate transaction that is auto-committed.
+             */
+            SessionContextDTO sessionContext1 = commonServer.tryAuthenticate(USER_ID, PASSWORD);
+            operationLog.info("User  '" + USER_ID + "' authenticated");
+
+            SessionContextDTO sessionContext2 = commonServer.tryAuthenticate(USER_ID, PASSWORD);
+            operationLog.info("User  '" + USER_ID + "' authenticated");
+
+            /*
+             * Acquire a database lock on USER_ID_1 person. It will block updating the display settings for that person.
+             */
+            PreparedStatement statement = connection.prepareStatement("UPDATE persons SET registration_timestamp = now() WHERE user_id = ?");
+            statement.setString(1, USER_ID);
+            statement.executeUpdate();
+            operationLog.info("User '" + USER_ID + "' locked by a SQL query");
+
+            MessageChannel sendChannel = new MessageChannel(TIMEOUT);
+
+            /*
+             * Will concurrently update the same person in two separate transactions.
+             */
+
+            IncrementPanelSizeRunnable runnable1 = new IncrementPanelSizeRunnable(commonServer, sessionContext1.getSessionToken(), PANEL_ID, 1);
+            IncrementPanelSizeRunnable runnable2 = new IncrementPanelSizeRunnable(commonServer, sessionContext2.getSessionToken(), PANEL_ID, 1);
+
+            runnable1.setSendChannel(sendChannel);
+            runnable2.setSendChannel(sendChannel);
+
+            runnable1.setFinishedMessage(FINISHED_MESSAGE);
+            runnable2.setFinishedMessage(FINISHED_MESSAGE);
+
+            Thread thread1 = new Thread(runnable1);
+            Thread thread2 = new Thread(runnable2);
+
+            thread1.setDaemon(true);
+            thread2.setDaemon(true);
+
+            operationLog.info("Will try to update user '" + USER_ID + "' display settings");
+            /*
+             * First try to update the person without releasing the database lock.
+             */
+            thread1.start();
+            thread2.start();
+
+            Thread.sleep(TIMEOUT);
+            sendChannel.assertEmpty();
+
+            operationLog.info("Still waiting to update user '" + USER_ID + "' display settings");
+
+            /*
+             * After releasing the database lock, updating the person should succeed.
+             */
+            connection.rollback();
+
+            operationLog.info("Releasing SQL lock on user '" + USER_ID + "'");
+
+            sendChannel.assertNextMessage(FINISHED_MESSAGE);
+            sendChannel.assertNextMessage(FINISHED_MESSAGE);
+
+            operationLog.info("Successfully updated user '" + USER_ID + "' display settings");
+
+        } finally
+        {
+            connection.rollback();
+            connection.setAutoCommit(true);
+            connection.close();
+        }
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    public void testLongRunninngDisplaySettingsUpdateForOneUserDoesNotBlockUpdatesForOtherUsers() throws Exception
+    {
+        final String USER_ID_1 = "test";
+        final String USER_ID_2 = "test_role";
+        final String PASSWORD = "password";
+        final String PANEL_ID = "testPanelId";
+        final String FINISHED_MESSAGE_1 = "finished1";
+        final String FINISHED_MESSAGE_2 = "finished2";
+        final long TIMEOUT = 1000;
+
+        DataSource dataSource = (DataSource) applicationContext.getBean("data-source");
+        Connection connection = dataSource.getConnection();
+
+        try
+        {
+            connection.setAutoCommit(false);
+
+            /*
+             * DummyAuthenticationService always returns random principals and triggers a person update during login. As we don't want to hold any
+             * locks on the persons table at this point, we call tryAuthenticate methods in the main thread. The test method is marked with
+             * Propagation.NEVER, which makes each of these calls to be executed in a separate transaction that is auto-committed.
+             */
+            SessionContextDTO sessionContext1 = commonServer.tryAuthenticate(USER_ID_1, PASSWORD);
+            operationLog.info("User  '" + USER_ID_1 + "' authenticated");
+
+            SessionContextDTO sessionContext2 = commonServer.tryAuthenticate(USER_ID_2, PASSWORD);
+            operationLog.info("User '" + USER_ID_2 + "' authenticated");
+
+            /*
+             * Acquire a database lock on USER_ID_1 person. It will block updating the display settings for that person.
+             */
+            PreparedStatement statement = connection.prepareStatement("UPDATE persons SET registration_timestamp = now() WHERE user_id = ?");
+            statement.setString(1, USER_ID_1);
+            statement.executeUpdate();
+            operationLog.info("User '" + USER_ID_1 + "' locked by a SQL query");
+
+            MessageChannel sendChannel = new MessageChannel(TIMEOUT);
+
+            /*
+             * Will concurrently update two different persons in two separate transactions.
+             */
+            IncrementPanelSizeRunnable runnable1 = new IncrementPanelSizeRunnable(commonServer, sessionContext1.getSessionToken(), PANEL_ID, 1);
+            IncrementPanelSizeRunnable runnable2 = new IncrementPanelSizeRunnable(commonServer, sessionContext2.getSessionToken(), PANEL_ID, 1);
+
+            runnable1.setSendChannel(sendChannel);
+            runnable2.setSendChannel(sendChannel);
+
+            runnable1.setFinishedMessage(FINISHED_MESSAGE_1);
+            runnable2.setFinishedMessage(FINISHED_MESSAGE_2);
+
+            Thread thread1 = new Thread(runnable1);
+            Thread thread2 = new Thread(runnable2);
+            thread1.setDaemon(true);
+            thread2.setDaemon(true);
+
+            operationLog.info("Will try to update user '" + USER_ID_1 + "' display settings");
+            /*
+             * First try to update the USER_ID_1 person that is blocked by the database lock.
+             */
+            thread1.start();
+
+            Thread.sleep(TIMEOUT);
+            sendChannel.assertEmpty();
+
+            operationLog.info("Still waiting to update user '" + USER_ID_1 + "' display settings");
+            operationLog.info("Will try to update user '" + USER_ID_2 + "' display settings");
+
+            /*
+             * Now try to update USER_ID_2 person that is not blocked by any database lock.
+             */
+            thread2.start();
+
+            sendChannel.assertNextMessage(FINISHED_MESSAGE_2);
+
+            operationLog.info("Successfully update user  '" + USER_ID_2 + "' display settings");
+
+            /*
+             * After releasing the database lock, updating USER_ID_1 person should also succeed.
+             */
+            connection.rollback();
+
+            operationLog.info("Releasing SQL lock on user '" + USER_ID_1 + "'");
+
+            sendChannel.assertNextMessage(FINISHED_MESSAGE_1);
+
+            operationLog.info("Successfully updated user '" + USER_ID_1 + "' display settings");
+
+        } finally
+        {
+            operationLog.info("Cleaning up");
+            connection.rollback();
+            connection.setAutoCommit(true);
+            connection.close();
+        }
+    }
+
+    private static class SetPanelSizeRunnable implements Runnable
+    {
+        private ICommonServer server;
+
+        private String sessionToken;
+
+        private String panelId;
+
+        private int value;
+
+        public SetPanelSizeRunnable(ICommonServer server, String sessionToken, String panelId, int value)
+        {
+            this.server = server;
+            this.sessionToken = sessionToken;
+            this.panelId = panelId;
+            this.value = value;
+        }
+
+        @Override
+        public void run()
+        {
+            IDisplaySettingsUpdate update = new IDisplaySettingsUpdate()
+                {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public DisplaySettings update(DisplaySettings displaySettings)
+                    {
+                        Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
+                        panelSizeSettings.put(panelId, value);
+                        return displaySettings;
+                    }
+                };
+            server.updateDisplaySettings(sessionToken, update);
+        }
+    }
+
+    private static class IncrementPanelSizeRunnable implements Runnable
+    {
+        private ICommonServer server;
+
+        private String sessionToken;
+
+        private String panelId;
+
+        private int count;
+
+        private MessageChannel sendChannel;
+
+        private String finishedMessage;
+
+        public IncrementPanelSizeRunnable(ICommonServer server, String sessionToken, String panelId, int count)
+        {
+            this.server = server;
+            this.sessionToken = sessionToken;
+            this.panelId = panelId;
+            this.count = count;
+        }
+
+        @Override
+        public void run()
+        {
+            IDisplaySettingsUpdate update = new IDisplaySettingsUpdate()
+                {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @SuppressWarnings("deprecation")
+                    @Override
+                    public DisplaySettings update(DisplaySettings displaySettings)
+                    {
+                        Map<String, Integer> panelSizeSettings = displaySettings.getPanelSizeSettings();
+                        Integer panelSize = panelSizeSettings.get(panelId);
+                        if (panelSize == null)
+                        {
+                            panelSize = 0;
+                        }
+                        try
+                        {
+                            // increase probability of race condition
+                            Thread.sleep(5);
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                        panelSizeSettings.put(panelId, panelSize + 1);
+                        return displaySettings;
+                    }
+                };
+
+            for (int value = 0; value < count; value++)
+            {
+                server.updateDisplaySettings(sessionToken, update);
+            }
+
+            if (getSendChannel() != null && getFinishedMessage() != null)
+            {
+                getSendChannel().send(getFinishedMessage());
+            }
+        }
+
+        public MessageChannel getSendChannel()
+        {
+            return sendChannel;
+        }
+
+        public void setSendChannel(MessageChannel sendChannel)
+        {
+            this.sendChannel = sendChannel;
+        }
+
+        public String getFinishedMessage()
+        {
+            return finishedMessage;
+        }
+
+        public void setFinishedMessage(String finishedMessage)
+        {
+            this.finishedMessage = finishedMessage;
+        }
+
+    }
+
 }

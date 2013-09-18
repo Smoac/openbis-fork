@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Abstrac
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -56,7 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
  * @author Piotr Buczek
  */
 @Friend(toClasses =
-    { MaterialRecord.class, IMaterialListingQuery.class })
+{ MaterialRecord.class, IMaterialListingQuery.class })
 public class MaterialLister extends AbstractLister implements IMaterialLister
 {
 
@@ -129,6 +130,14 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
         Long2ObjectMap<Material> materialMap = getMaterialsByCriteria(criteria);
 
         return convertAndEnrich(materialMap, withProperties);
+    }
+
+    @Override
+    public Collection<TechId> listMaterialsByMaterialProperties(Collection<TechId> materialIds)
+    {
+        DataIterator<Long> result =
+                query.getMaterialIdsByMaterialProperties(new LongOpenHashSet(TechId.asLongs(materialIds)));
+        return new HashSet<TechId>(TechId.createList(asList(result)));
     }
 
     /**

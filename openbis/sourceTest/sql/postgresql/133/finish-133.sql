@@ -450,17 +450,17 @@ CREATE TRIGGER sample_type_fill_subcode_unique_check AFTER UPDATE ON sample_type
 ALTER TABLE ONLY authorization_groups
     ADD CONSTRAINT ag_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY authorization_groups
-    ADD CONSTRAINT ag_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT ag_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY authorization_group_persons
     ADD CONSTRAINT agp_ag_fk FOREIGN KEY (ag_id) REFERENCES authorization_groups(id);
 ALTER TABLE ONLY authorization_group_persons
-    ADD CONSTRAINT agp_pers_fk FOREIGN KEY (pers_id) REFERENCES persons(id);
+    ADD CONSTRAINT agp_pers_fk FOREIGN KEY (pers_id) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY attachments
     ADD CONSTRAINT atta_cont_fk FOREIGN KEY (exac_id) REFERENCES attachment_contents(id);
 ALTER TABLE ONLY attachments
     ADD CONSTRAINT atta_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments_all(id);
 ALTER TABLE ONLY attachments
-    ADD CONSTRAINT atta_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT atta_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY attachments
     ADD CONSTRAINT atta_proj_fk FOREIGN KEY (proj_id) REFERENCES projects(id);
 ALTER TABLE ONLY attachments
@@ -468,11 +468,11 @@ ALTER TABLE ONLY attachments
 ALTER TABLE ONLY controlled_vocabularies
     ADD CONSTRAINT covo_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY controlled_vocabularies
-    ADD CONSTRAINT covo_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT covo_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY controlled_vocabulary_terms
     ADD CONSTRAINT cvte_covo_fk FOREIGN KEY (covo_id) REFERENCES controlled_vocabularies(id);
 ALTER TABLE ONLY controlled_vocabulary_terms
-    ADD CONSTRAINT cvte_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT cvte_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_stores
     ADD CONSTRAINT dast_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY data_all
@@ -486,13 +486,13 @@ ALTER TABLE ONLY data_all
 ALTER TABLE ONLY data_all
     ADD CONSTRAINT data_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments_all(id);
 ALTER TABLE ONLY data_all
-    ADD CONSTRAINT data_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT data_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_all
-    ADD CONSTRAINT data_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id);
+    ADD CONSTRAINT data_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_all
     ADD CONSTRAINT data_samp_fk FOREIGN KEY (samp_id) REFERENCES samples_all(id);
 ALTER TABLE ONLY data_set_relationships_all
-    ADD CONSTRAINT data_set_relationships_pers_fk FOREIGN KEY (pers_id_author) REFERENCES persons(id);
+    ADD CONSTRAINT data_set_relationships_pers_fk FOREIGN KEY (pers_id_author) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_set_relationships_history
     ADD CONSTRAINT datarelh_data_fk FOREIGN KEY (data_id) REFERENCES data_all(id) ON DELETE SET NULL;
 ALTER TABLE ONLY data_set_relationships_history
@@ -502,7 +502,7 @@ ALTER TABLE ONLY data_set_relationships_history
 ALTER TABLE ONLY data_set_relationships_history
     ADD CONSTRAINT datarelh_samp_fk FOREIGN KEY (samp_id) REFERENCES samples_all(id) ON DELETE SET NULL;
 ALTER TABLE ONLY deletions
-    ADD CONSTRAINT del_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT del_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_cvte_fk FOREIGN KEY (cvte_id) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY data_set_properties
@@ -512,7 +512,7 @@ ALTER TABLE ONLY data_set_properties
 ALTER TABLE ONLY data_set_properties
     ADD CONSTRAINT dspr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
 ALTER TABLE ONLY data_set_properties
-    ADD CONSTRAINT dspr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT dspr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_set_properties_history
     ADD CONSTRAINT dsprh_ds_fk FOREIGN KEY (ds_id) REFERENCES data_all(id) ON DELETE CASCADE;
 ALTER TABLE ONLY data_set_properties_history
@@ -532,7 +532,7 @@ ALTER TABLE ONLY data_store_services
 ALTER TABLE ONLY data_set_type_property_types
     ADD CONSTRAINT dstpt_dsty_fk FOREIGN KEY (dsty_id) REFERENCES data_set_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY data_set_type_property_types
-    ADD CONSTRAINT dstpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT dstpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY data_set_type_property_types
     ADD CONSTRAINT dstpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY data_set_type_property_types
@@ -546,13 +546,13 @@ ALTER TABLE ONLY external_data_management_systems
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_exty_fk FOREIGN KEY (exty_id) REFERENCES experiment_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY experiment_type_property_types
-    ADD CONSTRAINT etpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT etpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY experiment_type_property_types
     ADD CONSTRAINT etpt_script_fk FOREIGN KEY (script_id) REFERENCES scripts(id);
 ALTER TABLE ONLY events
-    ADD CONSTRAINT evnt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT evnt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY external_data
     ADD CONSTRAINT exda_cvte_fk FOREIGN KEY (cvte_id_stor_fmt) REFERENCES controlled_vocabulary_terms(id);
 ALTER TABLE ONLY external_data
@@ -568,9 +568,9 @@ ALTER TABLE ONLY experiments_all
 ALTER TABLE ONLY experiments_all
     ADD CONSTRAINT expe_exty_fk FOREIGN KEY (exty_id) REFERENCES experiment_types(id);
 ALTER TABLE ONLY experiments_all
-    ADD CONSTRAINT expe_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT expe_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY experiments_all
-    ADD CONSTRAINT expe_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id);
+    ADD CONSTRAINT expe_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY experiments_all
     ADD CONSTRAINT expe_proj_fk FOREIGN KEY (proj_id) REFERENCES projects(id);
 ALTER TABLE ONLY experiment_properties
@@ -582,7 +582,7 @@ ALTER TABLE ONLY experiment_properties
 ALTER TABLE ONLY experiment_properties
     ADD CONSTRAINT expr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
 ALTER TABLE ONLY experiment_properties
-    ADD CONSTRAINT expr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT expr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY experiment_properties_history
     ADD CONSTRAINT exprh_etpt_fk FOREIGN KEY (etpt_id) REFERENCES experiment_type_property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY experiment_properties_history
@@ -604,11 +604,11 @@ ALTER TABLE ONLY file_format_types
 ALTER TABLE ONLY filters
     ADD CONSTRAINT filt_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY filters
-    ADD CONSTRAINT filt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT filt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY grid_custom_columns
     ADD CONSTRAINT grid_custom_columns_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY grid_custom_columns
-    ADD CONSTRAINT grid_custom_columns_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT grid_custom_columns_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY link_data
     ADD CONSTRAINT lnda_data_fk FOREIGN KEY (data_id) REFERENCES data_all(id) ON DELETE CASCADE;
 ALTER TABLE ONLY link_data
@@ -622,7 +622,7 @@ ALTER TABLE ONLY material_properties
 ALTER TABLE ONLY material_properties
     ADD CONSTRAINT mapr_mtpt_fk FOREIGN KEY (mtpt_id) REFERENCES material_type_property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY material_properties
-    ADD CONSTRAINT mapr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT mapr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY material_properties_history
     ADD CONSTRAINT maprh_mate_fk FOREIGN KEY (mate_id) REFERENCES materials(id) ON DELETE CASCADE;
 ALTER TABLE ONLY material_properties_history
@@ -632,7 +632,7 @@ ALTER TABLE ONLY materials
 ALTER TABLE ONLY materials
     ADD CONSTRAINT mate_maty_fk FOREIGN KEY (maty_id) REFERENCES material_types(id);
 ALTER TABLE ONLY materials
-    ADD CONSTRAINT mate_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT mate_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY material_types
     ADD CONSTRAINT maty_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY material_types
@@ -650,11 +650,11 @@ ALTER TABLE ONLY metaproject_assignments_all
 ALTER TABLE ONLY metaproject_assignments_all
     ADD CONSTRAINT metaproject_assignments_all_samp_id_fk FOREIGN KEY (samp_id) REFERENCES samples_all(id) ON DELETE CASCADE;
 ALTER TABLE ONLY metaprojects
-    ADD CONSTRAINT metaprojects_owner_fk FOREIGN KEY (owner) REFERENCES persons(id) ON DELETE CASCADE;
+    ADD CONSTRAINT metaprojects_owner_fk FOREIGN KEY (owner) REFERENCES persons(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_maty_fk FOREIGN KEY (maty_id) REFERENCES material_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY material_type_property_types
-    ADD CONSTRAINT mtpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT mtpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY material_type_property_types
     ADD CONSTRAINT mtpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY material_type_property_types
@@ -662,17 +662,17 @@ ALTER TABLE ONLY material_type_property_types
 ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY persons
-    ADD CONSTRAINT pers_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT pers_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY persons
     ADD CONSTRAINT pers_space_fk FOREIGN KEY (space_id) REFERENCES spaces(id);
 ALTER TABLE ONLY post_registration_dataset_queue
     ADD CONSTRAINT prdq_ds_fk FOREIGN KEY (ds_id) REFERENCES data_all(id) ON DELETE CASCADE;
 ALTER TABLE ONLY projects
-    ADD CONSTRAINT proj_pers_fk_leader FOREIGN KEY (pers_id_leader) REFERENCES persons(id);
+    ADD CONSTRAINT proj_pers_fk_leader FOREIGN KEY (pers_id_leader) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY projects
-    ADD CONSTRAINT proj_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id);
+    ADD CONSTRAINT proj_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY projects
-    ADD CONSTRAINT proj_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT proj_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY projects
     ADD CONSTRAINT proj_space_fk FOREIGN KEY (space_id) REFERENCES spaces(id);
 ALTER TABLE ONLY project_relationships_history
@@ -690,19 +690,19 @@ ALTER TABLE ONLY property_types
 ALTER TABLE ONLY property_types
     ADD CONSTRAINT prty_maty_fk FOREIGN KEY (maty_prop_id) REFERENCES material_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY property_types
-    ADD CONSTRAINT prty_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT prty_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY queries
     ADD CONSTRAINT quer_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY queries
-    ADD CONSTRAINT quer_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT quer_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY role_assignments
     ADD CONSTRAINT roas_ag_fk_grantee FOREIGN KEY (ag_id_grantee) REFERENCES authorization_groups(id) ON DELETE CASCADE;
 ALTER TABLE ONLY role_assignments
     ADD CONSTRAINT roas_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id) ON DELETE CASCADE;
 ALTER TABLE ONLY role_assignments
-    ADD CONSTRAINT roas_pers_fk_grantee FOREIGN KEY (pers_id_grantee) REFERENCES persons(id) ON DELETE CASCADE;
+    ADD CONSTRAINT roas_pers_fk_grantee FOREIGN KEY (pers_id_grantee) REFERENCES persons(id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY role_assignments
-    ADD CONSTRAINT roas_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT roas_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY role_assignments
     ADD CONSTRAINT roas_space_fk FOREIGN KEY (space_id) REFERENCES spaces(id) ON DELETE CASCADE;
 ALTER TABLE ONLY samples_all
@@ -712,9 +712,9 @@ ALTER TABLE ONLY samples_all
 ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_expe_fk FOREIGN KEY (expe_id) REFERENCES experiments_all(id);
 ALTER TABLE ONLY samples_all
-    ADD CONSTRAINT samp_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT samp_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY samples_all
-    ADD CONSTRAINT samp_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id);
+    ADD CONSTRAINT samp_pers_fk_mod FOREIGN KEY (pers_id_modifier) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_samp_fk_part_of FOREIGN KEY (samp_id_part_of) REFERENCES samples_all(id);
 ALTER TABLE ONLY samples_all
@@ -722,7 +722,7 @@ ALTER TABLE ONLY samples_all
 ALTER TABLE ONLY samples_all
     ADD CONSTRAINT samp_space_fk FOREIGN KEY (space_id) REFERENCES spaces(id);
 ALTER TABLE ONLY sample_relationships_all
-    ADD CONSTRAINT sample_relationships_pers_fk FOREIGN KEY (pers_id_author) REFERENCES persons(id);
+    ADD CONSTRAINT sample_relationships_pers_fk FOREIGN KEY (pers_id_author) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY sample_relationships_history
     ADD CONSTRAINT samprelh_data_fk FOREIGN KEY (data_id) REFERENCES data_all(id) ON DELETE SET NULL;
 ALTER TABLE ONLY sample_relationships_history
@@ -738,7 +738,7 @@ ALTER TABLE ONLY sample_properties
 ALTER TABLE ONLY sample_properties
     ADD CONSTRAINT sapr_mapr_fk FOREIGN KEY (mate_prop_id) REFERENCES materials(id);
 ALTER TABLE ONLY sample_properties
-    ADD CONSTRAINT sapr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT sapr_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY sample_properties
     ADD CONSTRAINT sapr_samp_fk FOREIGN KEY (samp_id) REFERENCES samples_all(id);
 ALTER TABLE ONLY sample_properties
@@ -762,13 +762,13 @@ ALTER TABLE ONLY sample_types
 ALTER TABLE ONLY scripts
     ADD CONSTRAINT scri_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY scripts
-    ADD CONSTRAINT scri_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT scri_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY spaces
     ADD CONSTRAINT space_dbin_fk FOREIGN KEY (dbin_id) REFERENCES database_instances(id);
 ALTER TABLE ONLY spaces
-    ADD CONSTRAINT space_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT space_pers_fk_registerer FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY sample_type_property_types
-    ADD CONSTRAINT stpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id);
+    ADD CONSTRAINT stpt_pers_fk FOREIGN KEY (pers_id_registerer) REFERENCES persons(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY sample_type_property_types
     ADD CONSTRAINT stpt_prty_fk FOREIGN KEY (prty_id) REFERENCES property_types(id) ON DELETE CASCADE;
 ALTER TABLE ONLY sample_type_property_types

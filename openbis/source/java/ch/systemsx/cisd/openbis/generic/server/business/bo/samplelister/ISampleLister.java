@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.IValidator;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipSkeleton;
@@ -41,26 +42,23 @@ public interface ISampleLister
     public List<Sample> list(ListOrSearchSampleCriteria criteria);
 
     /**
-     * Returns the id of the relationship type of specified code. If code starts with an '$' it is
-     * interpreted as an internally defined relationship type.
+     * Returns the id of the relationship type of specified code. If code starts with an '$' it is interpreted as an internally defined relationship
+     * type.
      * 
      * @throws IllegalArgumentException if code not known.
      */
     public long getRelationshipTypeID(String code);
 
     /**
-     * Returns all samples as skeletons (thats is, only primary and foreign keys) fulfilling
-     * specified criteria.
+     * Returns all samples as skeletons (thats is, only primary and foreign keys) fulfilling specified criteria.
      */
     public List<SampleSkeleton> listSampleBy(IValidator<SampleSkeleton> criteria);
 
     /**
-     * Returns all sample relation ships as skeletons (thats is, only primary and foreign keys)
-     * fulfilling specified criteria.
+     * Returns all sample relation ships as skeletons (thats is, only primary and foreign keys) fulfilling specified criteria.
      * 
-     * @deprecated This way of loading relationships is slow. There is no filtering on DB level. If
-     *             the <code>criteria</code> use only a collection of parent/children ids than use
-     *             getParentToChildrenIdsMap/getChildToParentsIdsMap.
+     * @deprecated This way of loading relationships is slow. There is no filtering on DB level. If the <code>criteria</code> use only a collection of
+     *             parent/children ids than use getParentToChildrenIdsMap/getChildToParentsIdsMap.
      */
     @Deprecated
     public List<SampleRelationshipSkeleton> listSampleRelationshipsBy(
@@ -71,5 +69,10 @@ public interface ISampleLister
 
     /** Returns a map from parent id to set of children ids for specified parents. */
     public Map<Long, Set<Long>> getParentToChildrenIdsMap(Collection<Long> parentIds);
+
+    /**
+     * Returns the technical ids of all samples which have at least one property of type MATERIAL referring to one of the specified materials.
+     */
+    public Collection<TechId> listSamplesByMaterialProperties(Collection<TechId> materialIds);
 
 }

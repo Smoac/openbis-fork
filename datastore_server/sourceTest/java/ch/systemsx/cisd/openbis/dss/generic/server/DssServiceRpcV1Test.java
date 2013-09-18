@@ -308,8 +308,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     atLeast(1).of(openBisService).checkSpaceAccess(with(SESSION_TOKEN),
                             with(spaceIdentifier));
-                    one(dataSetRegistrator).handle(with(fileMatcher), with(dataSetInfoMatcher),
-                            with(delegateMatcher));
+                    one(dataSetRegistrator).handle(with(fileMatcher), with(SESSION_TOKEN),
+                            with(dataSetInfoMatcher), with(delegateMatcher));
                     will(new CustomAction("Notify the delegate")
                         {
                             @Override

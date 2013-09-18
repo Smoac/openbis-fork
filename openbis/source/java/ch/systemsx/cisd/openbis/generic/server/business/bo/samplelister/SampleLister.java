@@ -20,6 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,20 +34,20 @@ import ch.systemsx.cisd.common.collection.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipSkeleton;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleSkeleton;
 
 /**
- * A business object for providing lists of samples (more precisely sets of samples) for the purpose
- * of showing them and browsing through them. It is optimized for speed, using a custom strategy to
- * get the samples from the database.
+ * A business object for providing lists of samples (more precisely sets of samples) for the purpose of showing them and browsing through them. It is
+ * optimized for speed, using a custom strategy to get the samples from the database.
  * 
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { ISampleListingQuery.class, SampleRecord.class, SampleRelationRecord.class })
+{ ISampleListingQuery.class, SampleRecord.class, SampleRelationRecord.class })
 public class SampleLister implements ISampleLister
 {
     private final SampleListerDAO dao;
@@ -178,6 +179,20 @@ public class SampleLister implements ISampleLister
             children.add(relationship.sample_id_child);
         }
         return map;
+    }
+
+    @Override
+    public Collection<TechId> listSamplesByMaterialProperties(Collection<TechId> materialIds)
+    {
+        ISampleListingQuery query = dao.getQuery();
+        LongOpenHashSet ids = new LongOpenHashSet(TechId.asLongs(materialIds));
+        DataIterator<Long> result = query.getSampleIdsByMaterialProperties(ids);
+        Set<TechId> sampleIds = new HashSet<TechId>();
+        for (Long sampleId : result)
+        {
+            sampleIds.add(new TechId(sampleId));
+        }
+        return sampleIds;
     }
 
     public Set<Long> listChildrenIdsSet(Collection<Long> parentIds)

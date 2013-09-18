@@ -256,8 +256,8 @@ public class PutDataSetTopLevelDataSetHandlerTest extends AbstractFileSystemTest
                     sessionContext.setUserName(TEST_USER_NAME);
                     will(returnValue(sessionContext));
 
-                    one(registrator).handle(with(dataSet), with(dataSetInfoMatcher),
-                            with(new BaseMatcher<ITopLevelDataSetRegistratorDelegate>()
+                    one(registrator).handle(with(dataSet), with(SESSION_TOKEN),
+                            with(dataSetInfoMatcher), with(new BaseMatcher<ITopLevelDataSetRegistratorDelegate>()
                                 {
                                     @Override
                                     public boolean matches(Object item)

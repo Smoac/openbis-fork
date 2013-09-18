@@ -395,7 +395,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         if (preStagingUsage == DataSetRegistrationPreStagingBehavior.USE_ORIGINAL)
         {
             DataSetFile incoming = new DataSetFile(incomingDataSetFile);
-            handle(incoming, null, new NoOpDelegate(
+            handle(incoming, null, null, new NoOpDelegate(
                     DataSetRegistrationPreStagingBehavior.USE_ORIGINAL), markerFileCleanupAction);
         } else
         {
@@ -412,7 +412,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
             // For cleanup we use the postRegistrationCleanUpAction wich clears the prestaging area.
             PostRegistrationCleanUpAction cleanupAction =
                     new PostRegistrationCleanUpAction(dsf, markerFileCleanupAction);
-            handle(dsf, null,
+            handle(dsf, null, null,
                     new NoOpDelegate(DataSetRegistrationPreStagingBehavior.USE_PRESTAGING),
                     cleanupAction);
         }
@@ -472,10 +472,10 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * The handleDataSet method (a subclass responsibility) is invoked.
      */
     @Override
-    public final void handle(File incomingDataSetFile, DataSetInformation callerDataSetInformation,
-            ITopLevelDataSetRegistratorDelegate delegate)
+    public final void handle(File incomingDataSetFile, String userSessionToken,
+            DataSetInformation callerDataSetInformation, ITopLevelDataSetRegistratorDelegate delegate)
     {
-        handle(new DataSetFile(incomingDataSetFile), callerDataSetInformation, delegate);
+        handle(new DataSetFile(incomingDataSetFile), userSessionToken, callerDataSetInformation, delegate);
     }
 
     /**
@@ -483,9 +483,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
      * <p>
      * The handleDataSet method (a subclass responsibility) is invoked.
      */
-    public final void handle(DataSetFile incomingDataSetFile,
-            DataSetInformation callerDataSetInformation,
-            ITopLevelDataSetRegistratorDelegate delegate)
+    public final void handle(DataSetFile incomingDataSetFile, String userSessionToken,
+            DataSetInformation callerDataSetInformation, ITopLevelDataSetRegistratorDelegate delegate)
     {
         if (stopped)
         {
@@ -496,7 +495,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         // machine
 
         DataSetRegistrationService<T> service =
-                handle(incomingDataSetFile, callerDataSetInformation, delegate,
+                handle(incomingDataSetFile, userSessionToken, callerDataSetInformation, delegate,
                         new DoNothingDelegatedAction());
         if (service.didErrorsArise())
         {
@@ -529,14 +528,15 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
     /**
      * Set up the infrastructure and forward control to subclasses. Clients can query the service for information about what happened.
      */
-    private DataSetRegistrationService<T> handle(DataSetFile incomingDataSetFile,
+    private DataSetRegistrationService<T> handle(DataSetFile incomingDataSetFile, String userSessionToken,
             DataSetInformation callerDataSetInformationOrNull,
             ITopLevelDataSetRegistratorDelegate delegate,
             final IDelegatedActionWithResult<Boolean> cleanAfterwardsAction)
     {
         DataSetRegistrationService<T> service =
-                createDataSetRegistrationService(incomingDataSetFile,
+                createDataSetRegistrationService(incomingDataSetFile, 
                         callerDataSetInformationOrNull, cleanAfterwardsAction, delegate);
+        service.setUserSessionToken(userSessionToken);
 
         try
         {
@@ -721,7 +721,7 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
         @SuppressWarnings(
         { "unchecked", "rawtypes" })
         DataSetRegistrationService<T> service =
-                new DataSetRegistrationService(this, incomingDataSetFile,
+                new DataSetRegistrationService(this, incomingDataSetFile, 
                         new DefaultDataSetRegistrationDetailsFactory(getRegistratorState(),
                                 callerDataSetInformationOrNull), cleanAfterwardsAction, delegate);
         return service;

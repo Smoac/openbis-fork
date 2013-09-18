@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
+import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationErrorType;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 
 import de.schlichtherle.util.zip.ZipEntry;
@@ -46,9 +48,9 @@ public class ZipFileHeaderVerifier extends AbstractZipFileVerifier
     }
 
     @Override
-    public List<String> verify(ZipFile zip)
+    public List<VerificationError> verify(ZipFile zip)
     {
-        List<String> errors = new ArrayList<String>();
+        List<VerificationError> result = new ArrayList<VerificationError>();
 
         String filename = zip.getName();
         String dataSetCode = filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf("."));
@@ -57,8 +59,8 @@ public class ZipFileHeaderVerifier extends AbstractZipFileVerifier
         IArchiveFileContent metaData = fileMetaDataRepository.getMetaData(dataSetCode);
         if (metaData == null)
         {
-            errors.add("Could not find entry for dataset in " + repositoryName);
-            return errors;
+            result.add(new VerificationError(VerificationErrorType.WARNING, "Could not find entry for dataset in " + repositoryName));
+            return result;
         }
 
         Enumeration<?> entries = zip.entries();
@@ -75,14 +77,15 @@ public class ZipFileHeaderVerifier extends AbstractZipFileVerifier
             Long externalSize = metaData.getFileSize(entryName);
             if (externalSize == null)
             {
-                errors.add("Could not find entry for file " + entryName + " in " + repositoryName);
+                result.add(new VerificationError(VerificationErrorType.ERROR, "Could not find entry for file " + entryName + " in " + repositoryName));
                 continue;
             }
 
             if (entry.getSize() != externalSize)
             {
-                errors.add(entryName + ": size in archive file: " + entry.getSize() + ", size in " + repositoryName + ": "
-                        + externalSize);
+                result.add(new VerificationError(VerificationErrorType.ERROR, entryName + ": size in archive file: " + entry.getSize() + ", size in "
+                        + repositoryName + ": "
+                        + externalSize));
             }
 
             Long externalCrc = metaData.getFileCrc(entryName);
@@ -90,19 +93,22 @@ public class ZipFileHeaderVerifier extends AbstractZipFileVerifier
             {
                 if (externalCrc == null)
                 {
-                    errors.add(entryName + ": no CRC32 found in " + repositoryName);
+                    result.add(new VerificationError(VerificationErrorType.ERROR, entryName + ": no CRC32 found in " + repositoryName));
 
                 } else if (externalCrc != entry.getCrc())
                 {
-                    errors.add(entryName + ": CRC32 in archive file: " + crc32ToString((int) entry.getCrc()) + ", CRC32 in " + repositoryName + ": "
-                            + crc32ToString((int) externalCrc.longValue()));
+                    result.add(new VerificationError(VerificationErrorType.ERROR, entryName + ": CRC32 in archive file: "
+                            + crc32ToString((int) entry.getCrc()) + ", CRC32 in "
+                            + repositoryName + ": "
+                            + crc32ToString((int) externalCrc.longValue())));
                 }
             } else if (externalCrc != null)
             {
-                errors.add(entryName + ": CRC32 found in " + repositoryName + " even it should be disabled. Value was "
-                        + crc32ToString((int) externalCrc.longValue()));
+                result.add(new VerificationError(VerificationErrorType.ERROR, entryName + ": CRC32 found in " + repositoryName
+                        + " even it should be disabled. Value was "
+                        + crc32ToString((int) externalCrc.longValue())));
             }
         }
-        return errors;
+        return result;
     }
 }

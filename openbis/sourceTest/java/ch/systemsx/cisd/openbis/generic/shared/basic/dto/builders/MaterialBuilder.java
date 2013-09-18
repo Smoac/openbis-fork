@@ -42,6 +42,12 @@ public class MaterialBuilder
         return material;
     }
 
+    public MaterialBuilder id(Long id)
+    {
+        material.setId(id);
+        return this;
+    }
+
     public MaterialBuilder code(String code)
     {
         material.setCode(code);

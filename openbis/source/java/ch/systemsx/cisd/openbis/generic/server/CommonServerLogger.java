@@ -346,6 +346,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         return null;
     }
 
+    @Override
+    public List<Sample> listSamplesByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    {
+        logAccess(sessionToken, "list_samples_by_material_properties", "IDS(%s)", materialIds);
+        return null;
+    }
+
     public final List<SamplePropertyPE> listSamplesProperties(final String sessionToken,
             final ListSampleCriteriaDTO criteria, final List<PropertyTypePE> propertyCodes)
     {
@@ -779,6 +786,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
         logAccess(sessionToken, "list_materials", "TYPE(%s) IDS(%s) withProperties(%s)",
                 criteria.tryGetMaterialType(), criteria.tryGetMaterialIds() == null ? "-"
                         : abbreviate(criteria.tryGetMaterialIds()), withProperties);
+        return null;
+    }
+
+    @Override
+    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    {
+        logAccess(sessionToken, "list_material_ids_by_material_properties", "IDS(%s)", materialIds);
         return null;
     }
 

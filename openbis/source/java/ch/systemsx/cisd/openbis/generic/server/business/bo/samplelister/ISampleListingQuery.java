@@ -119,6 +119,15 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     @Select(sql = "select * from sample_relationships", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRelationRecord> getSampleRelationshipSkeletons();
 
+    /**
+     * Returns the technical ids of all samples (trashed ones excluded) which have at least one property of type MATERIAL referring to one of the
+     * specified materials.
+     */
+    @Select(sql = "select p.samp_id from sample_properties as p join samples_all as s on p.samp_id = s.id " +
+            "where s.del_id is null and p.mate_prop_id = any(?{1})", parameterBindings =
+            LongSetMapper.class, fetchSize = FETCH_SIZE)
+    public DataIterator<Long> getSampleIdsByMaterialProperties(LongSet materialIds);
+    
     //
 
     /**

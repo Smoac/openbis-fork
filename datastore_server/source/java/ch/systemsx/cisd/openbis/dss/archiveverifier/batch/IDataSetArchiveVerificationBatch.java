@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.archiveverifier.batch;
 
-import java.util.SortedMap;
 
 /**
  * A batch verification of dataset archive files
@@ -25,5 +24,5 @@ import java.util.SortedMap;
  */
 public interface IDataSetArchiveVerificationBatch
 {
-    SortedMap<String, IResult> run();
+    BatchResult run();
 }
