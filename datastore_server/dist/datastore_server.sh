@@ -265,7 +265,6 @@ case "$command" in
     echo "  $0 log-thread-dump  -  log the current thread dump to log/startup_log.txt"
     echo "  $0 debug-db-connections on / off -  switch on / off database connection debug logging"
     echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
-    echo "  $0 no-record-stacktrace-db-connections  -  switch off database connection stacktrace recording"
     echo "  $0 log-service-calls on / off -  switch on / off logging of start and end of service calls to separate file"
     echo "  $0 log-long-running-invocations on / off -  switch on / off logging of long running invocations"
     echo "  $0 verify-archives  -  verify integrity of dataset archives created by ZipArchiver"
