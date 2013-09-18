@@ -67,9 +67,9 @@ function enterApp(data) {
 	// Check Credentials
 	//
 	if(data.result == null){
-		Util.unblockUI();
 		$("#username").focus();
-		Util.showError('The given username or password is not correct.');
+		var callback = function() {Util.unblockUI();};
+		Util.showError('The given username or password is not correct.', callback);
 		return;
 	}
 	

@@ -56,7 +56,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		var localReference = this;
 		$("#fileToRegister").unbind('change');
 		$("#fileToRegister").change(function() {
-			Util.fileUpload("fileToUpload", function(result) {
+			Util.fileUpload("fileToRegister", function(result) {
 				//Code After the upload
 				openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null,null);
 			});
@@ -68,7 +68,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		var localReference = this;
 		$("#fileToUpdate").unbind('change');
 		$("#fileToUpdate").change(function() {
-			Util.fileUpload("fileToUpload", function(result) {
+			Util.fileUpload("fileToUpdate", function(result) {
 				//Code After the upload
 				openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,null);
 			});
