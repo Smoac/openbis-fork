@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -30,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
+import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -41,19 +44,21 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * An {@link AbstractCommandController} extension for uploading files.
  * <p>
- * This can handle multiple files. When uploading is finished and successful, uploaded files are
- * available as session attribute of type {@link UploadedFilesBean}. The key to access this session
- * attribute must be defined in a form field named <code>sessionKey</code>.
+ * This can handle multiple files. When uploading is finished and successful, uploaded files are available as session attribute of type
+ * {@link UploadedFilesBean}. The key to access this session attribute must be defined in a form field named <code>sessionKey</code>.
  * </p>
  * <p>
- * This service is synchronized on the session object to serialize parallel invocations from the
- * same client. The <i>HTTP</i> response returns an empty string or <code>null</code> if the upload
- * was successful and is finished. Otherwise it returns a {@link Message} as <i>XML</i> string in
- * case of exception.
+ * This service is synchronized on the session object to serialize parallel invocations from the same client. The <i>HTTP</i> response returns an
+ * empty string or <code>null</code> if the upload was successful and is finished. Otherwise it returns a {@link Message} as <i>XML</i> string in case
+ * of exception.
  * </p>
  * <p>
  * <i>URL</i> mappings are: <code>/upload</code> and <code>/openbis/upload</code>.
@@ -63,7 +68,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
  */
 @Controller
 @RequestMapping(
-    { "/upload", "/openbis/upload" })
+{ "/upload", "/openbis/upload" })
 public final class UploadServiceServlet extends AbstractCommandController
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -71,12 +76,15 @@ public final class UploadServiceServlet extends AbstractCommandController
 
     ISessionFilesSetter sessionFilesSetter;
 
+    @Resource(name = ComponentNames.SESSION_MANAGER)
+    protected IOpenBisSessionManager sessionManager;
+
     @Private
     UploadServiceServlet(ISessionFilesSetter sessionFilesSetter)
     {
         super(UploadedFilesBean.class);
         setSynchronizeOnSession(true);
-        setRequireSession(true);
+        setRequireSession(false); // To allow upload a file for usage from an API given a session token.
         this.sessionFilesSetter = sessionFilesSetter;
     }
 
@@ -86,7 +94,7 @@ public final class UploadServiceServlet extends AbstractCommandController
     }
 
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     private final static Iterator<String> cast(final Iterator iterator)
     {
         return iterator;
@@ -138,6 +146,13 @@ public final class UploadServiceServlet extends AbstractCommandController
         }
     }
 
+    protected Session getSession(final String sessionToken)
+    {
+        assert sessionToken != null : "Unspecified session token";
+
+        return sessionManager.getSession(sessionToken);
+    }
+
     @Override
     protected final ModelAndView handle(final HttpServletRequest request,
             final HttpServletResponse response, final Object command, final BindException errors)
@@ -146,8 +161,44 @@ public final class UploadServiceServlet extends AbstractCommandController
         if (request instanceof MultipartHttpServletRequest)
         {
             // We must have a session reaching this point. See the constructor where we set
-            // 'setRequireSession(true)'.
-            final HttpSession session = request.getSession(false);
+            HttpSession session = request.getSession(false);
+
+            // If no session is found, the user from an API have a chance to give the sessionID
+            if (session == null && request.getParameter("sessionID") != null)
+            {
+                Session sessionFromToken = getSession(request.getParameter("sessionID"));
+                if (sessionFromToken != null)
+                {
+                    session = request.getSession();
+                    session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
+
+                    // Set a JSESSIONID Cookie with proper timeout, the default one
+                    Cookie cookie = new Cookie("JSESSIONID", session.getId());
+                    final int timeout = 30 * 60;
+                    cookie.setMaxAge(timeout);
+                    // response.addCookie(cookie);
+                }
+            }
+
+            // Corner Case - Same session is been used with a different API Token, update the session token since the same browser.
+            if (session != null &&
+                    request.getParameter("sessionID") != null &&
+                    !request.getParameter("sessionID").equals(session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY)))
+            {
+                Session sessionFromToken = getSession(request.getParameter("sessionID"));
+                if (sessionFromToken != null)
+                {
+                    session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
+                }
+            }
+
+            // Throw Exception if no session was found or created from API token
+            if (session == null)
+            {
+                response.setStatus(500);
+                throw new HttpSessionRequiredException("Pre-existing session required but none found");
+            }
+
             assert session != null : "Session must be specified.";
             final MultipartHttpServletRequest multipartRequest =
                     (MultipartHttpServletRequest) request;
