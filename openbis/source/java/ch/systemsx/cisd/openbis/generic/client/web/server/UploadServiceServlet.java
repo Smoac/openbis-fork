@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -171,12 +170,6 @@ public final class UploadServiceServlet extends AbstractCommandController
                 {
                     session = request.getSession();
                     session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
-
-                    // Set a JSESSIONID Cookie with proper timeout, the default one
-                    Cookie cookie = new Cookie("JSESSIONID", session.getId());
-                    final int timeout = 30 * 60;
-                    cookie.setMaxAge(timeout);
-                    // response.addCookie(cookie);
                 }
             }
 
