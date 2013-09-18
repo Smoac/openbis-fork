@@ -180,7 +180,7 @@ public final class UploadServiceServlet extends AbstractCommandController
                 }
             }
 
-            // Corner Case - Same session is been used with a different API Token, update the session token since the same browser.
+            // Corner Case - Same session is been used with a different API Token, update the session token since is the same browser.
             if (session != null &&
                     request.getParameter("sessionID") != null &&
                     !request.getParameter("sessionID").equals(session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY)))
