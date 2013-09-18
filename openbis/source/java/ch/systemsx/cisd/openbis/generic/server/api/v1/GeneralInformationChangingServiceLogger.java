@@ -133,7 +133,7 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     }
 
     @Override
-    public boolean registerSamples(String sessionToken, String sampleTypeCode, String sessionKey, String defaultGroupIdentifier)
+    public String registerSamples(String sessionToken, String sampleTypeCode, String sessionKey, String defaultGroupIdentifier)
     {
         logAccess(sessionToken, "registerSamples",
                 "sampleTypeCode(%s), sessionKey(%s), defaultGroupIdentifier(%s)",
@@ -141,11 +141,11 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 sessionKey,
                 defaultGroupIdentifier);
 
-        return false;
+        return null;
     }
 
     @Override
-    public boolean updateSamples(String sessionToken, String sampleTypeCode, String sessionKey, String defaultGroupIdentifier)
+    public String updateSamples(String sessionToken, String sampleTypeCode, String sessionKey, String defaultGroupIdentifier)
     {
         logAccess(sessionToken, "updateSamples",
                 "sampleTypeCode(%s), sessionKey(%s), defaultGroupIdentifier(%s)",
@@ -153,7 +153,18 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 sessionKey,
                 defaultGroupIdentifier);
 
-        return false;
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> uploadedSamplesInfo(String sessionToken, String sampleTypeCode, String sessionKey)
+    {
+        logAccess(sessionToken, "uploadedSamplesInfo",
+                "sampleTypeCode(%s), sessionKey(%s)",
+                sampleTypeCode,
+                sessionKey);
+
+        return null;
     }
 
     @Override
@@ -167,4 +178,5 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     {
         return 0;
     }
+
 }

@@ -58,7 +58,50 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		$("#fileToRegister").change(function() {
 			Util.fileUpload("fileToRegister", function(result) {
 				//Code After the upload
-				openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null,null);
+				openbisServer.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
+					function(infoData) {
+										
+						var finalCallback = function(data) {
+							if(data.error) {
+								Util.showError(data.error.message, function() {Util.unblockUI();});
+							} else if(data.result) {
+								Util.showSuccess(data.result, function() {Util.unblockUI();});
+							} else {
+								Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
+							}
+						};
+						
+						if(infoData.result.identifiersPressent) {
+							openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
+						} else {
+							openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+								var spaces = [];
+								for(var i = 0; i < data.result.length; i++) {
+									spaces.push(data.result[i].code);
+								}
+								
+								var component = "<select id='sampleSpaceSelector' required>";
+								component += "<option disabled=\"disabled\" selected></option>";
+								for(var i = 0; i < spaces.length; i++) {
+									component += "<option value='"+spaces[i]+"'>"+spaces[i]+"</option>";
+								}
+								component += "</select>";
+								
+								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn' id='spaceSelectionCancel'>Cancel</a>");
+								
+								$("#sampleSpaceSelector").on("change", function(event) { 
+									var space = $("#sampleSpaceSelector")[0].value;
+									openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
+								});
+								
+								$("#spaceSelectionCancel").on("click", function(event) { 
+									Util.unblockUI();
+								});
+								
+							});
+						}
+					}
+				);
 			});
 		});
 		$("#fileToRegister").click();
@@ -68,9 +111,19 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		var localReference = this;
 		$("#fileToUpdate").unbind('change');
 		$("#fileToUpdate").change(function() {
+			var finalCallback = function(data) {
+				if(data.error) {
+					Util.showError(data.error.message, function() {Util.unblockUI();});
+				} else if(data.result) {
+					Util.showSuccess(data.result, function() {Util.unblockUI();});
+				} else {
+					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
+				}
+			};
+			
 			Util.fileUpload("fileToUpdate", function(result) {
 				//Code After the upload
-				openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,null);
+				openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
 			});
 		});
 		$("#fileToUpdate").click();

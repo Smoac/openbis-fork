@@ -144,9 +144,9 @@ public interface IGeneralInformationChangingService extends IRpcService
      * @param sampleTypeCode Sample type to parse
      * @param sessionKey key of the file stored on the HTTP Session
      * @param defaultGroupIdentifier key of the file stored on the HTTP Session
-     * @since 1.4
+     * @since 1.5
      */
-    public boolean registerSamples(
+    public String registerSamples(
             final String sessionToken,
             final String sampleTypeCode,
             final String sessionKey,
@@ -158,11 +158,23 @@ public interface IGeneralInformationChangingService extends IRpcService
      * @param sampleTypeCode Sample type to parse
      * @param sessionKey key of the file stored on the HTTP Session
      * @param defaultGroupIdentifier key of the file stored on the HTTP Session
-     * @since 1.4
+     * @since 1.5
      */
-    public boolean updateSamples(
+    public String updateSamples(
             final String sessionToken,
             final String sampleTypeCode,
             final String sessionKey,
             final String defaultGroupIdentifier);
+
+    /**
+     * Returns information regarding the uploaded file without discarding it.
+     * 
+     * @param sampleTypeCode Sample type to parse
+     * @param sessionKey key of the file stored on the HTTP Session
+     * @since 1.5
+     */
+    public Map<String, Object> uploadedSamplesInfo(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey);
 }

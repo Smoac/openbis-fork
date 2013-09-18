@@ -36,16 +36,23 @@ var Util = new function() {
 		$.blockUI({ message: '', css: { width: '0px' } });
 	}
 	
-	this.blockUI = function() {
+	this.blockUI = function(message) {
 		disable_scroll();
 		$('#navbar').block({ message: '', css: { width: '0px' } });
-		$.blockUI({ message: '<h1><img src="./js/busy.gif" /> Just a moment...</h1>' });
+		if(message) {
+			$.blockUI({ message: message });
+		} else {
+			$.blockUI({ message: '<h1><img src="./js/busy.gif" /> Just a moment...</h1>' });
+		}
+		
 	}
 	
-	this.unblockUI = function() {
+	this.unblockUI = function(callback) {
 		enable_scroll();
 		$('#navbar').unblock();
-		$.unblockUI();
+		$.unblockUI({ 
+		                onUnblock: callback 
+		            });
 	}
 	
 	this.showError = function(withHTML, andCallback) {

@@ -16,16 +16,24 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
+import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
@@ -39,12 +47,16 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
+import ch.systemsx.cisd.openbis.generic.shared.parser.NamedInputStream;
+import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser;
+import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser.BatchSamplesOperation;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
@@ -56,13 +68,17 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    public static final int MINOR_VERSION = 4;
+    public static final int MINOR_VERSION = 5;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
 
     @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVICE)
     private IGenericClientService genericClientService;
+
+    @Resource(name = "request-context-provider")
+    @Private
+    public IRequestContextProvider requestContextProvider;
 
     // Default constructor needed by Spring
     public GeneralInformationChangingService()
@@ -215,7 +231,7 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public final boolean registerSamples(
+    public final String registerSamples(
             final String sessionToken,
             final String sampleTypeCode,
             final String sessionKey,
@@ -238,13 +254,13 @@ public class GeneralInformationChangingService extends
                 defaultGroupIdentifier,
                 false);
 
-        return true;
+        return results.get(0).getMessage();
     }
 
     @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public final boolean updateSamples(
+    public final String updateSamples(
             final String sessionToken,
             final String sampleTypeCode,
             final String sessionKey,
@@ -266,6 +282,58 @@ public class GeneralInformationChangingService extends
                 sessionKey,
                 defaultGroupIdentifier);
 
-        return true;
+        return results.get(0).getMessage();
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final Map<String, Object> uploadedSamplesInfo(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes = server.listSampleTypes(sessionToken);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType = null;
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType auxSampleType : sampleTypes)
+        {
+            if (auxSampleType.getCode().equals(sampleTypeCode))
+            {
+                sampleType = auxSampleType;
+                break;
+            }
+        }
+
+        HttpSession httpSession = requestContextProvider.getHttpServletRequest().getSession(false);
+        UploadedFilesBean uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
+
+        Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
+        for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+        {
+            files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+        }
+
+        Map<String, Object> info = new HashMap<String, Object>();
+        try
+        {
+
+            BatchSamplesOperation batchSamplesOperation = SampleUploadSectionsParser.prepareSamples(
+                    sampleType,
+                    files,
+                    null,
+                    null,
+                    true,
+                    null,
+                    BatchOperationKind.REGISTRATION);
+            info.put("identifiersPressent", Boolean.TRUE);
+        } catch (Exception ex)
+        {
+            if (ex.getMessage().contains("Mandatory column 'identifier' is missing."))
+            {
+                info.put("identifiersPressent", Boolean.FALSE);
+            }
+        }
+
+        return info;
     }
 }
