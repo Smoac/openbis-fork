@@ -369,6 +369,7 @@ static NSManagedObjectContext* GetMainThreadManagedObjectContext(NSURL* storeUrl
     // Make up a dummy call
     CISDOBAsyncCall *call = [self.service heartbeat];
     CISDOBIpadServiceManagerCall *managerCall = [self managerCallWrappingServiceCall: call];
+    self.syncDone = YES;
 
     return managerCall;
 }
