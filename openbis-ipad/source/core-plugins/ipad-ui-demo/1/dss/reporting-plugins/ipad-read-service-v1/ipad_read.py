@@ -17,6 +17,8 @@ DSS_DOWNLOAD_URL = 'https://localhost:8444/datastore_server/'
 # 
 def image_url_for_compound(material):
 	"""Given a material (compound) return the image url"""
+	if material is None:
+		return None
 	chemblId =  material.getCode()
 	return 'https://www.ebi.ac.uk/chemblws/compounds/%s/image' % chemblId
 
@@ -101,7 +103,8 @@ def sample_to_dict(five_ht_sample, material_by_perm_id, data_sets, sample_type_p
 	refcon['entityType'] = five_ht_sample.getSampleType()
 	sample_dict['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 	sample_dict['CATEGORY'] = five_ht_sample.getSampleType()
-	compound = material_by_perm_id[five_ht_sample.getPropertyValue("COMPOUND")]
+	compound_code = five_ht_sample.getPropertyValue("COMPOUND")
+	compound = material_by_perm_id.get(compound_code)
 	sample_dict['IMAGES'] = IpadServiceUtilities.jsonEncodedValue(marquee_image_spec_for_url(image_url_for_sample(five_ht_sample, data_sets, compound)))
 
 	children = [five_ht_sample.getPropertyValue("TARGET"), five_ht_sample.getPropertyValue("COMPOUND")]
@@ -139,7 +142,8 @@ def image_url_for_sample(five_ht_sample, data_sets, compound):
 
 def add_material_to_collection(code, collection):
 	material_id = MaterialIdentifier.tryParseIdentifier(code)
-	collection.addIdentifier(material_id.getTypeCode(), material_id.getCode())
+	if material_id:
+		collection.addIdentifier(material_id.getTypeCode(), material_id.getCode())
 
 def gather_materials(five_ht_samples):
 	material_identifiers = MaterialIdentifierCollection()
@@ -249,7 +253,6 @@ class ExampleRootRequestHandler(RootRequestHandler):
 		self.updated_samples = None
 
 		# Get the data and add a row for each data item
-		# TODO Change this to include the modification date in the search request
 		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
 		if self.parameters['lastupdate'] != None:
 			updated_samples = [];
@@ -303,7 +306,44 @@ class ExampleRootRequestHandler(RootRequestHandler):
 class ExampleDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
 
+	def isRootDrill(self):
+		"""Return true if the drill is on a root entity"""
+		nav_entities = self.getEntitiesParameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+		return ('TARGETS AND COMPOUNDS' in nav_perm_ids) or ('PROBES' in nav_perm_ids)
+
+	def retrieveDataForRoot(self):
+		# Check which navigational entities are being requested here
+		nav_entities = self.getEntitiesParameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+		
+		# Get the data and add a row for each data item
+		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
+		material_identifiers = gather_materials(self.samples)
+		materials = self.searchService.listMaterials(material_identifiers)
+		self.material_dict_array = materials_to_dict(materials, {})
+		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
+
+	def addRootDataRows(self):
+		nav_entities = self.getEntitiesParameter()
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+
+		if 'TARGETS AND COMPOUNDS' in nav_perm_ids:
+			children = [material_dict['PERM_ID'] for material_dict in self.material_dict_array]
+			materials_nav = navigation_dict('Targets and Compounds', children)
+			self.addRows([materials_nav])
+			self.addRows(self.material_dict_array)
+
+		if 'PROBES' in nav_perm_ids:
+			children = [sample.getPermId() for sample in self.samples]
+			probe_nav = navigation_dict('Probes', children)
+			self.addRows([probe_nav])
+			self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
+
 	def retrieveData(self):
+		if self.isRootDrill():
+			return self.retrieveDataForRoot()
+
 		# Drill only happens on samples
 		drill_samples = self.getEntitiesParameter()
 
@@ -314,6 +354,8 @@ class ExampleDrillRequestHandler(DrillRequestHandler):
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
 	def addDataRows(self):
+		if self.isRootDrill():
+			return self.addRootDataRows()
 		self.addRows(self.material_dict_array)
 		self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
 
