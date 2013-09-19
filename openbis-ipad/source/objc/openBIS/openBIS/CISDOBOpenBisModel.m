@@ -66,6 +66,7 @@
     NSString *filterScope = @"Filter";
     
     // Search is only possible if we are online
+    // TODO Consider removing the isSyncDone check
     if (self.isOnline && self.serviceManager.isSyncDone) {
         NSArray *searchDomains = self.serviceManager.service.clientPreferences.searchDomains;
         for (NSDictionary *domain in searchDomains) {
@@ -257,8 +258,10 @@
     CISDOBAsyncCall *call = [self.serviceManager detailsForEntity: _selectedObject];
     // Assign this to a local var to get the compiler to copy it
     SuccessBlock localSuccess = success;
+    __weak CISDOBOpenBisModel *weakSelf = self;
     call.success = ^(id result) {
         // Update the UI
+        [weakSelf refreshResults];
         [_selectedObject refreshCachedInformation];
         localSuccess(_selectedObject);
     };
@@ -271,7 +274,9 @@
     CISDOBAsyncCall *call = [self.serviceManager drillOnEntity: _selectedObject];
     // Assign this to a local var to get the compiler to copy it
     SuccessBlock localSuccess = success;
+    __weak CISDOBOpenBisModel *weakSelf = self;
     call.success = ^(id result) {
+        [weakSelf refreshResults];
         [_selectedObject refreshCachedInformation];
         localSuccess(_selectedObject);
     };

@@ -105,7 +105,6 @@
 
 - (void)refreshTable
 {
-    [self.openBisModel refreshResults];
     [self.tableView reloadData];
 }
 
