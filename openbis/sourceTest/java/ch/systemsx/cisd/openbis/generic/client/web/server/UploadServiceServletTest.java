@@ -40,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.UploadServiceServlet.S
  * @author Izabela Adamczyk
  */
 @Friend(toClasses =
-    { UploadServiceServlet.class, ISessionFilesSetter.class, SessionFilesSetter.class })
+{ UploadServiceServlet.class, ISessionFilesSetter.class, SessionFilesSetter.class })
 public final class UploadServiceServletTest extends AssertJUnit
 {
 
@@ -49,6 +49,8 @@ public final class UploadServiceServletTest extends AssertJUnit
     private static final String SESSION_KEY_PREFIX = "sessionKey_";
 
     private static final String SESSION_KEYS_NUMBER = "sessionKeysNumber";
+
+    private static final String SESSION_TOKEN = "sessionID";
 
     protected Mockery context;
 
@@ -105,7 +107,7 @@ public final class UploadServiceServletTest extends AssertJUnit
             {
                 {
                     expectGetSession(this);
-
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue(null));
                 }
@@ -129,6 +131,7 @@ public final class UploadServiceServletTest extends AssertJUnit
             {
                 {
                     expectGetSession(this);
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue("notANumber"));
                 }
@@ -152,6 +155,7 @@ public final class UploadServiceServletTest extends AssertJUnit
             {
                 {
                     expectGetSession(this);
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue("1"));
                     one(multipartHttpServletRequest).getParameter(SESSION_KEY_PREFIX + 0);
@@ -178,7 +182,7 @@ public final class UploadServiceServletTest extends AssertJUnit
                 {
 
                     expectGetSession(this);
-
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     Integer numberOfSessionKeys = 4;
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue(numberOfSessionKeys.toString()));
@@ -215,7 +219,7 @@ public final class UploadServiceServletTest extends AssertJUnit
                 {
 
                     expectGetSession(this);
-
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     Integer numberOfSessionKeys = 5;
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue(numberOfSessionKeys.toString()));
@@ -253,7 +257,7 @@ public final class UploadServiceServletTest extends AssertJUnit
             {
                 {
                     expectGetSession(this);
-
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     Integer numberOfSessionKeys = 3;
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue(numberOfSessionKeys.toString()));
@@ -283,7 +287,7 @@ public final class UploadServiceServletTest extends AssertJUnit
             {
                 {
                     expectGetSession(this);
-
+                    one(multipartHttpServletRequest).getParameter(SESSION_TOKEN);
                     Integer numberOfSessionKeys = 3;
                     one(multipartHttpServletRequest).getParameter(SESSION_KEYS_NUMBER);
                     will(returnValue(numberOfSessionKeys.toString()));

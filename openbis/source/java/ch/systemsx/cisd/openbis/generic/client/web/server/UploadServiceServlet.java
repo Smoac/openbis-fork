@@ -161,11 +161,12 @@ public final class UploadServiceServlet extends AbstractCommandController
         {
             // We must have a session reaching this point. See the constructor where we set
             HttpSession session = request.getSession(false);
+            String sessionToken = request.getParameter("sessionID");
 
             // If no session is found, the user from an API have a chance to give the sessionID
-            if (session == null && request.getParameter("sessionID") != null)
+            if (session == null && sessionToken != null && !sessionToken.isEmpty())
             {
-                Session sessionFromToken = getSession(request.getParameter("sessionID"));
+                Session sessionFromToken = getSession(sessionToken);
                 if (sessionFromToken != null)
                 {
                     session = request.getSession();
@@ -174,14 +175,16 @@ public final class UploadServiceServlet extends AbstractCommandController
             }
 
             // Corner Case - Same session is been used with a different API Token, update the session token since is the same browser.
-            if (session != null &&
-                    request.getParameter("sessionID") != null &&
-                    !request.getParameter("sessionID").equals(session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY)))
+            if (session != null && sessionToken != null && !sessionToken.isEmpty())
             {
-                Session sessionFromToken = getSession(request.getParameter("sessionID"));
-                if (sessionFromToken != null)
+                String tokenBeingUsed = (String) session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+                if (!sessionToken.equals(tokenBeingUsed))
                 {
-                    session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
+                    Session sessionFromToken = getSession(sessionToken);
+                    if (sessionFromToken != null)
+                    {
+                        session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
+                    }
                 }
             }
 
@@ -192,7 +195,6 @@ public final class UploadServiceServlet extends AbstractCommandController
                 throw new HttpSessionRequiredException("Pre-existing session required but none found");
             }
 
-            assert session != null : "Session must be specified.";
             final MultipartHttpServletRequest multipartRequest =
                     (MultipartHttpServletRequest) request;
             final String sessionKeysNumberParameter = request.getParameter("sessionKeysNumber");
