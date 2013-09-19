@@ -43,6 +43,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
@@ -50,6 +51,8 @@ import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionException;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.openbis.common.conversation.client.ServiceConversationClientDetails;
@@ -61,6 +64,7 @@ import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversation
 import ch.systemsx.cisd.openbis.common.spring.WaitAction;
 
 @Test
+@Listeners(TestReportCleaner.class)
 public class ServiceConversationTest
 {
 
@@ -160,7 +164,7 @@ public class ServiceConversationTest
                 CLIENT_ID_2, TIMEOUT);
     }
 
-    @Test(expectedExceptions = ServiceExecutionException.class)
+    @Test(expectedExceptions = ServiceExecutionException.class, retryAnalyzer = RetryTen.class)
     public void testNonConversationalMethod() throws Exception
     {
         try
@@ -172,7 +176,7 @@ public class ServiceConversationTest
         }
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithoutReturnValue()
     {
         context.checking(new Expectations()
@@ -185,7 +189,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithNullReturnValue()
     {
         context.checking(new Expectations()
@@ -199,7 +203,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithPrimitiveReturnValue()
     {
         context.checking(new Expectations()
@@ -215,7 +219,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithSerializableReturnValue()
     {
         context.checking(new Expectations()
@@ -232,7 +236,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test(expectedExceptions = ServiceExecutionException.class)
+    @Test(expectedExceptions = ServiceExecutionException.class, retryAnalyzer = RetryTen.class)
     public void testMethodWithNonSerializableReturnValue()
     {
         try
@@ -251,7 +255,7 @@ public class ServiceConversationTest
         }
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithNullParameter()
     {
         context.checking(new Expectations()
@@ -264,7 +268,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithPrimitiveParameter()
     {
         context.checking(new Expectations()
@@ -277,7 +281,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithSerializableParameter()
     {
         context.checking(new Expectations()
@@ -291,7 +295,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test(expectedExceptions = RemoteAccessException.class)
+    @Test(expectedExceptions = RemoteAccessException.class, retryAnalyzer = RetryTen.class)
     public void testMethodWithNonSerializableParameter()
     {
         try
@@ -304,7 +308,7 @@ public class ServiceConversationTest
         }
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithAutomaticProgressShouldNotTimeout()
     {
         context.checking(new Expectations()
@@ -320,7 +324,7 @@ public class ServiceConversationTest
         assertNoMoreConversations();
     }
 
-    @Test(expectedExceptions = TimeoutExceptionUnchecked.class)
+    @Test(expectedExceptions = TimeoutExceptionUnchecked.class, retryAnalyzer = RetryTen.class)
     public void testMethodWithManualProgressShouldTimeoutWhenProgressIsNotReported()
     {
         try
@@ -340,7 +344,7 @@ public class ServiceConversationTest
         }
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMethodWithManualProgressShouldNotTimeoutWhenProgressIsReported()
     {
         context.checking(new Expectations()
@@ -375,7 +379,7 @@ public class ServiceConversationTest
         assertNoMoreConversations(5 * TIMEOUT);
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class, retryAnalyzer = RetryTen.class)
     public void testUnknownClient()
     {
         try
@@ -397,14 +401,14 @@ public class ServiceConversationTest
         }
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMultipleClientsWithSameService()
     {
         testMultipleClients(TestService2.class, serviceOnServerSideWrapper2.getService(),
                 TestService2.class, serviceOnServerSideWrapper2.getService());
     }
 
-    @Test
+    @Test(retryAnalyzer = RetryTen.class)
     public void testMultipleClientsWithDifferentService()
     {
         testMultipleClients(TestService1.class, serviceOnServerSideWrapper1.getService(),
