@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -182,4 +183,13 @@ public interface IGenericClientService extends IClientService
             final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting,
             boolean async, String userEmail) throws UserFailureException;
 
+    /**
+     * Returns information regarding the uploaded file without discarding it.
+     * 
+     * @param SampleType Sample type to parse
+     * @param sessionKey key of the file stored on the HTTP Session
+     */
+    public Map<String, Object> uploadedSamplesInfo(
+            final SampleType sampleType,
+            final String sessionKey);
 }

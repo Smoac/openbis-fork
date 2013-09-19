@@ -18,8 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.generic.client.web.client;
 
 import java.util.Date;
 import java.util.List;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -42,6 +41,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
@@ -162,4 +163,11 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             AsyncCallback<List<BatchRegistrationResult>> registerSamplesAndMaterialsCallback)
             throws UserFailureException;
 
+    /**
+     * @see IGenericClientService#uploadedSamplesInfo(SampleType, String)
+     */
+    public void uploadedSamplesInfo(
+            final SampleType sampleType,
+            final String sessionKey,
+            final AsyncCallback<Map<String, Object>> registerSamplesAndMaterialsCallback);
 }
