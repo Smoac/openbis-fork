@@ -137,8 +137,12 @@
             NSLog(@"Could not parse images %@", error);
         } else {
             NSDictionary *marqueeImage = [imageSpecs objectForKey: @"MARQUEE"];
-            if (marqueeImage) {
-                self.imageUrlString = [marqueeImage objectForKey: @"URL"];
+            if (marqueeImage && [marqueeImage objectForKey: @"URL"]) {
+                NSString *urlString = [marqueeImage objectForKey: @"URL"];
+                if ([[NSNull null] isEqual: urlString])
+                    self.imageUrlString = nil;
+                else
+                    self.imageUrlString = urlString;
             }
         }
     }
