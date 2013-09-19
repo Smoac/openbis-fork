@@ -18,6 +18,10 @@ package ch.systemsx.cisd.common.filesystem;
 
 import java.io.File;
 
+import org.testng.annotations.Listeners;
+
+import ch.systemsx.cisd.common.test.TestReportCleaner;
+
 /**
  * Test cases for the {@link FastRecursiveHardLinkMaker}.
  * <p>
@@ -25,6 +29,7 @@ import java.io.File;
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@Listeners(TestReportCleaner.class)
 public class FastRecursiveHardLinkMakerTest extends AbstractHardlinkMakerTest
 {
 
@@ -32,9 +37,9 @@ public class FastRecursiveHardLinkMakerTest extends AbstractHardlinkMakerTest
     protected TestBigStructureCreator createBigStructureCreator(File root)
     {
         int[] numberOfFolders =
-            { 100, 10 };
+        { 100, 10 };
         int[] numberOfFiles =
-            { 1, 10, 10 };
+        { 1, 10, 10 };
         return new TestBigStructureCreator(root, numberOfFolders, numberOfFiles);
     }
 

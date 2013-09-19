@@ -15,6 +15,7 @@ public final class RetryTen extends RetryAnalyzerCount
         setCount(10);
     }
 
+    @Override
     public int getCount()
     {
         return super.getCount();

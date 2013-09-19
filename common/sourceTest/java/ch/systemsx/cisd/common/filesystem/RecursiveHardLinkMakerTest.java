@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.common.filesystem;
 
+import org.testng.annotations.Listeners;
+
+import ch.systemsx.cisd.common.test.TestReportCleaner;
+
 /**
  * Test cases for the {@link RecursiveHardLinkMaker}.
  * 
  * @author Tomasz Pylak
  */
+@Listeners(TestReportCleaner.class)
 public class RecursiveHardLinkMakerTest extends AbstractHardlinkMakerTest
 {
     @Override

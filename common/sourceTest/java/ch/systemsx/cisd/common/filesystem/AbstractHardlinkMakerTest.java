@@ -28,17 +28,20 @@ import java.util.List;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.io.CollectionIO;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 
 /**
  * The abstract superclass of tests for the various hardlink maker implementations.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
+@Listeners(TestReportCleaner.class)
 public abstract class AbstractHardlinkMakerTest
 {
     protected static final File unitTestRootDirectory = new File("targets" + File.separator
@@ -129,7 +132,7 @@ public abstract class AbstractHardlinkMakerTest
     }
 
     @Test(groups =
-        { "requires_unix" }, retryAnalyzer = RetryTen.class)
+    { "requires_unix" }, retryAnalyzer = RetryTen.class)
     public void testCopyWithHardLinks() throws IOException
     {
         File inputDir = createDirectory(workingDirectory, "resource-to-copy");
@@ -151,7 +154,7 @@ public abstract class AbstractHardlinkMakerTest
     }
 
     @Test(groups =
-        { "requires_unix" }, retryAnalyzer = RetryTen.class)
+    { "requires_unix" }, retryAnalyzer = RetryTen.class)
     public void testCopyFile() throws IOException
     {
         File src = createFile(workingDirectory, "fileXXX");
@@ -181,7 +184,7 @@ public abstract class AbstractHardlinkMakerTest
     }
 
     @Test(groups =
-        { "requires_unix" }, retryAnalyzer = RetryTen.class)
+    { "requires_unix" }, retryAnalyzer = RetryTen.class)
     public void testDeleteWhileCopying() throws IOException
     {
         TestBigStructureCreator creator =
