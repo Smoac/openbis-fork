@@ -306,44 +306,7 @@ class ExampleRootRequestHandler(RootRequestHandler):
 class ExampleDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
 
-	def isRootDrill(self):
-		"""Return true if the drill is on a root entity"""
-		nav_entities = self.getEntitiesParameter()
-		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
-		return ('TARGETS AND COMPOUNDS' in nav_perm_ids) or ('PROBES' in nav_perm_ids)
-
-	def retrieveDataForRoot(self):
-		# Check which navigational entities are being requested here
-		nav_entities = self.getEntitiesParameter()
-		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
-		
-		# Get the data and add a row for each data item
-		self.samples = self.searchService.searchForSamples("DESC", "*", "5HT_PROBE")
-		material_identifiers = gather_materials(self.samples)
-		materials = self.searchService.listMaterials(material_identifiers)
-		self.material_dict_array = materials_to_dict(materials, {})
-		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
-
-	def addRootDataRows(self):
-		nav_entities = self.getEntitiesParameter()
-		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
-
-		if 'TARGETS AND COMPOUNDS' in nav_perm_ids:
-			children = [material_dict['PERM_ID'] for material_dict in self.material_dict_array]
-			materials_nav = navigation_dict('Targets and Compounds', children)
-			self.addRows([materials_nav])
-			self.addRows(self.material_dict_array)
-
-		if 'PROBES' in nav_perm_ids:
-			children = [sample.getPermId() for sample in self.samples]
-			probe_nav = navigation_dict('Probes', children)
-			self.addRows([probe_nav])
-			self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
-
 	def retrieveData(self):
-		if self.isRootDrill():
-			return self.retrieveDataForRoot()
-
 		# Drill only happens on samples
 		drill_samples = self.getEntitiesParameter()
 
@@ -354,8 +317,6 @@ class ExampleDrillRequestHandler(DrillRequestHandler):
 		self.material_by_perm_id = dict([(material.getMaterialIdentifier(), material) for material in materials])
 
 	def addDataRows(self):
-		if self.isRootDrill():
-			return self.addRootDataRows()
 		self.addRows(self.material_dict_array)
 		self.addRows(samples_to_dict(self.samples, self.material_by_perm_id, {}))
 
@@ -453,7 +414,13 @@ class RootRequestHandlerFactory(IRequestHandlerFactory):
 		
 class DrillRequestHandlerFactory(IRequestHandlerFactory):
 	def createRequestHandler(self, parameters, builder, searchService):
-		return ExampleDrillRequestHandler(parameters, builder, searchService)
+		# A drill on a nav entity should behave like a root request
+		nav_entities = parameters.get('entities')
+		nav_perm_ids = [entity['PERM_ID'] for entity in nav_entities]
+		if ('TARGETS AND COMPOUNDS' in nav_perm_ids) or ('PROBES' in nav_perm_ids):
+			return ExampleRootRequestHandler(parameters, builder, searchService)
+		else:
+			return ExampleDrillRequestHandler(parameters, builder, searchService)
 
 class DetailRequestHandlerFactory(IRequestHandlerFactory):
 	def createRequestHandler(self, parameters, builder, searchService):
