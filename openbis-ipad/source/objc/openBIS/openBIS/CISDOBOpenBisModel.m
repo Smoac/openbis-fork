@@ -198,8 +198,16 @@
         [self forceSyncRootEntities: success];
         return;
     }
-
-    [self.parentModel syncSelectedObjectForNavigationOnSuccess: success];
+    
+        // Assign this to a local var to get the compiler to copy it
+    SuccessBlock localSuccess = success;
+    __weak CISDOBOpenBisModel *weakSelf = self;
+    
+    [self.parentModel syncSelectedObjectForNavigationOnSuccess: ^(id result){
+        [weakSelf updateFetchRequestChildren];
+        [weakSelf refreshResults];
+        localSuccess(result);
+    }];
 }
 
 - (void)refreshFromServer:(SuccessBlock)success;
@@ -296,6 +304,20 @@
     [fetchReqeust setSortDescriptors: sortDescriptors];
 }
 
+- (void)updateFetchRequestChildren
+{
+    // To do this, we create a new fetch request from the model and use the predicate of the new fetch request to update the existing one
+    NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
+    NSManagedObjectModel *model = [entity managedObjectModel];
+    NSDictionary *fetchVariables =
+    [NSDictionary dictionaryWithObjectsAndKeys:
+        _parentModel.selectedObject, @"ENTITY",
+        _parentModel.selectedObject.childrenPermIds, @"CHILDREN",
+        nil];
+    NSFetchRequest *newFetchRequest = [model fetchRequestFromTemplateWithName: @"EntityAndChildren" substitutionVariables: fetchVariables];
+    self.fetchedResultsController.fetchRequest.predicate = newFetchRequest.predicate;
+}
+
 - (void)refreshResults
 {
     NSError *error;
@@ -319,26 +341,33 @@
     
     [self applyStandardSortDescriptorsToFetchRequest: fetchRequest];
 
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: @"Root"];
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: nil];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
 
     [self refreshResults];
 }
 
-- (void)initializeChildFetchedResultsController
+- (NSFetchRequest *)entityAndChildrenFetchRequest
 {
-    NSAssert(_parentModel.selectedObject != nil, @"Cannot initialize the model as a child of an existing model.");
     NSEntityDescription *entity = [NSEntityDescription entityForName: @"CISDOBIpadEntity" inManagedObjectContext: self.managedObjectContext];
     NSManagedObjectModel *model = [entity managedObjectModel];
     NSDictionary *fetchVariables =
-        [NSDictionary dictionaryWithObjectsAndKeys:
-            _parentModel.selectedObject, @"ENTITY",
-            _parentModel.selectedObject.childrenPermIds, @"CHILDREN",
-            nil];
+    [NSDictionary dictionaryWithObjectsAndKeys:
+        _parentModel.selectedObject, @"ENTITY",
+        _parentModel.selectedObject.childrenPermIds, @"CHILDREN",
+        nil];
     NSFetchRequest *fetchRequest = [model fetchRequestFromTemplateWithName: @"EntityAndChildren" substitutionVariables: fetchVariables];
-    
     [self applyStandardSortDescriptorsToFetchRequest: fetchRequest];
+    return fetchRequest;
+}
+
+- (void)initializeChildFetchedResultsController
+{
+    NSAssert(_parentModel.selectedObject != nil, @"Cannot initialize the model as a child of an existing model.");
+    NSFetchRequest *fetchRequest;
+    fetchRequest = [self entityAndChildrenFetchRequest];
+
     
     NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: nil];
     aFetchedResultsController.delegate = self;
