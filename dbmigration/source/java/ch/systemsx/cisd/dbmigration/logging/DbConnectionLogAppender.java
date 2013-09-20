@@ -30,7 +30,16 @@ public class DbConnectionLogAppender extends DailyRollingFileAppender
     {
         if (DbConnectionLogConfiguration.getInstance().isDbConnectionsSeparateLogFileEnabled())
         {
-            super.append(event);
+            super.append(new LoggingEvent(event.getFQNOfLoggerClass(),
+                    event.getLogger(),
+                    event.getTimeStamp(),
+                    event.getLevel(),
+                    event.getMessage(),
+                    Thread.currentThread().getName().replaceAll("\\s", "_"),
+                    event.getThrowableInformation(),
+                    event.getNDC(),
+                    event.getLocationInformation(),
+                    event.getProperties()));
         }
     }
 }
