@@ -458,6 +458,16 @@
     [self.webView loadHTMLString: @"<html><head></head><body></body></html>" baseURL: nil];
 }
 
+#pragma mark - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    if ([otherGestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+        [otherGestureRecognizer requireGestureRecognizerToFail:gestureRecognizer];
+    }
+
+    return YES;
+}
+
 
 @end
 

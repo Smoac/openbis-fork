@@ -88,12 +88,16 @@
                                     <outlet property="delegate" destination="4" id="ZAW-uH-UCE"/>
                                 </connections>
                             </tableView>
-                            <webView multipleTouchEnabled="YES" contentMode="scaleToFill" scalesPageToFit="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rUU-Fj-t5t">
+                            <webView contentMode="scaleToFill" scalesPageToFit="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rUU-Fj-t5t">
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="231" id="AQb-uU-ZgJ"/>
                                 </constraints>
                                 <dataDetectorType key="dataDetectorTypes"/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="c6A-41-eu8" appends="YES" id="j9b-8e-DyO"/>
+                                </connections>
                             </webView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Du1-DN-a8M">
                                 <items>
@@ -119,16 +123,6 @@
                                                 <constraint firstItem="xTL-xF-3F3" firstAttribute="trailing" secondItem="iLy-GA-rxW" secondAttribute="trailing" type="default" id="HbI-Yg-8VH"/>
                                             </constraints>
                                         </view>
-                                    </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="0n2-Cb-rbW"/>
-                                    <barButtonItem image="Zoom-small.png" width="38" style="plain" id="ZrU-PG-qcH">
-                                        <inset key="imageInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="2"/>
-                                        <connections>
-                                            <action selector="toggleImageViewMaximization:" destination="4" id="MJw-ZW-Tfx"/>
-                                            <segue destination="Jth-PN-dE1" kind="popover" identifier="ImageFullscreen" popoverAnchorView="rUU-Fj-t5t" id="Wmu-mK-2m5">
-                                                <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                            </segue>
-                                        </connections>
                                     </barButtonItem>
                                 </items>
                             </toolbar>
@@ -182,6 +176,14 @@
                         <action selector="refreshFromServer:" destination="4" id="ELj-pB-cHh"/>
                     </connections>
                 </barButtonItem>
+                <tapGestureRecognizer delaysTouchesBegan="YES" id="c6A-41-eu8">
+                    <connections>
+                        <outlet property="delegate" destination="4" id="KTG-Cc-2FX"/>
+                        <segue destination="Jth-PN-dE1" kind="popover" identifier="ImageFullscreen" popoverAnchorView="rUU-Fj-t5t" id="5ak-4H-Hbb">
+                            <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                        </segue>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="448" y="248"/>
         </scene>
@@ -535,9 +537,64 @@ If you are a user of an openBIS server, plese enter the URL and your login detai
         </scene>
     </scenes>
     <resources>
-        <image name="Zoom-small.png" width="32" height="32"/>
         <image name="qrcodeIcon.png" width="1200" height="1200"/>
     </resources>
+    <classes>
+        <class className="CISDOBBarcodeViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBBarcodeViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="backButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="cameraView" candidateClass="UIView"/>
+                <relationship kind="outlet" name="decodedLabel" candidateClass="UILabel"/>
+            </relationships>
+        </class>
+        <class className="CISDOBDetailViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBDetailViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="goOnline:"/>
+                <relationship kind="action" name="refreshFromServer:"/>
+                <relationship kind="outlet" name="goOnlineButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="identifierLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="propertiesTableView" candidateClass="UITableView"/>
+                <relationship kind="outlet" name="refreshButton" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="statusLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="summaryHeaderLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="summaryLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="webView" candidateClass="UIWebView"/>
+            </relationships>
+        </class>
+        <class className="CISDOBImageViewPopoverController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBImageViewPopoverController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="webView" candidateClass="UIWebView"/>
+            </relationships>
+        </class>
+        <class className="CISDOBLoginViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBLoginViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="demoClicked:"/>
+                <relationship kind="action" name="loginClicked:"/>
+                <relationship kind="outlet" name="errorLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="passwordTextField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="urlTextField" candidateClass="UITextField"/>
+                <relationship kind="outlet" name="usernameTextField" candidateClass="UITextField"/>
+            </relationships>
+        </class>
+        <class className="CISDOBMasterViewController" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBMasterViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="refreshFromServer:"/>
+                <relationship kind="outlet" name="activityIndicator" candidateClass="UIActivityIndicatorView"/>
+                <relationship kind="outlet" name="browseTableView" candidateClass="UITableView"/>
+            </relationships>
+        </class>
+        <class className="CISDOBSplitViewController" superclassName="UISplitViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/CISDOBSplitViewController.h"/>
+        </class>
+        <class className="NSLayoutConstraint" superclassName="NSObject">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackTranslucent"/>
         <simulatedOrientationMetrics key="orientation"/>
