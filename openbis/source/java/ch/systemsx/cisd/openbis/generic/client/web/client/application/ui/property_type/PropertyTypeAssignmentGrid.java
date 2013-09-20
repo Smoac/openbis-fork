@@ -379,8 +379,14 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
         {
             String codeToDelete = etpt.getPropertyType().getCode();
             assignmentsHolder.getAssignments().refreshOrderDelete(codeToDelete);
-            notifyDirtyChangeListeners();
-            refresh();
+            refresh(new IDataRefreshCallback()
+                {
+                    @Override
+                    public void postRefresh(boolean wasSuccessful)
+                    {
+                        notifyDirtyChangeListeners();
+                    }
+                });
         }
     }
 
@@ -397,8 +403,14 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
             {
                 assignmentsHolder.getAssignments().refreshOrderAdd(newPTNewAssigment);
                 dialog.close();
-                notifyDirtyChangeListeners();
-                refresh();
+                refresh(new IDataRefreshCallback()
+                    {
+                        @Override
+                        public void postRefresh(boolean wasSuccessful)
+                        {
+                            notifyDirtyChangeListeners();
+                        }
+                    });
             } catch (Exception ex)
             {
                 MessageBox.alert("Error", ex.getMessage(), null);
