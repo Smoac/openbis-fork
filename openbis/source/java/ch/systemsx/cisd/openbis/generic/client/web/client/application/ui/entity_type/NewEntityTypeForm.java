@@ -3,12 +3,32 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetKindModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
@@ -22,6 +42,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -39,23 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
-public class NewEntityTypeForm extends ContentPanel
+public class NewEntityTypeForm extends ContentPanel implements IComponentWithCloseConfirmation
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "new-entity-type-form";
 
@@ -77,7 +83,13 @@ public class NewEntityTypeForm extends ContentPanel
     //
     private AbstractEntityTypeGrid<? extends EntityType> typeGrid;
 
-    private FormPanel dialogForm;
+    private PropertyTypeAssignmentGrid propertyGrid;
+
+    private FormPanelWithSavePoint dialogForm;
+
+    private boolean shouldAskForCloseConfirmation = true;
+
+    private Html unsavedChangesInfo;
 
     //
     // Form Creation
@@ -134,13 +146,13 @@ public class NewEntityTypeForm extends ContentPanel
         add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 370));
 
         // Central panel
-        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(
+        propertyGrid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(
                 viewContext,
                 null,
                 newTypeWithAssigments,
                 entityToEdit != null
                 ).getComponent();
-        grid.setLayoutOnChange(true);
+        propertyGrid.setLayoutOnChange(true);
 
         ContentPanel gridPanel = new ContentPanel();
         gridPanel.setLayout(new BorderLayout());
@@ -149,7 +161,7 @@ public class NewEntityTypeForm extends ContentPanel
         gridPanel.setHeading("Assigned Property Types:");
         gridPanel.setBorders(false);
         gridPanel.setBodyBorder(false);
-        gridPanel.add(grid, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
+        gridPanel.add(propertyGrid, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
         add(gridPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
@@ -165,10 +177,32 @@ public class NewEntityTypeForm extends ContentPanel
         buttonBar.setMinButtonWidth(100);
         buttonBar.setAlignment(HorizontalAlignment.RIGHT);
 
+        unsavedChangesInfo = createUnsavedChangesInfo();
+
+        dialogForm.addDirtyChangeListener(new Listener<DirtyChangeEvent>()
+            {
+                @Override
+                public void handleEvent(DirtyChangeEvent be)
+                {
+                    unsavedChangesInfo.setVisible(isDirty());
+                }
+            });
+        propertyGrid.addDirtyChangeListener(new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent event)
+                {
+                    unsavedChangesInfo.setVisible(isDirty());
+                }
+            });
+
+        buttonBar.add(unsavedChangesInfo);
+
         final Component button = getSaveButton();
         button.setStyleAttribute("padding-right", "10px");
         buttonBar.add(button);
-        bottomPanel.add(buttonBar, BorderLayoutDataFactory.create(LayoutRegion.EAST, 120));
+
+        bottomPanel.add(buttonBar, BorderLayoutDataFactory.create(LayoutRegion.EAST, 300));
 
         add(bottomPanel, BorderLayoutDataFactory.create(LayoutRegion.SOUTH, 30));
 
@@ -202,7 +236,8 @@ public class NewEntityTypeForm extends ContentPanel
 
         // afterwards
         List<Component> dialogFormIntoList = dialog.getItems();
-        dialogForm = (FormPanel) dialogFormIntoList.get(0);
+        dialogForm = (FormPanelWithSavePoint) dialogFormIntoList.get(0);
+
     }
 
     private void initCreateEntity()
@@ -478,6 +513,8 @@ public class NewEntityTypeForm extends ContentPanel
                 MessageBox.info("Success", "Update Successful.", null);
             }
 
+            shouldAskForCloseConfirmation = false;
+
             // Close Tab
             MainTabPanel tabPanel = (MainTabPanel) componentProvider.tryGetMainTabPanel();
             String getTabId = getTabId(kind, entityToEdit) + MainTabPanel.TAB_SUFFIX;
@@ -485,4 +522,24 @@ public class NewEntityTypeForm extends ContentPanel
             item.close();
         }
     }
+
+    private Html createUnsavedChangesInfo()
+    {
+        Html result = new Html(viewContext.getMessage(Dict.UNSAVED_FORM_CHANGES_INFO));
+        result.addStyleName("unsaved-changes-info");
+        result.setVisible(false);
+        return result;
+    }
+
+    private boolean isDirty()
+    {
+        return dialogForm.isDirtyForSavePoint() || propertyGrid.isDirty();
+    }
+
+    @Override
+    public boolean shouldAskForCloseConfirmation()
+    {
+        return shouldAskForCloseConfirmation && isDirty();
+    }
+
 }

@@ -403,6 +403,7 @@ var common = {
   xslt: "XSLT Script",
   xslt_info: "XSLT Script that will be used for rendering of user provided XML documents e.g. in tables.<br><br>If no script is specified the original XML document will be displayed.",
   shown_in_edit_view: "Shown in Edit Views",
+  add_property_type_button : "Add",
   
   
   //

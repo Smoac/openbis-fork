@@ -188,14 +188,13 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     public static final String GRID_POSTFIX = "-grid";
 
     /**
-     * Do not display more than this amount of columns in the report, web browsers have problem with
-     * it
+     * Do not display more than this amount of columns in the report, web browsers have problem with it
      */
     private static final int MAX_SHOWN_COLUMNS = 200;
 
     /**
-     * Called when user wants to export the data. It can happen only after a previous refresh of the
-     * data has taken place. The export criteria has only the cache key
+     * Called when user wants to export the data. It can happen only after a previous refresh of the data has taken place. The export criteria has
+     * only the cache key
      */
     abstract protected void prepareExportEntities(
             TableExportCriteria<TableModelRowWithObject<T>> exportCriteria,
@@ -204,12 +203,10 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     // --------
 
     /**
-     * If user selected some entities in given browser first a dialog is shown where he can select
-     * between showing data sets related to selected/displayed entities. Then a tab is displayed
-     * where these related data sets are listed.<br>
+     * If user selected some entities in given browser first a dialog is shown where he can select between showing data sets related to
+     * selected/displayed entities. Then a tab is displayed where these related data sets are listed.<br>
      * <br>
-     * If no entities were selected in given browser the tab is displayed where data sets related to
-     * all entities displayed in the grid are listed.
+     * If no entities were selected in given browser the tab is displayed where data sets related to all entities displayed in the grid are listed.
      */
     protected static final <E extends IEntityInformationHolder> void showRelatedDataSets(
             final IViewContext<ICommonClientServiceAsync> viewContext,
@@ -382,8 +379,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @param refreshAutomatically should the data be automatically loaded when the grid is rendered
-     *            for the first time?
+     * @param refreshAutomatically should the data be automatically loaded when the grid is rendered for the first time?
      * @param browserId unique id of the browser grid
      */
     protected TypedTableGrid(IViewContext<ICommonClientServiceAsync> viewContext, String browserId,
@@ -668,8 +664,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @return this grid as a disposable component with a specified toolbar at the top and a tree on
-     *         the left.
+     * @return this grid as a disposable component with a specified toolbar at the top and a tree on the left.
      */
     protected final DisposableEntityChooser<TableModelRowWithObject<T>> asDisposableWithToolbarAndTree(
             final IDisposableComponent toolbar, final Component tree, String headerOrNull)
@@ -1250,8 +1245,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @return a button which has no action but is enabled only when one entity in the grid is
-     *         selected. Useful only for writing prototypes.
+     * @return a button which has no action but is enabled only when one entity in the grid is selected. Useful only for writing prototypes.
      */
     protected final Button createSelectedItemDummyButton(final String title)
     {
@@ -1259,8 +1253,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @return like {@link #createSelectedItemButton(String, ISelectedEntityInvoker)} with button id
-     *         set
+     * @return like {@link #createSelectedItemButton(String, ISelectedEntityInvoker)} with button id set
      */
     protected final Button createSelectedItemButton(final String title, final String id,
             final ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>> invoker)
@@ -1271,8 +1264,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @return a button which is enabled only when one entity in the grid is selected. When button
-     *         is pressed, the specified invoker action is performed.
+     * @return a button which is enabled only when one entity in the grid is selected. When button is pressed, the specified invoker action is
+     *         performed.
      */
     protected final Button createSelectedItemButton(final String title,
             final ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<T>>> invoker)
@@ -1295,8 +1288,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @return a button which is enabled only when at least one entity in the grid is selected, and
-     *         with specified selection listener set.
+     * @return a button which is enabled only when at least one entity in the grid is selected, and with specified selection listener set.
      */
     protected final Button createSelectedItemsButton(final String title,
             SelectionListener<ButtonEvent> listener)
@@ -1350,8 +1342,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * Given <var>button</var> will have title changed depending on number of items selected in the
-     * grid.
+     * Given <var>button</var> will have title changed depending on number of items selected in the grid.
      */
     protected final void changeButtonTitleOnSelectedItems(final Button button,
             final String noSelectedItemsTitle, final String selectedItemsTitle)
@@ -1397,13 +1388,18 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
 
     protected final IDelegatedAction createRefreshGridAction()
     {
+        return createRefreshGridAction(null);
+    }
+
+    protected final IDelegatedAction createRefreshGridAction(final IDataRefreshCallback externalDataRefreshCallbackOrNull)
+    {
         return new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     int id = log("execute refresh grid action");
-                    refresh();
+                    refresh(externalDataRefreshCallbackOrNull);
                     viewContext.logStop(id);
                 }
             };
@@ -1464,8 +1460,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * @param externalRefreshCallbackOrNull external class can define it's own refresh callback
-     *            method. It will be merged with the internal one.
+     * @param externalRefreshCallbackOrNull external class can define it's own refresh callback method. It will be merged with the internal one.
      */
     protected final void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull,
             boolean refreshColumnsDefinition)
@@ -2159,8 +2154,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * Returns <code>true</code> if cell specified by model and column ID is editable. Default
-     * implementation false.
+     * Returns <code>true</code> if cell specified by model and column ID is editable. Default implementation false.
      */
     protected boolean isEditable(BaseEntityModel<TableModelRowWithObject<T>> model, String columnID)
     {
@@ -2177,9 +2171,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * Tries to return the property of specified properties holder which is specified by the
-     * property column name without a prefix like <code>property-</code> but with prefix which
-     * distinguishes internal from externally name space.
+     * Tries to return the property of specified properties holder which is specified by the property column name without a prefix like
+     * <code>property-</code> but with prefix which distinguishes internal from externally name space.
      */
     protected IEntityProperty tryGetProperty(IEntityPropertiesHolder propertiesHolder,
             String propertyColumnNameWithoutPrefix)
@@ -2243,8 +2236,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
 
     /**
      * @param availableColumns map of all available columns definitions.
-     * @param columnModel describes the visual properties of the columns. Connected with
-     *            availableColumns by column id.
+     * @param columnModel describes the visual properties of the columns. Connected with availableColumns by column id.
      * @return list of columns definitions for those columns which are currently shown
      */
     private static <T/* column definition */> List<T> getVisibleColumns(
@@ -2314,8 +2306,8 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         }
 
         /**
-         * If specified data is valid returns true, otherwise returns false. Dialog will be shown
-         * only if this method returns true. Default implementation always returns true.
+         * If specified data is valid returns true, otherwise returns false. Dialog will be shown only if this method returns true. Default
+         * implementation always returns true.
          */
         protected boolean validateSelectedData(List<TableModelRowWithObject<T>> data)
         {
@@ -2331,8 +2323,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     //
 
     /**
-     * Apply specified modifications to the model. Should be overriden by subclasses. Default
-     * implementation does nothing.
+     * Apply specified modifications to the model. Should be overriden by subclasses. Default implementation does nothing.
      */
     protected void applyModifications(BaseEntityModel<TableModelRowWithObject<T>> model,
             String resultSetKey, List<IModification> modifications,
@@ -2518,8 +2509,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
             AbstractAsyncCallback<TypedTableResultSet<T>> callback);
 
     /**
-     * Creates a column model with all available columns from scratch without taking user settings
-     * into account.
+     * Creates a column model with all available columns from scratch without taking user settings into account.
      * 
      * @return definition of all the columns in the grid
      */
@@ -2592,8 +2582,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * Registers for the specified column a cell listener and link generator. This method should be
-     * called in the constructor.
+     * Registers for the specified column a cell listener and link generator. This method should be called in the constructor.
      */
     protected void registerListenerAndLinkGenerator(String columnID,
             final ICellListenerAndLinkGenerator<T> listenerLinkGenerator)
@@ -2657,8 +2646,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     }
 
     /**
-     * Translates a column ID to a key used to get title of the column from a dictionary. This
-     * method can be overridden by subclasses.
+     * Translates a column ID to a key used to get title of the column from a dictionary. This method can be overridden by subclasses.
      * 
      * @return <code>getId() + "_" + columnID</code>
      */
@@ -2713,14 +2701,18 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
     boolean ignoreVisibleColumnsLimit = false;
 
     /**
-     * Refreshes the browser if the grid display type ID has changed because this means a different
-     * set of display settings. Thus column models and filters should be refreshed before data
-     * loading.
+     * Refreshes the browser if the grid display type ID has changed because this means a different set of display settings. Thus column models and
+     * filters should be refreshed before data loading.
      */
     protected void refresh()
     {
+        refresh(null);
+    }
+
+    protected void refresh(final IDataRefreshCallback externalRefreshCallbackOrNull)
+    {
         String gridDisplayTypeID = getGridDisplayTypeID();
-        refresh(gridDisplayTypeID.equals(currentGridDisplayTypeID) == false);
+        refresh(externalRefreshCallbackOrNull, gridDisplayTypeID.equals(currentGridDisplayTypeID) == false);
     }
 
     /**

@@ -18,12 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget
 
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
-
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -33,6 +27,12 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
 
 /**
  * Abstract {@link Window} with Save and Cancel buttons, useful when save operation is needed.
@@ -73,7 +73,7 @@ abstract public class AbstractSaveDialog extends Window
 
     private final IViewContext<?> viewContext;
 
-    protected final FormPanel form;
+    protected final FormPanelWithSavePoint form;
 
     protected Button saveButton;
 
@@ -85,7 +85,7 @@ abstract public class AbstractSaveDialog extends Window
         setHeading(title);
         setModal(true);
         setWidth(SAVE_DIALOG_WIDTH);
-        this.form = new FormPanel();
+        this.form = new FormPanelWithSavePoint();
         form.setHeaderVisible(false);
         form.setBorders(false);
         form.setBodyBorder(false);
@@ -96,15 +96,16 @@ abstract public class AbstractSaveDialog extends Window
         addButton(createCancelButton());
     }
 
-    protected final FormPanel getFormPanel() {
+    protected final FormPanel getFormPanel()
+    {
         return form;
     }
-    
+
     public final void addField(Widget widget)
     {
         form.add(widget);
     }
-    
+
     public final void removeField(Widget widget)
     {
         form.remove(widget);
@@ -129,7 +130,7 @@ abstract public class AbstractSaveDialog extends Window
     private Button createSaveButton()
     {
         final Button button =
-                new Button(viewContext.getMessage(Dict.BUTTON_SAVE),
+                new Button(createSaveButtonText(),
                         new SelectionListener<ButtonEvent>()
                             {
                                 @Override
@@ -143,6 +144,11 @@ abstract public class AbstractSaveDialog extends Window
                             });
         button.setId(SAVE_BUTTON_ID);
         return button;
+    }
+
+    protected String createSaveButtonText()
+    {
+        return getViewContext().getMessage(Dict.BUTTON_SAVE);
     }
 
     @Override
@@ -165,4 +171,10 @@ abstract public class AbstractSaveDialog extends Window
             }
         }
     }
+
+    protected IViewContext<?> getViewContext()
+    {
+        return viewContext;
+    }
+
 }
