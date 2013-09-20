@@ -81,15 +81,17 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
     //
     // Entity Form Related
     //
-    private AbstractEntityTypeGrid<? extends EntityType> typeGrid;
+    private FormPanelWithSavePoint dialogForm;
 
     private PropertyTypeAssignmentGrid propertyGrid;
 
-    private FormPanelWithSavePoint dialogForm;
+    private AbstractEntityTypeGrid<? extends EntityType> typeGrid;
 
-    private boolean shouldAskForCloseConfirmation = true;
+    private Button saveButton;
 
     private Html unsavedChangesInfo;
+
+    private boolean shouldAskForCloseConfirmation = true;
 
     //
     // Form Creation
@@ -198,9 +200,9 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
 
         buttonBar.add(unsavedChangesInfo);
 
-        final Component button = getSaveButton();
-        button.setStyleAttribute("padding-right", "10px");
-        buttonBar.add(button);
+        saveButton = createSaveButton();
+        saveButton.setStyleAttribute("padding-right", "10px");
+        buttonBar.add(saveButton);
 
         bottomPanel.add(buttonBar, BorderLayoutDataFactory.create(LayoutRegion.EAST, 300));
 
@@ -368,7 +370,7 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
         newTypeWithAssigments.updateOrdinalToGridOrder(); // Fixes gaps between positions for types created with the old UI.
     }
 
-    private Button getSaveButton()
+    private Button createSaveButton()
     {
         final Button save = new Button("Save", new SelectionListener<ButtonEvent>()
             {
@@ -377,6 +379,8 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                 {
                     if (dialogForm.isValid())
                     {
+                        saveButton.setEnabled(false);
+
                         // Update Entity Type
                         setEntityFromForm();
                         // Update Entity Type Code at the Property Types
@@ -500,6 +504,7 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                 }
             }
             MessageBox.alert("Error", message, null);
+            saveButton.setEnabled(true);
         }
 
         @Override
