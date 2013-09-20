@@ -20,10 +20,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
 /**
  * @author pkupczyk
@@ -49,7 +52,6 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
         }
 
         NewETNewPTAssigments copy = new NewETNewPTAssigments();
-        copy.setEntity(original.getEntity());
         if (original.getAssigments() != null)
         {
             List<NewPTNewAssigment> copyAssignments = new ArrayList<NewPTNewAssigment>();
@@ -70,7 +72,6 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
         }
 
         NewPTNewAssigment copy = new NewPTNewAssigment();
-        copy.setExistingPropertyType(original.isExistingPropertyType());
         copy.setAssignment(copy(original.getAssignment()));
         copy.setPropertyType(copy(original.getPropertyType()));
         return copy;
@@ -88,7 +89,6 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
         copy.setDynamic(original.isDynamic());
         copy.setManaged(original.isManaged());
         copy.setMandatory(original.isMandatory());
-        copy.setModificationDate(original.getModificationDate());
         copy.setOrdinal(original.getOrdinal());
         copy.setPropertyTypeCode(original.getPropertyTypeCode());
         copy.setScriptName(original.getScriptName());
@@ -107,18 +107,52 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
 
         PropertyType copy = new PropertyType();
         copy.setCode(original.getCode());
-        copy.setDataType(original.getDataType());
+        copy.setDataType(copy(original.getDataType()));
         copy.setDescription(original.getDescription());
-        copy.setId(original.getId());
         copy.setInternalNamespace(original.isInternalNamespace());
         copy.setLabel(original.getLabel());
         copy.setManagedInternally(original.isManagedInternally());
-        copy.setMaterialType(original.getMaterialType());
-        copy.setModificationDate(original.getModificationDate());
+        copy.setMaterialType(copy(original.getMaterialType()));
         copy.setSchema(original.getSchema());
         copy.setSimpleCode(original.getSimpleCode());
         copy.setTransformation(original.getTransformation());
-        copy.setVocabulary(original.getVocabulary());
+        copy.setVocabulary(copy(original.getVocabulary()));
+        return copy;
+    }
+
+    private DataType copy(DataType original)
+    {
+        if (original == null)
+        {
+            return null;
+        }
+
+        DataType copy = new DataType();
+        copy.setCode(original.getCode());
+        return copy;
+    }
+
+    private MaterialType copy(MaterialType original)
+    {
+        if (original == null)
+        {
+            return null;
+        }
+
+        MaterialType copy = new MaterialType();
+        copy.setCode(original.getCode());
+        return copy;
+    }
+
+    private Vocabulary copy(Vocabulary original)
+    {
+        if (original == null)
+        {
+            return null;
+        }
+
+        Vocabulary copy = new Vocabulary();
+        copy.setCode(original.getCode());
         return copy;
     }
 
@@ -129,33 +163,26 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
             return o1 == null && o2 == null;
         }
 
-        if (equal(o1.getEntity(), o2.getEntity()))
+        List<NewPTNewAssigment> o1Assignments = o1.getAssigments();
+        List<NewPTNewAssigment> o2Assignments = o2.getAssigments();
+
+        if (o1Assignments == null || o1Assignments.isEmpty() || o2Assignments == null || o2Assignments.isEmpty())
         {
-            List<NewPTNewAssigment> a1Assignments = o1.getAssigments();
-            List<NewPTNewAssigment> a2Assignments = o2.getAssigments();
-
-            if (a1Assignments == null || a1Assignments.isEmpty() || a2Assignments == null || a2Assignments.isEmpty())
-            {
-                return (a1Assignments == null || a1Assignments.isEmpty()) && (a2Assignments == null || a2Assignments.isEmpty());
-            }
-
-            Iterator<NewPTNewAssigment> a1Iter = a1Assignments.iterator();
-            Iterator<NewPTNewAssigment> a2Iter = a2Assignments.iterator();
-
-            while (a1Iter.hasNext() && a2Iter.hasNext())
-            {
-                if (equal(a1Iter.next(), a2Iter.next()) == false)
-                {
-                    return false;
-                }
-            }
-
-            return a1Iter.hasNext() == false && a2Iter.hasNext() == false;
-
-        } else
-        {
-            return false;
+            return (o1Assignments == null || o1Assignments.isEmpty()) && (o2Assignments == null || o2Assignments.isEmpty());
         }
+
+        Iterator<NewPTNewAssigment> o1Iter = o1Assignments.iterator();
+        Iterator<NewPTNewAssigment> o2Iter = o2Assignments.iterator();
+
+        while (o1Iter.hasNext() && o2Iter.hasNext())
+        {
+            if (equal(o1Iter.next(), o2Iter.next()) == false)
+            {
+                return false;
+            }
+        }
+
+        return o1Iter.hasNext() == false && o2Iter.hasNext() == false;
     }
 
     private boolean equal(NewPTNewAssigment o1, NewPTNewAssigment o2)
@@ -177,7 +204,7 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
 
         return equal(o1.getDefaultValue(), o2.getDefaultValue()) && equal(o1.isDynamic(), o2.isDynamic())
                 && equal(o1.isManaged(), o2.isManaged()) && equal(o1.isMandatory(), o2.isMandatory())
-                && equal(o1.getModificationDate(), o2.getModificationDate()) && equal(o1.getOrdinal(), o2.getOrdinal())
+                && equal(o1.getOrdinal(), o2.getOrdinal())
                 && equal(o1.getPropertyTypeCode(), o2.getPropertyTypeCode()) && equal(o1.getScriptName(), o2.getScriptName())
                 && equal(o1.getSection(), o2.getSection()) && equal(o1.isShownInEditView(), o2.isShownInEditView())
                 && equal(o1.getShowRawValue(), o2.getShowRawValue());
@@ -191,11 +218,41 @@ public class PropertyTypeAssignmentGridAssignmentsHolder
         }
 
         return equal(o1.getCode(), o2.getCode()) && equal(o1.getDataType(), o2.getDataType()) && equal(o1.getDescription(), o2.getDescription())
-                && equal(o1.getId(), o2.getId()) && equal(o1.isInternalNamespace(), o2.isInternalNamespace()) && equal(o1.getLabel(), o2.getLabel())
+                && equal(o1.isInternalNamespace(), o2.isInternalNamespace()) && equal(o1.getLabel(), o2.getLabel())
                 && equal(o1.isManagedInternally(), o2.isManagedInternally()) && equal(o1.getMaterialType(), o2.getMaterialType())
-                && equal(o1.getModificationDate(), o2.getModificationDate()) && equal(o1.getSchema(), o2.getSchema())
+                && equal(o1.getSchema(), o2.getSchema())
                 && equal(o1.getSimpleCode(), o2.getSimpleCode()) && equal(o1.getTransformation(), o2.getTransformation())
                 && equal(o1.getVocabulary(), o2.getVocabulary());
+    }
+
+    private boolean equal(DataType o1, DataType o2)
+    {
+        if (o1 == null || o2 == null)
+        {
+            return o1 == null && o2 == null;
+        }
+
+        return equal(o1.getCode(), o2.getCode());
+    }
+
+    private boolean equal(MaterialType o1, MaterialType o2)
+    {
+        if (o1 == null || o2 == null)
+        {
+            return o1 == null && o2 == null;
+        }
+
+        return equal(o1.getCode(), o2.getCode());
+    }
+
+    private boolean equal(Vocabulary o1, Vocabulary o2)
+    {
+        if (o1 == null || o2 == null)
+        {
+            return o1 == null && o2 == null;
+        }
+
+        return equal(o1.getCode(), o2.getCode());
     }
 
     private boolean equal(Object o1, Object o2)
