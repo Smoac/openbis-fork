@@ -336,10 +336,14 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 			//Paint Columns on the header
 			var $virtualFreezerRow = $("<tr>");
 			for(var i = 0; i <= freezerConfig["COLUMN_NUM"]; i++) {
+				var $rackHeader = $("<th>");
+				var rackId = "rack_0_" + i;
+				$rackHeader.attr("id", rackId);
+				
 				if(i == 0) {
-					$virtualFreezerRow.append($("<th>"));
+					$virtualFreezerRow.append($rackHeader);
 				} else {
-					$virtualFreezerRow.append($("<th>").append(i));
+					$virtualFreezerRow.append($rackHeader.append(i));
 				}
 			}
 			$virtualFreezer.append($virtualFreezerRow);
@@ -349,30 +353,27 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 				var $virtualFreezerRow = $("<tr>");
 				for(var j = 0; j <= freezerConfig["COLUMN_NUM"]; j++) {
 					if(j == 0) {
-						$virtualFreezerRow.append($("<th>").append(i+1));
+						var $rackHeader = $("<th>");
+						var rackId = "rack_" + (i+1) + "_" + j;
+						$rackHeader.attr("id", rackId);
+						$virtualFreezerRow.append($rackHeader.append(i+1));
 					} else {
 						var $rack = $("<td>");
 						
 						//Used for validation
 						var currentBoxes = 0;
 						//Populate Box Names
-						var maxBoxesInline = 3;
 						var boxesRow = localReference.selectedFreezerCache[(i+1)];
 						if(boxesRow) {
 							var boxesCol = boxesRow[j];
 							if(boxesCol) {
 								currentBoxes = boxesCol.length;
 								for(var k = 0; k < boxesCol.length; k++) {
-									if(k !== 0) {
-										$rack.append(", ");
-										
-										if(k % maxBoxesInline === 0) {
-											$rack.append("<br>");
-										}
-									}
-									$rack.append(boxesCol[k]);
+									$rack.append(
+										$("<div>", { class: "freezerBox" })
+											.append(boxesCol[k])
+									);
 								}
-								$rack.append(".");
 							}
 						}
 						
@@ -414,6 +415,34 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 							localReference._setSelectedValue(freezerColPropertyCode, $(this).attr("colNum"));
 							
 							localReference._repaint();
+						});
+						
+						$rack.mouseover(function() {
+							var rowNum = $(this).attr("rowNum");
+							var colNum = $(this).attr("colNum");
+							
+							var rackIdRow = "#rack_" + rowNum + "_" + 0;
+							$(rackIdRow).addClass('freezerSelectedCorner');
+							
+							var rackIdCol = "#rack_" + 0 + "_" + colNum;
+							$(rackIdCol).addClass('freezerSelectedCorner');
+							
+							var rackId = "#rack_" + rowNum + "_" + colNum;
+							$(rackId).addClass('freezerSelectedCorner');
+						});
+						
+						$rack.mouseleave(function() {
+							var rowNum = $(this).attr("rowNum");
+							var colNum = $(this).attr("colNum");
+							
+							var rackIdRow = "#rack_" + rowNum + "_" + 0;
+							$(rackIdRow).removeClass('freezerSelectedCorner');
+							
+							var rackIdCol = "#rack_" + 0 + "_" + colNum;
+							$(rackIdCol).removeClass('freezerSelectedCorner');
+							
+							var rackId = "#rack_" + rowNum + "_" + colNum;
+							$(rackId).removeClass('freezerSelectedCorner');
 						});
 						
 						//Append Rack
