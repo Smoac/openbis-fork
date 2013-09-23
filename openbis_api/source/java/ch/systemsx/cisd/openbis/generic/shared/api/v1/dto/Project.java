@@ -26,8 +26,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 
 /**
- * Immutable value object representing a project. A project is specified by its code and the code of
- * the space to which it belongs.
+ * Immutable value object representing a project. A project is specified by its code and the code of the space to which it belongs.
  * 
  * @author Franz-Josef Elmer
  */
@@ -45,24 +44,24 @@ public final class Project implements Serializable, IIdentifierHolder
 
     private String code;
 
+    private String description;
+
     private EntityRegistrationDetails registrationDetails;
 
     /**
      * Creates a new instance for the specified tech id, perm id, space code and project code.
      * 
-     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
-     *             an empty string.
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or an empty string.
      */
-    public Project(Long id, String permId, String spaceCode, String code)
+    public Project(Long id, String permId, String spaceCode, String code, String description)
     {
-        this(id, permId, spaceCode, code, null);
+        this(id, permId, spaceCode, code, description, null);
     }
 
     /**
      * Creates a new instance for the specified space code and project code.
      * 
-     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
-     *             an empty string.
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or an empty string.
      */
     public Project(String spaceCode, String code)
     {
@@ -72,8 +71,7 @@ public final class Project implements Serializable, IIdentifierHolder
     /**
      * Creates a new instance for the specified tech id, perm id, space code and project code.
      * 
-     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
-     *             an empty string.
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or an empty string.
      */
     public Project(String spaceCode, String code, EntityRegistrationDetails registrationDetails)
     {
@@ -84,10 +82,9 @@ public final class Project implements Serializable, IIdentifierHolder
     /**
      * Creates a new instance for the specified space code and project code.
      * 
-     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or
-     *             an empty string.
+     * @throws IllegalArgumentException if either the code or the space code is <code>null</code> or an empty string.
      */
-    public Project(Long id, String permId, String spaceCode, String code,
+    public Project(Long id, String permId, String spaceCode, String code, String description,
             EntityRegistrationDetails registrationDetails)
     {
         if (id == null || id == 0)
@@ -101,6 +98,7 @@ public final class Project implements Serializable, IIdentifierHolder
         }
         this.permId = permId;
         checkAndSetCodes(spaceCode, code);
+        this.description = description;
         this.registrationDetails = registrationDetails;
     }
 
@@ -154,6 +152,14 @@ public final class Project implements Serializable, IIdentifierHolder
     public String getCode()
     {
         return code;
+    }
+
+    /**
+     * Returns the project description.
+     */
+    public String getDescription()
+    {
+        return description;
     }
 
     @Override
@@ -315,6 +321,11 @@ public final class Project implements Serializable, IIdentifierHolder
     private void setCode(String code)
     {
         this.code = code;
+    }
+
+    private void setDescription(String description)
+    {
+        this.description = description;
     }
 
     private void setRegistrationDetails(EntityRegistrationDetails registrationDetails)

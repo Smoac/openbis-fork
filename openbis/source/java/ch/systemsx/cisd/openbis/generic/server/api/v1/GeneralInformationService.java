@@ -290,7 +290,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         for (ProjectPE project : projects)
         {
             fullSpace.add(new Project(project.getId(), project.getPermId(), fullSpace.getCode(),
-                    project.getCode()));
+                    project.getCode(), project.getDescription()));
         }
     }
 
