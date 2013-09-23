@@ -117,6 +117,33 @@ var Search = new function() {
 		});
 	}
 	
+	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction)
+	{	
+		var matchClauses = [];
+		
+		for(var i = 0; i < propertyTypeCodes.length ;i++) {
+			matchClauses.push(
+				{	
+					"@type":"PropertyMatchClause",
+					fieldType : "PROPERTY",			
+					propertyCode : propertyTypeCodes[i],
+					desiredValue : propertyValues[i]
+				}
+			);
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+			callbackFunction(profile.searchSorter(data.result));
+		});
+	}
+	
 	this.searchWithText = function(freeText, callbackFunction)
 	{	
 		var sampleCriteria = {

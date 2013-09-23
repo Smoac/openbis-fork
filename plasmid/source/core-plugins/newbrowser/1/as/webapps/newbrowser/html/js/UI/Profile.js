@@ -314,14 +314,17 @@ function YeastLabProfile() {
 					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
 					"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
 		},
+		/*
+		 * Where the freezer will be painted.
+		*/
 		"FREEZER_PROPERTY_GROUP" : "Storage information",
 		/*
 		 * Freezers map, can hold configurations for several freezers.
 		*/
 		"FREEZER_CONFIGS": {
 			"FREEZER_1_85" : { //Freezer name given by the NAME_PROPERTY
-							"ROW_NUM" : 5, //Number of rows
-							"COLUMN_NUM" : 8, //Number of columns
+							"ROW_NUM" : 9, //Number of rows
+							"COLUMN_NUM" : 9, //Number of columns
 							"BOX_NUM" : 6 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 						}
 		}

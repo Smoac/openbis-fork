@@ -21,6 +21,7 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 	this.isFreezerAvailable = false;
 	this.sample = sample; // Needed for edit mode
 	this.isDisabled = isDisabled; //Needed for view mode
+	this.selectedFreezerCache = null;
 	
 	//
 	// Private utility methods used to check if a freezer is properly configured for certain entity type.
@@ -115,7 +116,7 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 	//
 	// Private methods to interact and update the form
 	//
-	this._getSelectedValue = function(propertyTypeCode, returnVocabularyAsInteger) {
+	this._getSelectedValue = function(propertyTypeCode, returnVocabularyAsInteger, sample) {
 		var propertyType = this._getPropertyFromType(propertyTypeCode);
 		
 		var lastValue = null;
@@ -126,7 +127,7 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 				lastValue = $("#"+propertyTypeCode)[0].value;
 			}
 			
-		} else if(this.sample && this.sample.properties[propertyTypeCode]) {
+		} else if(sample && sample.properties[propertyTypeCode]) {
 			if (returnVocabularyAsInteger && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 				var vocabulary = null;
 				if(isNaN(propertyType.vocabulary)) {
@@ -135,14 +136,14 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 					vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
 				}
 				
-				var selectedTerm = this.sample.properties[propertyTypeCode];
+				var selectedTerm = sample.properties[propertyTypeCode];
 				for(var i = 0; i < vocabulary.terms.length; i++) {
 					if(vocabulary.terms[i].code === selectedTerm) {
 						lastValue = i + 1;
 					}
 				}
 			} else {
-				lastValue = this.sample.properties[propertyTypeCode];
+				lastValue = sample.properties[propertyTypeCode];
 			}
 			
 		}
@@ -200,18 +201,81 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 	
 	this.repaint = function() {
 		if(!this.isFreezerAvailable) { return; }
+		var $container = $("#"+this.containerId);
+		$container.empty();
+		$container
+			.append($("<div>")
+						.append($("<i>", { class: "icon-info-sign" }))
+						.append(" Loading... ")
+			);
+			
+		var freezerNamePropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["NAME_PROPERTY"];
+		var selectedFreezer = this._getSelectedValue(freezerNamePropertyCode, false, this.sample);
+		
+		//Build freezer cache and paint it afterwards
+		if(selectedFreezer) {
+			var freezerRowPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["ROW_PROPERTY"];
+			var freezerColPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["COLUMN_PROPERTY"];
+			var freezerBoxPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["BOX_PROPERTY"];
+			
+			var propertyTypeCodes = [freezerNamePropertyCode, freezerRowPropertyCode, freezerColPropertyCode, freezerBoxPropertyCode];
+			var propertyValues = [selectedFreezer, "?*", "?*", "?*"];
+			
+			var localReference = this;
+			Search.searchWithProperties(propertyTypeCodes, propertyValues,
+				function(samples) {
+					var boxes = []; //Rows
+					var boxesSet = {};
+					
+					samples.forEach(
+						function(element, index, array) {
+							var boxCode = element.properties[freezerBoxPropertyCode];
+							if(!boxesSet[boxCode]) {
+								boxesSet[boxCode] = true; //Add to the set for easy verification
+								
+								//Ad new box 
+								var boxRow = localReference._getSelectedValue(freezerRowPropertyCode, true, element);
+								var boxCol = localReference._getSelectedValue(freezerColPropertyCode, true, element);
+								
+								var boxesRow = boxes[boxRow];
+								if(!boxesRow) {
+									boxesRow = [];
+									boxes[boxRow] = boxesRow;
+								}
+								
+								var boxesCol = boxesRow[boxCol];
+								if(!boxesCol) {
+									boxesCol = [];
+									boxesRow[boxCol] = boxesCol;
+								}
+								
+								boxesCol.push(boxCode);
+							}
+						}
+					);
+					
+					localReference.selectedFreezerCache = boxes;
+					localReference._repaint();
+				});
+		} else {
+			this._repaint();
+		}
+	}
+	
+	this._repaint = function() {
+		if(!this.isFreezerAvailable) { return; }
 		
 		var freezerNamePropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["NAME_PROPERTY"];
-		var selectedFreezer = this._getSelectedValue(freezerNamePropertyCode, false);
+		var selectedFreezer = this._getSelectedValue(freezerNamePropertyCode, false, this.sample);
 		
 		var freezerRowPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["ROW_PROPERTY"];
-		var selectedRow = this._getSelectedValue(freezerRowPropertyCode, true);
+		var selectedRow = this._getSelectedValue(freezerRowPropertyCode, true, this.sample);
 		
 		var freezerColPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["COLUMN_PROPERTY"];
-		var selectedCol = this._getSelectedValue(freezerColPropertyCode, true);
+		var selectedCol = this._getSelectedValue(freezerColPropertyCode, true, this.sample);
 		
 		var freezerBoxPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["BOX_PROPERTY"];
-		var selectedBox = this._getSelectedValue(freezerBoxPropertyCode, false);
+		var selectedBox = this._getSelectedValue(freezerBoxPropertyCode, false, this.sample);
 		
 		var localReference = this;
 		var $container = $("#"+this.containerId);
@@ -230,7 +294,8 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 			function() {
 				localReference._setSelectedValue(freezerRowPropertyCode, null);
 				localReference._setSelectedValue(freezerColPropertyCode, null);
-				localReference.repaint();
+				localReference._setSelectedValue(freezerBoxPropertyCode, null);
+				localReference._repaint();
 			}
 		);
 		
@@ -287,13 +352,47 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 						$virtualFreezerRow.append($("<th>").append(i+1));
 					} else {
 						var $rack = $("<td>");
+						
+						//Used for validation
+						var currentBoxes = 0;
+						//Populate Box Names
+						var maxBoxesInline = 3;
+						var boxesRow = localReference.selectedFreezerCache[(i+1)];
+						if(boxesRow) {
+							var boxesCol = boxesRow[j];
+							if(boxesCol) {
+								currentBoxes = boxesCol.length;
+								for(var k = 0; k < boxesCol.length; k++) {
+									if(k !== 0) {
+										$rack.append(", ");
+										
+										if(k % maxBoxesInline === 0) {
+											$rack.append("<br>");
+										}
+									}
+									$rack.append(boxesCol[k]);
+								}
+								$rack.append(".");
+							}
+						}
+						
+						//Atributes
 						var rackId = "rack_" + (i+1) + "_" + j;
 						$rack.attr("id", rackId);
 						$rack.attr("rowNum", i+1);
 						$rack.attr("colNum", j);
+						$rack.attr("currentNum", currentBoxes);
 						
+						//Event
 						$rack.click(function() {
 							if(localReference.isDisabled) { return; }
+							
+							//Check if can be added
+							var maxBoxes = freezerConfig["BOX_NUM"];
+							if($(this).attr("currentNum") >= maxBoxes) {
+								Util.showError("Limit of boxes reached on the rack, only allows " + maxBoxes + " boxes and found " + $(this).attr("currentNum") + ".", function() { Util.unblockUI(); });
+								return;
+							}
 							
 							//Clean the whole freezer
 							for(var i = 0; i <= freezerConfig["ROW_NUM"]; i++) {
@@ -314,11 +413,10 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 							localReference._setSelectedValue(freezerRowPropertyCode, $(this).attr("rowNum"));
 							localReference._setSelectedValue(freezerColPropertyCode, $(this).attr("colNum"));
 							
-							localReference.repaint();
+							localReference._repaint();
 						});
 						
-						
-						
+						//Append Rack
 						$virtualFreezerRow.append($rack);
 					}
 				}
@@ -357,6 +455,9 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 								.append(" 3. Input the box name or number: ")
 								.append($propertyTypeBoxComponent)
 					);
+			} else {
+				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), true);
+				$container.append($propertyTypeBoxComponent);
 			}
 			
 			//
