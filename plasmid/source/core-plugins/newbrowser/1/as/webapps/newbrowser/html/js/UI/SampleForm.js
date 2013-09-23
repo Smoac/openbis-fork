@@ -42,10 +42,15 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	this.sampleTypesLinksTables = {};
 	this.mode = mode;
 	this.sample = sample;
+	this.freezer = null;
 	
 	this.init = function() {
 			Util.blockUI();
 			var localReference = this;
+			
+			localReference.freezer = new Freezer('sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
+			localReference.freezer.init();
+			
 			openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 				//Init Basic Form elements
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
@@ -288,7 +293,6 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
-		
 		var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
 		var sampleTypeDisplayName = sampleType.description;
 		
@@ -369,12 +373,16 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 				
 				if(propertyTypeGroup.name) {
 					component += "<legend>" + propertyTypeGroup.name + "</legend>";
+					if(this.freezer.isPropertyGroupFromFreezer(propertyTypeGroup.name)) {
+						component += "<div id='sampleStorage'></div>"; // When a freezer is used, the freezer needs a container
+					}
 				} else {
 					component += "<legend></legend>";
 				}
 				
 				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 					var propertyType = propertyTypeGroup.propertyTypes[j];
+					if(this.freezer.isPropertyFromFreezer(propertyType.code)) { continue; } // When a freezer is used, the freezer controls the rendering of the properties
 					
 					component += "<div class='control-group'>";
 					component += "<label class='control-label' for='inputCode'>" + propertyType.label + ":</label>";
@@ -418,7 +426,6 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			//
 			// FORM SUBMIT
 			//
-			
 			if(!(this.mode === SampleFormMode.VIEW)) {
 				component += "<fieldset>";
 				component += "<div class='control-group'>";
@@ -437,6 +444,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			
 		//Add form to layout
 		$("#"+this.containerId).append(component);
+		this.freezer.repaint();
 		
 		if (this.mode !== SampleFormMode.CREATE) {
 			this.enablePINButtonEvent();
@@ -533,18 +541,21 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 		
 		var localReference = this;
 		
-		openbisServer.createReportFromAggregationService("DSS1", "newbrowserapi", parameters, function(response) {
-			localReference.createSampleCallback(response);
-		});
+		if(this.profile.allDataStores.length > 0) {
+			openbisServer.createReportFromAggregationService(this.profile.allDataStores[0].code, "newbrowserapi", parameters, function(response) {
+				localReference.createSampleCallback(response);
+			});
+		} else {
+			Util.showError("No DSS available.", function() {Util.unblockUI();});
+		}
+		
 		
 		return false;
 	}
 
 	this.createSampleCallback = function(response) {
-		var callback = function() {Util.unblockUI();};
-		 
 		if(response.error) {
-			Util.showError(response.error.message, callback);
+			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") {
 			var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
 			var sampleTypeDisplayName = sampleType.description;
@@ -556,11 +567,11 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 				message = "Updated.";
 			}
 			
-			Util.showSuccess(sampleTypeDisplayName + " " + message, callback);
+			Util.showSuccess(sampleTypeDisplayName + " " + message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") {
-			Util.showError(response.result.rows[0][1].value, callback);
+			Util.showError(response.result.rows[0][1].value, function() {Util.unblockUI();});
 		} else {
-			Util.showError("Unknown Error.", callback);
+			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}
 		
 	}

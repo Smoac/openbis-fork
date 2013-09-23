@@ -100,6 +100,11 @@ function enterApp(data) {
 			showMainMenu();
 			Util.unblockUI();
 			
+			openbisServer.listDataStores(
+				function(dataStores) {
+					profile.allDataStores = dataStores.result;
+				}
+			);
 		}
 	);
 }

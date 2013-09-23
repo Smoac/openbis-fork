@@ -38,6 +38,7 @@ function DefaultProfile() {
 	
 	this.allTypes = [];
 	this.allVocabularies = [];
+	this.allDataStores = [];
 	
 	this.typeGroups = {
 		"OTHERS" : {
@@ -50,6 +51,8 @@ function DefaultProfile() {
 	this.typePropertiesForTable = {};
 	
 	this.colorForInspectors = {};
+	
+	this.freezersConfiguration = {};
 	
 	this.getColorForInspectors = function(sampleTypeCode) {
 		//Get default color if found
@@ -299,6 +302,29 @@ function YeastLabProfile() {
 		"PLASMID" : "#FCDEC0",
 		"YEAST" : "#CCCC99",
 		"SAMPLE_PROPERTY_TEST" : "#000000"
+	};
+	
+	this.freezersConfiguration = {
+		/*
+		 * Should be the same across all freezers, if not correct behaviour is not guaranteed.
+		*/
+		"FREEZER_PROPERTIES": {
+					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
+					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
+					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
+					"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
+		},
+		"FREEZER_PROPERTY_GROUP" : "Storage information",
+		/*
+		 * Freezers map, can hold configurations for several freezers.
+		*/
+		"FREEZER_CONFIGS": {
+			"FREEZER_1_85" : { //Freezer name given by the NAME_PROPERTY
+							"ROW_NUM" : 5, //Number of rows
+							"COLUMN_NUM" : 8, //Number of columns
+							"BOX_NUM" : 6 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+						}
+		}
 	};
 	
 	this.getHTMLTableFromXML = function(xmlDocument) {

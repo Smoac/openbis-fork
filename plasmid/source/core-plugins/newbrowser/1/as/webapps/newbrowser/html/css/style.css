@@ -2,6 +2,31 @@ body {
 	overflow-y:scroll;
 }
 
+/* Forms */
+.hiddenInput {
+	display: none !important;
+}
+
+/* freezer */
+.freezerTable {
+	width: 80%;
+}
+
+.freezerTable th,
+.freezerTable td {
+	height:40px;
+}
+
+.freezerTable td {
+	border-style:solid;
+	border-width:1px;
+	border-color: #CCCCCC;
+}
+
+.freezerSelectedRack {
+	background-color: #CCCCCC;
+}
+
 /* Glow Effect */
 .glow {
     animation:glow 1200ms linear 200ms 2 alternate;
@@ -9,8 +34,7 @@ body {
     -webkit-animation:glow 1200ms linear 200ms 2 alternate;
 }
 
-/* Firefox */
-@-moz-keyframes glow {
+@-moz-keyframes glow { /* Firefox */
     0% {
         box-shadow:0 0 1px 1px rgba(255,255,255,0.9);
     }
@@ -19,8 +43,7 @@ body {
     }
 }
 
-/* Safari and Chrome */
-@-webkit-keyframes glow {
+@-webkit-keyframes glow { /* Safari and Chrome */
     0% {
         box-shadow:0 0 1px 1px #FFF;
     }
