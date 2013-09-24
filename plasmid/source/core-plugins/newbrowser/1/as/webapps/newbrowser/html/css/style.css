@@ -1,5 +1,85 @@
 body {
+	margin-top: 30px;
 	overflow-y:scroll;
+}
+
+/* Loging */
+.bodyLogin {
+	background-image: url(../css/loginBackground.jpg);
+	font-family: "Helvetica Neue",sans-serif;
+}
+
+.loginForm {
+	width: 360px;
+	height: 360px;
+	padding: 30px;
+	display: block;
+	
+	position: absolute;
+	top: 50%;
+	margin-top: -280px;/* half of #content height + padding*/
+	left: 50%;
+	margin-left: -210px;/* half of #content height + padding*/
+	
+	background-color: white;
+	border-radius: 60px 60px 60px 60px;
+	font-family: "Helvetica Neue",sans-serif;
+	font-weight: 300;
+	font-size: 15px;
+	
+	-webkit-box-shadow: 0px 0px 100px rgba(50, 50, 50, 0.8);
+	-moz-box-shadow:    0px 0px 100px rgba(50, 50, 50, 0.8);
+	box-shadow:         0px 0px 100px rgba(50, 50, 50, 0.8);
+}
+
+.loginForm form {
+	position: relative;
+	margin: 20px 0px 60px 0px;	
+}
+
+.loginLogo {
+	width: 200px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	opacity:0.8;
+}
+
+.loginForm h1 {
+	font-family: "Helvetica Neue",sans-serif;
+	font-weight: 300;
+	text-align: center;
+}
+
+.loginInputBox {
+	border-bottom: 1px solid #dddddd;
+}
+
+.loginForm input {
+	font-family: "Helvetica Neue",sans-serif;
+	border: medium none;
+	font-size: 19px;
+	padding: 10px 0px 0px 10px;
+	font-weight: 300;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	width: 100%;
+}
+
+.loginForm input:focus,
+.loginForm input:focus:invalid:focus {
+	outline: none;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
+
+.loginForm .btn {
+	font-family: "Helvetica Neue",sans-serif;
+	position: absolute;
+	top: 46px;
+	left: 310px;
 }
 
 /* Forms */
@@ -148,13 +228,6 @@ body {
 .mainMenuIcon img {
 	width:96px;
 	height:96px;
-}
-
-/* Body */
-body {
-	background-image:url(handmadepaper.png);
-	background-repeat:repeat;
-	margin-top: 30px;
 }
 
 /* Nav bar */

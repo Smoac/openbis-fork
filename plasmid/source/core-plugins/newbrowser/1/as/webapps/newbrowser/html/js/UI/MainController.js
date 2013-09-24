@@ -34,9 +34,6 @@ var sampleForm = null; //Form to Create a new Sample
 $(document).ready(function() {
 	$('#main').hide();
 	
-	$('body').css('background-image', 'url(./images/notebook_side.png)');
-	$('body').css('background-repeat', 'repeat-y');
-	
 	var username = $("#username").value;
 	if(username == null || username.length==0) {
 		$("#username").focus();
@@ -76,9 +73,7 @@ function enterApp(data) {
 	//
 	// Start App if credentials are ok
 	//
-	$('body').css('background-image', 'none');
-	$('body').css('background-repeat', 'none');
-	
+	$('body').removeClass('bodyLogin');
 	$("#login-form-div").hide();
 	$("#main").show();
 	

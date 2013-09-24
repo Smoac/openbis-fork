@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis-login.js"></script>
 	
+	
 	<!-- <script To speed development, cache the requests type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
 	<script type="text/javascript" src="./js/d3.js"></script>
 	<script type="text/javascript" src="./js/d3.layout.js"></script>
@@ -45,39 +46,29 @@
 	<script type="text/javascript" src="./js/UI/Freezer.js"></script>
 	
 </head>
-<body>
-	<div id="login-form-div" style="margin-top: 100px; auto; margin-left: auto; margin-right: auto; display: block; width: 400px; padding: 20px;">
-			<img id="openbis-logo" src="./images/openBIS_Logo.png" alt="openBIS" />
-			<h1>Laboratory Notebook</h1>
+<body class="bodyLogin">
+	<div id="login-form-div" class="loginForm">
+			<img class="loginLogo" src="./images/openBIS_Logo.png" alt="openBIS" />
+			<h1>Lab. Notebook</h1>
+			
 			<form id="login-form" action="javascript:">
 				<fieldset>
-					<div class='control-group'>
-						<label class='control-label' for='notes'>User Name:</label>
-						<div class='controls'>
-							<input placeholder="username" id="username" type="text" required="required">
+						<div class='loginInputBox'>
+							<input placeholder="Account" id="username" type="text" required="required">
 						</div>
-					</div>
 					
-					<div class='control-group'>
-						<label class='control-label' for='notes'>Password:</label>
-						<div class='controls'>
-							<input placeholder="password" id="password" type="password" required="required">
+						<div class='loginInputBox'>
+							<input placeholder="Password" id="password" type="password" required="required">
 						</div>
-					</div>
 					
-					<div class='control-group'>
-						<div class='controls'>
-							<button class="btn" id="login-button" type="submit">Login</button>
-						</div>
-					</div>
+						<button class="btn" id="login-button" type="submit"><i class="icon-arrow-right"></i></button>
 				</fieldset>
-				
-				<center>
-					Compatible With:
-					<br />
-					<img src="./images/browser-icon-chrome.png" style="width: 96px; height:96px;" /><img src="./images/browser-icon-safari.png" style="width: 96px; height:96px;" /><img src="./images/browser-icon-firefox.png" style="width: 96px; height:96px;" /><img src="./images/browser-icon-tablet.png" style="height:96px;" />
-				</center>
 			</form>
+			
+			<center>
+				<div style="margin-bottom: 5px;">Compatible With:</div>
+				<img src="./images/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-firefox.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-tablet.png" style="height:43px;" />
+			</center>
 	</div>
 	
 	<div id="main">

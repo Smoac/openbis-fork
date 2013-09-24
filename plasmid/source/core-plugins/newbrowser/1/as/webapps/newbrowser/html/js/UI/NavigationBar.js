@@ -95,10 +95,10 @@ function NavigationBar(containerId, activeMenuId, profile) {
 		$("#"+this.containerId).append(menu);
 	
 		$('#logout-button').click(function() { 
+			$('body').addClass('bodyLogin');
 			openbisServer.logout(function(data) { 
 				$("#login-form-div").show();
 				$("#main").hide();
-				$("#username").focus();
 			});
 		});
 		

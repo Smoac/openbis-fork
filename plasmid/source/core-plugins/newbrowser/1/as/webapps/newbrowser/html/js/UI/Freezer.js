@@ -349,7 +349,7 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 			$virtualFreezer.append($virtualFreezerRow);
 			
 			//Paint Rows			
-			for(var i = 0; i <= freezerConfig["ROW_NUM"]; i++) {
+			for(var i = 0; i < freezerConfig["ROW_NUM"]; i++) {
 				var $virtualFreezerRow = $("<tr>");
 				for(var j = 0; j <= freezerConfig["COLUMN_NUM"]; j++) {
 					if(j == 0) {
@@ -396,15 +396,8 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 							}
 							
 							//Clean the whole freezer
-							for(var i = 0; i <= freezerConfig["ROW_NUM"]; i++) {
-								for(var j = 0; j <= freezerConfig["COLUMN_NUM"]; j++) {
-									var rackId = "#rack_" + (i+1) + "_" + j;
-									var rackClass = $(rackId).attr("class");
-									if(rackClass === 'freezerSelectedRack') {
-										$(rackId).removeClass('freezerSelectedRack');
-									}
-								}
-							}
+							$(".freezerSelectedRack").removeClass("freezerSelectedRack");
+
 							
 							//Select current spot
 							var thisClass = $(this).attr("class");
@@ -418,6 +411,8 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 						});
 						
 						$rack.mouseover(function() {
+							$(".freezerSelectedCorner").removeClass("freezerSelectedCorner");
+							
 							var rowNum = $(this).attr("rowNum");
 							var colNum = $(this).attr("colNum");
 							
@@ -431,20 +426,6 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 							$(rackId).addClass('freezerSelectedCorner');
 						});
 						
-						$rack.mouseleave(function() {
-							var rowNum = $(this).attr("rowNum");
-							var colNum = $(this).attr("colNum");
-							
-							var rackIdRow = "#rack_" + rowNum + "_" + 0;
-							$(rackIdRow).removeClass('freezerSelectedCorner');
-							
-							var rackIdCol = "#rack_" + 0 + "_" + colNum;
-							$(rackIdCol).removeClass('freezerSelectedCorner');
-							
-							var rackId = "#rack_" + rowNum + "_" + colNum;
-							$(rackId).removeClass('freezerSelectedCorner');
-						});
-						
 						//Append Rack
 						$virtualFreezerRow.append($rack);
 					}
@@ -453,6 +434,10 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 			}
 			
 			if($virtualFreezer) {
+				$virtualFreezer.mouseleave(function() {
+					$(".freezerSelectedCorner").removeClass("freezerSelectedCorner");
+				});
+				
 				$container
 					.append($("<div>")
 								.append($("<i>", { class: "icon-info-sign" }))
