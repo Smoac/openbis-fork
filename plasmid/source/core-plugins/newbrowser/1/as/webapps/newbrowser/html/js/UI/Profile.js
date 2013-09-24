@@ -139,18 +139,33 @@ function DefaultProfile() {
 		return allPropertiCodes;
 	}
 	
-	this.getPropertiesDisplayNamesForTypeCode = function(sampleTypeCode, propertiesTypeCode) {
-		var allPropertiDisplayNames = new Array();
+	this.getPropertyDisplayNamesForTypeCode = function(sampleTypeCode, propertyTypeCode) {
+		var propertyDisplayName = "";
 		var sampleType = this.getTypeForTypeCode(sampleTypeCode);
+		
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
 			for(var j = 0; j < propertyGroup.length; j++) {
 				var propertyType = propertyGroup[j];
-				if($.inArray(propertyType.code, propertiesTypeCode) !== -1) {
-					allPropertiDisplayNames.push(propertyType.label);
+				if(propertyType.code === propertyTypeCode) {
+					propertyDisplayName = propertyType.label;
 				}
 			}
 		}
+		
+		return propertyDisplayName;
+	}
+	
+	this.getPropertiesDisplayNamesForTypeCode = function(sampleTypeCode, propertiesTypeCode) {
+		var allPropertiDisplayNames = new Array();
+		var sampleType = this.getTypeForTypeCode(sampleTypeCode);
+		
+		for(var i = 0; i < propertiesTypeCode.length; i++) {
+			var propertyTypeCode = propertiesTypeCode[i];
+			var propertyTypeDisplayName = this.getPropertyDisplayNamesForTypeCode(sampleTypeCode, propertyTypeCode);
+			allPropertiDisplayNames.push(propertyTypeDisplayName);
+		}
+		
 		return allPropertiDisplayNames;
 	}
 	
@@ -284,7 +299,7 @@ function YeastLabProfile() {
 		"ENZYME" : ["NAME", "SUPPLIER", "ARTICLE_NUMBER", "KIT"],
 		"OLIGO" : ["TARGET", "DIRECTION", "RESTRICTION_ENZYME", "PROJECT"],
 		"PLASMID" : ["OWNER", "OWNER_NUMBER", "PLASMID_NAME", "BACTERIAL_ANTIBIOTIC_RESISTANCE", "YEAST_MARKER"],
-		"YEAST" : ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "PROJECT", "GENETIC_BACKGROUND", "MATING_TYPE"],
+		"YEAST" : ["OWNER", "OWNER_NUMBER", "YEAST_STRAIN_NAME", "PROJECT", "GENETIC_BACKGROUND", "MATING_TYPE", "FREEZER_NAME", "ROW", "COLUMN", "BOX_NUMBER"],
 		"BACTERIA" : ["BACTERIA_STRAIN_NAME", "BACTERIA_GENOTYPE", "FOR_WHAT", "SUPPLIER", "ARTICLE_NUMBER", "COMMENTS"]
 	}
 	
@@ -325,8 +340,13 @@ function YeastLabProfile() {
 			"FREEZER_1_85" : { //Freezer name given by the NAME_PROPERTY
 							"ROW_NUM" : 9, //Number of rows
 							"COLUMN_NUM" : 9, //Number of columns
+							"BOX_NUM" : 999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+						},
+			"FREEZER_2_20" : { //Freezer name given by the NAME_PROPERTY
+							"ROW_NUM" : 6, //Number of rows
+							"COLUMN_NUM" : 2, //Number of columns
 							"BOX_NUM" : 6 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-						}
+									}
 		}
 	};
 	

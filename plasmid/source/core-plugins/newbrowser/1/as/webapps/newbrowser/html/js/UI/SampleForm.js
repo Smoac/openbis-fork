@@ -543,7 +543,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 		
 		if(this.profile.allDataStores.length > 0) {
 			openbisServer.createReportFromAggregationService(this.profile.allDataStores[0].code, "newbrowserapi", parameters, function(response) {
-				localReference.createSampleCallback(response);
+				localReference.createSampleCallback(response, localReference);
 			});
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
@@ -553,7 +553,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 		return false;
 	}
 
-	this.createSampleCallback = function(response) {
+	this.createSampleCallback = function(response, localReference) {
 		if(response.error) { //Error Case 1
 			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") { //Error Case 2
@@ -581,7 +581,19 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 				message = "Updated.";
 			}
 			
-			Util.showSuccess(sampleTypeDisplayName + " " + message, function() {Util.unblockUI();});
+			var callbackOk = function() {
+				if(localReference.mode == SampleFormMode.EDIT) {
+					var sampleIdentifier = localReference.sample.permId;
+					Search.searchWithUniqueId(sampleIdentifier, function(samples) {
+						localReference.sample = samples[0];
+						localReference.init();
+					});
+				} else {
+					Util.unblockUI();
+				}
+			}
+			
+			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}

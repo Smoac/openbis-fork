@@ -5,7 +5,12 @@ body {
 
 /* Loging */
 .bodyLogin {
-	background-image: url(../css/loginBackground.jpg);
+	background: url(../css/loginBackground2.jpg) no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	
 	font-family: "Helvetica Neue",sans-serif;
 }
 

@@ -85,6 +85,29 @@ var Search = new function() {
 		return finalSamples;
 	}
 	
+	this.searchWithUniqueId = function(sampleIdentifier, callbackFunction)
+	{	
+		var matchClauses = [
+				{
+					"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "PERM_ID",
+					desiredValue : sampleIdentifier 
+				}		
+		]
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+			callbackFunction(profile.searchSorter(localReference.getInitializedSamples(data.result)));
+		});
+	}
+	
 	this.searchWithType = function(sampleType, sampleCode, callbackFunction)
 	{	
 		var matchClauses = [ {"@type":"AttributeMatchClause",
