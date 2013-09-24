@@ -170,18 +170,18 @@
 #pragma mark - Actions
 - (BOOL)insertNewObjectOrError:(NSError **)error
 {
-    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-    
     // TODO Implement insert
     NSLog(@"Do not support adding new objects");
     abort();
+    
+//    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
     
 //    NSEntityDescription *entity = [[self.openBisModel.fetchedResultsController fetchRequest] entity];
 //    NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
     
     
     // Save the context.
-    return [context save: error];
+//    return [context save: error];
 }
 
 - (BOOL)deleteObjectAtIndexPath:(NSIndexPath *)indexPath error:(NSError **)error

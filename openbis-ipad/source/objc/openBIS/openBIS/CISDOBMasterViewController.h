@@ -37,7 +37,9 @@
 @property (strong, nonatomic) CISDOBTableSearchState *searchState;
 
 // The state for the current searching or filtering mode.
-@property (strong, nonatomic) CISDOBTableDisplayState *searchFilterState;
+@property (weak, nonatomic) CISDOBTableDisplayState *searchFilterState;
+// True if the user is currently browsing, false if she is searching
+@property (nonatomic) BOOL browsing;
 
 @property (weak, nonatomic) IBOutlet UITableView *browseTableView;
 @property (weak, nonatomic) IBOutlet UIActivityIndicatorView *activityIndicator;

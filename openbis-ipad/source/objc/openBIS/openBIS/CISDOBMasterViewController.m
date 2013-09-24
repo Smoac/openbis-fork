@@ -61,17 +61,18 @@
     self.filterState = [[CISDOBTableFilterState alloc] initWithController: self];
     self.searchState = [[CISDOBTableSearchState alloc] initWithController: self];
     self.searchFilterState = self.filterState;
+    self.browsing = YES;
     
     [[NSNotificationCenter defaultCenter]
-     addObserver:self
-     selector:@selector(receiveSearchNotification:)
-     name:@"SearchNotification"
-     object:nil];
+         addObserver:self
+         selector:@selector(receiveSearchNotification:)
+         name:@"SearchNotification"
+         object:nil];
     [[NSNotificationCenter defaultCenter]
-     addObserver:self
-     selector:@selector(receiveDissmissNotification:)
-     name:@"DissmissNotification"
-     object:nil];
+         addObserver:self
+         selector:@selector(receiveDissmissNotification:)
+         name:@"DissmissNotification"
+         object:nil];
 }
 
 - (IBAction)refreshFromServer:(id)sender
@@ -305,18 +306,20 @@
 
 #pragma mark - UISearchDisplayDelegate
 
-- (void) receiveSearchNotification:(NSNotification *) notification
+- (void)receiveSearchNotification:(NSNotification *) notification
 {
     NSString * searchString = [notification object];
     [self searchDisplayControllerWillBeginSearch: self.searchDisplayController];
     self.searchDisplayController.searchBar.text = searchString;
     self.openBisModel.searchString = searchString;
     [self searchDisplayController: self.searchDisplayController shouldReloadTableForSearchScope: 0];
+    self.browsing = NO;
 }
 
-- (void) receiveDissmissNotification:(NSNotification *) notification
+- (void)receiveDissmissNotification:(NSNotification *) notification
 {
     self.searchDisplayController.searchBar.selectedScopeButtonIndex = 0;
+    self.browsing = YES;
 }
 
 - (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
@@ -332,17 +335,19 @@
         self.openBisModel.searchString = @"";
     }
     // BUGFIX
-    
-    //Updating the state controller if the user presses a scope buttion
-    self.openBisModel.selectedSearchScopeIndex = searchOption;
-    self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
-    
-    //Searching for barcodes or normal search
+
     NSArray *options = [self scopeButtonTitles];
-    
+
+    // Searching for barcodes or normal search
     NSString* searchTitle = nil;
-    if(options != nil) {
-        searchTitle = options[searchOption];
+    if([options count] > 0) {
+        // Updating the state controller if the user presses a scope button
+        if (searchOption < [options count])
+            self.openBisModel.selectedSearchScopeIndex = searchOption;
+        else
+            self.openBisModel.selectedSearchScopeIndex = [options count] - 1;
+        self.searchFilterState = [self.openBisModel isSelectedSearchScopeIndexSearch] ? self.searchState : self.filterState;
+        searchTitle = options[self.openBisModel.selectedSearchScopeIndex];
     }
     
     if (searchTitle != nil && [searchTitle isEqualToString:@"Barcode"]) {
@@ -381,11 +386,15 @@
 #pragma mark - Server Communication
 - (void)didConnectServiceManager:(CISDOBIpadServiceManager *)serviceManager
 {
+    __weak CISDOBMasterViewController *weakSelf = self;
     [self.openBisModel syncRootEntities: ^(id result) {
-        [self refreshTable];
+        // We could be in search mode. In that case, do not refresh the table
+        [weakSelf refreshTable];
     }];
     
-    self.searchFilterState = [self.openBisModel isSearchSupported] ? self.searchState : self.filterState;
+    // If we are not already in search mode, switch to it if allowed.
+    if (self.searchFilterState == self.filterState)
+        self.searchFilterState = [self.openBisModel isSearchSupported] ? self.searchState : self.filterState;
 }
 
 
