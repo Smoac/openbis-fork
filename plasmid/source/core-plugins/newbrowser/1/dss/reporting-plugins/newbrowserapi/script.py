@@ -80,6 +80,5 @@ def insertSample(tr, parameters, tableBuilder):
 	if sampleParents != None:
 		sample.setParentSampleIdentifiers(sampleParents);
 	
-	#This requires to access a private method
-	return tr.transaction.commit();
-	
+	#Return from the call
+	return True;
