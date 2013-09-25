@@ -563,7 +563,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			var endIndex = null;
 			if(isUserFailureException) {
 				startIndex = "ch.systemsx.cisd.common.exceptions.UserFailureException".length + 2;
-				endIndex = stacktrace.indexOf("at ch.systemsx.cisd.common.exceptions.UserFailureException");
+				endIndex = stacktrace.indexOf("at ch.systemsx");
 			} else {
 				startIndex = 0;
 				endIndex = stacktrace.length;
