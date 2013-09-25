@@ -285,6 +285,8 @@ NSURL *StoreUrlFromOpenbisUrl(NSURL *applicationDocumentsDirectory, NSURL *openb
         [weakSelf serviceManager: serviceManager willSaveDeletingEntities: deletedEntityPermIds];
     };
     
+    if (_rootOpenBisModel) [_rootOpenBisModel appDelegate: self changedServiceManager: _serviceManager];
+    
     return YES;
 }
 

@@ -346,7 +346,7 @@
     
     [self applyStandardSortDescriptorsToFetchRequest: fetchRequest];
 
-    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: nil];
+    NSFetchedResultsController *aFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest: fetchRequest managedObjectContext: self.managedObjectContext sectionNameKeyPath: @"category" cacheName: @"Root"];
     aFetchedResultsController.delegate = self;
     self.fetchedResultsController = aFetchedResultsController;
 
@@ -419,6 +419,12 @@
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
 {
     [self.delegate controllerDidChangeContent: controller];
+}
+
+- (void)appDelegate:(CISDOBAppDelegate *)appDelegate changedServiceManager:(CISDOBIpadServiceManager *)serviceManager
+{
+    // The managed object context has changed so we we must reinitialize the fetchedResultsController
+    _fetchedResultsController = nil;
 }
 
 @end

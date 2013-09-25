@@ -89,5 +89,8 @@
 //! Invoke the server-side search and call the success block with an array of ipad entity objects when the data is here
 - (void)searchServerOnSuccess:(SuccessBlock)success;
 
+// Notifications
+- (void)appDelegate:(CISDOBAppDelegate *)appDelegate changedServiceManager:(CISDOBIpadServiceManager *)serviceManager;
+
 
 @end
