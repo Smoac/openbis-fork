@@ -388,7 +388,6 @@
 {
     __weak CISDOBMasterViewController *weakSelf = self;
     [self.openBisModel syncRootEntities: ^(id result) {
-        // We could be in search mode. In that case, do not refresh the table
         [weakSelf refreshTable];
     }];
     
