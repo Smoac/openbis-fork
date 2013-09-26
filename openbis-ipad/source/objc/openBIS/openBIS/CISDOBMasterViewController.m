@@ -489,7 +489,12 @@
 
 - (CISDOBIpadEntity *)entityAtIndexPath:(NSIndexPath *)indexPath
 {
-    return [self.filteredResults objectAtIndex: [indexPath indexAtPosition: 1]];
+    NSArray *filteredResults = self.filteredResults;
+    NSUInteger index = [indexPath indexAtPosition: 1];
+    return
+        (index < [filteredResults count]) ?
+            [self.filteredResults objectAtIndex: index] :
+            nil;
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
