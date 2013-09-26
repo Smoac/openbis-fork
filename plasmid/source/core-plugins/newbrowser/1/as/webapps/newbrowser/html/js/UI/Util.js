@@ -31,28 +31,38 @@ var Util = new function() {
 	}
 	
 	this.blockUINoMessage = function() {
-		disable_scroll();
+		BlockScrollUtil.disable_scroll();
 		$('#navbar').block({ message: '', css: { width: '0px' } });
 		$.blockUI({ message: '', css: { width: '0px' } });
 	}
 	
 	this.blockUI = function(message) {
-		disable_scroll();
+		BlockScrollUtil.disable_scroll();
+		
+		var css = { 
+					'border': 'none', 
+					'padding': '10px',
+					'-webkit-border-radius': '6px 6px 6px 6px', 
+					'-moz-border-radius': '6px 6px 6px 6px', 
+					'border-radius' : '6px 6px 6px 6px',
+					'box-shadow' : '0 1px 10px rgba(0, 0, 0, 0.1)'
+		};
+		
 		$('#navbar').block({ message: '', css: { width: '0px' } });
 		if(message) {
-			$.blockUI({ message: message });
+			$.blockUI({ message: message, css: css});
 		} else {
-			$.blockUI({ message: '<h1><img src="./js/busy.gif" /> Just a moment...</h1>' });
+			$.blockUI({ message: '<h1><img src="./js/busy.gif" /> Just a moment...</h1>', css: css });
 		}
 		
 	}
 	
 	this.unblockUI = function(callback) {
-		enable_scroll();
+		BlockScrollUtil.enable_scroll();
 		$('#navbar').unblock();
 		$.unblockUI({ 
 		                onUnblock: callback 
-		            });
+					});
 	}
 	
 	this.showError = function(withHTML, andCallback) {
@@ -130,7 +140,7 @@ var Util = new function() {
 		formData.append("sessionKeysNumber", 1);
 		formData.append("sessionKey_0", "sample-file-upload");
 		formData.append("sample-file-upload", file);
-		formData.append("sessionID", openbisServer.getSession());
+		formData.append("sessionID", mainController.openbisServer.getSession());
 		
 		$.ajax({
 			type: "POST",

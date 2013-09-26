@@ -22,7 +22,8 @@
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  */
-function Inspector(containerId, profile) {
+function Inspector(mainController, containerId, profile) {
+	this.mainController = mainController;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.inspectedSamples = new Array();
@@ -30,7 +31,7 @@ function Inspector(containerId, profile) {
 	this.repaint = function() {
 		$("#"+containerId).empty();
 		var allInspectors = ""
-		allInspectors += "<a class='btn' href='javascript:inspector.printInspectors()'><i class='icon-print'></i></a>";
+		allInspectors += "<a class='btn' href='javascript:mainController.inspector.printInspectors()'><i class='icon-print'></i></a>";
 		allInspectors += "<div id='inspectorsContainer' class='inspectorsContainer'>";
 		allInspectors += this.getAllInspectors(false, true, true, true);
 		allInspectors += "</div>";
@@ -129,7 +130,7 @@ function Inspector(containerId, profile) {
 		var divID = sampleCode + "_INSPECTOR";
 		$("#"+divID).removeClass("glow");
 		
-		Search.searchWithType(sampleTypeCode, sampleCode, function(data) {
+		this.mainController.searchFacade.searchWithType(sampleTypeCode, sampleCode, function(data) {
 			
 			var isAdded = localReference.addInspectSampleIfNotFound(data[0]);
 			if(isAdded) {
@@ -172,7 +173,7 @@ function Inspector(containerId, profile) {
 			for(var i = 0; i < parents.length; i++) {
 				var parent = parents[i];
 				if(withLinks) {
-					allParentCodesAsText += "<a href=\"javascript:inspector.showSampleOnInspector('" + parent.sampleTypeCode + "','" + parent.code + "');\">" + parent.code + "</a> ";
+					allParentCodesAsText += "<a href=\"javascript:mainController.inspector.showSampleOnInspector('" + parent.sampleTypeCode + "','" + parent.code + "');\">" + parent.code + "</a> ";
 				} else {
 					allParentCodesAsText += parent.code + " ";
 				}
@@ -198,7 +199,7 @@ function Inspector(containerId, profile) {
 			inspector += "<strong>" + entity.code + "</strong>";
 			
 			if(showClose) {
-				inspector += "<span class='close' onclick='inspector.closeNewInspector(\""+entity.id+"\")'>x</span>";
+				inspector += "<span class='close' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'>x</span>";
 			}
 			
 			inspector += "<table class='properties table'>"

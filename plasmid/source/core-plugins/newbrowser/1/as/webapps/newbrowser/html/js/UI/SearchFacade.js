@@ -19,8 +19,13 @@
  *
  * Contains methods used to search for samples.
  */
-var Search = new function() {
+function SearchFacade(profile, openbisServer) {
+	this.profile = profile;
+	this.openbisServer = openbisServer;
 	
+	//
+	// Search Related Functions
+	//
 	this.getInitializedSamples = function(result) {
 		var samplesById = {};
 		var finalSamples = [];
@@ -104,7 +109,7 @@ var Search = new function() {
 		
 		var localReference = this;
 		openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
-			callbackFunction(profile.searchSorter(localReference.getInitializedSamples(data.result)));
+			callbackFunction(localReference.profile.searchSorter(localReference.getInitializedSamples(data.result)));
 		});
 	}
 	
@@ -136,7 +141,7 @@ var Search = new function() {
 		
 		var localReference = this;
 		openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
-			callbackFunction(profile.searchSorter(localReference.getInitializedSamples(data.result)));
+			callbackFunction(localReference.profile.searchSorter(localReference.getInitializedSamples(data.result)));
 		});
 	}
 	
@@ -163,7 +168,7 @@ var Search = new function() {
 		
 		var localReference = this;
 		openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
-			callbackFunction(profile.searchSorter(data.result));
+			callbackFunction(localReference.profile.searchSorter(data.result));
 		});
 	}
 	
@@ -183,5 +188,4 @@ var Search = new function() {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
-	
 }

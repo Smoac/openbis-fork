@@ -3,9 +3,14 @@ body {
 	overflow-y:scroll;
 }
 
+h1, h2, legend {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-weight: 300;
+}
+
 /* Loging */
 .bodyLogin {
-	background: url(../css/loginBackground2.jpg) no-repeat center center fixed; 
+	background: url(../css/loginBackground.jpg) no-repeat center center fixed; 
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;

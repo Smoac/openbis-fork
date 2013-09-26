@@ -22,7 +22,8 @@
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  */
-function MainMenu(containerId, profile) {
+function MainMenu(mainController, containerId, profile) {
+	this.mainController = mainController;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.menuStructure = profile.menuStructure;
@@ -32,6 +33,8 @@ function MainMenu(containerId, profile) {
 	}
 	
 	this.repaint = function() {
+		var localReference = this;
+		
 		$("#"+this.containerId).empty();
 		
 		var $mainMenuContainer = $("<div>", {
@@ -51,7 +54,7 @@ function MainMenu(containerId, profile) {
 				//this is necessary to avoid using the same menuItem reference in all clicks
 				var onClick = function(menuItem) {
 					return function() {
-						window[menuItem.href](menuItem.hrefArgs);
+						localReference.mainController[menuItem.href](menuItem.hrefArgs);
 					}
 				}
 				

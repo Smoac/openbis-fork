@@ -121,8 +121,8 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 		
 		var lastValue = null;
 
-		if((!sample && $("#"+propertyTypeCode).length === 1) || 
-			(this.sample && sample && this.sample.identifier === sample.identifier && $("#"+propertyTypeCode).length === 1)) {
+		if((!sample && $("#"+propertyTypeCode).length === 1) || //If you don't specify the sample, you can only look to the form, if exists
+			(this.sample && sample && this.sample.identifier === sample.identifier && $("#"+propertyTypeCode).length === 1)) { //If you t specify the sample, you can only look to the form if they are the same sample
 			if (returnVocabularyAsInteger && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 				lastValue = $("#"+propertyTypeCode)[0].selectedIndex;
 			} else {
@@ -398,7 +398,6 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 							
 							//Clean the whole freezer
 							$(".freezerSelectedRack").removeClass("freezerSelectedRack");
-
 							
 							//Select current spot
 							var thisClass = $(this).attr("class");

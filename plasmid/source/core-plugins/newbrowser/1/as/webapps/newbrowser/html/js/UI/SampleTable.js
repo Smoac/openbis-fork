@@ -28,7 +28,8 @@
  * @param {boolean} isSearch Enables search related behaviour that checks in what field was matched.
  * @param {boolean} isEmbedded When enabled the sample table will be inside a box of limited height with his own scroll.
  */
-function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enableEdit, enableAdd, isSearch, isEmbedded) {
+function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,inspectEnabled, enableEdit, enableAdd, isSearch, isEmbedded) {
+	this.mainController = mainController;
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
@@ -42,7 +43,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 	this.init = function() {
 		Util.blockUI();
 		var localReference = this;
-		Search.searchWithType(this.sampleTypeCode, null, function(data) {
+		this.mainController.searchFacade.searchWithType(this.sampleTypeCode, null, function(data) {
 			localReference.reloadWithSamples(data);
 			Util.unblockUI();
 		});
@@ -58,7 +59,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		$("#fileToRegister").change(function() {
 			Util.fileUpload("fileToRegister", function(result) {
 				//Code After the upload
-				openbisServer.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
+				localReference.mainController.openbisServer.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
 					function(infoData) {
 										
 						var finalCallback = function(data) {
@@ -72,9 +73,9 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 						};
 						
 						if(infoData.result.identifiersPressent) {
-							openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
+							localReference.mainController.openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
 						} else {
-							openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+							localReference.mainController.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 								var spaces = [];
 								for(var i = 0; i < data.result.length; i++) {
 									spaces.push(data.result[i].code);
@@ -91,7 +92,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 								
 								$("#sampleSpaceSelector").on("change", function(event) { 
 									var space = $("#sampleSpaceSelector")[0].value;
-									openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
+									localReference.mainController.openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
 								});
 								
 								$("#spaceSelectionCancel").on("click", function(event) { 
@@ -123,7 +124,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 			
 			Util.fileUpload("fileToUpdate", function(result) {
 				//Code After the upload
-				openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
+				localReference.mainController.openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
 			});
 		});
 		$("#fileToUpdate").click();
@@ -137,9 +138,10 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 				break;
 			}
 		}
+		var localReference = this;
 		
 		document.getElementById(attachTo).onmouseover = function(event){
-			var content = inspector.getInspectorTable(sample, false, true, false);
+			var content = localReference.mainController.inspector.getInspectorTable(sample, false, true, false);
 			
 			$("#navbar").tooltip({
 				html: true,
@@ -157,7 +159,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 		}
 		
 		document.getElementById(attachTo).onclick = function() {
-			var isInspected = inspector.toggleInspectSample(sample);
+			var isInspected = localReference.mainController.inspector.toggleInspectSample(sample);
 			if(isInspected) {
 				$('#' + attachTo).addClass('inspectorClicked');
 			} else {
@@ -231,9 +233,9 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 			tableTemplate += "<th></th>";
 			tableTemplate += "<th></th>";
 		} else {
-			tableTemplate += "<th><input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:sampleTable.registerSamples();\"><i class='icon-upload'></i></a></th>";
-			tableTemplate += "<th><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:sampleTable.updateSamples();\"><i class='icon-refresh'></i></a></th>";
-			tableTemplate += "<th><a class='btn' href=\"javascript:sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></th>";
+			tableTemplate += "<th><input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i></a></th>";
+			tableTemplate += "<th><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-refresh'></i></a></th>";
+			tableTemplate += "<th><a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></th>";
 		}
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 	
@@ -290,7 +292,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 			}
 		} else {
 			onClickFunction = function(sample) {
-				showViewSamplePage(sample);
+				localReference.mainController.showViewSamplePage(sample);
 			}
 		}
 	
@@ -321,14 +323,14 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 				
 				if(localReference.inspectEnabled) {
 					var inspectedClass = "";
-					if(inspector.containsSample(sample.id) !== -1) {
+					if(localReference.mainController.inspector.containsSample(sample.id) !== -1) {
 						inspectedClass = "inspectorClicked";
 					}
-					tableFields[tableFields.length] = "<a id='PIN_" + sample.code + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
+					tableFields[tableFields.length] = "<a id='PIN_" + sample.code + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"mainController.sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:sampleTable.openEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\"><i class='icon-edit'></i></a>";
+					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.sampleTable.openEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\"><i class='icon-edit'></i></a>";
 					tableFields[tableFields.length] = "";
 				}
 				
@@ -436,7 +438,7 @@ function SampleTable(sampleTableId, profile, sampleTypeCode,inspectEnabled, enab
 				break;
 			}
 		}
-		showEditSamplePage(sample);
+		this.mainController.showEditSamplePage(sample);
 	}
 	
 	this.reloadWithSamples = function(returnedSamples)

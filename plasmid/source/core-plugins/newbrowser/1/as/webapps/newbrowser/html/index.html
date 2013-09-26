@@ -39,11 +39,45 @@
 	<script type="text/javascript" src="./js/UI/SampleLinksTable.js"></script>
 	<script type="text/javascript" src="./js/UI/NavigationBar.js"></script>
 	<script type="text/javascript" src="./js/UI/Inspector.js"></script>
-	<script type="text/javascript" src="./js/UI/Search.js"></script>
+	<script type="text/javascript" src="./js/UI/SearchFacade.js"></script>
 	<script type="text/javascript" src="./js/UI/SampleTable.js"></script>
 	<script type="text/javascript" src="./js/UI/SampleForm.js"></script>
 	<script type="text/javascript" src="./js/UI/Freezer.js"></script>
+	<script type="text/javascript">
+	//
+	// Configuration Atributes
+	//
 	
+	var mainController = new MainController();
+	
+	$(document).ready(function() {
+		
+		$('#main').hide();
+		var username = $("#username").value;
+		if(username == null || username.length==0) {
+			$("#username").focus();
+		} else {
+			$("#login-button").focus();
+		}
+	
+		$('#login-form').submit(function() {
+			Util.blockUI();
+			mainController.openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { mainController.enterApp(data) })
+		});
+		
+		mainController.openbisServer.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+		
+		// Make the ENTER key the default button
+		$("login-form input").keypress(function (e) {
+			if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+				$('button[type=submit].default').click();
+				return false;
+			} else {
+				return true;
+			}
+		});
+	});
+	</script>
 </head>
 <body class="bodyLogin">
 	<div id="login-form-div" class="loginForm">

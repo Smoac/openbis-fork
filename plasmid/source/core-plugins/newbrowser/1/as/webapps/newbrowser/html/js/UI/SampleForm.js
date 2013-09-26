@@ -32,7 +32,8 @@ SampleFormMode = {
  * @param {SampleFormMode} mode The form accepts CREATE/EDIT/VIEW modes for common samples and ELNExperiment samples
  * @param {Sample} sample The sample that will be used to populate the form if the mode is EDIT/VIEW, null can be provided for CREATE.
  */
-function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
+function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
+	this.mainController = mainController;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
@@ -51,7 +52,7 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 			localReference.freezer = new Freezer('sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
 			localReference.freezer.init();
 			
-			openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+			this.mainController.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 				//Init Basic Form elements
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
 				localReference.repaint();
@@ -274,15 +275,16 @@ function SampleForm(containerId, profile, sampleTypeCode, isELNExperiment, mode,
 	
 	this.getPINButton = function() {
 		var inspectedClass = "";
-		if(inspector.containsSample(this.sample.id) !== -1) {
+		if(this.mainController.inspector.containsSample(this.sample.id) !== -1) {
 			inspectedClass = "inspectorClicked";
 		}
 		return "<a id='pinButton' class='btn pinBtn " + inspectedClass + "'><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
 	}
 	
 	this.enablePINButtonEvent = function() {
+		var localReference = this;
 		$( "#pinButton" ).click(function() {
-			var isInspected = inspector.toggleInspectSample(sample);
+			var isInspected = localReference.mainController.inspector.toggleInspectSample(sample);
 			if(isInspected) {
 				$('#pinButton').addClass('inspectorClicked');
 			} else {
