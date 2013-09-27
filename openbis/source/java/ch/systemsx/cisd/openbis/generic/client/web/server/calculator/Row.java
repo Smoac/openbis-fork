@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermTableCell;
 
 /**
  * Row object used in jython expressions to access column values.
@@ -38,9 +39,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable
 public final class Row
 {
     private final Map<String, List<ColumnDefinition>> definitionsByProperties =
-        new HashMap<String, List<ColumnDefinition>>();
+            new HashMap<String, List<ColumnDefinition>>();
+
     private final ITableDataProvider provider;
-    
+
     private List<? extends Comparable<?>> rowValues;
 
     Row(ITableDataProvider provider)
@@ -71,10 +73,36 @@ public final class Row
     }
 
     /**
+     * Returns the value of the column as <code>VocabularyColumn</code> object if the column is a vocabulary. If the value of the column is null or
+     * the column is not a vocabulary, then it returns null.
+     * 
+     * @throws IllegalArgumentException if no column with specified ID exists.
+     */
+    public VocabularyColumn colAsVocabulary(String columnID)
+    {
+        Comparable<?> value = provider.getValue(columnID, rowValues);
+
+        if (value instanceof VocabularyTermTableCell)
+        {
+            VocabularyTermTableCell cell = (VocabularyTermTableCell) value;
+
+            if (cell.getVocabularyTerm() != null)
+            {
+                return new VocabularyColumn(cell.getVocabularyTerm());
+            } else
+            {
+                return null;
+            }
+        } else
+        {
+            return null;
+        }
+    }
+
+    /**
      * Returns all column definitions which have a property with specified key.
      * 
-     * @param propertyKeyOrNull The key of the property. If <code>null</code> all column definitions
-     *            are returned.
+     * @param propertyKeyOrNull The key of the property. If <code>null</code> all column definitions are returned.
      * @return an empty list if no column definition found.
      */
     public List<ColumnDefinition> colDefs(String propertyKeyOrNull)
@@ -98,8 +126,7 @@ public final class Row
     }
 
     /**
-     * Returns all column values where the column definition has a property with specified key and
-     * value.
+     * Returns all column values where the column definition has a property with specified key and value.
      * 
      * @return an empty list if no columns found.
      */
