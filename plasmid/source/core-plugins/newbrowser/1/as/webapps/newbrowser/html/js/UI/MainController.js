@@ -14,7 +14,23 @@
  * limitations under the License.
  */
 
+/**
+ * Class MainController
+ * 
+ * This class is used as central point of control into the application.
+ *
+ * It holds:
+ * - openBIS facade
+ * - Configuration profile
+ * - Atributes used by inline HTML/Javascript
+ * - enterApp method
+ * - showView methods
+ */
 function MainController() {
+	//
+	// Atributes
+	//
+	
 	// openBIS API Object
 	this.openbisServer = new openbis();
 	
@@ -24,11 +40,15 @@ function MainController() {
 	//Utility methods
 	this.searchFacade = new SearchFacade(this.profile, this.openbisServer);
 	
-	// Atributes
+	// Atributes - Typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
 	this.inspector = null; // The samples that are currently being inspected
 	this.navigationBar = null; //Top Bar
 	this.sampleTable = null; //Table that holds the samples
 	this.sampleForm = null; //Form to Create a new Sample
+	
+	//
+	// Validates and enters the app
+	//
 	
 	this.enterApp = function(data) {
 		//
@@ -78,7 +98,7 @@ function MainController() {
 	}
 	
 	//
-	// Functions that trigger view updates
+	// Functions that trigger view Changes
 	//
 	
 	this.showInspectors = function() {

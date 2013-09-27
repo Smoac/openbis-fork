@@ -31,7 +31,7 @@ var BlockScrollUtil = new function() {
 			window.onmousewheel = document.onmousewheel = BlockScrollUtil.wheel;
 			
 			document.onkeydown = function(e) {
-				this.keydown(e);
+				BlockScrollUtil.keydown(e);
 			};
 		}
 		

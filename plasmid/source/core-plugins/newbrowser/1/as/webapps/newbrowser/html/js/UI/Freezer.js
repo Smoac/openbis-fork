@@ -14,7 +14,8 @@
  * limitations under the License.
  */
  
-function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
+function Freezer(mainController, containerId, profile, sampleTypeCode, sample, isDisabled) {
+	this.mainController = mainController;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleType = profile.getTypeForTypeCode(sampleTypeCode);
@@ -226,7 +227,7 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 							.append(" Loading... ")
 				);
 			
-			Search.searchWithProperties(propertyTypeCodes, propertyValues,
+			this.mainController.searchFacade.searchWithProperties(propertyTypeCodes, propertyValues,
 				function(samples) {
 					var boxes = []; //Rows
 					
@@ -461,6 +462,13 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 			if($virtualFreezer && selectedRow && selectedCol) {
 				//Create and set the field
 				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), false);
+				$propertyTypeBoxComponent.change(
+					function() {
+						$(this).val($(this).val().toUpperCase()); //Box Names can only be upper case
+					}
+				);
+
+				
 				$propertyTypeBoxComponent.val(selectedBox);
 				$container
 					.append($("<br>"))
@@ -478,10 +486,10 @@ function Freezer(containerId, profile, sampleTypeCode, sample, isDisabled) {
 			// 4. Disable if needed
 			//
 			if(this.isDisabled) {
-				$("#"+freezerNamePropertyCode.code).prop('disabled', true);
-				$("#"+freezerRowPropertyCode.code).prop('disabled', true);
-				$("#"+freezerColPropertyCode.code).prop('disabled', true);
-				$("#"+freezerBoxPropertyCode.code).prop('disabled', true);
+				$("#"+freezerNamePropertyCode).prop('disabled', true);
+				$("#"+freezerRowPropertyCode).prop('disabled', true);
+				$("#"+freezerColPropertyCode).prop('disabled', true);
+				$("#"+freezerBoxPropertyCode).prop('disabled', true);
 			}
 		}
 	}

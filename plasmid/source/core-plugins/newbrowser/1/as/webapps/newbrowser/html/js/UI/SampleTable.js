@@ -50,7 +50,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 	}
 	
 	this.createNewSample = function() {
-		showCreateSamplePage(this.sampleTypeCode);
+		this.mainController.showCreateSamplePage(this.sampleTypeCode);
 	}
 	
 	this.registerSamples = function() {
@@ -61,12 +61,12 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 				//Code After the upload
 				localReference.mainController.openbisServer.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
 					function(infoData) {
-										
 						var finalCallback = function(data) {
 							if(data.error) {
 								Util.showError(data.error.message, function() {Util.unblockUI();});
 							} else if(data.result) {
-								Util.showSuccess(data.result, function() {Util.unblockUI();});
+								var extraMessage = "<br> It can take a couple of minutes to have them available.";
+								Util.showSuccess(data.result + extraMessage, function() {Util.unblockUI();});
 							} else {
 								Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
 							}
@@ -90,8 +90,9 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 								
 								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn' id='spaceSelectionCancel'>Cancel</a>");
 								
-								$("#sampleSpaceSelector").on("change", function(event) { 
+								$("#sampleSpaceSelector").on("change", function(event) {
 									var space = $("#sampleSpaceSelector")[0].value;
+									Util.blockUI();
 									localReference.mainController.openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
 								});
 								
@@ -110,6 +111,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 	
 	this.updateSamples = function() {
 		var localReference = this;
+		Util.blockUI();
 		$("#fileToUpdate").unbind('change');
 		$("#fileToUpdate").change(function() {
 			var finalCallback = function(data) {
@@ -233,8 +235,8 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 			tableTemplate += "<th></th>";
 			tableTemplate += "<th></th>";
 		} else {
-			tableTemplate += "<th><input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i></a></th>";
-			tableTemplate += "<th><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-refresh'></i></a></th>";
+			tableTemplate += "<th style='white-space: nowrap;'><input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a></th>";
+			tableTemplate += "<th style='white-space: nowrap;'><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a></th>";
 			tableTemplate += "<th><a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></th>";
 		}
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
@@ -288,7 +290,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		if(this.enableAdd) {
 			onClickFunction = function(sample) {
 				var sampleTypeGroup = localReference.profile.getGroupTypeCodeForTypeCode(sample.sampleTypeCode);
-				sampleForm.addLinkedSample(sampleTypeGroup, sample);
+				localReference.mainController.sampleForm.addLinkedSample(sampleTypeGroup, sample);
 			}
 		} else {
 			onClickFunction = function(sample) {
@@ -409,7 +411,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		}
 		
 		var displayedSamples;
-	
+		
 		displayedSamples = this.samples.filter(this.filterInternal.curry(((filterResults[0] == undefined)?"":filterResults[0]), "CODE"));
 		for(var i=0; i < SAMPLE_TYPE_PROPERTIES.length;i++) {
 				displayedSamples = displayedSamples.filter(this.filterInternal.curry((filterResults[i+1] == undefined)?"":filterResults[i+1],SAMPLE_TYPE_PROPERTIES[i]));
@@ -418,7 +420,6 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		
 		var selection2 = d3.select("#vis").select("#sample-table").selectAll("tr.sample-table-data").data(this.samples);
 			// Code under enter is run if there is no HTML element for a data element
-	
 			selection2.style("display", function(data) {
 			 		if ($.inArray(data, displayedSamples) != -1) {
 						return "table-row"

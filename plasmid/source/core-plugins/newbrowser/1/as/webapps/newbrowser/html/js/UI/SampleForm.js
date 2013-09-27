@@ -49,8 +49,8 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			Util.blockUI();
 			var localReference = this;
 			
-			localReference.freezer = new Freezer('sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
-			localReference.freezer.init();
+			this.freezer = new Freezer(this.mainController,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
+			this.freezer.init();
 			
 			this.mainController.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 				//Init Basic Form elements
@@ -241,7 +241,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			for(typeGroupCode in this.profile.typeGroups) {
 				var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
 			
-				component += "<select onchange='sampleForm.showSamplesWithoutPage(event)'>";
+				component += "<select onchange='mainController.sampleForm.showSamplesWithoutPage(event)'>";
 				component += "<option value=''> -- "+sampleGroupTypeDisplayName+" --</a></option>";
 				for(var i = 0; i < this.profile.typeGroups[typeGroupCode]["LIST"].length; i++) {
 					var sampleType = this.profile.getTypeForTypeCode(this.profile.typeGroups[typeGroupCode]["LIST"][i]);
@@ -320,7 +320,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			
 			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + editButton + "</h2>";
 			
-			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='sampleForm.createSample();'>";
+			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='mainController.sampleForm.createSample();'>";
 			
 			//
 			// SELECT PROJECT/SPACE AND CODE
@@ -448,6 +448,14 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		$("#"+this.containerId).append(component);
 		this.freezer.repaint();
 		
+		//Enable Events
+		
+		$("#sampleCode").change(
+			function() {
+				$(this).val($(this).val().toUpperCase()); //Codes can only be upper case
+			}
+		);
+		
 		if (this.mode !== SampleFormMode.CREATE) {
 			this.enablePINButtonEvent();
 		}
@@ -462,7 +470,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
 		
 		if(sampleType !== null) {
-			sampleTable = new SampleTable("sampleSearchContainer", this.profile, sampleTypeCode, false, false, true, false, true);
+			sampleTable = new SampleTable(this.mainController,"sampleSearchContainer", this.profile, sampleTypeCode, false, false, true, false, true);
 			sampleTable.init();
 		}
 	}
@@ -544,13 +552,12 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		var localReference = this;
 		
 		if(this.profile.allDataStores.length > 0) {
-			openbisServer.createReportFromAggregationService(this.profile.allDataStores[0].code, "newbrowserapi", parameters, function(response) {
+			this.mainController.openbisServer.createReportFromAggregationService(this.profile.allDataStores[0].code, "newbrowserapi", parameters, function(response) {
 				localReference.createSampleCallback(response, localReference);
 			});
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
 		}
-		
 		
 		return false;
 	}
@@ -586,7 +593,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			var callbackOk = function() {
 				if(localReference.mode == SampleFormMode.EDIT) {
 					var sampleIdentifier = localReference.sample.permId;
-					Search.searchWithUniqueId(sampleIdentifier, function(samples) {
+					localReference.mainController.searchFacade.searchWithUniqueId(sampleIdentifier, function(samples) {
 						localReference.sample = samples[0];
 						localReference.init();
 					});
