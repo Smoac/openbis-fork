@@ -156,7 +156,7 @@ public class ImageChannelsUtils
         ImageRepresentationFormat existingRepresentationFormat =
                 RepresentationUtil.tryGetRepresentationFormat(params);
 
-        if (existingRepresentationFormat != null)
+        if (existingRepresentationFormat != null && existingRepresentationFormat.getColorDepth() == 8)
         {
             IHierarchicalContentNode content =
                     tryGetRawContentOfExistingThumbnail(params, existingRepresentationFormat);
