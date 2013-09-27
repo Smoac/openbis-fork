@@ -118,47 +118,59 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
         }
     }
 
+    private class LoadCallBack<K extends EntityType> implements AsyncCallback<List<K>>
+    {
+        final NewEntityTypeForm newEntityTypeForm;
+
+        final EntityType entityToEdit;
+
+        public LoadCallBack(
+                final NewEntityTypeForm newEntityTypeForm,
+                final EntityType entityToEdit)
+        {
+            this.newEntityTypeForm = newEntityTypeForm;
+            this.entityToEdit = entityToEdit;
+        }
+
+        @Override
+        public void onSuccess(List<K> result)
+        {
+            for (EntityType entityType : result)
+            {
+                if (entityType.getCode().equals(entityToEdit.getCode()))
+                {
+                    newEntityTypeForm.entityToEdit = entityType;
+                    break;
+                }
+            }
+            initForm();
+        }
+
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            // TO-DO Should never happen
+        }
+    }
+
     private void loadEntityTypeToEdit(
             final NewEntityTypeForm newEntityTypeForm,
-            final EntityType entityToEdit
-            )
+            final EntityType entityToEdit)
     {
-        AsyncCallback asyncCallback = new AsyncCallback<List<? extends EntityType>>()
-            {
-                @Override
-                public void onSuccess(List<? extends EntityType> result)
-                {
-                    for (EntityType entityType : result)
-                    {
-                        if (entityType.getCode().equals(entityToEdit.getCode()))
-                        {
-                            newEntityTypeForm.entityToEdit = entityType;
-                            break;
-                        }
-                    }
-                    initForm();
-                }
-
-                @Override
-                public void onFailure(Throwable caught)
-                {
-                    // TO-DO Should never happen
-                }
-            };
 
         switch (kind)
         {
             case SAMPLE:
-                this.viewContext.getCommonService().listSampleTypes(asyncCallback);
+                this.viewContext.getCommonService().listSampleTypes(new LoadCallBack<SampleType>(newEntityTypeForm, entityToEdit));
                 break;
             case DATA_SET:
-                this.viewContext.getCommonService().listDataSetTypes(asyncCallback);
+                this.viewContext.getCommonService().listDataSetTypes(new LoadCallBack<DataSetType>(newEntityTypeForm, entityToEdit));
                 break;
             case EXPERIMENT:
-                this.viewContext.getCommonService().listExperimentTypes(asyncCallback);
+                this.viewContext.getCommonService().listExperimentTypes(new LoadCallBack<ExperimentType>(newEntityTypeForm, entityToEdit));
                 break;
             case MATERIAL:
-                this.viewContext.getCommonService().listMaterialTypes(asyncCallback);
+                this.viewContext.getCommonService().listMaterialTypes(new LoadCallBack<MaterialType>(newEntityTypeForm, entityToEdit));
                 break;
         }
     }
@@ -294,8 +306,6 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
 
     private void initCreateEntity()
     {
-        AddEntityTypeDialog<? extends EntityType> dialog = null;
-
         switch (kind)
         {
             case SAMPLE:
@@ -466,7 +476,6 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                 SampleType toSaveSample = (SampleType) newTypeWithAssigments.getEntity();
                 toSaveSample.setCode((String) formFields.get(0).getValue());
                 toSaveSample.setDescription((String) formFields.get(1).getValue());
-                ScriptChooserField scriptChooserField = (ScriptChooserField) formFields.get(2);
                 if (formFields.get(2).getValue() != null)
                 {
                     Script script = new Script();
