@@ -3,24 +3,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -61,6 +43,24 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 public class NewEntityTypeForm extends ContentPanel implements IComponentWithCloseConfirmation
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "new-entity-type-form";
@@ -72,7 +72,7 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
     //
     private final EntityKind kind;
 
-    private final EntityType entityToEdit;
+    private EntityType entityToEdit;
 
     private NewETNewPTAssigments newTypeWithAssigments;
 
@@ -100,7 +100,6 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
             ComponentProvider componentProvider)
     {
         this.kind = kind;
-        this.entityToEdit = entityToEdit;
         this.viewContext = viewContext;
         this.componentProvider = componentProvider;
 
@@ -110,7 +109,58 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
         this.setBorders(false);
         this.setBodyBorder(false);
 
-        initForm();
+        if (entityToEdit != null)
+        {
+            loadEntityTypeToEdit(this, entityToEdit); // Get a copy of the entity for edition to not affect other views using the same object
+        } else
+        {
+            initForm();
+        }
+    }
+
+    private void loadEntityTypeToEdit(
+            final NewEntityTypeForm newEntityTypeForm,
+            final EntityType entityToEdit
+            )
+    {
+        AsyncCallback asyncCallback = new AsyncCallback<List<? extends EntityType>>()
+            {
+                @Override
+                public void onSuccess(List<? extends EntityType> result)
+                {
+                    for (EntityType entityType : result)
+                    {
+                        if (entityType.getCode().equals(entityToEdit.getCode()))
+                        {
+                            newEntityTypeForm.entityToEdit = entityType;
+                            break;
+                        }
+                    }
+                    initForm();
+                }
+
+                @Override
+                public void onFailure(Throwable caught)
+                {
+                    // TO-DO Should never happen
+                }
+            };
+
+        switch (kind)
+        {
+            case SAMPLE:
+                this.viewContext.getCommonService().listSampleTypes(asyncCallback);
+                break;
+            case DATA_SET:
+                this.viewContext.getCommonService().listDataSetTypes(asyncCallback);
+                break;
+            case EXPERIMENT:
+                this.viewContext.getCommonService().listExperimentTypes(asyncCallback);
+                break;
+            case MATERIAL:
+                this.viewContext.getCommonService().listMaterialTypes(asyncCallback);
+                break;
+        }
     }
 
     public static DatabaseModificationAwareComponent create(

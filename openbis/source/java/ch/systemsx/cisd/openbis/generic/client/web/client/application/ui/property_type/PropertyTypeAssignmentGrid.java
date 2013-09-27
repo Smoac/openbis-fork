@@ -629,7 +629,7 @@ public class PropertyTypeAssignmentGrid extends TypedTableGrid<EntityTypePropert
 
                 private String getSectionValue()
                 {
-                    return sectionSelectionWidget.getSimpleValue();
+                    return sectionSelectionWidget.getRawValue();
                 }
 
                 /**
