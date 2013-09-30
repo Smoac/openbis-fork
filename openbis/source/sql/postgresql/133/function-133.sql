@@ -740,7 +740,7 @@ CREATE OR REPLACE RULE data_deleted_delete AS
 
 CREATE OR REPLACE RULE material_properties_update AS
     ON UPDATE TO material_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
         OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO 
@@ -768,7 +768,7 @@ CREATE OR REPLACE RULE material_properties_update AS
        
 CREATE OR REPLACE RULE material_properties_delete AS
     ON DELETE TO material_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
+    WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
         OR OLD.MATE_PROP_ID IS NOT NULL
     DO ALSO 
@@ -798,7 +798,7 @@ CREATE OR REPLACE RULE material_properties_delete AS
 
 CREATE OR REPLACE RULE experiment_properties_update AS
     ON UPDATE TO experiment_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
         OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO 
@@ -826,7 +826,7 @@ CREATE OR REPLACE RULE experiment_properties_update AS
        
 CREATE OR REPLACE RULE experiment_properties_delete AS
     ON DELETE TO experiment_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
+    WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
         OR OLD.MATE_PROP_ID IS NOT NULL
     DO ALSO 
@@ -856,7 +856,7 @@ CREATE OR REPLACE RULE experiment_properties_delete AS
 
 CREATE OR REPLACE RULE sample_properties_update AS
     ON UPDATE TO sample_properties
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
         OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO
@@ -884,7 +884,7 @@ CREATE OR REPLACE RULE sample_properties_update AS
               
 CREATE OR REPLACE RULE sample_properties_delete AS
     ON DELETE TO sample_properties 
-    WHERE ((OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
+    WHERE ((OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
         OR OLD.MATE_PROP_ID IS NOT NULL)
 	   AND (SELECT DEL_ID FROM SAMPLES_ALL WHERE ID = OLD.SAMP_ID) IS NULL
@@ -915,7 +915,7 @@ CREATE OR REPLACE RULE sample_properties_delete AS
 
 CREATE OR REPLACE RULE data_set_properties_update AS
     ON UPDATE TO data_set_properties 
-    WHERE (OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
+    WHERE (OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd' AND OLD.VALUE != NEW.VALUE) 
         OR (OLD.CVTE_ID IS NOT NULL AND OLD.CVTE_ID != NEW.CVTE_ID) 
         OR (OLD.MATE_PROP_ID IS NOT NULL AND OLD.MATE_PROP_ID != NEW.MATE_PROP_ID)
     DO ALSO
@@ -943,7 +943,7 @@ CREATE OR REPLACE RULE data_set_properties_update AS
 
 CREATE OR REPLACE RULE data_set_properties_delete AS
     ON DELETE TO data_set_properties 
-    WHERE ((OLD.VALUE IS NOT NULL AND decode(substring(OLD.value from 1 for 1), 'escape') != E'\\xefbfbd')
+    WHERE ((OLD.VALUE IS NOT NULL AND decode(replace(substring(OLD.value from 1 for 1), '\', '\\'), 'escape') != E'\\xefbfbd')
         OR OLD.CVTE_ID IS NOT NULL 
         OR OLD.MATE_PROP_ID IS NOT NULL)
 	   AND (SELECT DEL_ID FROM DATA_ALL WHERE ID = OLD.DS_ID) IS NULL

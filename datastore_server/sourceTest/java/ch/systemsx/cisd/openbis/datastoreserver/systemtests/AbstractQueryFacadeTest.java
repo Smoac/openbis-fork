@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.testng.annotations.Test;
 
@@ -44,11 +45,9 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.ReportDescription;
 
 /**
- * This class groups tests for aggregation, injestion services as well as other reporting services.
- * It abstracts however the way it calls the services, so that the subclasses testing the reports
- * via particular api can be created. This class is extended by {@link QueryFacadeTest} and
- * {@link QueryApiJsonDssServiceRpcGenericTest}, one testing the {@link IQueryApiFacade} and the
- * other {@link IDssServiceRpcGeneric}.
+ * This class groups tests for aggregation, injestion services as well as other reporting services. It abstracts however the way it calls the
+ * services, so that the subclasses testing the reports via particular api can be created. This class is extended by {@link QueryFacadeTest} and
+ * {@link QueryApiJsonDssServiceRpcGenericTest}, one testing the {@link IQueryApiFacade} and the other {@link IDssServiceRpcGeneric}.
  * 
  * @author Jakub Straszewski
  * @author Chandrasekhar Ramakrishnan
@@ -73,8 +72,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     public abstract String getSessionToken();
 
     /**
-     * Unique short identifier to create data with different ids in different implementation of this
-     * test class
+     * Unique short identifier to create data with different ids in different implementation of this test class
      */
     public abstract String getTestId();
 
@@ -185,7 +183,9 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     public void testDbModifyingAggregationServiceReport() throws Exception
     {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
+        String spaceCode = UUID.randomUUID().toString();
         parameters.put("name", "world");
+        parameters.put("space", spaceCode);
 
         QueryTableModel table =
                 createReportFromAggregationService("example-db-modifying-aggregation-service",
@@ -204,7 +204,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
         boolean foundSpace = false;
         for (SpaceWithProjectsAndRoleAssignments space : spaces)
         {
-            if ("NEWDUMMYSPACE".equalsIgnoreCase(space.getCode()))
+            if (spaceCode.equalsIgnoreCase(space.getCode()))
             {
                 foundSpace = true;
             }
@@ -217,14 +217,15 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     public void testJythonDbModifyingAggregationServiceReport() throws Exception
     {
         HashMap<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("code", "JYTHON-TEST");
+        String code = UUID.randomUUID().toString();
+        parameters.put("code", code);
 
         QueryTableModel table =
                 createReportFromAggregationService(
                         "example-jython-db-modifying-aggregation-service", parameters);
 
         assertEquals("[CODE, IDENTIFIER]", getHeaders(table).toString());
-        assertEquals("[JYTHON-TEST, /CISD/JYTHON-TEST]", Arrays.asList(table.getRows().get(0))
+        assertEquals("[" + code + ", /CISD/" + code + "]", Arrays.asList(table.getRows().get(0))
                 .toString());
         assertEquals(1, table.getRows().size());
 
@@ -236,13 +237,13 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
         boolean foundSample = false;
         for (Sample sample : samples)
         {
-            if ("JYTHON-TEST".equalsIgnoreCase(sample.getCode()))
+            if (code.equalsIgnoreCase(sample.getCode()))
             {
                 foundSample = true;
             }
         }
 
-        assertTrue("Did not find a sample called [JYTHON-TEST]", foundSample);
+        assertTrue("Did not find a sample called " + code, foundSample);
     }
 
     /**
@@ -262,8 +263,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     }
 
     /**
-     * The testcase, where the observer tries to acces the dataset that he cannot see, but through
-     * the non-authorized content provider.
+     * The testcase, where the observer tries to acces the dataset that he cannot see, but through the non-authorized content provider.
      */
     @Test
     public void testJythonAggregationServiceWithoutContentProviderAuthentication() throws Exception

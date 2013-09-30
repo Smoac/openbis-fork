@@ -37,8 +37,7 @@ import ch.systemsx.cisd.common.logging.LogInitializer;
 /**
  * A simple test case for the {@link UniprotQuery}.
  * <p>
- * <i>Note: This test depends on the Uniprot database query engine at http://www.uniprot.org/uniprot
- * !</i>
+ * <i>Note: This test depends on the Uniprot database query engine at http://www.uniprot.org/uniprot !</i>
  * 
  * @author Bernd Rinn
  */
@@ -73,8 +72,10 @@ public class UniprotQueryTest
             assertEquals("GOT2", entry.getGenes());
             assertEquals("Evidence at protein level", entry.getExistence());
             assertEquals("reviewed", entry.getStatus());
-            assertEquals(30, entry.getLength().intValue());
-            assertEquals("SSWWAHVEMG PPDPILGVTE AYKRDTNSKK", entry.getSequence());
+            assertEquals(430, entry.getLength().intValue());
+            assertEquals(
+                    "MALLHSARVL SGVASAFHPG LAAAASARAS SWWAHVEMGP PDPILGVTEA YKRDTNSKKM NLGVGAYRDD NGKPYVLPSV RKAEAQIAAK GLDKEYLPIG GLAEFCRASA ELALGENSEV VKSGRFVTVQ TISGTGALRI GASFLQRFFK FSRDVFLPKP SWGNHTPIFR DAGMQLQSYR YYDPKTCGFD FTGALEDISK IPEQSVLLLH ACAHNPTGVD PRPEQWKEIA TVVKKRNLFA FFDMAYQGFA SGDGDKDAWA VRHFIEQGIN VCLCQSYAKN MGLYGERVGA FTVICKDADE AKRVESQLKI LIRPMYSNPP IHGARIASTI LTSPDLRKQW LQEVKGMADR IIGMRTQLVS NLKKEGSTHS WQHITDQIGM FCFTGLKPEQ VERLTKEFSI YMTKDGRISV AGVTSGNVGY LAHAIHQVTK",
+                    entry.getSequence());
             assertTrue(Integer.toString(entry.getVersion()), entry.getVersion() >= 63);
             assertTrue(entry.getLastModifiedStr(),
                     entry.getLastModified().getTime() >= REFERENCE_DATE.getTime());

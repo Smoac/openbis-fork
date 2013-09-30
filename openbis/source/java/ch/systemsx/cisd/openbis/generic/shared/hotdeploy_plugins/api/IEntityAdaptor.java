@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api;
 
 import java.util.Collection;
 
-
 /**
  * Interface implemented by all entity adaptors
  * 

@@ -36,7 +36,7 @@ public class ResourcesTest
         final IReleasable notFailingResource1 = context.mock(IReleasable.class, "notFailingResource1");
         final IReleasable notFailingResource2 = context.mock(IReleasable.class, "notFailingResource2");
 
-        Resources resources = new Resources(null);
+        Resources resources = new Resources();
         resources.add(notFailingResource1);
         resources.add(failingResource1);
         resources.add(failingResource2);
@@ -63,36 +63,13 @@ public class ResourcesTest
     }
 
     @Test
-    public void testReleasingTwiceWithoutClearShouldReleaseTwice()
+    public void testReleasingTwiceWithoutClearShouldReleaseOnce()
     {
         Mockery context = new Mockery();
 
         final IReleasable resource = context.mock(IReleasable.class);
 
-        Resources resources = new Resources(null);
-        resources.add(resource);
-
-        context.checking(new Expectations()
-            {
-                {
-                    exactly(2).of(resource).release();
-                }
-            });
-
-        resources.release();
-        resources.release();
-
-        context.assertIsSatisfied();
-    }
-
-    @Test
-    public void testReleasingTwiceWithClearShouldReleaseOnce()
-    {
-        Mockery context = new Mockery();
-
-        final IReleasable resource = context.mock(IReleasable.class);
-
-        Resources resources = new Resources(null);
+        Resources resources = new Resources();
         resources.add(resource);
 
         context.checking(new Expectations()
@@ -103,7 +80,6 @@ public class ResourcesTest
             });
 
         resources.release();
-        resources.clear();
         resources.release();
 
         context.assertIsSatisfied();

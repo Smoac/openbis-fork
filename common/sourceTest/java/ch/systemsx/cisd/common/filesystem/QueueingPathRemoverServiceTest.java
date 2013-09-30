@@ -28,17 +28,20 @@ import java.util.List;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 
 /**
  * Test cases for the {@link QueueingPathRemoverService}.
  * 
  * @author Bernd Rinn
  */
+@Listeners(TestReportCleaner.class)
 public class QueueingPathRemoverServiceTest
 {
 
@@ -101,7 +104,7 @@ public class QueueingPathRemoverServiceTest
         assertEquals(0, workingDirectory.list(SHREDDER_FILTER).length);
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = RetryTen.class)
     public void testShredderDirectory() throws IOException
     {
         final File f = new File(workingDirectory, "someDir");

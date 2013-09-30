@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.AssertJUnit;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
@@ -30,12 +31,13 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IInputStream;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.IActivityObserver;
 import ch.systemsx.cisd.common.concurrent.MonitoringProxy;
 import ch.systemsx.cisd.common.concurrent.RecordingActivityObserverSensor;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 import ch.systemsx.cisd.common.time.TimingParameters;
 
 /**
@@ -44,6 +46,7 @@ import ch.systemsx.cisd.common.time.TimingParameters;
  * @author Bernd Rinn
  */
 @Friend(toClasses = FileOperations.class)
+@Listeners(TestReportCleaner.class)
 public class FileOperationsTest extends AbstractFileSystemTestCase
 {
 
@@ -164,7 +167,7 @@ public class FileOperationsTest extends AbstractFileSystemTestCase
         is.read(); // times out
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = RetryTen.class)
     public void testTimeoutOnInputStream() throws IOException
     {
         final IFileOperations ops = create(TimingParameters.createNoRetries(50L), 20L);

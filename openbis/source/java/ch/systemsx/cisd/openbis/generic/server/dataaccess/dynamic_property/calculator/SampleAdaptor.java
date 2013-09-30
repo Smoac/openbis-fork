@@ -20,6 +20,7 @@ import org.apache.lucene.search.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
+import ch.systemsx.cisd.common.resource.ReleasableIterable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyEvaluator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDataAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
@@ -62,7 +63,9 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     @Override
     public IExperimentAdaptor experiment()
     {
-        return EntityAdaptorFactory.create(samplePE.getExperiment(), evaluator, session);
+        IExperimentAdaptor adaptor = EntityAdaptorFactory.create(samplePE.getExperiment(), evaluator, session);
+        getResources().add(adaptor);
+        return adaptor;
     }
 
     @Override
@@ -74,8 +77,11 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     @Override
     public Iterable<ISampleAdaptor> parentsOfType(String typeCodeRegexp)
     {
-        return new SampleAdaptorRelationsLoader(samplePE, evaluator, session)
-                .parentsOfType(typeCodeRegexp);
+        ReleasableIterable<ISampleAdaptor> iterable =
+                new ReleasableIterable<ISampleAdaptor>(new SampleAdaptorRelationsLoader(samplePE, evaluator, session)
+                        .parentsOfType(typeCodeRegexp));
+        getResources().add(iterable);
+        return iterable;
     }
 
     @Override
@@ -87,8 +93,11 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
     @Override
     public Iterable<ISampleAdaptor> childrenOfType(String typeCodeRegexp)
     {
-        return new SampleAdaptorRelationsLoader(samplePE, evaluator, session)
-                .childrenOfType(typeCodeRegexp);
+        ReleasableIterable<ISampleAdaptor> iterable =
+                new ReleasableIterable<ISampleAdaptor>(new SampleAdaptorRelationsLoader(samplePE, evaluator, session)
+                        .childrenOfType(typeCodeRegexp));
+        getResources().add(iterable);
+        return iterable;
     }
 
     @Override
@@ -97,7 +106,9 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         SamplePE container = samplePE.getContainer();
         if (container != null)
         {
-            return EntityAdaptorFactory.create(container, evaluator, session);
+            ISampleAdaptor adaptor = EntityAdaptorFactory.create(container, evaluator, session);
+            getResources().add(adaptor);
+            return adaptor;
         } else
         {
             return null;
@@ -120,7 +131,10 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         Query query = and(typeConstraint, containerConstraint);
 
         ScrollableResults results = execute(query, SamplePE.class, session);
-        return new EntityAdaptorIterator<ISampleAdaptor>(results, evaluator, session);
+        EntityAdaptorIterator<ISampleAdaptor> iterator =
+                new EntityAdaptorIterator<ISampleAdaptor>(results, evaluator, session);
+        getResources().add(iterator);
+        return iterator;
     }
 
     @Override
@@ -139,7 +153,10 @@ public class SampleAdaptor extends AbstractEntityAdaptor implements ISampleAdapt
         Query query = and(typeConstraint, sampleConstraint);
 
         ScrollableResults results = execute(query, DataPE.class, session);
-        return new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+        EntityAdaptorIterator<IDataAdaptor> iterator =
+                new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
+        getResources().add(iterator);
+        return iterator;
     }
 
 }

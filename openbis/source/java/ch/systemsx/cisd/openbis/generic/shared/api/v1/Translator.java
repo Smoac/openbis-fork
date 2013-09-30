@@ -145,7 +145,7 @@ public class Translator
     {
         EntityRegistrationDetails registrationDetails = translateRegistrationDetails(project);
         return new Project(project.getId(), project.getPermId(), project.getSpace().getCode(),
-                project.getCode(), registrationDetails);
+                project.getCode(), project.getDescription(), registrationDetails);
     }
 
     public static List<Sample> translateSamples(

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ComponentProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithCloseConfirmation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.MainTabPanel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.DataSetKindModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.BorderLayoutDataFactory;
@@ -22,6 +24,8 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -41,21 +45,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class NewEntityTypeForm extends ContentPanel
+public class NewEntityTypeForm extends ContentPanel implements IComponentWithCloseConfirmation
 {
     public static final String BROWSER_ID = GenericConstants.ID_PREFIX + "new-entity-type-form";
 
@@ -66,7 +72,7 @@ public class NewEntityTypeForm extends ContentPanel
     //
     private final EntityKind kind;
 
-    private final EntityType entityToEdit;
+    private EntityType entityToEdit;
 
     private NewETNewPTAssigments newTypeWithAssigments;
 
@@ -75,9 +81,17 @@ public class NewEntityTypeForm extends ContentPanel
     //
     // Entity Form Related
     //
+    private FormPanelWithSavePoint dialogForm;
+
+    private PropertyTypeAssignmentGrid propertyGrid;
+
     private AbstractEntityTypeGrid<? extends EntityType> typeGrid;
 
-    private FormPanel dialogForm;
+    private Button saveButton;
+
+    private Html unsavedChangesInfo;
+
+    private boolean shouldAskForCloseConfirmation = true;
 
     //
     // Form Creation
@@ -86,7 +100,6 @@ public class NewEntityTypeForm extends ContentPanel
             ComponentProvider componentProvider)
     {
         this.kind = kind;
-        this.entityToEdit = entityToEdit;
         this.viewContext = viewContext;
         this.componentProvider = componentProvider;
 
@@ -96,7 +109,70 @@ public class NewEntityTypeForm extends ContentPanel
         this.setBorders(false);
         this.setBodyBorder(false);
 
-        initForm();
+        if (entityToEdit != null)
+        {
+            loadEntityTypeToEdit(this, entityToEdit); // Get a copy of the entity for edition to not affect other views using the same object
+        } else
+        {
+            initForm();
+        }
+    }
+
+    private class LoadCallBack<K extends EntityType> implements AsyncCallback<List<K>>
+    {
+        final NewEntityTypeForm newEntityTypeForm;
+
+        final EntityType entityToEdit;
+
+        public LoadCallBack(
+                final NewEntityTypeForm newEntityTypeForm,
+                final EntityType entityToEdit)
+        {
+            this.newEntityTypeForm = newEntityTypeForm;
+            this.entityToEdit = entityToEdit;
+        }
+
+        @Override
+        public void onSuccess(List<K> result)
+        {
+            for (EntityType entityType : result)
+            {
+                if (entityType.getCode().equals(entityToEdit.getCode()))
+                {
+                    newEntityTypeForm.entityToEdit = entityType;
+                    break;
+                }
+            }
+            initForm();
+        }
+
+        @Override
+        public void onFailure(Throwable caught)
+        {
+            // TO-DO Should never happen
+        }
+    }
+
+    private void loadEntityTypeToEdit(
+            final NewEntityTypeForm newEntityTypeForm,
+            final EntityType entityToEdit)
+    {
+
+        switch (kind)
+        {
+            case SAMPLE:
+                this.viewContext.getCommonService().listSampleTypes(new LoadCallBack<SampleType>(newEntityTypeForm, entityToEdit));
+                break;
+            case DATA_SET:
+                this.viewContext.getCommonService().listDataSetTypes(new LoadCallBack<DataSetType>(newEntityTypeForm, entityToEdit));
+                break;
+            case EXPERIMENT:
+                this.viewContext.getCommonService().listExperimentTypes(new LoadCallBack<ExperimentType>(newEntityTypeForm, entityToEdit));
+                break;
+            case MATERIAL:
+                this.viewContext.getCommonService().listMaterialTypes(new LoadCallBack<MaterialType>(newEntityTypeForm, entityToEdit));
+                break;
+        }
     }
 
     public static DatabaseModificationAwareComponent create(
@@ -134,13 +210,13 @@ public class NewEntityTypeForm extends ContentPanel
         add(dialogForm, BorderLayoutDataFactory.create(LayoutRegion.NORTH, 370));
 
         // Central panel
-        PropertyTypeAssignmentGrid grid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(
+        propertyGrid = (PropertyTypeAssignmentGrid) PropertyTypeAssignmentGrid.create(
                 viewContext,
                 null,
                 newTypeWithAssigments,
                 entityToEdit != null
                 ).getComponent();
-        grid.setLayoutOnChange(true);
+        propertyGrid.setLayoutOnChange(true);
 
         ContentPanel gridPanel = new ContentPanel();
         gridPanel.setLayout(new BorderLayout());
@@ -149,7 +225,7 @@ public class NewEntityTypeForm extends ContentPanel
         gridPanel.setHeading("Assigned Property Types:");
         gridPanel.setBorders(false);
         gridPanel.setBodyBorder(false);
-        gridPanel.add(grid, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
+        gridPanel.add(propertyGrid, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
         add(gridPanel, BorderLayoutDataFactory.create(LayoutRegion.CENTER, 170));
 
@@ -165,10 +241,32 @@ public class NewEntityTypeForm extends ContentPanel
         buttonBar.setMinButtonWidth(100);
         buttonBar.setAlignment(HorizontalAlignment.RIGHT);
 
-        final Component button = getSaveButton();
-        button.setStyleAttribute("padding-right", "10px");
-        buttonBar.add(button);
-        bottomPanel.add(buttonBar, BorderLayoutDataFactory.create(LayoutRegion.EAST, 120));
+        unsavedChangesInfo = createUnsavedChangesInfo();
+
+        dialogForm.addDirtyChangeListener(new Listener<DirtyChangeEvent>()
+            {
+                @Override
+                public void handleEvent(DirtyChangeEvent be)
+                {
+                    unsavedChangesInfo.setVisible(isDirty());
+                }
+            });
+        propertyGrid.addDirtyChangeListener(new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent event)
+                {
+                    unsavedChangesInfo.setVisible(isDirty());
+                }
+            });
+
+        buttonBar.add(unsavedChangesInfo);
+
+        saveButton = createSaveButton();
+        saveButton.setStyleAttribute("padding-right", "10px");
+        buttonBar.add(saveButton);
+
+        bottomPanel.add(buttonBar, BorderLayoutDataFactory.create(LayoutRegion.EAST, 300));
 
         add(bottomPanel, BorderLayoutDataFactory.create(LayoutRegion.SOUTH, 30));
 
@@ -202,13 +300,12 @@ public class NewEntityTypeForm extends ContentPanel
 
         // afterwards
         List<Component> dialogFormIntoList = dialog.getItems();
-        dialogForm = (FormPanel) dialogFormIntoList.get(0);
+        dialogForm = (FormPanelWithSavePoint) dialogFormIntoList.get(0);
+
     }
 
     private void initCreateEntity()
     {
-        AddEntityTypeDialog<? extends EntityType> dialog = null;
-
         switch (kind)
         {
             case SAMPLE:
@@ -329,9 +426,11 @@ public class NewEntityTypeForm extends ContentPanel
 
             newTypeWithAssigments.getAssigments().add(assigment);
         }
+
+        newTypeWithAssigments.updateOrdinalToGridOrder(); // Fixes gaps between positions for types created with the old UI.
     }
 
-    private Button getSaveButton()
+    private Button createSaveButton()
     {
         final Button save = new Button("Save", new SelectionListener<ButtonEvent>()
             {
@@ -340,6 +439,8 @@ public class NewEntityTypeForm extends ContentPanel
                 {
                     if (dialogForm.isValid())
                     {
+                        saveButton.setEnabled(false);
+
                         // Update Entity Type
                         setEntityFromForm();
                         // Update Entity Type Code at the Property Types
@@ -375,7 +476,6 @@ public class NewEntityTypeForm extends ContentPanel
                 SampleType toSaveSample = (SampleType) newTypeWithAssigments.getEntity();
                 toSaveSample.setCode((String) formFields.get(0).getValue());
                 toSaveSample.setDescription((String) formFields.get(1).getValue());
-                ScriptChooserField scriptChooserField = (ScriptChooserField) formFields.get(2);
                 if (formFields.get(2).getValue() != null)
                 {
                     Script script = new Script();
@@ -463,6 +563,7 @@ public class NewEntityTypeForm extends ContentPanel
                 }
             }
             MessageBox.alert("Error", message, null);
+            saveButton.setEnabled(true);
         }
 
         @Override
@@ -476,6 +577,8 @@ public class NewEntityTypeForm extends ContentPanel
                 MessageBox.info("Success", "Update Successful.", null);
             }
 
+            shouldAskForCloseConfirmation = false;
+
             // Close Tab
             MainTabPanel tabPanel = (MainTabPanel) componentProvider.tryGetMainTabPanel();
             String getTabId = getTabId(kind, entityToEdit) + MainTabPanel.TAB_SUFFIX;
@@ -483,4 +586,24 @@ public class NewEntityTypeForm extends ContentPanel
             item.close();
         }
     }
+
+    private Html createUnsavedChangesInfo()
+    {
+        Html result = new Html(viewContext.getMessage(Dict.UNSAVED_FORM_CHANGES_INFO));
+        result.addStyleName("unsaved-changes-info");
+        result.setVisible(false);
+        return result;
+    }
+
+    private boolean isDirty()
+    {
+        return dialogForm.isDirtyForSavePoint() || propertyGrid.isDirty();
+    }
+
+    @Override
+    public boolean shouldAskForCloseConfirmation()
+    {
+        return shouldAskForCloseConfirmation && isDirty();
+    }
+
 }

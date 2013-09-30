@@ -132,6 +132,11 @@ public class NormalizedSampleIdentifier
         }
     }
 
+    public String getContainerCode()
+    {
+        return containerCode;
+    }
+
     public String getCode()
     {
         return code;

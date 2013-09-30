@@ -18,15 +18,23 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.ScrollableResults;
+
+import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
+import ch.systemsx.cisd.common.resource.IReleasable;
+import ch.systemsx.cisd.common.resource.ReleasableIterator;
+import ch.systemsx.cisd.common.resource.Resources;
 
 /**
  * @author anttil
  */
-public abstract class ScrollableResultsIterator<T> implements Iterable<T>
+public abstract class ScrollableResultsIterator<T> implements Iterable<T>, IReleasable
 {
 
     private final ScrollableResults scroll;
+
+    private ReleasableIterator<T> releasableIterator;
 
     public ScrollableResultsIterator(ScrollableResults scroll)
     {
@@ -38,7 +46,11 @@ public abstract class ScrollableResultsIterator<T> implements Iterable<T>
     @Override
     public Iterator<T> iterator()
     {
-        return new Iterator<T>()
+        if (releasableIterator != null)
+        {
+            return releasableIterator;
+        }
+        releasableIterator = new ReleasableIterator<T>(new Iterator<T>()
             {
                 Object[] current = null;
 
@@ -83,6 +95,53 @@ public abstract class ScrollableResultsIterator<T> implements Iterable<T>
                 {
                     throw new UnsupportedOperationException();
                 }
-            };
+            });
+        return releasableIterator;
     }
+
+    @Override
+    public void release()
+    {
+        Resources resources = new Resources();
+
+        if (scroll != null)
+        {
+            resources.add(new ScrollableResultReleasable(scroll));
+        }
+
+        if (releasableIterator != null)
+        {
+            resources.add(releasableIterator);
+        }
+
+        resources.release();
+    }
+
+    private static class ScrollableResultReleasable implements IReleasable
+    {
+
+        private ScrollableResults results;
+
+        public ScrollableResultReleasable(ScrollableResults results)
+        {
+            this.results = results;
+        }
+
+        @Override
+        public void release()
+        {
+            results.close();
+        }
+
+        @Override
+        public String toString()
+        {
+            final ToStringBuilder builder =
+                    new ToStringBuilder(this,
+                            ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+            return builder.toString();
+        }
+
+    }
+
 }

@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
+import ch.systemsx.cisd.openbis.common.logging.ServiceCallLogConfiguration;
 
 /**
  * Interceptor for objects which provide their own logger.
@@ -38,6 +39,8 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
     private static final class InvocationLoggerContext implements IInvocationLoggerContext
     {
         private final String sessionToken;
+
+        boolean invocationFinished;
 
         boolean invocationSuccessful;
 
@@ -52,6 +55,12 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         public String tryToGetSessionToken()
         {
             return sessionToken;
+        }
+
+        @Override
+        public boolean invocationFinished()
+        {
+            return invocationFinished;
         }
 
         @Override
@@ -90,12 +99,19 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         InvocationLoggerContext invocationLoggerContext =
                 new InvocationLoggerContext(sessionTokenOrNull);
         final Object logger = loggerFactory.createLogger(invocationLoggerContext);
+        final Method method = invocation.getMethod();
 
         StopWatch timer = new StopWatch();
 
         try
         {
             timer.start();
+
+            if (ServiceCallLogConfiguration.getInstance().isLogServiceCallStartEnabled())
+            {
+                method.invoke(logger, arguments);
+            }
+
             final Object result = invocation.proceed();
             invocationLoggerContext.invocationSuccessful = true;
             return result;
@@ -106,8 +122,8 @@ public final class LogInterceptor implements MethodInterceptor, Serializable
         } finally
         {
             timer.stop();
+            invocationLoggerContext.invocationFinished = true;
             invocationLoggerContext.elapsedTime = timer.getTime();
-            final Method method = invocation.getMethod();
             try
             {
                 method.invoke(logger, arguments);

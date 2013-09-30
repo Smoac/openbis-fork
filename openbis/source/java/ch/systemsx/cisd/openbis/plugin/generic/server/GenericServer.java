@@ -355,8 +355,8 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
             String homeSpace = session.tryGetHomeGroupCode();
 
             // Normalize identifiers of incoming data
-            // Collect all sample codes
-            List<String> allSampleCodes = new ArrayList<String>();
+            // Collect codes of all container samples
+            Set<String> containerCodes = new HashSet<String>();
             for (NewSample sample : newSamples)
             {
                 NormalizedSampleIdentifier id =
@@ -364,14 +364,28 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 sample.setIdentifier(id.getSampleIdentifier());
                 sample.setCurrentContainerIdentifier(id.getContainerIdentifier());
 
-                allSampleCodes.add(id.getCode());
+                if (id.getContainerIdentifier() != null && id.getContainerIdentifier().length() != 0)
+                {
+                    containerCodes.add(id.getContainerCode());
+                } else
+                {
+                    containerCodes.add(id.getCode());
+                }
             }
 
-            // Get codes of samples already present in database
+            // Get codes of container samples already present in database
             Set<NormalizedSampleIdentifier> existingSampleCodes =
                     new HashSet<NormalizedSampleIdentifier>();
-            for (Sample sample : sampleLister.list(new ListOrSearchSampleCriteria(allSampleCodes
+            Set<Long> containerIds = new HashSet<Long>();
+            for (Sample sample : sampleLister.list(new ListOrSearchSampleCriteria(containerCodes
                     .toArray(new String[0]), false)))
+            {
+                existingSampleCodes.add(new NormalizedSampleIdentifier(sample));
+                containerIds.add(sample.getId());
+            }
+
+            // Get codes of all existing component samples of those containers.
+            for (Sample sample : sampleLister.list(new ListOrSearchSampleCriteria(ListOrSearchSampleCriteria.createForContainers(containerIds))))
             {
                 existingSampleCodes.add(new NormalizedSampleIdentifier(sample));
             }

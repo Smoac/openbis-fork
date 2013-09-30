@@ -21,9 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -31,52 +28,51 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+
 /**
- * A {@link ComboBox} extension using simple strings for selecting section name of
- * {@link EntityTypePropertyType}.
+ * A {@link ComboBox} extension using simple strings for selecting section name
+ * of {@link EntityTypePropertyType}.
  * 
  * @author Piotr Buczek
  */
-public final class SectionSelectionWidget extends SimpleComboBox<String>
-{
-    public static SectionSelectionWidget create(
-            final IViewContext<ICommonClientServiceAsync> viewContext,
-            List<EntityTypePropertyType<?>> etpts)
-    {
-        final Set<String> sections = new LinkedHashSet<String>(); // linked set preserves order
-        for (EntityTypePropertyType<?> currentETPT : etpts)
-        {
-            final String section = currentETPT.getSection();
-            if (section != null)
-            {
-                sections.add(currentETPT.getSection());
-            }
-        }
-        return new SectionSelectionWidget(viewContext.getMessage(Dict.SECTION), viewContext
-                .getMessage(Dict.SECTION_TOOLTIP), viewContext.getMessage(Dict.COMBO_BOX_EMPTY,
-                "sections"), viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "section"),
-                new ArrayList<String>(sections));
-    }
+public final class SectionSelectionWidget extends SimpleComboBox<String> {
+	public static SectionSelectionWidget create(
+			final IViewContext<ICommonClientServiceAsync> viewContext,
+			List<? extends EntityTypePropertyType<?>> etpts) {
+		final Set<String> sections = new LinkedHashSet<String>(); // linked set
+																	// preserves
+																	// order
+		for (EntityTypePropertyType<?> currentETPT : etpts) {
+			final String section = currentETPT.getSection();
+			if (section != null) {
+				sections.add(currentETPT.getSection());
+			}
+		}
+		return new SectionSelectionWidget(viewContext.getMessage(Dict.SECTION),
+				viewContext.getMessage(Dict.SECTION_TOOLTIP),
+				viewContext.getMessage(Dict.COMBO_BOX_EMPTY, "sections"),
+				viewContext.getMessage(Dict.COMBO_BOX_CHOOSE, "section"),
+				new ArrayList<String>(sections));
+	}
 
-    private SectionSelectionWidget(final String fieldLabel, final String toolTip,
-            final String emptyText, final String chooseText, final List<String> sections)
-    {
-        setFieldLabel(fieldLabel);
-        GWTUtils.setToolTip(this, toolTip);
-        GWTUtils.setupAutoWidth(this);
-        if (sections.size() == 0)
-        {
-            setEmptyText(emptyText);
-        } else
-        {
-            setEmptyText(chooseText);
-        }
-        add(sections);
-    }
+	private SectionSelectionWidget(final String fieldLabel,
+			final String toolTip, final String emptyText,
+			final String chooseText, final List<String> sections) {
+		setFieldLabel(fieldLabel);
+		GWTUtils.setToolTip(this, toolTip);
+		GWTUtils.setupAutoWidth(this);
+		if (sections.size() == 0) {
+			setEmptyText(emptyText);
+		} else {
+			setEmptyText(chooseText);
+		}
+		add(sections);
+	}
 
-    @Override
-    public String getSimpleValue()
-    {
-        return StringUtils.trimToNull(super.getSimpleValue());
-    }
+	@Override
+	public String getSimpleValue() {
+		return StringUtils.trimToNull(super.getSimpleValue());
+	}
 }

@@ -317,6 +317,11 @@
     -->
     <bean class="ch.systemsx.cisd.openbis.generic.server.OptimisticLockingRetryAdvisor" />
 
+    <!--
+      // Logging of long running threads
+    -->  
+    <bean class="ch.systemsx.cisd.openbis.generic.server.LongRunningThreadAdvisor" />
+
         
     <!--
         //Mail Client Parameters

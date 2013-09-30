@@ -22,7 +22,6 @@ public class TestReportCleaner extends TestListenerAdapter
         super.onTestFailure(tr);
 
         RetryTen testRetryAnalyzer = (RetryTen) tr.getMethod().getRetryAnalyzer();
-        System.out.println("COUNTER: " + testRetryAnalyzer.getCount());
 
         if (testRetryAnalyzer == null || testRetryAnalyzer.getCount() == 0)
         {

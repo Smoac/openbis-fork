@@ -94,8 +94,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     private final DssUniqueFilenameGenerator filenameGenerator;
 
     /**
-     * Constructor for the AbstractDbModifyingAggegation service. This constructor is used by the
-     * ReportingPluginTaskFactory.
+     * Constructor for the AbstractDbModifyingAggegation service. This constructor is used by the ReportingPluginTaskFactory.
      * 
      * @param properties
      * @param storeRoot
@@ -149,8 +148,14 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
             TableModel tableModel = process(transaction, parameters, context);
 
             service.commit();
+
+            if (service.encounteredErrors.size() > 0)
+            {
+                throw service.encounteredErrors.get(0);
+            }
+
             return tableModel;
-        } catch (Exception e)
+        } catch (Throwable e)
         {
             logInvocationError(parameters, e);
             return errorTableModel(parameters, e);
@@ -191,8 +196,8 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     }
 
     /**
-     * Directory used for the fake incoming files used by the infrastructure. These fake files are
-     * necessary because much of the infrastructure assumes the existance of a file in a dropbox.
+     * Directory used for the fake incoming files used by the infrastructure. These fake files are necessary because much of the infrastructure
+     * assumes the existance of a file in a dropbox.
      */
     protected File getMockIncomingDir()
     {
@@ -375,7 +380,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         return false;
     }
 
-    protected TableModel errorTableModel(Map<String, Object> parameters, Exception e)
+    protected TableModel errorTableModel(Map<String, Object> parameters, Throwable e)
     {
         SimpleTableModelBuilder builder = new SimpleTableModelBuilder(true);
         builder.addHeader("Parameters");
@@ -386,7 +391,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         return builder.getTableModel();
     }
 
-    protected void logInvocationError(Map<String, Object> parameters, Exception e)
+    protected void logInvocationError(Map<String, Object> parameters, Throwable e)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("Error producing aggregation report\n");

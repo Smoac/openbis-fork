@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.maintenance;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
-
 
 /**
  * @author Kaloyan Enimanev
@@ -80,19 +80,30 @@ public class MaintenanceTaskUtilsTest extends AssertJUnit
     @Test
     public void testStartupMaintenancePlugins() throws Exception
     {
-        MaintenanceTaskParameters[] tasks = new MaintenanceTaskParameters[NUM_CONTENDING_TASKS];
-        for (int i = 0; i < tasks.length; i++)
+        List<MaintenancePlugin> plugins = null;
+
+        try
         {
-            tasks[i] = createTaskParameters("Task-" + i);
+            MaintenanceTaskParameters[] tasks = new MaintenanceTaskParameters[NUM_CONTENDING_TASKS];
+            for (int i = 0; i < tasks.length; i++)
+            {
+                tasks[i] = createTaskParameters("Task-" + i);
+            }
+
+            plugins = MaintenanceTaskUtils.startupMaintenancePlugins(tasks);
+
+            // wait for all maintenance tasks to finish
+            latch.await();
+
+            assertFalse("Tasks competing for the same system resource should "
+                    + "not be executed in parallel", executedParallely.get());
+        } finally
+        {
+            if (plugins != null)
+            {
+                MaintenanceTaskUtils.shutdownMaintenancePlugins(plugins);
+            }
         }
-
-        MaintenanceTaskUtils.startupMaintenancePlugins(tasks);
-
-        // wait for all maintenance tasks to finish
-        latch.await();
-
-        assertFalse("Tasks competing for the same system resource should "
-                + "not be executed in parallel", executedParallely.get());
     }
 
     private MaintenanceTaskParameters createTaskParameters(String pluginName)

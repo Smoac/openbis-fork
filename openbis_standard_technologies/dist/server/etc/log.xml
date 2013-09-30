@@ -20,8 +20,44 @@
             -->
             <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
         </layout>
+        
+        <filter class="ch.systemsx.cisd.openbis.common.log.DefaultAppenderFilter"/>
+        <filter class="ch.systemsx.cisd.openbis.generic.server.LoggerNameFilter">
+            <param name="LoggerName" value="ACCESS.LongRunningThreadLogger" />
+        </filter>
 
     </appender>
+    
+    <appender name="SERVICE_CALL" class="ch.systemsx.cisd.openbis.common.log.ServiceCallAppender">
+
+        <param name="File" value="logs/openbis_service_calls.txt" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
+        </layout>
+    </appender>
+    
+    <appender name="LONG_RUNNING_THREAD" class="org.apache.log4j.DailyRollingFileAppender">
+
+        <param name="File" value="logs/openbis_long_running_threads.txt" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
+        </layout>
+    </appender>    
+    
+    <appender name="DB_CONNECTIONS" class="ch.systemsx.cisd.dbmigration.logging.DbConnectionLogAppender">
+
+        <param name="File" value="logs/openbis_db_connections.txt" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n" />
+        </layout>
+    </appender>
+        
     <appender name="AUTH" class="org.apache.log4j.DailyRollingFileAppender">
 
         <param name="File" value="logs/openbis_auth_log.txt" />
@@ -40,6 +76,10 @@
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
         </layout>
+        <filter class="ch.systemsx.cisd.openbis.common.log.DefaultAppenderFilter"/>
+        <filter class="ch.systemsx.cisd.openbis.generic.server.LoggerNameFilter">
+            <param name="LoggerName" value="ACCESS.LongRunningThreadLogger" />
+        </filter>        
     </appender>
 
     <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
@@ -69,6 +109,11 @@
 
     </appender>
 
+    <category name="MACHINE.MonitoringPoolingDataSource">
+      <priority value="info" />
+      <appender-ref ref="DB_CONNECTIONS" />        
+    </category>
+
     <!--
         // If we have the category 'NOTIFY' and we send a logging event with priority 'info', then an email will be sent.
     -->
@@ -93,6 +138,7 @@
     <category name="TRACKING">
         <priority value="info" />
         <appender-ref ref="USAGE" />
+        <appender-ref ref="SERVICE_CALL" />        
     </category>
 
     <!--
@@ -101,6 +147,12 @@
     <category name="ACCESS">
         <priority value="info" />
         <appender-ref ref="USAGE" />
+        <appender-ref ref="SERVICE_CALL" />        
+    </category>
+    
+    <category name="ACCESS.LongRunningThreadLogger">
+        <priority value="info" />
+        <appender-ref ref="LONG_RUNNING_THREAD" />        
     </category>
     
     <!-- 

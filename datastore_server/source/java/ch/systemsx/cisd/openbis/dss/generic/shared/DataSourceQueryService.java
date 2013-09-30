@@ -40,7 +40,7 @@ public class DataSourceQueryService implements IDataSourceQueryService, IReleasa
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSourceQueryService.class);
 
-    private Resources resources = new Resources(operationLog);
+    private Resources resources = new Resources();
 
     private IDataSourceProvider getDataSourceProvider()
     {
@@ -79,7 +79,6 @@ public class DataSourceQueryService implements IDataSourceQueryService, IReleasa
     public void release()
     {
         resources.release();
-        resources.clear();
     }
 
     private static class DataSetResource implements IReleasable

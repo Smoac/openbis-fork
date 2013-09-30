@@ -31,22 +31,25 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
 import ch.systemsx.cisd.base.namedthread.NamingThreadPoolExecutor;
-import ch.systemsx.cisd.base.tests.Retry10;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities.ILogSettings;
 import ch.systemsx.cisd.common.logging.AssertingLogger;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.logging.LogLevel;
+import ch.systemsx.cisd.common.test.RetryTen;
+import ch.systemsx.cisd.common.test.TestReportCleaner;
 
 /**
  * Test cases for {@link ConcurrencyUtilities}.
  * 
  * @author Bernd Rinn
  */
+@Listeners(TestReportCleaner.class)
 public class ConcurrencyUtilitiesTest
 {
 
@@ -110,7 +113,7 @@ public class ConcurrencyUtilitiesTest
     {
         final String valueProvided = "This is the execution return value";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -132,7 +135,7 @@ public class ConcurrencyUtilitiesTest
         createLogSettings(LogLevel.ERROR, LogLevel.INFO);
         final String valueProvided = "This is the execution return value";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -156,7 +159,7 @@ public class ConcurrencyUtilitiesTest
     {
         final String valueProvided = "This is the execution return value";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -172,11 +175,11 @@ public class ConcurrencyUtilitiesTest
         assertTrue(future.isDone());
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = RetryTen.class)
     public void testTryGetFutureTimeout()
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -204,7 +207,7 @@ public class ConcurrencyUtilitiesTest
     public void testGetExecutionResultTimeout()
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -231,12 +234,12 @@ public class ConcurrencyUtilitiesTest
         logger.assertEq(0, LogLevel.WARN, name + ": timeout of 0.02 s exceeded, cancelled.");
     }
 
-    @Test(groups = "slow", retryAnalyzer = Retry10.class)
+    @Test(groups = "slow", retryAnalyzer = RetryTen.class)
     public void testGetExecutionResultNoTimeoutDueToSensor()
     {
         final RecordingActivityObserverSensor sensor = new RecordingActivityObserverSensor();
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Timer updatingTimer = new Timer();
         final String msg = "success";
         try
@@ -283,7 +286,7 @@ public class ConcurrencyUtilitiesTest
     {
         createLogSettings(LogLevel.INFO, LogLevel.OFF);
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -314,7 +317,7 @@ public class ConcurrencyUtilitiesTest
     public void testTryGetFutureInterrupted()
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -351,11 +354,11 @@ public class ConcurrencyUtilitiesTest
     }
 
     @Test(expectedExceptions =
-        { InterruptedExceptionUnchecked.class })
+    { InterruptedExceptionUnchecked.class })
     public void testTryGetFutureStop()
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -390,7 +393,7 @@ public class ConcurrencyUtilitiesTest
     {
         createLogSettings(LogLevel.DEBUG, LogLevel.OFF);
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Thread thread = Thread.currentThread();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
@@ -447,7 +450,7 @@ public class ConcurrencyUtilitiesTest
     {
         createLogSettings(LogLevel.ERROR, LogLevel.OFF);
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -471,7 +474,7 @@ public class ConcurrencyUtilitiesTest
     {
         final String msg = "This is some sort of error message";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override
@@ -499,7 +502,7 @@ public class ConcurrencyUtilitiesTest
     {
         final String msg = "This is some sort of error message";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final Future<String> future = eservice.submit(new Callable<String>()
             {
                 @Override

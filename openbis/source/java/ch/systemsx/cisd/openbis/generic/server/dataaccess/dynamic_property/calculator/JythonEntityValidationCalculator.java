@@ -53,8 +53,7 @@ public class JythonEntityValidationCalculator
     /**
      * Creates a calculator for given <code>expression</code>.
      * <p>
-     * The script is expected to contain validate method with two parameters: "entity" and
-     * "isNewEntity"
+     * The script is expected to contain validate method with two parameters: "entity" and "isNewEntity"
      */
     public static JythonEntityValidationCalculator create(String expression,
             final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
@@ -131,10 +130,16 @@ public class JythonEntityValidationCalculator
                 @Override
                 public String evaluate(Evaluator evaluator)
                 {
-                    evaluator.set(CALCULATOR_VARIABLE, wrappedValidationRequestedDelegate);
-                    evaluator.set(ENTITY_VARIABLE_NAME, entity);
-                    evaluator.set(IS_NEW_ENTITY_VARIABLE_NAME, isNewEntity);
-                    return evaluator.evalAsStringLegacy2_2();
+                    try
+                    {
+                        evaluator.set(CALCULATOR_VARIABLE, wrappedValidationRequestedDelegate);
+                        evaluator.set(ENTITY_VARIABLE_NAME, entity);
+                        evaluator.set(IS_NEW_ENTITY_VARIABLE_NAME, isNewEntity);
+                        return evaluator.evalAsStringLegacy2_2();
+                    } finally
+                    {
+                        evaluator.releaseResources();
+                    }
                 }
             });
     }

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.DataSetRegistrationAlgorithm;
 import ch.systemsx.cisd.etlserver.IDataSetHandler;
@@ -705,6 +706,6 @@ public class SampleAndDatasetRegistrationHandlerTest extends AbstractFileSystemT
             theLogText = mainLogText;
         }
         // Check the text
-        assertEquals(theLogText, logAppender.getLogContent());
+        AssertionUtil.assertContainsLines(theLogText, logAppender.getLogContent());
     }
 }

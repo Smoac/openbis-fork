@@ -17,15 +17,15 @@
 package ch.systemsx.cisd.openbis.common.spring;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public interface IInvocationLoggerContext
 {
     public String tryToGetSessionToken();
-    
+
+    public boolean invocationFinished();
+
     public boolean invocationWasSuccessful();
-    
+
     public long getElapsedTime();
 }

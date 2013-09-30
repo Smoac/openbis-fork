@@ -260,11 +260,13 @@ case "$command" in
     echo "  $0 show-shredder  -  show the list of files / directories that wait to be shreddered"
     echo "  $0 show-updater-queue  -  show the queue of datasets that await updating their archiving status in openBIS AS"
     echo "  $0 show-command-queue  -  show the queue of commands from openBIS AS waiting to be executed"
-    echo "  $0 log-db-connections  -  log the currently active database connections to log/startup_log.txt"
+    echo "  $0 log-db-connections-separate-log-file on / off  -  switch on / off logging messages related to database connections to log/datastore_server_db_connections.txt"
+    echo "  $0 log-db-connections  -  log the currently active database connections"
     echo "  $0 log-thread-dump  -  log the current thread dump to log/startup_log.txt"
     echo "  $0 debug-db-connections on / off -  switch on / off database connection debug logging"
     echo "  $0 record-stacktrace-db-connections on / off -  switch on / off database connection stacktrace recording"
-    echo "  $0 no-record-stacktrace-db-connections  -  switch off database connection stacktrace recording"
+    echo "  $0 log-service-calls on / off -  switch on / off logging of start and end of service calls to separate file"
+    echo "  $0 log-long-running-invocations on / off -  switch on / off logging of long running invocations"
     echo "  $0 verify-archives  -  verify integrity of dataset archives created by ZipArchiver"
     
     ;;
@@ -301,6 +303,22 @@ case "$command" in
      	exit 100
     fi
     ;;
+  log-db-connections-separate-log-file)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/db-connections-separate-log-file-off
+  		echo "Switched off logging messages to log/datastore_server_db_connections.txt"
+  	else
+	  	touch .control/db-connections-separate-log-file-on
+  		echo "Switched on logging messages to log/datastore_server_db_connections.txt"
+  	fi
+    ;;    
   log-db-connections)
     getStatus
     EXIT_STATUS=$?
@@ -310,11 +328,11 @@ case "$command" in
     fi
   	mkdir -p .control
   	if [ "$2" != "" ]; then
-    	touch .control/db-connections-print-active.$2
+    	touch .control/db-connections-print-active-$2
    	else
     	touch .control/db-connections-print-active
    	fi
-   	echo "Active database connections logged to log/startup_log.txt"
+   	echo "Active database connections will be logged"
     ;;
   debug-db-connections)
     getStatus
@@ -348,6 +366,38 @@ case "$command" in
   		echo "Switched on stacktrace recording for database connections."
 	  fi
     ;;
+  log-service-calls)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/log-service-call-start-off
+  		echo "Switched off logging of service calls."
+	  else
+	  	touch .control/log-service-call-start-on
+  		echo "Switched on logging of service calls."
+	  fi
+    ;;    
+  log-long-running-invocations)
+    getStatus
+    EXIT_STATUS=$?
+    if [ $EXIT_STATUS -ne 0 ]; then
+      echo "Error: Data Store Server not running."
+      exit 100
+    fi
+  	mkdir -p .control
+  	if [ "$2" == "off" ]; then
+	  	touch .control/long-running-thread-logging-off
+  		echo "Switched off logging of long running invocations."
+	  else
+	  	touch .control/long-running-thread-logging-on
+  		echo "Switched on logging of long running invocations."
+	  fi
+    ;; 
   *)
     echo "Usage: $0 {start|stop|restart|status|help|version}"
     exit 200

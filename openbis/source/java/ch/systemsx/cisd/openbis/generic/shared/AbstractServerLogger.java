@@ -197,15 +197,29 @@ public abstract class AbstractServerLogger implements IServer
             }
         }
         final String message = String.format(parameterDisplayFormat, parameters);
-        final String invocationStatusMessage = getInvocationStatusMessage();
-        final String elapsedTimeMessage = getElapsedTimeMessage();
-        // We put on purpose 2 spaces between the command and the message derived from the
-        // parameters.
-        logger.log(
-                level,
-                tryToCreatePrefixSecondTime(sessionToken)
-                        + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName,
-                                message, invocationStatusMessage));
+
+        if (context.invocationFinished())
+        {
+            final String invocationStatusMessage = getInvocationStatusMessage();
+            final String elapsedTimeMessage = getElapsedTimeMessage();
+
+            // We put on purpose 2 spaces between the command and the message derived from the
+            // parameters.
+            logger.log(
+                    level,
+                    tryToCreatePrefixSecondTime(sessionToken)
+                            + String.format(": (%s) %s  %s%s", elapsedTimeMessage, commandName,
+                                    message, invocationStatusMessage));
+        } else
+        {
+            // We put on purpose 2 spaces between the command and the message derived from the
+            // parameters.
+            logger.log(
+                    level,
+                    tryToCreatePrefixSecondTime(sessionToken)
+                            + String.format(": (START) %s  %s", commandName,
+                                    message));
+        }
     }
 
     private String getInvocationStatusMessage()
@@ -348,7 +362,7 @@ public abstract class AbstractServerLogger implements IServer
     public void setSessionUser(String sessionToken, String userID)
     {
         logMessage(authLog, Level.INFO, sessionToken, "set_session_user", "USER(%s)", new Object[]
-            { userID });
+        { userID });
     }
 
     public int unarchiveDatasets(String sessionToken, List<String> datasetCodes)

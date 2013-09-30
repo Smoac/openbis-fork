@@ -454,6 +454,8 @@ public abstract class Dict
 
     public static final String SHOWN_IN_EDIT_VIEW = "shown_in_edit_view";
 
+    public static final String ADD_PROPERTY_TYPE_BUTTON = "add_property_type_button";
+
     public static final String SCRIPT_REGISTRATION = "script_registration";
 
     public static final String PROPERTY_TYPE = "property_type";

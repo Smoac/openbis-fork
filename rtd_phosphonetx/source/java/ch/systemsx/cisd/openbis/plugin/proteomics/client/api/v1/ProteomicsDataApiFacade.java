@@ -109,7 +109,7 @@ class ProteomicsDataApiFacade implements IProteomicsDataApiFacade
                         .getProjects())
                 {
                     projects.add(new Project(project.getId(), project.getPermId(), space.getCode(),
-                            project.getCode()));
+                            project.getCode(), project.getDescription()));
                 }
             }
         }

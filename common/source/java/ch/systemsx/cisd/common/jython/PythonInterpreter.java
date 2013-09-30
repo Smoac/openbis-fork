@@ -16,15 +16,11 @@
 
 package ch.systemsx.cisd.common.jython;
 
-import org.apache.log4j.Logger;
 import org.python.core.CompileMode;
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.core.PySystemState;
 
-import ch.systemsx.cisd.common.logging.LogCategory;
-import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.common.resource.Resources;
 
 /**
@@ -33,10 +29,7 @@ import ch.systemsx.cisd.common.resource.Resources;
 public class PythonInterpreter extends org.python.util.PythonInterpreter
 {
 
-    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            PythonInterpreter.class);
-
-    private Resources resources = new Resources(operationLog);
+    private Resources resources = new Resources();
 
     protected PythonInterpreter()
     {
@@ -51,20 +44,14 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
     public void set(String name, Object value)
     {
         super.set(name, value);
-        if (value instanceof IReleasable)
-        {
-            resources.add((IReleasable) value);
-        }
+        resources.add(value);
     }
 
     @Override
     public void set(String name, PyObject value)
     {
         super.set(name, value);
-        if (value instanceof IReleasable)
-        {
-            resources.add((IReleasable) value);
-        }
+        resources.add(value);
     }
 
     public void releaseResources()
@@ -73,8 +60,7 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
     }
 
     /**
-     * Creates a new Jython interpreter with a fully isolated system state (i.e. interpreters in
-     * different threads don't influence each other).
+     * Creates a new Jython interpreter with a fully isolated system state (i.e. interpreters in different threads don't influence each other).
      */
     public static PythonInterpreter createIsolatedPythonInterpreter()
     {
@@ -82,8 +68,8 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
     }
 
     /**
-     * Creates a new Jython interpreter with a non-isolated system state (i.e. interpreters in
-     * different threads influence each other and see each others variables).
+     * Creates a new Jython interpreter with a non-isolated system state (i.e. interpreters in different threads influence each other and see each
+     * others variables).
      * <p>
      * Use this if you don't need thread isolation as the isolated interpreter has some gotchas.
      */
