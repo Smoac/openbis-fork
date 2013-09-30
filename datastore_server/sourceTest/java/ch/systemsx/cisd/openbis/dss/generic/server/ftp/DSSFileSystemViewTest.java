@@ -61,7 +61,7 @@ public class DSSFileSystemViewTest extends AssertJUnit
         view = new DSSFileSystemView(SESSION_TOKEN, service, infoService, registry);
     }
     
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void tearDown(Method m)
     {
         try

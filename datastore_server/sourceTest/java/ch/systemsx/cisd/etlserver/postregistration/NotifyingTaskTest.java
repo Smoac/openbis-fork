@@ -59,7 +59,7 @@ public class NotifyingTaskTest extends AbstractFileSystemTestCase
         service = context.mock(IEncapsulatedOpenBISService.class);
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void afterMethod()
     {
         // The following line of code should also be called at the end of each test method.

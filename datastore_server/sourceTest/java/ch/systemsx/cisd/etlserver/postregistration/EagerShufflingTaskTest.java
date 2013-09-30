@@ -119,7 +119,7 @@ public class EagerShufflingTaskTest extends AbstractFileSystemTestCase
         share4.mkdir();
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void afterMethod()
     {
         logRecorder.reset();

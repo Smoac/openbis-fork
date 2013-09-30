@@ -145,7 +145,7 @@ public class DeleteDataSetsAlreadyDeletedInApplicationServerMaintenanceTaskTest 
         task.setUp("", properties);
     }
 
-    @AfterMethod(alwaysRun = true)
+    @AfterMethod
     public void tearDown()
     {
         ServiceProviderTestWrapper.restoreApplicationContext();

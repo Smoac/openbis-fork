@@ -135,7 +135,7 @@ public class ServiceConversationTest
         serverExporter.getServer().start();
     }
 
-    @AfterClass(alwaysRun = true)
+    @AfterClass
     public void afterClass() throws Exception
     {
         clientExporter1.getServer().stop();

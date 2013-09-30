@@ -1,0 +1,34 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+	compile project(':common'),
+			project(':openbis-common'),
+			project(':openbis'),
+			// authentication and dbmigration are required as they contain later versions of 
+			// some classes than cisd-cifex.jar. They need to be in classpath before cisd-cifex.jar
+			project(':authentication'),
+			project(':dbmigration')
+			
+	
+	compile 'apache:ftpserver-core:+',
+			'apache:sshd-core:+',
+			'jfree:jfreechart:+',
+			'cisd:cisd-cifex:+',
+			'shriop:javacsv:+',
+			'cisd:cisd-image-readers:+',
+			'hjg:pngj:+',
+			'apache:commons-fileupload:+'
+			
+				
+	testCompile project(path: ':common', configuration: 'tests'),
+				project(path: ':openbis-common', configuration: 'tests'),
+				project(path: ':openbis', configuration: 'tests')
+}
+
+sourceSets { 
+	test {
+		resources {
+			srcDirs = ['source/java']
+		}
+	}
+}
