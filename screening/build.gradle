@@ -1,0 +1,38 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+	compile project(':common'),
+			project(':datastore-server')
+			
+	compile 'openhms:jackcess:+',
+			'google:gwt-image-loader:+'
+			
+	testCompile project(path: ':datastore-server', configuration: 'tests')		
+			
+}
+
+sourceSets { 
+	test {
+		resources {
+			srcDirs = ['source/java']
+		}
+	}
+}
+
+// This task is here to make TabularDataGraphCollectionConfigurationTest to work. It requires some data files
+// to be present on the same directory than the class file itself.
+task copyTestData(type: Copy, dependsOn: testClasses) {
+    from "${project.projectDir}/sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/graph"
+    into "${project.buildDir}/classes/test/ch/systemsx/cisd/openbis/dss/generic/server/graph"
+    include "*.properties"
+}
+
+task systemTestSuite(type: Test) {
+	useTestNG()
+	options.suites('sourceTest/java/tests_system.xml')
+	jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'	
+	testReportDir = file("${project.buildDir}/reports/tests-system")
+}
+
+test.dependsOn(systemTestSuite)
+test.dependsOn(copyTestData)

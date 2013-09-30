@@ -1,0 +1,8 @@
+includeFlat 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 'datastore-server'
+project(':common').projectDir = new File(settingsDir, '../common')
+project(':openbis_api').projectDir = new File(settingsDir, '../openbis_api')
+project(':openbis-common').projectDir = new File(settingsDir, '../openbis-common')
+project(':authentication').projectDir = new File(settingsDir, '../authentication')
+project(':dbmigration').projectDir = new File(settingsDir, '../dbmigration')
+project(':openbis').projectDir = new File(settingsDir, '../openbis')
+project(':datastore-server').projectDir = new File(settingsDir, '../datastore_server')
