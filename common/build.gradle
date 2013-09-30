@@ -18,7 +18,9 @@ dependencies {
 					'testng:testng:+',
 					'marathon:marathon-spring-util:+'
 					
-	testCompile 'fjelmer:classycle:+'
+	testCompile 'fjelmer:classycle:+',
+				'hamcrest:hamcrest-integration:+',
+				'hamcrest:hamcrest-library:+'
 } 
 
 jar {
