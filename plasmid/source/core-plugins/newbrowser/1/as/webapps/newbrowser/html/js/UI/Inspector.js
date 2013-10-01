@@ -300,7 +300,7 @@ function Inspector(mainController, containerId, profile) {
 			inspector += "</table>"
 			
 			var extraContainerId = entity.code+"_INSPECTOR_EXTRA";
-			inspector += "<div id='"+ extraContainerId + "'></div>";
+			inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'></div>";
 			this.profile.inspectorContentExtra(extraContainerId, entity);
 			
 			inspector += "</div>"

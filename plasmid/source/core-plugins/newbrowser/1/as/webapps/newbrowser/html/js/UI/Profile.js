@@ -281,7 +281,7 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			"METHODS" : {
 				"TYPE" : "METHODS",
 				"DISPLAY_NAME" : "Methods",
-				"LIST" : ["GENERAL_PROTOCOL", "PCR", "WESTERN_BLOTTING"]
+				"LIST" : ["GENERAL_PROTOCOL", "PCR", "WESTERN_BLOTTING","READOUT"]
 			},
 			"MATERIALS" : {
 				"TYPE" : "MATERIALS",
@@ -480,44 +480,34 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			var localReference = this;
 			this.openbisServer.listDataSetsForSample(sampleToSend, true, function(datasets) {
 				for(var i = 0; i < datasets.result.length; i++) {
-					if(datasets.result[i].dataSetTypeCode === "SEQ_FILE") {
-						localReference.openbisServer.listFilesForDataSet(datasets.result[i].code, "/", true, function(files) {
-							var testImg = "https://localhost:8444/datastore_server/20111128110144092-8300/generated/FRP1.svg";
-							var downloadUrl = testImg + "?sessionID=" + localReference.openbisServer.getSession();
-						
-							//For Testing
-							/*
-							d3.xml(downloadUrl, "image/svg+xml", function(xml) {
-								var importedNode = document.importNode(xml.documentElement, true);
-								d3.select(importedNode)
-									.attr("width", 400 - 20)
-									.attr("height", 400 - 20)
-									.attr("viewBox", "200 200 650 650");
-									var inspector = inspectors.select("#"+extraContainerId);
-									inspector.node().appendChild(importedNode);
-								}
-							);
-							*/
-						
-							for(var i = 0; i < files.result.length; i++) {
-								if(!files.result[i].isDirectory) {
-									var pathInDataSet = files.result[i].pathInDataSet;
-									var downloadUrl = profile.dssUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + localReference.openbisServer.getSession();
-								
-									d3.xml(downloadUrl, "image/svg+xml", function(xml) {
-										var importedNode = document.importNode(xml.documentElement, true);
-										d3.select(importedNode)
-											.attr("width", 400 - 20)
-											.attr("height", 400 - 20)
-											.attr("viewBox", "200 200 650 650");
-											var inspector = inspectors.select("#"+extraContainerId);
-											inspector.node().appendChild(importedNode);
+					var dataset = datasets.result[i];
+					if(dataset.dataSetTypeCode === "SEQ_FILE") {
+						var listFilesForDataSetWithDataset = function(dataset) {
+							localReference.openbisServer.listFilesForDataSet(dataset.code, "/", true, function(files) {
+								for(var i = 0; i < files.result.length; i++) {
+										var isDirectory = files.result[i].isDirectory;
+										var pathInDataSet = files.result[i].pathInDataSet;
+										if (/\.svg$/.test(pathInDataSet) && !isDirectory) {
+											var downloadUrl = localReference.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + localReference.openbisServer.getSession();
+											//var downloadUrl = "https://openbis-csb.ethz.ch:8444/datastore_server/20130930120333554-14759/generated/FRP1349.svg?sessionID=juanf-131001122843691xE2B825CCE9E57E346580017921B3D35B";
+											//var downloadFai = "https://openbis-csb.ethz.ch:8444/datastore_server/20130930120336373-14761/generated/FRP1349.svg?sessionID=juanf-131001125006666x03113A3625085E2F55C35932BCD7635E"
+											d3.xml(downloadUrl, "image/svg+xml", 
+												function(xml) {
+													var importedNode = document.importNode(xml.documentElement, true);
+													d3.select(importedNode)
+														.attr("width", 400 - 20)
+														.attr("height", 400 - 20)
+														.attr("viewBox", "200 200 650 650");
+													var inspectorNode = d3.select("#"+extraContainerId).node();
+													if(inspectorNode) { //Sometimes the user hides the sticker very clicky and the node doesn't exist anymore
+														inspectorNode.appendChild(importedNode);
+													}
+												});
 										}
-									);
 								}
-							}
-						
-						});
+							});
+						}
+						listFilesForDataSetWithDataset(dataset);
 					}
 				}
 			}
@@ -526,4 +516,3 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 		}
 	}
 });
-

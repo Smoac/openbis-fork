@@ -312,6 +312,15 @@ div.inspector:hover,div.inspector:focus{
   z-index:5;
 }
 
+.inspectorExtra {
+	margin-left: 0px !important;
+}
+
+.inspectorExtra svg {
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .property {
   font-size: 10px;
   font-weight: normal;
