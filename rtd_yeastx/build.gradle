@@ -6,3 +6,11 @@ dependencies {
 	
 	testCompile project(path: ':common', configuration: 'tests')
 }
+
+sourceSets { 
+	main {
+		resources {
+			srcDirs = ['source/java']
+		}
+	}
+}
