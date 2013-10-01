@@ -57,6 +57,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		var localReference = this;
 		$("#fileToRegister").unbind('change');
 		$("#fileToRegister").change(function() {
+			Util.blockUI();
 			Util.fileUpload("fileToRegister", function(result) {
 				//Code After the upload
 				localReference.mainController.openbisServer.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
@@ -111,9 +112,9 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 	
 	this.updateSamples = function() {
 		var localReference = this;
-		Util.blockUI();
 		$("#fileToUpdate").unbind('change');
 		$("#fileToUpdate").change(function() {
+			Util.blockUI();
 			var finalCallback = function(data) {
 				if(data.error) {
 					Util.showError(data.error.message, function() {Util.unblockUI();});

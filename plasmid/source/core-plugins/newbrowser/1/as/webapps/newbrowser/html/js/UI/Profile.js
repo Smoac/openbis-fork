@@ -244,7 +244,9 @@ $.extend(DefaultProfile.prototype, {
 						groupOfMenuItems.menuItems.push(menuItem);
 					}
 				}
-				this.menuStructure.push(groupOfMenuItems);
+				if(groupOfMenuItems.menuItems.length > 0) {
+					this.menuStructure.push(groupOfMenuItems);
+				}
 			}
 		}
 		//
