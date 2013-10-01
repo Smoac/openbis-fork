@@ -22,7 +22,7 @@ sourceSets {
 	}
 }
 
-buildDir = 'out'
+buildDir = 'targets/gradle'
 	
 repositories {
     add(new org.apache.ivy.plugins.resolver.FileSystemResolver()) {
