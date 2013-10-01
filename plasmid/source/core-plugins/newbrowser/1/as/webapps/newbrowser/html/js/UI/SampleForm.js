@@ -245,7 +245,9 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				component += "<option value=''> -- "+sampleGroupTypeDisplayName+" --</a></option>";
 				for(var i = 0; i < this.profile.typeGroups[typeGroupCode]["LIST"].length; i++) {
 					var sampleType = this.profile.getTypeForTypeCode(this.profile.typeGroups[typeGroupCode]["LIST"][i]);
-					component += "<option value='"+sampleType.code+"'>"+sampleType.description+"</a></option>";
+					if(sampleType) { //Fix a glitch that can happen if a type exist into a group  but not at the server.
+						component += "<option value='"+sampleType.code+"'>"+sampleType.description+"</a></option>";
+					}
 				}
 				component += "</select> ";
 			}
