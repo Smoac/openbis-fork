@@ -18,11 +18,13 @@ dependencies {
 			'cisd:cisd-image-readers:+',
 			'hjg:pngj:+',
 			'apache:commons-fileupload:+'
-			
+
+	runtime 'sun:jai:+'
 				
 	testCompile project(path: ':common', configuration: 'tests'),
 				project(path: ':openbis-common', configuration: 'tests'),
 				project(path: ':openbis', configuration: 'tests')
+				
 }
 
 sourceSets { 
