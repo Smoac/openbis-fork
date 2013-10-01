@@ -1,0 +1,8 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+
+	compile project(':datastore_server')
+	
+	testCompile project(path: ':common', configuration: 'tests')
+}
