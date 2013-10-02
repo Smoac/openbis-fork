@@ -374,12 +374,20 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 							var boxesCol = boxesRow[j];
 							if(boxesCol) {
 								currentBoxes = boxesCol.length;
+								currentBoxesArray = [];
 								for(var box in boxesCol) {
-									$rack.prepend(
+									currentBoxesArray.push(box);
+								}
+								
+								var sortedBoxesArray = currentBoxesArray.sort(naturalSort);
+								
+								for(var k = 0; k < sortedBoxesArray.length; k++) {
+									$rack.append(
 										$("<div>", { class: "freezerBox" })
-											.append(box)
+											.append(sortedBoxesArray[k])
 									);
 								}
+								
 							}
 						}
 						
