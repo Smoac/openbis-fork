@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.ant.task.subversion;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +46,8 @@ public class GatherRevisionAndVersionTask extends Property
 
     private boolean failOnInconsistency;
 
+    private Collection<String> projectNames;
+
     public void setFailOnDirty(final boolean failOnDirty)
     {
         this.failOnDirty = failOnDirty;
@@ -68,6 +72,14 @@ public class GatherRevisionAndVersionTask extends Property
     {
         this.cleanProperty = cleanProperty;
     }
+    
+    /**
+     * Sets the project names explicitly.
+     */
+    public void setProjectNames(Collection<String> projectNames)
+    {
+        this.projectNames = projectNames;
+    }
 
     @Override
     public void execute() throws BuildException
@@ -77,7 +89,6 @@ public class GatherRevisionAndVersionTask extends Property
             throw new BuildException("Neither version nor revision property is defined.");
         }
         final ISVNActions actions = createSVNActions();
-        final Set<String> projectNames = collectProjects(actions);
         final HashSet<String> versions = new HashSet<String>();
         final StringBuilder projectRevisions = new StringBuilder();
         final StringBuilder dirtyProjects = new StringBuilder();
@@ -85,7 +96,7 @@ public class GatherRevisionAndVersionTask extends Property
         int minRevision = Integer.MAX_VALUE;
         int maxRevision = 0;
         final String parentDir = getParentDir();
-        for (final String projectName : projectNames)
+        for (final String projectName : collectProjects(actions))
         {
             // We ignore the build_resources project as the one-button-build modifies it ourselves
             // and otherwise all non-trunk builds would be marked 'dirty'
@@ -152,6 +163,10 @@ public class GatherRevisionAndVersionTask extends Property
 
     private Set<String> collectProjects(final ISVNActions actions)
     {
+        if (projectNames != null)
+        {
+            return new LinkedHashSet<String>(projectNames);
+        }
         final ISVNProjectPathProvider pathProvider = createPathProvider(getProject().getBaseDir());
         return new SVNDependentProjectsCollector(pathProvider, actions, true)
                 .collectDependentProjectsFromClasspath();
