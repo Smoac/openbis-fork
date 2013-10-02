@@ -73,7 +73,7 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 		return $component;
 	}
 	
-	this._getInputField = function(type, step, id, alt, isRequired, isHidden) {
+	this._getInputField = function(type, step, id, alt, isRequired, isHidden, pattern) {
 		var $component = $("<input>");
 		$component.attr('type', type);
 		$component.attr('id', id);
@@ -87,6 +87,10 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 			$component.attr('required', '');
 		}
 		
+		if(pattern) {
+			$component.attr('pattern', pattern);
+		}
+		
 		if(isHidden) {
 			$component.attr('class', 'hiddenInput');
 		}
@@ -94,13 +98,13 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 		return $component;
 	}
 	
-	this._getComponent = function(propertyType, isHidden) {
+	this._getComponent = function(propertyType, isHidden, pattern) {
 		var $propertyTypeComponent = null;
 		
 		if (propertyType.dataType === "INTEGER") {
-			$propertyTypeComponent = this._getInputField("number", "1", propertyType.code, propertyType.description, propertyType.mandatory, isHidden);
+			$propertyTypeComponent = this._getInputField("number", "1", propertyType.code, propertyType.description, propertyType.mandatory, isHidden, pattern);
 		} else if (propertyType.dataType === "VARCHAR") {
-			$propertyTypeComponent = this._getInputField("text", null, propertyType.code, propertyType.description, propertyType.mandatory, isHidden);
+			$propertyTypeComponent = this._getInputField("text", null, propertyType.code, propertyType.description, propertyType.mandatory, isHidden, pattern);
 		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
 			var vocabulary = null;
 			if(isNaN(propertyType.vocabulary)) {
@@ -289,7 +293,7 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 		
 		//Drop Down
 		//Create and set the field
-		var $freezerNameDropDown = this._getComponent(this._getPropertyFromType(freezerNamePropertyCode), false);
+		var $freezerNameDropDown = this._getComponent(this._getPropertyFromType(freezerNamePropertyCode), false, null);
 		$freezerNameDropDown.val(selectedFreezer);
 		
 		$freezerNameDropDown.change(
@@ -314,8 +318,8 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 		//
 		
 		//Attach row and column hidden fields
-		var $propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(freezerRowPropertyCode), true);
-		var $propertyTypeColComponent = this._getComponent(this._getPropertyFromType(freezerColPropertyCode), true);
+		var $propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(freezerRowPropertyCode), true, null);
+		var $propertyTypeColComponent = this._getComponent(this._getPropertyFromType(freezerColPropertyCode), true, null);
 		$container
 			.append($propertyTypeRowComponent)
 			.append($propertyTypeColComponent);
@@ -461,7 +465,7 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 			//
 			if($virtualFreezer && selectedRow && selectedCol) {
 				//Create and set the field
-				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), false);
+				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), false, '[A-Z0-9_]+');
 				$propertyTypeBoxComponent.change(
 					function() {
 						$(this).val($(this).val().toUpperCase()); //Box Names can only be upper case
@@ -478,7 +482,7 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 								.append($propertyTypeBoxComponent)
 					);
 			} else {
-				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), true);
+				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), true, null);
 				$container.append($propertyTypeBoxComponent);
 			}
 			
