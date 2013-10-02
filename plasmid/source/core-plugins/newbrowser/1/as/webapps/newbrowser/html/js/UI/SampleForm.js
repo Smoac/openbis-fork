@@ -44,6 +44,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 	this.mode = mode;
 	this.sample = sample;
 	this.freezer = null;
+	this.dataSetViewer = null;
 	
 	this.init = function() {
 			Util.blockUI();
@@ -60,6 +61,8 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				if(localReference.mode === SampleFormMode.CREATE) {
 					//Do Nothing
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
+					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, this.mainController.openbisServer);
+					this.dataSetViewer.init();
 					
 					var sample = localReference.sample;
 					//Populate Project/Space and Code
@@ -426,6 +429,11 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				}
 				component += "</fieldset>";
 			}
+			
+			//
+			// DATASETS
+			//
+			component += "<div id='dataSetViewerContainer'></div>";
 			
 			//
 			// FORM SUBMIT
