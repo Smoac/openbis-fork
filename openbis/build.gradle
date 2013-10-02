@@ -1,9 +1,4 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
-apply plugin: 'war'
-
-configurations {
-	gwt
-}
 
 dependencies {
 
@@ -55,7 +50,9 @@ dependencies {
 		'hibernate:hibernate-validator:4.2.0.Final',
 		'eclipse:jetty-deploy:8.1.8.v20121106',
 		'truezip:truezip:6.8.1',
-		'apache:poi-ooxml:3.8-20120326'
+		'apache:poi-ooxml:3.8-20120326',
+		'google:gwt-user:2.4', 
+		'google:gwt-dev:2.4'	
 		
 	runtime (project(':common')) {
 		transitive = true
@@ -101,11 +98,6 @@ dependencies {
 										
 	testRuntime 'fjelmer:classycle:1.4', 
 		'apache:commons-fileupload:1.2.1'
-		
-	providedCompile 'google:gwt-user:2.4', 'google:gwt-dev:2.4'		
-	
-	gwt 'reveregroup:gwt-image-loader:1.1.4'
-	
 }
 
 sourceSets { 
@@ -133,47 +125,3 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
 
-task compileGwt (dependsOn: classes, type: JavaExec) {
-
-	buildDir = "${project.buildDir}/gwt"
-	extraDir = "${project.buildDir}/extra"
-     
-	inputs.source sourceSets.main.java.srcDirs
-	inputs.dir sourceSets.main.output.resourcesDir
-	outputs.dir buildDir
-     
-	doFirst {
-		file(buildDir).mkdirs()
-	}
-     
-	main = 'com.google.gwt.dev.Compiler'
- 
-	classpath {
-		[
-			sourceSets.main.java.srcDirs,
-			sourceSets.main.output.resourcesDir,
-			sourceSets.main.output.classesDir,
-			sourceSets.main.compileClasspath,
-			project(":common").sourceSets.main.java.srcDirs,
-			project(":openbis_api").sourceSets.main.java.srcDirs,
-			configurations.gwt
-		]   
-	}
-     
-	args =
-		[
-			'ch.systemsx.cisd.openbis.OpenBIS', // Your GWT module
-			'-war', buildDir,
-			'-logLevel', 'INFO',
-			'-localWorkers', '2',
-			'-compileReport', 
-			'-extra', extraDir,
-		]
-	
-	maxHeapSize = '1024m'
-}
- 
-war.dependsOn compileGwt
-war {
-    from compileGwt.buildDir
-}

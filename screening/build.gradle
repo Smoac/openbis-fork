@@ -2,12 +2,12 @@ apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
 	compile project(':common'),
-			project(':datastore-server')
+			project(':datastore_server')
 			
 	compile 'openhms:jackcess:+',
 			'google:gwt-image-loader:+'
 			
-	testCompile project(path: ':datastore-server', configuration: 'tests')		
+	testCompile project(path: ':datastore_server', configuration: 'tests')		
 			
 }
 

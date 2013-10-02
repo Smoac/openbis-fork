@@ -1,0 +1,65 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply plugin: 'war'
+
+archivesBaseName = 'openBIS-server-standard-technologies-'+version
+
+
+configurations {
+	gwt
+}
+
+dependencies {
+	compile project(':screening'),
+			project(':rtd_phosphonetx')
+	
+	providedCompile 'google:gwt-user:2.4',
+					'google:gwt-dev:2.4'	
+		
+	gwt 'reveregroup:gwt-image-loader:1.1.4'
+}
+
+task compileGwt (dependsOn: classes, type: JavaExec) {
+
+	buildDir = "${project.buildDir}/gwt"
+	extraDir = "${project.buildDir}/extra"
+     
+	inputs.source sourceSets.main.java.srcDirs
+	inputs.dir sourceSets.main.output.resourcesDir
+	outputs.dir buildDir
+     
+	doFirst {
+		file(buildDir).mkdirs()
+	}
+     
+	main = 'com.google.gwt.dev.Compiler'
+ 
+	classpath {
+		[
+			project("openbis").sourceSets.main.java.srcDirs,
+			project("openbis").sourceSets.main.output.resourcesDir,
+			project("openbis").sourceSets.main.output.classesDir,
+			project("openbis").sourceSets.main.compileClasspath,
+			project(":common").sourceSets.main.java.srcDirs,
+			project(":openbis_api").sourceSets.main.java.srcDirs,
+			configurations.gwt
+		]   
+	}
+     
+	args =
+		[
+			'ch.systemsx.cisd.openbis.OpenBIS', // Your GWT module
+			'-war', buildDir,
+			'-logLevel', 'INFO',
+			'-localWorkers', '2',
+			'-compileReport', 
+			'-extra', extraDir,
+		]
+	
+	maxHeapSize = '1024m'
+}
+ 
+war.dependsOn compileGwt
+war {
+    from compileGwt.buildDir
+}
+

@@ -66,6 +66,10 @@ gatheringTask.execute()
 versionNumber = antProject.getProperty("version")
 revisionNumber = antProject.getProperty("revision")
 
+// set default artifact name
+version=versionNumber+"-r"+revisionNumber
+group="cisd"
+
 test {
     useTestNG()
     options.suites('sourceTest/java/tests.xml')    
