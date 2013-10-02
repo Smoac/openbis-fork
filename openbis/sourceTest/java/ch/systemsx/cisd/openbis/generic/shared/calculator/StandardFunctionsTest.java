@@ -44,6 +44,13 @@ import org.testng.annotations.Test;
 public class StandardFunctionsTest extends AssertJUnit
 {
     @Test
+    public void testGetDateAsString()
+    {
+        Date date = new Date(1382785041979L);
+        assertEquals("2013-10-26 12:57:21", StandardFunctions.getDateAsString(date));
+    }
+
+    @Test
     public void testCurrentDate()
     {
         Date d1 = new Date();

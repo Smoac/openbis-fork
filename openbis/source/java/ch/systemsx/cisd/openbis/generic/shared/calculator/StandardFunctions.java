@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.generic.shared.calculator;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -79,12 +81,10 @@ public final class StandardFunctions
     }
 
     /**
-     * Returns the specified value as an integer. Returns the smallest integer if <code>value</code>
-     * is <code>null</code> or its trimmed <code>toString()</code> representation is an empty
-     * string.
+     * Returns the specified value as an integer. Returns the smallest integer if <code>value</code> is <code>null</code> or its trimmed
+     * <code>toString()</code> representation is an empty string.
      * 
-     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as an
-     *             integer.
+     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as an integer.
      */
     public static Integer toInt(Object value)
     {
@@ -92,12 +92,10 @@ public final class StandardFunctions
     }
 
     /**
-     * Returns the specified value as an integer. Returns <code>defaultValue</code> if
-     * <code>value</code> is <code>null</code> or its trimmed <code>toString()</code> representation
-     * is an empty string.
+     * Returns the specified value as an integer. Returns <code>defaultValue</code> if <code>value</code> is <code>null</code> or its trimmed
+     * <code>toString()</code> representation is an empty string.
      * 
-     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as an
-     *             integer.
+     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as an integer.
      */
     public static Integer toInt(Object value, Integer defaultValue)
     {
@@ -110,12 +108,10 @@ public final class StandardFunctions
     }
 
     /**
-     * Returns the specified value as a floating-point number. Returns the smallest floating-point
-     * number if <code>value</code> is <code>null</code> or its trimmed <code>toString()</code>
-     * representation is an empty string.
+     * Returns the specified value as a floating-point number. Returns the smallest floating-point number if <code>value</code> is <code>null</code>
+     * or its trimmed <code>toString()</code> representation is an empty string.
      * 
-     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as a
-     *             floating-point number.
+     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as a floating-point number.
      */
     public static Double toFloat(Object value)
     {
@@ -123,12 +119,10 @@ public final class StandardFunctions
     }
 
     /**
-     * Returns the specified value as a floating-point number. Returns <code>defaultValue</code> if
-     * <code>value</code> is <code>null</code> or its trimmed <code>toString()</code> representation
-     * is an empty string.
+     * Returns the specified value as a floating-point number. Returns <code>defaultValue</code> if <code>value</code> is <code>null</code> or its
+     * trimmed <code>toString()</code> representation is an empty string.
      * 
-     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as a
-     *             floating-point number.
+     * @throws NumberFormatException if <code>value.toString()</code> can not be parsed as a floating-point number.
      */
     public static Double toFloat(Object value, Double defaultValue)
     {
@@ -141,8 +135,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Returns <code>thenValue</code> if <code>condition == true</code> otherwise
-     * <code>elseValue</code> is returned.
+     * Returns <code>thenValue</code> if <code>condition == true</code> otherwise <code>elseValue</code> is returned.
      * 
      * @return <code>elseValue</code> if <code>condition == null</code>.
      */
@@ -152,8 +145,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Calculates the sum of the specified values. Blank strings or <code>null</code> values in the
-     * list are ignored.
+     * Calculates the sum of the specified values. Blank strings or <code>null</code> values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -172,8 +164,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Calculates the mean of the specified values. Blank strings or <code>null</code> values in the
-     * list are ignored.
+     * Calculates the mean of the specified values. Blank strings or <code>null</code> values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -191,8 +182,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Calculates the standard deviation of the specified values. Blank strings or <code>null</code>
-     * values in the list are ignored.
+     * Calculates the standard deviation of the specified values. Blank strings or <code>null</code> values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -215,8 +205,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Calculates the median of the specified values. Blank strings or <code>null</code> values in
-     * the list are ignored.
+     * Calculates the median of the specified values. Blank strings or <code>null</code> values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -231,8 +220,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Calculates the minimum of the specified values. Blank strings or <code>null</code> values in
-     * the list are ignored.
+     * Calculates the minimum of the specified values. Blank strings or <code>null</code> values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -246,8 +234,7 @@ public final class StandardFunctions
     }
 
     /**
-     * Calculates the maximum of the specified values. Blank strings or <code>null</code> values in
-     * the list are ignored.
+     * Calculates the maximum of the specified values. Blank strings or <code>null</code> values in the list are ignored.
      * 
      * @throws NumberFormatException if an element can not be parsed as a floating-point number.
      * @throws IllegalArgumentException if the list is empty.
@@ -336,6 +323,13 @@ public final class StandardFunctions
     public static Date currentDate()
     {
         return new Date();
+    }
+
+    /** Returns the given date as a formatted String */
+    public static String getDateAsString(Date date)
+    {
+        DateFormat d = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        return d.format(date);
     }
 
     public static String createLink(String linkText, String linkUrl)
