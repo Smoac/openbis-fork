@@ -45,7 +45,8 @@ var Util = new function() {
 					'-webkit-border-radius': '6px 6px 6px 6px', 
 					'-moz-border-radius': '6px 6px 6px 6px', 
 					'border-radius' : '6px 6px 6px 6px',
-					'box-shadow' : '0 1px 10px rgba(0, 0, 0, 0.1)'
+					'box-shadow' : '0 1px 10px rgba(0, 0, 0, 0.1)',
+					'cursor' : 'default'
 		};
 		
 		$('#navbar').block({ message: '', css: { width: '0px' } });
@@ -66,6 +67,7 @@ var Util = new function() {
 	}
 	
 	this.showError = function(withHTML, andCallback) {
+		withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
 		this.blockUINoMessage();
 		jError(
 				withHTML,
@@ -88,6 +90,7 @@ var Util = new function() {
 	}
 	
 	this.showSuccess = function(withHTML, andCallback) {
+		withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
 		this.blockUINoMessage();
 		jSuccess(
 				withHTML,
@@ -110,6 +113,7 @@ var Util = new function() {
 	}
 	
 	this.showInfo = function(withHTML, andCallback) {
+		withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
 		this.blockUINoMessage();
 		jNotify(
 				withHTML,
