@@ -61,7 +61,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				if(localReference.mode === SampleFormMode.CREATE) {
 					//Do Nothing
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
-					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, this.mainController.openbisServer);
+					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.mainController.openbisServer, localReference.profile.allDataStores[0].downloadUrl);
 					this.dataSetViewer.init();
 					
 					var sample = localReference.sample;
@@ -431,11 +431,6 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			}
 			
 			//
-			// DATASETS
-			//
-			component += "<div id='dataSetViewerContainer'></div>";
-			
-			//
 			// FORM SUBMIT
 			//
 			if(!(this.mode === SampleFormMode.VIEW)) {
@@ -447,6 +442,11 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				component += "</div>";
 				component += "</fieldset>";
 			}
+			
+			//
+			// DATASETS
+			//
+			component += "<div id='dataSetViewerContainer'></div>";
 			
 			component += "</form>";
 			

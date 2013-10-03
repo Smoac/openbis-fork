@@ -1,4 +1,4 @@
-function DataSetViewer(containerId, sample, openbisServer) {
+function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL) {
 	this.containerId = containerId;
 	this.openbisServer = openbisServer;
 	this.sample = sample;
@@ -40,6 +40,10 @@ function DataSetViewer(containerId, sample, openbisServer) {
 	}
 	
 	this.repaint = function() {
+		var $container = $("#"+this.containerId);
+		$container.empty();
+		$container.append($("<legend>").html("DataSets"));
+		
 		//
 		// Don't paint datasets for entities that don't have
 		//
@@ -48,18 +52,16 @@ function DataSetViewer(containerId, sample, openbisServer) {
 			numberOfDatasets++;
 		}
 		
-		
 		if(numberOfDatasets === 0) {
+			$container.append($("<p>")
+								.append($("<i>", { class: "icon-info-sign" }))
+								.append(" No datasets found."));
 			return;
 		}
 		
 		//
-		// Simple Datasets Browser
+		// Simple Files Table
 		//
-		var $container = $("#"+this.containerId);
-		$container.empty();
-		$container.append($("<legend>").html("DataSets"));
-		
 		$dataSetsTable = $("<table>", { class: "table"});
 		$dataSetsTable.append(
 			$("<thead>").append(
@@ -77,12 +79,24 @@ function DataSetViewer(containerId, sample, openbisServer) {
 			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
 			
 			for(var i = 0; i < datasetFiles.length; i++) {
-				$dataSetsTableBody.append(
-					$("<tr>")
-						.append($("<td>").html(dataset.code))
-						.append($("<td>").html(dataset.dataSetTypeCode))
-						.append($("<td>").html(datasetFiles[i].pathInListing))
-				);
+				var $tableRow = $("<tr>")
+									.append($("<td>").html(dataset.code))
+									.append($("<td>").html(dataset.dataSetTypeCode));
+									
+				if(datasetFiles[i].isDirectory) {
+					$tableRow.append($("<td>").html(datasetFiles[i].pathInDataSet));
+				} else {
+					var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles[i].pathInDataSet + "?sessionID=" + this.openbisServer.getSession();
+					$tableRow.append(
+								$("<td>").append(
+									$("<a>").attr("href", downloadUrl)
+											.attr("download", 'download')
+											.html(datasetFiles[i].pathInDataSet)
+								)
+							);
+				}
+				
+				$dataSetsTableBody.append($tableRow);
 			}
 		}
 		
