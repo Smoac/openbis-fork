@@ -2,36 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="source/java"/>
 	<classpathentry kind="src" path="sourceTest/java"/>
-	<classpathentry kind="lib" path="/libraries/commons-codec/commons-codec.jar" sourcepath="/libraries/commons-codec/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/cisd-base/cisd-base.jar" sourcepath="/libraries/cisd-base/cisd-base-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/postgresql/postgresql.jar" sourcepath="/libraries/postgresql/postgresql-src.zip"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/datastore_server"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/openbis"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/dbmigration"/>
-	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-beans.jar"/>
-	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
-	<classpathentry kind="lib" path="/libraries/restrictionchecker/restrictions.jar"/>
-	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jaxb/jaxb-api.jar" sourcepath="/libraries/jaxb/jaxb-api-src.zip"/>
-	<classpathentry kind="lib" path="/libraries/jaxb/jsr173_1.0_api.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/jmock.jar"/>
-	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/jfreechart/jcommon-1.0.16.jar"/>
-	<classpathentry kind="lib" path="/libraries/jfreechart/jfreechart-1.0.13.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/libraries/jfreechart/jfreechart-1.0.13-javadocs.zip!/jfreechart-1.0.13-javadocs"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="/libraries/jetty8/lib/server/servlet-api-3.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/gwt2.4/gwt-isserializable.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring-jdbc.jar"/>
-	<classpathentry kind="lib" path="/libraries/spring/spring.jar"/>
-	<classpathentry kind="output" path="targets/classes"/>
+	<classpathentry exported="true" kind="src" path="/common"/>
+	<classpathentry exported="true" kind="src" path="/datastore_server"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="org.springsource.ide.eclipse.gradle.classpathcontainer"/>
+	<classpathentry kind="output" path="targets"/>
 </classpath>

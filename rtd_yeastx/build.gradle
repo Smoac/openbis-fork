@@ -2,15 +2,28 @@ apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
 
-	compile project(':datastore_server')
-	
-	testCompile project(path: ':common', configuration: 'tests')
+    compile project(':datastore_server')
+    
+    testCompile project(path: ':common', configuration: 'tests')
 }
 
 sourceSets { 
-	main {
-		resources {
-			srcDirs = ['source/java']
-		}
-	}
+    main {
+        resources {
+            srcDirs = ['source/java']
+        }
+        resources {
+            srcDirs = ['source']
+            exclude 'java/**'
+        }
+        resources {
+            srcDirs = ['targets/dist']
+            include 'BUILD-*.INFO'
+        }
+    }
 }
+
+
+archivesBaseName = 'datastore_server_plugin-yeastx'
+
+println "version:"+version
