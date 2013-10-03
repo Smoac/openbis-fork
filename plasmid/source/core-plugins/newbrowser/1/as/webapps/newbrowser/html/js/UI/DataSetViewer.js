@@ -6,6 +6,18 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 	this.sampleDataSetsFiles = {};
 	
 	this.init = function() {
+		//
+		// Loading Message
+		//
+		var $container = $("#"+this.containerId);
+		$container.empty();
+		$container.append($("<legend>").html("DataSets"));
+		$container.append($("<p>")
+							.append($("<i>", { class: "icon-info-sign" }))
+							.append(" Loading datasets."));
+		//
+		// Loading the datasets
+		//
 		var cleanSample = $.extend({}, this.sample);
 		delete cleanSample.parents;
 		delete cleanSample.children; 
