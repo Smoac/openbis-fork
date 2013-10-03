@@ -73,7 +73,7 @@ public class ZipFileIntegrityVerifier extends AbstractZipFileVerifier
 
         } catch (ZipException ex)
         {
-            return new VerificationError(VerificationErrorType.ERROR, ex.getMessage());
+            return new VerificationError(VerificationErrorType.ERROR, "Corrupted zip file entry, reason: " + ex.getMessage());
         } catch (IOException ex)
         {
             return new VerificationError(VerificationErrorType.ERROR, entry.getName() + ": " + ex.getMessage());
