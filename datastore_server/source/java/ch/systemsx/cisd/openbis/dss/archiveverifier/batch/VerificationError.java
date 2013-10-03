@@ -42,4 +42,11 @@ public class VerificationError
     {
         return this.message;
     }
+
+    @Override
+    public String toString()
+    {
+        return getMessage();
+    }
+
 }

@@ -38,8 +38,7 @@ public class PropertyType implements Serializable
     private static final long serialVersionUID = 1L;
 
     /**
-     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet
-     * are final.
+     * Class used to initialize a new data set instance. Necessary since all the fields of a DataSet are final.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -54,6 +53,42 @@ public class PropertyType implements Serializable
         private String description;
 
         private boolean mandatory;
+
+        private boolean managed;
+
+        private boolean dinamic;
+
+        private boolean showInEditViews;
+
+        public boolean isManaged()
+        {
+            return managed;
+        }
+
+        public void setManaged(boolean managed)
+        {
+            this.managed = managed;
+        }
+
+        public boolean isDinamic()
+        {
+            return dinamic;
+        }
+
+        public void setDinamic(boolean dinamic)
+        {
+            this.dinamic = dinamic;
+        }
+
+        public boolean isShowInEditViews()
+        {
+            return showInEditViews;
+        }
+
+        public void setShowInEditViews(boolean showInEditViews)
+        {
+            this.showInEditViews = showInEditViews;
+        }
 
         public DataTypeCode getDataType()
         {
@@ -116,6 +151,12 @@ public class PropertyType implements Serializable
 
     private boolean mandatory;
 
+    private boolean managed;
+
+    private boolean dinamic;
+
+    private boolean showInEditViews;
+
     /**
      * Creates a new instance with the provided initializer
      * 
@@ -137,6 +178,25 @@ public class PropertyType implements Serializable
 
         this.description = initializer.getDescription();
         this.mandatory = initializer.isMandatory();
+
+        this.managed = initializer.isManaged();
+        this.dinamic = initializer.isDinamic();
+        this.showInEditViews = initializer.isShowInEditViews();
+    }
+
+    public boolean isManaged()
+    {
+        return managed;
+    }
+
+    public boolean isDinamic()
+    {
+        return dinamic;
+    }
+
+    public boolean isShowInEditViews()
+    {
+        return showInEditViews;
     }
 
     public DataTypeCode getDataType()
@@ -251,5 +311,20 @@ public class PropertyType implements Serializable
     private void setMandatory(boolean mandatory)
     {
         this.mandatory = mandatory;
+    }
+
+    public void setManaged(boolean managed)
+    {
+        this.managed = managed;
+    }
+
+    public void setDinamic(boolean dinamic)
+    {
+        this.dinamic = dinamic;
+    }
+
+    public void setShowInEditViews(boolean showInEditViews)
+    {
+        this.showInEditViews = showInEditViews;
     }
 }

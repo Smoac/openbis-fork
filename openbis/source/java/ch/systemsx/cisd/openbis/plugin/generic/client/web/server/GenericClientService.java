@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -711,5 +713,41 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
+    }
+
+    @Override
+    public Map<String, Object> uploadedSamplesInfo(SampleType sampleType, String sessionKey)
+    {
+        HttpSession httpSession = getHttpSession();
+        UploadedFilesBean uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
+
+        Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
+
+        for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+        {
+            files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+        }
+
+        Map<String, Object> info = new HashMap<String, Object>();
+        try
+        {
+            BatchSamplesOperation batchSamplesOperation = SampleUploadSectionsParser.prepareSamples(
+                    sampleType,
+                    files,
+                    null,
+                    null,
+                    true,
+                    null,
+                    BatchOperationKind.REGISTRATION);
+            info.put("identifiersPressent", Boolean.TRUE);
+        } catch (Exception ex)
+        {
+            if (ex.getMessage().contains("Mandatory column 'identifier' is missing."))
+            {
+                info.put("identifiersPressent", Boolean.FALSE);
+            }
+        }
+
+        return info;
     }
 }

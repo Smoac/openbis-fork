@@ -119,7 +119,7 @@ check layeringOf bo.1 bo.2
 # Plugins
 ##########################################
 
-[generic] = ${generic}.* excluding *.DefaultClientPluginFactoryProvider
+[generic] = ${generic}.* excluding *.DefaultClientPluginFactoryProvider *.GeneralInformationChangingService
 [plugins] = ${plugin}.* 
 [plugins-clientpluginfactories] = ${plugin}.* excluding *.ClientPluginFactory 
 

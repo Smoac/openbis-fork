@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -23,7 +24,9 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
+import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
@@ -38,12 +41,14 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 
 /**
  * @author Franz-Josef Elmer
@@ -53,10 +58,17 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    public static final int MINOR_VERSION = 3;
+    public static final int MINOR_VERSION = 5;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
+
+    @Resource(name = ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames.GENERIC_PLUGIN_SERVICE)
+    private IGenericClientService genericClientService;
+
+    @Resource(name = "request-context-provider")
+    @Private
+    public IRequestContextProvider requestContextProvider;
 
     // Default constructor needed by Spring
     public GeneralInformationChangingService()
@@ -206,4 +218,68 @@ public class GeneralInformationChangingService extends
         return MINOR_VERSION;
     }
 
+    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType getSampleType(String sampleTypeCode, String sessionToken)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes = server.listSampleTypes(sessionToken);
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType = null;
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType auxSampleType : sampleTypes)
+        {
+            if (auxSampleType.getCode().equals(sampleTypeCode))
+            {
+                sampleType = auxSampleType;
+                break;
+            }
+        }
+        return sampleType;
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final String registerSamples(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey,
+            final String defaultGroupIdentifier)
+    {
+        List<BatchRegistrationResult> results = genericClientService.registerSamples(
+                getSampleType(sampleTypeCode, sessionToken),
+                sessionKey,
+                defaultGroupIdentifier,
+                false);
+
+        return results.get(0).getMessage();
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final String updateSamples(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey,
+            final String defaultGroupIdentifier)
+    {
+        List<BatchRegistrationResult> results = genericClientService.updateSamples(
+                getSampleType(sampleTypeCode, sessionToken),
+                sessionKey,
+                defaultGroupIdentifier);
+
+        return results.get(0).getMessage();
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public final Map<String, Object> uploadedSamplesInfo(
+            final String sessionToken,
+            final String sampleTypeCode,
+            final String sessionKey)
+    {
+        Map<String, Object> info = genericClientService.uploadedSamplesInfo(
+                getSampleType(sampleTypeCode, sessionToken),
+                sessionKey);
+
+        return info;
+    }
 }

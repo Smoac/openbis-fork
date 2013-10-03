@@ -1155,6 +1155,53 @@ openbis.prototype.removeFromMetaproject = function(metaprojectId, assignmentsToR
 }
 
 /**
+ * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
+ * @method
+ */
+openbis.prototype.registerSamples = function(sampleTypeCode, sessionKey, defaultGroupIdentifier, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "registerSamples",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 sessionKey,
+							 defaultGroupIdentifier] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
+ * @method
+ */
+openbis.prototype.updateSamples = function(sampleTypeCode, sessionKey, defaultGroupIdentifier, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "updateSamples",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 sessionKey,
+							 defaultGroupIdentifier] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.registerSamples(String, String, String)
+ * @method
+ */
+openbis.prototype.uploadedSamplesInfo = function(sampleTypeCode, sessionKey, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "uploadedSamplesInfo",
+				"params" : [ this.getSession(),
+							 sampleTypeCode,
+							 sessionKey] },
+		success: action
+	});
+}
+
+/**
  * ============================================================================
  * ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer methods
  * ============================================================================

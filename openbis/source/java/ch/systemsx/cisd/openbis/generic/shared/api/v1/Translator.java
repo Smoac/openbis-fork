@@ -309,11 +309,6 @@ public class Translator
         PropertyTypeGroupInitializer groupInitializer = new PropertyTypeGroupInitializer();
         for (EntityTypePropertyType<?> etpt : etpts)
         {
-            // Skip Dynamic and Managed properties
-            if (etpt.isDynamic() || etpt.isManaged())
-            {
-                continue;
-            }
 
             String thisSectionName = etpt.getSection();
             if (false == equals(sectionName, thisSectionName))
@@ -348,6 +343,10 @@ public class Translator
             ptInitializer.setLabel(propertyType.getLabel());
             ptInitializer.setDescription(propertyType.getDescription());
             ptInitializer.setMandatory(etpt.isMandatory());
+
+            ptInitializer.setManaged(etpt.isManaged());
+            ptInitializer.setDinamic(etpt.isDynamic());
+            ptInitializer.setShowInEditViews(etpt.isShownInEditView());
 
             if (isControlledVocabulary)
             {
@@ -445,12 +444,10 @@ public class Translator
     }
 
     /**
-     * Translates specified iterable collection of {@link AbstractExternalData} into a list of
-     * {@link DataSet} instance.
+     * Translates specified iterable collection of {@link AbstractExternalData} into a list of {@link DataSet} instance.
      * 
-     * @param connectionsToGet Set of data set connections which should also be translated. This
-     *            assumes that the {@link AbstractExternalData} instances are populated with these
-     *            connections.
+     * @param connectionsToGet Set of data set connections which should also be translated. This assumes that the {@link AbstractExternalData}
+     *            instances are populated with these connections.
      */
     public static List<DataSet> translate(Iterable<AbstractExternalData> dataSets,
             EnumSet<Connections> connectionsToGet)
@@ -464,12 +461,10 @@ public class Translator
     }
 
     /**
-     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet}
-     * instance.
+     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet} instance.
      * 
-     * @param connectionsToGet Set of data set connections which should also be translated. This
-     *            assumes that the {@link AbstractExternalData} instance is populated with these
-     *            connections.
+     * @param connectionsToGet Set of data set connections which should also be translated. This assumes that the {@link AbstractExternalData}
+     *            instance is populated with these connections.
      */
     public static DataSet translate(AbstractExternalData externalDatum,
             EnumSet<Connections> connectionsToGet)
@@ -478,14 +473,12 @@ public class Translator
     }
 
     /**
-     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet}
-     * instance.
+     * Translates the specified {@link AbstractExternalData} instance into a {@link DataSet} instance.
      * 
-     * @param connectionsToGet Set of data set connections which should also be translated. This
-     *            assumes that the {@link AbstractExternalData} instance is populated with these
-     *            connections.
-     * @param doRecurseIntoContainedDataSets If <code>true</code>, the translation will recurse into
-     *            contained dataset, if <code>false</code>, contained datasets will not be set.
+     * @param connectionsToGet Set of data set connections which should also be translated. This assumes that the {@link AbstractExternalData}
+     *            instance is populated with these connections.
+     * @param doRecurseIntoContainedDataSets If <code>true</code>, the translation will recurse into contained dataset, if <code>false</code>,
+     *            contained datasets will not be set.
      */
     private static DataSet translate(AbstractExternalData externalDatum,
             EnumSet<Connections> connectionsToGet, boolean doRecurseIntoContainedDataSets)
