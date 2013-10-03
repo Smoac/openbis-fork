@@ -10,15 +10,8 @@ dependencies {
 sourceSets { 
     main {
         resources {
-            srcDirs = ['source/java']
-        }
-        resources {
-            srcDirs = ['source']
+            srcDirs = ['source/java', 'source', 'targets/dist']
             exclude 'java/**'
-        }
-        resources {
-            srcDirs = ['targets/dist']
-            include 'BUILD-*.INFO'
         }
     }
 }
