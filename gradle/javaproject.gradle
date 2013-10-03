@@ -55,19 +55,36 @@ buildscript {
 repositories repositoryConfig
 
 // Gathering version and revision
-gatheringTask = new ch.systemsx.cisd.ant.task.subversion.GatherRevisionAndVersionTask()
+def gatheringTask = new ch.systemsx.cisd.ant.task.subversion.GatherRevisionAndVersionTask()
 gatheringTask.setProjectNames(project.getAllprojects().collect { it.getName() })
-antProject = new org.apache.tools.ant.Project()
+def antProject = new org.apache.tools.ant.Project()
 antProject.setBaseDir(new File("${project.projectDir}"))
 gatheringTask.setProject(antProject)
 gatheringTask.setVersion("version")
 gatheringTask.setRevision("revision")
+gatheringTask.setClean("clean")
 gatheringTask.execute()
-versionNumber = antProject.getProperty("version")
-revisionNumber = antProject.getProperty("revision")
+def versionNumber = antProject.getProperty("version")
+def revisionNumber = antProject.getProperty("revision")
+def cleanFlag = antProject.getProperty("clean")
 
 // set default artifact name
 version=versionNumber+"-r"+revisionNumber
+
+// create BUILD INFO file
+def targetsDist = 'targets/dist'
+def distFolder = new File("${project.projectDir}/${targetsDist}")
+distFolder.deleteDir()
+distFolder.mkdirs()
+
+def writer = new FileWriter("${project.projectDir}/${targetsDist}/BUILD-${project.name}.INFO")
+try {
+    writer.println("${versionNumber}:${revisionNumber}:${cleanFlag}")
+} finally {
+    writer.close()
+}
+
+
 group="cisd"
 
 test {
