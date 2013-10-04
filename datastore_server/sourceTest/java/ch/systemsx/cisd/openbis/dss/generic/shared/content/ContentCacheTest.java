@@ -36,6 +36,7 @@ import ch.systemsx.cisd.common.concurrent.MessageChannel;
 import ch.systemsx.cisd.common.concurrent.MessageChannelBuilder;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.ConsoleLogger;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.test.ProxyAction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.ContentCache.DataSetInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
@@ -54,7 +55,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
     {
         createCache();
 
-        assertEquals("Content cache created. Workspace: " + workSpace.getAbsolutePath() + "\n"
+        AssertionUtil.assertContainsLines("Content cache created. Workspace: " + workSpace.getAbsolutePath() + "\n"
                 + createSizeLogLine(0, 0).trim(), logRecorder.getLogContent());
         assertEquals("{}", dataSetInfos.toString());
         context.assertIsSatisfied();
@@ -72,7 +73,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         createCache();
 
-        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE)
+        AssertionUtil.assertContainsLines(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE)
                 + createSizeLogLine(4, 1).trim(), logRecorder.getLogContent());
         assertDataSetInfos(DATA_SET_CODE, 1, 1, 42000);
         context.assertIsSatisfied();
@@ -445,7 +446,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
-        assertEquals(createFirstLogLine() + createSizeLogLine(0, 0).trim(),
+        AssertionUtil.assertContainsLines(createFirstLogLine() + createSizeLogLine(0, 0).trim(),
                 logRecorder.getLogContent());
         assertEquals(1000, dataSetInfos.get(DATA_SET_CODE).lastModified);
         context.assertIsSatisfied();
@@ -467,7 +468,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
-        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
+        AssertionUtil.assertContainsLines(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
                 + createSizeLogLine(28, 1) + "Couldn't remove " + dataSetFolder1 + ".",
                 logRecorder.getLogContent());
         assertEquals(1000, dataSetInfos.get(DATA_SET_CODE1).lastModified);
@@ -496,7 +497,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
-        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
+        AssertionUtil.assertContainsLines(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
                 + createRecreatedlogLine(DATA_SET_CODE2) + createSizeLogLine(20, 2)
                 + createRemoveLogLine(DATA_SET_CODE1).trim(), logRecorder.getLogContent());
         assertEquals(null, dataSetInfos.get(DATA_SET_CODE1));
@@ -532,7 +533,7 @@ public class ContentCacheTest extends AbstractRemoteHierarchicalContentTestCase
 
         cache.getFile(SESSION_TOKEN, DATA_SET_LOCATION, pathInfo1);
 
-        assertEquals(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
+        AssertionUtil.assertContainsLines(createFirstLogLine() + createRecreatedlogLine(DATA_SET_CODE1)
                 + createRecreatedlogLine(DATA_SET_CODE2) + createRecreatedlogLine(DATA_SET_CODE3)
                 + createSizeLogLine(84, 3) + createRemoveLogLine(DATA_SET_CODE1)
                 + createRemoveLogLine(DATA_SET_CODE2).trim(), logRecorder.getLogContent());
