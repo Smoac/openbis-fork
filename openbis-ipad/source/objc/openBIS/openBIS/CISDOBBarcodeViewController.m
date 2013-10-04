@@ -103,7 +103,7 @@
     [self.cameraView bringSubviewToFront:self.decodedLabel];
     
     UIImageView *overlayImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"overlaygraphic.png"]];
-    [overlayImageView setFrame:CGRectMake((768/2 - 180), 100, 360, 277)];
+    [overlayImageView setFrame:CGRectMake((768/2 - 360/2), 1024/2 - 277/2 , 360, 277)];
     [self.cameraView addSubview:overlayImageView];
     [overlayImageView release];
     self.backButton.enabled = YES;
