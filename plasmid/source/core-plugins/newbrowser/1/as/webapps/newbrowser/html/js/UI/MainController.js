@@ -122,7 +122,7 @@ function MainController() {
 	this.showSamplesPage = function(sampleTypeCode) {
 		//Update menu
 		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
-		var breadCrumbPage = new BreadCrumbPage(sampleTypeCode, "showSamplesPage", sampleTypeCode, sampleType.description);
+		var breadCrumbPage = new BreadCrumbPage(sampleTypeCode+"-table", "showSamplesPage", sampleTypeCode, sampleType.description);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Sample Table

@@ -92,15 +92,15 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 					}
 						
 					//Disable fields if needed
-					if (localReference.mode === SampleFormMode.VIEW) {
-						var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
-						for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-							var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-							for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-								var propertyType = propertyTypeGroup.propertyTypes[j];
+					var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+						var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+							var propertyType = propertyTypeGroup.propertyTypes[j];
+							if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
 								$("#"+propertyType.code).prop('disabled', true);
 							}
-						}	
+						}
 					}
 					
 					//Populate Links
