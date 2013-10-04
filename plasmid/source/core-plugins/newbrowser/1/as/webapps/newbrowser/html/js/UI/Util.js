@@ -31,12 +31,14 @@ var Util = new function() {
 	}
 	
 	this.blockUINoMessage = function() {
+		this.unblockUI();
 		BlockScrollUtil.disable_scroll();
 		$('#navbar').block({ message: '', css: { width: '0px' } });
 		$.blockUI({ message: '', css: { width: '0px' } });
 	}
 	
 	this.blockUI = function(message) {
+		this.unblockUI();
 		BlockScrollUtil.disable_scroll();
 		
 		var css = { 
@@ -67,13 +69,18 @@ var Util = new function() {
 	}
 	
 	this.showError = function(withHTML, andCallback) {
-		withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+		var isiPad = navigator.userAgent.match(/iPad/i) != null;
+		if(!isiPad) {
+			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+		}
+		
 		this.blockUINoMessage();
+		var localReference = this;
 		jError(
 				withHTML,
 				{
-				  autoHide : false,
-				  clickOverlay : true,
+				  autoHide : isiPad,
+				  clickOverlay : false,
 				  MinWidth : 250,
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,
@@ -84,19 +91,24 @@ var Util = new function() {
 				  ShowOverlay : false,
 		   		  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ if(andCallback) { andCallback();}},
+				  onClosed : function(){ if(andCallback) { andCallback();} else { localReference.unblockUI();}},
 				  onCompleted : function(){ }
 		});
 	}
 	
 	this.showSuccess = function(withHTML, andCallback) {
-		withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+		var isiPad = navigator.userAgent.match(/iPad/i) != null;
+		if(!isiPad) {
+			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+		}
+		
 		this.blockUINoMessage();
+		var localReference = this;
 		jSuccess(
 				withHTML,
 				{
-				  autoHide : false,
-				  clickOverlay : true,
+				  autoHide : isiPad,
+				  clickOverlay : false,
 				  MinWidth : 250,
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,
@@ -107,19 +119,24 @@ var Util = new function() {
 				  ShowOverlay : false,
 		   		  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ if(andCallback) { andCallback();}},
+				  onClosed : function(){ if(andCallback) { andCallback();} else { localReference.unblockUI();}},
 				  onCompleted : function(){ }
 		});
 	}
 	
 	this.showInfo = function(withHTML, andCallback) {
-		withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+		var isiPad = navigator.userAgent.match(/iPad/i) != null;
+		if(!isiPad) {
+			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+		}
+		
 		this.blockUINoMessage();
+		var localReference = this;
 		jNotify(
 				withHTML,
 				{
-				  autoHide : false,
-				  clickOverlay : true,
+				  autoHide : isiPad,
+				  clickOverlay : false,
 				  MinWidth : 250,
 				  TimeShown : 2000,
 				  ShowTimeEffect : 200,
@@ -130,7 +147,7 @@ var Util = new function() {
 				  ShowOverlay : false,
 		   		  ColorOverlay : '#000',
 				  OpacityOverlay : 0.3,
-				  onClosed : function(){ if(andCallback) { andCallback();}},
+				  onClosed : function(){ if(andCallback) { andCallback();} else { localReference.unblockUI();}},
 				  onCompleted : function(){ }
 		});
 	}

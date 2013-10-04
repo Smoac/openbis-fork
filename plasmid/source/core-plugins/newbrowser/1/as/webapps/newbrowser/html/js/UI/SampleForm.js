@@ -84,9 +84,9 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 							var propertyType = propertyTypeGroup.propertyTypes[j];
 							if(propertyType.dataType === "BOOLEAN") {
-								$("#"+propertyType.code).prop('checked', sample.properties[propertyType.code] === "true");
+								$("#"+propertyType.code.replace('$','\\$')).prop('checked', sample.properties[propertyType.code] === "true");
 							} else {
-								$("#"+propertyType.code).val(sample.properties[propertyType.code]);
+								$("#"+propertyType.code.replace('$','\\$')).val(sample.properties[propertyType.code]);
 							}
 						}
 					}
@@ -98,7 +98,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 							var propertyType = propertyTypeGroup.propertyTypes[j];
 							if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
-								$("#"+propertyType.code).prop('disabled', true);
+								$("#"+propertyType.code.replace('$','\\$')).prop('disabled', true);
 							}
 						}
 					}
@@ -515,9 +515,9 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				var value = null;
 				
 				if (propertyType.dataType === "BOOLEAN") {
-					value = $("#"+propertyType.code+":checked").val() === "on";
+					value = $("#"+propertyType.code.replace('$','\\$')+":checked").val() === "on";
 				} else {
-					value = Util.getEmptyIfNull($("#"+propertyType.code).val());
+					value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$')).val());
 				}
 				
 				properties[propertyType.code] = value;
