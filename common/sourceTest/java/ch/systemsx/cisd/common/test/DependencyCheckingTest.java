@@ -50,7 +50,7 @@ public class DependencyCheckingTest extends AssertJUnit
 
     private static final String ANT_CLASSES_FOLDER = "targets/ant/classes";
 
-    private static final String GRADLE_CLASSES_FOLDER = "out/classes/main";
+    private static final String GRADLE_CLASSES_FOLDER = "targets/gradle/classes/main";
 
     @Test
     public void test()

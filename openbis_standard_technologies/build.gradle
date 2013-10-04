@@ -1,8 +1,7 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 apply plugin: 'war'
 
-archivesBaseName = 'openBIS-server-standard-technologies-'+version
-
+archivesBaseName = 'openBIS-server-standard-technologies'
 
 configurations {
 	gwt
@@ -35,12 +34,17 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
  
 	classpath {
 		[
+			sourceSets.main.java.srcDirs,		
 			project("openbis").sourceSets.main.java.srcDirs,
 			project("openbis").sourceSets.main.output.resourcesDir,
 			project("openbis").sourceSets.main.output.classesDir,
 			project("openbis").sourceSets.main.compileClasspath,
 			project(":common").sourceSets.main.java.srcDirs,
 			project(":openbis_api").sourceSets.main.java.srcDirs,
+			project("screening").sourceSets.main.java.srcDirs,
+			project("screening").sourceSets.main.output.resourcesDir,
+			project("rtd_phosphonetx").sourceSets.main.java.srcDirs,
+			project("rtd_phosphonetx").sourceSets.main.output.resourcesDir,			
 			configurations.gwt
 		]   
 	}
@@ -57,9 +61,61 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 	
 	maxHeapSize = '1024m'
 }
- 
+
+
+classpathEntries = files(
+	project(':openbis').file('source/java/applicationContext.xml'),
+	project(':openbis').file('source/java/dbConfigurationContext.xml'),
+	project(':openbis').file('source/java/ehcache.xml'),
+	project(':openbis').file('source/java/genericApplicationContext.xml'),
+	project(':openbis').file('source/java/hibernateContext.xml'),
+	project(':openbis').file('source/java/schema-for-xslt20.xsd'),
+	project(':openbis').file('source/java/XMLSchema.xsd'),
+	project(':screening').file('source/java/screening-applicationContext.xml'),
+	project(':screening').file('source/java/screening-dssApplicationContext.xml'),
+	project(':screening').file('source/java/screening-plugin-applicationContext.xml'),
+	project(':rtd_phosphonetx').file('source/java/proteomics-applicationContext.xml'),
+	project(':rtd_phosphonetx').file('source/java/proteomics-plugin-applicationContext.xml'),
+	project(':common').file('source/java/genericCommonContext.xml'),
+	'source/java/standard-technologies-applicationContext.xml'
+)
+
+task checkClassPathFilesExist {
+  inputs.files classpathEntries
+  doLast {
+    classpathEntries.each {
+   	  x -> assert x.exists()
+    }
+  }
+}
+
 war.dependsOn compileGwt
+war.dependsOn checkClassPathFilesExist
 war {
-    from compileGwt.buildDir
+    from compileGwt.buildDir +"/ch.systemsx.cisd.openbis.OpenBIS"
+    webXml = file('resource/server/web.xml')
+    webInf {
+    	from compileGwt.buildDir +"/WEB-INF",
+    	project(':openbis').file('resource/server/bis-common.xml'),
+    	project(':common').file('resource/../resource/server/web-common.xml')
+    }
+    classpath classpathEntries
+
+    from('../openbis/source'){ 
+        into("WEB-INF/classes") 
+        include "sql/**/*.sql" 
+        exclude "sql/generic/_ERD"
+    } 
+
+    from('../screening/source'){ 
+        into("WEB-INF/classes") 
+        include "sql/**/*.sql" 
+        exclude "sql/imaging/postgresql/_ERD"        
+    } 
+
+    from('../rtd_phosphonetx/source/sql'){ 
+        into("WEB-INF/classes") 
+        include "proteomics/**/*.sql" 
+    } 
 }
 

@@ -23,6 +23,6 @@ dependencies {
 				'hamcrest:hamcrest-library:+'
 } 
 
-jar {
+testJar {
 	from "source/java/genericCommonContext.xml"
 }
