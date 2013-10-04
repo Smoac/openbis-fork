@@ -5,6 +5,23 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 	this.sampleDataSets = {};
 	this.sampleDataSetsFiles = {};
 	
+	this._isPreviewable = function(file) {
+		if(!file.isDirectory) {
+			var haveExtension = file.pathInDataSet.lastIndexOf(".");
+			if( haveExtension !== -1 && (haveExtension + 1 < file.pathInDataSet.length)) {
+				var extension = file.pathInDataSet.substring(haveExtension + 1, file.pathInDataSet.length).toLowerCase();
+				
+				return 	extension === "svg" || 
+						extension === "jpg" || extension === "jpeg" ||
+						extension === "png" ||
+						extension === "gif" ||
+						extension === "html" ||
+						extension === "pdf";
+			}
+		}
+		return false;
+	}
+	
 	this.init = function() {
 		//
 		// Loading Message
@@ -81,6 +98,8 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 					.append($("<th>").html("DataSet Code"))
 					.append($("<th>").html("DataSet Type"))
 					.append($("<th>").html("File Name"))
+					.append($("<th>").html("File Size (Mbyte)"))
+					.append($("<th>").html("Preview"))
 			)
 		);
 		
@@ -94,11 +113,13 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 				var $tableRow = $("<tr>")
 									.append($("<td>").html(dataset.code))
 									.append($("<td>").html(dataset.dataSetTypeCode));
-									
+				
+				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles[i].pathInDataSet + "?sessionID=" + this.openbisServer.getSession();
+					
 				if(datasetFiles[i].isDirectory) {
 					$tableRow.append($("<td>").html(datasetFiles[i].pathInDataSet));
+					$tableRow.append($("<td>"));
 				} else {
-					var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles[i].pathInDataSet + "?sessionID=" + this.openbisServer.getSession();
 					$tableRow.append(
 								$("<td>").append(
 									$("<a>").attr("href", downloadUrl)
@@ -106,6 +127,22 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 											.html(datasetFiles[i].pathInDataSet)
 								)
 							);
+					
+					var sizeInMb = parseInt(datasetFiles[i].fileSize) / 1024 / 1024;
+					var sizeInMbThreeDecimals = Math.floor(sizeInMb * 1000) / 1000;
+					$tableRow.append($("<td>").html(sizeInMbThreeDecimals));
+				}
+				 
+				if(this._isPreviewable(datasetFiles[i])) {
+					$tableRow.append($("<td>").append(
+												$("<a>")
+													.attr("href", downloadUrl)
+													.attr("target", "_blank")
+													.append($("<i>").attr("class", "icon-search"))
+											)
+									);
+				} else {
+					$tableRow.append($("<td>"));
 				}
 				
 				$dataSetsTableBody.append($tableRow);
