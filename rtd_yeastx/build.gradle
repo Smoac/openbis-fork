@@ -1,10 +1,15 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
-dependencies {
+configurations {
+    distribution
+}
 
+dependencies {
     compile project(':datastore_server')
     
     testCompile project(path: ':common', configuration: 'tests')
+    
+    distribution 'jfree:jfreechart:+'
 }
 
 sourceSets { 
@@ -16,7 +21,16 @@ sourceSets {
     }
 }
 
+task zip(type: Zip) {
+    from jar
+    from configurations.distribution
+    into 'datastore_server/lib/'
+    rename "datastore_server_plugin-yeastx.*\\.jar", "datastore_server_plugin-yeastx.jar"
+}
+
+zip.dependsOn jar
+
+build.dependsOn zip
 
 archivesBaseName = 'datastore_server_plugin-yeastx'
 
-println "version:"+version
