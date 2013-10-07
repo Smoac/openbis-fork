@@ -1,4 +1,4 @@
-includeFlat 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 'datastore_server', 'screening', 'rtd_phosphonetx', 'openbis_standard_technologies'
+includeFlat 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 'datastore_server', 'screening', 'rtd_phosphonetx', 'rtd_yeastx', 'openbis_standard_technologies'
 project(':common').projectDir = new File(settingsDir, '../common')
 project(':openbis_api').projectDir = new File(settingsDir, '../openbis_api')
 project(':openbis-common').projectDir = new File(settingsDir, '../openbis-common')
