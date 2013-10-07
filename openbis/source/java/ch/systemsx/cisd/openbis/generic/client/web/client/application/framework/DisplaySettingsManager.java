@@ -631,6 +631,18 @@ public class DisplaySettingsManager
     }
 
     @SuppressWarnings("deprecation")
+    public final String getDefaultProject()
+    {
+        return displaySettings.getDefaultProject();
+    }
+
+    @SuppressWarnings("deprecation")
+    public final void setDefaultProject(String defaultProject)
+    {
+        displaySettings.setDefaultProject(defaultProject);
+    }
+
+    @SuppressWarnings("deprecation")
     public final boolean isLegacyMedadataUIEnabled()
     {
         return displaySettings.isLegacyMedadataUIEnabled();

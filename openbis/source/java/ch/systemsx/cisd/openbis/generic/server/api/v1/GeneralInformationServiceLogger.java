@@ -457,4 +457,10 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         return null;
     }
 
+    @Override
+    public Map<String, String> getUserDisplaySettings(final String sessionToken)
+    {
+        logAccess(sessionToken, "getUserDisplaySettings", "sessionToken(%s)", sessionToken);
+        return null;
+    }
 }

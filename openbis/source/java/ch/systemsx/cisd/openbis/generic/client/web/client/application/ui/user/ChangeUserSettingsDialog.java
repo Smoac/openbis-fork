@@ -48,6 +48,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -68,6 +69,8 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     private final IViewContext<?> viewContext;
 
     private final SpaceSelectionWidget homeSpaceField;
+
+    private final TextField defaultProject;
 
     private final CheckBoxField reopenLastTabField;
 
@@ -99,6 +102,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         // setHeight(250);
 
         addField(homeSpaceField = createHomeGroupField());
+        addField(defaultProject = createDefaultProjectUIField());
         addField(reopenLastTabField = createReopenLastTabOnLoginField());
         addField(enableLegacyMetadataUI = createEnableLegacyMetadataUIField());
         addField(showLastVisitsField = createShowLastVisitsField());
@@ -137,6 +141,15 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
                 "When selected the legacy  UI to manage metadata is available and the new one is hidden. A change on this field needs to Re-Login the application.");
         field.setValue(viewContext.getDisplaySettingsManager().isLegacyMedadataUIEnabled());
         field.setId(LEGACYUI_FIELD_ID);
+        return field;
+    }
+
+    private TextField<String> createDefaultProjectUIField()
+    {
+        TextField<String> field = new TextField<String>();
+        field.setValue(viewContext.getDisplaySettingsManager().getDefaultProject());
+        field.setFieldLabel("Default Project Code");
+        GWTUtils.setToolTip(field, "Default Project Code");
         return field;
     }
 
@@ -199,6 +212,9 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         boolean isLegacyMetadataEnabled = enableLegacyMetadataUI.getValue();
         viewContext.getDisplaySettingsManager().setLegacyMedadataUIEnabled(isLegacyMetadataEnabled);
+
+        String defaultProjectValue = defaultProject.getRawValue();
+        viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectValue);
 
         if (showLastVisitsField.getValue())
         {

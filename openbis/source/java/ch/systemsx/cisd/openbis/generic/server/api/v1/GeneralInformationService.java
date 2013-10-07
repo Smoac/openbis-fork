@@ -1230,4 +1230,39 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return Translator.translateAttachments(sessionToken, objectId, attachmentHolder,
                 attachments, allVersions);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public final Map<String, String> getUserDisplaySettings(final String sessionToken)
+    {
+        String spaceCode = null;
+        String projectCode = null;
+
+        PersonPE person = this.getAuthSession(sessionToken).tryGetPerson();
+
+        // Get User space
+        if (person != null && person.getHomeSpace() != null)
+        {
+            spaceCode = person.getHomeSpace().getCode();
+        }
+
+        // Get Project from user settings
+        if (person != null && person.getDisplaySettings() != null)
+        {
+            projectCode = person.getDisplaySettings().getDefaultProject();
+        }
+
+        // Build Result
+        Map<String, String> userSettings = new HashMap<String, String>();
+        if (spaceCode != null)
+        {
+            userSettings.put("spaceCode", spaceCode);
+        }
+        if (projectCode != null)
+        {
+            userSettings.put("projectCode", projectCode);
+        }
+        return userSettings;
+    }
 }

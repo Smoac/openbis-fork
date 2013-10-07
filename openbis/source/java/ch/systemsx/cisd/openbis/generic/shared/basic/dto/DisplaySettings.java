@@ -66,6 +66,8 @@ public class DisplaySettings implements Serializable
 
     private boolean legacyMedadataUIEnabled = false;
 
+    private String defaultProject;
+
     private RealNumberFormatingParameters realNumberFormatingParameters =
             new RealNumberFormatingParameters();
 
@@ -103,6 +105,7 @@ public class DisplaySettings implements Serializable
         this.portletConfigurations = other.portletConfigurations;
         this.customWebAppDisplaySettings = other.customWebAppDisplaySettings;
         this.legacyMedadataUIEnabled = other.legacyMedadataUIEnabled;
+        this.defaultProject = other.defaultProject;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */
@@ -282,6 +285,19 @@ public class DisplaySettings implements Serializable
     public boolean isIgnoreLastHistoryToken()
     {
         return ignoreLastHistoryToken;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    public String getDefaultProject()
+    {
+        return defaultProject;
+    }
+
+    /** @deprecated Should be used only by DisplaySettingsManager. */
+    @Deprecated
+    public void setDefaultProject(String defaultProject)
+    {
+        this.defaultProject = defaultProject;
     }
 
     /** @deprecated Should be used only by DisplaySettingsManager. */

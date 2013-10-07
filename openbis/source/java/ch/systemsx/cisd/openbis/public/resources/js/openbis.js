@@ -1029,6 +1029,20 @@ openbis.prototype.listAttachmentsForSample = function(sampleId, allVersions, act
 	});
 }
 
+
+/**
+ * @see GeneralInformationService.getUserDisplaySettings(String)
+ * @method
+ */
+openbis.prototype.getUserDisplaySettings = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "getUserDisplaySettings",
+				"params" : [ this.getSession()] },
+		success: action
+	});
+}
+
 /**
  * ==========================================================================================
  * ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService methods
