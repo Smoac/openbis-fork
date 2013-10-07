@@ -64,9 +64,9 @@ gatheringTask.setVersion("version")
 gatheringTask.setRevision("revision")
 gatheringTask.setClean("clean")
 gatheringTask.execute()
-def versionNumber = antProject.getProperty("version")
-def revisionNumber = antProject.getProperty("revision")
-def cleanFlag = antProject.getProperty("clean")
+versionNumber = antProject.getProperty("version")
+revisionNumber = antProject.getProperty("revision")
+cleanFlag = antProject.getProperty("clean")
 
 // set default artifact name
 version=versionNumber+"-r"+revisionNumber

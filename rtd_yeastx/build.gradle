@@ -21,6 +21,14 @@ sourceSets {
     }
 }
 
+jar {
+    manifest {
+        attributes("Main-Class": "ch.systemsx.cisd.yeastx.BuildAndEnvironmentInfo",
+                   "Version": versionNumber,
+                   "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})")
+    }
+}
+
 task zip(type: Zip) {
     from jar
     from configurations.distribution
@@ -33,4 +41,5 @@ zip.dependsOn jar
 build.dependsOn zip
 
 archivesBaseName = 'datastore_server_plugin-yeastx'
+
 
