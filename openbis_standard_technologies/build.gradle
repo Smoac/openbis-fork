@@ -60,7 +60,7 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
      
 	args =
 		[
-			'ch.systemsx.cisd.openbis.OpenBIS', // Your GWT module
+			'ch.systemsx.cisd.openbis.OpenBIS',
 			'-war', buildDir,
 			'-logLevel', 'INFO',
 			'-localWorkers', '2',
@@ -171,5 +171,7 @@ task zip(type: Zip) {
 }
 zip.dependsOn war
 zip.dependsOn zipCorePlugins
+
+build.dependsOn zip
 
 
