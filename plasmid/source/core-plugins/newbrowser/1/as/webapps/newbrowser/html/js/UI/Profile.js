@@ -30,22 +30,23 @@ $.extend(DefaultProfile.prototype, {
 		//
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 		//
-	
+		
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 		this.menuStructure = [];
-	
+		
 		this.searchType = {
 			"TYPE" : "SEARCH",
 			"DISPLAY_NAME" : "Search",
 			"SAMPLE_TYPE_PROPERTIES" : ["TYPE", "MATCHED_TEXT", "MATCHED_FIELD"],
 			"SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field"],	
 		};
-	
+		
 		this.allTypes = [];
 		this.allVocabularies = [];
 		this.allDataStores = [];
-	
+		this.displaySettings = {};
+		
 		this.typeGroups = {
 			"OTHERS" : {
 				"TYPE" : "OTHERS",
@@ -53,13 +54,13 @@ $.extend(DefaultProfile.prototype, {
 				"LIST" : [] //All types not present in other groups and not in notShowTypes, is a box where everything that is not configured goes by default
 			}
 		};
-	
+		
 		this.typePropertiesForTable = {};
-	
+		
 		this.colorForInspectors = {};
-	
+		
 		this.freezersConfiguration = {};
-	
+		
 		this.getColorForInspectors = function(sampleTypeCode) {
 			//Get default color if found
 			var defaultColor = "#ffffc0"
@@ -76,7 +77,7 @@ $.extend(DefaultProfile.prototype, {
 			var newColor = d3.hsl(hsl.h, hsl.s, Math.min(0.90, hsl.l + 0.75));
 			return newColor;
 		}
-	
+		
 		this.searchSorter = function(searchResults) {
 			return searchResults;
 		}

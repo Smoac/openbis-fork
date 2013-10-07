@@ -88,11 +88,19 @@ function MainController() {
 				localReference.showMainMenu();
 				Util.unblockUI();
 			
+				//Get datastores for automatic DSS configuration, the first one will be used
 				localReference.openbisServer.listDataStores(
 					function(dataStores) {
 						localReference.profile.allDataStores = dataStores.result;
 					}
 				);
+				
+				//Get display settings
+				localReference.openbisServer.getUserDisplaySettings( function(response) {
+					if(response.result) {
+						localReference.profile.displaySettings = response.result;
+					}
+				});
 			}
 		);
 	}

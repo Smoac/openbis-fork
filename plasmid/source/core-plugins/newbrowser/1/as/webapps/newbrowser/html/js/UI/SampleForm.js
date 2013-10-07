@@ -59,7 +59,21 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				localReference.repaint();
 				//Check Mode
 				if(localReference.mode === SampleFormMode.CREATE) {
-					//Do Nothing
+					//Set the default space or project if available
+					$("#sampleSpaceProject").val();
+					if(localReference.isELNExperiment) {
+						//Check if default project is available
+						var defaultProject = localReference.profile.displaySettings.projectCode;
+						if(defaultProject !== null) {
+							$("#sampleSpaceProject").val(defaultProject);
+						}
+					} else {
+						//Check if default space is available
+						var defaultSpace = localReference.profile.displaySettings.spaceCode;
+						if(defaultSpace !== null) {
+							$("#sampleSpaceProject").val(defaultSpace);
+						}
+					}
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
 					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.mainController.openbisServer, localReference.profile.allDataStores[0].downloadUrl);
 					this.dataSetViewer.init();
@@ -90,18 +104,6 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 							}
 						}
 					}
-						
-					//Disable fields if needed
-					var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
-					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-						var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-							var propertyType = propertyTypeGroup.propertyTypes[j];
-							if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
-								$("#"+propertyType.code.replace('$','\\$')).prop('disabled', true);
-							}
-						}
-					}
 					
 					//Populate Links
 					for (var i = 0; i < sample.parents.length; i++) {
@@ -111,6 +113,19 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 						localReference.sampleTypesLinksTables[linkTableId].addSample(parent);
 					}
 				}
+				
+				//Disable fields if needed
+				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+				for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+					var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+					for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+						var propertyType = propertyTypeGroup.propertyTypes[j];
+						if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
+							$("#"+propertyType.code.replace('$','\\$')).prop('disabled', true);
+						}
+					}
+				}
+				
 				//Allow user input
 				Util.unblockUI();
 			});
