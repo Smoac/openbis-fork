@@ -23,9 +23,11 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.IntegerField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.AbstractSaveDialog;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.DropDownList;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -33,6 +35,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDele
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PortletConfiguration;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StandardPortletNames;
@@ -48,7 +51,6 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -70,7 +72,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final SpaceSelectionWidget homeSpaceField;
 
-    private final TextField defaultProject;
+    private final ProjectSelectionWidget defaultProject;
 
     private final CheckBoxField reopenLastTabField;
 
@@ -144,10 +146,10 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
-    private TextField<String> createDefaultProjectUIField()
+    private ProjectSelectionWidget createDefaultProjectUIField()
     {
-        TextField<String> field = new TextField<String>();
-        field.setValue(viewContext.getDisplaySettingsManager().getDefaultProject());
+        final ProjectSelectionWidget field = new ProjectSelectionWidget(viewContext, DropDownList.ID + ProjectSelectionWidget.SUFFIX + DIALOG_ID);
+        field.selectProjectAndUpdateOriginal(viewContext.getDisplaySettingsManager().getDefaultProject());
         field.setFieldLabel("Default Project Code");
         GWTUtils.setToolTip(field, "Default Project Code");
         return field;
@@ -213,8 +215,12 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         boolean isLegacyMetadataEnabled = enableLegacyMetadataUI.getValue();
         viewContext.getDisplaySettingsManager().setLegacyMedadataUIEnabled(isLegacyMetadataEnabled);
 
-        String defaultProjectValue = defaultProject.getRawValue();
-        viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectValue);
+        Project defaultProjectObject = defaultProject.tryGetSelectedProject();
+        if (defaultProjectObject != null)
+        {
+            String defaultProjectIdentifier = defaultProjectObject.getIdentifier();
+            viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifier);
+        }
 
         if (showLastVisitsField.getValue())
         {
