@@ -71,9 +71,8 @@ public interface IGeneralInformationService extends IRpcService
     public static final String JSON_SERVICE_URL = SERVICE_URL + ".json";
 
     /**
-     * Tries to authenticate specified user with specified password. Returns session token if
-     * succeeded otherwise <code>null</code> is returned. The returned session token can be used for
-     * all methods and interfaces of the same openBIS server.
+     * Tries to authenticate specified user with specified password. Returns session token if succeeded otherwise <code>null</code> is returned. The
+     * returned session token can be used for all methods and interfaces of the same openBIS server.
      */
     public String tryToAuthenticateForAllServices(String userID, String userPassword);
 
@@ -95,11 +94,9 @@ public interface IGeneralInformationService extends IRpcService
     public Map<String, Set<Role>> listNamedRoleSets(String sessionToken);
 
     /**
-     * Returns all spaces of specified database instance enriched with their projects and role
-     * assignments.
+     * Returns all spaces of specified database instance enriched with their projects and role assignments.
      * 
-     * @param databaseInstanceCodeOrNull Code of an imported database instance or <code>null</code>
-     *            for the home database instance is meant.
+     * @param databaseInstanceCodeOrNull Code of an imported database instance or <code>null</code> for the home database instance is meant.
      */
     public List<SpaceWithProjectsAndRoleAssignments> listSpacesWithProjectsAndRoleAssignments(
             String sessionToken, String databaseInstanceCodeOrNull);
@@ -121,20 +118,16 @@ public interface IGeneralInformationService extends IRpcService
      * <p>
      * The fetch options set is interpreted by the following rules.
      * <ul>
-     * <li>If it does not contain {@link SampleFetchOption#PROPERTIES} only the basic attributes are
-     * returned for all samples including possible ancestors and descendants.
-     * <li>{@link SampleFetchOption#CHILDREN} will be ignored if
-     * {@link SampleFetchOption#DESCENDANTS} is in the set.
-     * <li>{@link SampleFetchOption#PARENTS} will be ignored if {@link SampleFetchOption#ANCESTORS}
-     * is in the set.
-     * <li>It is possible to combine {@link SampleFetchOption#CHILDREN}/
-     * {@link SampleFetchOption#DESCENDANTS} with {@link SampleFetchOption#PARENTS}/
+     * <li>If it does not contain {@link SampleFetchOption#PROPERTIES} only the basic attributes are returned for all samples including possible
+     * ancestors and descendants.
+     * <li>{@link SampleFetchOption#CHILDREN} will be ignored if {@link SampleFetchOption#DESCENDANTS} is in the set.
+     * <li>{@link SampleFetchOption#PARENTS} will be ignored if {@link SampleFetchOption#ANCESTORS} is in the set.
+     * <li>It is possible to combine {@link SampleFetchOption#CHILDREN}/ {@link SampleFetchOption#DESCENDANTS} with {@link SampleFetchOption#PARENTS}/
      * {@link SampleFetchOption#ANCESTORS}.
      * </ul>
-     * The samples of the returned list also contain appropriated fetch options sets which tells
-     * whether one can expect properties, children, or parents. Note, that only the top-level
-     * samples can have both children or samples. For descendants and ancestors navigation is
-     * possible only in one direction.
+     * The samples of the returned list also contain appropriated fetch options sets which tells whether one can expect properties, children, or
+     * parents. Note, that only the top-level samples can have both children or samples. For descendants and ancestors navigation is possible only in
+     * one direction.
      * 
      * @param searchCriteria The sample metadata values to be matched against.
      * @param fetchOptions Options that control which parts of the samples are fetched.
@@ -144,25 +137,20 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<SampleFetchOption> fetchOptions);
 
     /**
-     * Return all samples that match the search criteria and that a particular user is allowed to
-     * see.
+     * Return all samples that match the search criteria and that a particular user is allowed to see.
      * <p>
      * The fetch options set is interpreted by the following rules.
      * <ul>
-     * <li>If it does not contain {@link SampleFetchOption#PROPERTIES} only the basic attributes are
-     * returned for all samples including possible ancestors and descendants.
-     * <li>{@link SampleFetchOption#CHILDREN} will be ignored if
-     * {@link SampleFetchOption#DESCENDANTS} is in the set.
-     * <li>{@link SampleFetchOption#PARENTS} will be ignored if {@link SampleFetchOption#ANCESTORS}
-     * is in the set.
-     * <li>It is possible to combine {@link SampleFetchOption#CHILDREN}/
-     * {@link SampleFetchOption#DESCENDANTS} with {@link SampleFetchOption#PARENTS}/
+     * <li>If it does not contain {@link SampleFetchOption#PROPERTIES} only the basic attributes are returned for all samples including possible
+     * ancestors and descendants.
+     * <li>{@link SampleFetchOption#CHILDREN} will be ignored if {@link SampleFetchOption#DESCENDANTS} is in the set.
+     * <li>{@link SampleFetchOption#PARENTS} will be ignored if {@link SampleFetchOption#ANCESTORS} is in the set.
+     * <li>It is possible to combine {@link SampleFetchOption#CHILDREN}/ {@link SampleFetchOption#DESCENDANTS} with {@link SampleFetchOption#PARENTS}/
      * {@link SampleFetchOption#ANCESTORS}.
      * </ul>
-     * The samples of the returned list also contain appropriated fetch options sets which tells
-     * whether one can expect properties, children, or parents. Note, that only the top-level
-     * samples can have both children or samples. For descendants and ancestors navigation is
-     * possible only in one direction.
+     * The samples of the returned list also contain appropriated fetch options sets which tells whether one can expect properties, children, or
+     * parents. Note, that only the top-level samples can have both children or samples. For descendants and ancestors navigation is possible only in
+     * one direction.
      * <p>
      * May only be called by users who are <code>INSTANCE_OBSERVER</code>.
      * 
@@ -174,13 +162,11 @@ public interface IGeneralInformationService extends IRpcService
             SearchCriteria searchCriteria, EnumSet<SampleFetchOption> fetchOptions, String userId);
 
     /**
-     * Returns a filtered list of <var>allSamples</var> containing those samples which are visible
-     * to <var>userId</var>.
+     * Returns a filtered list of <var>allSamples</var> containing those samples which are visible to <var>userId</var>.
      * 
      * @param allSamples The list of samples that should be filtered.
      * @param userId The user that the samples should be visible to that survive the filtering.
-     * @return The filtered list of <var>allSamples</var> containing those samples which are visible
-     *         to <var>userId</var>.
+     * @return The filtered list of <var>allSamples</var> containing those samples which are visible to <var>userId</var>.
      * @since 1.18
      */
     public List<Sample> filterSamplesVisibleToUser(String sessionToken, List<Sample> allSamples,
@@ -189,21 +175,18 @@ public interface IGeneralInformationService extends IRpcService
     /**
      * Return all samples that belong to the supplied experiment.
      * 
-     * @param experimentIdentifierString The identifier of the experiment samples will be listed
-     *            for.
+     * @param experimentIdentifierString The identifier of the experiment samples will be listed for.
      * @since 1.1
      */
     public List<Sample> listSamplesForExperiment(String sessionToken,
             String experimentIdentifierString);
 
     /**
-     * Return all samples that belong to the supplied experiment that are visible to user
-     * <var>userId</var>.
+     * Return all samples that belong to the supplied experiment that are visible to user <var>userId</var>.
      * <p>
      * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
      * 
-     * @param experimentIdentifierString The identifier of the experiment samples will be listed
-     *            for.
+     * @param experimentIdentifierString The identifier of the experiment samples will be listed for.
      * @param userId The user to run this query on behalf of.
      * @since 1.18
      */
@@ -222,70 +205,60 @@ public interface IGeneralInformationService extends IRpcService
      * Return all experiments of the given type that belong to the supplied projects.
      * 
      * @param projects The projects for which we return attached experiments.
-     * @param experimentType The experiment type of the experiments we want to list. Since version
-     *            1.9 NULL are accepted. Specifying a NULL experiment type will result in all
-     *            experiments for the specified projects being returned.
+     * @param experimentType The experiment type of the experiments we want to list. Since version 1.9 NULL are accepted. Specifying a NULL experiment
+     *            type will result in all experiments for the specified projects being returned.
      * @since 1.2
      */
     public List<Experiment> listExperiments(String sessionToken, List<Project> projects,
             String experimentType);
 
     /**
-     * Return all experiments of the given type that belong to the supplied projects and have
-     * registered samles.
+     * Return all experiments of the given type that belong to the supplied projects and have registered samles.
      * 
      * @param projects The projects for which we return attached experiments.
-     * @param experimentType The experiment type of the experiments we want to list. Specifying a
-     *            NULL experiment type will result in all experiments for the specified projects
-     *            being returned.
+     * @param experimentType The experiment type of the experiments we want to list. Specifying a NULL experiment type will result in all experiments
+     *            for the specified projects being returned.
      * @since 1.15
      */
     public List<Experiment> listExperimentsHavingSamples(String sessionToken,
             List<Project> projects, String experimentType);
 
     /**
-     * Return all experiments of the given type that belong to the supplied projects and have
-     * registered data sets.
+     * Return all experiments of the given type that belong to the supplied projects and have registered data sets.
      * 
      * @param projects The projects for which we return attached experiments.
-     * @param experimentType The experiment type of the experiments we want to list. Specifying a
-     *            NULL experiment type will result in all experiments for the specified projects
-     *            being returned.
+     * @param experimentType The experiment type of the experiments we want to list. Specifying a NULL experiment type will result in all experiments
+     *            for the specified projects being returned.
      * @since 1.15
      */
     public List<Experiment> listExperimentsHavingDataSets(String sessionToken,
             List<Project> projects, String experimentType);
 
     /**
-     * Returns a filtered list of <var>allExperiments</var> containing those experiments which are
-     * visible to <var>userId</var>.
+     * Returns a filtered list of <var>allExperiments</var> containing those experiments which are visible to <var>userId</var>.
      * 
      * @param allExperiments The list of experiments that should be filtered.
      * @param userId The user that the experiments should be visible to that survive the filtering.
-     * @return The filtered list of <var>allExperiments</var> containing all experiments which are
-     *         visible to <var>userId</var>.
+     * @return The filtered list of <var>allExperiments</var> containing all experiments which are visible to <var>userId</var>.
      * @since 1.18
      */
     public List<Experiment> filterExperimentsVisibleToUser(String sessionToken,
             List<Experiment> allExperiments, String userId);
 
     /**
-     * Return the data sets attached to the specified sample, optionally including child samples.
-     * Note, that for returned container data sets the contained data sets have only code, type and
-     * registration date set.
+     * Return the data sets attached to the specified sample, optionally including child samples. Note, that for returned container data sets the
+     * contained data sets have only code, type and registration date set.
      * 
      * @param sample The sample for which we return attached data sets.
-     * @param areOnlyDirectlyConnectedIncluded If true, only data sets that are directly connected
-     *            to the sample are included, otherwise data sets of child samples are included as
-     *            well.
+     * @param areOnlyDirectlyConnectedIncluded If true, only data sets that are directly connected to the sample are included, otherwise data sets of
+     *            child samples are included as well.
      * @since 1.3
      */
     public List<DataSet> listDataSetsForSample(String sessionToken, Sample sample,
             boolean areOnlyDirectlyConnectedIncluded);
 
     /**
-     * Lists all DSS server registered this openBIS server instance. Any of the returned instances
-     * could be offline at the time of the listing.
+     * Lists all DSS server registered this openBIS server instance. Any of the returned instances could be offline at the time of the listing.
      * 
      * @since 1.23
      */
@@ -299,8 +272,7 @@ public interface IGeneralInformationService extends IRpcService
     public String getDefaultPutDataStoreBaseURL(String sessionToken);
 
     /**
-     * Returns the download URL for the data store of specified data set or null if such data set
-     * does not exist.
+     * Returns the download URL for the data store of specified data set or null if such data set does not exist.
      * 
      * @since 1.4
      */
@@ -309,8 +281,8 @@ public interface IGeneralInformationService extends IRpcService
     /**
      * Returns the download URL for the data store of specified data sets.
      * 
-     * @return One entry for each data store that has data sets from <var>dataSetCodes</var>,
-     *         together with the data set codes that are in this data store.
+     * @return One entry for each data store that has data sets from <var>dataSetCodes</var>, together with the data set codes that are in this data
+     *         store.
      * @since 1.19
      */
     public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
@@ -322,7 +294,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.5
      */
     public List<DataSetType> listDataSetTypes(String sessionToken);
-    
+
     /**
      * Returns all sample types.
      * 
@@ -336,13 +308,12 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.25
      */
     public List<ExperimentType> listExperimentTypes(String sessionToken);
-    
+
     /**
      * Returns map of avaialable vocabulary terms.
      * <p>
-     * The method cannot be fully utilized over JSON-RPC, because there is no sensible way to
-     * (de)serialize a {@link Vocabulary} object to/from String. Any working implementation will
-     * make the life of non-java clients (e.g. Javascript) unnecessarily complicated.
+     * The method cannot be fully utilized over JSON-RPC, because there is no sensible way to (de)serialize a {@link Vocabulary} object to/from
+     * String. Any working implementation will make the life of non-java clients (e.g. Javascript) unnecessarily complicated.
      * 
      * @deprecated Please use {@link #listVocabularies(String)} instead.
      * @since 1.6
@@ -369,8 +340,7 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<Connections> connectionsToGet);
 
     /**
-     * Return all data sets attached to the given samples with connections that the user
-     * <var>userId</var> is allowed to see.
+     * Return all data sets attached to the given samples with connections that the user <var>userId</var> is allowed to see.
      * <p>
      * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
      * 
@@ -391,8 +361,7 @@ public interface IGeneralInformationService extends IRpcService
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet);
 
     /**
-     * Return all data sets attached to the given experiments with connections that the user
-     * <var>userId</var> is allowed to see.
+     * Return all data sets attached to the given experiments with connections that the user <var>userId</var> is allowed to see.
      * <p>
      * May only be called by users with capability <code>LIST_PROJECTS_ON_BEHALF_OF_USER</code>.
      * 
@@ -404,9 +373,8 @@ public interface IGeneralInformationService extends IRpcService
             List<Experiment> experiments, EnumSet<Connections> connectionsToGet, String userId);
 
     /**
-     * Returns meta data for all specified data sets. This contains data set type, properties, and
-     * codes of linked parent and children data sets. For container data sets the contained data
-     * sets are not returned. Thus, {@link DataSet#getContainedDataSets()} is always empty.
+     * Returns meta data for all specified data sets. This contains data set type, properties, and codes of linked parent and children data sets. For
+     * container data sets the contained data sets are not returned. Thus, {@link DataSet#getContainedDataSets()} is always empty.
      * 
      * @param dataSetCodes Codes of requested data sets.
      * @return result in the same order as the list of data set codes.
@@ -415,8 +383,8 @@ public interface IGeneralInformationService extends IRpcService
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes);
 
     /**
-     * Returns meta data for all specified data sets. Which parts of the data sets objects are
-     * fetched is controlled with the <code>fetchOptions</code> parameter.
+     * Returns meta data for all specified data sets. Which parts of the data sets objects are fetched is controlled with the
+     * <code>fetchOptions</code> parameter.
      * 
      * @param dataSetCodes Codes of requested data sets.
      * @param fetchOptions Options that control which parts of the data sets are fetched.
@@ -427,8 +395,8 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<DataSetFetchOption> fetchOptions);
 
     /**
-     * Return all data sets matching specified search criteria. Note, that for returned container
-     * data sets the contained data sets have only code, type and registration date set.
+     * Return all data sets matching specified search criteria. Note, that for returned container data sets the contained data sets have only code,
+     * type and registration date set.
      * 
      * @param searchCriteria the criteria used for searching.
      * @since 1.8
@@ -436,9 +404,8 @@ public interface IGeneralInformationService extends IRpcService
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
 
     /**
-     * Return all data sets matching specified search criteria and visible to user
-     * <var>userId</var>. Note, that for returned container data sets the contained data sets have
-     * only code, type and registration date set.
+     * Return all data sets matching specified search criteria and visible to user <var>userId</var>. Note, that for returned container data sets the
+     * contained data sets have only code, type and registration date set.
      * <p>
      * May only be called by users who are <code>INSTANCE_OBSERVER</code>.
      * 
@@ -449,13 +416,11 @@ public interface IGeneralInformationService extends IRpcService
             SearchCriteria searchCriteria, String userId);
 
     /**
-     * Returns a filtered list of <var>allDataSets</var> containing those data sets which are
-     * visible to <var>userId</var>.
+     * Returns a filtered list of <var>allDataSets</var> containing those data sets which are visible to <var>userId</var>.
      * 
      * @param allDataSets The list of data sets that should be filtered.
      * @param userId The user that the data sets should be visible to that survive the filtering.
-     * @return The filtered list of <var>allDataSets</var> containing those data sets which are
-     *         visible to <var>userId</var>.
+     * @return The filtered list of <var>allDataSets</var> containing those data sets which are visible to <var>userId</var>.
      * @since 1.18
      */
     public List<DataSet> filterDataSetsVisibleToUser(String sessionToken,
@@ -470,8 +435,7 @@ public interface IGeneralInformationService extends IRpcService
     public List<Experiment> listExperiments(String sessionToken, List<String> experimentIdentifiers);
 
     /**
-     * Returns all experiments matching specified search criteria. Note, that sub criterias are not
-     * supported.
+     * Returns all experiments matching specified search criteria. Note, that sub criterias are not supported.
      * 
      * @since 1.21
      */
@@ -514,7 +478,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.24
      */
     public List<Metaproject> listMetaprojectsOnBehalfOfUser(String sessionToken, String userId);
-    
+
     /**
      * Returns all entities tagged with given metaproject.
      * 
@@ -530,12 +494,11 @@ public interface IGeneralInformationService extends IRpcService
      */
     public MetaprojectAssignments getMetaprojectOnBehalfOfUser(String sessionToken,
             IMetaprojectId metaprojectId, String userId);
-    
+
     /**
      * Lists attachments of specified project.
      * 
-     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
-     *            return only the latest version.
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise return only the latest version.
      * @since 1.23
      */
     public List<Attachment> listAttachmentsForProject(String sessionToken, IProjectId projectId,
@@ -544,8 +507,7 @@ public interface IGeneralInformationService extends IRpcService
     /**
      * Lists attachments of specified experiment.
      * 
-     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
-     *            return only the latest version.
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise return only the latest version.
      * @since 1.23
      */
     public List<Attachment> listAttachmentsForExperiment(String sessionToken,
@@ -554,10 +516,11 @@ public interface IGeneralInformationService extends IRpcService
     /**
      * Lists attachments of specified sample.
      * 
-     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise
-     *            return only the latest version.
+     * @param allVersions If <code>true</code>, return all versions of the attachments, otherwise return only the latest version.
      * @since 1.23
      */
     public List<Attachment> listAttachmentsForSample(String sessionToken, ISampleId sampleId,
             boolean allVersions);
+
+    public Map<String, String> getUserDisplaySettings(final String sessionToken);
 }
