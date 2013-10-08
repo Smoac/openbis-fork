@@ -1,3 +1,29 @@
+/*
+ * Copyright 2013 ETH Zuerich, CISD
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Creates an instance of DataSetViewer.
+ *
+ * @constructor
+ * @this {DataSetViewer}
+ * @param {String} containerId The container where the DataSetViewer will be atached.
+ * @param {Sample} sample The sample where to check for the data.
+ * @param {openbis} openbisServer If the freezer should allow to be edited.
+ * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
+ */
 function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL) {
 	this.containerId = containerId;
 	this.openbisServer = openbisServer;

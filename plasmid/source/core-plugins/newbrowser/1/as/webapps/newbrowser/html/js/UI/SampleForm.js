@@ -50,7 +50,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			Util.blockUI();
 			var localReference = this;
 			
-			this.freezer = new Freezer(this.mainController,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
+			this.freezer = new Freezer(this.mainController.searchFacade,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
 			this.freezer.init();
 			
 			this.mainController.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
@@ -295,7 +295,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 	
 	this.getPINButton = function() {
 		var inspectedClass = "";
-		if(this.mainController.inspector.containsSample(this.sample.id) !== -1) {
+		if(this.mainController.inspector.containsSample(this.sample) !== -1) {
 			inspectedClass = "inspectorClicked";
 		}
 		return "<a id='pinButton' class='btn pinBtn " + inspectedClass + "'><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";

@@ -133,10 +133,10 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		$("#fileToUpdate").click();
 	}
 	
-	this.previewNote = function(sampleCode, attachTo) {
+	this.previewNote = function(samplePermId, attachTo) {
 		var sample = null;
 		for(var i = 0; i < this.samples.length; i++) {
-			if(this.samples[i].code === sampleCode) {
+			if(this.samples[i].permId === samplePermId) {
 				sample = this.samples[i];
 				break;
 			}
@@ -326,10 +326,10 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 				
 				if(localReference.inspectEnabled) {
 					var inspectedClass = "";
-					if(localReference.mainController.inspector.containsSample(sample.id) !== -1) {
+					if(localReference.mainController.inspector.containsSample(sample) !== -1) {
 						inspectedClass = "inspectorClicked";
 					}
-					tableFields[tableFields.length] = "<a id='PIN_" + sample.code + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"mainController.sampleTable.previewNote('" + sample.code + "', 'PIN_" + sample.code + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
+					tableFields[tableFields.length] = "<a id='PIN_" + sample.permId + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"mainController.sampleTable.previewNote('" + sample.permId + "', 'PIN_" + sample.permId + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
 				}
 				
 				if(localReference.enableEdit) {

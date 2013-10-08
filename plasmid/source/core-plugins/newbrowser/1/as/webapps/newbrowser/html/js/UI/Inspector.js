@@ -19,11 +19,12 @@
  *
  * @constructor
  * @this {Inspector}
+ * @param {SearchFacade} searchFacade The facade used to access server side search functionality.
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  */
-function Inspector(mainController, containerId, profile) {
-	this.mainController = mainController;
+function Inspector(searchFacade, containerId, profile) {
+	this.searchFacade = searchFacade;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.inspectedSamples = new Array();
@@ -39,9 +40,9 @@ function Inspector(mainController, containerId, profile) {
 		$("#"+containerId).append(allInspectors);
 	}
 	
-	this.containsSample = function(sampleId) {
+	this.containsSample = function(sample) {
 		for(var i = 0; i < this.inspectedSamples.length; i++) {
-			if(this.inspectedSamples[i].id === sampleId) {
+			if(this.inspectedSamples[i].permId === sample.permId) {
 				return i;
 			}
 		}
@@ -49,7 +50,7 @@ function Inspector(mainController, containerId, profile) {
 	}
 	
 	this.addInspectSampleIfNotFound = function(sampleToInspect) {
-		var samplePosition = this.containsSample(sampleToInspect.id);
+		var samplePosition = this.containsSample(sampleToInspect);
 		
 		if(samplePosition === -1) {
 			this.toggleInspectSample(sampleToInspect);
@@ -68,7 +69,7 @@ function Inspector(mainController, containerId, profile) {
 		}
 		
 		//Already inspected check
-		var samplePosition = this.containsSample(sampleToInspect.id);
+		var samplePosition = this.containsSample(sampleToInspect);
 		if(samplePosition !== -1) {
 			this.inspectedSamples.splice(samplePosition, 1);
 			isInspected = false;
@@ -130,7 +131,7 @@ function Inspector(mainController, containerId, profile) {
 		var divID = sampleCode + "_INSPECTOR";
 		$("#"+divID).removeClass("glow");
 		
-		this.mainController.searchFacade.searchWithType(sampleTypeCode, sampleCode, function(data) {
+		this.searchFacade.searchWithType(sampleTypeCode, sampleCode, function(data) {
 			
 			var isAdded = localReference.addInspectSampleIfNotFound(data[0]);
 			if(isAdded) {

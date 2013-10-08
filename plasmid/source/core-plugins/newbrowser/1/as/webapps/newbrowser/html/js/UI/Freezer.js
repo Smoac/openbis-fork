@@ -14,8 +14,20 @@
  * limitations under the License.
  */
  
-function Freezer(mainController, containerId, profile, sampleTypeCode, sample, isDisabled) {
-	this.mainController = mainController;
+/**
+ * Creates an instance of Freezer.
+ *
+ * @constructor
+ * @this {Freezer}
+ * @param {SearchFacade} searchFacade The facade used to access server side search functionality.
+ * @param {String} containerId The Container where the Freezer DOM will be atached.
+ * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {String} sampleTypeCode The code of the sample type, needed to know where to check if the properties are available.
+ * @param {Sample} sample The sample where check the properties for VIEW and EDIT modes.
+ * @param {boolean} isDisabled If the freezer should allow to be edited.
+ */
+function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isDisabled) {
+	this.searchFacade = searchFacade;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleType = profile.getTypeForTypeCode(sampleTypeCode);
@@ -231,7 +243,7 @@ function Freezer(mainController, containerId, profile, sampleTypeCode, sample, i
 							.append(" Loading... ")
 				);
 			
-			this.mainController.searchFacade.searchWithProperties(propertyTypeCodes, propertyValues,
+			this.searchFacade.searchWithProperties(propertyTypeCodes, propertyValues,
 				function(samples) {
 					var boxes = []; //Rows
 					

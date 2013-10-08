@@ -81,7 +81,7 @@ function MainController() {
 				localReference.profile.init();
 			
 				//Start App
-				localReference.inspector = new Inspector(localReference, "mainContainer", localReference.profile);
+				localReference.inspector = new Inspector(localReference.searchFacade, "mainContainer", localReference.profile);
 				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile);
 				localReference.navigationBar.repaint();
 			
