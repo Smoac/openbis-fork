@@ -50,6 +50,16 @@ dependencies {
 				'jline:jline:0.9.94'				
 }
 
+buildscript {
+    apply from: '../gradle/repository.gradle'
+    
+    repositories repositoryConfig
+    
+	dependencies {
+		classpath 'apache:commons-codec:+'	
+	}
+}
+
 task compileGwt (dependsOn: classes, type: JavaExec) {
 
 	buildDir = "${project.buildDir}/gwt"
@@ -154,7 +164,7 @@ war {
     webInf {
     	from compileGwt.buildDir +"/WEB-INF",
     	project(':openbis').file('resource/server/bis-common.xml'),
-    	project(':common').file('resource/../resource/server/web-common.xml')
+    	project(':common').file('resource/server/web-common.xml')
     }
     classpath classpathEntries
 
@@ -229,9 +239,49 @@ task zipAdminConsole(type: Zip) {
 }
 zipAdminConsole.dependsOn adminConsole
 
+
+def generateMD5(final file) {
+   java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5")
+   file.withInputStream(){is->
+   byte[] buffer = new byte[8192]
+   int read = 0
+      while( (read = is.read(buffer)) > 0) {
+             digest.update(buffer, 0, read);
+         }
+     }
+   byte[] md5sum = digest.digest()
+   BigInteger bigInt = new BigInteger(1, md5sum)
+   return bigInt.toString(16)
+}
+
+task checksums {
+	ext.destFile = new File(buildDir, 'configuration.MD5')
+	ext.inputFiles = war.getSource().filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')})
+    inputs.files inputFiles
+    outputs.file destFile
+	doLast {
+		if (destFile.exists()) {
+			destFile.delete()
+		}
+		destFile.createNewFile()
+		
+		configFiles = classpathEntries.filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')})
+		configFiles.each {file ->
+			destFile.text += generateMD5(file)+" webapps/openbis/WEB-INF/classes/"+file.name+"\n"
+		}
+
+		configFiles = war.getSource().filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')}).minus(classpathEntries)
+		configFiles.each {file ->
+			destFile.text += generateMD5(file)+" webapps/openbis/WEB-INF/"+file.name+"\n"
+		}		
+	}
+}
+checksums.dependsOn war
+
 task zip(type: Zip) {
     from war
 	from zipEntries
+	from checksums
 	from configurations.zipping	
     from zipCorePlugins.archivePath
 	from zipAdminConsole.archivePath
@@ -241,5 +291,6 @@ task zip(type: Zip) {
 zip.dependsOn war
 zip.dependsOn zipCorePlugins
 zip.dependsOn zipAdminConsole
+zip.dependsOn checksums
 
 build.dependsOn zip
