@@ -11,6 +11,14 @@ configurations {
 	zipping
 }
 
+configurations {
+	admin_partial
+}
+
+configurations {
+	admin_full
+}
+
 dependencies {
 	compile project(':screening'),
 			project(':rtd_phosphonetx')
@@ -24,6 +32,22 @@ dependencies {
 	gwt 'reveregroup:gwt-image-loader:1.1.4'
 	
 	zipping 'eclipse:jetty-distribution:8.1.8@zip'
+	
+	admin_partial 'google:gwt-user:2.4'
+	
+	admin_full 'cisd:cisd-base:+',
+				'apache:commons-httpclient:+',
+				'apache:commons-logging:+',
+				'apache:commons-io:+',
+				'apache:log4j:+',
+				'springframework:spring-core:+',
+				'springframework:spring-context:+',
+				'springframework:spring-jdbc:+',
+				'springframework:spring-orm:+',
+				'springframework:spring-aop:+',								
+				'marathon:marathon-spring-util:+',
+				'springframework:spring-beans:+',
+				'jline:jline:0.9.94'				
 }
 
 task compileGwt (dependsOn: classes, type: JavaExec) {
@@ -44,16 +68,16 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 	classpath {
 		[
 			sourceSets.main.java.srcDirs,		
-			project("openbis").sourceSets.main.java.srcDirs,
-			project("openbis").sourceSets.main.output.resourcesDir,
-			project("openbis").sourceSets.main.output.classesDir,
-			project("openbis").sourceSets.main.compileClasspath,
+			project(":openbis").sourceSets.main.java.srcDirs,
+			project(":openbis").sourceSets.main.output.resourcesDir,
+			project(":openbis").sourceSets.main.output.classesDir,
+			project(":openbis").sourceSets.main.compileClasspath,
 			project(":common").sourceSets.main.java.srcDirs,
 			project(":openbis_api").sourceSets.main.java.srcDirs,
-			project("screening").sourceSets.main.java.srcDirs,
-			project("screening").sourceSets.main.output.resourcesDir,
-			project("rtd_phosphonetx").sourceSets.main.java.srcDirs,
-			project("rtd_phosphonetx").sourceSets.main.output.resourcesDir,			
+			project(":screening").sourceSets.main.java.srcDirs,
+			project(":screening").sourceSets.main.output.resourcesDir,
+			project(":rtd_phosphonetx").sourceSets.main.java.srcDirs,
+			project(":rtd_phosphonetx").sourceSets.main.output.resourcesDir,			
 			configurations.gwt
 		]   
 	}
@@ -161,17 +185,61 @@ task zipCorePlugins(type: Zip) {
 	into 'core-plugins'
 }
 
+task adminConsole(type: Jar) {
+	archiveName 'openbis-admin-console.jar'
+	includeEmptyDirs false
+	from zipTree(project(':common').jar.archivePath).plus(
+         zipTree(project(':openbis-common').jar.archivePath).plus( 
+         zipTree(project(':screening').jar.archivePath).plus( 
+         zipTree(project(':openbis').jar.archivePath)))).matching {
+			include '**/ch/systemsx/cisd/common/spring/HttpInvokerUtils.class'
+			include '**/ch/systemsx/cisd/common/**/*.class'
+			include '**/ch/systemsx/cisd/openbis/common/**/*.class'
+			include '**/ch/systemsx/cisd/openbis/generic/client/console/**/*.class'
+			include '**/shared/I*.class'
+			include '**/shared/basic/dto/**/*.class'
+			include '**/shared/basic/*.class'
+			include '**/shared/dto/**/*.class'
+			include '**/shared/dto/*PE.class'
+			include '**/shared/authorization/annotation/*.class'
+			include '**/shared/authorization/ISessionProvider.class'
+			include '**/*BuildAndEnvironmentInfo.class'
+		}
+	from zipTree(configurations.admin_partial.files.iterator().next()).matching {
+			include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+			include '**/com/google/gwt/user/client/rpc/SerializableException.class'
+	}
+	
+	for (File f : configurations.admin_full.files) {
+		from zipTree(f).matching {
+			include '**/**'
+		}
+	}
+    manifest {
+	    attributes("Main-Class": "ch.systemsx.cisd.openbis.generic.client.console.AdminConsole",
+    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar commons-httpclient.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring.jar stream-supporting-httpinvoker.jar")
+    }	
+}
+adminConsole.dependsOn war
+
+task zipAdminConsole(type: Zip) {
+	archiveName 'openbis-admin-console.zip'
+	from adminConsole.archivePath
+	into 'openbis-admin-console'
+}
+zipAdminConsole.dependsOn adminConsole
+
 task zip(type: Zip) {
     from war
-    from zipCorePlugins
 	from zipEntries
 	from configurations.zipping	
+    from zipCorePlugins.archivePath
+	from zipAdminConsole.archivePath
 	rename 'jetty-distribution(.*).zip', 'jetty.zip'
 	rename 'openBIS(.*).war', 'openBIS.war'	
 }
 zip.dependsOn war
 zip.dependsOn zipCorePlugins
+zip.dependsOn zipAdminConsole
 
 build.dependsOn zip
-
-
