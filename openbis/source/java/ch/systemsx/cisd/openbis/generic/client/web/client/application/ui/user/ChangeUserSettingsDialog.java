@@ -152,6 +152,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         field.selectProjectAndUpdateOriginal(viewContext.getDisplaySettingsManager().getDefaultProject());
         field.setFieldLabel("Default Project");
         GWTUtils.setToolTip(field, "Default Project Code");
+        field.setAllowBlank(true);
         return field;
     }
 
@@ -216,11 +217,12 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         viewContext.getDisplaySettingsManager().setLegacyMedadataUIEnabled(isLegacyMetadataEnabled);
 
         Project defaultProjectObject = defaultProject.tryGetSelectedProject();
+        String defaultProjectIdentifier = null;
         if (defaultProjectObject != null)
         {
-            String defaultProjectIdentifier = defaultProjectObject.getIdentifier();
-            viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifier);
+            defaultProjectIdentifier = defaultProjectObject.getIdentifier();
         }
+        viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifier);
 
         if (showLastVisitsField.getValue())
         {
