@@ -1,0 +1,16 @@
+repositoryConfig = {
+    add(new org.apache.ivy.plugins.resolver.FileSystemResolver()) {
+        name = 'ivy-repository-local'
+        addIvyPattern "${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
+        addArtifactPattern "${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        descriptor = 'required'
+        checksums = "sha1"
+    }    
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+        name = 'ivy-repository-svn'
+        addIvyPattern "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/ivy.xml"
+        addArtifactPattern "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        descriptor = 'required'
+        checksums = "sha1"
+    }
+}
