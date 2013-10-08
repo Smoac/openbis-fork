@@ -1,6 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'project-report'
 
+evaluationDependsOnChildren()
+
 task wrapper(type: Wrapper) {
     gradleVersion = '1.5'
     distributionUrl = "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.5/gradle-1.5-bin.zip"
