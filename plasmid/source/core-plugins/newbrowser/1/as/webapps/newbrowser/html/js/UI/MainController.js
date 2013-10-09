@@ -96,11 +96,13 @@ function MainController() {
 				);
 				
 				//Get display settings
-				localReference.openbisServer.getUserDisplaySettings( function(response) {
-					if(response.result) {
-						localReference.profile.displaySettings = response.result;
-					}
-				});
+				if(localReference.openbisServer.getUserDisplaySettings) { //If the call exists
+					localReference.openbisServer.getUserDisplaySettings( function(response) {
+						if(response.result) {
+							localReference.profile.displaySettings = response.result;
+						}
+					});
+				}
 			}
 		);
 	}

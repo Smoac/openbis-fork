@@ -252,7 +252,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 			var filterResults = [];
 				filterResults[0] = $('#CODE_filter').val();
 			for(var i=0;i<SAMPLE_TYPE_PROPERTIES.length;i++) {
-				filterResults[i+1] = $('#'+SAMPLE_TYPE_PROPERTIES[i]+'_filter').val();
+				filterResults[i+1] = $('#'+SAMPLE_TYPE_PROPERTIES[i].replace('$','\\$')+'_filter').val();
 			}
 		
 			localReference.filter (
