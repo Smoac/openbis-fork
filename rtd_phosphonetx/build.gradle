@@ -1,10 +1,13 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+archivesBaseName = 'datastore_server_plugin-proteomics'
+
 dependencies {
 	compile project(':common'),
 			project(':datastore_server')
 			
-	testCompile project(path: ':datastore_server', configuration: 'tests')				
+	testCompile project(path: ':datastore_server', configuration: 'tests')	
+	
 }
 
 sourceSets { 
@@ -14,3 +17,25 @@ sourceSets {
 		}
 	}
 }
+
+jar {
+    from('../rtd_phosphonetx/source/sql'){ 
+        into("/sql") 
+        include "proteomics/**/*.sql" 
+    }
+}
+
+task zip(type: Zip) {
+	includeEmptyDirs false
+    from (jar.archivePath) {
+	    into 'datastore_server/lib/'
+	    rename 'datastore_server_plugin-proteomics(.*)\\.jar', 'datastore_server_plugin-proteomics.jar'
+	}
+    
+    from (fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/as/**', '**/package-to-dist'])) {
+		into 'core-plugins'    
+	}
+}
+
+zip.dependsOn jar
+build.dependsOn zip
