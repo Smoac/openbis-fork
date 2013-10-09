@@ -1,0 +1,25 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+archivesBaseName = 'datastore_server_plugin-dsu'
+
+dependencies {
+	compile project(':common'),
+			project(':datastore_server')
+			
+	testCompile project(path: ':datastore_server', configuration: 'tests')	
+}
+
+task zip(type: Zip) {
+	includeEmptyDirs false
+    from (jar.archivePath) {
+	    into 'datastore_server/lib/'
+	    rename 'datastore_server_plugin-dsu(.*)\\.jar', 'datastore_server_plugin-dsu.jar'
+	}
+    
+    from (fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/as/**', '**/package-to-dist'])) {
+		into 'core-plugins'    
+	}
+}
+
+zip.dependsOn jar
+build.dependsOn zip
