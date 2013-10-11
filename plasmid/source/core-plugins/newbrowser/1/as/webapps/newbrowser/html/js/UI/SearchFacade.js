@@ -27,22 +27,31 @@ function SearchFacade(profile, openbisServer) {
 	// Search Related Functions
 	//
 	this.getInitializedSamples = function(result) {
-		var samplesById = {};
-		var finalSamples = [];
 		
 		//
-		// Fill Map
+		// Fill Map that uses as key the sample @id and value the sample object
 		//
-		function storeSamplesById(referredSample)
+		var samplesById = {};
+		
+		function storeSamplesById(originalSample)
 		{
-			if (isNaN(referredSample)) {
-				samplesById[referredSample["@id"]] = referredSample;
-				if (referredSample.parents) {
-					referredSample.parents.forEach(storeSamplesById);
-				}
-				if (referredSample.children) {
-					referredSample.children.forEach(storeSamplesById);
-				}
+			var stack = [originalSample];
+			
+			var referredSample = null;
+			while (referredSample = stack.pop()) {
+				if (isNaN(referredSample)) {
+					samplesById[referredSample["@id"]] = referredSample;
+					if (referredSample.parents) {
+						for(var i = 0, len = referredSample.parents.length; i < len; ++i) {
+							stack.push(referredSample.parents[i]);
+						}
+					}
+					if (referredSample.children) {
+						for(var i = 0, len = referredSample.children.length; i < len; ++i) {
+							stack.push(referredSample.children[i]);
+						}
+					}
+				}					
 			}
 		}
 		
@@ -54,6 +63,8 @@ function SearchFacade(profile, openbisServer) {
 		//
 		// Fix Result List
 		//
+		var finalSamples = [];
+		
 		for(var i = 0; i < result.length; i++) {
 			var sampleOrId = result[i];
 			if (isNaN(sampleOrId))
@@ -64,7 +75,7 @@ function SearchFacade(profile, openbisServer) {
 				sampleOrId = samplesById[sampleOrId]; 
 			}
 			
-			//Fill Parents - 1 Level
+			//Fill Parents - Only 1 Level without recursion
 			if(sampleOrId.parents) {
 				for(var j = 0; j < sampleOrId.parents.length; j++) {
 					var parentOrId = sampleOrId.parents[j];
@@ -74,7 +85,7 @@ function SearchFacade(profile, openbisServer) {
 				}
 			}
 			
-			//Fill Children - 1 Level
+			//Fill Children - Only 1 Level without recursion
 			if(sampleOrId.children) {
 				for(var j = 0; j < sampleOrId.children.length; j++) {
 					var childOrId = sampleOrId.children[j];
