@@ -16,12 +16,30 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.user;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplaySettingsManager;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.help.HelpPageIdentifier;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SpaceModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experiment.ProjectSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
@@ -32,6 +50,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.DialogWithOnlineHelpUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
+import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SessionContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PortletConfiguration;
@@ -39,21 +58,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RealNumberFormatingParameters;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StandardPortletNames;
-
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 /**
  * {@link Window} containing form for changing logged user settings.
@@ -72,7 +76,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
     private final SpaceSelectionWidget homeSpaceField;
 
-    private final ProjectSelectionWidget defaultProject;
+    private ProjectSelectionWidget defaultProject;
 
     private final CheckBoxField reopenLastTabField;
 
@@ -104,7 +108,10 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         // setHeight(250);
 
         addField(homeSpaceField = createHomeGroupField());
-        addField(defaultProject = createDefaultProjectUIField());
+
+        final SessionContext sessionContext = viewContext.getModel().getSessionContext();
+        initDefaultProjectUIField(sessionContext.getUser().getHomeGroupCode());
+
         addField(reopenLastTabField = createReopenLastTabOnLoginField());
         addField(enableLegacyMetadataUI = createEnableLegacyMetadataUIField());
         addField(showLastVisitsField = createShowLastVisitsField());
@@ -118,6 +125,26 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         debuggingModeField = createDebuggingModeCheckBox();
         addField(debuggingModeField);
         fbar.insert(createResetButton(), 1); // inserting Reset button in between Save and Cancel
+
+        homeSpaceField.addSelectionChangedListener(new SelectionChangedListener<SpaceModel>()
+            {
+                @Override
+                public void selectionChanged(SelectionChangedEvent<SpaceModel> se)
+                {
+                    Space space = homeSpaceField.tryGetSelected();
+                    initDefaultProjectUIField(space != null ? space.getCode() : null);
+                }
+            });
+
+        homeSpaceField.addListener(Events.Blur, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    String spaceCode = homeSpaceField.getRawValue();
+                    initDefaultProjectUIField(spaceCode != null && spaceCode.isEmpty() == false ? spaceCode : null);
+                }
+            });
 
         DialogWithOnlineHelpUtils.addHelpButton(viewContext.getCommonViewContext(), this,
                 createHelpPageIdentifier());
@@ -146,10 +173,40 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         return field;
     }
 
-    private ProjectSelectionWidget createDefaultProjectUIField()
+    private void initDefaultProjectUIField(String spaceCodeOrNull)
     {
-        final ProjectSelectionWidget field = new ProjectSelectionWidget(viewContext, DropDownList.ID + ProjectSelectionWidget.SUFFIX + DIALOG_ID);
-        field.selectProjectAndUpdateOriginal(viewContext.getDisplaySettingsManager().getDefaultProject());
+        if (spaceCodeOrNull == null)
+        {
+            if (defaultProject != null)
+            {
+                removeField(defaultProject);
+                defaultProject = null;
+            }
+        } else
+        {
+            String oldSpaceCodeOrNull = defaultProject != null ? defaultProject.getSpaceCodeOrNull() : null;
+
+            if (spaceCodeOrNull.equals(oldSpaceCodeOrNull) == false)
+            {
+                if (defaultProject != null)
+                {
+                    removeField(defaultProject);
+                }
+                int homeSpaceIndex = indexOfField(homeSpaceField);
+                defaultProject = createDefaultProjectUIField(spaceCodeOrNull);
+                insertField(defaultProject, homeSpaceIndex + 1);
+            }
+        }
+
+        form.layout(true);
+        layout(true);
+    }
+
+    private ProjectSelectionWidget createDefaultProjectUIField(String spaceCode)
+    {
+        String idSuffix = DropDownList.ID + ProjectSelectionWidget.SUFFIX + DIALOG_ID;
+        final ProjectSelectionWidget field =
+                new ProjectSelectionWidget(viewContext, idSuffix, spaceCode, viewContext.getDisplaySettingsManager().getDefaultProject());
         field.setFieldLabel("Default Project");
         GWTUtils.setToolTip(field, "Default Project Code");
         field.setAllowBlank(true);
@@ -216,13 +273,19 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         boolean isLegacyMetadataEnabled = enableLegacyMetadataUI.getValue();
         viewContext.getDisplaySettingsManager().setLegacyMedadataUIEnabled(isLegacyMetadataEnabled);
 
-        Project defaultProjectObject = defaultProject.tryGetSelectedProject();
-        String defaultProjectIdentifier = null;
-        if (defaultProjectObject != null)
+        if (groupCodeOrNull != null && defaultProject != null)
         {
-            defaultProjectIdentifier = defaultProjectObject.getIdentifier();
+            Project defaultProjectObject = defaultProject.tryGetSelectedProject();
+            String defaultProjectIdentifier = null;
+            if (defaultProjectObject != null)
+            {
+                defaultProjectIdentifier = defaultProjectObject.getIdentifier();
+            }
+            viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifier);
+        } else
+        {
+            viewContext.getDisplaySettingsManager().setDefaultProject(null);
         }
-        viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifier);
 
         if (showLastVisitsField.getValue())
         {

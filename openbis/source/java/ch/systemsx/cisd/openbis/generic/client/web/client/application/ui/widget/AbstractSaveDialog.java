@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -109,6 +110,16 @@ abstract public class AbstractSaveDialog extends Window
     public final void removeField(Widget widget)
     {
         form.remove(widget);
+    }
+
+    public final void insertField(Widget widget, int index)
+    {
+        form.insert(widget, index);
+    }
+
+    public final int indexOfField(Component component)
+    {
+        return form.indexOf(component);
     }
 
     private Button createCancelButton()

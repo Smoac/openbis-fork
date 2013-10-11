@@ -56,9 +56,15 @@ public final class ProjectSelectionWidget extends
     {
         private static final long serialVersionUID = 1L;
 
-        public ProjectComboModel(Project project)
+        public ProjectComboModel(Project project, boolean withGroup)
         {
-            set(DISPLAY_COLUMN_ID, renderProjectWithGroup(project));
+            if (withGroup)
+            {
+                set(DISPLAY_COLUMN_ID, renderProjectWithGroup(project));
+            } else
+            {
+                set(DISPLAY_COLUMN_ID, renderProject(project));
+            }
             set(ModelDataPropertyNames.PROJECT_IDENTIFIER, project.getIdentifier());
             set(ModelDataPropertyNames.OBJECT, project);
         }
@@ -67,13 +73,18 @@ public final class ProjectSelectionWidget extends
         {
             return p.getCode() + " (" + p.getSpace().getCode() + ")";
         }
+
+        private String renderProject(final Project p)
+        {
+            return p.getCode();
+        }
     }
 
     public static final String SUFFIX = CHOOSE_SUFFIX;
 
     private final IViewContext<?> viewContext;
 
-    private final Space spaceOrNull;
+    private final String spaceCodeOrNull;
 
     private String initialProjectIdentifierOrNull;
 
@@ -84,26 +95,19 @@ public final class ProjectSelectionWidget extends
         this(viewContext, idSuffix, null, null);
     }
 
-    /** @param spaceOrNull if specified, only projects from that space will be presented */
-    public ProjectSelectionWidget(final IViewContext<?> viewContext, Space spaceOrNull,
-            final String idSuffix)
-    {
-        this(viewContext, idSuffix, spaceOrNull, null);
-    }
-
     public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
             String initialProjectIdentifier)
     {
         this(viewContext, idSuffix, null, initialProjectIdentifier);
     }
 
-    private ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
-            Space spaceOrNull, String initialProjectIdentifier)
+    public ProjectSelectionWidget(final IViewContext<?> viewContext, final String idSuffix,
+            String spaceCodeOrNull, String initialProjectIdentifier)
     {
         super(viewContext, SUFFIX + idSuffix, Dict.PROJECT, DISPLAY_COLUMN_ID, CHOOSE_SUFFIX,
                 EMPTY_RESULT_SUFFIX);
         this.viewContext = viewContext;
-        this.spaceOrNull = spaceOrNull;
+        this.spaceCodeOrNull = spaceCodeOrNull;
         this.initialProjectIdentifierOrNull = initialProjectIdentifier;
     }
 
@@ -169,7 +173,7 @@ public final class ProjectSelectionWidget extends
         {
             if (matchesTheGroup(p.getObjectOrNull()))
             {
-                result.add(new ProjectComboModel(p.getObjectOrNull()));
+                result.add(new ProjectComboModel(p.getObjectOrNull(), spaceCodeOrNull == null));
             }
         }
         return result;
@@ -177,12 +181,12 @@ public final class ProjectSelectionWidget extends
 
     private boolean matchesTheGroup(Project project)
     {
-        if (spaceOrNull == null)
+        if (spaceCodeOrNull == null)
         {
             return true;
         }
         Space projectGroup = project.getSpace();
-        return projectGroup.getCode().equals(spaceOrNull.getCode());
+        return projectGroup.getCode().equals(spaceCodeOrNull);
     }
 
     @Override
@@ -196,7 +200,20 @@ public final class ProjectSelectionWidget extends
 
     public void trySelectByIdentifier(String projectIdentifier)
     {
-        GWTUtils.setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
+        List<ProjectComboModel> projects = getStore().findModels(ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
+
+        if (projects != null && projects.size() > 0)
+        {
+            GWTUtils.setSelectedItem(this, ModelDataPropertyNames.PROJECT_IDENTIFIER, projectIdentifier);
+        } else
+        {
+            setValue(null);
+        }
+    }
+
+    public String getSpaceCodeOrNull()
+    {
+        return spaceCodeOrNull;
     }
 
     @Override
