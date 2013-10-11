@@ -1,5 +1,7 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+configurations.create('gui')
+
 dependencies {
 	compile project(':common'),
 			project(':openbis-common'),
@@ -25,6 +27,16 @@ dependencies {
 				project(path: ':openbis-common', configuration: 'tests'),
 				project(path: ':openbis', configuration: 'tests')
 				
+	gui	'cglib:cglib-nodep:+',
+		'cisd:cisd-args4j:+',
+		'cisd:cisd-base:+',
+		'apache:poi-ooxml:+',
+		'springframework:spring-context:+',
+		'python:jython:+',
+		'apache:commons-httpclient:+',
+		'marathon:marathon-spring-util:+',
+		'apache:log4j:+',
+		'dom4j:dom4j:+'
 }
 
 sourceSets { 
@@ -34,3 +46,40 @@ sourceSets {
 		}
 	}
 }
+
+task dssGui(type: Jar) {
+	baseName 'dss_gui'
+	
+	from (project(':common').sourceSets.main.output.getAsFileTree().plus(
+		  project(':openbis-common').sourceSets.main.output.getAsFileTree().plus(
+		  project(':openbis_api').sourceSets.main.output.getAsFileTree().plus(
+		  project(':openbis').sourceSets.main.output.getAsFileTree().plus(
+		  sourceSets.main.output.getAsFileTree())))).matching {
+		include 'ch/systemsx/cisd/common/**/*.class'	
+      	include 'ch/systemsx/cisd/openbis/common/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/generic/shared/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class'
+        include 'ch/systemsx/cisd/openbis/dss/client/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class'
+      	include 'org/python/core/SyspathArchiveHack.class'
+	})
+	
+	from (fileTree(dir: 'resource', includes: ['ok.png', 'wrong.png', 'wait.gif']))
+}	
+dssGui.dependsOn compileJava
+
+task dssGuiZip(type: Zip) {
+	baseName 'dss_upload_gui'
+
+	from (configurations.gui) {
+		into 'dss_upload_gui/lib'
+	}
+	
+	from (dssGui.archivePath) {
+		into 'dss_upload_gui/lib'
+	}
+}
+dssGuiZip.dependsOn dssGui
+build.dependsOn dssGuiZip
+

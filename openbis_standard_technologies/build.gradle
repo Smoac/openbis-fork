@@ -320,6 +320,10 @@ task zipDss(type: Zip) {
 		into 'datastore_server/server/etc'
 	}
 	
+	from(zipTree(project(':datastore_server').dssGuiZip.archivePath)) {
+		into 'datastore_server/lib/'
+	}
+	
 	from (project(':rtd_phosphonetx').fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/as/**', '**/package-to-dist']).plus(
 		 project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/as/**', '**/package-to-dist']).plus(
 		 project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/as/**', '**/package-to-dist'])))) {
