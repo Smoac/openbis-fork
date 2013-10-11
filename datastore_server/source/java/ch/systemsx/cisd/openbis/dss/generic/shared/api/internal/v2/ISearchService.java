@@ -204,4 +204,9 @@ public interface ISearchService
      */
     IMaterialImmutable getMaterial(String identifier);
 
+    /**
+     * Return all materials of a given type.
+     */
+    List<IMaterialImmutable> listAllMaterials(String materialTypeCode);
+
 }

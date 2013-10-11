@@ -235,6 +235,17 @@ public class SearchService implements ISearchService
         return accumulatedResults;
     }
 
+    @Override
+    public List<IMaterialImmutable> listAllMaterials(String materialTypeCode)
+    {
+        MaterialType materialType = new MaterialType();
+        materialType.setCode(materialTypeCode);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material> materialsOfType =
+                openBisService.listMaterials(
+                        ListMaterialCriteria.createFromMaterialType(materialType), true);
+        return translate(materialsOfType);
+    }
+
     private List<IMaterialImmutable> translate(List<Material> materials)
     {
         List<IMaterialImmutable> result = new ArrayList<IMaterialImmutable>();
