@@ -143,8 +143,11 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
         try
         {
             DataSetRegistrationService<T> service = createRegistrationService(parameters);
+            if (context.trySessionToken() != null)
+            {
+                service.setUserSessionToken(context.trySessionToken());
+            }
             IDataSetRegistrationTransactionV2 transaction = createTransaction(service);
-
             TableModel tableModel = process(transaction, parameters, context);
 
             service.commit();
