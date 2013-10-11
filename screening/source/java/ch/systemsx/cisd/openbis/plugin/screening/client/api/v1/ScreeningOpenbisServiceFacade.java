@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.dss.generic.server.DssScreeningApplicationContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssBuilder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
@@ -165,7 +164,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                             {
                                 return null;
                             }
-                            return tryCreate(sessionToken, serverUrl, openbisServer, false);
+                            return tryCreate(sessionToken, serverUrl, openbisServer, null);
                         }
                     };
         return caller.callWithRetry();
@@ -180,19 +179,21 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken,
             final String serverUrl)
     {
-        return tryCreate(sessionToken, serverUrl, false);
+        return tryCreate(sessionToken, serverUrl, (IDssServiceRpcScreening) null);
     }
 
     /**
      * Creates a service facade which communicates with the openBIS server at the specified URL for an authenticated user. This version should be used
      * when facade is running from the dss process (like a dropbox) and all dss calls should be send to this instance.
      */
-    public static IScreeningOpenbisServiceFacade tryCreateWithLocalDss(final String sessionToken, final String serverUrl)
+    public static IScreeningOpenbisServiceFacade tryCreateWithLocalDss(final String sessionToken, final String serverUrl,
+            IDssServiceRpcScreening localDss)
     {
-        return tryCreate(sessionToken, serverUrl, true);
+        return tryCreate(sessionToken, serverUrl, localDss);
     }
 
-    private static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken, final String serverUrl, final boolean withLocalDss)
+    private static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken, final String serverUrl,
+            final IDssServiceRpcScreening localDss)
     {
         RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException> caller =
                 new RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException>()
@@ -201,7 +202,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         protected IScreeningOpenbisServiceFacade call()
                         {
                             return tryCreate(sessionToken, serverUrl,
-                                    createScreeningOpenbisServer(serverUrl), withLocalDss);
+                                    createScreeningOpenbisServer(serverUrl), localDss);
                         }
                     };
         return caller.callWithRetry();
@@ -213,11 +214,11 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreateForTest(String sessionToken,
             String serverUrl, final IScreeningApiServer openbisServer)
     {
-        return tryCreate(sessionToken, serverUrl, openbisServer, false);
+        return tryCreate(sessionToken, serverUrl, openbisServer, null);
     }
 
     private static IScreeningOpenbisServiceFacade tryCreate(String sessionToken, String serverUrl,
-            final IScreeningApiServer openbisServer, boolean useLocalDss)
+            final IScreeningApiServer openbisServer, IDssServiceRpcScreening localDss)
     {
         final IGeneralInformationService generalInformationService =
                 createGeneralInformationService(serverUrl);
@@ -230,7 +231,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         IScreeningOpenbisServiceFacade facade =
                 new ScreeningOpenbisServiceFacade(sessionToken, openbisServer, minorVersion,
                         DSS_SERVICE_FACTORY, dssComponent, generalInformationService,
-                        generalInformationChangingService, useLocalDss);
+                        generalInformationChangingService, localDss);
 
         return RetryProxyFactory.createProxy(facade);
     }
@@ -265,7 +266,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     ScreeningOpenbisServiceFacade(String sessionToken, IScreeningApiServer screeningServer,
             int minorVersion, final IDssServiceRpcScreeningFactory dssServiceFactory,
             IDssComponent dssComponent, IGeneralInformationService generalInformationService,
-            IGeneralInformationChangingService generalInformationChangingService, boolean useLocalDss)
+            IGeneralInformationChangingService generalInformationChangingService, final IDssServiceRpcScreening localDss)
     {
         this.openbisScreeningServer = screeningServer;
         this.generalInformationService = generalInformationService;
@@ -278,17 +279,14 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
 
         this.minorVersionApplicationServer = minorVersion;
 
-        if (useLocalDss)
+        if (localDss != null)
         {
             dssServiceCache = new IDssServiceRpcScreeningFactory()
                 {
                     @Override
                     public DssServiceRpcScreeningHolder createDssService(String serverUrl)
                     {
-                        return new DssServiceRpcScreeningHolder(
-                                serverUrl,
-                                (IDssServiceRpcScreening) DssScreeningApplicationContext.getInstance().getBean(
-                                        "data-store-rpc-service-screening-logic-target"));
+                        return new DssServiceRpcScreeningHolder(serverUrl, localDss);
                     }
                 };
         } else
