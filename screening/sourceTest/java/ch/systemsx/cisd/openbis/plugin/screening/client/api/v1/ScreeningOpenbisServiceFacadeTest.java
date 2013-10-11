@@ -233,7 +233,7 @@ public class ScreeningOpenbisServiceFacadeTest extends AbstractFileSystemTestCas
         facade =
                 new ScreeningOpenbisServiceFacade(SESSION_TOKEN, screeningService,
                         ScreeningServer.MINOR_VERSION, dssServiceFactory, dssComponent,
-                        generalInformationService, generalInformationChangingService);
+                        generalInformationService, generalInformationChangingService, false);
     }
 
     @AfterMethod

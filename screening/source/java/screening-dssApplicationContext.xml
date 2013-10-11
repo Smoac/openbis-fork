@@ -22,6 +22,10 @@
         // Screening specific configuration
     -->
 
+  <bean id = "data-store-rpc-service-screening-logic-target" class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening">
+          <constructor-arg value="${storeroot-dir}" />
+  </bean>
+
   <bean id="data-store-rpc-service-screening-logic" class="org.springframework.aop.framework.ProxyFactoryBean">
       <property name="proxyInterfaces">
           <list>
@@ -35,9 +39,7 @@
           </list>
       </property>
       <property name="target">
-        <bean class="ch.systemsx.cisd.openbis.dss.screening.server.DssServiceRpcScreening">
-          <constructor-arg value="${storeroot-dir}" />
-        </bean>
+        <ref bean="data-store-rpc-service-screening-logic-target" />
       </property>
    </bean>
 
