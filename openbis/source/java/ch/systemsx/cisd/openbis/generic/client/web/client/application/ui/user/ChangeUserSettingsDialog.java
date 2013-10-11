@@ -105,7 +105,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
         this.resetCallback = resetCallback;
         form.setLabelWidth(150);
         form.setFieldWidth(400);
-        // setHeight(250);
+        setWidth(640);
 
         addField(homeSpaceField = createHomeGroupField());
 
