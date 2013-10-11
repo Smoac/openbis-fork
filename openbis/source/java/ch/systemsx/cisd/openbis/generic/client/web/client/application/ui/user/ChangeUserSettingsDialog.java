@@ -249,9 +249,18 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     @Override
     protected void save(AsyncCallback<Void> saveCallback)
     {
-        Space space = homeSpaceField.tryGetSelected();
-        String groupCodeOrNull = space == null ? null : space.getCode();
-        TechId groupIdOrNull = TechId.create(space);
+        String groupCodeOrNull = null;
+        TechId groupIdOrNull = null;
+
+        String spaceRaw = homeSpaceField.getRawValue();
+
+        if (spaceRaw != null && spaceRaw.isEmpty() == false)
+        {
+            Space space = homeSpaceField.tryGetSelected();
+            groupCodeOrNull = space == null ? null : space.getCode();
+            groupIdOrNull = TechId.create(space);
+        }
+
         viewContext.getModel().getSessionContext().getUser().setHomeGroupCode(groupCodeOrNull);
         viewContext.getService().changeUserHomeSpace(groupIdOrNull, saveCallback);
 
@@ -275,13 +284,18 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
 
         if (groupCodeOrNull != null && defaultProject != null)
         {
-            Project defaultProjectObject = defaultProject.tryGetSelectedProject();
-            String defaultProjectIdentifier = null;
-            if (defaultProjectObject != null)
+            String defaultProjectIdentifierOrNull = null;
+
+            String projectRaw = defaultProject.getRawValue();
+            if (projectRaw != null && projectRaw.isEmpty() == false)
             {
-                defaultProjectIdentifier = defaultProjectObject.getIdentifier();
+                Project defaultProjectObject = defaultProject.tryGetSelectedProject();
+                if (defaultProjectObject != null)
+                {
+                    defaultProjectIdentifierOrNull = defaultProjectObject.getIdentifier();
+                }
             }
-            viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifier);
+            viewContext.getDisplaySettingsManager().setDefaultProject(defaultProjectIdentifierOrNull);
         } else
         {
             viewContext.getDisplaySettingsManager().setDefaultProject(null);
