@@ -29,7 +29,7 @@ function SearchFacade(profile, openbisServer) {
 	this.getInitializedSamples = function(result) {
 		
 		//
-		// Fill Map that uses as key the sample @id and value the sample object
+		// Fill Map that uses as key the sample @id and value the sample object 
 		//
 		var samplesById = {};
 		
