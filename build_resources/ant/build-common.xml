@@ -135,6 +135,7 @@
 			<jvmarg value="-XX:MaxPermSize=512m" />
 			<jvmarg value="-Dant.project.name=${ant.project.name}" />
 			<jvmarg value="-Dlog4j.debug" />
+			<jvmarg value='-Duser.timezone="Europe/Zurich"' />			
 			<jvmarg value="${log.configuration.file.jvmarg}" />
 		</testng>
 		
