@@ -42,7 +42,16 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this.samples = new Array();
 	this.isEmbedded = isEmbedded;
 	this.inspector = inspector;
-
+	
+	//Pagination related attributes
+	this._filterValue = "";
+	this._filteredSamples = null;
+	this._samplesToPaint = null;
+	this._total = null;
+	this._start = null;
+	this._limit = 50;
+	this._adjacentPages = 2;
+	
 	this.init = function() {
 		Util.blockUI();
 		var localReference = this;
@@ -138,9 +147,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	
 	this.previewNote = function(samplePermId, attachTo) {
 		var sample = null;
-		for(var i = 0; i < this.samples.length; i++) {
-			if(this.samples[i].permId === samplePermId) {
-				sample = this.samples[i];
+		for(var i = 0; i < this._samplesToPaint.length; i++) {
+			if(this._samplesToPaint[i].permId === samplePermId) {
+				sample = this._samplesToPaint[i];
 				break;
 			}
 		}
@@ -173,6 +182,90 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			}
 		}
 	}
+		
+	this._getPaginationComponent = function(total, start, limit, adjacentPages) {
+		//Check if there is elements
+		if(total === 0) {
+			return $("<p>").append("No elements found.");
+		}
+		
+		//Current page
+		var currentPage = (start / limit) + 1;
+		//Number of pages
+		var numPages = Math.floor(total / limit);
+		if(total % limit !== 0) { //The last page usually is not complete
+			numPages++;
+		}
+		//Shown To fix for the last page
+		var shownTo = start + limit;
+		if(shownTo > total) {
+			shownTo = total;
+		}
+		
+		//Pagination component
+		var $component = $("<div>");
+							
+		var $textLine = $("<span>")
+			.append("Showing " + (start + 1) + " to " + shownTo + " (" + total + "): ");
+		
+		$component.append($textLine);
+		
+		var localReference = this;
+		var paginationClick = function(firstElementFromPage) {
+			return function() {
+				localReference._reloadWithSamplesAndPagination(firstElementFromPage);
+			}
+		}
+		
+		//Start Pages
+		if(currentPage == 1) {
+			var $paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-fast-backward" }));
+			$textLine.append($paginationItem);
+			
+			$paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-step-backward" }));
+			$textLine.append($paginationItem);
+		} else {
+			var $paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(0) }).append($("<i>", { class: "icon-fast-backward" }));
+			$textLine.append($paginationItem);
+			
+			var firstElementFromPage =  limit * (currentPage - 2);
+			$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-step-backward" }));
+			$textLine.append($paginationItem);
+		}
+		
+		//Middle Pages
+		for(var pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+			if(!(pageNumber < currentPage - adjacentPages) && !(pageNumber > currentPage + adjacentPages)) {
+				var firstElementFromPage =  limit * (pageNumber - 1);
+				$paginationItem = null;
+				if(currentPage === pageNumber) {
+					$paginationItem = $("<a>", { class: "btn btn-primary paginationItem", click: paginationClick(firstElementFromPage) }).append(pageNumber);
+				} else {
+					$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append(pageNumber)
+				}
+				$textLine.append($paginationItem);
+			}
+		}
+		
+		//End Pages
+		if(currentPage == numPages) {
+			var $paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-forward" }));
+			$textLine.append($paginationItem);
+			
+			$paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-fast-forward" }));
+			$textLine.append($paginationItem);
+		} else {
+			var firstElementFromPage =  limit * (currentPage);
+			var $paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-step-forward" }));
+			$textLine.append($paginationItem);
+			
+			firstElementFromPage =  limit * (numPages - 1);
+			$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-fast-forward" }));
+			$textLine.append($paginationItem);
+		}
+		
+		return $component;
+	}
 	
 	this.repaint = function() {
 		$("#"+this.sampleTableId).empty();
@@ -185,7 +278,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			component += "<div class='row-fluid'>";
 			component += "<div class='span12'>";
 			component += "<div id='vis'>";
-			component += "<div id='tableMessages'></div>";
 			
 			if(this.isEmbedded) {
 				component += "<div class='tableContainerBorder' style='height: 350px; width:100%; overflow: auto;'>";
@@ -221,12 +313,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			sampleTypePropertiesDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, sampleTypeProperties);
 			
 			tableTemplate += "<tr style='border:none; border-collapse:collapse;'>";
-			tableTemplate += "<td style='border:none; border-collapse:collapse;'><input placeholder='Code filter' style=\"width: 100%\" id=\"CODE_filter\" type=\"text\"></td>";
-			for(var i=0; i<sampleTypePropertiesDisplayNames.length;i++) {
-				tableTemplate += "<td style='border:none; border-collapse:collapse;'><input placeholder='"+sampleTypePropertiesDisplayNames[i]+" filter' style=\"width: 100%\" id=\""+sampleTypeProperties[i]+"_filter\" type=\"text\"></td>";
-			}
-			tableTemplate += "<td></td>";
-			tableTemplate += "<td></td>";
+			tableTemplate += "<td style='border:none; border-collapse:collapse;' colspan='" + sampleTypePropertiesDisplayNames.length + "'><input placeholder='filter' style=\"width: 100%\" id=\"table-filter\" type=\"text\"></td>";
+			tableTemplate += "<td colspan='4' id='pagination'></td>";
 			tableTemplate += "</tr>";
 		}
 	
@@ -234,8 +322,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
 			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
-		
 		if (this.isEmbedded || this.isSearch) {
+			tableTemplate += "<th></th>";
 			tableTemplate += "<th></th>";
 			tableTemplate += "<th></th>";
 		} else {
@@ -243,49 +331,28 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			tableTemplate += "<th style='white-space: nowrap;'><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a></th>";
 			tableTemplate += "<th><a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></th>";
 		}
+		
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 	
 		$("#tableContainer").append(tableTemplate);
+		
+		$("#pagination").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		
 		//
 		// Attach Filter Functions to DOM
 		//
 		var localReference = this;
-		$('#CODE_filter').keyup(function() {
-			var filterResults = [];
-				filterResults[0] = $('#CODE_filter').val();
-			for(var i=0;i<sampleTypeProperties.length;i++) {
-				filterResults[i+1] = $('#'+sampleTypeProperties[i].replace('$','\\$')+'_filter').val();
-			}
-		
-			localReference.filter (
-				filterResults
-			);
-		});	
-	
-		for(var i = 0; i < sampleTypeProperties.length; i++) {
-			$('#'+sampleTypeProperties[i].replace('$','\\$')+'_filter').keyup(function() {
-				var filterResults = [];
-					filterResults[0] = $('#CODE_filter').val();
-				for(var i=0;i<sampleTypeProperties.length;i++) {
-					filterResults[i+1] = $('#'+sampleTypeProperties[i].replace('$','\\$')+'_filter').val();
-				}
-			
-				localReference.filter(
-					filterResults
-				);
-			});	
-		}
+		$('#table-filter').keyup(function() { localReference._filter(); });
+		$('#table-filter').val(this._filterValue);
 		
 		//
 		// Table Rows
 		//
-		if (this.samples.length < 1) {
-			$("#tableMessages").append("<p style='background:yellow;'>No data found.<p>");
+		if (this._samplesToPaint.length < 1) {
 			return;
 		}
 		
-		var selection = d3.select("#vis").select("#sample-data-holder").selectAll("tr.sample-table-data").data(this.samples);
+		var selection = d3.select("#vis").select("#sample-data-holder").selectAll("tr.sample-table-data").data(this._samplesToPaint);
 	
 		//Code under enter is run if there is no HTML element for a data element
 	
@@ -387,74 +454,114 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				});
 	}
 	
-	this.filterInternal = function(filter, property, element, index, array) {
-		filter = filter.toLowerCase();
-		if (filter.length < 1) return true;
+	this._filter = function(filterResults) {
+		//Obtain filter tokens
+		var filterValue = $('#table-filter').val();
+		var filterValueTokensAux = filterValue.toLowerCase().split(" ");
+		var filterValueTokens = [];
 		
-		if (property == "CODE") {
-			if (element.code.toLowerCase().indexOf(filter) != -1) {
-				return true;
+		for(var i = 0; i < filterValueTokensAux.length; i++) {
+			if(filterValueTokensAux[i].trim() !== "") {
+				filterValueTokens.push(filterValueTokensAux[i]);
 			}
-		}	
-		
-		if (element.properties[property] == undefined) {
-			return false;
 		}
 		
-		if (element.properties[property].toLowerCase().indexOf(filter) != -1) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	this.filter = function(filterResults) {
+		//Obtain visible table column codes (only filter using those)
 		var sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
 		if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
 			sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
 		}
 		
-		var displayedSamples;
-		
-		displayedSamples = this.samples.filter(this.filterInternal.curry(((filterResults[0] == undefined)?"":filterResults[0]), "CODE"));
-		for(var i=0; i < sampleTypeProperties.length;i++) {
-				displayedSamples = displayedSamples.filter(this.filterInternal.curry((filterResults[i+1] == undefined)?"":filterResults[i+1],sampleTypeProperties[i]));
+		//filter, iterates all conditions given by the different filter tokens and builds an array of results for each sample
+		var filteredSamplesHolder = [];
+		for(var i = 0, lenI = this.samples.length; i < lenI; ++i) {
+			var filterValueTokensPassed = [];
+			for(var j = 0, lenJ = filterValueTokens.length; j < lenJ; ++j) {
+				filterValueTokensPassed[j] = (this.samples[i].code.toLowerCase().indexOf(filterValueTokens[j]) !== -1);
+				if(!filterValueTokensPassed[j]) {
+					for(var z = 0, lenZ = sampleTypeProperties.length; z < lenZ; ++z) {
+						var propertyCode = sampleTypeProperties[z];
+						var propertyValue = this.samples[i].properties[propertyCode];
+						
+						if(propertyValue) {
+							filterValueTokensPassed[j] = propertyValue.toLowerCase().indexOf(filterValueTokens[j]) !== -1;
+							if(filterValueTokensPassed[j]) {
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			//Check if the conditions given by the different filter tokens are accomplished
+			var pass = true;
+			for(var k = 0; k < filterValueTokens.length; k++) {
+				pass = pass && filterValueTokensPassed[k];
+			}
+			if(pass) {
+				filteredSamplesHolder.push(this.samples[i]);
+			}
 		}
 		
+		//Repaint first page
+		this._filteredSamples = filteredSamplesHolder;
+		this._reloadWithSamplesAndPagination(0);
 		
-		var selection2 = d3.select("#vis").select("#sample-table").selectAll("tr.sample-table-data").data(this.samples);
-			// Code under enter is run if there is no HTML element for a data element
-			selection2.style("display", function(data) {
-			 		if ($.inArray(data, displayedSamples) != -1) {
-						return "table-row"
-					} 
-					else {
-						return  "none"
-					}
-				});
-			
-	};
+		//Fix filter value and mouse position
+		this._filterValue = filterValue;
+		$('#table-filter').val(this._filterValue);
+		$('#table-filter').putCursorAtEnd();
+	}
 	
 	this.openEditWindowForSample = function(code, permId) {
 		var sample = null;
-		for(var i = 0; i < this.samples.length; i++) {
-			if (this.samples[i].permId === permId) {
-				sample = this.samples[i];
+		for(var i = 0; i < this._samplesToPaint.length; i++) {
+			if (this._samplesToPaint[i].permId === permId) {
+				sample = this._samplesToPaint[i];
 				break;
 			}
 		}
 		mainController.showEditSamplePage(sample); //TO-DO : Fix Global Access
 	}
 	
-	this.reloadWithSamples = function(returnedSamples)
-	{
+	this.reloadWithSamples = function(returnedSamples) {
+		var sortedSamples = null;
 		if(this.isSearch) {
-			this.samples = returnedSamples;
+			sortedSamples = returnedSamples;
 		} else {
-			this.samples = this.profile.searchSorter(returnedSamples);
+			sortedSamples = this.profile.searchSorter(returnedSamples);
 		}
 		
-		this.repaint();
+		this.samples = sortedSamples;
+		this._filteredSamples = this.samples;
+		this._reloadWithSamplesAndPagination(0);
 	}
 	
+	this._reloadWithSamplesAndPagination = function(start) {
+		//Repaint first page
+		this._total = this._filteredSamples.length;
+		this._start = start;
+		this._samplesToPaint = this._filteredSamples.slice(this._start, this._start + this._limit);
+		this.repaint();
+	}
 }
+
+jQuery.fn.putCursorAtEnd = function() {
+	return this.each(function() {
+		$(this).focus();
+		// If this function exists...
+		if (this.setSelectionRange) {
+			// ... then use it (Doesn't work in IE)
+			// Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
+			var len = $(this).val().length * 2;
+			this.setSelectionRange(len, len);
+		} else {
+			// ... otherwise replace the contents with itself
+			// (Doesn't work in Google Chrome)
+			$(this).val($(this).val());
+		}
+		// Scroll to the bottom, in case we're in a tall textarea
+		// (Necessary for Firefox and Google Chrome)
+		this.scrollTop = 999999;
+	});
+};
