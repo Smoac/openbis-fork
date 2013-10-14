@@ -20,13 +20,12 @@
  * @constructor
  * @this {MainMenu}
  * @param {string} containerId The Container where the Inspector DOM will be atached.
- * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {List<GroupOfMenuItems>} menuStructure The menu structure.
  */
-function MainMenu(mainController, containerId, profile) {
+function MainMenu(mainController, containerId, menuStructure) {
 	this.mainController = mainController;
 	this.containerId = containerId;
-	this.profile = profile;
-	this.menuStructure = profile.menuStructure;
+	this.menuStructure = menuStructure;
 	
 	this.init = function() {
 		this.repaint();

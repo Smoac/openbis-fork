@@ -25,15 +25,18 @@ SampleFormMode = {
  *
  * @constructor
  * @this {SampleForm}
+ * @param {ServerFacade} serverFacade Used to access all server side calls.
+ * @param {Inspector} inspector Used to add selected samples to show them as notes.
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  * @param {string} sampleTypeCode The sample type code that will be used as template for the form.
  * @param {boolean} isELNExperiment If the for should treat the sample type as an ELN Experiment, linking during creation an experiment with the same type and code.
  * @param {SampleFormMode} mode The form accepts CREATE/EDIT/VIEW modes for common samples and ELNExperiment samples
- * @param {Sample} sample The sample that will be used to populate the form if the mode is EDIT/VIEW, null can be provided for CREATE.
+ * @param {Sample} sample The sample that will be used to populate the form if the mode is EDIT/VIEW, null can be provided for CREATE since is ignored.
  */
-function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
-	this.mainController = mainController;
+function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
+	this.serverFacade = serverFacade;
+	this.inspector = inspector;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
@@ -43,17 +46,17 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 	this.sampleTypesLinksTables = {};
 	this.mode = mode;
 	this.sample = sample;
-	this.freezer = null;
+	this.storage = null;
 	this.dataSetViewer = null;
 	
 	this.init = function() {
 			Util.blockUI();
 			var localReference = this;
 			
-			this.freezer = new Freezer(this.mainController.searchFacade,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
-			this.freezer.init();
+			this.storage = new Storage(this.serverFacade,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
+			this.storage.init();
 			
-			this.mainController.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+			this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 				//Init Basic Form elements
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
 				localReference.repaint();
@@ -75,7 +78,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 						}
 					}
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
-					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.mainController.openbisServer, localReference.profile.allDataStores[0].downloadUrl);
+					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.serverFacade, localReference.profile.allDataStores[0].downloadUrl);
 					this.dataSetViewer.init();
 					
 					var sample = localReference.sample;
@@ -295,7 +298,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 	
 	this.getPINButton = function() {
 		var inspectedClass = "";
-		if(this.mainController.inspector.containsSample(this.sample) !== -1) {
+		if(this.inspector.containsSample(this.sample) !== -1) {
 			inspectedClass = "inspectorClicked";
 		}
 		return "<a id='pinButton' class='btn pinBtn " + inspectedClass + "'><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
@@ -304,7 +307,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 	this.enablePINButtonEvent = function() {
 		var localReference = this;
 		$( "#pinButton" ).click(function() {
-			var isInspected = localReference.mainController.inspector.toggleInspectSample(sample);
+			var isInspected = localReference.inspector.toggleInspectSample(sample);
 			if(isInspected) {
 				$('#pinButton').addClass('inspectorClicked');
 			} else {
@@ -318,6 +321,10 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
 		var sampleTypeDisplayName = sampleType.description;
 		
+		if(!sampleTypeDisplayName) {
+				sampleTypeDisplayName = this.sampleTypeCode;
+		}
+
 		var component = "";
 		
 			component += "<div class='row-fluid'>";
@@ -395,8 +402,8 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				
 				if(propertyTypeGroup.name) {
 					component += "<legend>" + propertyTypeGroup.name + "</legend>";
-					if(this.freezer.isPropertyGroupFromFreezer(propertyTypeGroup.name)) {
-						component += "<div id='sampleStorage'></div>"; // When a freezer is used, the freezer needs a container
+					if(this.storage.isPropertyGroupFromStorage(propertyTypeGroup.name)) {
+						component += "<div id='sampleStorage'></div>"; // When a storage is used, the storage needs a container
 					}
 				} else {
 					component += "<legend></legend>";
@@ -404,7 +411,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 				
 				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 					var propertyType = propertyTypeGroup.propertyTypes[j];
-					if(this.freezer.isPropertyFromFreezer(propertyType.code)) { continue; } // When a freezer is used, the freezer controls the rendering of the properties
+					if(this.storage.isPropertyFromStorage(propertyType.code)) { continue; } // When a storage is used, the storage controls the rendering of the properties
 					
 					component += "<div class='control-group'>";
 					component += "<label class='control-label' for='inputCode'>" + propertyType.label + ":</label>";
@@ -471,7 +478,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			
 		//Add form to layout
 		$("#"+this.containerId).append(component);
-		this.freezer.repaint();
+		this.storage.repaint();
 		
 		//Enable Events
 		
@@ -495,7 +502,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
 		
 		if(sampleType !== null) {
-			sampleTable = new SampleTable(this.mainController,"sampleSearchContainer", this.profile, sampleTypeCode, false, false, true, false, true);
+			sampleTable = new SampleTable(this.serverFacade,"sampleSearchContainer", this.profile, sampleTypeCode, false, false, true, false, true);
 			sampleTable.init();
 		}
 	}
@@ -577,7 +584,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		var localReference = this;
 		
 		if(this.profile.allDataStores.length > 0) {
-			this.mainController.openbisServer.createReportFromAggregationService(this.profile.allDataStores[0].code, "newbrowserapi", parameters, function(response) {
+			this.serverFacade.createReportFromAggregationService(this.profile.allDataStores[0].code, parameters, function(response) {
 				localReference.createSampleCallback(response, localReference);
 			});
 		} else {
@@ -607,7 +614,9 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 		} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 			var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
 			var sampleTypeDisplayName = sampleType.description;
-			
+			if(!sampleTypeDisplayName) {
+				sampleTypeDisplayName = this.sampleTypeCode;
+			}
 			var message = "";
 			if(this.mode === SampleFormMode.CREATE) {
 				message = "Created.";
@@ -618,7 +627,7 @@ function SampleForm(mainController, containerId, profile, sampleTypeCode, isELNE
 			var callbackOk = function() {
 				if(localReference.mode == SampleFormMode.EDIT) {
 					var sampleIdentifier = localReference.sample.permId;
-					localReference.mainController.searchFacade.searchWithUniqueId(sampleIdentifier, function(samples) {
+					localReference.serverFacade.searchWithUniqueId(sampleIdentifier, function(samples) {
 						localReference.sample = samples[0];
 						localReference.init();
 					});

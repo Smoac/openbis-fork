@@ -15,21 +15,15 @@
  */
 
 /**
- * Utility class Util, created as anonimous.
+ * Utility class Util, created as anonimous, it contains utility methods mainly to show messages.
  *
  * Contains methods used for common tasks.
  */
 var Util = new function() {
-	this.getEmptyIfNull = function(toCheck) {
-		if(	toCheck === undefined ||
-			toCheck === null ||
-			toCheck === "�(undefined)") {
-			return "";
-		} else {
-			return toCheck;
-		}
-	}
-	
+
+	//
+	// Methods to block user input
+	//
 	this.blockUINoMessage = function() {
 		this.unblockUI();
 		BlockScrollUtil.disable_scroll();
@@ -60,6 +54,9 @@ var Util = new function() {
 		
 	}
 	
+	//
+	// Methods to allow user input
+	//
 	this.unblockUI = function(callback) {
 		BlockScrollUtil.enable_scroll();
 		$('#navbar').unblock();
@@ -68,6 +65,9 @@ var Util = new function() {
 					});
 	}
 	
+	//
+	// Methods to show messages as pop ups
+	//
 	this.showError = function(withHTML, andCallback) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
@@ -152,26 +152,16 @@ var Util = new function() {
 		});
 	}
 	
-	this.fileUpload = function(fileId, callbackHandler) {
-		//File
-		var file = document.getElementById(fileId).files[0];
-		
-		//Building Form Data Object for Multipart File Upload
-		var formData = new FormData();
-		formData.append("sessionKeysNumber", 1);
-		formData.append("sessionKey_0", "sample-file-upload");
-		formData.append("sample-file-upload", file);
-		formData.append("sessionID", mainController.openbisServer.getSession());
-		
-		$.ajax({
-			type: "POST",
-			url: "/openbis/openbis/upload",
-			contentType: false,
-			processData: false,
-			data: formData,
-			success: function(result) {
-				callbackHandler(result);
-			}
-		});
+	//
+	// Other
+	//
+	this.getEmptyIfNull = function(toCheck) {
+		if(	toCheck === undefined ||
+			toCheck === null ||
+			toCheck === "�(undefined)") {
+			return "";
+		} else {
+			return toCheck;
+		}
 	}
 } 

@@ -19,12 +19,12 @@
  *
  * @constructor
  * @this {Inspector}
- * @param {SearchFacade} searchFacade The facade used to access server side search functionality.
+ * @param {ServerFacade} serverFacade The facade used to access server side search functionality.
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  */
-function Inspector(searchFacade, containerId, profile) {
-	this.searchFacade = searchFacade;
+function Inspector(serverFacade, containerId, profile) {
+	this.serverFacade = serverFacade;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.inspectedSamples = new Array();
@@ -128,10 +128,10 @@ function Inspector(searchFacade, containerId, profile) {
 		var localReference = this;
 		
 		//Clean glow effect in case was used already with that div
-		var divID = sampleCode + "_INSPECTOR";
+		var divID = sampleTypeCode + "_" + sampleCode + "_INSPECTOR";
 		$("#"+divID).removeClass("glow");
 		
-		this.searchFacade.searchWithType(sampleTypeCode, sampleCode, function(data) {
+		this.serverFacade.searchWithType(sampleTypeCode, sampleCode, function(data) {
 			
 			var isAdded = localReference.addInspectSampleIfNotFound(data[0]);
 			if(isAdded) {
@@ -169,6 +169,9 @@ function Inspector(searchFacade, containerId, profile) {
 		
 		for(var sampleType in allParentCodesByType) {
 			var displayName = profile.getTypeForTypeCode(sampleType).description;
+			if(displayName === null) {
+				displayName = sampleType;
+			}
 			allParentCodesAsText += displayName + ": ";
 			var parents = allParentCodesByType[sampleType];
 			for(var i = 0; i < parents.length; i++) {
@@ -195,7 +198,8 @@ function Inspector(searchFacade, containerId, profile) {
 		} 
 
 		var inspector = "";
-			inspector += "<div id='"+entity.code+"_INSPECTOR' class='inspector' style='background-color:" + defaultColor + ";' >";
+			var divID = entity.sampleTypeCode + "_" + entity.code + "_INSPECTOR";
+			inspector += "<div id='"+divID+"' class='inspector' style='background-color:" + defaultColor + ";' >";
 			
 			inspector += "<strong>" + entity.code + "</strong>";
 			
@@ -300,7 +304,7 @@ function Inspector(searchFacade, containerId, profile) {
 			
 			inspector += "</table>"
 			
-			var extraContainerId = entity.code+"_INSPECTOR_EXTRA";
+			var extraContainerId = entity.sampleTypeCode + "_" + entity.code+"_INSPECTOR_EXTRA";
 			inspector += "<div class='inspectorExtra' id='"+ extraContainerId + "'></div>";
 			this.profile.inspectorContentExtra(extraContainerId, entity);
 			

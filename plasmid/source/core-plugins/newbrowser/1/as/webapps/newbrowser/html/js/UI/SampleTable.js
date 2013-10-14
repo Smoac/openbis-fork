@@ -20,6 +20,7 @@
  *
  * @constructor
  * @this {SampleTable}
+ * @param {ServerFacade} serverFacade Used to access all server side calls.
  * @param {string} sampleTableId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  * @param {string} sampleTypeCode The code of the sample type to be displayed on the table.
@@ -27,9 +28,10 @@
  * @param {boolean} enableAdd Enables the event that allows to add samples, this is hardwired thinking that a proper SampleLinksTable exists with certain id.
  * @param {boolean} isSearch Enables search related behaviour that checks in what field was matched.
  * @param {boolean} isEmbedded When enabled the sample table will be inside a box of limited height with his own scroll.
+ * @param {Inspector} inspector Used to add selected samples to show them as notes.
  */
-function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,inspectEnabled, enableEdit, enableAdd, isSearch, isEmbedded) {
-	this.mainController = mainController;
+function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspectEnabled, enableEdit, enableAdd, isSearch, isEmbedded, inspector) {
+	this.serverFacade = serverFacade;
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
@@ -39,18 +41,19 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 	this.isSearch = isSearch;
 	this.samples = new Array();
 	this.isEmbedded = isEmbedded;
-	
+	this.inspector = inspector;
+
 	this.init = function() {
 		Util.blockUI();
 		var localReference = this;
-		this.mainController.searchFacade.searchWithType(this.sampleTypeCode, null, function(data) {
+		this.serverFacade.searchWithType(this.sampleTypeCode, null, function(data) {
 			localReference.reloadWithSamples(data);
 			Util.unblockUI();
 		});
 	}
 	
 	this.createNewSample = function() {
-		this.mainController.showCreateSamplePage(this.sampleTypeCode);
+		mainController.showCreateSamplePage(this.sampleTypeCode); //TO-DO : Fix global access
 	}
 	
 	this.registerSamples = function() {
@@ -58,9 +61,9 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		$("#fileToRegister").unbind('change');
 		$("#fileToRegister").change(function() {
 			Util.blockUI();
-			Util.fileUpload("fileToRegister", function(result) {
+			localReference.serverFacade.fileUpload("fileToRegister", function(result) {
 				//Code After the upload
-				localReference.mainController.openbisServer.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
+				localReference.serverFacade.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
 					function(infoData) {
 						var finalCallback = function(data) {
 							if(data.error) {
@@ -74,9 +77,9 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 						};
 						
 						if(infoData.result.identifiersPressent) {
-							localReference.mainController.openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
+							localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
 						} else {
-							localReference.mainController.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+							localReference.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 								var spaces = [];
 								for(var i = 0; i < data.result.length; i++) {
 									spaces.push(data.result[i].code);
@@ -94,7 +97,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 								$("#sampleSpaceSelector").on("change", function(event) {
 									var space = $("#sampleSpaceSelector")[0].value;
 									Util.blockUI();
-									localReference.mainController.openbisServer.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
+									localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
 								});
 								
 								$("#spaceSelectionCancel").on("click", function(event) { 
@@ -125,9 +128,9 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 				}
 			};
 			
-			Util.fileUpload("fileToUpdate", function(result) {
+			localReference.serverFacade.fileUpload("fileToUpdate", function(result) {
 				//Code After the upload
-				localReference.mainController.openbisServer.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
+				localReference.serverFacade.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
 			});
 		});
 		$("#fileToUpdate").click();
@@ -144,7 +147,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		var localReference = this;
 		
 		document.getElementById(attachTo).onmouseover = function(event){
-			var content = localReference.mainController.inspector.getInspectorTable(sample, false, true, false);
+			var content = localReference.inspector.getInspectorTable(sample, false, true, false);
 			
 			$("#navbar").tooltip({
 				html: true,
@@ -162,7 +165,7 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		}
 		
 		document.getElementById(attachTo).onclick = function() {
-			var isInspected = localReference.mainController.inspector.toggleInspectSample(sample);
+			var isInspected = localReference.inspector.toggleInspectSample(sample);
 			if(isInspected) {
 				$('#' + attachTo).addClass('inspectorClicked');
 			} else {
@@ -203,24 +206,24 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		//
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
 		
-		var SAMPLE_TYPE_PROPERTIES = null;
-		var SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME = null;
+		var sampleTypeProperties = null;
+		var sampleTypePropertiesDisplayNames = null;
 		
 		if(this.sampleTypeCode == "SEARCH") {
-			SAMPLE_TYPE_PROPERTIES = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
-			SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
+			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
+			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
 		} else {
-			SAMPLE_TYPE_PROPERTIES = this.profile.typePropertiesForTable[this.sampleTypeCode];
-			if(SAMPLE_TYPE_PROPERTIES === null || SAMPLE_TYPE_PROPERTIES === undefined) {
-				SAMPLE_TYPE_PROPERTIES = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
+			sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
+			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
+				sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
 			}
 		
-			SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, SAMPLE_TYPE_PROPERTIES);
+			sampleTypePropertiesDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, sampleTypeProperties);
 			
 			tableTemplate += "<tr style='border:none; border-collapse:collapse;'>";
 			tableTemplate += "<td style='border:none; border-collapse:collapse;'><input placeholder='Code filter' style=\"width: 100%\" id=\"CODE_filter\" type=\"text\"></td>";
-			for(var i=0; i<SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length;i++) {
-				tableTemplate += "<td style='border:none; border-collapse:collapse;'><input placeholder='"+SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+" filter' style=\"width: 100%\" id=\""+SAMPLE_TYPE_PROPERTIES[i]+"_filter\" type=\"text\"></td>";
+			for(var i=0; i<sampleTypePropertiesDisplayNames.length;i++) {
+				tableTemplate += "<td style='border:none; border-collapse:collapse;'><input placeholder='"+sampleTypePropertiesDisplayNames[i]+" filter' style=\"width: 100%\" id=\""+sampleTypeProperties[i]+"_filter\" type=\"text\"></td>";
 			}
 			tableTemplate += "<td></td>";
 			tableTemplate += "<td></td>";
@@ -228,8 +231,8 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		}
 	
 		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
-		for (var i = 0; i < SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME.length; i++) {
-			tableTemplate += "<th>" + SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME[i]+ "</th>";
+		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
+			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
 		
 		if (this.isEmbedded || this.isSearch) {
@@ -251,8 +254,8 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		$('#CODE_filter').keyup(function() {
 			var filterResults = [];
 				filterResults[0] = $('#CODE_filter').val();
-			for(var i=0;i<SAMPLE_TYPE_PROPERTIES.length;i++) {
-				filterResults[i+1] = $('#'+SAMPLE_TYPE_PROPERTIES[i].replace('$','\\$')+'_filter').val();
+			for(var i=0;i<sampleTypeProperties.length;i++) {
+				filterResults[i+1] = $('#'+sampleTypeProperties[i].replace('$','\\$')+'_filter').val();
 			}
 		
 			localReference.filter (
@@ -260,12 +263,12 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 			);
 		});	
 	
-		for(var i = 0; i < SAMPLE_TYPE_PROPERTIES.length; i++) {
-			$('#'+SAMPLE_TYPE_PROPERTIES[i].replace('$','\\$')+'_filter').keyup(function() {
+		for(var i = 0; i < sampleTypeProperties.length; i++) {
+			$('#'+sampleTypeProperties[i].replace('$','\\$')+'_filter').keyup(function() {
 				var filterResults = [];
 					filterResults[0] = $('#CODE_filter').val();
-				for(var i=0;i<SAMPLE_TYPE_PROPERTIES.length;i++) {
-					filterResults[i+1] = $('#'+SAMPLE_TYPE_PROPERTIES[i].replace('$','\\$')+'_filter').val();
+				for(var i=0;i<sampleTypeProperties.length;i++) {
+					filterResults[i+1] = $('#'+sampleTypeProperties[i].replace('$','\\$')+'_filter').val();
 				}
 			
 				localReference.filter(
@@ -291,11 +294,11 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 		if(this.enableAdd) {
 			onClickFunction = function(sample) {
 				var sampleTypeGroup = localReference.profile.getGroupTypeCodeForTypeCode(sample.sampleTypeCode);
-				localReference.mainController.sampleForm.addLinkedSample(sampleTypeGroup, sample);
+				mainController.sampleForm.addLinkedSample(sampleTypeGroup, sample); //TO-DO : Fix Global Access
 			}
 		} else {
 			onClickFunction = function(sample) {
-				localReference.mainController.showViewSamplePage(sample);
+				mainController.showViewSamplePage(sample); //TO-DO : Fix Global Access
 			}
 		}
 	
@@ -318,15 +321,15 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 					tableFields = [sample.identifier.slice(11,50), sample.sampleTypeCode, sample.properties, sample.properties ];
 				} else {
 					tableFields = [sample.code];
-					for(var i=0; i<SAMPLE_TYPE_PROPERTIES.length; i++) {
-						var tableFieldValue = sample.properties[SAMPLE_TYPE_PROPERTIES[i]];
+					for(var i=0; i<sampleTypeProperties.length; i++) {
+						var tableFieldValue = sample.properties[sampleTypeProperties[i]];
 						tableFields[tableFields.length] = Util.getEmptyIfNull(tableFieldValue);
 					}
 				}
 				
 				if(localReference.inspectEnabled) {
 					var inspectedClass = "";
-					if(localReference.mainController.inspector.containsSample(sample) !== -1) {
+					if(localReference.inspector.containsSample(sample) !== -1) {
 						inspectedClass = "inspectorClicked";
 					}
 					tableFields[tableFields.length] = "<a id='PIN_" + sample.permId + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"mainController.sampleTable.previewNote('" + sample.permId + "', 'PIN_" + sample.permId + "');\" ><img src='./images/pin-icon.png' style='width:16px; height:16px;' /></a>";
@@ -406,16 +409,16 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 	}
 	
 	this.filter = function(filterResults) {
-		var SAMPLE_TYPE_PROPERTIES = this.profile.typePropertiesForTable[this.sampleTypeCode]; //this.sampleTypeConfig["SAMPLE_TYPE_PROPERTIES"];
-		if(SAMPLE_TYPE_PROPERTIES === null || SAMPLE_TYPE_PROPERTIES === undefined) {
-			SAMPLE_TYPE_PROPERTIES = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
+		var sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
+		if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
+			sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
 		}
 		
 		var displayedSamples;
 		
 		displayedSamples = this.samples.filter(this.filterInternal.curry(((filterResults[0] == undefined)?"":filterResults[0]), "CODE"));
-		for(var i=0; i < SAMPLE_TYPE_PROPERTIES.length;i++) {
-				displayedSamples = displayedSamples.filter(this.filterInternal.curry((filterResults[i+1] == undefined)?"":filterResults[i+1],SAMPLE_TYPE_PROPERTIES[i]));
+		for(var i=0; i < sampleTypeProperties.length;i++) {
+				displayedSamples = displayedSamples.filter(this.filterInternal.curry((filterResults[i+1] == undefined)?"":filterResults[i+1],sampleTypeProperties[i]));
 		}
 		
 		
@@ -440,12 +443,17 @@ function SampleTable(mainController, sampleTableId, profile, sampleTypeCode,insp
 				break;
 			}
 		}
-		this.mainController.showEditSamplePage(sample);
+		mainController.showEditSamplePage(sample); //TO-DO : Fix Global Access
 	}
 	
 	this.reloadWithSamples = function(returnedSamples)
 	{
-		this.samples = returnedSamples;
+		if(this.isSearch) {
+			this.samples = returnedSamples;
+		} else {
+			this.samples = this.profile.searchSorter(returnedSamples);
+		}
+		
 		this.repaint();
 	}
 	

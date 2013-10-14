@@ -20,27 +20,29 @@
  * This class is used as central point of control into the application.
  *
  * It holds:
- * - openBIS facade
+ * - server facade
  * - Configuration profile
  * - Atributes used by inline HTML/Javascript
  * - enterApp method
  * - showView methods
+ *
+ * @constructor
+ * @this {MainController}
+ * @param {DefaultProfile} profile Profile used to configure the app.
  */
-function MainController() {
+function MainController(profile) {
 	//
 	// Atributes
 	//
 	
-	// openBIS API Object
-	this.openbisServer = new openbis();
-	
+	// Server Facade Object
+	this.serverFacade = new ServerFacade(new openbis()); //Client APP Facade, used as control point to know what is used and create utility methods.
+
 	// Configuration
-	this.profile = new YeastLabProfile(this.openbisServer);
+	this.profile = profile;
+	this.profile.serverFacade = this.serverFacade;
 	
-	//Utility methods
-	this.searchFacade = new SearchFacade(this.profile, this.openbisServer);
-	
-	// Atributes - Typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
+	// Atributes - Widgets typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
 	this.inspector = null; // The samples that are currently being inspected
 	this.navigationBar = null; //Top Bar
 	this.sampleTable = null; //Table that holds the samples
@@ -71,7 +73,7 @@ function MainController() {
 		//Get Metadata from all sample types before showing the main menu
 		
 		var localReference = this;
-		this.openbisServer.listSampleTypes(
+		this.serverFacade.listSampleTypes(
 			function(result) {
 			
 				//Load Sample Types
@@ -81,28 +83,26 @@ function MainController() {
 				localReference.profile.init();
 			
 				//Start App
-				localReference.inspector = new Inspector(localReference.searchFacade, "mainContainer", localReference.profile);
-				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile);
+				localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
+				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.menuStructure);
 				localReference.navigationBar.repaint();
 			
 				localReference.showMainMenu();
 				Util.unblockUI();
 			
 				//Get datastores for automatic DSS configuration, the first one will be used
-				localReference.openbisServer.listDataStores(
+				localReference.serverFacade.listDataStores(
 					function(dataStores) {
 						localReference.profile.allDataStores = dataStores.result;
 					}
 				);
 				
 				//Get display settings
-				if(localReference.openbisServer.getUserDisplaySettings) { //If the call exists
-					localReference.openbisServer.getUserDisplaySettings( function(response) {
-						if(response.result) {
-							localReference.profile.displaySettings = response.result;
-						}
-					});
-				}
+				localReference.serverFacade.getUserDisplaySettings( function(response) {
+					if(response.result) {
+						localReference.profile.displaySettings = response.result;
+					}
+				});
 			}
 		);
 	}
@@ -125,18 +125,23 @@ function MainController() {
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Main menu
-		var mainMenu = new MainMenu(this, "mainContainer", this.profile);
+		var mainMenu = new MainMenu(this, "mainContainer", this.profile.menuStructure);
 		mainMenu.init();
 	}
 	
 	this.showSamplesPage = function(sampleTypeCode) {
 		//Update menu
 		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
-		var breadCrumbPage = new BreadCrumbPage(sampleTypeCode+"-table", "showSamplesPage", sampleTypeCode, sampleType.description);
+		var sampleTypeDisplayName = sampleType.description;
+		if(sampleTypeDisplayName === null) {
+			sampleTypeDisplayName = sampleTypeCode;
+		}
+
+		var breadCrumbPage = new BreadCrumbPage(sampleTypeCode+"-table", "showSamplesPage", sampleTypeCode, sampleTypeDisplayName);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Sample Table
-		this.sampleTable = new SampleTable(this, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false);
+		this.sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);
 		this.sampleTable.init();
 	}
 
@@ -150,9 +155,9 @@ function MainController() {
 		this.navigationBar.updateMenu(null);
 		
 		//Update Main Container
-		this.sampleTable = new SampleTable(this, "mainContainer", this.profile, this.profile.searchType["TYPE"], true, false, false, true, false);
+		this.sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, this.profile.searchType["TYPE"], true, false, false, true, false, this.inspector);
 		var localReference = this;
-		this.searchFacade.searchWithText(event.target.value, function(data) {
+		this.serverFacade.searchWithText(event.target.value, function(data) {
 			localReference.sampleTable.reloadWithSamples(data);
 			Util.unblockUI();
 		});
@@ -161,36 +166,37 @@ function MainController() {
 	this.showCreateSamplePage = function(sampleTypeCode) {
 		//Update menu
 		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
+		if(sampleTypeDisplayName === null) {
+			sampleTypeDisplayName = sampleTypeCode;
+		}
 		var breadCrumbPage = new BreadCrumbPage('new-sample', "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
 		var isELNExperiment = this.profile.isELNExperiment(sampleTypeCode);
-		this.sampleForm = new SampleForm(this, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
+		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
 		this.sampleForm.init();
 	}
 
 	this.showEditSamplePage = function(sample) {
 		//Update menu
-		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sample.sampleTypeCode).description;
-		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePage", sample, 'Edit '+sampleTypeDisplayName);
+		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePage", sample, 'Edit '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
 		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
-		this.sampleForm = new SampleForm(this, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, sample);
+		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, sample);
 		this.sampleForm.init();
 	}
 
 	this.showViewSamplePage = function(sample) {
 		//Update menu
-		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sample.sampleTypeCode).description;
-		var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePage", sample, 'View '+sampleTypeDisplayName);
+		var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePage", sample, 'View '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
 		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
-		this.sampleForm = new SampleForm(this, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
+		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
 		this.sampleForm.init();
 	}
 }

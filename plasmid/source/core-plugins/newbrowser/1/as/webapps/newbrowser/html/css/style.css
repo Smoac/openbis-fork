@@ -97,15 +97,15 @@ h1, h2, legend {
 	display: none !important;
 }
 
-/* freezer */
-.freezerTable {
+/* storage */
+.storageTable {
 	width: 80%;
 	border-spacing: 2px;
 	border-collapse: separate;
 }
 
-.freezerTable th,
-.freezerTable td {
+.storageTable th,
+.storageTable td {
 	height:40px;
 	width: 10%;
 	
@@ -114,17 +114,17 @@ h1, h2, legend {
 	border-radius: 5px;
 }
 
-.freezerTable td {
+.storageTable td {
 	border-style:solid;
 	border-width:1px;
 	border-color: #CCCCCC;
 }
 
-.freezerSelectedRack {
+.storageSelectedRack {
 	background-color: #CCCCCC;
 }
 
-.freezerBox {
+.storageBox {
 	float : left;
 	background-color : #CCCCCC;
 	margin : 4px;
@@ -135,11 +135,11 @@ h1, h2, legend {
 	border-radius: 5px;
 }
 
-.freezerSelectedRack .freezerBox {
+.storageSelectedRack .storageBox {
 	background-color : #FFFFFF;
 }
 
-.freezerSelectedCorner {
+.storageSelectedCorner {
 	background-color : #EEEEEE;
 }
 

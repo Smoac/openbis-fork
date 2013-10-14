@@ -21,14 +21,13 @@
  * @this {NavigationBar}
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {string} activeMenuId The selected menu item by default.
- * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {List<GroupOfMenuItems>} menuStructure The menu structure.
  */
-function NavigationBar(mainController, containerId, activeMenuId, profile) {
+function NavigationBar(mainController, containerId, activeMenuId, menuStructure) {
 	this.mainController = mainController;
 	this.containerId = containerId;
 	this.activeMenuId = activeMenuId;
-	this.profile = profile;
-	this.menuStructure = profile.menuStructure;
+	this.menuStructure = menuStructure;
 	this.breadcrumb = new Array(); 
 	
 	this.repaint = function() {
@@ -98,7 +97,7 @@ function NavigationBar(mainController, containerId, activeMenuId, profile) {
 		var localReference = this;
 		$('#logout-button').click(function() { 
 			$('body').addClass('bodyLogin');
-			localReference.mainController.openbisServer.logout(function(data) { 
+			localReference.mainController.serverFacade.logout(function(data) { 
 				$("#login-form-div").show();
 				$("#main").hide();
 			});

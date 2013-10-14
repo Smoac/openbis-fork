@@ -15,34 +15,34 @@
  */
  
 /**
- * Creates an instance of Freezer.
+ * Creates an instance of Storage.
  *
  * @constructor
- * @this {Freezer}
- * @param {SearchFacade} searchFacade The facade used to access server side search functionality.
- * @param {String} containerId The Container where the Freezer DOM will be atached.
+ * @this {Storage}
+ * @param {ServerFacade} serverFacade The facade used to access server side search functionality.
+ * @param {String} containerId The Container where the Storage DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  * @param {String} sampleTypeCode The code of the sample type, needed to know where to check if the properties are available.
  * @param {Sample} sample The sample where check the properties for VIEW and EDIT modes.
- * @param {boolean} isDisabled If the freezer should allow to be edited.
+ * @param {boolean} isDisabled If the storage should allow to be edited.
  */
-function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isDisabled) {
-	this.searchFacade = searchFacade;
+function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isDisabled) {
+	this.serverFacade = serverFacade;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleType = profile.getTypeForTypeCode(sampleTypeCode);
-	this.isFreezerAvailable = false;
+	this.isStorageAvailable = false;
 	this.sample = sample; // Needed for edit mode
 	this.isDisabled = isDisabled; //Needed for view mode
-	this.selectedFreezerCache = null;
+	this.selectedStorageCache = null;
 	
 	//
-	// Private utility methods used to check if a freezer is properly configured for certain entity type.
+	// Private utility methods used to check if a storage is properly configured for certain entity type.
 	//
-	this._isFreezerForType = function() {
-		for(var freezerProperty in this.profile.freezersConfiguration["FREEZER_PROPERTIES"]) {
-			var freezerPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"][freezerProperty];
-			if(!(this._getPropertyFromType(freezerPropertyCode) !== null)) {
+	this._isStorageForType = function() {
+		for(var storageProperty in this.profile.storagesConfiguration["STORAGE_PROPERTIES"]) {
+			var storagePropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"][storageProperty];
+			if(!(this._getPropertyFromType(storagePropertyCode) !== null)) {
 				return false;
 			}
 		}
@@ -169,42 +169,42 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 		return lastValue;
 	}
 	
-	this._setSelectedValue = function(propertyTypeCode, freezerIndex) {
+	this._setSelectedValue = function(propertyTypeCode, storageIndex) {
 		var propertyType = this._getPropertyFromType(propertyTypeCode);
 		if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			if(freezerIndex === null) {
+			if(storageIndex === null) {
 				$('#' + propertyTypeCode).prop('selectedIndex', 0);
 			} else {
-				$('#' + propertyTypeCode).prop('selectedIndex', freezerIndex);
+				$('#' + propertyTypeCode).prop('selectedIndex', storageIndex);
 			}
 		} else {
-			if(freezerIndex === null) {
+			if(storageIndex === null) {
 				$('#' + propertyTypeCode).val("");
 			} else {
-				$('#' + propertyTypeCode).val(freezerIndex);
+				$('#' + propertyTypeCode).val(storageIndex);
 			}
 		}
 	}
 		
 	//
-	// Public utility methods used by the sample form to know what is responsability of the freezer. To behave correctly, init should be executed first.
+	// Public utility methods used by the sample form to know what is responsability of the storage. To behave correctly, init should be executed first.
 	//
-	this.isPropertyGroupFromFreezer = function(propertyGroupName) {
-		if(!this.isFreezerAvailable) { return false; }
+	this.isPropertyGroupFromStorage = function(propertyGroupName) {
+		if(!this.isStorageAvailable) { return false; }
 		
-		if(this.profile.freezersConfiguration["FREEZER_PROPERTY_GROUP"] === propertyGroupName) {
+		if(this.profile.storagesConfiguration["STORAGE_PROPERTY_GROUP"] === propertyGroupName) {
 			return true;
 		}
 		return false;
 	}
 	
-	this.isPropertyFromFreezer = function(samplePropertyTypeCode) {
-		if(!this.isFreezerAvailable) { return false; }
+	this.isPropertyFromStorage = function(samplePropertyTypeCode) {
+		if(!this.isStorageAvailable) { return false; }
 		
-		var freezerProperties = this.profile.freezersConfiguration["FREEZER_PROPERTIES"];
-		for(var propertyType in freezerProperties) {
-			var freezerPropertyTypeCode = freezerProperties[propertyType];
-			if(freezerPropertyTypeCode === samplePropertyTypeCode) {
+		var storageProperties = this.profile.storagesConfiguration["STORAGE_PROPERTIES"];
+		for(var propertyType in storageProperties) {
+			var storagePropertyTypeCode = storageProperties[propertyType];
+			if(storagePropertyTypeCode === samplePropertyTypeCode) {
 				return true;
 			}
 		}
@@ -212,26 +212,26 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 	}
 	
 	//
-	// Main methods to interact with the freezer
+	// Main methods to interact with the storage
 	//
 	this.init = function() {
-		this.isFreezerAvailable = this._isFreezerForType();
+		this.isStorageAvailable = this.profile.storagesConfiguration["isEnabled"] && this._isStorageForType();
 	}
 	
 	this.repaint = function() {
-		if(!this.isFreezerAvailable) { return; }
+		if(!this.isStorageAvailable) { return; }
 			
-		var freezerNamePropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["NAME_PROPERTY"];
-		var selectedFreezer = this._getSelectedValue(freezerNamePropertyCode, false, this.sample);
+		var storageNamePropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["NAME_PROPERTY"];
+		var selectedStorage = this._getSelectedValue(storageNamePropertyCode, false, this.sample);
 		
-		//Build freezer cache and paint it afterwards
-		if(selectedFreezer) {
-			var freezerRowPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["ROW_PROPERTY"];
-			var freezerColPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["COLUMN_PROPERTY"];
-			var freezerBoxPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["BOX_PROPERTY"];
+		//Build storage cache and paint it afterwards
+		if(selectedStorage) {
+			var storageRowPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["ROW_PROPERTY"];
+			var storageColPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["COLUMN_PROPERTY"];
+			var storageBoxPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["BOX_PROPERTY"];
 			
-			var propertyTypeCodes = [freezerNamePropertyCode, freezerRowPropertyCode, freezerColPropertyCode, freezerBoxPropertyCode];
-			var propertyValues = [selectedFreezer, "?*", "?*", "?*"];
+			var propertyTypeCodes = [storageNamePropertyCode, storageRowPropertyCode, storageColPropertyCode, storageBoxPropertyCode];
+			var propertyValues = ["'" + selectedStorage + "'", "?*", "?*", "?*"];
 			
 			var localReference = this;
 			 
@@ -243,17 +243,17 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 							.append(" Loading... ")
 				);
 			
-			this.searchFacade.searchWithProperties(propertyTypeCodes, propertyValues,
+			this.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
 				function(samples) {
 					var boxes = []; //Rows
 					
 					samples.forEach(
 						function(element, index, array) {
-							var boxCode = element.properties[freezerBoxPropertyCode];
+							var boxCode = element.properties[storageBoxPropertyCode];
 							
 								//Ad new box 
-								var boxRow = localReference._getSelectedValue(freezerRowPropertyCode, true, element);
-								var boxCol = localReference._getSelectedValue(freezerColPropertyCode, true, element);
+								var boxRow = localReference._getSelectedValue(storageRowPropertyCode, true, element);
+								var boxCol = localReference._getSelectedValue(storageColPropertyCode, true, element);
 								
 								var boxesRow = boxes[boxRow];
 								if(!boxesRow) {
@@ -272,7 +272,7 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 						}
 					);
 					
-					localReference.selectedFreezerCache = boxes;
+					localReference.selectedStorageCache = boxes;
 					localReference._repaint();
 				});
 		} else {
@@ -281,38 +281,38 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 	}
 	
 	this._repaint = function() {
-		if(!this.isFreezerAvailable) { return; }
+		if(!this.isStorageAvailable) { return; }
 		
-		var freezerNamePropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["NAME_PROPERTY"];
-		var selectedFreezer = this._getSelectedValue(freezerNamePropertyCode, false, this.sample);
+		var storageNamePropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["NAME_PROPERTY"];
+		var selectedStorage = this._getSelectedValue(storageNamePropertyCode, false, this.sample);
 		
-		var freezerRowPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["ROW_PROPERTY"];
-		var selectedRow = this._getSelectedValue(freezerRowPropertyCode, true, this.sample);
+		var storageRowPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["ROW_PROPERTY"];
+		var selectedRow = this._getSelectedValue(storageRowPropertyCode, true, this.sample);
 		
-		var freezerColPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["COLUMN_PROPERTY"];
-		var selectedCol = this._getSelectedValue(freezerColPropertyCode, true, this.sample);
+		var storageColPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["COLUMN_PROPERTY"];
+		var selectedCol = this._getSelectedValue(storageColPropertyCode, true, this.sample);
 		
-		var freezerBoxPropertyCode = this.profile.freezersConfiguration["FREEZER_PROPERTIES"]["BOX_PROPERTY"];
-		var selectedBox = this._getSelectedValue(freezerBoxPropertyCode, false, this.sample);
+		var storageBoxPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["BOX_PROPERTY"];
+		var selectedBox = this._getSelectedValue(storageBoxPropertyCode, false, this.sample);
 		
 		var localReference = this;
 		var $container = $("#"+this.containerId);
 		$container.empty();
 		
 		//
-		// 1. Build a drop down to select the freezer
+		// 1. Build a drop down to select the storage
 		//
 		
 		//Drop Down
 		//Create and set the field
-		var $freezerNameDropDown = this._getComponent(this._getPropertyFromType(freezerNamePropertyCode), false, null);
-		$freezerNameDropDown.val(selectedFreezer);
+		var $storageNameDropDown = this._getComponent(this._getPropertyFromType(storageNamePropertyCode), false, null);
+		$storageNameDropDown.val(selectedStorage);
 		
-		$freezerNameDropDown.change(
+		$storageNameDropDown.change(
 			function() {
-				localReference._setSelectedValue(freezerRowPropertyCode, null);
-				localReference._setSelectedValue(freezerColPropertyCode, null);
-				localReference._setSelectedValue(freezerBoxPropertyCode, null);
+				localReference._setSelectedValue(storageRowPropertyCode, null);
+				localReference._setSelectedValue(storageColPropertyCode, null);
+				localReference._setSelectedValue(storageBoxPropertyCode, null);
 				localReference.repaint();
 			}
 		);
@@ -321,67 +321,71 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 		$container
 			.append($("<div>")
 						.append($("<i>", { class: "icon-info-sign" }))
-						.append(" 1. Select a freezer: ")
-						.append($freezerNameDropDown)
+						.append(" 1. Select a storage: ")
+						.append($storageNameDropDown)
 			);
 		
 		//
 		// 2. Build a table to select the row and column.
 		//
-		
-		//Attach row and column hidden fields
-		var $propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(freezerRowPropertyCode), true, null);
-		var $propertyTypeColComponent = this._getComponent(this._getPropertyFromType(freezerColPropertyCode), true, null);
-		$container
-			.append($propertyTypeRowComponent)
-			.append($propertyTypeColComponent);
-		
-		//Generate virtual freezer representation after the freezer has been selected
-		var freezerConfig = null;
-		if(selectedFreezer !== null && selectedFreezer !== "") {
-			freezerConfig = this.profile.freezersConfiguration["FREEZER_CONFIGS"][selectedFreezer];
+		var $propertyTypeRowComponent = null;
+		var $propertyTypeColComponent = null;
+
+		//Generate virtual storage representation after the storage has been selected
+		var storageConfig = null;
+		if(selectedStorage !== null && selectedStorage !== "") {
+			storageConfig = this.profile.storagesConfiguration["STORAGE_CONFIGS"][selectedStorage];
 			
-			if(!freezerConfig) {
-				Util.showError("Freezer configuration missing, the freezer can't be displayed.", function() { Util.unblockUI(); });
+			if(!storageConfig) {
+				Util.showError("Storage configuration missing, visual storage can't be displayed.", function() { Util.unblockUI(); });
+			} else {
+
+			//Attach row and column hidden fields
+			$propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(storageRowPropertyCode), true, null);
+			$propertyTypeColComponent = this._getComponent(this._getPropertyFromType(storageColPropertyCode), true, null);
+			
+			$container
+				.append($propertyTypeRowComponent)
+				.append($propertyTypeColComponent);
 			}
 		}
 		
-		var $virtualFreezer = null;
-		if(freezerConfig) {
-			$virtualFreezer = $("<table>");
-			$virtualFreezer.attr('class', 'freezerTable');
+		var $virtualStorage = null;
+		if(storageConfig) {
+			$virtualStorage = $("<table>");
+			$virtualStorage.attr('class', 'storageTable');
 			
 			//Paint Columns on the header
-			var $virtualFreezerRow = $("<tr>");
-			for(var i = 0; i <= freezerConfig["COLUMN_NUM"]; i++) {
+			var $virtualStorageRow = $("<tr>");
+			for(var i = 0; i <= storageConfig["COLUMN_NUM"]; i++) {
 				var $rackHeader = $("<th>");
 				var rackId = "rack_0_" + i;
 				$rackHeader.attr("id", rackId);
 				
 				if(i == 0) {
-					$virtualFreezerRow.append($rackHeader);
+					$virtualStorageRow.append($rackHeader);
 				} else {
-					$virtualFreezerRow.append($rackHeader.append(i));
+					$virtualStorageRow.append($rackHeader.append(i));
 				}
 			}
-			$virtualFreezer.append($virtualFreezerRow);
+			$virtualStorage.append($virtualStorageRow);
 			
 			//Paint Rows			
-			for(var i = 0; i < freezerConfig["ROW_NUM"]; i++) {
-				var $virtualFreezerRow = $("<tr>");
-				for(var j = 0; j <= freezerConfig["COLUMN_NUM"]; j++) {
+			for(var i = 0; i < storageConfig["ROW_NUM"]; i++) {
+				var $virtualStorageRow = $("<tr>");
+				for(var j = 0; j <= storageConfig["COLUMN_NUM"]; j++) {
 					if(j == 0) {
 						var $rackHeader = $("<th>");
 						var rackId = "rack_" + (i+1) + "_" + j;
 						$rackHeader.attr("id", rackId);
-						$virtualFreezerRow.append($rackHeader.append(i+1));
+						$virtualStorageRow.append($rackHeader.append(i+1));
 					} else {
 						var $rack = $("<td>");
 						
 						//Used for validation
 						var currentBoxes = 0;
 						//Populate Box Names
-						var boxesRow = localReference.selectedFreezerCache[(i+1)];
+						var boxesRow = localReference.selectedStorageCache[(i+1)];
 						if(boxesRow) {
 							var boxesCol = boxesRow[j];
 							if(boxesCol) {
@@ -395,7 +399,7 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 								
 								for(var k = 0; k < sortedBoxesArray.length; k++) {
 									$rack.append(
-										$("<div>", { class: "freezerBox" })
+										$("<div>", { class: "storageBox" })
 											.append(sortedBoxesArray[k])
 									);
 								}
@@ -415,77 +419,76 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 							if(localReference.isDisabled) { return; }
 							
 							//Check if can be added
-							var maxBoxes = freezerConfig["BOX_NUM"];
+							var maxBoxes = storageConfig["BOX_NUM"];
 							if($(this).attr("currentNum") >= maxBoxes) {
 								Util.showError("Limit of boxes reached on the rack, only allows " + maxBoxes + " boxes and found " + $(this).attr("currentNum") + ".", function() { Util.unblockUI(); });
 								return;
 							}
 							
-							//Clean the whole freezer
-							$(".freezerSelectedRack").removeClass("freezerSelectedRack");
+							//Clean the whole storage
+							$(".storageSelectedRack").removeClass("storageSelectedRack");
 							
 							//Select current spot
-							var thisClass = $(this).attr("class");
-							$(this).addClass('freezerSelectedRack');
+							$(this).addClass('storageSelectedRack');
 						
 							//Set the hidden fields
-							localReference._setSelectedValue(freezerRowPropertyCode, $(this).attr("rowNum"));
-							localReference._setSelectedValue(freezerColPropertyCode, $(this).attr("colNum"));
+							localReference._setSelectedValue(storageRowPropertyCode, $(this).attr("rowNum"));
+							localReference._setSelectedValue(storageColPropertyCode, $(this).attr("colNum"));
 							
 							localReference._repaint();
 						});
 						
 						$rack.mouseover(function() {
-							$(".freezerSelectedCorner").removeClass("freezerSelectedCorner");
+							$(".storageSelectedCorner").removeClass("storageSelectedCorner");
 							
 							var rowNum = $(this).attr("rowNum");
 							var colNum = $(this).attr("colNum");
 							
 							var rackIdRow = "#rack_" + rowNum + "_" + 0;
-							$(rackIdRow).addClass('freezerSelectedCorner');
+							$(rackIdRow).addClass('storageSelectedCorner');
 							
 							var rackIdCol = "#rack_" + 0 + "_" + colNum;
-							$(rackIdCol).addClass('freezerSelectedCorner');
+							$(rackIdCol).addClass('storageSelectedCorner');
 							
 							var rackId = "#rack_" + rowNum + "_" + colNum;
-							$(rackId).addClass('freezerSelectedCorner');
+							$(rackId).addClass('storageSelectedCorner');
 						});
 						
 						//Append Rack
-						$virtualFreezerRow.append($rack);
+						$virtualStorageRow.append($rack);
 					}
 				}
-				$virtualFreezer.append($virtualFreezerRow);
+				$virtualStorage.append($virtualStorageRow);
 			}
 			
-			if($virtualFreezer) {
-				$virtualFreezer.mouseleave(function() {
-					$(".freezerSelectedCorner").removeClass("freezerSelectedCorner");
+			if($virtualStorage) {
+				$virtualStorage.mouseleave(function() {
+					$(".storageSelectedCorner").removeClass("storageSelectedCorner");
 				});
 				
 				$container
 					.append($("<div>")
 								.append($("<i>", { class: "icon-info-sign" }))
 								.append(" 2. Select a rack: ")
-								.append($virtualFreezer)
+								.append($virtualStorage)
 					)
 			
 				if(selectedRow && selectedCol) {
-					//Set the visual freezer
+					//Set the visual storage
 					var rackId = "#rack_" + selectedRow + "_" + selectedCol;
-					$(rackId).addClass('freezerSelectedRack');
+					$(rackId).addClass('storageSelectedRack');
 					//Set the hidden fields
-					localReference._setSelectedValue(freezerRowPropertyCode, selectedRow);
-					localReference._setSelectedValue(freezerColPropertyCode, selectedCol);
+					localReference._setSelectedValue(storageRowPropertyCode, selectedRow);
+					localReference._setSelectedValue(storageColPropertyCode, selectedCol);
 				}
 			}
 			
 			//
 			// 3. Input the box name
 			//
-			if($virtualFreezer && selectedRow && selectedCol) {
+			if($virtualStorage && selectedRow && selectedCol) {
 				//Create and set the field
-				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), false, '[A-Z0-9_]+');
+				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), false, '[A-Z0-9_]+');
 				$propertyTypeBoxComponent.change(
 					function() {
 						$(this).val($(this).val().toUpperCase()); //Box Names can only be upper case
@@ -501,20 +504,48 @@ function Freezer(searchFacade, containerId, profile, sampleTypeCode, sample, isD
 								.append(" 3. Input the box name or number: ")
 								.append($propertyTypeBoxComponent)
 					);
-			} else {
-				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(freezerBoxPropertyCode), true, null);
+			} if(storageConfig) {
+				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), true, null);
 				$container.append($propertyTypeBoxComponent);
 			}
 			
-			//
-			// 4. Disable if needed
-			//
-			if(this.isDisabled) {
-				$("#"+freezerNamePropertyCode).prop('disabled', true);
-				$("#"+freezerRowPropertyCode).prop('disabled', true);
-				$("#"+freezerColPropertyCode).prop('disabled', true);
-				$("#"+freezerBoxPropertyCode).prop('disabled', true);
-			}
+		} else if(selectedStorage){ //Configuration don´t exists
+			$propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(storageRowPropertyCode), false, null);
+			$container
+				.append($("<div>")
+					.append($("<i>", { class: "icon-info-sign" }))
+					.append(" 2. Select Row: ")
+					.append($propertyTypeRowComponent)
+				);
+			localReference._setSelectedValue(storageRowPropertyCode, selectedRow);
+
+			$propertyTypeColComponent = this._getComponent(this._getPropertyFromType(storageColPropertyCode), false, null);
+			$container
+				.append($("<div>")
+					.append($("<i>", { class: "icon-info-sign" }))
+					.append(" 3. Select Column: ")
+					.append($propertyTypeColComponent)
+				);
+			localReference._setSelectedValue(storageColPropertyCode, selectedCol);
+
+			var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), false, null);
+			$container
+				.append($("<div>")
+							.append($("<i>", { class: "icon-info-sign" }))
+							.append(" 4. Input the box name or number: ")
+							.append($propertyTypeBoxComponent)
+				);
+			localReference._setSelectedValue(storageBoxPropertyCode, selectedBox);
+		}
+
+		//
+		// 4. Disable if needed
+		//
+		if(this.isDisabled) {
+			$("#"+storageNamePropertyCode).prop('disabled', true);
+			$("#"+storageRowPropertyCode).prop('disabled', true);
+			$("#"+storageColPropertyCode).prop('disabled', true);
+			$("#"+storageBoxPropertyCode).prop('disabled', true);
 		}
 	}
 }

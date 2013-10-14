@@ -10,17 +10,18 @@
 	<link type="text/css" rel="stylesheet" href="./css/bootstrap-datetimepicker.min.css" />
 	<link type="text/css" rel="stylesheet" href="./css/jNotify.jquery.css" />
 	
-	<!-- For Debugging with GWT	
+	<!-- For debugging with GWT	
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/jquery.js"></script>
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/openbis-login.js"></script>
 	-->
 	
+	<!-- For production ussage	-->
 	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis-login.js"></script>
 	
-	<!-- <script To speed development, cache the requests type="text/javascript" src="/openbis/resources/js/openbis-request-cache.js"></script> -->
+	<!-- Third party -->
 	<script type="text/javascript" src="./js/d3.js"></script>
 	<script type="text/javascript" src="./js/d3.layout.js"></script>
 	<script type="text/javascript" src="./js/d3.time.js"></script>
@@ -33,6 +34,7 @@
 	<script type="text/javascript" src="./js/blockScroll.js"></script>
 	<script type="text/javascript" src="./js/naturalSort.js"></script>
 	
+	<!-- ELN UI -->
 	<script type="text/javascript" src="./js/UI/Profile.js"></script>
 	<script type="text/javascript" src="./js/UI/Util.js"></script>
 	<script type="text/javascript" src="./js/UI/MainController.js"></script>
@@ -40,19 +42,29 @@
 	<script type="text/javascript" src="./js/UI/SampleLinksTable.js"></script>
 	<script type="text/javascript" src="./js/UI/NavigationBar.js"></script>
 	<script type="text/javascript" src="./js/UI/Inspector.js"></script>
-	<script type="text/javascript" src="./js/UI/SearchFacade.js"></script>
+	<script type="text/javascript" src="./js/UI/ServerFacade.js"></script>
 	<script type="text/javascript" src="./js/UI/SampleTable.js"></script>
 	<script type="text/javascript" src="./js/UI/SampleForm.js"></script>
-	<script type="text/javascript" src="./js/UI/Freezer.js"></script>
+	<script type="text/javascript" src="./js/UI/Storage.js"></script>
 	<script type="text/javascript" src="./js/UI/DataSetViewer.js"></script>
 	
 	<script type="text/javascript">
 	//
-	// Configuration Atributes
+	// Configurations Available (enable one)
 	//
+	//var profile = new DefaultProfile();
+	//var profile = new ExampleProfile();
+	var profile = new YeastLabProfile();
 	
-	var mainController = new MainController();
+
+	//
+	// Global variables
+	//
+	var mainController = new MainController(profile);
 	
+	//
+	// Application Startup
+	//
 	$(document).ready(function() {
 		
 		$('#main').hide();
@@ -65,10 +77,11 @@
 	
 		$('#login-form').submit(function() {
 			Util.blockUI();
-			mainController.openbisServer.login( $.trim($('#username').val()), $.trim($('#password').val()), function(data) { mainController.enterApp(data) })
+			mainController.serverFacade.login( $.trim($('#username').val()), $.trim($('#password').val()), 
+				function(data) { mainController.enterApp(data) })
 		});
 		
-		mainController.openbisServer.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
+		mainController.serverFacade.ifRestoredSessionActive(function(data) { mainController.enterApp(data) });
 		
 		// Make the ENTER key the default button
 		$("login-form input").keypress(function (e) {

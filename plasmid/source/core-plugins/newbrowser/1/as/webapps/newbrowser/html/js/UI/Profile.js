@@ -20,13 +20,13 @@
  * @constructor
  * @this {DefaultProfile}
  */
-function DefaultProfile(openbisServer) {
-	this.init(openbisServer);
+function DefaultProfile(serverFacade) {
+	this.init(serverFacade);
 }
 
 $.extend(DefaultProfile.prototype, {
-	init: function(openbisServer){
-		this.openbisServer = openbisServer;
+	init: function(serverFacade){
+		this.serverFacade = serverFacade;
 		//
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 		//
@@ -59,7 +59,9 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.colorForInspectors = {};
 		
-		this.freezersConfiguration = {};
+		this.storagesConfiguration = {
+			"isEnabled" : false
+		};
 		
 		this.getColorForInspectors = function(sampleTypeCode) {
 			//Get default color if found
@@ -193,7 +195,7 @@ $.extend(DefaultProfile.prototype, {
 		
 			//Get all the Vocabularies from openbis and fix terms
 			var localReference = this;
-			this.openbisServer.listVocabularies(
+			this.serverFacade.listVocabularies(
 				function(result) {
 					//Load Vocabularies
 					var allVocabularies = result.result;
@@ -228,7 +230,9 @@ $.extend(DefaultProfile.prototype, {
 					groupOfMenuItems.menuItems.push(menuItem);
 				}
 			}
-			this.menuStructure.push(groupOfMenuItems);
+			if(groupOfMenuItems.menuItems.length > 0) {
+					this.menuStructure.push(groupOfMenuItems);
+			}
 		
 			for(typeGroupCode in this.typeGroups) {
 				groupOfMenuItems = new GroupOfMenuItems(typeGroupCode,this.typeGroups[typeGroupCode]["DISPLAY_NAME"],[]);
@@ -270,13 +274,13 @@ $.extend(DefaultProfile.prototype, {
 });
 
 //YEASTLAB PROFILE
-function YeastLabProfile(openbisServer) {
-	this.init(openbisServer);
+function YeastLabProfile(serverFacade) {
+	this.init(serverFacade);
 }
 
 $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
-	init: function(openbisServer){
-		DefaultProfile.prototype.init.call(this, openbisServer);
+	init: function(serverFacade){
+		DefaultProfile.prototype.init.call(this, serverFacade);
 		
 		this.notShowTypes = ["SYSTEM_EXPERIMENT", "ILLUMINA_FLOW_CELL", "ILLUMINA_FLOW_LANE", "LIBRARY", "LIBRARY_POOL", "MASTER_SAMPLE","MS_INJECTION","RAW_SAMPLE","TEMPLATE_SAMPLE", "SEARCH"];
 	
@@ -305,9 +309,9 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 	
 		this.typePropertiesForTable = {
 			"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
-			"GENERAL_PROTOCOL" : ["NAME", "FOR_WHAT", "PROTOCOL_TYPE", "PUBLICATION"],
+			"GENERAL_PROTOCOL" : ["NAME", "FOR_WHAT", "PROTOCOL_TYPE"],
 			"PCR" : ["NAME", "FOR_WHAT", "TEMPLATE", "PUBLICATION"],
-			"WESTERN_BLOTTING" : ["NAME", "FOR_WHAT", "STORAGE", "PUBLICATION"],
+			"WESTERN_BLOTTING" : ["NAME", "FOR_WHAT", "STORAGE"],
 			"CHEMICAL" : ["NAME", "SUPPLIER", "ARTICLE_NUMBER", "LOCAL_ID", "STORAGE"],
 			"ANTIBODY" : ["NAME", "STORAGE", "HOST", "FOR_WHAT"],
 			"MEDIA" : ["NAME", "STORAGE", "FOR_WHAT", "ORGANISM"],
@@ -335,34 +339,30 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			"SAMPLE_PROPERTY_TEST" : "#000000"
 		};
 	
-		this.freezersConfiguration = {
+		this.storagesConfiguration = {
+			"isEnabled" : true,
 			/*
-			 * Should be the same across all freezers, if not correct behaviour is not guaranteed.
+			 * Should be the same across all storages, if not correct behaviour is not guaranteed.
 			*/
-			"FREEZER_PROPERTIES": {
+			"STORAGE_PROPERTIES": {
 						"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
 						"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
 						"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
 						"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
 			},
 			/*
-			 * Where the freezer will be painted.
+			 * Where the storage will be painted.
 			*/
-			"FREEZER_PROPERTY_GROUP" : "Storage information",
+			"STORAGE_PROPERTY_GROUP" : "Storage information",
 			/*
-			 * Freezers map, can hold configurations for several freezers.
+			 * Storages map, can hold configurations for several storages.
 			*/
-			"FREEZER_CONFIGS": {
-				"FREEZER_1_85" : { //Freezer name given by the NAME_PROPERTY
+			"STORAGE_CONFIGS": {
+				"-80DEGREES" : { //Freezer name given by the NAME_PROPERTY
 								"ROW_NUM" : 9, //Number of rows
 								"COLUMN_NUM" : 9, //Number of columns
 								"BOX_NUM" : 999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-							},
-				"FREEZER_2_20" : { //Freezer name given by the NAME_PROPERTY
-								"ROW_NUM" : 6, //Number of rows
-								"COLUMN_NUM" : 2, //Number of columns
-								"BOX_NUM" : 6 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-										}
+							}
 			}
 		};
 	
@@ -472,28 +472,24 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			return sortedResults;
 		}
 	
-		//TO-DO To FIX
 		this.inspectorContentExtra = function(extraContainerId, sample) {
-			// When requesting information about the sample, we don't need parents
-			// and children, so send a copy of the saple without that information.
+			// When requesting information about the sample, we don't need parents and children, so send a copy of the saple without that information.
 			var sampleToSend = $.extend({}, sample);
 			delete sampleToSend.parents;
 			delete sampleToSend.children; 
 		
 			var localReference = this;
-			this.openbisServer.listDataSetsForSample(sampleToSend, true, function(datasets) {
+			this.serverFacade.listDataSetsForSample(sampleToSend, true, function(datasets) {
 				for(var i = 0; i < datasets.result.length; i++) {
 					var dataset = datasets.result[i];
 					if(dataset.dataSetTypeCode === "SEQ_FILE") {
 						var listFilesForDataSetWithDataset = function(dataset) {
-							localReference.openbisServer.listFilesForDataSet(dataset.code, "/", true, function(files) {
+							localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
 								for(var i = 0; i < files.result.length; i++) {
 										var isDirectory = files.result[i].isDirectory;
 										var pathInDataSet = files.result[i].pathInDataSet;
 										if (/\.svg$/.test(pathInDataSet) && !isDirectory) {
-											var downloadUrl = localReference.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + localReference.openbisServer.getSession();
-											//var downloadUrl = "https://openbis-csb.ethz.ch:8444/datastore_server/20130930120333554-14759/generated/FRP1349.svg?sessionID=juanf-131001122843691xE2B825CCE9E57E346580017921B3D35B";
-											//var downloadFai = "https://openbis-csb.ethz.ch:8444/datastore_server/20130930120336373-14761/generated/FRP1349.svg?sessionID=juanf-131001125006666x03113A3625085E2F55C35932BCD7635E"
+											var downloadUrl = localReference.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + localReference.serverFacade.getSession();
 											d3.xml(downloadUrl, "image/svg+xml", 
 												function(xml) {
 													var importedNode = document.importNode(xml.documentElement, true);
@@ -518,4 +514,41 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			return "";
 		}
 	}
+});
+
+//Example profile with basic configuration that don´t requires any programming
+function ExampleProfile(serverFacade) {
+	this.init(serverFacade);
+}
+
+$.extend(ExampleProfile.prototype, DefaultProfile.prototype, {
+	init: function(serverFacade){
+		DefaultProfile.prototype.init.call(this, serverFacade);
+		
+		//Put on this list all experiment types, ELN experiments need to have both an experiment type and a sample type with the same CODE.
+		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
+
+		//Black list, put on this list all types that you don´t want to appear on the menu and the ELN experiments.
+		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
+	
+		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
+		this.typeGroups = {
+			"OTHERS" : {
+				"TYPE" : "OTHERS",
+				"DISPLAY_NAME" : "Others",
+				"LIST" : [] 
+			}
+		};
+		
+		//The properties you want to appear on the tables, if you don´t specify the list, all of them will appear by default.
+		this.typePropertiesForTable = {};
+		
+		//The colors for the notes, if you don´t specify the color, light yellow will be used by default.
+		this.colorForInspectors = {};
+		
+		//The configuration for the visual storages.
+		this.storagesConfiguration = {
+			"isEnabled" : false
+		};
+}
 });

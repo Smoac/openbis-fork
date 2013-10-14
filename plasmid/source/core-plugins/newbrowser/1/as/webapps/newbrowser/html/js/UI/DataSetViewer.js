@@ -21,12 +21,12 @@
  * @this {DataSetViewer}
  * @param {String} containerId The container where the DataSetViewer will be atached.
  * @param {Sample} sample The sample where to check for the data.
- * @param {openbis} openbisServer If the freezer should allow to be edited.
+ * @param {ServerFacade} serverFacade Point of contact to make calls to the server
  * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
  */
-function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL) {
+function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) {
 	this.containerId = containerId;
-	this.openbisServer = openbisServer;
+	this.serverFacade = serverFacade;
 	this.sample = sample;
 	this.sampleDataSets = {};
 	this.sampleDataSetsFiles = {};
@@ -66,7 +66,7 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 		delete cleanSample.children; 
 		
 		var localReference = this;
-		this.openbisServer.listDataSetsForSample(cleanSample, true, function(datasets) {
+		this.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
 			var listFilesCallList = [];
 			
 			var callback = function() { //Just enqueues the next call
@@ -81,7 +81,7 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 			for(var i = 0; i < datasets.result.length; i++) { //DataSets for sample
 				var dataset = datasets.result[i];
 				var listFilesForDataSet = function(dataset){ return function() { //Files in dataset
-					localReference.openbisServer.listFilesForDataSet(dataset.code, "/", true, function(files) {
+					localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
 						localReference.sampleDataSets[dataset.dataSetTypeCode] = dataset;
 						localReference.sampleDataSetsFiles[dataset.dataSetTypeCode] = files.result;
 						callback();
@@ -140,7 +140,7 @@ function DataSetViewer(containerId, sample, openbisServer, datastoreDownloadURL)
 									.append($("<td>").html(dataset.code))
 									.append($("<td>").html(dataset.dataSetTypeCode));
 				
-				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles[i].pathInDataSet + "?sessionID=" + this.openbisServer.getSession();
+				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles[i].pathInDataSet + "?sessionID=" + this.serverFacade.getSession();
 					
 				if(datasetFiles[i].isDirectory) {
 					$tableRow.append($("<td>").html(datasetFiles[i].pathInDataSet));
