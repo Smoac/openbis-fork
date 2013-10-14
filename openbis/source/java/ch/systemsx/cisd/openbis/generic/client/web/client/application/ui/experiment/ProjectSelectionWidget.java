@@ -149,7 +149,14 @@ public final class ProjectSelectionWidget extends
             }
             applyEmptyText();
             dataLoaded = true;
-            selectProjectAndUpdateOriginal(initialProjectIdentifierOrNull);
+
+            if (initialProjectIdentifierOrNull != null)
+            {
+                selectProjectAndUpdateOriginal(initialProjectIdentifierOrNull);
+            } else
+            {
+                selectProjectAndUpdateOriginal(viewContext.getDisplaySettingsManager().getDefaultProject());
+            }
             removeResultSetFromCache();
         }
 

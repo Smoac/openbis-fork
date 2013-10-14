@@ -206,7 +206,7 @@ public class ChangeUserSettingsDialog extends AbstractSaveDialog
     {
         String idSuffix = DropDownList.ID + ProjectSelectionWidget.SUFFIX + DIALOG_ID;
         final ProjectSelectionWidget field =
-                new ProjectSelectionWidget(viewContext, idSuffix, spaceCode, viewContext.getDisplaySettingsManager().getDefaultProject());
+                new ProjectSelectionWidget(viewContext, idSuffix, spaceCode, null);
         field.setFieldLabel("Default Project");
         GWTUtils.setToolTip(field, "Default Project Code");
         field.setAllowBlank(true);
