@@ -331,6 +331,22 @@ task zipDss(type: Zip) {
 	}
 }
 
+task clientsAndApis(type: Zip) {
+	baseName 'openBIS-clients-and-APIs'
+	from (project(':datastore_server').dssClientZip.archivePath)
+	from (project(':datastore_server').dssGuiZip.archivePath)
+
+	from (project(':datastore_server').dssClientZip.archivePath) {	
+	    rename { String fileName -> fileName.replace('client', 'client-screening')}
+    }
+
+	from (project(':datastore_server').dssGuiZip.archivePath) {	
+	    rename { String fileName -> fileName.replace('gui', 'gui-screening')}
+    }
+    
+    from ('../openbis_all/dist/readme.txt')
+}
+
 build.dependsOn zip
 build.dependsOn zipDss
-
+build.dependsOn clientsAndApis

@@ -1,6 +1,8 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
-configurations.create('gui')
+configurations.create('clients')
+configurations.create('clients_partial')
+
 
 dependencies {
 	compile project(':common'),
@@ -27,16 +29,18 @@ dependencies {
 				project(path: ':openbis-common', configuration: 'tests'),
 				project(path: ':openbis', configuration: 'tests')
 				
-	gui	'cglib:cglib-nodep:+',
-		'cisd:cisd-args4j:+',
-		'cisd:cisd-base:+',
-		'apache:poi-ooxml:+',
-		'springframework:spring-context:+',
-		'python:jython:+',
-		'apache:commons-httpclient:+',
-		'marathon:marathon-spring-util:+',
-		'apache:log4j:+',
-		'dom4j:dom4j:+'
+	clients	'cglib:cglib-nodep:+',
+			'cisd:cisd-args4j:+',
+			'cisd:cisd-base:+',
+			'apache:poi-ooxml:+',
+			'springframework:spring-context:+',
+			'python:jython:+',
+			'apache:commons-httpclient:+',
+			'marathon:marathon-spring-util:+',
+			'apache:log4j:+',
+			'dom4j:dom4j:+'
+			
+	clients_partial 'google:gwt-user:2.4'			
 }
 
 sourceSets { 
@@ -46,6 +50,41 @@ sourceSets {
 		}
 	}
 }
+
+
+task dssClient(type: Jar) {
+	baseName 'dss_client'
+	
+	from (project(':common').sourceSets.main.output.getAsFileTree().plus(
+		  project(':openbis-common').sourceSets.main.output.getAsFileTree().plus(
+		  project(':openbis_api').sourceSets.main.output.getAsFileTree().plus(
+		  project(':openbis').sourceSets.main.output.getAsFileTree().plus(
+		  sourceSets.main.output.getAsFileTree())))).matching {
+		include 'ch/systemsx/cisd/common/**/*.class'	
+      	include 'ch/systemsx/cisd/openbis/common/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/generic/shared/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class'
+        include 'ch/systemsx/cisd/openbis/dss/client/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class'
+      	include 'org/python/core/SyspathArchiveHack.class'
+	})
+	
+	from zipTree(configurations.clients_partial.files.iterator().next()).matching {
+			include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+			include '**/com/google/gwt/user/client/rpc/SerializableException.class'
+	}
+	
+    manifest {
+        def manifestClasspath = configurations.clients.collect { it.getName() }.join(',') 
+		attributes("Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.cli.DssClient",
+                   "Version": versionNumber,
+                   "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})",
+                   "Class-Path": manifestClasspath )
+    }
+}	
+dssClient.dependsOn compileJava
+
 
 task dssGui(type: Jar) {
 	baseName 'dss_gui'
@@ -66,13 +105,43 @@ task dssGui(type: Jar) {
 	})
 	
 	from (fileTree(dir: 'resource', includes: ['ok.png', 'wrong.png', 'wait.gif']))
+	
+	from zipTree(configurations.clients_partial.files.iterator().next()).matching {
+			include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+			include '**/com/google/gwt/user/client/rpc/SerializableException.class'
+	}
+	
+    manifest {
+        def manifestClasspath = configurations.clients.collect { it.getName() }.join(',') 
+		attributes("Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient",
+                   "Version": versionNumber,
+                   "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})",
+                   "Class-Path": manifestClasspath)                   
+    }	
 }	
 dssGui.dependsOn compileJava
+
+task dssClientZip(type: Zip) {
+	baseName 'dss_client'
+
+	from (configurations.clients) {
+		into 'dss_client/lib'
+	}
+	
+	from (dssClient.archivePath) {
+		into 'dss_client/lib'
+	}
+	
+	from('dist/dss_client.sh') {
+		into 'dss_client'
+	}
+}
+dssClientZip.dependsOn dssClient
 
 task dssGuiZip(type: Zip) {
 	baseName 'dss_upload_gui'
 
-	from (configurations.gui) {
+	from (configurations.clients) {
 		into 'dss_upload_gui/lib'
 	}
 	
@@ -81,5 +150,8 @@ task dssGuiZip(type: Zip) {
 	}
 }
 dssGuiZip.dependsOn dssGui
+
+
+build.dependsOn dssClientZip
 build.dependsOn dssGuiZip
 
