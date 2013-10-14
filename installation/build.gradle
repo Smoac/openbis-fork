@@ -1,0 +1,119 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+buildscript {
+    apply from: '../gradle/repository.gradle'
+    
+    repositories repositoryConfig
+    
+    dependencies {
+        classpath 'izpack:izpack:+', 
+            'apache:commons-io:+',
+            'apache:commons-lang:+'
+    }
+}
+
+dependencies {
+    compile project(':common')
+    
+    compile 'izpack:izpack:+'
+    
+    testCompile project(path: ':common', configuration: 'tests')
+}
+
+archivesBaseName = 'openBIS-installation-standard-technologies'
+installerDistDir = 'targets/dist/installer'
+println "installerDir:${installerDistDir}"
+println "buildDir:${buildDir}"
+println "installer:${project.projectDir}/resource/installer"
+
+task copyResources(type: Copy, dependsOn:compileJava) { 
+    from "${project.projectDir}/resource/installer"
+    into installerDistDir
+    from "${project.projectDir}/../openbis_standard_technologies/dist/tarball/installer"
+    into installerDistDir
+}
+
+// The JAR file created by the IzPack compiler contains folders stored as empty files.
+// This is only a problem in gradle environment. The following function fixes this problem by
+// removing all empty entries which do not end with '/'.
+def fixJarFile = { jarFilePath ->
+    def inputZipFile = new java.util.zip.ZipFile(jarFilePath)
+    def zin = null
+    def zout = null
+    try {
+        def entries = inputZipFile.entries()
+        def entriesToDelete = new HashSet<String>()
+        while (entries.hasMoreElements()) {
+            def entry = entries.nextElement()
+            if (entry.name.endsWith("/") == false && entry.size == 0) {
+                entriesToDelete.add(entry.name)
+            }
+        }
+        zin = new java.util.zip.ZipInputStream(new java.io.FileInputStream(jarFilePath))
+        def tmpJarFilePath = jarFilePath + '.tmp'
+        zout = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(tmpJarFilePath))
+        byte[] buf = new byte[1024]
+        def entry = zin.getNextEntry()
+        while (entry != null) {
+            if (entriesToDelete.contains(entry.name) == false) {
+                zout.putNextEntry(new java.util.zip.ZipEntry(entry.name))
+                int len
+                while ((len = zin.read(buf)) > 0) {
+                    zout.write(buf, 0, len)
+                }
+            }
+            entry = zin.getNextEntry()
+        }
+        inputZipFile.close()
+        zin.close();
+        zout.close();
+        def jarFile = new File(jarFilePath)
+        if (jarFile.delete() == false) {
+            throw new IllegalStateException("Couldn't delete ${jarFile}")
+        }
+        if (new File(tmpJarFilePath).renameTo(jarFile) == false) {
+            throw new IllegalStateException("Couldn't rename ${tmpJarFilePath} to ${jarFile}")
+        }
+    } finally {
+        if (inputZipFile != null) {
+            inputZipFile.close()
+        }
+        if (zin != null) {
+            zin.close();
+        }
+        if (zout != null) {
+            zout.close();
+        }
+    }
+    
+ 
+}
+
+task(compileInstaller) << {
+    def compression = 'default'
+    def kind = 'standard'
+    def basedir = project.projectDir.path
+    def input = 'resource/installer/install.xml'
+    def output = buildDir.toString() + '/openBIS-installer.jar'
+    def compressionLevel = -1
+    def compilerData = new com.izforge.izpack.compiler.data.CompilerData(compression, kind, input, 
+            null, basedir, output, compressionLevel)
+    def compilerContainer = new com.izforge.izpack.compiler.container.CompilerContainer()
+    compilerContainer.initBindings()
+    compilerContainer.addConfig('installFile', input)
+    compilerContainer.addComponent(compilerData.class, compilerData)
+    def compilerConfig = compilerContainer.getComponent(com.izforge.izpack.compiler.CompilerConfig.class)
+    def propertyManager = compilerContainer.getComponent(com.izforge.izpack.compiler.data.PropertyManager.class)
+    propertyManager.addProperty('installer.dist.dir', installerDistDir)
+    propertyManager.addProperty('version.number', versionNumber)
+    propertyManager.addProperty('revision.number', revisionNumber)
+    compilerConfig.executeCompiler()
+    fixJarFile("${buildDir}/openBIS-installer.jar")
+    def files = project.zipTree("${buildDir}/openBIS-installer.jar").files
+    println files.size() + ' files '
+}
+compileInstaller.dependsOn copyResources
+
+task createInstallerJar(type: Jar, dependsOn: compileInstaller) {
+    from zipTree(new File("${buildDir}/openBIS-installer.jar"))
+}
