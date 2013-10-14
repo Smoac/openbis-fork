@@ -62,9 +62,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.PersonTranslator;
 /**
  * The unique {@link IEntityPropertiesConverter} implementation.
  * <p>
- * This implementation caches as much as possible to avoid redundant database requests. This also
- * means that this class should not be reused. Creating a new instance each time this class is
- * needed should be preferred.
+ * This implementation caches as much as possible to avoid redundant database requests. This also means that this class should not be reused. Creating
+ * a new instance each time this class is needed should be preferred.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -267,11 +266,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 getEntityTypePropertyType(entityTypePE, propertyType);
         final EntityTypePropertyTypePE entityTypePropertyTypePE =
                 extendedETPT.getEntityTypePropertyTypePE();
-        if (entityTypePropertyTypePE.isMandatory() && valueOrNull == null)
+
+        if (entityTypePropertyTypePE.isMandatory() && isNullOrBlank(valueOrNull))
         {
             throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S, propertyCode);
         }
-        if (valueOrNull != null)
+        if (isNullOrBlank(valueOrNull) == false)
         {
             final String validated =
                     propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
@@ -405,12 +405,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     public final String tryCreateValidatedPropertyValue(PropertyTypePE propertyType,
             EntityTypePropertyTypePE entityTypPropertyType, String value)
     {
-        if (entityTypPropertyType.isMandatory() && value == null)
+        if (entityTypPropertyType.isMandatory() && isNullOrBlank(value))
         {
             throw UserFailureException.fromTemplate(NO_ENTITY_PROPERTY_VALUE_FOR_S,
                     propertyType.getCode());
         }
-        if (value != null)
+        if (isNullOrBlank(value) == false)
         {
             final String validated =
                     propertyValueValidator.validatePropertyValue(propertyType, value);
@@ -474,8 +474,7 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     }
 
     /**
-     * Update the value of a managed property, assuming the managedProperty already has the updated
-     * value.
+     * Update the value of a managed property, assuming the managedProperty already has the updated value.
      */
     @Override
     public <T extends EntityPropertyPE> Set<T> updateManagedProperty(Collection<T> oldProperties,
@@ -552,6 +551,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             }
         }
         return null;
+    }
+
+    private static boolean isNullOrBlank(String value)
+    {
+        return value == null || value.trim().length() == 0;
     }
 
     //
@@ -644,9 +648,8 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         private final IHibernateSessionProvider customSessionProviderOrNull;
 
         /**
-         * @param customSessionProviderOrNull Provider of custom session that should be used for
-         *            accessing DB instead of default one. If null the standard way of getting the
-         *            session should be used.
+         * @param customSessionProviderOrNull Provider of custom session that should be used for accessing DB instead of default one. If null the
+         *            standard way of getting the session should be used.
          */
         public ComplexPropertyValueHelper(IDAOFactory daoFactory,
                 IHibernateSessionProvider customSessionProviderOrNull)
