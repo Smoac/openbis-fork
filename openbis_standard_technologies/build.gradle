@@ -338,7 +338,9 @@ task clientsAndApis(type: Zip) {
 	baseName 'openBIS-clients-and-APIs'
 	from (project(':datastore_server').dssClientZip.archivePath)
 	from (project(':datastore_server').dssGuiZip.archivePath)
+    from (project(':datastore_server').queryApiZip.archivePath)
     from (project(':rtd_phosphonetx').apiZip.archivePath)
+
 
 	from (project(':datastore_server').dssClientZip.archivePath) {	
 	    rename { String fileName -> fileName.replace('client', 'client-screening')}
@@ -353,7 +355,9 @@ task clientsAndApis(type: Zip) {
 }
 clientsAndApis.dependsOn project(':datastore_server').dssClientZip
 clientsAndApis.dependsOn project(':datastore_server').dssGuiZip
+clientsAndApis.dependsOn project(':datastore_server').queryApiZip
 clientsAndApis.dependsOn project(':rtd_phosphonetx').apiZip
+
 
 build.dependsOn zip
 build.dependsOn zipDss
