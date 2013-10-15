@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.concurrent.ITaskExecutor;
 import ch.systemsx.cisd.common.concurrent.ParallelizedExecutor;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -534,14 +535,20 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
 
     private BufferedImage loadUnchangedImage(String imageRelativePath, String imageIdOrNull)
     {
-        if (contentOrNull == null)
+        try
         {
-            return Utils.loadUnchangedImage(new FileBasedContentNode(new File(
-                    imagesParentDirectory, imageRelativePath)), imageIdOrNull, imageLibraryOrNull);
-        } else
+            if (contentOrNull == null)
+            {
+                return Utils.loadUnchangedImage(new FileBasedContentNode(new File(
+                        imagesParentDirectory, imageRelativePath)), imageIdOrNull, imageLibraryOrNull);
+            } else
+            {
+                return Utils.loadUnchangedImage(contentOrNull.getNode(imageRelativePath),
+                        imageIdOrNull, imageLibraryOrNull);
+            }
+        } catch (Exception ex)
         {
-            return Utils.loadUnchangedImage(contentOrNull.getNode(imageRelativePath),
-                    imageIdOrNull, imageLibraryOrNull);
+            throw new UserFailureException("Failed to load image " + imageRelativePath, ex);
         }
     }
 
