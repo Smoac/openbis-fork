@@ -340,6 +340,7 @@ task clientsAndApis(type: Zip) {
 	from (project(':datastore_server').dssGuiZip.archivePath)
     from (project(':datastore_server').queryApiZip.archivePath)
     from (project(':rtd_phosphonetx').apiZip.archivePath)
+    from (project(':screening').screeningApiZip.archivePath)
 
 
 	from (project(':datastore_server').dssClientZip.archivePath) {	
@@ -357,7 +358,7 @@ clientsAndApis.dependsOn project(':datastore_server').dssClientZip
 clientsAndApis.dependsOn project(':datastore_server').dssGuiZip
 clientsAndApis.dependsOn project(':datastore_server').queryApiZip
 clientsAndApis.dependsOn project(':rtd_phosphonetx').apiZip
-
+clientsAndApis.dependsOn project(':screening').screeningApiZip
 
 build.dependsOn zip
 build.dependsOn zipDss
