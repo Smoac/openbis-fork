@@ -1,7 +1,8 @@
+evaluationDependsOnChildren()
+
 apply plugin: 'java'
 apply plugin: 'project-report'
 
-evaluationDependsOnChildren()
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.5'
