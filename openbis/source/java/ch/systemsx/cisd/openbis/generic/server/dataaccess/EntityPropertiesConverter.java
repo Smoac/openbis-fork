@@ -452,6 +452,13 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
     public <T extends EntityPropertyPE> Set<T> updateProperties(Collection<T> oldProperties,
             EntityTypePE entityType, List<IEntityProperty> newProperties, PersonPE author)
     {
+        // the existing properties will change their values, so we need to cache them for a moment
+        Map<T, String> existingPropertyValues = new HashMap<T, String>();
+        for (T existingProperty : oldProperties)
+        {
+            existingPropertyValues.put(existingProperty, existingProperty.tryGetUntypedValue());
+        }
+
         final List<T> convertedProperties =
                 convertPropertiesForUpdate(newProperties, entityType.getCode(), author);
         final Set<T> set = new HashSet<T>();
@@ -463,7 +470,11 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             {
                 existingProperty.setUntypedValue(newProperty.getValue(),
                         newProperty.getVocabularyTerm(), newProperty.getMaterialValue());
-                existingProperty.setAuthor(author);
+
+                if (false == existingPropertyValues.get(existingProperty).equals(newProperty.tryGetUntypedValue()))
+                {
+                    existingProperty.setAuthor(author);
+                }
                 set.add(existingProperty);
             } else
             {
