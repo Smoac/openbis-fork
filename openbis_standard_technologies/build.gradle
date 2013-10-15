@@ -1,3 +1,5 @@
+evaluationDependsOn(':rtd_phosphonetx')
+
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 apply plugin: 'war'
 
@@ -292,6 +294,7 @@ zip.dependsOn checksums
 task zipDss(type: Zip) {
 	baseName 'datastore_server-standard-technologies'
 	includeEmptyDirs true
+	
 	from (configurations.datastore_server) {
 		into 'datastore_server/lib'
 	}
@@ -335,6 +338,7 @@ task clientsAndApis(type: Zip) {
 	baseName 'openBIS-clients-and-APIs'
 	from (project(':datastore_server').dssClientZip.archivePath)
 	from (project(':datastore_server').dssGuiZip.archivePath)
+    from (project(':rtd_phosphonetx').apiZip.archivePath)
 
 	from (project(':datastore_server').dssClientZip.archivePath) {	
 	    rename { String fileName -> fileName.replace('client', 'client-screening')}
@@ -345,7 +349,11 @@ task clientsAndApis(type: Zip) {
     }
     
     from ('../openbis_all/dist/readme.txt')
+    
 }
+clientsAndApis.dependsOn project(':datastore_server').dssClientZip
+clientsAndApis.dependsOn project(':datastore_server').dssGuiZip
+clientsAndApis.dependsOn project(':rtd_phosphonetx').apiZip
 
 build.dependsOn zip
 build.dependsOn zipDss
