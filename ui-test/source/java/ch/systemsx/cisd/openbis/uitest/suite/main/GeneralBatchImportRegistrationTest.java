@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.openbis.uitest.dsl.CommandNotSuccessful;
 import ch.systemsx.cisd.openbis.uitest.dsl.IdentifiedBy;
 import ch.systemsx.cisd.openbis.uitest.dsl.SeleniumTest;
 import ch.systemsx.cisd.openbis.uitest.type.GeneralBatchImportFile;
@@ -36,7 +33,7 @@ import ch.systemsx.cisd.openbis.uitest.type.User;
 public class GeneralBatchImportRegistrationTest extends MainSuite
 {
 
-    @Test
+    // @Test
     public void spaceOfSampleIdentifiedWithSpaceAndCodeIsDefinedByIdentifier()
             throws Exception
     {
@@ -52,7 +49,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(sample), hasSpace(sampleSpace));
     }
 
-    @Test
+    // @Test
     public void spaceOfSampleIdentifiedWithCodeIsDefinedByDefaultSpaceOfImportFile()
             throws Exception
     {
@@ -65,7 +62,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(sample), hasSpace(defaultSpace));
     }
 
-    @Test
+    // @Test
     public void spaceOfSampleIdentifiedWithCodeIsDefinedByUserHomeSpaceIfDefaultSpaceOfImportFileIsNotSet()
             throws Exception
     {
@@ -77,7 +74,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(sample), hasSpace(homeSpace));
     }
 
-    @Test(expectedExceptions = CommandNotSuccessful.class)
+    // @Test(expectedExceptions = CommandNotSuccessful.class)
     public void importFailsIfSampleIsIdentifiedWithCodeAndDefaultSpaceOfImportFileIsNotSetAndHomeSpaceIsNotSet()
             throws Exception
     {
@@ -98,7 +95,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         }
     }
 
-    @Test
+    // @Test
     public void spaceOfComponentSampleIdentifiedWithSpaceAndCodeAndContainerColumnIsDefinedByComponentIdentifier()
             throws Exception
     {
@@ -129,7 +126,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(component), hasContainer(container));
     }
 
-    @Test
+    // @Test
     public void spaceOfComponentSampleIdentifiedWithSpaceAndCodeAndSubcodeIsDefinedByIdentifier()
             throws Exception
     {
@@ -158,7 +155,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(component), hasContainer(container));
     }
 
-    @Test(expectedExceptions = CommandNotSuccessful.class)
+    // @Test(expectedExceptions = CommandNotSuccessful.class)
     public void importFailsIfComponentIsDefinedBySpaceAndCodeAndSubcodeAndContainerColumnExists()
             throws Exception
     {
@@ -180,7 +177,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         generalBatchImport(file);
     }
 
-    @Test
+    // @Test
     public void spaceOfComponentSampleIdentifiedWithSubcodeAndContainerColumnIsSetToDefaultSpaceOfImportFile()
             throws Exception
     {
@@ -205,7 +202,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(component), hasContainer(container));
     }
 
-    @Test
+    // @Test
     public void containerColumnCanContainOnlyCodeOfContainerIfDefaultSpaceOfImportFileIsSet()
             throws Exception
     {
@@ -230,7 +227,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         assertThat(browserEntryOf(component), hasContainer(container));
     }
 
-    @Test(expectedExceptions = CommandNotSuccessful.class)
+    // @Test(expectedExceptions = CommandNotSuccessful.class)
     public void importFailsIfSampleIsIdentifiedWithCodeAndSubcode() throws Exception
     {
         GeneralBatchImportFile file =
@@ -249,7 +246,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         generalBatchImport(file);
     }
 
-    @Test(expectedExceptions = CommandNotSuccessful.class)
+    // @Test(expectedExceptions = CommandNotSuccessful.class)
     public void importFailsIfComponentSampleTypeHasCodeUniquenessAttributeSetAndSameSpaceHasAnyTwoComponentsWithSameSubcode()
             throws Exception
     {
@@ -267,7 +264,7 @@ public class GeneralBatchImportRegistrationTest extends MainSuite
         generalBatchImport(file);
     }
 
-    @Test
+    // @Test
     public void propertiesOfSamplesAreImported() throws Exception
     {
         SampleType sampleType = create(aSampleType());
