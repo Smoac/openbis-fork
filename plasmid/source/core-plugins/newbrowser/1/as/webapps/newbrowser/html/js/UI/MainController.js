@@ -169,7 +169,7 @@ function MainController(profile) {
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
-		var breadCrumbPage = new BreadCrumbPage('new-sample', "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
+		var breadCrumbPage = new BreadCrumbPage('new-sample-'+sampleTypeCode, "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
@@ -180,7 +180,7 @@ function MainController(profile) {
 
 	this.showEditSamplePage = function(sample) {
 		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePage", sample, 'Edit '+sample.code);
+		var breadCrumbPage = new BreadCrumbPage('edit-sample-'+sample.permId, "showEditSamplePage", sample, 'Update '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
@@ -191,7 +191,7 @@ function MainController(profile) {
 
 	this.showViewSamplePage = function(sample) {
 		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePage", sample, 'View '+sample.code);
+		var breadCrumbPage = new BreadCrumbPage('view-sample-'+sample.permId, "showViewSamplePage", sample, 'View '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form

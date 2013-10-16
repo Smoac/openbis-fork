@@ -291,8 +291,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.enableEditButtonEvent = function() {
 		var localReference = this;
 		$( "#editButton" ).click(function() {
-			localReference.mode = SampleFormMode.EDIT;
-			localReference.init();
+			//localReference.mode = SampleFormMode.EDIT;
+			//localReference.init();
+			mainController.navigationBar.updateBreadCrumbToMinusOne();
+			mainController.showEditSamplePage(sample);
 		});
 	}
 	
@@ -339,10 +341,12 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			} else if (this.mode === SampleFormMode.EDIT) {
 				message = "Update";
 				pinButton = this.getPINButton();
+				sampleTypeDisplayName = sample.code;
 			} else if (this.mode === SampleFormMode.VIEW) {
 				message = "View";
 				pinButton = this.getPINButton();
 				editButton = this.getEditButton();
+				sampleTypeDisplayName = sample.code;
 			}
 			
 			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + editButton + "</h2>";

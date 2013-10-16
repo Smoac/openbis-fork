@@ -118,10 +118,14 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 		this.activeMenuId = newActiveId;
 	}
 	
-	this.updateBreadCrumbToSecondLevelForQuickMenu = function() {
+	this.updateBreadCrumbToSecondLevelForQuickMenu = function() { //Used by the quick menu
 		 this.breadcrumb.length = 1;
 	}
 	
+	this.updateBreadCrumbToMinusOne = function() { //Used when you change a form from view to edit
+		 this.breadcrumb.length = this.breadcrumb.length - 1;
+	}
+
 	this.executeBreadCrumb = function(breadCrumbIndex) {
 		var href = this.breadcrumb[breadCrumbIndex].href;
 		var hrefArgs = this.breadcrumb[breadCrumbIndex].hrefArgs;
