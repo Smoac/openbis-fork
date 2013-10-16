@@ -8,15 +8,47 @@ h1, h2, legend {
 	font-weight: 300;
 }
 
-/* pagination */
-.paginationItem {
-	margin-right: 2px;
+/* tool box */
+.paginationTop span {
+    float: left;
 }
 
-#pagination {
-	width:600px;
-	white-space: nowrap;
+.toolBox {
+	float: right !important;
 }
+
+.toolBox a {
+	margin-right: 10px;
+}
+
+/* filter and pagination */
+
+.tableFilterContainer {
+	text-align:left;
+}
+
+.tableFilter {
+	margin-bottom: 0px;
+	padding-left: 30px !important;
+	background-image: url(../images/filter-icon.png);
+    background-repeat: no-repeat;
+    background-position: 12px 8px;
+    width: 80%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.paginationItem {
+	margin-right: 4px;
+	width: 23px;
+}
+
+.paginationTop,
+.paginationBottom {
+	white-space: nowrap;
+	margin: 10px;
+}
+
 /* Loging */
 .bodyLogin {
 	background: url(../css/loginBackground.jpg) no-repeat center center fixed; 
@@ -259,6 +291,7 @@ h1, h2, legend {
 
 /* Main Table */
 .tableContainerBorder {
+	margin-top:5px;
 	margin-bottom:10px;
 }
 

@@ -49,7 +49,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this._samplesToPaint = null;
 	this._total = null;
 	this._start = null;
-	this._limit = 50;
+	if(isEmbedded) {
+		this._limit = 5;
+	} else {
+		this._limit = 20;
+	}
 	this._adjacentPages = 2;
 	
 	this.init = function() {
@@ -186,7 +190,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this._getPaginationComponent = function(total, start, limit, adjacentPages) {
 		//Check if there is elements
 		if(total === 0) {
-			return $("<p>").append("No elements found.");
+			return $("<div>").append("No elements found.");
 		}
 		
 		//Current page
@@ -203,13 +207,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		}
 		
 		//Pagination component
-		var $component = $("<div>");
-							
-		var $textLine = $("<span>")
-			.append("Showing " + (start + 1) + " to " + shownTo + " (" + total + "): ");
-		
-		$component.append($textLine);
-		
+		var $component = $("<span>");
+		$component.append("Showing " + (start + 1) + " to " + shownTo + " from " + total + " ");
+
 		var localReference = this;
 		var paginationClick = function(firstElementFromPage) {
 			return function() {
@@ -220,17 +220,17 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		//Start Pages
 		if(currentPage == 1) {
 			var $paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-fast-backward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 			
 			$paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-step-backward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 		} else {
 			var $paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(0) }).append($("<i>", { class: "icon-fast-backward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 			
 			var firstElementFromPage =  limit * (currentPage - 2);
 			$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-step-backward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 		}
 		
 		//Middle Pages
@@ -243,27 +243,27 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				} else {
 					$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append(pageNumber)
 				}
-				$textLine.append($paginationItem);
+				$component.append($paginationItem);
 			}
 		}
 		
 		//End Pages
 		if(currentPage == numPages) {
 			var $paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-forward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 			
 			$paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-fast-forward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 		} else {
 			var firstElementFromPage =  limit * (currentPage);
 			var $paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-step-forward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 			
 			firstElementFromPage =  limit * (numPages - 1);
 			$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-fast-forward" }));
-			$textLine.append($paginationItem);
+			$component.append($paginationItem);
 		}
-		
+
 		return $component;
 	}
 	
@@ -274,17 +274,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		// Table Containers
 		//
 		var component = "";
-		
 			component += "<div class='row-fluid'>";
 			component += "<div class='span12'>";
 			component += "<div id='vis'>";
-			
-			if(this.isEmbedded) {
-				component += "<div class='tableContainerBorder' style='height: 350px; width:100%; overflow: auto;'>";
-			} else {
-				component += "<div class='tableContainerBorder'>";
-			}
-			
+			component += "<div class='tableContainerBorder'>";
 			component += "<div id='tableContainer'></div>";
 			component += "</div>";
 			component += "</div>";
@@ -309,34 +302,30 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
 				sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
 			}
-		
 			sampleTypePropertiesDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, sampleTypeProperties);
 			
-			tableTemplate += "<tr style='border:none; border-collapse:collapse;'>";
-			tableTemplate += "<td style='border:none; border-collapse:collapse;' colspan='" + sampleTypePropertiesDisplayNames.length + "'><input placeholder='filter' style=\"width: 100%\" id=\"table-filter\" type=\"text\"></td>";
-			tableTemplate += "<td colspan='4' id='pagination'></td>";
-			tableTemplate += "</tr>";
+			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='filter visible columns' class='tableFilter search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");
+			$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		}
 	
 		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
 			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
-		if (this.isEmbedded || this.isSearch) {
-			tableTemplate += "<th></th>";
-			tableTemplate += "<th></th>";
-			tableTemplate += "<th></th>";
-		} else {
-			tableTemplate += "<th style='white-space: nowrap;'><input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a></th>";
-			tableTemplate += "<th style='white-space: nowrap;'><input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a></th>";
-			tableTemplate += "<th><a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a></th>";
+
+		if (!this.isEmbedded && !this.isSearch) {
+			var toolBoxContainer = "<span class='toolBox' id='toolBoxContainer'></span>";
+			$("#paginationContainerTop").append(toolBoxContainer);
+			$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a>");
+			$("#toolBoxContainer").append("<a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a>");
 		}
 		
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 	
 		$("#tableContainer").append(tableTemplate);
 		
-		$("#pagination").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		
 		//
 		// Attach Filter Functions to DOM
@@ -452,6 +441,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				$('a').click(function(e){
 				   e.stopPropagation();
 				});
+
+		$("#tableContainer").append("<div id='paginationContainerBottom' class='paginationBottom'></div>");
+		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
+		
 	}
 	
 	this._filter = function(filterResults) {
