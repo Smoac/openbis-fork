@@ -16,11 +16,16 @@
 
 package ch.systemsx.cisd.common.jython;
 
+import org.apache.log4j.Logger;
 import org.python.core.CompileMode;
 import org.python.core.Py;
+import org.python.core.PyList;
 import org.python.core.PyObject;
+import org.python.core.PyString;
 import org.python.core.PySystemState;
 
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.resource.Resources;
 
 /**
@@ -28,6 +33,8 @@ import ch.systemsx.cisd.common.resource.Resources;
  */
 public class PythonInterpreter extends org.python.util.PythonInterpreter
 {
+
+    private Logger log = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private Resources resources = new Resources();
 
@@ -52,6 +59,42 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
     {
         super.set(name, value);
         resources.add(value);
+    }
+
+    public void addToPath(String... pathElements)
+    {
+        if (pathElements != null)
+        {
+            PyList pyPath = getSystemState().path;
+
+            for (String pathElement : pathElements)
+            {
+                PyString pyPathElement = new PyString(pathElement);
+
+                if (pyPath.contains(pyPathElement) == false)
+                {
+                    pyPath.add(pyPathElement);
+                }
+            }
+        }
+    }
+
+    public void removeFromPath(String... pathElements)
+    {
+        if (pathElements != null)
+        {
+            PyList pyPath = getSystemState().path;
+
+            for (String pathElement : pathElements)
+            {
+                PyString pyPathElement = new PyString(pathElement);
+
+                if (pyPath.contains(pyPathElement))
+                {
+                    pyPath.remove(new PyString(pathElement));
+                }
+            }
+        }
     }
 
     public void releaseResources()
@@ -80,8 +123,29 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
 
     public void exec(String data, String filename)
     {
-        setSystemState();
-        Py.exec(Py.compile_flags(data, filename, CompileMode.exec, cflags), getLocals(), null);
-        Py.flushLine();
+        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(filename);
+
+        try
+        {
+            // Add the script directory to the path. Without it importing
+            // other files from the same directory does not work.
+            addToPath(pythonPath);
+
+            if (log.isDebugEnabled())
+            {
+                log.debug("Python path: " + getSystemState().path);
+            }
+
+            setSystemState();
+
+            Py.exec(Py.compile_flags(data, filename, CompileMode.exec, cflags), getLocals(), null);
+            Py.flushLine();
+        } finally
+        {
+            // Remove the script directory from the path. We do not want to pollute
+            // the interpreter as it might be reused for executing other scripts.
+            removeFromPath(pythonPath);
+        }
     }
+
 }

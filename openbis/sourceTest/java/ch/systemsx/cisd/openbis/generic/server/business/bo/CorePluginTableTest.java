@@ -86,6 +86,10 @@ public class CorePluginTableTest extends AbstractBOTest
                     one(pluginResourceLoader).tryLoadToString(plugin,
                             AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
                     will(returnValue(null));
+
+                    one(pluginResourceLoader).getPath(plugin,
+                            AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
+                    will(returnValue(null));
                 }
             });
 
@@ -108,7 +112,11 @@ public class CorePluginTableTest extends AbstractBOTest
                             AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
                     will(returnValue(mockScriptValue));
 
-                    one(scriptRunner).executeScript(mockScriptValue);
+                    one(pluginResourceLoader).getPath(plugin,
+                            AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
+                    will(returnValue("/test-dir/mockScript.py"));
+
+                    one(scriptRunner).executeScript(mockScriptValue, new String[] { "/test-dir" });
                     one(corePluginDAO).createCorePlugins(with(createdPluginsMatcher));
                 }
             });
@@ -132,11 +140,16 @@ public class CorePluginTableTest extends AbstractBOTest
             {
                 {
                     final String mockScriptValue = "mockScriptValue";
+
                     one(pluginResourceLoader).tryLoadToString(plugin,
                             AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
                     will(returnValue(mockScriptValue));
 
-                    one(scriptRunner).executeScript(mockScriptValue);
+                    one(pluginResourceLoader).getPath(plugin,
+                            AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
+                    will(returnValue("/test-dir/mockScript.py"));
+
+                    one(scriptRunner).executeScript(mockScriptValue, new String[] { "/test-dir" });
                     will(throwException(new MasterDataRegistrationException(null, Collections
                             .<MasterDataTransactionErrors> emptyList())));
                 }

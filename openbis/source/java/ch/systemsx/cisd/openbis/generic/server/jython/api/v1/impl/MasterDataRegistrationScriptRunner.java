@@ -22,6 +22,7 @@ import java.util.List;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.JythonScriptSplitter;
+import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.PythonInterpreter;
 
 /**
@@ -44,17 +45,19 @@ public class MasterDataRegistrationScriptRunner implements IMasterDataScriptRegi
     {
         checkValidJythonScript(jythonScriptFile);
         String scriptString = FileUtilities.loadToString(jythonScriptFile);
+        String[] jythonPath = JythonUtils.getScriptDirectoryPythonPath(jythonScriptFile.getAbsolutePath());
 
-        executeScript(scriptString);
+        executeScript(scriptString, jythonPath);
     }
 
     @Override
-    public void executeScript(String jythonScript) throws MasterDataRegistrationException
+    public void executeScript(String jythonScript, String[] jythonPath) throws MasterDataRegistrationException
     {
         MasterDataRegistrationService service = new MasterDataRegistrationService(commonServer);
 
         // Configure the evaluator
         PythonInterpreter interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
+        interpreter.addToPath(jythonPath);
         interpreter.set(SERVICE_VARIABLE_NAME, service);
 
         // Split the script to overcome 64KB limit (see LMS-2749)

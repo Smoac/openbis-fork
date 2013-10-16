@@ -27,8 +27,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
-import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator.ReturnType;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 
 /**
  * Tests of the {@link Evaluator}.
@@ -135,7 +135,7 @@ public class EvaluatorTest extends AssertJUnit
         assertEquals(0.1, eval.evalToDouble(), 1e-15);
         eval = new Evaluator("MinDbl(v)", Functions.class, null);
         eval.set("v", new double[]
-            { 1, 2, -99.9, 3 });
+        { 1, 2, -99.9, 3 });
         assertEquals(-99.9, eval.evalToDouble(), 1e-15);
     }
 
@@ -218,7 +218,7 @@ public class EvaluatorTest extends AssertJUnit
         final File tagFile = new File("targets/newfile");
         tagFile.delete();
         final Evaluator eval =
-                new Evaluator("open('targets/newfile', 'w').write('Should work')", null, null,
+                new Evaluator("open('targets/newfile', 'w').write('Should work')", null, null, null,
                         false);
         eval.evalAsString();
         assertTrue(tagFile.exists());

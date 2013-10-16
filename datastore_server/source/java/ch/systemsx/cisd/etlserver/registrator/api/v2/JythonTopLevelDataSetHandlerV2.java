@@ -193,7 +193,7 @@ public class JythonTopLevelDataSetHandlerV2<T extends DataSetInformation> extend
                         String scriptString = FileUtilities.loadToString(scriptFile);
 
                         // Invoke the evaluator
-                        internalInterpreter.exec(scriptString);
+                        internalInterpreter.exec(scriptString, scriptFile.getPath());
 
                         verifyEvaluatorHookFunctions(internalInterpreter);
 

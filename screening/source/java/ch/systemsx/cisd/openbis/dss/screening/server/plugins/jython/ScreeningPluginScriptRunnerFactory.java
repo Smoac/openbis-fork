@@ -46,9 +46,9 @@ public class ScreeningPluginScriptRunnerFactory extends PluginScriptRunnerFactor
     }
 
     @Override
-    protected Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
+    protected Evaluator createEvaluator(String scriptString, String[] jythonPath, DataSetProcessingContext context)
     {
-        Evaluator evaluator = super.createEvaluator(scriptString, context);
+        Evaluator evaluator = super.createEvaluator(scriptString, jythonPath, context);
         evaluator.set(SCREENING_FACADE_VARIABLE_NAME, createScreeningFacade(context));
         return evaluator;
     }

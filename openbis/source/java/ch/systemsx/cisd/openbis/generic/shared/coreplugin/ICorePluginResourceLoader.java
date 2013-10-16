@@ -19,8 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.coreplugin;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
- * The {@link ICorePluginResourceLoader} abstracts the physical representation of a
- * {@link CorePlugin} on the file system.
+ * The {@link ICorePluginResourceLoader} abstracts the physical representation of a {@link CorePlugin} on the file system.
  * 
  * @author Kaloyan Enimanev
  */
@@ -28,9 +27,13 @@ public interface ICorePluginResourceLoader
 {
 
     /**
-     * Locate a path within a given plugin and attempt to read its contents as string. If the path
-     * does not exist <code>NULL</code> is returned.
+     * Locate a path within a given plugin and attempt to read its contents as string. If the path does not exist <code>NULL</code> is returned.
      */
     String tryLoadToString(CorePlugin plugin, String path);
+
+    /**
+     * Locate a path within a given plugin.
+     */
+    String getPath(CorePlugin plugin, String path);
 
 }

@@ -59,7 +59,7 @@ public class MasterDataRegistrationScriptRunnerTest extends SystemTestCase
                         + "vocabulary.setDescription('The geometry or dimensions of a plate')\n"
                         + "vocabulary.setUrlTemplate(None)\n"
                         + "vocabulary.setManagedInternally(True)\n"
-                        + "vocabulary.setInternalNamespace(True)");
+                        + "vocabulary.setInternalNamespace(True)", null);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class MasterDataRegistrationScriptRunnerTest extends SystemTestCase
                         + "prop_type = tr.getOrCreateNewPropertyType('PLATE_GEOMETRY', DataType.VARCHAR)\n"
                         + "prop_type.setLabel('Plate Geometry')\n"
                         + "prop_type.setManagedInternally(True)\n"
-                        + "prop_type.setInternalNamespace(True)");
+                        + "prop_type.setInternalNamespace(True)", null);
     }
 
 }
