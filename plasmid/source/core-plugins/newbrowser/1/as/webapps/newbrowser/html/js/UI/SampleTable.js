@@ -297,6 +297,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		if(this.sampleTypeCode == "SEARCH") {
 			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
 			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
+			$("#tableContainer").append("<div id='paginationContainerTop' class='paginationTop'></div>");
+			$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		} else {
 			sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
 			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
@@ -304,10 +306,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			}
 			sampleTypePropertiesDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, sampleTypeProperties);
 			
-			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='filter visible columns' class='tableFilter search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");
-			$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
+			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='filter visible columns' class='tableFilter search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
 		}
-	
+		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
+		
 		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
 			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
