@@ -365,9 +365,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		//
 		// Table Rows
 		//
-		if (this._samplesToPaint.length < 1) {
-			return;
-		}
 		
 		$("#sample-data-holder").empty();
 		var selection = d3.select("#vis").select("#sample-data-holder").selectAll("tr.sample-table-data").data(this._samplesToPaint);
