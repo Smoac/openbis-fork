@@ -77,6 +77,11 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
                 }
             }
         }
+
+        if (log.isDebugEnabled())
+        {
+            log.debug("Python path: " + getSystemState().path);
+        }
     }
 
     public void removeFromPath(String... pathElements)
@@ -94,6 +99,11 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
                     pyPath.remove(new PyString(pathElement));
                 }
             }
+        }
+
+        if (log.isDebugEnabled())
+        {
+            log.debug("Python path: " + getSystemState().path);
         }
     }
 
@@ -130,11 +140,6 @@ public class PythonInterpreter extends org.python.util.PythonInterpreter
             // Add the script directory to the path. Without it importing
             // other files from the same directory does not work.
             addToPath(pythonPath);
-
-            if (log.isDebugEnabled())
-            {
-                log.debug("Python path: " + getSystemState().path);
-            }
 
             setSystemState();
 
