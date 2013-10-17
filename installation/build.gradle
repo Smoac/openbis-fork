@@ -18,25 +18,35 @@ dependencies {
     compile 'izpack:izpack:+'
     
     testCompile project(path: ':common', configuration: 'tests')
+    
+    archives 'apache:commons-io:+',
+            'apache:log4j:+',
+            'cisd:cisd-base:+',
+            'postgresql:postgresql:+'
+            
 }
 
 archivesBaseName = 'openBIS-installation-standard-technologies'
 installerDistDir = 'targets/dist/installer'
+izPackJar = "${buildDir}/izPack.jar"
 println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
-task copyResources(type: Copy, dependsOn:compileJava) { 
+task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_technologies:build']) { 
     from "${project.projectDir}/resource/installer"
-    into installerDistDir
     from "${project.projectDir}/../openbis_standard_technologies/dist/tarball/installer"
+    from zipTree(project(':openbis_standard_technologies').zipDss.archivePath)
     into installerDistDir
+    from (zipTree(project(':openbis_standard_technologies').zip.archivePath)) {
+        into "openBIS-server"
+    }
 }
 
 // The JAR file created by the IzPack compiler contains folders stored as empty files.
 // This is only a problem in gradle environment. The following function fixes this problem by
 // removing all empty entries which do not end with '/'.
-def fixJarFile = { jarFilePath ->
+def fixJarFile = { String jarFilePath ->
     def inputZipFile = new java.util.zip.ZipFile(jarFilePath)
     def zin = null
     def zout = null
@@ -89,15 +99,21 @@ def fixJarFile = { jarFilePath ->
  
 }
 
+task(listVersions) << {
+    println "project: ${project.name} [${version}]"
+    for (p in project.subprojects) {
+        println "subproject: ${p.name} [${p.version}]"
+    }
+}
+
 task(compileInstaller) << {
     def compression = 'default'
     def kind = 'standard'
     def basedir = project.projectDir.path
     def input = 'resource/installer/install.xml'
-    def output = buildDir.toString() + '/openBIS-installer.jar'
     def compressionLevel = -1
     def compilerData = new com.izforge.izpack.compiler.data.CompilerData(compression, kind, input, 
-            null, basedir, output, compressionLevel)
+            null, basedir, izPackJar, compressionLevel)
     def compilerContainer = new com.izforge.izpack.compiler.container.CompilerContainer()
     compilerContainer.initBindings()
     compilerContainer.addConfig('installFile', input)
@@ -108,12 +124,19 @@ task(compileInstaller) << {
     propertyManager.addProperty('version.number', versionNumber)
     propertyManager.addProperty('revision.number', revisionNumber)
     compilerConfig.executeCompiler()
-    fixJarFile("${buildDir}/openBIS-installer.jar")
-    def files = project.zipTree("${buildDir}/openBIS-installer.jar").files
-    println files.size() + ' files '
+    fixJarFile(izPackJar)
 }
 compileInstaller.dependsOn copyResources
 
-task createInstallerJar(type: Jar, dependsOn: compileInstaller) {
-    from zipTree(new File("${buildDir}/openBIS-installer.jar"))
+task createInstallerJar(type: Jar, dependsOn: [compileInstaller, jar]) {
+    archiveName 'openBIS-installer.jar'
+    from zipTree(new File(izPackJar))
+    from zipTree(jar.archivePath)
+    from zipTree(project(':common').jar.archivePath)
+    for (f in configurations.archives.files) {
+        from zipTree(f)
+    }
+    manifest {
+        attributes('Main-Class' : 'com.izforge.izpack.installer.bootstrap.Installer')
+    }
 }
