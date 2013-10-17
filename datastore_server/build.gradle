@@ -56,6 +56,18 @@ sourceSets {
 	}
 }
 
+jar {
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }
+    from('source/java') {
+        include '*.xml'
+    }
+    from('source') {
+        include 'sql/**/*.sql'
+        into 'datastore_server'
+    }
+}
 
 task dssClient(type: Jar) {
 	baseName 'dss_client'
