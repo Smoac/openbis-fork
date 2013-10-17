@@ -54,6 +54,7 @@ function checkForBackup()
 function backupDatabase() {
 
   DB_PROPS=$1
+  PG_DUMP_OPTION=$2
   
   local database=$(getProperty $DB_PROPS "database")
   if [ $(checkForBackup $database) == "FALSE" ]; then
@@ -62,10 +63,10 @@ function backupDatabase() {
   if [ $(databaseExist $database) == "TRUE" ]; then
     username=$(getProperty $DB_PROPS "username")
   
-    local dumpFile=$BACKUP_DIR/$database.dmp
+    local dumpDir=$BACKUP_DIR/$database
   
-    echo "Backing up database $database to $dumpFile..."
-    exe_pg_dump -U $username -Fc $database > $dumpFile
+    echo "Backing up database $database to $dumpDir..."
+    exe_pg_dump -U $username -Fd $database $PG_DUMP_OPTION -f $dumpDir
   
     if [ "$?" -ne 0 ]; then
       echo "Failed to backup database '$database' !"
@@ -94,9 +95,20 @@ DSS_SERVER=$SERVERS/datastore_server
 
 listDatabases $AS_SERVER/jetty/etc/service.properties $DSS_SERVER/etc/service.properties
 
-
+PG_DUMP_OPTION=""
+if [[ "`exe_pg_dump --version|awk '{print $3}'`" > "9.2.x" ]]; then
+  if [ -f /proc/cpuinfo ]; then
+    # Linux way to get number of processors
+    NUMBER_OF_PROCESSORS=`grep processor /proc/cpuinfo |wc -l`
+  else
+    # Mac OS way to get number of processors
+    NUMBER_OF_PROCESSORS=`sysctl -n hw.ncpu`
+  fi
+  echo Database dumping will use $NUMBER_OF_PROCESSORS processors.
+  PG_DUMP_OPTION=--jobs=$NUMBER_OF_PROCESSORS
+fi
 for DB in $DB_LIST; do
-  backupDatabase $DB
+  backupDatabase $DB $PG_DUMP_OPTION
 done
 
 
