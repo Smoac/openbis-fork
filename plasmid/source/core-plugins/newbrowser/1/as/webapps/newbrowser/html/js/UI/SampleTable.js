@@ -44,11 +44,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this.inspector = inspector;
 	
 	//Pagination related attributes
-	this._filterValue = "";
 	this._filteredSamples = null;
 	this._samplesToPaint = null;
 	this._total = null;
 	this._start = null;
+	
 	if(isEmbedded) {
 		this._limit = 5;
 	} else {
@@ -268,6 +268,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	}
 	
 	this.repaint = function() {
+		if($("#tableContainer").length > 0) {
+			this.repaintTable();
+			return;
+		}
+		
 		$("#"+this.sampleTableId).empty();
 		
 		//
@@ -287,34 +292,32 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#"+this.sampleTableId).append(component);
 		
 		//
-		// Table Headers
+		// Properties to show on the columns
 		//
-		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
-		
 		var sampleTypeProperties = null;
 		var sampleTypePropertiesDisplayNames = null;
 		
 		if(this.sampleTypeCode == "SEARCH") {
 			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
 			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
-			$("#tableContainer").append("<div id='paginationContainerTop' class='paginationTop'></div>");
-			$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		} else {
 			sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
 			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
 				sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
 			}
 			sampleTypePropertiesDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, sampleTypeProperties);
-			
+		}
+		
+		//
+		// Table Headers
+		//
+		if(this.sampleTypeCode == "SEARCH") {
+			$("#tableContainer").append("<div id='paginationContainerTop' class='paginationTop'></div>");
+			$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
+		} else {
 			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='filter visible columns' class='tableFilter search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
 		}
-		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		
-		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
-		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
-			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
-		}
-
 		if (!this.isEmbedded && !this.isSearch) {
 			var toolBoxContainer = "<span class='toolBox' id='toolBoxContainer'></span>";
 			$("#paginationContainerTop").append(toolBoxContainer);
@@ -324,17 +327,40 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			$("#toolBoxContainer").append("<a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a>");
 		}
 		
+		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
+		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
+		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
+			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
+		}
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
-	
 		$("#tableContainer").append(tableTemplate);
-		
 		
 		//
 		// Attach Filter Functions to DOM
 		//
 		var localReference = this;
 		$('#table-filter').keyup(function() { localReference._filter(); });
-		$('#table-filter').val(this._filterValue);
+		
+		// Pagination at the bottom
+		$("#tableContainer").append("<div id='paginationContainerBottom' class='paginationBottom'></div>");
+		
+		this.repaintTable();
+	}
+	
+	this.repaintTable = function() {
+		var sampleTypeProperties = null;
+		var sampleTypePropertiesDisplayNames = null;
+		
+		if(this.sampleTypeCode == "SEARCH") {
+			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
+			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
+		} else {
+			sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
+			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
+				sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
+			}
+			sampleTypePropertiesDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(this.sampleTypeCode, sampleTypeProperties);
+		}
 		
 		//
 		// Table Rows
@@ -343,6 +369,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			return;
 		}
 		
+		$("#sample-data-holder").empty();
 		var selection = d3.select("#vis").select("#sample-data-holder").selectAll("tr.sample-table-data").data(this._samplesToPaint);
 	
 		//Code under enter is run if there is no HTML element for a data element
@@ -443,10 +470,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				$('a').click(function(e){
 				   e.stopPropagation();
 				});
-
-		$("#tableContainer").append("<div id='paginationContainerBottom' class='paginationBottom'></div>");
-		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		
+		$("#paginationContainerTop").empty();
+		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
+		$("#paginationContainerBottom").empty();
+		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 	}
 	
 	this._filter = function(filterResults) {
@@ -501,11 +529,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		//Repaint first page
 		this._filteredSamples = filteredSamplesHolder;
 		this._reloadWithSamplesAndPagination(0);
-		
-		//Fix filter value and mouse position
-		this._filterValue = filterValue;
-		$('#table-filter').val(this._filterValue);
-		$('#table-filter').putCursorAtEnd();
 	}
 	
 	this.openEditWindowForSample = function(code, permId) {
@@ -540,23 +563,3 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		this.repaint();
 	}
 }
-
-jQuery.fn.putCursorAtEnd = function() {
-	return this.each(function() {
-		$(this).focus();
-		// If this function exists...
-		if (this.setSelectionRange) {
-			// ... then use it (Doesn't work in IE)
-			// Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
-			var len = $(this).val().length * 2;
-			this.setSelectionRange(len, len);
-		} else {
-			// ... otherwise replace the contents with itself
-			// (Doesn't work in Google Chrome)
-			$(this).val($(this).val());
-		}
-		// Scroll to the bottom, in case we're in a tall textarea
-		// (Necessary for Firefox and Google Chrome)
-		this.scrollTop = 999999;
-	});
-};
