@@ -863,7 +863,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         InputStream stream =
                 openBisService.getAttachmentContent(AttachmentHolderKind.PROJECT, ((ProjectImmutable) project).getId(), fileName, versionOrNull);
-        resources.add(new ReleasableStream(stream));
+        if (stream != null)
+        {
+            resources.add(new ReleasableStream(stream));
+        }
         return stream;
     }
 
@@ -878,7 +881,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         InputStream stream =
                 openBisService.getAttachmentContent(AttachmentHolderKind.EXPERIMENT, ((ExperimentImmutable) experiment).getId(), fileName,
                         versionOrNull);
-        resources.add(new ReleasableStream(stream));
+        if (stream != null)
+        {
+            resources.add(new ReleasableStream(stream));
+        }
         return stream;
     }
 
@@ -892,7 +898,10 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
         InputStream stream =
                 openBisService.getAttachmentContent(AttachmentHolderKind.SAMPLE, ((SampleImmutable) sample).getId(), fileName, versionOrNull);
-        resources.add(new ReleasableStream(stream));
+        if (stream != null)
+        {
+            resources.add(new ReleasableStream(stream));
+        }
         return stream;
     }
 

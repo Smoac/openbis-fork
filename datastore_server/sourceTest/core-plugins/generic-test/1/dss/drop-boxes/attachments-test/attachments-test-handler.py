@@ -26,9 +26,15 @@ def getSampleAttachmentContent(transaction, sampleIdentifier, name, version):
     return transaction.getSampleAttachmentContent(sample, name, version)
 
 def assertAttachmentContentContains(actualContentStream, expectedContentString):
-    actualContentString = String(IOUtils.toByteArray(actualContentStream));
-    if(str(expectedContentString) not in str(actualContentString)):
-        raise Exception('Attachment content should contain: "' + str(expectedContentString) + '" but was: "' + str(actualContentString) + '"')
+    if(expectedContentString == None and actualContentStream <> None):
+        actualContentString = String(IOUtils.toByteArray(actualContentStream));
+        raise Exception('Attachment content should be: None but was: "' + str(actualContentString) + '"')
+    if(expectedContentString <> None and actualContentStream == None):
+        raise Exception('Attachment content should contain: "' + str(expectedContentString) + '" but was: None')
+    if(expectedContentString <> None and actualContentStream <> None):
+        actualContentString = String(IOUtils.toByteArray(actualContentStream));
+        if(str(expectedContentString) not in str(actualContentString)):
+            raise Exception('Attachment content should contain: "' + str(expectedContentString) + '" but was: "' + str(actualContentString) + '"')
 
 def assertAttachmentCount(attachmentList, expectedCount):
     if(expectedCount == 0 and attachmentList <> None):
@@ -48,35 +54,82 @@ def assertAttachment(attachment, fileName, title, description, version):
     if(attachment.getVersion() <> version):
         raise Exception('Attachment version should be: "' + str(version) + '" but was: "' + str(attachment.getVersion()) + '"')
 
-def process(transaction):
+def testProjectWithoutAttachments(transaction):
+    PROJECT_IDENTIFIER = "/CISD/DEFAULT";
+
+    attachments = listProjectAttachments(transaction, PROJECT_IDENTIFIER)
+    assertAttachmentCount(attachments, 0)
     
+    content = getProjectAttachmentContent(transaction, PROJECT_IDENTIFIER, "not-existing-attachment", None);
+    assertAttachmentContentContains(content, None);
+
+def testProjectWithAttachments(transaction):
     PROJECT_IDENTIFIER = "/CISD/NEMO";
+
+    attachments = listProjectAttachments(transaction, PROJECT_IDENTIFIER)
+    assertAttachmentCount(attachments, 1)
+    assertAttachment(attachments[0], "projectDescription.txt", "The Project", "All about it.", 1);
+
+    content = getProjectAttachmentContent(transaction, PROJECT_IDENTIFIER, "projectDescription.txt", None);
+    assertAttachmentContentContains(content, "3VCP1");
+    
+    content2 = getProjectAttachmentContent(transaction, PROJECT_IDENTIFIER, "not-existing-attachment", None);
+    assertAttachmentContentContains(content2, None);
+
+def testExperimentWithoutAttachments(transaction):
+    EXPERIMENT_IDENTIFIER = "/CISD/NEMO/EXP10";
+
+    attachments = listExperimentAttachments(transaction, EXPERIMENT_IDENTIFIER)
+    assertAttachmentCount(attachments, 0)
+
+    content = getExperimentAttachmentContent(transaction, EXPERIMENT_IDENTIFIER, "not-existing-attachment", 2);
+    assertAttachmentContentContains(content, None);
+
+def testExperimentWithAttachments(transaction):
     EXPERIMENT_IDENTIFIER = "/CISD/NEMO/EXP1";
+
+    attachments = listExperimentAttachments(transaction, EXPERIMENT_IDENTIFIER)
+    assertAttachmentCount(attachments, 4)
+    assertAttachment(attachments[0], "exampleExperiments.txt", None, None, 1)
+    assertAttachment(attachments[1], "exampleExperiments.txt", None, None, 2)
+    assertAttachment(attachments[2], "exampleExperiments.txt", None, None, 3)
+    assertAttachment(attachments[3], "exampleExperiments.txt", None, None, 4)
+    
+    content = getExperimentAttachmentContent(transaction, EXPERIMENT_IDENTIFIER, "exampleExperiments.txt", 2);
+    assertAttachmentContentContains(content, "koko");
+
+    content2 = getExperimentAttachmentContent(transaction, EXPERIMENT_IDENTIFIER, "not-existing-attachment", 2);
+    assertAttachmentContentContains(content2, None);
+
+def testSampleWithoutAttachments(transaction):
+    SAMPLE_IDENTIFIER = "/CISD/3VCP5";
+
+    attachments = listSampleAttachments(transaction, SAMPLE_IDENTIFIER)
+    assertAttachmentCount(attachments, 0)
+
+    content = getSampleAttachmentContent(transaction, SAMPLE_IDENTIFIER, "not-existing-attachment", None);
+    assertAttachmentContentContains(content, None);
+
+def testSampleWithAttachments(transaction):
     SAMPLE_IDENTIFIER = "/CISD/3VCP6";
-    
-    # project
-    projectAttachments = listProjectAttachments(transaction, PROJECT_IDENTIFIER)
-    assertAttachmentCount(projectAttachments, 1)
-    assertAttachment(projectAttachments[0], "projectDescription.txt", "The Project", "All about it.", 1);
-    
-    projectAttachmentContent = getProjectAttachmentContent(transaction, PROJECT_IDENTIFIER, "projectDescription.txt", None);
-    assertAttachmentContentContains(projectAttachmentContent, "3VCP1");
 
-    # experiment
-    experimentAttachments = listExperimentAttachments(transaction, EXPERIMENT_IDENTIFIER)
-    assertAttachmentCount(experimentAttachments, 4)
-    assertAttachment(experimentAttachments[0], "exampleExperiments.txt", None, None, 1)
-    assertAttachment(experimentAttachments[1], "exampleExperiments.txt", None, None, 2)
-    assertAttachment(experimentAttachments[2], "exampleExperiments.txt", None, None, 3)
-    assertAttachment(experimentAttachments[3], "exampleExperiments.txt", None, None, 4)
+    attachments = listSampleAttachments(transaction, SAMPLE_IDENTIFIER)
+    assertAttachmentCount(attachments, 1)
+    assertAttachment(attachments[0], "sampleHistory.txt", None, None, 1)
+
+    content = getSampleAttachmentContent(transaction, SAMPLE_IDENTIFIER, "sampleHistory.txt", None);
+    assertAttachmentContentContains(content, "kot")
     
-    experimentAttachmentContent = getExperimentAttachmentContent(transaction, EXPERIMENT_IDENTIFIER, "exampleExperiments.txt", 2);
-    assertAttachmentContentContains(experimentAttachmentContent, "koko");
+    content2 = getSampleAttachmentContent(transaction, SAMPLE_IDENTIFIER, "not-existing-attachment", None);
+    assertAttachmentContentContains(content2, None);
 
-    # sample
-    sampleAttachments = listSampleAttachments(transaction, SAMPLE_IDENTIFIER)
-    assertAttachmentCount(sampleAttachments, 1)
-    assertAttachment(sampleAttachments[0], "sampleHistory.txt", None, None, 1)
+def process(transaction):
 
-    sampleAttachmentContent = getSampleAttachmentContent(transaction, SAMPLE_IDENTIFIER, "sampleHistory.txt", None);
-    assertAttachmentContentContains(sampleAttachmentContent, "kot")
+    testProjectWithoutAttachments(transaction);
+    testProjectWithAttachments(transaction);
+
+    testExperimentWithoutAttachments(transaction);
+    testExperimentWithAttachments(transaction);
+
+    testSampleWithoutAttachments(transaction);
+    testSampleWithAttachments(transaction);
