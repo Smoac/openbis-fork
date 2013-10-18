@@ -542,11 +542,13 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     /**
      * Returns a list of attachments with all versions.
      */
+    @ManagedAuthentication
     public List<Attachment> listAttachments(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId);
 
     /**
      * Returns an attachment content. If the version is not specified then the latest version of the attachment is returned.
      */
+    @ManagedAuthentication
     public InputStream getAttachmentContent(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId, String fileName,
             Integer versionOrNull);
 
