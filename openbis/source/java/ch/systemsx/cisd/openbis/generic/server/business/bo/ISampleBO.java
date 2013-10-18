@@ -36,14 +36,13 @@ public interface ISampleBO extends IEntityBusinessObject
 {
 
     /**
-     * Returns a sample found by the given id or null if it does not exist. Does not change the
-     * state of this object, especially the result of {@link #getSample()}.
+     * Returns a sample found by the given id or null if it does not exist. Does not change the state of this object, especially the result of
+     * {@link #getSample()}.
      */
     SamplePE tryFindBySampleId(final ISampleId sampleId);
 
     /**
-     * Loads a sample given by its identifier. Use {@link #loadDataByTechId(TechId)} instead if
-     * possible.
+     * Loads a sample given by its identifier. Use {@link #loadDataByTechId(TechId)} instead if possible.
      * 
      * @throws UserFailureException if no sample found.
      */
@@ -57,8 +56,7 @@ public interface ISampleBO extends IEntityBusinessObject
     void loadBySamplePermId(final String permId) throws UserFailureException;
 
     /**
-     * Tries to load the sample with specified identifier. Use {@link #loadDataByTechId(TechId)}
-     * instead if possible.
+     * Tries to load the sample with specified identifier. Use {@link #loadDataByTechId(TechId)} instead if possible.
      */
     void tryToLoadBySampleIdentifier(SampleIdentifier identifier);
 
@@ -81,8 +79,8 @@ public interface ISampleBO extends IEntityBusinessObject
     SamplePE getSample() throws IllegalStateException;
 
     /**
-     * Defines a new sample. After invocation of this method {@link ISampleBO#save()} should be
-     * invoked to store the new sample in the Data Access Layer.
+     * Defines a new sample. After invocation of this method {@link ISampleBO#save()} should be invoked to store the new sample in the Data Access
+     * Layer.
      * 
      * @throws UserFailureException if specified sample type code is not a valid one.
      */
@@ -110,8 +108,14 @@ public interface ISampleBO extends IEntityBusinessObject
     void addAttachment(AttachmentPE attachment);
 
     /**
-     * Returns attachment (with content) given defined by filename and version (or latest one if
-     * version is <code>null</code>).
+     * Returns attachment (with content) given defined by filename and version (or latest one if version is <code>null</code>). Returns null if the
+     * attachment does not exist.
+     */
+    public AttachmentPE tryGetSampleFileAttachment(String fileName, Integer versionOrNull);
+
+    /**
+     * Returns attachment (with content) given defined by filename and version (or latest one if version is <code>null</code>). Throws
+     * {@link UserFailureException} if the attachment does not exist.
      */
     public AttachmentPE getSampleFileAttachment(String fileName, Integer versionOrNull);
 

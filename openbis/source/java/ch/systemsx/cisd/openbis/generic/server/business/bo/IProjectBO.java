@@ -36,12 +36,10 @@ public interface IProjectBO extends IEntityBusinessObject
 {
 
     /**
-     * Defines a new project of specified code in a specified group. After invocation of this method
-     * {@link IBusinessObject#save()} should be invoked to store the new project in the Data Access
-     * Layer.
+     * Defines a new project of specified code in a specified group. After invocation of this method {@link IBusinessObject#save()} should be invoked
+     * to store the new project in the Data Access Layer.
      * 
-     * @throws UserFailureException if <code>projectIdentifier</code> does already exist or project
-     *             group is unspecified and home group is undefined.
+     * @throws UserFailureException if <code>projectIdentifier</code> does already exist or project group is unspecified and home group is undefined.
      */
     public void define(final ProjectIdentifier projectIdentifier, String description,
             List<NewAttachment> attachmentsOrNull, String leaderIdOrNull)
@@ -53,8 +51,8 @@ public interface IProjectBO extends IEntityBusinessObject
     public ProjectPE getProject();
 
     /**
-     * Returns a project found by the given id or null if it does not exist. Does not change the
-     * state of this object, especially the result of {@link #getProject()}.
+     * Returns a project found by the given id or null if it does not exist. Does not change the state of this object, especially the result of
+     * {@link #getProject()}.
      */
     public ProjectPE tryFindByProjectId(final IProjectId projectId);
 
@@ -73,8 +71,14 @@ public interface IProjectBO extends IEntityBusinessObject
     public void loadByPermId(String permId);
 
     /**
-     * Returns attachment (with content) given defined by filename and version (or latest one if
-     * version is <code>null</code>.
+     * Returns attachment (with content) given defined by filename and version (or latest one if version is <code>null</code>. Returns null if the
+     * attachment does not exist.
+     */
+    public AttachmentPE tryGetProjectFileAttachment(final String filename, final Integer versionOrNull);
+
+    /**
+     * Returns attachment (with content) given defined by filename and version (or latest one if version is <code>null</code>. Throws
+     * {@link UserFailureException} if the attachment does not exist.
      */
     public AttachmentPE getProjectFileAttachment(String fileName, Integer versionOrNull);
 

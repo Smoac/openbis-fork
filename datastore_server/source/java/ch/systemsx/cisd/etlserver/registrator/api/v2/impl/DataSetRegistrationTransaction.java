@@ -18,6 +18,9 @@ package ch.systemsx.cisd.etlserver.registrator.api.v2.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -27,9 +30,12 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.resource.IReleasable;
+import ch.systemsx.cisd.common.resource.Resources;
 import ch.systemsx.cisd.etlserver.DssRegistrationLogger;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
@@ -62,6 +68,7 @@ import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithmRunner;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetOnErrorActionDecision.ErrorType;
 import ch.systemsx.cisd.etlserver.registrator.v2.IDataSetRegistrationDetailsFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAttachmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
@@ -77,6 +84,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetRegistrationInformation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -199,6 +208,8 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
 
     // The interface to openBIS
     private final IEncapsulatedOpenBISService openBisService;
+
+    private Resources resources = new Resources();
 
     public DataSetRegistrationTransaction(File rollBackStackParentFolder, File workingDirectory,
             File stagingDirectory, DataSetRegistrationService<T> registrationService,
@@ -805,4 +816,141 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     {
         getStateAsLiveState().revokeRoleFromSpace(role, space, userIds, groupCodes);
     }
+
+    @Override
+    public List<IAttachmentImmutable> listProjectAttachments(IProjectImmutable project)
+    {
+        if (project == null)
+        {
+            throw new IllegalArgumentException("Project cannot be null");
+        }
+
+        List<Attachment> attachments = openBisService.listAttachments(AttachmentHolderKind.PROJECT, ((ProjectImmutable) project).getId());
+        return convert(attachments);
+    }
+
+    @Override
+    public List<IAttachmentImmutable> listExperimentAttachments(IExperimentImmutable experiment)
+    {
+        if (experiment == null)
+        {
+            throw new IllegalArgumentException("Experiment cannot be null");
+        }
+
+        List<Attachment> attachments = openBisService.listAttachments(AttachmentHolderKind.EXPERIMENT, ((ExperimentImmutable) experiment).getId());
+        return convert(attachments);
+    }
+
+    @Override
+    public List<IAttachmentImmutable> listSampleAttachments(ISampleImmutable sample)
+    {
+        if (sample == null)
+        {
+            throw new IllegalArgumentException("Sample cannot be null");
+        }
+
+        List<Attachment> attachments = openBisService.listAttachments(AttachmentHolderKind.SAMPLE, ((SampleImmutable) sample).getId());
+        return convert(attachments);
+    }
+
+    @Override
+    public InputStream getProjectAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
+    {
+        if (project == null)
+        {
+            throw new IllegalArgumentException("Project cannot be null");
+        }
+
+        InputStream stream =
+                openBisService.getAttachmentContent(AttachmentHolderKind.PROJECT, ((ProjectImmutable) project).getId(), fileName, versionOrNull);
+        resources.add(new ReleasableStream(stream));
+        return stream;
+    }
+
+    @Override
+    public InputStream getExperimentAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
+    {
+        if (experiment == null)
+        {
+            throw new IllegalArgumentException("Experiment cannot be null");
+        }
+
+        InputStream stream =
+                openBisService.getAttachmentContent(AttachmentHolderKind.EXPERIMENT, ((ExperimentImmutable) experiment).getId(), fileName,
+                        versionOrNull);
+        resources.add(new ReleasableStream(stream));
+        return stream;
+    }
+
+    @Override
+    public InputStream getSampleAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
+    {
+        if (sample == null)
+        {
+            throw new IllegalArgumentException("Sample cannot be null");
+        }
+
+        InputStream stream =
+                openBisService.getAttachmentContent(AttachmentHolderKind.SAMPLE, ((SampleImmutable) sample).getId(), fileName, versionOrNull);
+        resources.add(new ReleasableStream(stream));
+        return stream;
+    }
+
+    private List<IAttachmentImmutable> convert(List<Attachment> attachments)
+    {
+        List<IAttachmentImmutable> iattachments = new ArrayList<IAttachmentImmutable>();
+
+        if (attachments != null)
+        {
+            for (Attachment attachment : attachments)
+            {
+                if (attachment != null)
+                {
+                    IAttachmentImmutable iattachment = new AttachmentImmutable(attachment);
+                    iattachments.add(iattachment);
+                }
+            }
+        }
+
+        if (iattachments.isEmpty())
+        {
+            return null;
+        } else
+        {
+            return iattachments;
+        }
+    }
+
+    private static class ReleasableStream implements IReleasable
+    {
+
+        private InputStream stream;
+
+        public ReleasableStream(InputStream stream)
+        {
+            this.stream = stream;
+        }
+
+        @Override
+        public void release()
+        {
+            try
+            {
+                if (stream != null)
+                {
+                    stream.close();
+                }
+            } catch (IOException e)
+            {
+                throw CheckedExceptionTunnel.wrapIfNecessary(e);
+            }
+        }
+
+    }
+
+    public void close()
+    {
+        resources.release();
+    }
+
 }

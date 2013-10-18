@@ -137,7 +137,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     public void loadDataByTechId(TechId experimentId)
     {
         String[] connections =
-            { PROPERTY_TYPES };
+        { PROPERTY_TYPES };
         experiment = getExperimentDAO().tryGetByTechId(experimentId, connections);
         if (experiment == null)
         {
@@ -242,8 +242,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     }
 
     @Override
-    public AttachmentPE getExperimentFileAttachment(final String filename,
-            final Integer versionOrNull)
+    public AttachmentPE tryGetExperimentFileAttachment(String filename, Integer versionOrNull)
     {
         checkExperimentLoaded();
         experiment.ensureAttachmentsLoaded();
@@ -255,13 +254,29 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
         {
             HibernateUtils.initialize(att.getAttachmentContent());
             return att;
+        } else
+        {
+            return null;
         }
+    }
 
-        throw new UserFailureException("Attachment '"
-                + filename
-                + "' "
-                + (versionOrNull == null ? "(latestaa version)" : "(version '" + versionOrNull
-                        + "')") + " not found in experiment '" + experiment.getIdentifier() + "'.");
+    @Override
+    public AttachmentPE getExperimentFileAttachment(final String filename,
+            final Integer versionOrNull)
+    {
+        AttachmentPE attachment = tryGetExperimentFileAttachment(filename, versionOrNull);
+
+        if (attachment != null)
+        {
+            return attachment;
+        } else
+        {
+            throw new UserFailureException("Attachment '"
+                    + filename
+                    + "' "
+                    + (versionOrNull == null ? "(latestaa version)" : "(version '" + versionOrNull
+                            + "')") + " not found in experiment '" + experiment.getIdentifier() + "'.");
+        }
     }
 
     private AttachmentPE getAttachment(String filename, final int version)

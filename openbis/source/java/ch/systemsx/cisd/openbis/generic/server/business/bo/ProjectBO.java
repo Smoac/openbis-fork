@@ -224,7 +224,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     }
 
     @Override
-    public AttachmentPE getProjectFileAttachment(final String filename, final Integer versionOrNull)
+    public AttachmentPE tryGetProjectFileAttachment(final String filename, final Integer versionOrNull)
     {
         checkProjectLoaded();
         project.ensureAttachmentsLoaded();
@@ -235,15 +235,30 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
         {
             HibernateUtils.initialize(att.getAttachmentContent());
             return att;
+        } else
+        {
+            return null;
         }
+    }
 
-        throw new UserFailureException(
-                "Attachment '"
-                        + filename
-                        + "' "
-                        + (versionOrNull == null ? "(latest version)" : "(version '"
-                                + versionOrNull + "')") + " not found in project '"
-                        + project.getIdentifier() + "'.");
+    @Override
+    public AttachmentPE getProjectFileAttachment(final String filename, final Integer versionOrNull)
+    {
+        AttachmentPE attachment = tryGetProjectFileAttachment(filename, versionOrNull);
+
+        if (attachment != null)
+        {
+            return attachment;
+        } else
+        {
+            throw new UserFailureException(
+                    "Attachment '"
+                            + filename
+                            + "' "
+                            + (versionOrNull == null ? "(latest version)" : "(version '"
+                                    + versionOrNull + "')") + " not found in project '"
+                            + project.getIdentifier() + "'.");
+        }
     }
 
     private AttachmentPE getAttachment(String filename, final int version)

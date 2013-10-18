@@ -17,13 +17,22 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -67,6 +76,30 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
     private String sessionToken;
 
     private IEncapsulatedOpenBISService openBISService;
+
+    @BeforeClass
+    public void beforeClass()
+    {
+        Logger.getLogger("OPERATION.Resources").setLevel(Level.DEBUG);
+    }
+
+    @AfterClass
+    public void afterClass()
+    {
+        Logger.getLogger("OPERATION.Resources").setLevel(Level.INFO);
+    }
+
+    @BeforeMethod
+    public void beforeMethod(Method method)
+    {
+        logAppender = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+    }
+
+    @AfterMethod
+    public void afterMethod(Method method)
+    {
+        logAppender.reset();
+    }
 
     @Test
     public void testRichImport() throws Exception
@@ -150,7 +183,30 @@ public class FeatureRichDataSetImportSystemTest extends SystemTestCase
 
                 List<Attachment> attachments =
                         generalInformationService.listAttachmentsForProject(sessionToken, new ProjectTechIdId(p.getId()), true);
-                assertEquals(1, attachments.size());
+                assertEquals(4, attachments.size());
+
+                for (Attachment attachment : attachments)
+                {
+                    if (attachment.getFileName().equals("test-attachment-sample"))
+                    {
+                        Assert.assertEquals(attachment.getDescription(), "ala\nma\nkota\na\nkot\njest\nidiota");
+                    }
+
+                }
+
+                String[] lines = logAppender.getLogContent().split("\n");
+                int count = 0;
+
+                for (String line : lines)
+                {
+                    if (line.contains("DEBUG OPERATION.Resources - Successfully released a resource") && line.contains("ReleasableStream"))
+                    {
+                        count++;
+                    }
+                }
+
+                Assert.assertEquals(count, 3);
+
             }
         }
         if (notFound)

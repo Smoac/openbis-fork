@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
@@ -24,6 +25,7 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.SearchService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAttachmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
@@ -68,8 +70,7 @@ public interface IDataSetRegistrationTransactionV2
     IDataSetImmutable getDataSet(String dataSetCode);
 
     /**
-     * Get a data set from the openBIS AS for the purpose of modifying it. Returns null if the data
-     * set does not exist.
+     * Get a data set from the openBIS AS for the purpose of modifying it. Returns null if the data set does not exist.
      * 
      * @return A data set or null
      */
@@ -92,8 +93,7 @@ public interface IDataSetRegistrationTransactionV2
     ISampleImmutable getSample(String sampleIdentifierString);
 
     /**
-     * Get a sample from the openBIS AS for the purpose of modifying it. Returns null if the sample
-     * does not exist.
+     * Get a sample from the openBIS AS for the purpose of modifying it. Returns null if the sample does not exist.
      * 
      * @return A sample or null
      */
@@ -115,8 +115,7 @@ public interface IDataSetRegistrationTransactionV2
     ISample createNewSample(String sampleIdentifierString, String sampleTypeCode);
 
     /**
-     * Create a new sample to register with the openBIS AS. The sample will have a permId and
-     * automatically created identifier.
+     * Create a new sample to register with the openBIS AS. The sample will have a permId and automatically created identifier.
      * 
      * @param spaceCode The space in which to create the sample identifier for the new sample
      * @param sampleTypeCode The code of the type for the new sample
@@ -183,8 +182,7 @@ public interface IDataSetRegistrationTransactionV2
      * Create a new space to register with the openBIS AS.
      * 
      * @param spaceCode the code of the space
-     * @param spaceAdminUserIdOrNull the user id of the person, who will receive space admin
-     *            priviliges.
+     * @param spaceAdminUserIdOrNull the user id of the person, who will receive space admin priviliges.
      */
     ISpace createNewSpace(String spaceCode, String spaceAdminUserIdOrNull);
 
@@ -214,16 +212,14 @@ public interface IDataSetRegistrationTransactionV2
     IMaterialImmutable getMaterial(String identifier);
 
     /**
-     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
-     * material does not exist.
+     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the material does not exist.
      * 
      * @return A material or null
      */
     IMaterial getMaterialForUpdate(String materialCode, String materialType);
 
     /**
-     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the
-     * material does not exist.
+     * Get a material from the openBIS AS for the purpose of modifying it. Returns null if the material does not exist.
      * 
      * @return A material or null
      */
@@ -245,14 +241,12 @@ public interface IDataSetRegistrationTransactionV2
     IMaterial createNewMaterial(String materialCode, String materialType);
 
     /**
-     * Creates the new metaproject for the current user. Only allowed when there is a user
-     * available.
+     * Creates the new metaproject for the current user. Only allowed when there is a user available.
      */
     IMetaproject createNewMetaproject(String name, String description);
 
     /**
-     * Creates the new metaproject for the specified user. Only allowed when there is no user
-     * available.
+     * Creates the new metaproject for the specified user. Only allowed when there is no user available.
      */
     IMetaproject createNewMetaproject(String name, String description, String ownerId);
 
@@ -304,8 +298,7 @@ public interface IDataSetRegistrationTransactionV2
     String moveFile(String src, IDataSet dst);
 
     /**
-     * Move a file to a specified location in a data set. Any necessary intermediate folders are
-     * automatically created.
+     * Move a file to a specified location in a data set. Any necessary intermediate folders are automatically created.
      * 
      * @param src The path of the file to move.
      * @param dst The data set to add the file to.
@@ -343,24 +336,22 @@ public interface IDataSetRegistrationTransactionV2
     String createNewFile(IDataSet dst, String dstInDataset, String fileName);
 
     /**
-     * Retrieve the search service for this transaction. If the user is available for this
-     * transaction, then the search service results will be filtered for this user.
+     * Retrieve the search service for this transaction. If the user is available for this transaction, then the search service results will be
+     * filtered for this user.
      * 
      * @return The search service for this transaction.
      */
     ISearchService getSearchService();
 
     /**
-     * Retrieve the search service for this transaction. It returns the results unfiltered by the
-     * user, even if the user is available.
+     * Retrieve the search service for this transaction. It returns the results unfiltered by the user, even if the user is available.
      * 
      * @return The search service for this transaction.
      */
     ISearchService getSearchServiceUnfiltered();
 
     /**
-     * Retrieve the search service for this transaction. The search service results will be filtered
-     * for the specified user.
+     * Retrieve the search service for this transaction. The search service results will be filtered for the specified user.
      * 
      * @return The search service for this transaction.
      */
@@ -374,34 +365,28 @@ public interface IDataSetRegistrationTransactionV2
     /**
      * Gets a database query object for the data source with the specified name.
      * <p>
-     * After the rest of the transaction is committed, the queries are committed. Failures in these
-     * secondary queries are not fatal, but they are caught and the clients of the transaction are
-     * notified.
+     * After the rest of the transaction is committed, the queries are committed. Failures in these secondary queries are not fatal, but they are
+     * caught and the clients of the transaction are notified.
      * 
-     * @param dataSourceName The name of the data source to query against, as declared in the
-     *            service.properties file.
+     * @param dataSourceName The name of the data source to query against, as declared in the service.properties file.
      * @return The query.
      * @throw IllegalArgumentException Thrown if there is no data source with the given name.
-     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match
-     *        the given parameters.
+     * @throw InvalidQueryException Thrown the given query string cannot be parsed, or doesn't match the given parameters.
      */
     DynamicTransactionQuery getDatabaseQuery(String dataSourceName) throws IllegalArgumentException;
 
     /**
-     * Return a registration context object which can be used to store information that needs to be
-     * accessed through the registration process.
+     * Return a registration context object which can be used to store information that needs to be accessed through the registration process.
      * <p>
-     * It is important to use this registration context, and not global variables, for communication
-     * between code in different parts of the registration process. This is because the registration
-     * process is not guaranteed to run in a single process.
+     * It is important to use this registration context, and not global variables, for communication between code in different parts of the
+     * registration process. This is because the registration process is not guaranteed to run in a single process.
      * 
      * @return The context, a hash-map-like object.
      */
     DataSetRegistrationContext getRegistrationContext();
 
     /**
-     * @return Global state for this dropbox, including configuration properties specified by the
-     *         user.
+     * @return Global state for this dropbox, including configuration properties specified by the user.
      */
     TopLevelDataSetRegistratorGlobalState getGlobalState();
 
@@ -420,27 +405,59 @@ public interface IDataSetRegistrationTransactionV2
     /**
      * Set the id of the user on whose behalf this registration transaction is performed.
      * 
-     * @param userIdOrNull The id of a user or null if this transaction should be performed as the
-     *            system (etlserver).
+     * @param userIdOrNull The id of a user or null if this transaction should be performed as the system (etlserver).
      */
     void setUserId(String userIdOrNull);
 
     /**
-     * Get an external data management system from the openBIS AS. Returns null if the object does
-     * not exist.
+     * Get an external data management system from the openBIS AS. Returns null if the object does not exist.
      * 
      * @return external data management system or null
      */
     IExternalDataManagementSystemImmutable getExternalDataManagementSystem(
             String externalDataManagementSystemCode);
-    
+
     /**
      * Give users and/or groups access privileges to a space.
      */
     void assignRoleToSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes);
-    
+
     /**
      * Take away users and/or groups access privileges to a space.
      */
     void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes);
+
+    /**
+     * Returns a project attachment content. If the version is not specified then the latest version of the attachment is returned. Returns null if
+     * the attachment does not exist.
+     */
+    InputStream getProjectAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull);
+
+    /**
+     * Returns an experiment attachment content. If the version is not specified then the latest version of the attachment is returned. Returns null
+     * if the attachment does not exist.
+     */
+    InputStream getExperimentAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull);
+
+    /**
+     * Returns a sample attachment content. If the version is not specified then the latest version of the attachment is returned. Returns null if the
+     * attachment does not exist.
+     */
+    InputStream getSampleAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull);
+
+    /**
+     * Returns a list of project attachments with all versions. Returns null if the project does not have any attachments.
+     */
+    List<IAttachmentImmutable> listProjectAttachments(IProjectImmutable project);
+
+    /**
+     * Returns a list of experiment attachments with all versions. Returns null if the experiment does not have any attachments.
+     */
+    List<IAttachmentImmutable> listExperimentAttachments(IExperimentImmutable experiment);
+
+    /**
+     * Returns a list of sample attachments with all versions. Returns null if the sample does not have any attachments.
+     */
+    List<IAttachmentImmutable> listSampleAttachments(ISampleImmutable sample);
+
 }

@@ -40,14 +40,14 @@ public interface IExperimentBO extends IEntityBusinessObject
     void loadByExperimentIdentifier(final ExperimentIdentifier identifier);
 
     /**
-     * Returns an experiment found at the given identifier or null if it does not exist. Does not
-     * change the state of this object, especially the result of {@link #getExperiment()}.
+     * Returns an experiment found at the given identifier or null if it does not exist. Does not change the state of this object, especially the
+     * result of {@link #getExperiment()}.
      */
     ExperimentPE tryFindByExperimentIdentifier(final ExperimentIdentifier identifier);
 
     /**
-     * Returns an experiment found by the given id or null if it does not exist. Does not change the
-     * state of this object, especially the result of {@link #getExperiment()}.
+     * Returns an experiment found by the given id or null if it does not exist. Does not change the state of this object, especially the result of
+     * {@link #getExperiment()}.
      */
     ExperimentPE tryFindByExperimentId(final IExperimentId experimentId);
 
@@ -61,14 +61,20 @@ public interface IExperimentBO extends IEntityBusinessObject
     public void enrichWithAttachments();
 
     /**
-     * Returns attachment (with content) given defined by filename and version (or latest one if
-     * version is <code>null</code>.
+     * Returns attachment (with content) given defined by filename and version (or latest one if version is <code>null</code>. Returns null if the
+     * attachment does not exist.
+     */
+    public AttachmentPE tryGetExperimentFileAttachment(String filename, Integer versionOrNull);
+
+    /**
+     * Returns attachment (with content) given defined by filename and version (or latest one if version is <code>null</code>. Throws
+     * {@link UserFailureException} if the attachment does not exist.
      */
     public AttachmentPE getExperimentFileAttachment(String filename, Integer versionOrNull);
 
     /**
-     * Defines a new experiment. After invocation of this method {@link IExperimentBO#save()} should
-     * be invoked to store the new experiment in the Data Access Layer.
+     * Defines a new experiment. After invocation of this method {@link IExperimentBO#save()} should be invoked to store the new experiment in the
+     * Data Access Layer.
      */
     public void define(NewExperiment experiment);
 

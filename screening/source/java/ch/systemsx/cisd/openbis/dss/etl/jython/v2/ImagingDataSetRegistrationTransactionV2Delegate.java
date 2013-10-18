@@ -17,9 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IFeatureVectorDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImageDataSet;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.IImagingDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.v2.SimpleFeatureVectorDataConfig;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAttachmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
@@ -419,4 +422,44 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     {
         transaction.revokeRoleFromSpace(role, space, userIds, groupCodes);
     }
+
+    @Override
+    public InputStream getProjectAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
+    {
+        return transaction.getProjectAttachmentContent(project, fileName, versionOrNull);
+    }
+
+    @Override
+    public InputStream getExperimentAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
+    {
+        return transaction.getExperimentAttachmentContent(experiment, fileName, versionOrNull);
+    }
+
+    @Override
+    public InputStream getSampleAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
+    {
+        return transaction.getSampleAttachmentContent(sample, fileName, versionOrNull);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<IAttachmentImmutable> listProjectAttachments(IProjectImmutable project)
+    {
+        return transaction.listProjectAttachments(project);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<IAttachmentImmutable> listExperimentAttachments(IExperimentImmutable experiment)
+    {
+        return transaction.listExperimentAttachments(experiment);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<IAttachmentImmutable> listSampleAttachments(ISampleImmutable sample)
+    {
+        return transaction.listSampleAttachments(sample);
+    }
+
 }
