@@ -1,6 +1,4 @@
 from ch.systemsx.cisd.common.mail import EMailAddress
-from org.apache.commons.io import IOUtils
-from java.lang import String
 
 SPACE_CODE = "RICH_SPACE"
 PROJECT_ID = "/RICH_SPACE/RICH_PROJECT"
@@ -24,23 +22,6 @@ def add_attachment(entity, transaction):
     entity.addAttachment("attachment.txt", 'Source Import File', 'Source Import File ', f.read())
     f.close()
 
-def get_project_attachment(transaction, projectIdentifier, name, version):
-    project = transaction.getProject(projectIdentifier)
-    return transaction.getProjectAttachmentContent(project, name, version)
-
-def get_experiment_attachment(transaction, experimentIdentifier, name, version):
-    experiment = transaction.getExperiment(experimentIdentifier)
-    return transaction.getExperimentAttachmentContent(experiment, name, version)
-
-def get_sample_attachment(transaction, sampleIdentifier, name, version):
-    sample = transaction.getSample(sampleIdentifier)
-    return transaction.getSampleAttachmentContent(sample, name, version)
-
-def add_project_attachment(project, stream, name):
-    content = IOUtils.toByteArray(stream);
-    contentString = String(content);
-    project.addAttachment(name, 'Title ' + name, contentString, content)
-    stream.close();
 
 def create_space(transaction):
     space = transaction.createNewSpace(SPACE_CODE, None)
@@ -50,8 +31,6 @@ def create_project(transaction):
     project = transaction.createNewProject(PROJECT_ID)
     project.setDescription("A demo project")
     add_attachment(project, transaction)
-    return project
-    
 
 def create_experiment(transaction):
     exp = transaction.createNewExperiment(EXPERIMENT_ID, 'SIRNA_HCS')
@@ -86,7 +65,7 @@ def createBacterias(transaction):
 def process(transaction):
     # create experiment
     create_space(transaction)
-    project = create_project(transaction)
+    create_project(transaction)
     experiment = create_experiment(transaction)
     
     # register link data set
@@ -109,15 +88,5 @@ def process(transaction):
     
     # read controlled vocabularies and create materials
     createBacterias(transaction)
-    
-    # get existing attachents and attach them to project
-    projectAttachment = get_project_attachment(transaction, "/CISD/NEMO", "projectDescription.txt", None);
-    add_project_attachment(project, projectAttachment, "test-attachment-project")
-    
-    experimentAttachment = get_experiment_attachment(transaction, "/CISD/NEMO/EXP1", "exampleExperiments.txt", 2);
-    add_project_attachment(project, experimentAttachment, "test-attachment-experiment")
-
-    sampleAttachment = get_sample_attachment(transaction, "/CISD/3VCP6", "sampleHistory.txt", None);
-    add_project_attachment(project, sampleAttachment, "test-attachment-sample")
     
     transaction.getRegistrationContext().getPersistentMap().put("email_text", "rich_email_text")
