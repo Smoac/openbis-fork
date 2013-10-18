@@ -64,15 +64,31 @@ public class AttachmentsDropboxTest extends SystemTestCase
     }
 
     @Test
-    public void testAttachments() throws Exception
+    public void testAttachmentsWithSuccess() throws Exception
     {
-        File dataDirectory = new File(workingDirectory, "attachments-test-data");
-        dataDirectory.mkdirs();
-        FileUtilities.writeToFile(new File(dataDirectory, "test.txt"), "");
-
-        moveFileToIncoming(dataDirectory);
+        createData("success");
         waitUntilDataSetImported();
+        assertStreamsReleased(3);
+    }
 
+    @Test
+    public void testAttachmentsWithFailure() throws Exception
+    {
+        createData("failure");
+        waitUntilDataSetImportedWithError();
+        assertStreamsReleased(3);
+    }
+
+    private void createData(String fileName) throws Exception
+    {
+        File dataDirectory = new File(workingDirectory, "attachments-test-" + fileName);
+        dataDirectory.mkdirs();
+        FileUtilities.writeToFile(new File(dataDirectory, fileName), "");
+        moveFileToIncoming(dataDirectory);
+    }
+
+    private void assertStreamsReleased(int expectedCount)
+    {
         String[] lines = logAppender.getLogContent().split("\n");
         int count = 0;
 
@@ -84,7 +100,7 @@ public class AttachmentsDropboxTest extends SystemTestCase
             }
         }
 
-        Assert.assertEquals(count, 3);
+        Assert.assertEquals(count, expectedCount);
     }
 
     @Override

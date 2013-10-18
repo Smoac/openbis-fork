@@ -133,3 +133,6 @@ def process(transaction):
 
     testSampleWithoutAttachments(transaction);
     testSampleWithAttachments(transaction);
+
+    if("failure" in transaction.getIncoming().getName()):
+        raise Exception('Triggering failure')
