@@ -75,7 +75,7 @@ public class AttachmentsDropboxTest extends SystemTestCase
     public void testAttachmentsWithFailure() throws Exception
     {
         createData("failure");
-        waitUntilDataSetImportedWithError();
+        waitUntilDataSetImportedWithError("attachments-test");
         assertStreamsReleased(3);
     }
 

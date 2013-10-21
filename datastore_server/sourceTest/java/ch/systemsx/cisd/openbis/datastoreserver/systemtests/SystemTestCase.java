@@ -269,7 +269,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
     }
 
-    protected void waitUntilDataSetImportedWithError() throws Exception
+    protected void waitUntilDataSetImportedWithError(String dropboxName) throws Exception
     {
         final int maxLoops = dataSetImportWaitDurationInSeconds();
 
@@ -278,7 +278,7 @@ public abstract class SystemTestCase extends AssertJUnit
             Thread.sleep(1000);
 
             String logContent = getLogAppender().getLogContent();
-            if (logContent.contains("ERROR"))
+            if (logContent.contains("ERROR") && logContent.contains(dropboxName))
             {
                 return;
             }
