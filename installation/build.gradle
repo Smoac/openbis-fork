@@ -46,7 +46,7 @@ println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"
 
-task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_technologies:build']) { 
+task copyResources(type: Copy, dependsOn: [compileJava, ':openbis_standard_technologies:zip', ':openbis_standard_technologies:zipDss']) { 
     from "${project.projectDir}/resource/installer"
     from "${project.projectDir}/../openbis_standard_technologies/dist/tarball/installer"
     from zipTree(project(':openbis_standard_technologies').zipDss.archivePath)
@@ -123,7 +123,7 @@ task(compileInstaller) << {
     def compression = 'default'
     def kind = 'standard'
     def basedir = project.projectDir.path
-    def input = 'resource/installer/install.xml'
+    def input = '../installation/resource/installer/install.xml'
     def compressionLevel = -1
     def compilerData = new com.izforge.izpack.compiler.data.CompilerData(compression, kind, input, 
             null, basedir, izPackJar, compressionLevel)
@@ -133,7 +133,7 @@ task(compileInstaller) << {
     compilerContainer.addComponent(compilerData.class, compilerData)
     def compilerConfig = compilerContainer.getComponent(com.izforge.izpack.compiler.CompilerConfig.class)
     def propertyManager = compilerContainer.getComponent(com.izforge.izpack.compiler.data.PropertyManager.class)
-    propertyManager.addProperty('installer.dist.dir', installerDistDir)
+    propertyManager.addProperty('installer.dist.dir', '../installation/' + installerDistDir)
     propertyManager.addProperty('version.number', versionNumber)
     propertyManager.addProperty('revision.number', revisionNumber)
     compilerConfig.executeCompiler()
