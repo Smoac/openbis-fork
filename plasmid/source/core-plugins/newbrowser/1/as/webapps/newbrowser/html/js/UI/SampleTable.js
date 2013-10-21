@@ -313,19 +313,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		//
 		if(this.sampleTypeCode == "SEARCH") {
 			$("#tableContainer").append("<div id='paginationContainerTop' class='paginationTop'></div>");
-			$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		} else {
 			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='filter visible columns' class='tableFilter search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
 		}
-		
-		if (!this.isEmbedded && !this.isSearch) {
-			var toolBoxContainer = "<span class='toolBox' id='toolBoxContainer'></span>";
-			$("#paginationContainerTop").append(toolBoxContainer);
-			$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a>");
-			$("#toolBoxContainer").append("<a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a>");
-		}
+		$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
 		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
@@ -470,6 +461,12 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		$("#paginationContainerTop").empty();
 		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
+		if (!this.isEmbedded && !this.isSearch) {
+			$("#paginationContainerTop").append("<span class='toolBox' id='toolBoxContainer'></span>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a>");
+			$("#toolBoxContainer").append("<a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a>");
+		}
 		$("#paginationContainerBottom").empty();
 		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 	}
