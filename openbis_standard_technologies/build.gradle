@@ -396,6 +396,7 @@ task zipDss(type: Zip) {
 	
 	from (configurations.datastore_server) {
 		into 'datastore_server/lib'
+		rename 'common-.*jar', 'common.jar'
 	}
 	
 	from (project(':datastore_server').fileTree(dir: 'dist', includes: ['**/*'], excludes:['dss_client.sh', 'etc/**'])) {
