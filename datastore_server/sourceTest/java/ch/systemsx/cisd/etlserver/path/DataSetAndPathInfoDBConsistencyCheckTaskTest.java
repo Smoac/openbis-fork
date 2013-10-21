@@ -119,20 +119,19 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
         task.execute();
 
-        assertEquals("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
-                + "Check 1 data sets registered since 1970-01-01 01:00:00\n"
-                + "ERROR OPERATION.DataSetAndPathInfoDBConsistencyChecker - "
+        assertThat(logRecorder.getLogLines(), hasItem("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
+                + "Check 1 data sets registered since 1970-01-01 01:00:00"));
+        assertThat(logRecorder.getLogLines(), hasItem("ERROR OPERATION.DataSetAndPathInfoDBConsistencyChecker - "
                 + "Couldn't check consistency of the file system and "
-                + "the path info database for a data set: ds1\n"
-                + "java.lang.RuntimeException: Oohps!\n"
-                + "ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
+                + "the path info database for a data set: ds1"));
+        assertThat(logRecorder.getLogLines(), hasItem("java.lang.RuntimeException: Oohps!"));
+        assertThat(logRecorder.getLogLines(), hasItem("ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
                 + "File system and path info DB consistency check report "
-                + "for all data sets since 1970-01-01 01:00:00\n\n"
-                + "Error when checking datasets:\n\n"
-                + "ERROR: \"Couldn't check consistency of the file system and "
-                + "the path info database for a data set: ds1 "
-                + "because of the following exception: Oohps!\"",
-                LogUtils.removeEmbeddedStackTrace(logRecorder.getLogContent()));
+                + "for all data sets since 1970-01-01 01:00:00"));
+        assertThat(logRecorder.getLogLines(), hasItem("Error when checking datasets:"));
+        assertThat(logRecorder.getLogLines(), hasItem("ERROR: \"Couldn't check consistency of the file system and "
+                + "the path info database for a data set: ds1 because of the following exception: Oohps!\""));
+
         assertEquals(true, fileContent.isClosed());
         context.assertIsSatisfied();
     }
