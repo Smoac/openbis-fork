@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,8 +100,9 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
         task.execute();
 
-        assertEquals("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
-                + "Check 1 data sets registered since 1970-01-01 01:00:00", logRecorder.getLogContent());
+        assertThat(logRecorder.getLogLines(), hasItem("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
+                + "Check 1 data sets registered since 1970-01-01 01:00:00"));
+        
         assertEquals(true, fileContent.isClosed());
         assertEquals(true, pathInfoContent.isClosed());
         context.assertIsSatisfied();
