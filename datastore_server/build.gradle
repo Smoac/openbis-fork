@@ -1,6 +1,8 @@
 evaluationDependsOn(':common')
-evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':authentication')
+evaluationDependsOn(':dbmigration')
 evaluationDependsOn(':openbis')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'

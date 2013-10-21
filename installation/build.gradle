@@ -1,3 +1,16 @@
+evaluationDependsOn(':common')
+evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':authentication')
+evaluationDependsOn(':dbmigration')
+evaluationDependsOn(':openbis')
+evaluationDependsOn(':datastore_server')
+evaluationDependsOn(':rtd_phosphonetx')
+evaluationDependsOn(':screening')
+evaluationDependsOn(':rtd_yeastx')
+evaluationDependsOn(':deep_sequencing_unit')
+evaluationDependsOn(':openbis_standard_technologies')
+
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 buildscript {

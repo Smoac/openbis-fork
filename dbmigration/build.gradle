@@ -1,3 +1,5 @@
+evaluationDependsOn(':common')
+
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
