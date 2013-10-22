@@ -131,6 +131,23 @@ public class SearchResultSorterByScoreTest extends AssertJUnit
     }
 
     @Test
+    public void testCriteriaPropForPropertiesWithSpaces()
+    {
+        // Entities Setup
+        List<EntitySearchResult> entities = new ArrayList<EntitySearchResult>();
+        entities.add(createEntity("CODE_2", "TYPE_2", "ABC"));
+        entities.add(createEntity("CODE_1", "TYPE_1", "ABC   "));
+        entities.add(createEntity("CODE_3", "TYPE_3", "ABC", "DEF"));
+        entities.add(createEntity("CODE_4", "TYPE_4", "ABC  \tDEF"));
+
+        // Test hit only properties, partial and exact
+        sort(entities, getPropertyFieldCriterion("PROP_1", "ABC  \tDEF"));
+
+        // Verify results
+        assertEntities(entities, "CODE_4", "CODE_2", "CODE_3", "CODE_1");
+    }
+
+    @Test
     public void testCriteriaAnyPropForProperties()
     {
         // Entities Setup
@@ -145,6 +162,23 @@ public class SearchResultSorterByScoreTest extends AssertJUnit
 
         // Verify results
         assertEntities(entities, "CODE_1", "CODE_4", "CODE_3", "CODE_2");
+    }
+
+    @Test
+    public void testCriteriaAnyPropForPropertiesWithSpaces()
+    {
+        // Entities Setup
+        List<EntitySearchResult> entities = new ArrayList<EntitySearchResult>();
+        entities.add(createEntity("CODE_2", "TYPE_2", "ABC"));
+        entities.add(createEntity("CODE_1", "TYPE_1", "ABC   "));
+        entities.add(createEntity("CODE_3", "TYPE_3", "ABC", "DEF"));
+        entities.add(createEntity("CODE_4", "TYPE_4", "ABC  \tDEF"));
+
+        // Test hit only properties, partial and exact
+        sort(entities, getAnyPropertyFieldCriterion("ABC  \tDEF"));
+
+        // Verify results
+        assertEntities(entities, "CODE_4", "CODE_3", "CODE_2", "CODE_1");
     }
 
     @Test

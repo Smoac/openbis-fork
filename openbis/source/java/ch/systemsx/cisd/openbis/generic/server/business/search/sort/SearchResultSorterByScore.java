@@ -44,45 +44,26 @@ public class SearchResultSorterByScore implements ISearchResultSorter
             return;
         }
 
-        // 1. Get terms to use as input for the main algorithm
+        // 1. Get terms and boosts to use as input for the main algorithm
         List<Pattern> partialMatchTerms = new ArrayList<Pattern>();
         List<String> exactMatchTerms = new ArrayList<String>();
         List<Boost> boosts = new ArrayList<Boost>();
+
         for (DetailedSearchCriterion criterion : criteria.getCriteria())
         {
+            // Full Index
             partialMatchTerms.add(getPartialMatchTerm(criterion.getValue()));
             exactMatchTerms.add(getExactMatchTerm(criterion.getValue()));
+            boosts.add(getBoostForCriterion(criterion, 10));
 
-            switch (criterion.getField().getKind())
+            // Split Index
+            String[] splitIndexes = criterion.getValue().replace("*", " ").replace("?", " ").replaceAll("\\s+", " ").trim().split(" ");
+
+            for (String splitIndex : splitIndexes)
             {
-                case ANY_FIELD:
-                    boosts.add(new Boost(1, 1, 1, 1, null));
-                    break;
-                case ANY_PROPERTY:
-                    boosts.add(new Boost(0, 0, 1, 1, null));
-                    break;
-                case PROPERTY:
-                    boosts.add(new Boost(0, 0, 0, 1, criterion.getField().getPropertyCode()));
-                    break;
-                case ATTRIBUTE:
-                    if (criterion.getField().getAttributeCode().equalsIgnoreCase("code"))
-                    {
-                        boosts.add(new Boost(1, 0, 0, 0, null)); // Attribute code
-                    } else if ( // TODO FIX hard coded types, will be clever to not naming the same thing differently internally to avoid this.
-                    criterion.getField().getAttributeCode().equalsIgnoreCase("sample_type")
-                            || criterion.getField().getAttributeCode().equalsIgnoreCase("data_set_type")
-                            || criterion.getField().getAttributeCode().equalsIgnoreCase("material_type")
-                            || criterion.getField().getAttributeCode().equalsIgnoreCase("experiment_type"))
-                    {
-                        boosts.add(new Boost(0, 1, 0, 0, null)); // Attribute type code
-                    } else
-                    {
-                        boosts.add(new Boost(1, 1, 1, 1, null)); // Other attributes not supported, default to general case
-                    }
-                    break;
-                case REGISTRATOR:
-                    boosts.add(new Boost(1, 1, 1, 1, null)); // Registrator not supported, default to general case
-                    break;
+                partialMatchTerms.add(getPartialMatchTerm(splitIndex));
+                exactMatchTerms.add(getExactMatchTerm(splitIndex));
+                boosts.add(getBoostForCriterion(criterion, 1));
             }
         }
 
@@ -113,6 +94,8 @@ public class SearchResultSorterByScore implements ISearchResultSorter
                     }
                 }
             });
+
+        System.out.println(entitiesToSort);
     }
 
     private int getScore(IEntitySearchResult entity, List<Pattern> partialMatchTerms, List<String> exactMatchTerms, List<Boost> boosts)
@@ -157,7 +140,7 @@ public class SearchResultSorterByScore implements ISearchResultSorter
                 }
             }
         }
-        // For development System.out.println(entity.getCode() + " " + score);
+        System.out.println(entity.getCode() + " " + score);
         return score;
     }
 
@@ -207,6 +190,38 @@ public class SearchResultSorterByScore implements ISearchResultSorter
             }
         }
 
+    }
+
+    public Boost getBoostForCriterion(DetailedSearchCriterion criterion, int boost)
+    {
+        switch (criterion.getField().getKind())
+        {
+            case ANY_FIELD:
+                return new Boost(boost, boost, boost, boost, null); // Default case
+            case ANY_PROPERTY:
+                return new Boost(0, 0, boost, boost, null);
+            case PROPERTY:
+                return new Boost(0, 0, 0, boost, criterion.getField().getPropertyCode());
+            case ATTRIBUTE:
+                if (criterion.getField().getAttributeCode().equalsIgnoreCase("code"))
+                {
+                    return new Boost(boost, 0, 0, 0, null); // Attribute code
+                } else if ( // TODO FIX hard coded types, will be clever to not naming the same thing differently internally to avoid this.
+                criterion.getField().getAttributeCode().equalsIgnoreCase("sample_type")
+                        || criterion.getField().getAttributeCode().equalsIgnoreCase("data_set_type")
+                        || criterion.getField().getAttributeCode().equalsIgnoreCase("material_type")
+                        || criterion.getField().getAttributeCode().equalsIgnoreCase("experiment_type"))
+                {
+                    return new Boost(0, boost, 0, 0, null); // Attribute type code
+                } else
+                {
+                    return new Boost(boost, boost, boost, boost, null); // Other attributes not supported, default to general case
+                }
+            case REGISTRATOR:
+                return new Boost(boost, boost, boost, boost, null); // Registrator not supported, default to general case
+            default:
+                return new Boost(boost, boost, boost, boost, null); // Default to general case
+        }
     }
 
     public Pattern getPartialMatchTerm(String term)
