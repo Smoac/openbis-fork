@@ -157,7 +157,7 @@ public class SearchResultSorterByScore implements ISearchResultSorter
                 }
             }
         }
-        System.out.println(entity.getCode() + " " + score);
+        // For development System.out.println(entity.getCode() + " " + score);
         return score;
     }
 
