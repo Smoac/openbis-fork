@@ -267,10 +267,13 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		return $component;
 	}
 	
+	this.isfirstPaint = true;
 	this.repaint = function() {
-		if($("#tableContainer").length > 0) {
+		if(!this.isfirstPaint) {
 			this.repaintTable();
 			return;
+		} else {
+			this.firstPaint = false;
 		}
 		
 		$("#"+this.sampleTableId).empty();
