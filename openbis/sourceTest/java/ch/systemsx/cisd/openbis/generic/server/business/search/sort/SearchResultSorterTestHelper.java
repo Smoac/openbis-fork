@@ -10,6 +10,7 @@ import junit.framework.Assert;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleAttributeSearchFieldKind;
 
 public class SearchResultSorterTestHelper
 {
@@ -51,6 +52,28 @@ public class SearchResultSorterTestHelper
     public static DetailedSearchCriterion getAnyFieldCriterion(String value)
     {
         return new DetailedSearchCriterion(DetailedSearchField.createAnyField(Arrays.asList("ANY")), value);
+    }
+
+    public static DetailedSearchCriterion getPropertyFieldCriterion(String propertyCode, String value)
+    {
+        return new DetailedSearchCriterion(DetailedSearchField.createPropertyField(propertyCode), value);
+    }
+
+    public static DetailedSearchCriterion getAnyPropertyFieldCriterion(String value)
+    {
+        return new DetailedSearchCriterion(DetailedSearchField.createAnyPropertyField(Arrays.asList("ANY")), value);
+    }
+
+    public static DetailedSearchCriterion getCodeFieldCriterion(String value)
+    {
+        // TODO refactor it not to use sample specific class
+        return new DetailedSearchCriterion(DetailedSearchField.createAttributeField(SampleAttributeSearchFieldKind.CODE), value);
+    }
+
+    public static DetailedSearchCriterion getTypeCodeFieldCriterion(String value)
+    {
+        // TODO refactor it not to use sample specific class
+        return new DetailedSearchCriterion(DetailedSearchField.createAttributeField(SampleAttributeSearchFieldKind.SAMPLE_TYPE), value);
     }
 
     public static EntitySearchResult createEntity(String code, String typeCode, String... propertyValues)

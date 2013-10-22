@@ -47,10 +47,43 @@ public class SearchResultSorterByScore implements ISearchResultSorter
         // 1. Get terms to use as input for the main algorithm
         List<Pattern> partialMatchTerms = new ArrayList<Pattern>();
         List<String> exactMatchTerms = new ArrayList<String>();
+        List<Boost> boosts = new ArrayList<Boost>();
         for (DetailedSearchCriterion criterion : criteria.getCriteria())
         {
             partialMatchTerms.add(getPartialMatchTerm(criterion.getValue()));
             exactMatchTerms.add(getExactMatchTerm(criterion.getValue()));
+
+            switch (criterion.getField().getKind())
+            {
+                case ANY_FIELD:
+                    boosts.add(new Boost(1, 1, 1, 1, null));
+                    break;
+                case ANY_PROPERTY:
+                    boosts.add(new Boost(0, 0, 1, 1, null));
+                    break;
+                case PROPERTY:
+                    boosts.add(new Boost(0, 0, 0, 1, criterion.getField().getPropertyCode()));
+                    break;
+                case ATTRIBUTE:
+                    if (criterion.getField().getAttributeCode().equalsIgnoreCase("code"))
+                    {
+                        boosts.add(new Boost(1, 0, 0, 0, null)); // Attribute code
+                    } else if ( // TODO FIX hard coded types, will be clever to not naming the same thing differently internally to avoid this.
+                    criterion.getField().getAttributeCode().equalsIgnoreCase("sample_type")
+                            || criterion.getField().getAttributeCode().equalsIgnoreCase("data_set_type")
+                            || criterion.getField().getAttributeCode().equalsIgnoreCase("material_type")
+                            || criterion.getField().getAttributeCode().equalsIgnoreCase("experiment_type"))
+                    {
+                        boosts.add(new Boost(0, 1, 0, 0, null)); // Attribute type code
+                    } else
+                    {
+                        boosts.add(new Boost(1, 1, 1, 1, null)); // Other attributes not supported, default to general case
+                    }
+                    break;
+                case REGISTRATOR:
+                    boosts.add(new Boost(1, 1, 1, 1, null)); // Registrator not supported, default to general case
+                    break;
+            }
         }
 
         // 2. Main algorithm
@@ -58,7 +91,7 @@ public class SearchResultSorterByScore implements ISearchResultSorter
 
         for (IEntitySearchResult entity : entitiesToSort)
         {
-            int score = getScore(entity, partialMatchTerms, exactMatchTerms);
+            int score = getScore(entity, partialMatchTerms, exactMatchTerms, boosts);
             scores.put(entity, score);
         }
 
@@ -82,41 +115,43 @@ public class SearchResultSorterByScore implements ISearchResultSorter
             });
     }
 
-    private int getScore(IEntitySearchResult entity, List<Pattern> partialMatchTerms, List<String> exactMatchTerms)
+    private int getScore(IEntitySearchResult entity, List<Pattern> partialMatchTerms, List<String> exactMatchTerms, List<Boost> boosts)
     {
         int score = 0;
         for (int i = 0; i < exactMatchTerms.size(); i++)
         {
             Pattern partialTerm = partialMatchTerms.get(i);
             String exactTerm = exactMatchTerms.get(i);
+            Boost boost = boosts.get(i);
 
             // 1. Code
             if (isPartialMatch(entity.getCode(), partialTerm))
             { // If code matches partially
-                score += 100000;
+                score += 100000 * boost.getCodeBoost();
                 if (isExactMatch(entity.getCode(), exactTerm))
                 { // If code matches exactly
-                    score += 1000000;
+                    score += 1000000 * boost.getCodeBoost();
                 }
             }
 
             // 2. Entity type code
             if (isExactMatch(entity.getTypeCode(), exactTerm))
             { // If type matches exactly
-                score += 1000;
+                score += 1000 * boost.getTypeCodeBoost();
             }
 
             // 3. Properties
-            if (entity.getProperties() != null && entity.getProperties().values() != null)
+            if (entity.getProperties() != null && entity.getProperties().keySet() != null)
             {
-                for (String propertyValue : entity.getProperties().values())
+                for (String propertykey : entity.getProperties().keySet())
                 {
+                    String propertyValue = entity.getProperties().get(propertykey);
                     if (isPartialMatch(propertyValue, partialTerm))
                     { // If property matches partially
-                        score += 100;
+                        score += 100 * boost.getPropertyBoost(propertykey);
                         if (isExactMatch(propertyValue, exactTerm))
                         { // If property matches exactly
-                            score += 10000;
+                            score += 10000 * boost.getPropertyBoost(propertykey);
                         }
                     }
                 }
@@ -124,6 +159,54 @@ public class SearchResultSorterByScore implements ISearchResultSorter
         }
         System.out.println(entity.getCode() + " " + score);
         return score;
+    }
+
+    //
+    // Helper Methods
+    //
+    private static class Boost
+    {
+        private int codeBoost;
+
+        private int typeCodeBoost;
+
+        private int propertyBoost;
+
+        private int propertyDefaultBoost;
+
+        private String propertyName;
+
+        public Boost(int codeBoost, int typeCodeBoost, int propertyDefaultBoost, int propertyBoost, String propertyName)
+        {
+            super();
+            this.codeBoost = codeBoost;
+            this.typeCodeBoost = typeCodeBoost;
+            this.propertyDefaultBoost = propertyDefaultBoost;
+            this.propertyBoost = propertyBoost;
+            this.propertyName = propertyName;
+        }
+
+        public int getCodeBoost()
+        {
+            return codeBoost;
+        }
+
+        public int getTypeCodeBoost()
+        {
+            return typeCodeBoost;
+        }
+
+        public int getPropertyBoost(String propertyNameToBoost)
+        {
+            if (this.propertyName != null && this.propertyName.equals(propertyNameToBoost))
+            {
+                return propertyBoost;
+            } else
+            {
+                return propertyDefaultBoost;
+            }
+        }
+
     }
 
     public Pattern getPartialMatchTerm(String term)
