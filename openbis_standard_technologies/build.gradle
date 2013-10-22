@@ -184,9 +184,11 @@ task checkFilesExist {
   }
 }
 
-signedJarsFolder = 'targets/dist/signed_jars'
+signedJarsFolder = "${buildDir}/signed_jars"
 task createOpenbisJar(type: Jar) {
     archiveName = 'openbis.jar'
+    destinationDir = file(signedJarsFolder)
+    outputs.file new File(signedJarsFolder, archiveName)
     from zipTree(project(':common').jar.archivePath).plus(
          zipTree(project(':openbis-common').jar.archivePath).plus( 
          zipTree(project(':screening').jar.archivePath).plus( 
@@ -201,17 +203,17 @@ task createOpenbisJar(type: Jar) {
             include '**/shared/basic/*.class'
             include '**/*BuildAndEnvironmentInfo.class'
         }
-    destinationDir = file(signedJarsFolder)
 }
 
+keystoreFile = '../screening/etc/dev.keystore'
 task signWebStartJars(type: Copy) {
+    inputs.file keystoreFile
     from configurations.webStartJars.files
-    
     into signedJarsFolder
     rename '(.+)-[^-]*\\.jar', '$1.jar'
     doLast {
         file(signedJarsFolder).listFiles().each { file ->
-            ant.signjar(jar: file, keystore: '../screening/etc/dev.keystore',
+            ant.signjar(jar: file, keystore: keystoreFile,
                         alias: 'openbis', storepass: 'openbistest')
         }
     }
