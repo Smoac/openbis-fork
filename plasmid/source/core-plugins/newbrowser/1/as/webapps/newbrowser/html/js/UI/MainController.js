@@ -157,7 +157,9 @@ function MainController(profile) {
 		//Update Main Container
 		this.sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, this.profile.searchType["TYPE"], true, false, false, true, false, this.inspector);
 		var localReference = this;
+		$("#search").addClass("search-query-searching");
 		this.serverFacade.searchWithText(event.target.value, function(data) {
+			$("#search").removeClass("search-query-searching");
 			localReference.sampleTable.reloadWithSamples(data);
 			Util.unblockUI();
 		});
