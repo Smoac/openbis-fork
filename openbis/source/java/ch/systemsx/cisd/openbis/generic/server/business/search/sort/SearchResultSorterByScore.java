@@ -95,7 +95,7 @@ public class SearchResultSorterByScore implements ISearchResultSorter
                 }
             });
 
-        System.out.println(entitiesToSort);
+        // FOR DEBUGING ONLY System.out.println(entitiesToSort);
     }
 
     private int getScore(IEntitySearchResult entity, List<Pattern> partialMatchTerms, List<String> exactMatchTerms, List<Boost> boosts)
@@ -140,7 +140,7 @@ public class SearchResultSorterByScore implements ISearchResultSorter
                 }
             }
         }
-        System.out.println(entity.getCode() + " " + score);
+        // FOR DEBUGING ONLY System.out.println(entity.getCode() + " " + score);
         return score;
     }
 
