@@ -109,4 +109,10 @@ public class AttachmentsDropboxTest extends SystemTestCase
         return new File(rootDir, "incoming-attachments-test");
     }
 
+    @Override
+    protected int dataSetImportWaitDurationInSeconds()
+    {
+        return 120;
+    }
+
 }
