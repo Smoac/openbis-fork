@@ -73,7 +73,7 @@ dependencies {
                  'springframework:spring-context:+',
                  'springframework:spring-core:+',
                  'springframework:spring-web:+',
-                 'springframework:stream-supporting-httpinvoker:+',
+                 'marathon:marathon-spring-util:+',
                  'aopalliance:aopalliance:+'
                  
 }
@@ -317,7 +317,7 @@ task adminConsole(type: Jar) {
 	}
     manifest {
 	    attributes("Main-Class": "ch.systemsx.cisd.openbis.generic.client.console.AdminConsole",
-    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar commons-httpclient.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring.jar stream-supporting-httpinvoker.jar")
+    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar commons-httpclient.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring.jar marathon-spring-util.jar")
     }	
 }
 adminConsole.dependsOn war
