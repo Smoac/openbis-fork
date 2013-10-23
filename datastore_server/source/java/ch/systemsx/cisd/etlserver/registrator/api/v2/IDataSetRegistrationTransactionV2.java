@@ -431,33 +431,33 @@ public interface IDataSetRegistrationTransactionV2
      * Returns a project attachment content. If the version is not specified then the latest version of the attachment is returned. Returns null if
      * the attachment does not exist.
      */
-    InputStream getProjectAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull);
+    InputStream getAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull);
 
     /**
      * Returns an experiment attachment content. If the version is not specified then the latest version of the attachment is returned. Returns null
      * if the attachment does not exist.
      */
-    InputStream getExperimentAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull);
+    InputStream getAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull);
 
     /**
      * Returns a sample attachment content. If the version is not specified then the latest version of the attachment is returned. Returns null if the
      * attachment does not exist.
      */
-    InputStream getSampleAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull);
+    InputStream getAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull);
 
     /**
      * Returns a list of project attachments with all versions. Returns null if the project does not have any attachments.
      */
-    List<IAttachmentImmutable> listProjectAttachments(IProjectImmutable project);
+    List<IAttachmentImmutable> listAttachments(IProjectImmutable project);
 
     /**
      * Returns a list of experiment attachments with all versions. Returns null if the experiment does not have any attachments.
      */
-    List<IAttachmentImmutable> listExperimentAttachments(IExperimentImmutable experiment);
+    List<IAttachmentImmutable> listAttachments(IExperimentImmutable experiment);
 
     /**
      * Returns a list of sample attachments with all versions. Returns null if the sample does not have any attachments.
      */
-    List<IAttachmentImmutable> listSampleAttachments(ISampleImmutable sample);
+    List<IAttachmentImmutable> listAttachments(ISampleImmutable sample);
 
 }

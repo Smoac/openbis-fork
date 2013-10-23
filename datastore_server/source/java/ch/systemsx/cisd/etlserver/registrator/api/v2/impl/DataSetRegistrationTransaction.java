@@ -818,7 +818,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public List<IAttachmentImmutable> listProjectAttachments(IProjectImmutable project)
+    public List<IAttachmentImmutable> listAttachments(IProjectImmutable project)
     {
         if (project == null)
         {
@@ -830,7 +830,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public List<IAttachmentImmutable> listExperimentAttachments(IExperimentImmutable experiment)
+    public List<IAttachmentImmutable> listAttachments(IExperimentImmutable experiment)
     {
         if (experiment == null)
         {
@@ -842,7 +842,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public List<IAttachmentImmutable> listSampleAttachments(ISampleImmutable sample)
+    public List<IAttachmentImmutable> listAttachments(ISampleImmutable sample)
     {
         if (sample == null)
         {
@@ -854,7 +854,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public InputStream getProjectAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
     {
         if (project == null)
         {
@@ -871,7 +871,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public InputStream getExperimentAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
     {
         if (experiment == null)
         {
@@ -889,7 +889,7 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
-    public InputStream getSampleAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
     {
         if (sample == null)
         {

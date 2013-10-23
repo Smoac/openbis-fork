@@ -33,70 +33,70 @@ def assertAttachment(attachment, fileName, title, description, version):
 def testProjectWithoutAttachments(transaction):
     project = transaction.getProject("/CISD/DEFAULT");
 
-    attachments = transaction.listProjectAttachments(project)
+    attachments = transaction.listAttachments(project)
     assertAttachmentCount(attachments, 0)
     
-    content = transaction.getProjectAttachmentContent(project, "not-existing-attachment", None);
+    content = transaction.getAttachmentContent(project, "not-existing-attachment", None);
     assertAttachmentContentContains(content, None);
 
 def testProjectWithAttachments(transaction):
     project = transaction.getProject("/CISD/NEMO");
 
-    attachments = transaction.listProjectAttachments(project)
+    attachments = transaction.listAttachments(project)
     assertAttachmentCount(attachments, 1)
     assertAttachment(attachments[0], "projectDescription.txt", "The Project", "All about it.", 1);
 
-    content = transaction.getProjectAttachmentContent(project, "projectDescription.txt", None);
+    content = transaction.getAttachmentContent(project, "projectDescription.txt", None);
     assertAttachmentContentContains(content, "3VCP1");
     
-    content2 = transaction.getProjectAttachmentContent(project, "not-existing-attachment", None);
+    content2 = transaction.getAttachmentContent(project, "not-existing-attachment", None);
     assertAttachmentContentContains(content2, None);
 
 def testExperimentWithoutAttachments(transaction):
     experiment = transaction.getExperiment("/CISD/NEMO/EXP10");
 
-    attachments = transaction.listExperimentAttachments(experiment)
+    attachments = transaction.listAttachments(experiment)
     assertAttachmentCount(attachments, 0)
 
-    content = transaction.getExperimentAttachmentContent(experiment, "not-existing-attachment", 2);
+    content = transaction.getAttachmentContent(experiment, "not-existing-attachment", 2);
     assertAttachmentContentContains(content, None);
 
 def testExperimentWithAttachments(transaction):
     experiment = transaction.getExperiment("/CISD/NEMO/EXP1");
 
-    attachments = transaction.listExperimentAttachments(experiment)
+    attachments = transaction.listAttachments(experiment)
     assertAttachmentCount(attachments, 4)
     assertAttachment(attachments[0], "exampleExperiments.txt", None, None, 1)
     assertAttachment(attachments[1], "exampleExperiments.txt", None, None, 2)
     assertAttachment(attachments[2], "exampleExperiments.txt", None, None, 3)
     assertAttachment(attachments[3], "exampleExperiments.txt", None, None, 4)
     
-    content = transaction.getExperimentAttachmentContent(experiment, "exampleExperiments.txt", 2);
+    content = transaction.getAttachmentContent(experiment, "exampleExperiments.txt", 2);
     assertAttachmentContentContains(content, "koko");
 
-    content2 = transaction.getExperimentAttachmentContent(experiment, "not-existing-attachment", 2);
+    content2 = transaction.getAttachmentContent(experiment, "not-existing-attachment", 2);
     assertAttachmentContentContains(content2, None);
 
 def testSampleWithoutAttachments(transaction):
     sample = transaction.getSample("/CISD/3VCP5");
 
-    attachments = transaction.listSampleAttachments(sample)
+    attachments = transaction.listAttachments(sample)
     assertAttachmentCount(attachments, 0)
 
-    content = transaction.getSampleAttachmentContent(sample, "not-existing-attachment", None);
+    content = transaction.getAttachmentContent(sample, "not-existing-attachment", None);
     assertAttachmentContentContains(content, None);
 
 def testSampleWithAttachments(transaction):
     sample = transaction.getSample("/CISD/3VCP6");
 
-    attachments = transaction.listSampleAttachments(sample)
+    attachments = transaction.listAttachments(sample)
     assertAttachmentCount(attachments, 1)
     assertAttachment(attachments[0], "sampleHistory.txt", None, None, 1)
 
-    content = transaction.getSampleAttachmentContent(sample, "sampleHistory.txt", None);
+    content = transaction.getAttachmentContent(sample, "sampleHistory.txt", None);
     assertAttachmentContentContains(content, "kot")
     
-    content2 = transaction.getSampleAttachmentContent(sample, "not-existing-attachment", None);
+    content2 = transaction.getAttachmentContent(sample, "not-existing-attachment", None);
     assertAttachmentContentContains(content2, None);
 
 def process(transaction):
