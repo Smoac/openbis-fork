@@ -424,42 +424,42 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
-    public InputStream getProjectAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
     {
-        return transaction.getProjectAttachmentContent(project, fileName, versionOrNull);
+        return transaction.getAttachmentContent(project, fileName, versionOrNull);
     }
 
     @Override
-    public InputStream getExperimentAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
     {
-        return transaction.getExperimentAttachmentContent(experiment, fileName, versionOrNull);
+        return transaction.getAttachmentContent(experiment, fileName, versionOrNull);
     }
 
     @Override
-    public InputStream getSampleAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
+    public InputStream getAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
     {
-        return transaction.getSampleAttachmentContent(sample, fileName, versionOrNull);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<IAttachmentImmutable> listProjectAttachments(IProjectImmutable project)
-    {
-        return transaction.listProjectAttachments(project);
+        return transaction.getAttachmentContent(sample, fileName, versionOrNull);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<IAttachmentImmutable> listExperimentAttachments(IExperimentImmutable experiment)
+    public List<IAttachmentImmutable> listAttachments(IProjectImmutable project)
     {
-        return transaction.listExperimentAttachments(experiment);
+        return transaction.listAttachments(project);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<IAttachmentImmutable> listSampleAttachments(ISampleImmutable sample)
+    public List<IAttachmentImmutable> listAttachments(IExperimentImmutable experiment)
     {
-        return transaction.listSampleAttachments(sample);
+        return transaction.listAttachments(experiment);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<IAttachmentImmutable> listAttachments(ISampleImmutable sample)
+    {
+        return transaction.listAttachments(sample);
     }
 
 }
