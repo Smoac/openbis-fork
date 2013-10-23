@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -101,6 +102,7 @@ import ch.systemsx.cisd.openbis.uitest.page.BrowserRow;
 import ch.systemsx.cisd.openbis.uitest.page.RegisterSample;
 import ch.systemsx.cisd.openbis.uitest.page.SampleDetails;
 import ch.systemsx.cisd.openbis.uitest.rmi.AddEntitiesToMetaProjectRmi;
+import ch.systemsx.cisd.openbis.uitest.rmi.AggregationReportRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.GetDataSetMetaDataRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfExperimentsOnBehalfOfUserRmi;
 import ch.systemsx.cisd.openbis.uitest.rmi.ListDataSetsOfExperimentsRmi;
@@ -1017,6 +1019,11 @@ public abstract class SeleniumTest
     public QueryTableModel reportInExternal(String dataSetCode, String... rest)
     {
         return openbis.execute(new ReportFromDataSetsRmi("EXTERNAL", dataSetCode, rest));
+    }
+
+    public QueryTableModel aggregationReportInInternal(Map<String, Object> params)
+    {
+        return openbis.execute(new AggregationReportRmi("Internal", params));
     }
 
     public QueryTableModel reportInInternal(String dataSetCode, String... rest)
