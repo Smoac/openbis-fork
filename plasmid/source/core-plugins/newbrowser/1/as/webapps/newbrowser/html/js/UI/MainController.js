@@ -145,24 +145,43 @@ function MainController(profile) {
 		this.sampleTable.init();
 	}
 
+	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
+	
 	this.showSearchPage = function(event) {
 		//Only search with at least 3 characters
 		if(event.target.value.length < 3) {
 			return;
 		}
 		
-		//Clean page and update menu
-		this.navigationBar.updateMenu(null);
-		
-		//Update Main Container
-		this.sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, this.profile.searchType["TYPE"], true, false, false, true, false, this.inspector);
+		this.lastSearchId++;
+		var localSearchId = this.lastSearchId;
 		var localReference = this;
-		$("#search").addClass("search-query-searching");
-		this.serverFacade.searchWithText(event.target.value, function(data) {
-			$("#search").removeClass("search-query-searching");
-			localReference.sampleTable.reloadWithSamples(data);
-			Util.unblockUI();
-		});
+		
+		var possibleSearch = function() {
+			if(localSearchId === localReference.lastSearchId) { //Trigger it if no new have started
+				//Clean page and update menu
+				localReference.navigationBar.updateMenu(null);
+				
+				//Update Main Container
+				localReference.sampleTable = new SampleTable(this.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
+				$("#search").addClass("search-query-searching");
+				localReference.serverFacade.searchWithText(event.target.value, function(data) {
+					if(localSearchId === localReference.lastSearchId) {
+						$("#search").removeClass("search-query-searching");
+						localReference.sampleTable.reloadWithSamples(data);
+						Util.unblockUI();
+					} else {
+						//Discard old response, was triggered but a new one was started
+					}
+				});
+			} else {
+				//Discard it
+			}
+		}
+		
+		setTimeout(possibleSearch, 800);
+		
+		
 	}
 
 	this.showCreateSamplePage = function(sampleTypeCode) {

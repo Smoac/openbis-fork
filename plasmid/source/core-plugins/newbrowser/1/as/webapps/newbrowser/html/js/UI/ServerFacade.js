@@ -291,7 +291,7 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	this.lastSearchId = 0; //Used to discard search resposes that don't pertain to the last search call.
+	
 	
 	this.searchWithText = function(freeText, callbackFunction)
 	{	
@@ -305,15 +305,8 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.lastSearchId++;
-		var localSearchId = this.lastSearchId;
-		var localReference = this;
 		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
-			if(localSearchId === localReference.lastSearchId) {
-				callbackFunction(localReference.getInitializedSamples(data.result));
-			} else {
-				//Discard old response, do nothing
-			}
+			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
 }
