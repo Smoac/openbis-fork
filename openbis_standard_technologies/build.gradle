@@ -184,11 +184,12 @@ task checkFilesExist {
   }
 }
 
+jarsToBeSignedFolder = "${buildDir}/jars_to_be_signed"
 signedJarsFolder = "${buildDir}/signed_jars"
 task createOpenbisJar(type: Jar) {
     archiveName = 'openbis.jar'
-    destinationDir = file(signedJarsFolder)
-    outputs.file new File(signedJarsFolder, archiveName)
+    destinationDir = file(jarsToBeSignedFolder)
+    outputs.file new File(jarsToBeSignedFolder, archiveName)
     from zipTree(project(':common').jar.archivePath).plus(
          zipTree(project(':openbis-common').jar.archivePath).plus( 
          zipTree(project(':screening').jar.archivePath).plus( 
@@ -205,12 +206,18 @@ task createOpenbisJar(type: Jar) {
         }
 }
 
-keystoreFile = '../screening/etc/dev.keystore'
-task signWebStartJars(type: Copy) {
-    inputs.file keystoreFile
+task copyJarsForWebStart(type: Copy) {
     from configurations.webStartJars.files
-    into signedJarsFolder
+    into jarsToBeSignedFolder
     rename '(.+)-[^-]*\\.jar', '$1.jar'
+    rename 'marathon-spring-util.*jar', 'stream-supporting-httpinvoker.jar'
+}
+
+keystoreFile = '../screening/etc/dev.keystore'
+task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, copyJarsForWebStart]) {
+    from jarsToBeSignedFolder
+    into signedJarsFolder
+    inputs.file keystoreFile
     doLast {
         file(signedJarsFolder).listFiles().each { file ->
             ant.signjar(jar: file, keystore: keystoreFile,
@@ -218,7 +225,6 @@ task signWebStartJars(type: Copy) {
         }
     }
 }
-signWebStartJars.dependsOn createOpenbisJar
 
 war.dependsOn compileGwt
 war.dependsOn checkFilesExist
