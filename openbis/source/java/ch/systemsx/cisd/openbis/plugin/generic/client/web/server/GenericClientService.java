@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialBatchUpdateResultMessage;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSetsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewEntitiesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -72,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -441,6 +443,10 @@ public class GenericClientService extends AbstractClientService implements IGene
     {
         String sessionToken = getSessionToken();
         ExperimentLoader loader = parseExperiments(sessionKey);
+
+        // Update the identifiers using the default project and space when possible
+        applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
+
         genericServer.registerExperiments(
                 sessionToken,
                 new NewExperimentsWithType(experimentType.getCode(), loader
@@ -492,6 +498,117 @@ public class GenericClientService extends AbstractClientService implements IGene
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
+        }
+    }
+
+    private String getUserDefaultProject(String sessionToken)
+    {
+        String projectIdentifier = null;
+
+        PersonPE person = this.getServer().getAuthSession(sessionToken).tryGetPerson();
+
+        // Get Project from user settings
+        if (person != null && person.getDisplaySettings() != null)
+        {
+            projectIdentifier = person.getDisplaySettings().getDefaultProject();
+        }
+
+        if (projectIdentifier != null)
+        {
+            return projectIdentifier;
+        } else
+        {
+            return null;
+        }
+    }
+
+    private String getUserDefaultSpace(String sessionToken)
+    {
+        String spaceIdentifier = null;
+
+        PersonPE person = this.getServer().getAuthSession(sessionToken).tryGetPerson();
+
+        // Get Space from user settings
+        if (person != null && person.getHomeSpace() != null)
+        {
+            spaceIdentifier = person.getHomeSpace().getCode();
+        }
+
+        if (spaceIdentifier != null)
+        {
+            return spaceIdentifier;
+        } else
+        {
+            return null;
+        }
+    }
+
+    private int count(char character, String string)
+    {
+        int count = 0;
+        int fromIndex = -1;
+        while (string.indexOf(character, fromIndex + 1) > fromIndex)
+        {
+            fromIndex = string.indexOf(character, fromIndex + 1);
+            count++;
+        }
+        return count;
+    }
+
+    private void applyDefaultSpaceProjectToExperiments(List<? extends NewBasicExperiment> experiments, String sessionToken)
+    {
+
+        String defaultProjectIdentifier = getUserDefaultProject(sessionToken); // If default project is present
+
+        // Fix identifier 'EXPERIMENT_ID' alone
+        for (NewBasicExperiment experiment : experiments)
+        {
+            String newExperimentIdentifier = experiment.getIdentifier();
+            if (newExperimentIdentifier.indexOf('/') == -1 &&
+                    defaultProjectIdentifier != null)
+            {
+                experiment.setIdentifier(defaultProjectIdentifier + "/" + newExperimentIdentifier);
+            }
+        }
+
+        // Fix identifier '/EXPERIMENT_ID' alone with forward slash
+        for (NewBasicExperiment experiment : experiments)
+        {
+            String newExperimentIdentifier = experiment.getIdentifier();
+            int numberSlash = count('/', newExperimentIdentifier);
+            if (newExperimentIdentifier.indexOf('/') > -1 &&
+                    numberSlash == 1 &&
+                    defaultProjectIdentifier != null)
+            {
+                experiment.setIdentifier(defaultProjectIdentifier + newExperimentIdentifier);
+            }
+        }
+
+        String defaultSpaceIdentifier = getUserDefaultSpace(sessionToken); // If default space is present
+
+        // Fix identifier '/PROJECT/EXPERIMENT_ID' with project
+        for (NewBasicExperiment experiment : experiments)
+        {
+            String newExperimentIdentifier = experiment.getIdentifier();
+            int numberSlash = count('/', newExperimentIdentifier);
+            if (newExperimentIdentifier.indexOf('/') > -1 &&
+                    numberSlash == 2 &&
+                    defaultSpaceIdentifier != null)
+            {
+                experiment.setIdentifier("/" + defaultSpaceIdentifier + newExperimentIdentifier);
+            }
+        }
+
+        // Throw meaningful error
+        for (NewBasicExperiment experiment : experiments)
+        {
+            String newExperimentIdentifier = experiment.getIdentifier();
+            int numberSlash = count('/', newExperimentIdentifier);
+            if (numberSlash != 3)
+            {
+                throw new UserFailureException("The given identifier is not complete '" + newExperimentIdentifier
+                        + "' and the required home space or default project is missing.");
+            }
         }
     }
 
@@ -717,6 +834,8 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
             UpdatedExperimentLoader loader = new UpdatedExperimentLoader();
             loader.load(files);
+            // Update the identifiers using the default project and space when possible
+            applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), getSessionToken());
             genericServer.updateExperiments(getSessionToken(), new UpdatedExperimentsWithType(
                     experimentType, loader.getNewBasicExperiments()));
             return loader.getResults();
