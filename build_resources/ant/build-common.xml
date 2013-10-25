@@ -123,6 +123,7 @@
 			<jvmarg value="-Xmx1024M" />
 			<jvmarg value="-XX:MaxPermSize=512m" />
 			<jvmarg value="-Dant.project.name=${ant.project.name}" />
+			<jvmarg value="-Duser.timezone=Europe/Zurich" />
 		</testng>
 		
 	</target>
