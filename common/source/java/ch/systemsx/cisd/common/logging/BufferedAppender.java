@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.common.logging;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
@@ -112,6 +114,10 @@ public final class BufferedAppender extends WriterAppender
     public final String getLogContent()
     {
         return new String(logRecorder.toByteArray()).trim();
+    }
+    
+    public List<String> getLogLines() {
+    	return Arrays.asList(getLogContent().split("\n"));
     }
 
     public final void resetLogContent()

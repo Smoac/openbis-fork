@@ -499,17 +499,22 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     private void setBoundingBox(ImageDataSetInformation imageDataSetInformation,
             IHierarchicalContentNode content, ImageLibraryInfo imageLibrary)
     {
-        Size size = Utils.loadUnchangedImageSize(content, null, imageLibrary);
-        imageDataSetInformation.setMaximumImageWidth(Math.max(
-                imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
-        imageDataSetInformation.setMaximumImageHeight(Math.max(
-                imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
-        if (imageDataSetInformation.getColorDepth() == null)
+        try
         {
-            imageDataSetInformation.setColorDepth(Utils.loadUnchangedImageColorDepth(content, null,
-                    imageLibrary));
+            Size size = Utils.loadUnchangedImageSize(content, null, imageLibrary);
+            imageDataSetInformation.setMaximumImageWidth(Math.max(
+                    imageDataSetInformation.getMaximumImageWidth(), size.getWidth()));
+            imageDataSetInformation.setMaximumImageHeight(Math.max(
+                    imageDataSetInformation.getMaximumImageHeight(), size.getHeight()));
+            if (imageDataSetInformation.getColorDepth() == null)
+            {
+                imageDataSetInformation.setColorDepth(Utils.loadUnchangedImageColorDepth(content, null,
+                        imageLibrary));
+            }
+        } catch (Exception ex)
+        {
+            throw new UserFailureException("Error ocured when calculating bounding box of " + content.getRelativePath(), ex);
         }
-
     }
 
     private File prependOriginalDirectory(String directoryPath)

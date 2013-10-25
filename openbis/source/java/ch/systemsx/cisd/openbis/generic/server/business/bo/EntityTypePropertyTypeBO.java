@@ -191,11 +191,15 @@ public class EntityTypePropertyTypeBO extends AbstractBusinessObject implements
             String validatedValue =
                     propertiesConverter.tryCreateValidatedPropertyValue(propertyType, assignment,
                             defaultValue);
-            final EntityPropertyPE property =
-                    propertiesConverter.createValidatedProperty(propertyType, assignment,
-                            registrator, validatedValue);
 
-            entityPropertyTypeDAO.createProperties(property, entityIds);
+            if (validatedValue != null)
+            {
+                final EntityPropertyPE property =
+                        propertiesConverter.createValidatedProperty(propertyType, assignment,
+                                registrator, validatedValue);
+
+                entityPropertyTypeDAO.createProperties(property, entityIds);
+            }
 
             if (operationLog.isDebugEnabled())
             {

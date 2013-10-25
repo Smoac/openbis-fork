@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -88,18 +89,19 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     }
 
     /**
-     * Factory method for creating an IAggregationServiceReportingPluginScriptRunner for a given
-     * processing context.
+     * Factory method for creating an IAggregationServiceReportingPluginScriptRunner for a given processing context.
      */
     @Override
     public IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(
             DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
+        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
+
         try
         {
             AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData =
-                    createInputDataForReportingPluginScriptRunner(context, scriptString);
+                    createInputDataForReportingPluginScriptRunner(context, scriptString, pythonPath);
 
             return new AggregationServiceReportingPluginScriptRunner(inputData);
         } catch (EvaluatorException ex)
@@ -113,10 +115,12 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
+        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
+
         try
         {
             AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData =
-                    createInputDataForReportingPluginScriptRunner(context, scriptString);
+                    createInputDataForReportingPluginScriptRunner(context, scriptString, pythonPath);
 
             return new DbModifyingAggregationServiceReportingPluginScriptRunner(inputData);
         } catch (EvaluatorException ex)
@@ -126,9 +130,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     }
 
     private AbstractAggregationServiceReportingPluginScriptRunner.InputData createInputDataForReportingPluginScriptRunner(
-            DataSetProcessingContext context, String scriptString)
+            DataSetProcessingContext context, String scriptString, String[] pythonPath)
     {
-        Evaluator evaluator = createEvaluator(scriptString, context);
+        Evaluator evaluator = createEvaluator(scriptString, pythonPath, context);
 
         DataSetContentProvider contentProvider =
                 new DataSetContentProvider(context.getHierarchicalContentProvider());
@@ -151,9 +155,11 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     public IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
+        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
+
         try
         {
-            return new ReportingPluginScriptRunner(createEvaluator(scriptString, context));
+            return new ReportingPluginScriptRunner(createEvaluator(scriptString, pythonPath, context));
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -168,9 +174,11 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             DataSetProcessingContext context)
     {
         String scriptString = extractScriptFromPath(scriptPath);
+        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
+
         try
         {
-            return new ProcessingPluginScriptRunner(createEvaluator(scriptString, context));
+            return new ProcessingPluginScriptRunner(createEvaluator(scriptString, pythonPath, context));
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -208,9 +216,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
     }
 
-    protected Evaluator createEvaluator(String scriptString, DataSetProcessingContext context)
+    protected Evaluator createEvaluator(String scriptString, String[] pythonPath, DataSetProcessingContext context)
     {
-        final Evaluator evaluator = new Evaluator("", null, scriptString, false);
+        final Evaluator evaluator = new Evaluator("", pythonPath, null, scriptString, false);
 
         evaluator.set(SEARCH_SERVICE_VARIABLE_NAME, createUserSearchService(context));
         evaluator.set(SEARCH_SERVICE_UNFILTERED_VARIABLE_NAME, createUnfilteredSearchService());

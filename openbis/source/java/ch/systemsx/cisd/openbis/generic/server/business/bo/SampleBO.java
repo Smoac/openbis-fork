@@ -346,26 +346,41 @@ public final class SampleBO extends AbstractSampleBusinessObject implements ISam
     }
 
     @Override
-    public AttachmentPE getSampleFileAttachment(final String filename, final Integer versionOrNull)
+    public AttachmentPE tryGetSampleFileAttachment(String fileName, Integer versionOrNull)
     {
         checkSampleLoaded();
         sample.ensureAttachmentsLoaded();
         AttachmentPE att =
-                versionOrNull == null ? getAttachment(filename) : getAttachment(filename,
+                versionOrNull == null ? getAttachment(fileName) : getAttachment(fileName,
                         versionOrNull);
         if (att != null)
         {
             HibernateUtils.initialize(att.getAttachmentContent());
             return att;
+        } else
+        {
+            return null;
         }
+    }
 
-        throw new UserFailureException(
-                "Attachment '"
-                        + filename
-                        + "' "
-                        + (versionOrNull == null ? "(latest version)" : "(version '"
-                                + versionOrNull + "')") + " not found in sample '"
-                        + sample.getIdentifier() + "'.");
+    @Override
+    public AttachmentPE getSampleFileAttachment(final String filename, final Integer versionOrNull)
+    {
+        AttachmentPE attachment = tryGetSampleFileAttachment(filename, versionOrNull);
+
+        if (attachment != null)
+        {
+            return attachment;
+        } else
+        {
+            throw new UserFailureException(
+                    "Attachment '"
+                            + filename
+                            + "' "
+                            + (versionOrNull == null ? "(latest version)" : "(version '"
+                                    + versionOrNull + "')") + " not found in sample '"
+                            + sample.getIdentifier() + "'.");
+        }
     }
 
     private AttachmentPE getAttachment(String filename, final int version)

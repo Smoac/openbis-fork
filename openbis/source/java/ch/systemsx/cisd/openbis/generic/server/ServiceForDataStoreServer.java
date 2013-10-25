@@ -122,6 +122,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypePropertyType;
@@ -174,6 +177,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -229,6 +234,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.translator.AttachmentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypePropertyTypeTranslator;
@@ -2874,6 +2880,92 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         final List<RoleAssignmentPE> roles =
                 getDAOFactory().getRoleAssignmentDAO().listRoleAssignments();
         return RoleAssignmentTranslator.translate(roles);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<Attachment> listAttachments(String sessionToken, AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId)
+    {
+        Session session = getSession(sessionToken);
+
+        AttachmentHolderPE attachmentHolder = null;
+
+        switch (attachmentHolderKind)
+        {
+            case PROJECT:
+            {
+                IProjectBO projectBO = businessObjectFactory.createProjectBO(session);
+                projectBO.loadDataByTechId(new TechId(attachmentHolderId));
+                attachmentHolder = projectBO.getProject();
+                break;
+            }
+            case EXPERIMENT:
+            {
+                IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(session);
+                experimentBO.loadDataByTechId(new TechId(attachmentHolderId));
+                attachmentHolder = experimentBO.getExperiment();
+                break;
+            }
+            case SAMPLE:
+            {
+                ISampleBO sampleBO = businessObjectFactory.createSampleBO(session);
+                sampleBO.loadDataByTechId(new TechId(attachmentHolderId));
+                attachmentHolder = sampleBO.getSample();
+                break;
+            }
+        }
+
+        if (attachmentHolder != null)
+        {
+            List<AttachmentPE> attachments = getDAOFactory().getAttachmentDAO().listAttachments(attachmentHolder);
+            return AttachmentTranslator.translate(attachments, session.getBaseIndexURL());
+        } else
+        {
+            return null;
+        }
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public AttachmentWithContent getAttachment(String sessionToken, AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId,
+            String fileName, Integer versionOrNull)
+    {
+        Session session = getSession(sessionToken);
+
+        AttachmentPE attachment = null;
+
+        switch (attachmentHolderKind)
+        {
+            case PROJECT:
+            {
+                IProjectBO bo = businessObjectFactory.createProjectBO(session);
+                bo.loadDataByTechId(new TechId(attachmentHolderId));
+                attachment = bo.tryGetProjectFileAttachment(fileName, versionOrNull);
+                break;
+            }
+            case EXPERIMENT:
+            {
+                IExperimentBO bo = businessObjectFactory.createExperimentBO(session);
+                bo.loadDataByTechId(new TechId(attachmentHolderId));
+                attachment = bo.tryGetExperimentFileAttachment(fileName, versionOrNull);
+                break;
+            }
+            case SAMPLE:
+            {
+                ISampleBO bo = businessObjectFactory.createSampleBO(session);
+                bo.loadDataByTechId(new TechId(attachmentHolderId));
+                attachment = bo.tryGetSampleFileAttachment(fileName, versionOrNull);
+                break;
+            }
+        }
+
+        if (attachment != null)
+        {
+            return AttachmentTranslator.translateWithContent(attachment);
+        } else
+        {
+            return null;
+        }
     }
 
 }

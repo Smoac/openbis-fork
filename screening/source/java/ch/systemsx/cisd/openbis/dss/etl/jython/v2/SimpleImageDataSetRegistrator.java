@@ -258,15 +258,21 @@ public class SimpleImageDataSetRegistrator
 
         for (File imageFile : imageFiles)
         {
-            File file = new File(imageFile.getPath());
-            List<ImageIdentifier> identifiers = getImageIdentifiers(imageReaderOrNull, file);
-            String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
-            ImageMetadata[] imageTokens =
-                    simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
-            for (ImageMetadata imageToken : imageTokens)
+            try
             {
-                imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
-                imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+                File file = new File(imageFile.getPath());
+                List<ImageIdentifier> identifiers = getImageIdentifiers(imageReaderOrNull, file);
+                String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
+                ImageMetadata[] imageTokens =
+                        simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
+                for (ImageMetadata imageToken : imageTokens)
+                {
+                    imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
+                    imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+                }
+            } catch (Exception ex)
+            {
+                throw new UserFailureException("Error ocured when processing image " + imageFile.getPath(), ex);
             }
         }
         if (imageTokensList.isEmpty())
@@ -589,20 +595,26 @@ public class SimpleImageDataSetRegistrator
 
         for (File imageFile : imageFiles)
         {
-            List<ImageIdentifier> imageIdentifiers = getImageIdentifiers(readerOrNull, imageFile);
-            for (ImageIdentifier imageIdentifier : imageIdentifiers)
+            try
             {
-                BufferedImage image =
-                        loadUnchangedImage(imageFile, imageIdentifier, libraryName, readerName);
-                if (IntensityRescaling.isNotGrayscale(image))
+                List<ImageIdentifier> imageIdentifiers = getImageIdentifiers(readerOrNull, imageFile);
+                for (ImageIdentifier imageIdentifier : imageIdentifiers)
                 {
-                    operationLog
-                            .warn(String
-                                    .format("Intensity range cannot be computed because image '%s' is not in grayscale.",
-                                            imageFile.getPath()));
-                    return null;
+                    BufferedImage image =
+                            loadUnchangedImage(imageFile, imageIdentifier, libraryName, readerName);
+                    if (IntensityRescaling.isNotGrayscale(image))
+                    {
+                        operationLog
+                                .warn(String
+                                        .format("Intensity range cannot be computed because image '%s' is not in grayscale.",
+                                                imageFile.getPath()));
+                        return null;
+                    }
+                    IntensityRescaling.addToLevelStats(histogram, image);
                 }
-                IntensityRescaling.addToLevelStats(histogram, image);
+            } catch (Exception ex)
+            {
+                throw new UserFailureException("Error ocured when processing image " + imageFile.getPath(), ex);
             }
         }
         return IntensityRescaling.computeLevels(histogram, threshold);

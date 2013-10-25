@@ -57,21 +57,23 @@ public class ValidationScriptRunner
     /**
      * Factory method for creating a ValidationScriptRunner given a path to a script.
      * 
-     * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an
-     *            isolated system state. Use this on the server side where multiple Jython
-     *            interpreters may run in different threads. Note, however, that the re module has
-     *            some restrictions in this mode.
+     * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an isolated system state. Use this on the server side
+     *            where multiple Jython interpreters may run in different threads. Note, however, that the re module has some restrictions in this
+     *            mode.
      */
     public static ValidationScriptRunner createValidatorFromScriptPaths(String[] scriptPaths,
             boolean isolateJythonSystemState)
     {
         String scriptStringOrNull = ValidationScriptReader.tryReadValidationScript(scriptPaths);
+
         if (StringUtils.isBlank(scriptStringOrNull))
         {
             return new NullValidationScriptRunner();
         }
 
-        return new ValidationScriptRunner(scriptStringOrNull, isolateJythonSystemState);
+        String[] jythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPaths);
+
+        return new ValidationScriptRunner(scriptStringOrNull, jythonPath, isolateJythonSystemState);
     }
 
     /**
@@ -87,10 +89,9 @@ public class ValidationScriptRunner
     /**
      * Factory method for creating a ValidationScriptRunner given the script as a string.
      * 
-     * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an
-     *            isolated system state. Use this on the server side where multiple Jython
-     *            interpreters may run in different threads. Note, however, that the re module has
-     *            some restrictions in this mode.
+     * @param isolateJythonSystemState If <code>true</code>, create a jython interpreter with an isolated system state. Use this on the server side
+     *            where multiple Jython interpreters may run in different threads. Note, however, that the re module has some restrictions in this
+     *            mode.
      */
     public static ValidationScriptRunner createValidatorFromScriptString(String scriptString,
             boolean isolateJythonSystemState)
@@ -99,18 +100,19 @@ public class ValidationScriptRunner
         {
             return new NullValidationScriptRunner();
         }
-        return new ValidationScriptRunner(scriptString, isolateJythonSystemState);
+        return new ValidationScriptRunner(scriptString, null, isolateJythonSystemState);
     }
 
     private final PythonInterpreter interpreter;
 
     private final String scriptString;
 
-    private ValidationScriptRunner(String scriptString, boolean isolateJythonSystemState)
+    private ValidationScriptRunner(String scriptString, String[] pythonPath, boolean isolateJythonSystemState)
     {
         this.interpreter =
                 isolateJythonSystemState ? PythonInterpreter.createIsolatedPythonInterpreter()
                         : PythonInterpreter.createNonIsolatedPythonInterpreter();
+        this.interpreter.addToPath(pythonPath);
         // Load the script
         this.scriptString = scriptString;
 

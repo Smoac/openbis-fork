@@ -39,6 +39,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.api.v1.sort.SampleSearchResultSorter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
@@ -366,7 +367,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         .searchForSampleIDs(userId, detailedSearchCriteria);
 
         SampleByIdentiferValidator filter = new SampleByIdentiferValidator();
-        return createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
+        List<Sample> results = createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
+
+        return new SampleSearchResultSorter().sort(results, detailedSearchCriteria);
     }
 
     @Override
@@ -1229,5 +1232,40 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                 getDAOFactory().getAttachmentDAO().listAttachments(attachmentHolder);
         return Translator.translateAttachments(sessionToken, objectId, attachmentHolder,
                 attachments, allVersions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public final Map<String, String> getUserDisplaySettings(final String sessionToken)
+    {
+        String spaceCode = null;
+        String projectCode = null;
+
+        PersonPE person = this.getAuthSession(sessionToken).tryGetPerson();
+
+        // Get User space
+        if (person != null && person.getHomeSpace() != null)
+        {
+            spaceCode = person.getHomeSpace().getCode();
+        }
+
+        // Get Project from user settings
+        if (person != null && person.getDisplaySettings() != null)
+        {
+            projectCode = person.getDisplaySettings().getDefaultProject();
+        }
+
+        // Build Result
+        Map<String, String> userSettings = new HashMap<String, String>();
+        if (spaceCode != null)
+        {
+            userSettings.put("spaceCode", spaceCode);
+        }
+        if (projectCode != null)
+        {
+            userSettings.put("projectCode", projectCode);
+        }
+        return userSettings;
     }
 }

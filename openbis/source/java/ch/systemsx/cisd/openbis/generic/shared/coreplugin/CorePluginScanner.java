@@ -32,8 +32,8 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 
 /**
- * The {@link CorePluginScanner} contains no special logic. Its sole function is to understand the
- * plugins folder hierarchy and to load plugins from the file system.
+ * The {@link CorePluginScanner} contains no special logic. Its sole function is to understand the plugins folder hierarchy and to load plugins from
+ * the file system.
  * 
  * @author Kaloyan Enimanev
  */
@@ -110,6 +110,13 @@ public class CorePluginScanner implements ICorePluginResourceLoader
         {
             return null;
         }
+    }
+
+    @Override
+    public String getPath(CorePlugin plugin, String path)
+    {
+        File result = new File(getFolderForPlugin(plugin), path);
+        return result.getAbsolutePath();
     }
 
     public List<CorePlugin> scanForPlugins()

@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.registrator.api.v2;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
@@ -24,6 +25,7 @@ import net.lemnik.eodsql.DynamicTransactionQuery;
 import ch.systemsx.cisd.etlserver.TopLevelDataSetRegistratorGlobalState;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationContext;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.DataSetRegistrationTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IAttachmentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExperimentImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IExternalDataManagementSystemImmutable;
@@ -361,6 +363,42 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     public void revokeRoleFromSpace(RoleCode role, ISpaceImmutable space, List<String> userIds, List<String> groupCodes)
     {
         transaction.revokeRoleFromSpace(role, space, userIds, groupCodes);
+    }
+
+    @Override
+    public InputStream getAttachmentContent(IProjectImmutable project, String fileName, Integer versionOrNull)
+    {
+        return transaction.getAttachmentContent(project, fileName, versionOrNull);
+    }
+
+    @Override
+    public InputStream getAttachmentContent(IExperimentImmutable experiment, String fileName, Integer versionOrNull)
+    {
+        return transaction.getAttachmentContent(experiment, fileName, versionOrNull);
+    }
+
+    @Override
+    public InputStream getAttachmentContent(ISampleImmutable sample, String fileName, Integer versionOrNull)
+    {
+        return transaction.getAttachmentContent(sample, fileName, versionOrNull);
+    }
+
+    @Override
+    public List<IAttachmentImmutable> listAttachments(IProjectImmutable project)
+    {
+        return transaction.listAttachments(project);
+    }
+
+    @Override
+    public List<IAttachmentImmutable> listAttachments(IExperimentImmutable experiment)
+    {
+        return transaction.listAttachments(experiment);
+    }
+
+    @Override
+    public List<IAttachmentImmutable> listAttachments(ISampleImmutable sample)
+    {
+        return transaction.listAttachments(sample);
     }
 
 }

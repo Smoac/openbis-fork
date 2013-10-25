@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +50,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -968,4 +973,19 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     {
         return service.listRoleAssignments(session.getSessionToken());
     }
+
+    @Override
+    public List<Attachment> listAttachments(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId)
+    {
+        return service.listAttachments(session.getSessionToken(), attachmentHolderKind, attachmentHolderId);
+    }
+
+    @Override
+    public InputStream getAttachmentContent(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId, String fileName, Integer versionOrNull)
+    {
+        AttachmentWithContent attachment =
+                service.getAttachment(session.getSessionToken(), attachmentHolderKind, attachmentHolderId, fileName, versionOrNull);
+        return attachment != null ? new ByteArrayInputStream(attachment.getContent()) : null;
+    }
+
 }

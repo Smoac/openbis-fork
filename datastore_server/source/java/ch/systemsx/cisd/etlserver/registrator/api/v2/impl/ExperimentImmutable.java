@@ -42,6 +42,11 @@ public class ExperimentImmutable implements IExperimentImmutable
         return identifier == null ? null : identifier.toUpperCase();
     }
 
+    public Long getId()
+    {
+        return experiment.getId();
+    }
+
     @Override
     public IObjectId getEntityId()
     {

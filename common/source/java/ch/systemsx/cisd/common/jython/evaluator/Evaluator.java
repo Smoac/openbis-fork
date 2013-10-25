@@ -49,13 +49,13 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 /**
  * A class for evaluating expressions, based on Jython.
  * <p>
- * This class is optimized for evaluating the same expression with a different set of variables
- * repeatedly and efficient. The mode of usage of this class is:
+ * This class is optimized for evaluating the same expression with a different set of variables repeatedly and efficient. The mode of usage of this
+ * class is:
  * <ol>
  * <li>Construct an {@link Evaluator} with an appropriate expression.</li>
  * <li>Set all variables needed for evaluation via {@link #set(String, Object)}</li>
- * <li>Call one of {@link #getType()}, {@link #evalAsString}, {@link #evalToBoolean()},
- * {@link #evalToInt()}, {@link #evalToBigInt()}, {@link #evalToDouble()}.</li>
+ * <li>Call one of {@link #getType()}, {@link #evalAsString}, {@link #evalToBoolean()}, {@link #evalToInt()}, {@link #evalToBigInt()},
+ * {@link #evalToDouble()}.</li>
  * <li>Repeat from step 2</li>
  * </ol>
  * 
@@ -99,37 +99,38 @@ public final class Evaluator
      * Creates a new {@link Evaluator} with file system access blocked.
      * 
      * @param expression The expression to evaluate.
-     * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the
-     *            given class will be available to the evaluator as "supporting functions".
-     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script
-     *            which is evaluated initially, e.g. to define some new functions. Note: this script
-     *            is trusted, so don't run any unvalidated code here!
+     * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the given class will be available to the evaluator as
+     *            "supporting functions".
+     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script which is evaluated initially, e.g. to define some
+     *            new functions. Note: this script is trusted, so don't run any unvalidated code here!
      */
     public Evaluator(String expression, Class<?> supportFunctionsOrNull, String initialScriptOrNull)
             throws EvaluatorException
     {
-        this(expression, supportFunctionsOrNull, initialScriptOrNull, true);
+        this(expression, null, supportFunctionsOrNull, initialScriptOrNull, true);
     }
 
     /**
      * Creates a new {@link Evaluator}.
      * 
      * @param expression The expression to evaluate.
-     * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the
-     *            given class will be available to the evaluator as "supporting functions".
-     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script
-     *            which is evaluated initially, e.g. to define some new functions. Note: this script
-     *            is trusted, so don't run any unvalidated code here!
+     * @param supportFunctionsOrNull If not <code>null</code>, all public static methods of the given class will be available to the evaluator as
+     *            "supporting functions".
+     * @param initialScriptOrNull If not <code>null</code>, this has to be a valid (Python) script which is evaluated initially, e.g. to define some
+     *            new functions. Note: this script is trusted, so don't run any unvalidated code here!
      * @param blockFileAccess If <code>true</code> the script will not be able to open files.
      */
-    public Evaluator(String expression, Class<?> supportFunctionsOrNull,
+    public Evaluator(String expression, String[] pythonPath, Class<?> supportFunctionsOrNull,
             String initialScriptOrNull, boolean blockFileAccess) throws EvaluatorException
     {
         if (isMultiline(expression))
         {
             throw new EvaluatorException("Expression '" + expression + "' contains line breaks");
         }
+
         this.interpreter = PythonInterpreter.createIsolatedPythonInterpreter();
+        this.interpreter.addToPath(pythonPath);
+
         // Security: do not allow file access.
         try
         {
@@ -164,9 +165,8 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates specified function with specified arguments. The arguments are turned into Python
-     * Strings if they are Java {@link String} objects. The return value of the function is returned
-     * as a Java object or <code>null</code>.
+     * Evaluates specified function with specified arguments. The arguments are turned into Python Strings if they are Java {@link String} objects.
+     * The return value of the function is returned as a Java object or <code>null</code>.
      * 
      * @throws EvaluatorException if evaluation fails.
      */
@@ -245,8 +245,7 @@ public final class Evaluator
     }
 
     /**
-     * Returns <code>true</code> if and only if the variable <var>name</var> exists in the
-     * evaluator's name space.
+     * Returns <code>true</code> if and only if the variable <var>name</var> exists in the evaluator's name space.
      */
     public boolean has(String name)
     {
@@ -282,15 +281,13 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result. Use this method if you do
-     * not know what will be the result type.
+     * Evaluates the expression of this evaluator and returns the result. Use this method if you do not know what will be the result type.
      * <p>
-     * <i>This is a legacy function to mimic the old Jython 2.2 Evaluator's behavior which will only
-     * return Long, Double or String and doesn't know boolean.</i>
+     * <i>This is a legacy function to mimic the old Jython 2.2 Evaluator's behavior which will only return Long, Double or String and doesn't know
+     * boolean.</i>
      * 
-     * @return evaluation result which can be of Long, Double or String type. All other types are
-     *         converted to String representation except {@link PyNone} that represents null value
-     *         and will be converted to <code>null</code>.
+     * @return evaluation result which can be of Long, Double or String type. All other types are converted to String representation except
+     *         {@link PyNone} that represents null value and will be converted to <code>null</code>.
      */
     public Object evalLegacy2_2()
     {
@@ -306,8 +303,7 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result. Use this method if you do
-     * not know what will be the result type.
+     * Evaluates the expression of this evaluator and returns the result. Use this method if you do not know what will be the result type.
      * 
      * @return evaluation result as translated by the Jython interpreter..
      */
@@ -358,8 +354,7 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result, assuming that the
-     * expression has a boolean return type.
+     * Evaluates the expression of this evaluator and returns the result, assuming that the expression has a boolean return type.
      */
     public boolean evalToBoolean() throws EvaluatorException
     {
@@ -376,8 +371,7 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result, assuming that the
-     * expression has an integer return type.
+     * Evaluates the expression of this evaluator and returns the result, assuming that the expression has an integer return type.
      */
     public int evalToInt() throws EvaluatorException
     {
@@ -394,8 +388,7 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result, assuming that the
-     * expression has a big integer return type.
+     * Evaluates the expression of this evaluator and returns the result, assuming that the expression has a big integer return type.
      */
     public BigInteger evalToBigInt() throws EvaluatorException
     {
@@ -412,8 +405,7 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result, assuming that the
-     * expression has a floating point (double) return type.
+     * Evaluates the expression of this evaluator and returns the result, assuming that the expression has a floating point (double) return type.
      */
     public double evalToDouble() throws EvaluatorException
     {
@@ -430,11 +422,10 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result as a String. This method
-     * can always be called.
+     * Evaluates the expression of this evaluator and returns the result as a String. This method can always be called.
      * <p>
-     * <i>This is a legacy function to mimic the old Jython 2.2 Evaluator's behavior which first
-     * translates to Long and Double and doesn't know boolean.</i>
+     * <i>This is a legacy function to mimic the old Jython 2.2 Evaluator's behavior which first translates to Long and Double and doesn't know
+     * boolean.</i>
      * <p>
      * NOTE: null will be returned if expression results in {@link PyNone}
      */
@@ -445,8 +436,7 @@ public final class Evaluator
     }
 
     /**
-     * Evaluates the expression of this evaluator and returns the result as a String. This method
-     * can always be called.
+     * Evaluates the expression of this evaluator and returns the result as a String. This method can always be called.
      * <p>
      * NOTE: null will be returned if expression results in {@link PyNone}
      */

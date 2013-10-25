@@ -83,7 +83,7 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
 
     static private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetRegistrationService.class);
-    
+
     protected String userSessionToken;
 
     /**
@@ -234,6 +234,10 @@ public class DataSetRegistrationService<T extends DataSetInformation> implements
     {
         if (false == cleanActionExecuted)
         {
+            if (transaction != null)
+            {
+                transaction.close();
+            }
             globalCleanAfterwardsAction.execute(success);
             cleanActionExecuted = true;
         }

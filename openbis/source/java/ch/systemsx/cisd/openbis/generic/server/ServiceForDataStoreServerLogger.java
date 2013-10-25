@@ -36,6 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
@@ -826,4 +829,23 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
         logAccess(Level.DEBUG, sessionToken, "listRoleAssignments", "");
         return null;
     }
+
+    @Override
+    public AttachmentWithContent getAttachment(String sessionToken, AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId,
+            String fileName, Integer versionOrNull)
+    {
+        logAccess(Level.DEBUG, sessionToken, "getAttachment", "ATTACHMENT_HOLDER_KIND(%s), ATTACHMENT_HOLDER_ID(%s), FILE_NAME(%s), VERSION(%s)",
+                attachmentHolderKind,
+                attachmentHolderId, fileName, versionOrNull);
+        return null;
+    }
+
+    @Override
+    public List<Attachment> listAttachments(String sessionToken, AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId)
+    {
+        logAccess(Level.DEBUG, sessionToken, "listAttachments", "ATTACHMENT_HOLDER_KIND(%s), ATTACHMENT_HOLDER_ID(%s)", attachmentHolderKind,
+                attachmentHolderId);
+        return null;
+    }
+
 }

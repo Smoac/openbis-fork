@@ -247,14 +247,11 @@ public abstract class SystemTestCase extends AssertJUnit
         boolean dataSetImported = false;
         String logContent = "";
         final int maxLoops = dataSetImportWaitDurationInSeconds();
-        if (logAppender == null)
-        {
-            logAppender = new BufferedAppender("%t: %c - %m%n", Level.INFO);
-        }
+
         for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
         {
             Thread.sleep(1000);
-            logContent = logAppender.getLogContent();
+            logContent = getLogAppender().getLogContent();
             if (checkLogContentForFinishedDataSetRegistration(logContent))
             {
                 dataSetImported = true;
@@ -270,6 +267,24 @@ public abstract class SystemTestCase extends AssertJUnit
             fail("Failed to determine whether data set import was successful:" + logContent);
         }
 
+    }
+
+    protected void waitUntilDataSetImportedWithError(String dropboxName) throws Exception
+    {
+        final int maxLoops = dataSetImportWaitDurationInSeconds();
+
+        for (int loops = 0; loops < maxLoops; loops++)
+        {
+            Thread.sleep(1000);
+
+            String logContent = getLogAppender().getLogContent();
+            if (logContent.contains("ERROR") && logContent.contains(dropboxName))
+            {
+                return;
+            }
+        }
+
+        fail("Failed to determine whether data set import was executed with error");
     }
 
     protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
@@ -357,4 +372,14 @@ public abstract class SystemTestCase extends AssertJUnit
         }
         return checkForFinalPostRegistrationLogEntry(logContent, dataSets);
     }
+
+    private BufferedAppender getLogAppender()
+    {
+        if (logAppender == null)
+        {
+            logAppender = new BufferedAppender("%t: %c - %m%n", Level.INFO);
+        }
+        return logAppender;
+    }
+
 }

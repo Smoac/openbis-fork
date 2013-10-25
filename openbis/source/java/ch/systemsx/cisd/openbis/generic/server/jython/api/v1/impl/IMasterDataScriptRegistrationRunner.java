@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl;
 
-
 /**
  * Implementation of this interface know how to execute a master data registration script.
  * 
@@ -30,6 +29,6 @@ public interface IMasterDataScriptRegistrationRunner
      * 
      * @throws MasterDataRegistrationException if the script produces an error
      */
-    void executeScript(String jythonScript) throws MasterDataRegistrationException;
+    void executeScript(String jythonScript, String[] jythonPath) throws MasterDataRegistrationException;
 
 }

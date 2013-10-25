@@ -102,7 +102,7 @@ public abstract class AbstractGenericEntityRegistrationForm<T extends EntityType
             Map<String, List<IManagedInputWidgetDescription>> inputWidgetDescriptionsOrNull,
             IIdAndCodeHolder identifiableOrNull, EntityKind entityKind)
     {
-        super(viewContext, createId(identifiableOrNull, entityKind), DEFAULT_LABEL_WIDTH + 20,
+        super(viewContext, createId(identifiableOrNull, entityKind), DEFAULT_LABEL_WIDTH + 90,
                 DEFAULT_FIELD_WIDTH);
         this.viewContext = viewContext;
         this.inputWidgetDescriptions =

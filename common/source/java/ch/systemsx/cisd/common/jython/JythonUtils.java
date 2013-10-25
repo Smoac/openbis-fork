@@ -16,7 +16,10 @@
 
 package ch.systemsx.cisd.common.jython;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.python.core.Py;
@@ -24,7 +27,6 @@ import org.python.core.PyDictionary;
 import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.PySequenceList;
-
 
 /**
  * Jython utility methods.
@@ -78,5 +80,40 @@ public class JythonUtils
             pyArgs[i] = Py.java2py(args[i]);
         }
         return function.__call__(pyArgs);
+    }
+
+    /**
+     * Returns a python path that contains folders the specified scripts are located in. Returns null if no scripts have been specified.
+     */
+    public static String[] getScriptDirectoryPythonPath(String... scriptPaths)
+    {
+        if (scriptPaths == null || scriptPaths.length == 0)
+        {
+            return null;
+        }
+
+        List<String> pythonPath = new ArrayList<String>();
+
+        for (String scriptPath : scriptPaths)
+        {
+            if (scriptPath != null)
+            {
+                File scriptFile = new File(scriptPath);
+                File scriptDirectory = scriptFile.getParentFile();
+
+                if (scriptDirectory != null)
+                {
+                    pythonPath.add(scriptDirectory.getAbsolutePath());
+                }
+            }
+        }
+
+        if (pythonPath.isEmpty())
+        {
+            return null;
+        } else
+        {
+            return pythonPath.toArray(new String[pythonPath.size()]);
+        }
     }
 }

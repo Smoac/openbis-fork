@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
+import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -98,9 +99,12 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
     {
         String masterDataScript =
                 resourceLoader.tryLoadToString(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
+        String masterDataScriptPath = resourceLoader.getPath(plugin, AsCorePluginPaths.INIT_MASTER_DATA_SCRIPT);
+
         if (false == StringUtils.isEmpty(masterDataScript))
         {
-            runInitializeMasterDataScript(plugin, masterDataScript);
+            String[] jythonPath = JythonUtils.getScriptDirectoryPythonPath(masterDataScriptPath);
+            runInitializeMasterDataScript(plugin, masterDataScript, jythonPath);
             CorePluginPE pluginPE = CorePluginTranslator.translate(plugin, masterDataScript);
             getCorePluginDAO().createCorePlugins(Collections.singletonList(pluginPE));
             operationLog.info(plugin + " installed succesfully.");
@@ -111,13 +115,13 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
         }
     }
 
-    private void runInitializeMasterDataScript(CorePlugin plugin, String masterDataScript)
+    private void runInitializeMasterDataScript(CorePlugin plugin, String masterDataScript, String[] jythonPath)
     {
         operationLog.info("Executing master data initialization script for plugin '" + plugin
                 + "'...");
         try
         {
-            masterDataScriptRunner.executeScript(masterDataScript);
+            masterDataScriptRunner.executeScript(masterDataScript, jythonPath);
         } catch (MasterDataRegistrationException mdre)
         {
             Log4jSimpleLogger errorLogger = new Log4jSimpleLogger(operationLog);

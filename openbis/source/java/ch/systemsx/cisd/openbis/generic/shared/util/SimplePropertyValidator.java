@@ -36,9 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.ValidationUtilities.Hyperli
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 
 /**
- * This is a refactoring of
- * {@link ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator} that takes some
- * simple validations that do not require access to the PEs to a more accessible place.
+ * This is a refactoring of {@link ch.systemsx.cisd.openbis.generic.server.dataaccess.PropertyValidator} that takes some simple validations that do
+ * not require access to the PEs to a more accessible place.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -221,8 +220,8 @@ public class SimplePropertyValidator
             assert value != null : "Unspecified value.";
             try
             {
-                Long.parseLong(value);
-                return value;
+                long longValue = Long.parseLong(value);
+                return String.valueOf(longValue);
             } catch (final NumberFormatException ex)
             {
                 throw UserFailureException.fromTemplate("Integer value '%s' has improper format.",
@@ -244,8 +243,8 @@ public class SimplePropertyValidator
             assert value != null : "Unspecified value.";
             try
             {
-                Double.parseDouble(value);
-                return value;
+                double doubleValue = Double.parseDouble(value);
+                return String.valueOf(doubleValue);
             } catch (final NumberFormatException ex)
             {
                 throw UserFailureException.fromTemplate("Double value '%s' has improper format.",
@@ -283,4 +282,5 @@ public class SimplePropertyValidator
             return value;
         }
     }
+
 }
