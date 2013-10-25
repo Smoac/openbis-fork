@@ -99,8 +99,12 @@ class ChannelChooser
 
     private Map<String, IntensityRange> rangesOrNull;
 
+    // window id is the string identifying the kind of a view (either a tile view or well view)
+    // It is used as a key to store selected image resolutions different for tile and well view
+    private final String windowId;
+
     public ChannelChooser(LogicalImageReference basicImage, IChanneledViewerFactory viewerFactory,
-            IDefaultChannelState defaultChannelState)
+            IDefaultChannelState defaultChannelState, String windowId)
     {
         this.basicImage = basicImage;
         this.viewerFactory = viewerFactory;
@@ -114,6 +118,7 @@ class ChannelChooser
         this.rangesOrNull = tryGetInitialIntensityRange(defaultChannelState, basicChannelCodes);
         this.defaultChannelState = defaultChannelState;
         this.selectedOverlayChannels = new HashSet<ImageDatasetChannel>();
+        this.windowId = windowId;
     }
 
     /** Refreshes the displayed images, but not the rest of the GUI */
@@ -359,13 +364,13 @@ class ChannelChooser
         {
             resolutionChooser =
                     new ResolutionChooser(viewContext, resolutions,
-                            defaultChannelState.tryGetDefaultResolution());
+                            defaultChannelState.tryGetDefaultResolution(windowId));
             resolutionChooser.addResolutionChangedListener(new Listener<BaseEvent>()
                 {
                     @Override
                     public void handleEvent(BaseEvent be)
                     {
-                        defaultChannelState.setDefaultResolution(resolutionChooser.getResolution());
+                        defaultChannelState.setDefaultResolution(resolutionChooser.getResolution(), windowId);
                         refresh();
                     }
                 });

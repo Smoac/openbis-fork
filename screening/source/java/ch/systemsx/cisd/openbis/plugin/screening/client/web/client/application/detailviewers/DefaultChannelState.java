@@ -75,15 +75,15 @@ public class DefaultChannelState implements IDefaultChannelState
     }
 
     @Override
-    public ImageResolution tryGetDefaultResolution()
+    public ImageResolution tryGetDefaultResolution(String windowId)
     {
-        return getDisplaySettingManager().getDefaultResolution(displayTypeId);
+        return getDisplaySettingManager().getDefaultResolution(displayTypeId + windowId);
     }
 
     @Override
-    public void setDefaultResolution(ImageResolution resolution)
+    public void setDefaultResolution(ImageResolution resolution, String windowId)
     {
-        getDisplaySettingManager().setDefaultResolution(displayTypeId, resolution);
+        getDisplaySettingManager().setDefaultResolution(displayTypeId + windowId, resolution);
     }
 
     @Override

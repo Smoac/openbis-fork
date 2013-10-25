@@ -51,7 +51,7 @@ public class TileContentDialog extends ImageDialog
                         experimentPermId, false);
 
         final Grid grid = new Grid(1, 1);
-        grid.setWidget(0, 0, imageViewer.getViewerWidget());
+        grid.setWidget(0, 0, imageViewer.getViewerWidget("TileContentDialog"));
         add(grid);
 
         imageViewer.setLogicalImageRefreshHandler(new LogicalImageRefreshHandler()

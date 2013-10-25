@@ -108,34 +108,33 @@ public class LogicalImageViewer
     }
 
     /** Creates a widget which displays a series of images. */
-    public Widget getViewerWidget(List<ImageChannelStack> channelStackImages)
+    public Widget getViewerWidget(List<ImageChannelStack> channelStackImages, String windowId)
     {
         if (logicalImageReference.isMultidimensional())
         {
-            return createSeriesImageWidget(channelStackImages);
+            return createSeriesImageWidget(channelStackImages, windowId + "series");
         } else
         {
-            return getStaticImageWidget();
+            return getStaticImageWidget(windowId + "static");
         }
     }
 
     /**
-     * Creates a widget which displays a series of images. If there are image series fetches
-     * information about them from the server.
+     * Creates a widget which displays a series of images. If there are image series fetches information about them from the server.
      */
-    public Widget getViewerWidget()
+    public Widget getViewerWidget(String windowId)
     {
         if (logicalImageReference.isMultidimensional())
         {
-            return getSeriesImageWidget();
+            return getSeriesImageWidget(windowId + "series");
         } else
         {
-            return getStaticImageWidget();
+            return getStaticImageWidget(windowId + "static");
         }
     }
 
     /** Creates a widget which displays a series of images. */
-    private Widget getSeriesImageWidget()
+    private Widget getSeriesImageWidget(final String windowId)
     {
         final LayoutContainer container = new LayoutContainer();
         container.add(new Text(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.LOAD_IN_PROGRESS)));
@@ -156,7 +155,7 @@ public class LogicalImageViewer
                                     imageInfo.getChannelStacks();
                             if (channelStackImages.size() > 0)
                             {
-                                container.add(createSeriesImageWidget(channelStackImages));
+                                container.add(createSeriesImageWidget(channelStackImages, windowId));
                             } else
                             {
                                 container.add(new Text(NO_IMAGES_AVAILABLE_MSG));
@@ -167,7 +166,7 @@ public class LogicalImageViewer
         return container;
     }
 
-    private Widget createSeriesImageWidget(final List<ImageChannelStack> channelStackImages)
+    private Widget createSeriesImageWidget(final List<ImageChannelStack> channelStackImages, String windowId)
     {
         final Button adjustColorsButton = createAdjustColorsButton();
         final IChanneledViewerFactory viewerFactory = new IChanneledViewerFactory()
@@ -205,7 +204,7 @@ public class LogicalImageViewer
                     return new LogicalImageSeriesGrid(initializer);
                 }
             };
-        return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);
+        return createViewerWithChannelChooser(viewerFactory, adjustColorsButton, windowId);
     }
 
     private List<ImageChannelStack> filterChannelStackImages(
@@ -233,7 +232,7 @@ public class LogicalImageViewer
     }
 
     private LayoutContainer createViewerWithChannelChooser(
-            final IChanneledViewerFactory viewerFactory, final Button adjustColorsButton)
+            final IChanneledViewerFactory viewerFactory, final Button adjustColorsButton, final String windowId)
     {
         final LayoutContainer container = createMainEmptyContainer();
 
@@ -244,7 +243,7 @@ public class LogicalImageViewer
         }
 
         final ChannelChooser channelChooser =
-                new ChannelChooser(logicalImageReference, viewerFactory, channelState);
+                new ChannelChooser(logicalImageReference, viewerFactory, channelState, windowId);
         channelChooser.addViewerTo(container, viewContext, new AsyncCallback<Void>()
             {
                 @Override
@@ -256,7 +255,8 @@ public class LogicalImageViewer
                         buttonToolbar.setLayout(new ColumnLayout());
                         buttonToolbar.add(adjustColorsButton);
                         Button refreshButton =
-                                new Button(viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_REFRESH),
+                                new Button(
+                                        viewContext.getMessage(ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict.BUTTON_REFRESH),
                                         new SelectionListener<ButtonEvent>()
                                             {
                                                 @Override
@@ -333,7 +333,7 @@ public class LogicalImageViewer
     }
 
     /** Creates a widget which displays images which has no series. */
-    private Widget getStaticImageWidget()
+    private Widget getStaticImageWidget(String windowId)
     {
 
         final Button adjustColorsButton = createAdjustColorsButton();
@@ -366,7 +366,7 @@ public class LogicalImageViewer
                 }
 
             };
-        return createViewerWithChannelChooser(viewerFactory, adjustColorsButton);
+        return createViewerWithChannelChooser(viewerFactory, adjustColorsButton, windowId);
     }
 
     private String createDisplayTypeId()

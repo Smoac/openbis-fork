@@ -114,7 +114,7 @@ public class WellContentDialog extends ImageDialog
             LogicalImageViewer viewer = contentDialog.createImageViewer();
 
             final Grid grid = new Grid(1, 1);
-            grid.setWidget(0, 0, viewer.getViewerWidget());
+            grid.setWidget(0, 0, viewer.getViewerWidget("WellContentDialog"));
             contentDialog.add(grid);
 
             viewer.setLogicalImageRefreshHandler(new LogicalImageRefreshHandler()
