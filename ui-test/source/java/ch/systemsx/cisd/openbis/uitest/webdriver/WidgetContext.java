@@ -151,12 +151,6 @@ class WidgetContext implements WebElement, Locatable, WrapsElement
     }
 
     @Override
-    public Point getLocationOnScreenOnceScrolledIntoView()
-    {
-        return ((Locatable) element).getLocationOnScreenOnceScrolledIntoView();
-    }
-
-    @Override
     public WebElement getWrappedElement()
     {
         if (element instanceof WrapsElement)

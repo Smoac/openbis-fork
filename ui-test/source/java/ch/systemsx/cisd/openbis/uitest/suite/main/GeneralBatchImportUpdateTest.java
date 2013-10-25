@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.uitest.suite.main;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import org.testng.annotations.Test;
+
 import ch.systemsx.cisd.openbis.uitest.dsl.IdentifiedBy;
 import ch.systemsx.cisd.openbis.uitest.type.GeneralBatchImportFile;
 import ch.systemsx.cisd.openbis.uitest.type.PropertyType;
@@ -32,7 +34,7 @@ import ch.systemsx.cisd.openbis.uitest.type.User;
 public class GeneralBatchImportUpdateTest extends MainSuite
 {
 
-    // @Test
+    @Test
     public void propertiesOfSampleIdentifiedWithSpaceAndCodeCanBeUpdated() throws Exception
     {
         Sample sample = create(aSample().ofType(basic).withProperty(propertyType, randomValue()));
@@ -48,7 +50,7 @@ public class GeneralBatchImportUpdateTest extends MainSuite
         assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(), newValue));
     }
 
-    // @Test
+    @Test
     public void propertiesOfSampleSampleIdentifiedWithCodeAndDefaultSpaceCanBeUpdated()
             throws Exception
     {
@@ -69,7 +71,7 @@ public class GeneralBatchImportUpdateTest extends MainSuite
         assertThat(browserEntryOf(sample), containsValue(propertyType.getLabel(), newValue));
     }
 
-    // @Test
+    @Test
     public void propertiesOfSampleIdentifiedWithCodeAndHomeSpaceCanBeUpdated() throws Exception
     {
         Sample sampleInHomeSpace = create(aSample().ofType(basic).in(homeSpace)
@@ -89,7 +91,7 @@ public class GeneralBatchImportUpdateTest extends MainSuite
                 newValue));
     }
 
-    // @Test
+    @Test
     public void propertiesOfComponentSampleIdentifiedWithSpaceAndCodeSubcodeCanBeUpdated()
             throws Exception
     {
@@ -113,7 +115,7 @@ public class GeneralBatchImportUpdateTest extends MainSuite
         assertThat(browserEntryOf(component), hasContainer(container));
     }
 
-    // @Test
+    @Test
     public void propertiesOfComponentSampleIdentifiedWithSpaceAndCodeAndContainerColumnCanBeUpdated()
             throws Exception
     {
