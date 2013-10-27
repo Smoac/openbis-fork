@@ -94,6 +94,10 @@ public class SegmentationDatasetRoundtripTest
         writer.close();
 
         ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final List<ICellLevelDataset> datasets = reader.getDataSets();
+        assertEquals(1, datasets.size());
+        assertEquals("789", datasets.get(0).getDatasetCode());
+        assertEquals(CellLevelDatasetType.SEGMENTATION, datasets.get(0).getType());
         ICellLevelSegmentationDataset rds = reader.getDataSet("789").toSegmentationDataset();
         assertEquals("789", rds.getDatasetCode());
         final Collection<ObjectType> objectTypes = rds.getObjectTypes();

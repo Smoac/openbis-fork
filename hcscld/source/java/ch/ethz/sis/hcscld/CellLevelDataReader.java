@@ -141,10 +141,16 @@ class CellLevelDataReader implements ICellLevelDataReader
     @Override
     public List<ICellLevelDataset> getDataSets()
     {
-        final List<String> codes = reader.getGroupMembers("/");
-        final List<ICellLevelDataset> result = new ArrayList<ICellLevelDataset>(codes.size());
-        for (String code : codes)
+        final List<String> datasetGroupPaths = reader.getGroupMembers("/");
+        final List<ICellLevelDataset> result = new ArrayList<ICellLevelDataset>(datasetGroupPaths.size());
+        for (String datasetGroupPath : datasetGroupPaths)
         {
+            final String code = CellLevelDataset.tryGetDatasetCode(datasetGroupPath);
+            if (code == null)
+            {
+                // Not a dataset group.
+                continue;
+            }
             final CellLevelDatasetTypeDescriptor desc = getDatasetTypeDesc(code);
             switch (desc.getDatasetType())
             {

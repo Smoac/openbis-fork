@@ -32,6 +32,8 @@ import ch.systemsx.cisd.hdf5.IHDF5Reader;
  */
 abstract class CellLevelDataset implements ICellLevelDataset
 {
+    private static final String DATASET_PATH_PREFIX = "Dataset_";
+
     static final String DATASET_TYPE_DIR = "__DATA_TYPES__";
 
     final IHDF5Reader reader;
@@ -362,7 +364,18 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     static String getDatasetPath(String datasetCode)
     {
-        return "/Dataset_" + datasetCode;
+        return "/" + DATASET_PATH_PREFIX + datasetCode;
+    }
+
+    static String tryGetDatasetCode(String datasetPath)
+    {
+        if (datasetPath.startsWith(DATASET_PATH_PREFIX))
+        {
+            return datasetPath.substring(DATASET_PATH_PREFIX.length());
+        } else
+        {
+            return null;
+        }
     }
 
     static String getImageQuantityStructureObjectPath(String datasetCode)
