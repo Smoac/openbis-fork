@@ -67,7 +67,7 @@
 				<include name="**/*.class" />
 				<exclude name="**/tools/*.class" />
 			</fileset>
-			<zipfileset src="${lib}/sis-base/sis-base.jar">
+			<zipfileset src="${lib}/cisd-base/cisd-base.jar">
 				<include name="ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class" />
 			</zipfileset>
 			<manifest>
@@ -82,7 +82,7 @@
 	<target name="doc">
 		<delete dir="${targets}/doc" />
 		<delete dir="${targets}/source-base" />
-		<unzip src="../libraries/sis-base/sis-base-src.zip" dest="${targets}/source-base" />
+		<unzip src="../libraries/cisd-base/cisd-base-src.zip" dest="${targets}/source-base" />
 		<unzip src="../libraries/sis-jhdf5/sis-jhdf5-src.zip" dest="${targets}/source-base" />
 		<javadoc sourcepath="source/java:${targets}/source-base"
 		         packagenames="ch.ethz.cisd.hcscld"
