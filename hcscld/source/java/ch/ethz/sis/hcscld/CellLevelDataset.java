@@ -214,7 +214,12 @@ abstract class CellLevelDataset implements ICellLevelDataset
     ObjectNamespace tryGetOnlyNamespace()
     {
         final Collection<ObjectNamespace> namespaces = getObjectNamespaces();
-        if (namespaces.size() > 1 || namespaces.isEmpty())
+        if (namespaces.size() > 1)
+        {
+            throw new IllegalStateException(
+                    "This dataset has multiple object namespaces.");
+        }
+        if (namespaces.isEmpty())
         {
             return null;
         }
@@ -223,18 +228,13 @@ abstract class CellLevelDataset implements ICellLevelDataset
 
     ObjectNamespace getOnlyNamespace()
     {
-        final Collection<ObjectNamespace> namespaces = getObjectNamespaces();
-        if (namespaces.size() > 1)
+        final ObjectNamespace namespace = tryGetOnlyNamespace();
+        if (namespace == null)
         {
             throw new IllegalStateException(
-                    "getOnlyNamespace() may not be called on datasets with multiple object namespaces.");
+                    "This dataset has no object namespace.");
         }
-        if (namespaces.size() == 0)
-        {
-            throw new IllegalStateException(
-                    "getOnlyNamespace() may not be called on datasets with no object namespace.");
-        }
-        return namespaces.iterator().next();
+        return namespace;
     }
 
     String getObjectTypeCompanionGroupObjectPath(String id)
