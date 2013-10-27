@@ -2,14 +2,14 @@
 	<import file="../../build_resources/ant/build-common.xml" />
 	<project-classpath name="ecp" classes="${classes}" />
 
-	<property name="mainfolder" value="cisd-${ant.project.name}" />
+	<property name="mainfolder" value="sis-${ant.project.name}" />
 	<property name="distfolder" value="${ant.project.name}" />
-	<property name="jar.file" value="${dist}/cisd-hcscld.jar" />
-	<property name="dist.file" value="${dist}/cisd-hcscld" />
+	<property name="jar.file" value="${dist}/sis-hcscld.jar" />
+	<property name="dist.file" value="${dist}/sis-hcscld" />
 	<property name="sources.examples" value="sourceExamples/java" />
-	<property name="src.zip.file" value="${dist}/cisd-hcscld-src.zip" />
-	<property name="examples.src.zip.file" value="${dist}/cisd-hcscld-examples-src.zip" />
-	<property name="javadoc.zip.file" value="${dist}/cisd-hcscld-javadoc.zip" />
+	<property name="src.zip.file" value="${dist}/sis-hcscld-src.zip" />
+	<property name="examples.src.zip.file" value="${dist}/sis-hcscld-examples-src.zip" />
+	<property name="javadoc.zip.file" value="${dist}/sis-hcscld-javadoc.zip" />
 	<property name="lib" value="../libraries" />
 	<property name="original.dist" value="../${ant.project.name}/dist" />
 
@@ -67,7 +67,7 @@
 				<include name="**/*.class" />
 				<exclude name="**/tools/*.class" />
 			</fileset>
-			<zipfileset src="${lib}/cisd-base/cisd-base.jar">
+			<zipfileset src="${lib}/sis-base/sis-base.jar">
 				<include name="ch/systemsx/cisd/base/utilities/AbstractBuildAndEnvironmentInfo.class" />
 			</zipfileset>
 			<manifest>
@@ -82,8 +82,8 @@
 	<target name="doc">
 		<delete dir="${targets}/doc" />
 		<delete dir="${targets}/source-base" />
-		<unzip src="../libraries/cisd-base/cisd-base-src.zip" dest="${targets}/source-base" />
-		<unzip src="../libraries/cisd-jhdf5/cisd-jhdf5-src.zip" dest="${targets}/source-base" />
+		<unzip src="../libraries/sis-base/sis-base-src.zip" dest="${targets}/source-base" />
+		<unzip src="../libraries/sis-jhdf5/sis-jhdf5-src.zip" dest="${targets}/source-base" />
 		<javadoc sourcepath="source/java:${targets}/source-base"
 		         packagenames="ch.ethz.cisd.hcscld"
 		         classpath="../libraries/commons-lang/commons-lang.jar:../libraries/commons-io/commons-io.jar:../libraries/restrictionchecker/restrictions.jar"
@@ -104,10 +104,10 @@
 	<target name="dist" depends="clean, jar, src-zip, examples-src-zip, doc">
 		<zip destfile="${javadoc.zip.file}" basedir="${targets}" includes="doc/**" />
 		<delete dir="${dist}/${mainfolder}" />
-		<copy file="${lib}/cisd-jhdf5/cisd-jhdf5-core.jar" todir="${dist}/${distfolder}/lib" />
-		<copy file="${lib}/cisd-jhdf5/hdf5-linux-intel.jar" todir="${dist}/${distfolder}/lib" />
-		<copy file="${lib}/cisd-jhdf5/hdf5-macosx-intel.jar" todir="${dist}/${distfolder}/lib" />
-		<copy file="${lib}/cisd-jhdf5/hdf5-windows-intel.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/sis-jhdf5/sis-jhdf5-core.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/sis-jhdf5/hdf5-linux-intel.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/sis-jhdf5/hdf5-macosx-intel.jar" todir="${dist}/${distfolder}/lib" />
+		<copy file="${lib}/sis-jhdf5/hdf5-windows-intel.jar" todir="${dist}/${distfolder}/lib" />
 		<move todir="${dist}/${distfolder}/lib">
 			<fileset dir="${dist}">
 				<include name="*.jar" />
