@@ -39,6 +39,28 @@ class Util
     private Util()
     {
     }
+    
+    /**
+     * Tries to return the prot.xml file in the specified data set.
+     * 
+     * @return <code>null</code> if non found.
+     */
+    static File tryGetProtXMLFile(File dataSet)
+    {
+        if (dataSet.isDirectory() == false)
+        {
+            return dataSet;
+        }
+        File[] files = dataSet.listFiles();
+        for (File file : files)
+        {
+            if (file.getName().endsWith("prot.xml"))
+            {
+                return file;
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns an array of all entity properties defined by the specified entity type for which

@@ -21,20 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ParentDataSetCodes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -45,6 +51,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoExtractorWithService
 {
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, DataSetInfoExtractorForProteinResults.class);
+
+    static final String NOT_PROCESSED_PROPERTY = "NOT_PROCESSED";
+
+    @Private 
+    static final String PROT_XML_SIZE_THRESHOLD = "prot-xml-size-threshold-in-MB";
+    
+    private static final int DEFAULT_PROT_XML_SIZE_THRESHOLD = 256;
+    
     @Private
     static final String EXPERIMENT_TYPE_CODE_KEY = "experiment-type-code";
     
@@ -76,6 +92,8 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
 
     private final String experimentTypeCode;
 
+    private final long protXmlSizeThreshold;
+    
     public DataSetInfoExtractorForProteinResults(Properties properties)
     {
         this(properties, ServiceProvider.getOpenBISService());
@@ -90,6 +108,8 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
                         DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME);
         experimentTypeCode =
                 properties.getProperty(EXPERIMENT_TYPE_CODE_KEY, DEFAULT_EXPERIMENT_TYPE_CODE);
+        protXmlSizeThreshold = PropertyUtils.getInt(properties, PROT_XML_SIZE_THRESHOLD, 
+                DEFAULT_PROT_XML_SIZE_THRESHOLD) * FileUtils.ONE_MB;
     }
 
     @Override
@@ -118,6 +138,20 @@ public class DataSetInfoExtractorForProteinResults extends AbstractDataSetInfoEx
         NewExperiment experiment =
                 new NewExperiment(experimentIdentifier.toString(), experimentTypeCode);
         ExperimentType experimentType = service.getExperimentType(experimentTypeCode);
+        File protXMLFile = Util.tryGetProtXMLFile(incomingDataSetPath);
+        if (protXMLFile == null)
+        {
+            throw new UserFailureException("No *prot.xml file found in data set '" + incomingDataSetPath + "'.");
+        }
+        long fileSize = protXMLFile.length();
+        if (fileSize > protXmlSizeThreshold)
+        {
+            String reason = "Size of prot.xml file " + protXMLFile.getName() + " is with "
+                    + FileUtilities.byteCountToDisplaySize(fileSize) + " too large. Maximum size is " 
+                    + FileUtilities.byteCountToDisplaySize(protXmlSizeThreshold);
+            operationLog.warn(reason);
+            properties.setProperty(NOT_PROCESSED_PROPERTY, reason);
+        }
 
         experiment.setProperties(Util.getAndCheckProperties(properties, experimentType));
         DataSetInformation info = new DataSetInformation();
