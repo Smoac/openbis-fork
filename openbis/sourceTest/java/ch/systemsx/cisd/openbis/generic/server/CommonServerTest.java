@@ -244,8 +244,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                 createServer().getTemplateColumns(SESSION_TOKEN, EntityKind.EXPERIMENT, type,
                         false, false, false, BatchOperationKind.REGISTRATION);
 
-        assertEquals("identifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
-                + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
+        assertEquals(
+                "# Three short formats are accepted for identifiers, 'EXPERIMENT_CODE', '/EXPERIMENT_CODE', '/PROJECT_CODE/EXPERIMENT_CODE' when the full identifier is not given '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE' the default space and project are applied, if they are not configured an error will be thrown.\nidentifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
+                        + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
         context.assertIsSatisfied();
     }
 
