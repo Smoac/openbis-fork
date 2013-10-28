@@ -25,6 +25,9 @@ public class NewBasicExperiment extends Identifier<NewBasicExperiment> implement
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    public static final String EXPERIMENT_REGISTRATION_TEMPLATE_COMMENT =
+            "# Three short formats are accepted for identifiers, 'EXPERIMENT_CODE', '/EXPERIMENT_CODE', '/PROJECT_CODE/EXPERIMENT_CODE' when the full identifier is not given '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE' the default space and project are applied, if they are not configured an error will be thrown.\n";
+
     private IEntityProperty[] properties = IEntityProperty.EMPTY_ARRAY;
 
     public NewBasicExperiment()
