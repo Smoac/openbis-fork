@@ -158,3 +158,23 @@ configurations {
 artifacts {
     tests testJar
 }
+
+task compileDependencies(type: Copy) {
+    into "$buildDir/output/compile-dependencies"
+    from configurations.compile
+}
+
+task runtimeDependencies(type: Copy) {
+    into "$buildDir/output/runtime-dependencies"
+    from configurations.runtime
+}
+
+task testCompileDependencies(type: Copy) {
+    into "$buildDir/output/testCompile-dependencies"
+    from configurations.testCompile
+}
+
+task testRuntimeDependencies(type: Copy) {
+    into "$buildDir/output/testRuntime-dependencies"
+    from configurations.testRuntime
+}

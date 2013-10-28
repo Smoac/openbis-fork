@@ -3,28 +3,12 @@ evaluationDependsOn(':common')
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile (project(':common')) {
-		transitive = false
-	}
-	
-	compile 'springframework:spring-jdbc:2.5.6.SEC01',
-		'apache:commons-dbcp:1.3-CISD',
-		'h2database:h2:1.1.115',
-		'postgresql:postgresql:9.2-1000.jdbc4',
-
-		'cisd:cisd-base:r27861',
-		'apache:log4j:1.2.15',
-		'apache:commons-lang:2.4',
-		'rinn:restrictions:1.0.1'
+	compile project(':common'),
+		'springframework:spring-jdbc:+',
+		'apache:commons-dbcp:+',
+		'h2database:h2:+',
+		'postgresql:postgresql:+'
 		
-
-	testCompile (project(path: ':common', configuration: 'tests')) {
-		transitive = false
-	}
-	
-	testCompile 'startnet:apgdiff:2.3',	
-		'jmock:jmock:2.5.1',
-		'testng:testng:6.8-CISD'	
-		
-	testRuntime 'fjelmer:classycle:1.4'
+	testCompile project(path: ':common', configuration: 'tests'),
+				'startnet:apgdiff:+'
 } 
