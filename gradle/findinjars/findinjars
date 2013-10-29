@@ -1,6 +1,9 @@
 #!/bin/sh
-mkdir -p temporary_directory_for_findinjars
-rm temporary_directory_for_findinjars/* 2> /dev/null
+BIN_DIR=`dirname "$0"`
+
+TEMP_DIR=temporary_directory_for_findinjars
+mkdir -p $TEMP_DIR
+rm $TEMP_DIR/* 2> /dev/null
 
 mode=$1
 shift
@@ -15,11 +18,9 @@ do
 	for jar in $arg/*.jar;
 	do 
 		filename=`echo "$jar"|sed -e "s/\//\-\-/g"`
-		jar tvf $jar|awk '{print $NF}'|grep class > temporary_directory_for_findinjars/$filename; 
+		jar tvf $jar|awk '{print $NF}'|grep class > $TEMP_DIR/$filename; 
 	done
 done
 
-cd temporary_directory_for_findinjars
-analyze.py $mode
-cd ..
-rm -r temporary_directory_for_findinjars
+"$BIN_DIR/analyze.py" $mode $TEMP_DIR
+rm -r $TEMP_DIR

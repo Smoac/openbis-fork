@@ -2,12 +2,16 @@
 
 import sys, glob
 
+def renderKey(dir, key):
+	return key.replace(dir + "/", "\n").replace("--", "/")
+
 mode = sys.argv[1]
+dir = sys.argv[2]
 if mode != 'duplicates' and mode != 'loners':
 	print "argument must be either duplicates or loners"
 	sys.exit(1)
 
-filenames =  glob.glob("./*.jar")
+filenames =  glob.glob(dir + "/*.jar")
 
 map = dict()
 for filename in filenames:
@@ -38,14 +42,14 @@ for key, value in map2.iteritems():
 	
 	if mode == 'duplicates':
 		if keylength > 1:
-			print "In all these: "+key
+			print "In all these: "+renderKey(dir, key)
 			print "-----------------------------"
 			for clazz in sorted(value):
 				print clazz
 			print "\n" 
 	else:
 		if keylength == 1:
-			print "Only in "+key
+			print "Only in "+renderKey(dir, key)
 			print "-----------------------------"
 			for clazz in sorted(value):
 				print clazz
