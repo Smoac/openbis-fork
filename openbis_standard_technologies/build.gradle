@@ -28,13 +28,13 @@ dependencies {
 	compile project(':screening'),
 			project(':rtd_phosphonetx')
 	
-	providedCompile 'google:gwt-user:2.4',
-					'google:gwt-dev:2.4'
+	providedCompile 'google:gwt-user:2.4'
 					
 	providedRuntime	"eclipse:jetty-util:${jettyVersion}.v20121106",
 					"eclipse:jetty-deploy:${jettyVersion}.v20121106"
 		
-	gwt 'reveregroup:gwt-image-loader:1.1.4'
+	gwt 'reveregroup:gwt-image-loader:1.1.4',
+                'google:gwt-dev:+'
 	
 	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
 	
@@ -83,9 +83,9 @@ buildscript {
     
     repositories repositoryConfig
     
-	dependencies {
-		classpath 'apache:commons-codec:+'	
-	}
+    dependencies {
+        classpath 'apache:commons-codec:+'
+    }
 }
 
 task compileGwt (dependsOn: classes, type: JavaExec) {
