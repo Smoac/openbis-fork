@@ -1,0 +1,86 @@
+task queryApiJar(type: Jar) {
+	baseName 'openBIS-query-API'
+	includeEmptyDirs false
+	from zipTree(project(':common').jar.archivePath).plus(
+         zipTree(project(':openbis-common').jar.archivePath).plus( 
+         zipTree(project(':openbis').jar.archivePath).plus(
+         zipTree(project(':openbis_api').jar.archivePath).plus(
+         zipTree(project(':datastore_server').jar.archivePath))))).matching {
+        include "ch/systemsx/cisd/common/exceptions/**/*.class"
+        include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
+        include "ch/systemsx/cisd/common/api/**/*.class"
+        exclude "ch/systemsx/cisd/common/api/server/**/*.class"
+        include "ch/systemsx/cisd/openbis/common/api/**/*.class"
+        exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
+        include "ch/systemsx/cisd/openbis/generic/shared/api/**/*.class"
+        include "ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class"
+        include "ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class"
+        exclude "ch/systemsx/cisd/openbis/**/server/api/**/*.class"
+        include "ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class"
+        include "ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class"
+        include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
+        include "*.INFO"	
+	}
+}
+
+task queryApiSources(type: Zip) {
+	archiveName 'src.zip'
+	from project(':common').files('.').getAsFileTree().plus(
+		project(':openbis-common').files('.').getAsFileTree().plus(
+		project(':openbis').files('.').getAsFileTree().plus(
+		project(':openbis_api').files('.').getAsFileTree().plus(
+		project(':datastore_server').files('.').getAsFileTree())))).matching {
+       	include "source/java/ch/systemsx/cisd/common/exceptions/**/*.java"
+        include "source/java/ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
+        include "source/java/ch/systemsx/cisd/common/api/**/*.java"
+        exclude "source/java/ch/systemsx/cisd/common/api/server/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/common/api/**/*.java"
+        exclude "source/java/ch/systemsx/cisd/openbis/common/api/server/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/generic/shared/api/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/generic/shared/basic/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.java"
+        exclude "source/java/ch/systemsx/cisd/openbis/**/server/api/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.java"
+        include "source/java/ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.java" 		 
+	}
+}
+
+configurations.create('javadoc')
+dependencies {
+	javadoc 'springframework:spring-tx:+'
+}
+
+task queryApiJavaDoc(type: Javadoc) {
+	source queryApiSources.inputs.getFiles().getAsFileTree().matching {
+		include "**/*.java"
+	}
+	
+	classpath = sourceSets.main.output + sourceSets.main.compileClasspath + configurations.javadoc
+}
+
+task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
+	archiveName 'doc.zip'
+	from queryApiJavaDoc.destinationDir
+}
+
+configurations.create('queryApiDependencies')
+dependencies {
+	queryApiDependencies 'cisd:cisd-base:+',
+					'apache:commons-httpclient:+',
+					'apache:log4j:+',
+					'springframework:spring-aop:+',
+					'springframework:spring-web:+',
+					'springframework:spring-jdbc:+',
+					'springframework:spring-orm:+',
+					'marathon:marathon-spring-util:+'
+}
+
+task queryApiZip(type: Zip, dependsOn: [queryApiJar, queryApiSources, queryApiJavaDocZip]) {
+	baseName 'openBIS-query-API'
+	from queryApiJar.archivePath
+	from queryApiSources.archivePath
+	from queryApiJavaDocZip.archivePath
+	from configurations.queryApiDependencies
+	into 'openBIS-query-API'
+}

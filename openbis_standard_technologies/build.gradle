@@ -11,6 +11,7 @@ evaluationDependsOn(':rtd_yeastx')
 evaluationDependsOn(':deep_sequencing_unit')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: 'query-api.gradle'
 apply plugin: 'war'
 
 archivesBaseName = 'openBIS-server-standard-technologies'
@@ -446,7 +447,7 @@ task clientsAndApis(type: Zip) {
 	baseName 'openBIS-clients-and-APIs'
 	from (project(':datastore_server').dssClientZip.archivePath)
 	from (project(':datastore_server').dssGuiZip.archivePath)
-    from (project(':datastore_server').queryApiZip.archivePath)
+    from (queryApiZip.archivePath)
     from (project(':rtd_phosphonetx').apiZip.archivePath)
     from (project(':screening').screeningApiZip.archivePath)
 
@@ -464,7 +465,7 @@ task clientsAndApis(type: Zip) {
 }
 clientsAndApis.dependsOn project(':datastore_server').dssClientZip
 clientsAndApis.dependsOn project(':datastore_server').dssGuiZip
-clientsAndApis.dependsOn project(':datastore_server').queryApiZip
+clientsAndApis.dependsOn queryApiZip
 clientsAndApis.dependsOn project(':rtd_phosphonetx').apiZip
 clientsAndApis.dependsOn project(':screening').screeningApiZip
 
