@@ -1,0 +1,25 @@
+#!/bin/sh
+mkdir -p temporary_directory_for_findinjars
+rm temporary_directory_for_findinjars/* 2> /dev/null
+
+mode=$1
+shift
+
+if [ $# -eq 0 ] || { [ "$mode" != "loners" ] && [ "$mode" != "duplicates" ]; }; then
+	echo "Usage: $0 [loners|duplicates] <directory1> <directory2> ....";
+	exit 1
+fi
+
+for arg in "$@";
+do
+	for jar in $arg/*.jar;
+	do 
+		filename=`echo "$jar"|sed -e "s/\//\-\-/g"`
+		jar tvf $jar|awk '{print $NF}'|grep class > temporary_directory_for_findinjars/$filename; 
+	done
+done
+
+cd temporary_directory_for_findinjars
+analyze.py $mode
+cd ..
+rm -r temporary_directory_for_findinjars
