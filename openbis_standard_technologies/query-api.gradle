@@ -1,11 +1,11 @@
 task queryApiJar(type: Jar) {
 	baseName 'openBIS-query-API'
 	includeEmptyDirs false
-	from zipTree(project(':common').jar.archivePath).plus(
-         zipTree(project(':openbis-common').jar.archivePath).plus( 
-         zipTree(project(':openbis').jar.archivePath).plus(
-         zipTree(project(':openbis_api').jar.archivePath).plus(
-         zipTree(project(':datastore_server').jar.archivePath))))).matching {
+	from zipTree(project(':common').classes).plus(
+         zipTree(project(':openbis-common').classes).plus( 
+         zipTree(project(':openbis').classes).plus(
+         zipTree(project(':openbis_api').classes).plus(
+         zipTree(project(':datastore_server').classes))))).matching {
         include "ch/systemsx/cisd/common/exceptions/**/*.class"
         include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
         include "ch/systemsx/cisd/common/api/**/*.class"
