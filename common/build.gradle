@@ -7,6 +7,7 @@ dependencies {
 			'cisd:cisd-args4j:+',
 			'python:jython:+',
 			'apache:log4j:+',
+			'javax:activation:+',
 			'javax:mail:+',
 			'apache:commons-httpclient:+',
 			'apache:poi:+',
