@@ -1,0 +1,84 @@
+
+task proteomicsApiJar(type: Jar) {
+	baseName 'openBIS-proteomics-API'
+	includeEmptyDirs false
+	from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus( 
+         project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':rtd_phosphonetx').compileJava.outputs.getFiles().getAsFileTree() )))).matching {
+         	include "ch/systemsx/cisd/common/exceptions/**/*.class"
+        	include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
+        	include "ch/systemsx/cisd/common/api/**/*.class"
+        	exclude "ch/systemsx/cisd/common/api/server/**/*.class"
+        	include "ch/systemsx/cisd/openbis/common/api/**/*.class"
+        	exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
+        	include "ch/systemsx/cisd/openbis/plugin/proteomics/**/api/**/*.class"
+        	exclude "ch/systemsx/cisd/openbis/**/server/api/**/*.class"
+        	include "ch/systemsx/cisd/openbis/generic/shared/api/**/*.class" 
+        	include "ch/systemsx/cisd/openbis/plugin/proteomics/*BuildAndEnvironmentInfo.class"
+        	include "*.INFO"
+		}
+}
+
+task proteomicsApiSources(type: Zip) {
+	archiveName 'sources-proteomics-api.zip'
+	from project(':common').files('source/java').getAsFileTree().plus(
+         project(':openbis-common').files('source/java').getAsFileTree().plus( 
+         project(':openbis').files('source/java').getAsFileTree().plus(
+         project(':openbis_api').files('source/java').getAsFileTree().plus(
+         project(':rtd_phosphonetx').files('source/java').getAsFileTree())))).matching {
+         	include "ch/systemsx/cisd/common/exceptions/**/*.java"
+        	include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
+        	include "ch/systemsx/cisd/common/api/**/*.java"
+        	exclude "ch/systemsx/cisd/common/api/server/**/*.java"
+        	include "ch/systemsx/cisd/openbis/common/api/**/*.java"
+        	exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.java"
+        	include "ch/systemsx/cisd/openbis/plugin/proteomics/**/api/**/*.java"
+        	exclude "ch/systemsx/cisd/openbis/**/server/api/**/*.java"
+        	include "ch/systemsx/cisd/openbis/generic/shared/api/**/*.java" 
+        	include "ch/systemsx/cisd/openbis/plugin/proteomics/*BuildAndEnvironmentInfo.java"
+		}
+}
+
+configurations.create('proteomicsApiJavadoc')
+dependencies {
+	proteomicsApiJavadoc project(':rtd_phosphonetx')						 
+}
+
+task proteomicsApiJavaDoc(type: Javadoc) {
+	source proteomicsApiSources.inputs.getFiles().getAsFileTree().matching {
+		include "**/*.java"
+	}
+	classpath = configurations.proteomicsApiJavadoc
+}
+
+task proteomicsApiJavaDocZip(type: Zip, dependsOn: proteomicsApiJavaDoc) {
+	archiveName 'javadoc-proteomics-api.zip'
+	from proteomicsApiJavaDoc.destinationDir
+}
+
+
+configurations.create('proteomicsApiDependencies')
+dependencies {
+	proteomicsApiDependencies 'cisd:cisd-base:+',
+								'apache:commons-httpclient:+',
+								'apache:log4j:+',
+								'springframework:spring-aop:+',
+								'springframework:spring-web:+',
+								'springframework:spring-jdbc:+',
+								'springframework:spring-orm:+',
+								'marathon:marathon-spring-util:+'
+}
+
+task proteomicsApiZip(type: Zip) {
+	baseName 'openBIS-proteomics-API'
+	from proteomicsApiJar.archivePath
+	from proteomicsApiSources.archivePath
+	from proteomicsApiJavaDocZip.archivePath
+	from configurations.proteomicsApiDependencies
+	into 'openBIS-proteomics-API'
+}
+proteomicsApiZip.dependsOn proteomicsApiJar
+proteomicsApiZip.dependsOn proteomicsApiSources
+proteomicsApiZip.dependsOn proteomicsApiJavaDocZip

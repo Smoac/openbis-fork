@@ -1,66 +1,65 @@
 task queryApiJar(type: Jar) {
 	baseName 'openBIS-query-API'
 	includeEmptyDirs false
-	from zipTree(project(':common').classes).plus(
-         zipTree(project(':openbis-common').classes).plus( 
-         zipTree(project(':openbis').classes).plus(
-         zipTree(project(':openbis_api').classes).plus(
-         zipTree(project(':datastore_server').classes))))).matching {
-        include "ch/systemsx/cisd/common/exceptions/**/*.class"
-        include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
-        include "ch/systemsx/cisd/common/api/**/*.class"
-        exclude "ch/systemsx/cisd/common/api/server/**/*.class"
-        include "ch/systemsx/cisd/openbis/common/api/**/*.class"
-        exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
-        include "ch/systemsx/cisd/openbis/generic/shared/api/**/*.class"
-        include "ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class"
-        include "ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class"
-        exclude "ch/systemsx/cisd/openbis/**/server/api/**/*.class"
-        include "ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class"
-        include "ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class"
-        include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
-        include "*.INFO"	
+	from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus( 
+         project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree())))).matching {
+	        include "ch/systemsx/cisd/common/exceptions/**/*.class"
+	        include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.class"
+	        include "ch/systemsx/cisd/common/api/**/*.class"
+	        exclude "ch/systemsx/cisd/common/api/server/**/*.class"
+	        include "ch/systemsx/cisd/openbis/common/api/**/*.class"
+	        exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.class"
+	        include "ch/systemsx/cisd/openbis/generic/shared/api/**/*.class"
+	        include "ch/systemsx/cisd/openbis/generic/shared/basic/**/*.class"
+	        include "ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.class"
+	        exclude "ch/systemsx/cisd/openbis/**/server/api/**/*.class"
+	        include "ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.class"
+	        include "ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.class"
+	        include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.class"
+	        include "*.INFO"	
 	}
 }
 
 task queryApiSources(type: Zip) {
-	archiveName 'src.zip'
-	from project(':common').files('.').getAsFileTree().plus(
-		project(':openbis-common').files('.').getAsFileTree().plus(
-		project(':openbis').files('.').getAsFileTree().plus(
-		project(':openbis_api').files('.').getAsFileTree().plus(
-		project(':datastore_server').files('.').getAsFileTree())))).matching {
-       	include "source/java/ch/systemsx/cisd/common/exceptions/**/*.java"
-        include "source/java/ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
-        include "source/java/ch/systemsx/cisd/common/api/**/*.java"
-        exclude "source/java/ch/systemsx/cisd/common/api/server/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/common/api/**/*.java"
-        exclude "source/java/ch/systemsx/cisd/openbis/common/api/server/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/generic/shared/api/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/generic/shared/basic/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.java"
-        exclude "source/java/ch/systemsx/cisd/openbis/**/server/api/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.java"
-        include "source/java/ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.java" 		 
+	archiveName 'sources-query-api.zip'
+	from project(':common').files('source/java').getAsFileTree().plus(
+		project(':openbis-common').files('source/java').getAsFileTree().plus(
+		project(':openbis').files('source/java').getAsFileTree().plus(
+		project(':openbis_api').files('source/java').getAsFileTree().plus(
+		project(':datastore_server').files('source/java').getAsFileTree())))).matching {
+	       	include "ch/systemsx/cisd/common/exceptions/**/*.java"
+	        include "ch/systemsx/cisd/common/spring/HttpInvokerUtils.java"
+	        include "ch/systemsx/cisd/common/api/**/*.java"
+	        exclude "ch/systemsx/cisd/common/api/server/**/*.java"
+	        include "ch/systemsx/cisd/openbis/common/api/**/*.java"
+	        exclude "ch/systemsx/cisd/openbis/common/api/server/**/*.java"
+	        include "ch/systemsx/cisd/openbis/generic/shared/api/**/*.java"
+	        include "ch/systemsx/cisd/openbis/generic/shared/basic/**/*.java"
+	        include "ch/systemsx/cisd/openbis/plugin/query/**/api/**/*.java"
+	        exclude "ch/systemsx/cisd/openbis/**/server/api/**/*.java"
+	        include "ch/systemsx/cisd/openbis/dss/client/api/v1/**/*.java"
+	        include "ch/systemsx/cisd/openbis/dss/generic/shared/api/v1/**/*.java"
+	        include "ch/systemsx/cisd/openbis/BuildAndEnvironmentInfo.java" 		 
 	}
 }
 
-configurations.create('javadoc')
+configurations.create('queryApiJavadoc')
 dependencies {
-	javadoc 'springframework:spring-tx:+'
+	queryApiJavadoc project(':datastore_server')
 }
 
 task queryApiJavaDoc(type: Javadoc) {
 	source queryApiSources.inputs.getFiles().getAsFileTree().matching {
 		include "**/*.java"
 	}
-	
-	classpath = sourceSets.main.output + sourceSets.main.compileClasspath + configurations.javadoc
+	classpath = configurations.queryApiJavadoc
 }
 
 task queryApiJavaDocZip(type: Zip, dependsOn: queryApiJavaDoc) {
-	archiveName 'doc.zip'
+	archiveName 'javadoc-query-api.zip'
 	from queryApiJavaDoc.destinationDir
 }
 
