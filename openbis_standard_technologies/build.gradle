@@ -12,6 +12,7 @@ evaluationDependsOn(':deep_sequencing_unit')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 apply from: 'query-api.gradle'
+apply from: 'screening-api.gradle'
 apply from: 'proteomics-api.gradle'
 
 apply plugin: 'war'
@@ -474,7 +475,7 @@ task clientsAndApis(type: Zip) {
 	from (project(':datastore_server').dssGuiZip.archivePath)
     from (queryApiZip.archivePath)
     from (proteomicsApiZip.archivePath)
-    from (project(':screening').screeningApiZip.archivePath)
+    from (screeningApiZip.archivePath)
 
 
 	from (project(':datastore_server').dssClientZip.archivePath) {	
@@ -492,7 +493,7 @@ clientsAndApis.dependsOn project(':datastore_server').dssClientZip
 clientsAndApis.dependsOn project(':datastore_server').dssGuiZip
 clientsAndApis.dependsOn queryApiZip
 clientsAndApis.dependsOn proteomicsApiZip
-clientsAndApis.dependsOn project(':screening').screeningApiZip
+clientsAndApis.dependsOn screeningApiZip
 
 build.dependsOn zip
 build.dependsOn zipDss
