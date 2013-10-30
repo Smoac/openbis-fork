@@ -77,9 +77,17 @@ dependencies {
                  'apache:commons-httpclient:+',
                  'apache:commons-lang:+',
                  'apache:commons-logging:+',
+                 'apache:log4j:+',
+                 'apache:geronimo-stax:+',
+                 'apache:poi:+',
+                 'apache:poi-ooxml:+',
+                 'apache:poi-ooxml-schemas:+',
+                 'apache:xmlbeans:+',
+                 'dom4j:dom4j:+',
                  'imagej:ij:+',
                  'python:jython:+',
                  'sybit:image-viewer:+',
+                 'springframework:spring:+',
                  'springframework:spring-aop:+',
                  'springframework:spring-beans:+',
                  'springframework:spring-context:+',
@@ -205,10 +213,9 @@ task createOpenbisJar(type: Jar) {
     from zipTree(project(':common').jar.archivePath).plus(
          zipTree(project(':openbis-common').jar.archivePath).plus( 
          zipTree(project(':openbis_api').jar.archivePath).plus( 
-         zipTree(project(':screening').jar.archivePath).plus( 
          zipTree(project(':datastore_server').jar.archivePath).plus( 
+         zipTree(project(':screening').jar.archivePath).plus( 
          zipTree(project(':openbis').jar.archivePath)))))).matching {
-            include '**/ch/systemsx/cisd/common/spring/HttpInvokerUtils.class'
             include '**/ch/systemsx/cisd/common/**/*.class'
             include '**/ch/systemsx/cisd/openbis/common/**/*.class'
             include '**/ch/systemsx/cisd/openbis/generic/client/api/**/*.class'
@@ -226,15 +233,59 @@ task createOpenbisJar(type: Jar) {
         }
 }
 
+dssUploadGuiJars = ['cisd-base.jar', 'spring.jar', 'stream-supporting-httpinvoker.jar',
+                    'commons-codec.jar', 'commons-httpclient.jar', 'commons-io.jar', 'commons-lang.jar',
+                     'commons-logging.jar', 'jython.jar', 'dss_upload_gui.jar', 'log4j.jar',
+                     'poi.jar', 'poi-ooxml.jar', 'poi-ooxml-schemas.jar', 'dom4j-1.6.1.jar',
+                     'geronimo-stax-api_1.0_spec-1.0.jar', 'xmlbeans-2.3.0.jar']
+                     
+task createDssUploadGuiJar(type: Jar) {
+    archiveName = 'dss_upload_gui.jar'
+    destinationDir = file(jarsToBeSignedFolder)
+    outputs.file new File(jarsToBeSignedFolder, archiveName)
+    from zipTree(project(':common').jar.archivePath).plus(
+         zipTree(project(':openbis-common').jar.archivePath).plus( 
+         zipTree(project(':openbis_api').jar.archivePath).plus( 
+         zipTree(project(':datastore_server').jar.archivePath).plus( 
+         zipTree(project(':openbis').jar.archivePath))))).matching {
+            include '**/ch/systemsx/cisd/common/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/common/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/generic/shared/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/dss/client/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class'
+            include '**/org/python/core/SyspathArchiveHack.class'
+        }
+    from('../datastore_server/resource') {
+        include 'wait.gif'
+        include 'wrong.png'
+        include 'ok.png'
+    }
+    manifest {
+        def manifestClasspath = dssUploadGuiJars.collect { it }.join(',') 
+        attributes('Main-Class': 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient',
+                   'Version': versionNumber,
+                   'Build-Number': "${versionNumber} (r${revisionNumber},${cleanFlag})",
+                   'Class-Path' : manifestClasspath)
+    }
+}
+
 task copyJarsForWebStart(type: Copy) {
     from configurations.webStartJars.files
     into jarsToBeSignedFolder
     rename '(.+)-[^-]*\\.jar', '$1.jar'
+    rename 'dom4j.jar', 'dom4j-1.6.1.jar'
+    rename 'poi-[^-]*\\.jar', 'poi.jar'
+    rename 'poi-ooxml-[^-]*\\.jar', 'poi-ooxml.jar'
+    rename 'poi-ooxml-schemas-[^-]*\\.jar', 'poi-ooxml-schemas.jar'
+    rename 'geronimo-stax.jar', 'geronimo-stax-api_1.0_spec-1.0.jar'
+    rename 'xmlbeans.jar', 'xmlbeans-2.3.0.jar'
     rename 'marathon-spring-util.*jar', 'stream-supporting-httpinvoker.jar'
 }
 
 keystoreFile = '../screening/etc/dev.keystore'
-task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, copyJarsForWebStart]) {
+task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, createDssUploadGuiJar, copyJarsForWebStart]) {
     from jarsToBeSignedFolder
     into signedJarsFolder
     inputs.file keystoreFile
@@ -418,20 +469,27 @@ zip.dependsOn zipCorePlugins
 zip.dependsOn zipAdminConsole
 zip.dependsOn checksums
 
-task zipDss(type: Zip) {
+task zipDss(type: Zip, dependsOn: signWebStartJars) {
 	baseName 'datastore_server-standard-technologies'
 	includeEmptyDirs true
 	
 	from (configurations.datastore_server) {
 		into 'datastore_server/lib'
 		exclude '**/antlr*.jar'
+		exclude '**/fastutil*.jar'
 		exclude '**/gwt*.jar'
 		exclude '**/gxt*.jar'
 		exclude '**/hibernate*.jar'
+		exclude '**/jmock*.jar'
+		exclude '**/junit*.jar'
 		exclude '**/lucene*.jar'
 		exclude '**/restrictions*.jar'
 		exclude '**/testng*.jar'
 		rename 'common-.*jar', 'common.jar'
+	}
+	
+	from (files(dssUploadGuiJars.collect({"${signedJarsFolder}/${it}"}))) {
+	   into 'datastore_server/lib/dss_upload_gui'
 	}
 	
 	from (project(':datastore_server').fileTree(dir: 'dist', includes: ['**/*'], excludes:['dss_client.sh', 'etc/**'])) {
