@@ -27,6 +27,16 @@ sourceSets {
 	}
 }
 
+jar {
+    from('../screening/source/sql'){ 
+        into('/sql') 
+        include '**/*.sql' 
+    }
+    from('../screening/source/java'){
+        include 'screening-dssApplicationContext.xml'
+    }
+}
+
 // This task is here to make TabularDataGraphCollectionConfigurationTest to work. It requires some data files
 // to be present on the same directory than the class file itself.
 task copyTestData(type: Copy, dependsOn: testClasses) {

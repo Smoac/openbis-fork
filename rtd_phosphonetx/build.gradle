@@ -8,8 +8,6 @@ evaluationDependsOn(':datastore_server')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
-archivesBaseName = 'datastore_server_plugin-proteomics'
-
 dependencies {
 	compile project(':common'),
 			project(':datastore_server')
@@ -32,6 +30,7 @@ jar {
         include "proteomics/**/*.sql" 
     }
 }
+
 
 task zip(type: Zip) {
 	includeEmptyDirs false

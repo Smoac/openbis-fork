@@ -50,7 +50,7 @@ dependencies {
 				'springframework:spring-context:+',
 				'springframework:spring-jdbc:+',
 				'springframework:spring-orm:+',
-				'springframework:spring-aop:+',								
+				'springframework:spring-aop:+',
 				'marathon:marathon-spring-util:+',
 				'springframework:spring-beans:+',
 				'jline:jline:0.9.94'	
@@ -58,7 +58,15 @@ dependencies {
 	datastore_server project(':deep_sequencing_unit'),
 					 project(':rtd_yeastx'),
 					 project(':screening'),
-					 project(':rtd_phosphonetx')
+					 project(':rtd_phosphonetx'),
+					 'bioformats:bioformats:+',
+					 'imagej:ij:+',
+					 'cisd:cisd-openbis-knime-server:+',
+					 'apache:xml-apis:+',
+					 'javax:jaxb:+',
+					 'slf4j:slf4j:+',
+					 'slf4j:slf4j-log4j12:+',
+					 'sybit:image-viewer:+'
 					 
     webStartJars 'cisd:cisd-base:+',
                  'apache:commons-codec:+',
@@ -163,14 +171,14 @@ zipEntries = files(
 	project(':openbis').file('dist/server/openbis.conf'),	
 	project(':openbis').file('dist/server/passwd.sh'),
 	project(':openbis').file('dist/server/register-master-data.sh'),
-	project(':openbis').file('dist/server/service.properties'),
 	project(':openbis').file('dist/server/setup-env'),
 	project(':openbis').file('dist/server/shutdown.sh'),
 	project(':openbis').file('dist/server/startup.sh'),
 	project(':openbis').file('dist/server/status.sh'),
 	project(':openbis').file('dist/server/version.sh'),
 	project(':openbis').file('dist/server/watchdog.sh'),
-	project(':openbis').file('dist/server/web-client.properties')
+	file('dist/server/service.properties'),
+	file('dist/server/web-client.properties')
 )
 
 task checkFilesExist {
@@ -193,13 +201,21 @@ task createOpenbisJar(type: Jar) {
     outputs.file new File(jarsToBeSignedFolder, archiveName)
     from zipTree(project(':common').jar.archivePath).plus(
          zipTree(project(':openbis-common').jar.archivePath).plus( 
+         zipTree(project(':openbis_api').jar.archivePath).plus( 
          zipTree(project(':screening').jar.archivePath).plus( 
-         zipTree(project(':openbis').jar.archivePath)))).matching {
+         zipTree(project(':datastore_server').jar.archivePath).plus( 
+         zipTree(project(':openbis').jar.archivePath)))))).matching {
             include '**/ch/systemsx/cisd/common/spring/HttpInvokerUtils.class'
             include '**/ch/systemsx/cisd/common/**/*.class'
             include '**/ch/systemsx/cisd/openbis/common/**/*.class'
             include '**/ch/systemsx/cisd/openbis/generic/client/api/**/*.class'
             include '**/ch/systemsx/cisd/openbis/generic/client/cli/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/generic/shared/api/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/plugin/screening/client/api/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/dss/client/api/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
+            include '**/ch/systemsx/cisd/openbis/dss/screening/shared/api/**/*.class'
             include '**/shared/I*.class'
             include '**/shared/basic/dto/**/*.class'
             include '**/shared/basic/*.class'
@@ -405,6 +421,13 @@ task zipDss(type: Zip) {
 	
 	from (configurations.datastore_server) {
 		into 'datastore_server/lib'
+		exclude '**/antlr*.jar'
+		exclude '**/gwt*.jar'
+		exclude '**/gxt*.jar'
+		exclude '**/hibernate*.jar'
+		exclude '**/lucene*.jar'
+		exclude '**/restrictions*.jar'
+		exclude '**/testng*.jar'
 		rename 'common-.*jar', 'common.jar'
 	}
 	
