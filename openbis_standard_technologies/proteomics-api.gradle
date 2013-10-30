@@ -64,10 +64,8 @@ dependencies {
 	proteomicsApiDependencies 'cisd:cisd-base:+',
 								'apache:commons-httpclient:+',
 								'apache:log4j:+',
-								'springframework:spring-aop:+',
-								'springframework:spring-web:+',
-								'springframework:spring-jdbc:+',
-								'springframework:spring-orm:+',
+								'springframework:spring:+',
+								'apache:commons-logging:+',								
 								'marathon:marathon-spring-util:+'
 }
 

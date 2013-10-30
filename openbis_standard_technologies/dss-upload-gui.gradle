@@ -1,0 +1,76 @@
+configurations.create('dssGuiLibs')
+configurations.create('dssGuiPartialLibs')
+
+dependencies {
+
+	dssGuiLibs 'cglib:cglib-nodep:+',
+				'cisd:cisd-args4j:+',
+				'cisd:cisd-base:+',
+				'apache:poi-ooxml:+',
+				'springframework:spring:+',
+				'apache:commons-logging:+',
+				'python:jython:+',
+				'apache:commons-httpclient:+',
+				'marathon:marathon-spring-util:+',
+				'apache:log4j:+',
+				'dom4j:dom4j:+'
+
+	dssGuiPartialLibs 'google:gwt-user:2.4'
+}
+
+dssUploadGuiJars = ['cisd-base.jar', 'spring.jar', 'stream-supporting-httpinvoker.jar',
+                    'commons-codec.jar', 'commons-httpclient.jar', 'commons-io.jar', 'commons-lang.jar',
+                     'commons-logging.jar', 'jython.jar', 'dss_upload_gui.jar', 'log4j.jar',
+                     'poi.jar', 'poi-ooxml.jar', 'poi-ooxml-schemas.jar', 'dom4j-1.6.1.jar',
+                     'geronimo-stax-api_1.0_spec-1.0.jar', 'xmlbeans-2.3.0.jar']
+
+jarsToBeSignedFolder = "${buildDir}/jars_to_be_signed"
+
+task dssGui(type: Jar) {
+	baseName 'dss_gui'
+    destinationDir = file(jarsToBeSignedFolder)
+    outputs.file new File(jarsToBeSignedFolder, archiveName)
+	
+	from (project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+		  project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus(
+		  project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
+		  project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
+		  project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree())))).matching {
+		include 'ch/systemsx/cisd/common/**/*.class'	
+      	include 'ch/systemsx/cisd/openbis/common/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/generic/shared/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class'
+        include 'ch/systemsx/cisd/openbis/dss/client/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
+      	include 'ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class'
+      	include 'org/python/core/SyspathArchiveHack.class'
+      	include 'ch/systemsx/cisd/openbis/dss/BuildAndEnvironmentInfo.class'      	
+	})
+	
+	from (project(':datastore_server').fileTree(dir: 'resource', includes: ['ok.png', 'wrong.png', 'wait.gif']))
+	
+	from zipTree(configurations.dssGuiPartialLibs.files.iterator().next()).matching {
+			include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+			include '**/com/google/gwt/user/client/rpc/SerializableException.class'
+	}
+	
+    manifest {
+        def manifestClasspath = dssUploadGuiJars.collect { it }.join(',') 
+		attributes("Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient",
+                   "Version": versionNumber,
+                   "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})",
+                   "Class-Path": manifestClasspath)                   
+    }	
+}	
+
+task dssGuiZip(type: Zip, dependsOn: dssGui) {
+	baseName 'dss_upload_gui'
+
+	from (configurations.dssGuiLibs) {
+		into 'dss_upload_gui/lib'
+	}
+	
+	from (dssGui.archivePath) {
+		into 'dss_upload_gui/lib'
+	}
+}

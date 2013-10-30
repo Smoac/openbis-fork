@@ -14,6 +14,8 @@ apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 apply from: 'query-api.gradle'
 apply from: 'screening-api.gradle'
 apply from: 'proteomics-api.gradle'
+apply from: 'dss-client.gradle'
+apply from: 'dss-upload-gui.gradle'
 
 apply plugin: 'war'
 
@@ -233,44 +235,6 @@ task createOpenbisJar(type: Jar) {
         }
 }
 
-dssUploadGuiJars = ['cisd-base.jar', 'spring.jar', 'stream-supporting-httpinvoker.jar',
-                    'commons-codec.jar', 'commons-httpclient.jar', 'commons-io.jar', 'commons-lang.jar',
-                     'commons-logging.jar', 'jython.jar', 'dss_upload_gui.jar', 'log4j.jar',
-                     'poi.jar', 'poi-ooxml.jar', 'poi-ooxml-schemas.jar', 'dom4j-1.6.1.jar',
-                     'geronimo-stax-api_1.0_spec-1.0.jar', 'xmlbeans-2.3.0.jar']
-                     
-task createDssUploadGuiJar(type: Jar) {
-    archiveName = 'dss_upload_gui.jar'
-    destinationDir = file(jarsToBeSignedFolder)
-    outputs.file new File(jarsToBeSignedFolder, archiveName)
-    from zipTree(project(':common').jar.archivePath).plus(
-         zipTree(project(':openbis-common').jar.archivePath).plus( 
-         zipTree(project(':openbis_api').jar.archivePath).plus( 
-         zipTree(project(':datastore_server').jar.archivePath).plus( 
-         zipTree(project(':openbis').jar.archivePath))))).matching {
-            include '**/ch/systemsx/cisd/common/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/common/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/generic/shared/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/plugin/query/shared/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/dss/client/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/dss/generic/shared/utils/**/*.class'
-            include '**/org/python/core/SyspathArchiveHack.class'
-        }
-    from('../datastore_server/resource') {
-        include 'wait.gif'
-        include 'wrong.png'
-        include 'ok.png'
-    }
-    manifest {
-        def manifestClasspath = dssUploadGuiJars.collect { it }.join(',') 
-        attributes('Main-Class': 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient',
-                   'Version': versionNumber,
-                   'Build-Number': "${versionNumber} (r${revisionNumber},${cleanFlag})",
-                   'Class-Path' : manifestClasspath)
-    }
-}
-
 task copyJarsForWebStart(type: Copy) {
     from configurations.webStartJars.files
     into jarsToBeSignedFolder
@@ -285,7 +249,7 @@ task copyJarsForWebStart(type: Copy) {
 }
 
 keystoreFile = '../screening/etc/dev.keystore'
-task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, createDssUploadGuiJar, copyJarsForWebStart]) {
+task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, dssGui, copyJarsForWebStart]) {
     from jarsToBeSignedFolder
     into signedJarsFolder
     inputs.file keystoreFile
@@ -516,7 +480,7 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 		into 'datastore_server/server/etc'
 	}
 	
-	from(zipTree(project(':datastore_server').dssGuiZip.archivePath)) {
+	from(dssGuiZip.archivePath) {
 		into 'datastore_server/lib/'
 	}
 	
@@ -529,26 +493,26 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 
 task clientsAndApis(type: Zip) {
 	baseName 'openBIS-clients-and-APIs'
-	from (project(':datastore_server').dssClientZip.archivePath)
-	from (project(':datastore_server').dssGuiZip.archivePath)
-    from (queryApiZip.archivePath)
-    from (proteomicsApiZip.archivePath)
-    from (screeningApiZip.archivePath)
+	from dssClientZip.archivePath
+	from dssGuiZip.archivePath
+    from queryApiZip.archivePath
+    from proteomicsApiZip.archivePath
+    from screeningApiZip.archivePath
 
 
-	from (project(':datastore_server').dssClientZip.archivePath) {	
+	from (dssClientZip.archivePath) {	
 	    rename { String fileName -> fileName.replace('client', 'client-screening')}
     }
 
-	from (project(':datastore_server').dssGuiZip.archivePath) {	
+	from (dssGuiZip.archivePath) {	
 	    rename { String fileName -> fileName.replace('gui', 'gui-screening')}
     }
     
     from ('../openbis_all/dist/readme.txt')
     
 }
-clientsAndApis.dependsOn project(':datastore_server').dssClientZip
-clientsAndApis.dependsOn project(':datastore_server').dssGuiZip
+clientsAndApis.dependsOn dssClientZip
+clientsAndApis.dependsOn dssGuiZip
 clientsAndApis.dependsOn queryApiZip
 clientsAndApis.dependsOn proteomicsApiZip
 clientsAndApis.dependsOn screeningApiZip
