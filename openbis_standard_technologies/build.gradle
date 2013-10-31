@@ -14,8 +14,7 @@ apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 apply from: 'query-api.gradle'
 apply from: 'screening-api.gradle'
 apply from: 'proteomics-api.gradle'
-apply from: 'dss-client.gradle'
-apply from: 'dss-upload-gui.gradle'
+apply from: 'clients.gradle'
 apply from: 'admin-console.gradle'
 
 apply plugin: 'war'
@@ -25,7 +24,6 @@ archivesBaseName = 'openBIS-server-standard-technologies'
 configurations.create('gwt')
 configurations.create('zipping')
 configurations.create('datastore_server')
-configurations.create('webStartJars')
 
 def jettyVersion = '8.1.8'
 
@@ -55,31 +53,6 @@ dependencies {
 					 'slf4j:slf4j:+',
 					 'slf4j:slf4j-log4j12:+',
 					 'sybit:image-viewer:+'
-					 
-    webStartJars 'cisd:cisd-base:+',
-                 'apache:commons-codec:+',
-                 'apache:commons-io:+',
-                 'apache:commons-httpclient:+',
-                 'apache:commons-lang:+',
-                 'apache:commons-logging:+',
-                 'apache:log4j:+',
-                 'apache:geronimo-stax:+',
-                 'apache:poi:+',
-                 'apache:poi-ooxml:+',
-                 'apache:poi-ooxml-schemas:+',
-                 'apache:xmlbeans:+',
-                 'dom4j:dom4j:+',
-                 'imagej:ij:+',
-                 'python:jython:+',
-                 'sybit:image-viewer:+',
-                 'springframework:spring:+',
-                 'springframework:spring-aop:+',
-                 'springframework:spring-beans:+',
-                 'springframework:spring-context:+',
-                 'springframework:spring-core:+',
-                 'springframework:spring-web:+',
-                 'marathon:marathon-spring-util:+',
-                 'aopalliance:aopalliance:+'                 
 }
 
 buildscript {
@@ -188,60 +161,6 @@ task checkFilesExist {
   }
 }
 
-jarsToBeSignedFolder = "${buildDir}/jars_to_be_signed"
-signedJarsFolder = "${buildDir}/signed_jars"
-task createOpenbisJar(type: Jar) {
-    archiveName = 'openbis.jar'
-    destinationDir = file(jarsToBeSignedFolder)
-    outputs.file new File(jarsToBeSignedFolder, archiveName)
-    from zipTree(project(':common').jar.archivePath).plus(
-         zipTree(project(':openbis-common').jar.archivePath).plus( 
-         zipTree(project(':openbis_api').jar.archivePath).plus( 
-         zipTree(project(':datastore_server').jar.archivePath).plus( 
-         zipTree(project(':screening').jar.archivePath).plus( 
-         zipTree(project(':openbis').jar.archivePath)))))).matching {
-            include '**/ch/systemsx/cisd/common/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/common/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/generic/client/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/generic/client/cli/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/generic/shared/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/plugin/screening/client/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/plugin/screening/shared/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/dss/client/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/dss/generic/shared/api/**/*.class'
-            include '**/ch/systemsx/cisd/openbis/dss/screening/shared/api/**/*.class'
-            include '**/shared/I*.class'
-            include '**/shared/basic/dto/**/*.class'
-            include '**/shared/basic/*.class'
-            include '**/*BuildAndEnvironmentInfo.class'
-        }
-}
-
-task copyJarsForWebStart(type: Copy) {
-    from configurations.webStartJars.files
-    into jarsToBeSignedFolder
-    rename '(.+)-[^-]*\\.jar', '$1.jar'
-    rename 'dom4j.jar', 'dom4j-1.6.1.jar'
-    rename 'poi-[^-]*\\.jar', 'poi.jar'
-    rename 'poi-ooxml-[^-]*\\.jar', 'poi-ooxml.jar'
-    rename 'poi-ooxml-schemas-[^-]*\\.jar', 'poi-ooxml-schemas.jar'
-    rename 'geronimo-stax.jar', 'geronimo-stax-api_1.0_spec-1.0.jar'
-    rename 'xmlbeans.jar', 'xmlbeans-2.3.0.jar'
-    rename 'marathon-spring-util.*jar', 'stream-supporting-httpinvoker.jar'
-}
-
-keystoreFile = '../screening/etc/dev.keystore'
-task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, dssGui, copyJarsForWebStart]) {
-    from jarsToBeSignedFolder
-    into signedJarsFolder
-    inputs.file keystoreFile
-    doLast {
-        file(signedJarsFolder).listFiles().each { file ->
-            ant.signjar(jar: file, keystore: keystoreFile,
-                        alias: 'openbis', storepass: 'openbistest')
-        }
-    }
-}
 
 war.dependsOn compileGwt
 war.dependsOn checkFilesExist
@@ -388,8 +307,10 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 		rename 'common-.*jar', 'common.jar'
 	}
 	
-	from (files(dssUploadGuiJars.collect({"${signedJarsFolder}/${it}"}))) {
+	from (signedJarsFolder) {
 	   into 'datastore_server/lib/dss_upload_gui'
+	   exclude openbisClientJarName
+	   exclude dssCliClientJarName
 	}
 	
 	from (project(':datastore_server').fileTree(dir: 'dist', includes: ['**/*'], excludes:['dss_client.sh', 'etc/**'])) {
@@ -416,10 +337,6 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 		into 'datastore_server/server/etc'
 	}
 	
-	from(dssGuiZip.archivePath) {
-		into 'datastore_server/lib/'
-	}
-	
 	from (project(':rtd_phosphonetx').fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/as/**', '**/package-to-dist']).plus(
 		 project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/as/**', '**/package-to-dist']).plus(
 		 project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/as/**', '**/package-to-dist'])))) {
@@ -427,31 +344,15 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 	}
 }
 
-task clientsAndApis(type: Zip) {
+task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, proteomicsApiZip, screeningApiZip]) {
 	baseName 'openBIS-clients-and-APIs'
 	from dssClientZip.archivePath
-	from dssGuiZip.archivePath
     from queryApiZip.archivePath
     from proteomicsApiZip.archivePath
     from screeningApiZip.archivePath
-
-
-	from (dssClientZip.archivePath) {	
-	    rename { String fileName -> fileName.replace('client', 'client-screening')}
-    }
-
-	from (dssGuiZip.archivePath) {	
-	    rename { String fileName -> fileName.replace('gui', 'gui-screening')}
-    }
-    
     from ('../openbis_all/dist/readme.txt')
     
 }
-clientsAndApis.dependsOn dssClientZip
-clientsAndApis.dependsOn dssGuiZip
-clientsAndApis.dependsOn queryApiZip
-clientsAndApis.dependsOn proteomicsApiZip
-clientsAndApis.dependsOn screeningApiZip
 
 build.dependsOn zip
 build.dependsOn zipDss
