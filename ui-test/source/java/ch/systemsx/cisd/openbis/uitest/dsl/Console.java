@@ -29,9 +29,9 @@ public class Console extends Writer
 {
     private static long DEFAULT_TIMEOUT = 60000;
 
-    private LinkedBlockingQueue<String> queue;
+    private volatile LinkedBlockingQueue<String> queue;
 
-    private boolean buffering;
+    private volatile boolean buffering;
 
     private long startTime;
 
@@ -109,7 +109,7 @@ public class Console extends Writer
             }
 
             if (line != null && error != null && containsAll(line, new String[]
-                { error }))
+            { error }))
             {
                 throw new CommandNotSuccessful("Failed: " + line);
             }
