@@ -153,3 +153,20 @@ task createInstallerJar(type: Jar, dependsOn: [compileInstaller, jar]) {
         attributes('Main-Class' : 'com.izforge.izpack.installer.bootstrap.Installer')
     }
 }
+
+task createInstallerZip(type: Tar, dependsOn: createInstallerJar) {
+    compression = Compression.GZIP 
+    extension = 'tar.gz'
+	baseName 'openBIS-installation-standard-technologies'
+	from createInstallerJar.archivePath
+	from ('resource/tarball') {
+		include 'console.properties'
+		include 'extract.sh'
+		include 'jul.config'
+		include 'run-console.sh'
+		include 'run-ui.sh'
+	}
+	into "openBIS-installation-standard-technologies-${version}"
+}
+
+build.dependsOn createInstallerZip
