@@ -1,0 +1,70 @@
+configurations.create('adminConsolePartialLibs')
+configurations.create('adminConsoleLibs')
+
+dependencies {
+	adminConsolePartialLibs 'google:gwt-user:2.4'
+	
+	adminConsoleLibs 'cisd:cisd-base:+',
+					'apache:commons-httpclient:+',
+					'apache:commons-logging:+',
+					'apache:commons-io:+',
+					'apache:log4j:+',
+					'springframework:spring:+',
+					'marathon:marathon-spring-util:+',
+					'springframework:spring-beans:+',
+					'jline:jline:0.9.94'	
+}
+
+task adminConsole(type: Jar) {
+	archiveName 'openbis-admin-console.jar'
+	includeEmptyDirs false
+	from project(':common').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis-common').compileJava.outputs.getFiles().getAsFileTree().plus( 
+         project(':screening').compileJava.outputs.getFiles().getAsFileTree().plus( 
+         project(':openbis').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':openbis_api').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':screening').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':rtd_phosphonetx').compileJava.outputs.getFiles().getAsFileTree().plus(
+         project(':datastore_server').compileJava.outputs.getFiles().getAsFileTree()))))))).matching {
+
+			include 'ch/systemsx/cisd/common/spring/HttpInvokerUtils.class'
+			include 'ch/systemsx/cisd/common/**/*.class'
+			include 'ch/systemsx/cisd/openbis/common/**/*.class'
+			include 'ch/systemsx/cisd/openbis/generic/client/console/**/*.class'
+			include '**/shared/I*.class'
+			include '**/dss/generic/shared/dto/*.class'
+			include '**/generic/shared/basic/**/*.class'
+			exclude '**/generic/shared/basic/annotation/**'
+			exclude '**/generic/shared/basic/util/**'
+			exclude '**/generic/shared/basic/utils/**'
+			include '**/generic/shared/dto/**/*.class'
+			exclude '**/generic/shared/dto/**/*PE.class'
+			include '**/plugin/**/shared/basic/**/*.class'
+			include '**/plugin/**/shared/dto/**/*.class'
+			include '**/shared/authorization/annotation/*.class'
+			include '**/shared/authorization/ISessionProvider.class'
+			include '**/*BuildAndEnvironmentInfo.class'
+		}
+
+	from zipTree(configurations.adminConsolePartialLibs.files.iterator().next()).matching {
+			include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+			include '**/com/google/gwt/user/client/rpc/SerializableException.class'
+	}
+	
+	for (File f : configurations.adminConsoleLibs.files) {
+		from zipTree(f).matching {
+			include '**/**'
+		}
+	}
+    manifest {
+	    attributes("Main-Class": "ch.systemsx.cisd.openbis.generic.client.console.AdminConsole",
+    	           "Class-Path": "openbis-admin-console.jar cisd-base.jar commons-codec.jar commons-httpclient.jar commons-io.jar commons-logging.jar log4j.jar jline.jar spring.jar marathon-spring-util.jar")
+    }	
+}
+
+task zipAdminConsole(type: Zip) {
+	archiveName 'openbis-admin-console.zip'
+	from adminConsole.archivePath
+	into 'openbis-admin-console'
+}
+zipAdminConsole.dependsOn adminConsole
