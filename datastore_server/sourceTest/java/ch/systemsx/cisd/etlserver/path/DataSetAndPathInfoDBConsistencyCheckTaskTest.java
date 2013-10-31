@@ -33,7 +33,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.logging.LogUtils;
 import ch.systemsx.cisd.common.utilities.MockTimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -102,7 +101,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
         assertThat(logRecorder.getLogLines(), hasItem("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
                 + "Check 1 data sets registered since 1970-01-01 01:00:00"));
-        
+
         assertEquals(true, fileContent.isClosed());
         assertEquals(true, pathInfoContent.isClosed());
         context.assertIsSatisfied();
@@ -137,7 +136,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
     }
 
     @Test
-    public void testInconstitentCases()
+    public void testInconsistentCases()
     {
         PhysicalDataSet ds1 = createDataSetBuilder().code("ds1").getDataSet();
         PhysicalDataSet ds2 = createDataSetBuilder().code("ds2").getDataSet();
@@ -166,29 +165,32 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
 
         task.execute();
 
-        assertEquals(
-                "INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - "
-                        + "Check 5 data sets registered since 1970-01-01 01:00:00\n"
-                        + "ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - "
-                        + "File system and path info DB consistency check report "
-                        + "for all data sets since 1970-01-01 01:00:00\n\n"
-                        + "Data sets checked:\n\nds1, ds2, ds3, ds4, ds5\n\n"
-                        + "Differences found:\n\n"
-                        + "Data set ds1:\n"
-                        + "- 'a/b' CRC32 checksum in the file system = 00000009 but in the path info database = 00000007\n"
-                        + "- 'a/c' size in the file system = 35 bytes but in the path info database = 42 bytes.\n"
-                        + "- 'b' is on the file system but is not referenced in the path info database\n"
-                        + "- 'c' is a directory in the file system but a file in the path info database\n\n"
-                        + "Data set ds2:\n"
-                        + "- exists in the path info database but does not exist in the file system\n\n"
-                        + "Data set ds3:\n"
-                        + "- 'a/b' CRC32 checksum in the file system = 00000007 but in the path info database = 00000009\n"
-                        + "- 'a/c' size in the file system = 42 bytes but in the path info database = 35 bytes.\n"
-                        + "- 'b' is referenced in the path info database but does not exist on the file system\n"
-                        + "- 'c' is a directory in the path info database but a file in the file system\n\n"
-                        + "Data set ds5:\n"
-                        + "- exists neither in the path info database nor in the file system",
-                logRecorder.getLogContent());
+        assertThat(logRecorder.getLogLines(),
+                hasItem("INFO  OPERATION.DataSetAndPathInfoDBConsistencyCheckTask - Check 5 data sets registered since 1970-01-01 01:00:00"));
+
+        assertThat(
+                logRecorder.getLogLines(),
+                hasItem("ERROR NOTIFY.DataSetAndPathInfoDBConsistencyCheckTask - File system and path info DB consistency check report for all data sets since 1970-01-01 01:00:00"));
+        assertThat(logRecorder.getLogLines(), hasItem("Data sets checked:"));
+        assertThat(logRecorder.getLogLines(), hasItem("ds1, ds2, ds3, ds4, ds5"));
+        assertThat(logRecorder.getLogLines(), hasItem("Differences found:"));
+        assertThat(logRecorder.getLogLines(), hasItem("Data set ds1:"));
+        assertThat(logRecorder.getLogLines(),
+                hasItem("- 'a/b' CRC32 checksum in the file system = 00000009 but in the path info database = 00000007"));
+        assertThat(logRecorder.getLogLines(), hasItem("- 'a/c' size in the file system = 35 bytes but in the path info database = 42 bytes."));
+        assertThat(logRecorder.getLogLines(), hasItem("- 'b' is on the file system but is not referenced in the path info database"));
+        assertThat(logRecorder.getLogLines(), hasItem("- 'c' is a directory in the file system but a file in the path info database"));
+        assertThat(logRecorder.getLogLines(), hasItem("Data set ds2:"));
+        assertThat(logRecorder.getLogLines(), hasItem("- exists in the path info database but does not exist in the file system"));
+        assertThat(logRecorder.getLogLines(), hasItem("Data set ds3:"));
+        assertThat(logRecorder.getLogLines(),
+                hasItem("- 'a/b' CRC32 checksum in the file system = 00000007 but in the path info database = 00000009"));
+        assertThat(logRecorder.getLogLines(), hasItem("- 'a/c' size in the file system = 42 bytes but in the path info database = 35 bytes."));
+        assertThat(logRecorder.getLogLines(), hasItem("- 'b' is referenced in the path info database but does not exist on the file system"));
+        assertThat(logRecorder.getLogLines(), hasItem("- 'c' is a directory in the path info database but a file in the file system"));
+        assertThat(logRecorder.getLogLines(), hasItem("Data set ds5:"));
+        assertThat(logRecorder.getLogLines(), hasItem("- exists neither in the path info database nor in the file system"));
+
         assertEquals(true, fileContent1.isClosed());
         assertEquals(true, pathInfoContent1.isClosed());
         assertEquals(true, fileContent2.isClosed());
