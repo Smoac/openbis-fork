@@ -80,9 +80,12 @@ public class Console extends Writer
 
     public void startBuffering()
     {
-        System.out.println("Buffering starts");
-        this.queue = new LinkedBlockingQueue<String>();
-        this.buffering = true;
+        if (buffering == false)
+        {
+            System.out.println("Buffering starts");
+            this.queue = new LinkedBlockingQueue<String>();
+            this.buffering = true;
+        }
         this.startTime = System.currentTimeMillis();
     }
 
@@ -113,8 +116,6 @@ public class Console extends Writer
             }
             if (line != null && containsAll(line, text))
             {
-                System.out.println("Buffering ends");
-                this.buffering = false;
                 break;
             }
 
