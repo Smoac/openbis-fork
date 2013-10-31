@@ -66,12 +66,6 @@ public class Console extends Writer
             buf[i - off] = cbuf[i];
         }
 
-        String s = new String(buf);
-        if (s.contains("Asynchronous action 'General Batch Import' failed"))
-        {
-            System.out.println("Console reads " + s + ", buffering is " + buffering);
-        }
-
         if (buffering)
         {
             queue.offer(new String(buf));
@@ -82,7 +76,6 @@ public class Console extends Writer
     {
         if (buffering == false)
         {
-            System.out.println("Buffering starts");
             this.queue = new LinkedBlockingQueue<String>();
             this.buffering = true;
         }
@@ -99,7 +92,6 @@ public class Console extends Writer
         this.timeout = DEFAULT_TIMEOUT;
         this.error = null;
         this.buffering = false;
-        System.out.println("Reset: buffering ends");
     }
 
     public void waitFor(String... text)
