@@ -47,9 +47,12 @@ function SampleLinksTable(containerId, profile, isDisabled) {
 			table += "<td><span style='font-weight:bold;''>" + sampleToPrint.code + "</span></td>";
 			table += "<td><span style='font-weight:bold;''>" + this.profile.getTypeForTypeCode(sampleToPrint.sampleTypeCode).description + "</span></td>";
 			for(var j = 0; j < propertiesToShow.length; j++) {
-				var propertyToShow = Util.getEmptyIfNull(sampleToPrint.properties[propertiesToShow[j]]);
+				var propertyToShow = sampleToPrint.properties[propertiesToShow[j]];
+				if(!propertyToShow && propertiesToShow[j].charAt(0) === '$') {
+					propertyToShow = sampleToPrint.properties[propertiesToShow[j].substr(1)];
+				}
 				var propertyToShowDisplayName = propertiesToShowDisplayNames[j];
-				table += "<td><span style='font-weight:bold;''>" + propertyToShowDisplayName + ":</span> <span>" + propertyToShow + "<span></td>";
+				table += "<td><span style='font-weight:bold;''>" + propertyToShowDisplayName + ":</span> <span>" + Util.getEmptyIfNull(propertyToShow) + "<span></td>";
 			}
 			if(!isDisabled) {
 				table += "<td><button id='" + rowId + "' class='btn' type='button'><i class='icon-minus'></i></button></td>";

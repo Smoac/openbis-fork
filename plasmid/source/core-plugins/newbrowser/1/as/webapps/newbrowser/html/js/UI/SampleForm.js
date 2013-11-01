@@ -103,7 +103,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 							if(propertyType.dataType === "BOOLEAN") {
 								$("#"+propertyType.code.replace('$','\\$')).prop('checked', sample.properties[propertyType.code] === "true");
 							} else {
-								$("#"+propertyType.code.replace('$','\\$')).val(sample.properties[propertyType.code]);
+								var value = sample.properties[propertyType.code];
+								if(!value && propertyType.code.charAt(0) === '$') {
+									value = sample.properties[propertyType.code.substr(1)];
+								}
+								$("#"+propertyType.code.replace('$','\\$')).val(value);
 							}
 						}
 					}

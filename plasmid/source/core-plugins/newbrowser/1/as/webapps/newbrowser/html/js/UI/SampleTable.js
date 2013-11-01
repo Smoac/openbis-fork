@@ -399,6 +399,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					tableFields = [sample.code];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
 						var tableFieldValue = sample.properties[sampleTypeProperties[i]];
+						if(!tableFieldValue && sampleTypeProperties[i].charAt(0) === '$') {
+							tableFieldValue = sample.properties[sampleTypeProperties[i].substr(1)];
+						}
 						tableFields[tableFields.length] = Util.getEmptyIfNull(tableFieldValue);
 					}
 				}
