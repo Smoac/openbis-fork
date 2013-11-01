@@ -20,11 +20,6 @@ dependencies {
                  'python:jython:+',
                  'sybit:image-viewer:+',
                  'springframework:spring:+',
-                 'springframework:spring-aop:+',
-                 'springframework:spring-beans:+',
-                 'springframework:spring-context:+',
-                 'springframework:spring-core:+',
-                 'springframework:spring-web:+',
                  'marathon:marathon-spring-util:+',
                  'aopalliance:aopalliance:+'
 }
@@ -107,10 +102,10 @@ task copyJarsForWebStart(type: Copy) {
         rename { String fileName -> fileName.replace(dssGuiClientJarName, dssCliClientJarName)}
     }
     into jarsToBeSignedFolder
-    rename 'poi-.*\\.jar', 'poi.jar'
-    rename 'poi-ooxml-.*\\.jar', 'poi-ooxml.jar'
+    rename 'poi-[0-9]+.*\\.jar', 'poi.jar'
+    rename 'poi-ooxml-[0-9]+.*\\.jar', 'poi-ooxml.jar'
     rename 'poi-ooxml-schemas-.*\\.jar', 'poi-ooxml-schemas.jar'
-    rename '(.+)-[^-]*\\.jar', '$1.jar'
+    rename '(.+)-[0-9[r]]+.*\\.jar', '$1.jar'
     rename 'dom4j.jar', 'dom4j-1.6.1.jar'
     rename 'geronimo-stax.jar', 'geronimo-stax-api_1.0_spec-1.0.jar'
     rename 'xmlbeans.jar', 'xmlbeans-2.3.0.jar'
