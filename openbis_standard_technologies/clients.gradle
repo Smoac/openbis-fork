@@ -20,6 +20,11 @@ dependencies {
                  'python:jython:+',
                  'sybit:image-viewer:+',
                  'springframework:spring:+',
+                 'springframework:spring-aop:+',
+                 'springframework:spring-beans:+',
+                 'springframework:spring-context:+',
+                 'springframework:spring-core:+',
+                 'springframework:spring-web:+',
                  'marathon:marathon-spring-util:+',
                  'aopalliance:aopalliance:+'
 }
