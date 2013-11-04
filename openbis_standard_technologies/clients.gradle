@@ -100,7 +100,7 @@ task createDssClientJar(type: Jar) {
     }   
 }   
 
-task copyJarsForWebStart(type: Copy) {
+task copyJarsForWebStart(type: Copy, dependsOn: [createOpenbisJar, createDssClientJar]) {
     from configurations.webStartJars.files
     from (jarsToBeSignedFolder) {
         include dssGuiClientJarName
@@ -118,7 +118,7 @@ task copyJarsForWebStart(type: Copy) {
 }
 
 keystoreFile = '../screening/etc/dev.keystore'
-task signWebStartJars(type: Copy, dependsOn: [createOpenbisJar, createDssClientJar, copyJarsForWebStart]) {
+task signWebStartJars(type: Copy, dependsOn: [copyJarsForWebStart]) {
     from jarsToBeSignedFolder
     into signedJarsFolder
     inputs.file keystoreFile
