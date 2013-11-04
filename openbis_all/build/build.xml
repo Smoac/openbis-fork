@@ -69,9 +69,6 @@
     <zip destfile="${result.dir}/openBIS-clients-and-APIs-${version.number}-r${revision.number}.zip">
       <fileset dir="${result.dir}">
         <include name="dss_client-${version.number}*"/>
-        <include name="dss_client-screening-${version.number}*"/>
-        <include name="dss_upload_gui-${version.number}*"/>
-        <include name="dss_upload_gui-screening-${version.number}*"/>
         <include name="openBIS-*-API*"/>
       </fileset>
       <fileset dir="dist">
