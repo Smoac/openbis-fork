@@ -75,6 +75,14 @@ try {
 
 group="cisd"
 
+task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
+    doFirst {
+        cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
+        commandLine 'java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', 
+            sourceSets.main.output.classesDir, sourceSets.test.output.classesDir, '-cp', configurations.testCompile.asPath
+    }
+}
+
 test {
     useTestNG()
     options.suites('sourceTest/java/tests.xml')    
@@ -83,6 +91,7 @@ test {
     
     testLogging.showStandardStreams = true
 }
+test.dependsOn checkRestrictions
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allJava
