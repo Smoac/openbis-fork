@@ -2,7 +2,7 @@
  * Cool login form
  */
 .bodyLogin {
-    background: url(../css/loginBackground.jpg) no-repeat center center fixed; 
+    /*background: url(../css/loginBackground.jpg) no-repeat center center fixed; */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -29,9 +29,9 @@
     font-weight: 300;
     font-size: 15px;
     
-    -webkit-box-shadow: 0px 0px 100px rgba(50, 50, 50, 0.8);
-    -moz-box-shadow:    0px 0px 100px rgba(50, 50, 50, 0.8);
-    box-shadow:         0px 0px 100px rgba(50, 50, 50, 0.8);
+    -webkit-box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.8);
+    -moz-box-shadow:    0px 0px 10px rgba(50, 50, 50, 0.8);
+    box-shadow:         0px 0px 10px rgba(50, 50, 50, 0.8); 
 }
 
 .loginForm form {
@@ -40,7 +40,7 @@
 }
 
 .loginLogo {
-    width: 200px;
+    width: 300px;
     margin-left: auto;
     margin-right: auto;
     display: block;
@@ -49,12 +49,14 @@
 
 .loginForm h1 {
     font-family: "Helvetica Neue",sans-serif;
-    font-weight: 300;
+    font-weight: 200;
     text-align: center;
+    margin-top: 50px;
 }
 
 .loginInputBox {
     border-bottom: 1px solid #dddddd;
+
 }
 
 .loginForm input {
@@ -67,6 +69,7 @@
     -moz-box-shadow: none;
     box-shadow: none;
     width: 100%;
+
 }
 
 .loginForm input:focus,
@@ -85,11 +88,57 @@
 }
 
 /*
+ * Logout button
+ */
+.logout-btn {
+    
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.logout-btn 
+{
+ font: 15px "Helvetica Neue",sans-serif, bold;
+  font-weight: bold;
+  background-color: #CFCFCF;
+  background-image: -moz-linear-gradient(top, rgba(255,255,255,.25), rgba(255,255,255,.11));
+  background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, rgba(255,255,255,.25)),color-stop(1, rgba(255,255,255,.11)));
+  background-image: -webkit-linear-gradient(rgba(255,255,255,.25), rgba(255,255,255,.11));
+  color: #FFFFFF;
+  text-rendering: optimizeLegibility;
+  
+  padding: 3px 5px 3px 5px;
+  border: 40;
+  border-radius: 10px;
+  border-bottom: 1px solid #222;
+  
+  -moz-box-shadow: 1px 1px 3px #999;
+  -webkit-box-shadow: 0 1px 3px #999;
+  box-shadow: 0 1px 3px #999;
+  position: absolute;
+  right: 10px;
+  top:10px;
+}
+
+.logout-btn:hover
+{
+font: 15px "Helvetica Neue",sans-serif;
+font-weight:bold;
+font-style: normal;
+text-decoration: none;
+background-color:#FFFFFF;
+color:#848484;
+text-rendering: optimizeLegibility;
+}
+
+
+/*
  * General Layout
  */
 
 body {
-margin-top : 20px;
-margin-left: 20px;
-
+  margin-top : 60px;
+  margin-left: 20px;
 }
+
