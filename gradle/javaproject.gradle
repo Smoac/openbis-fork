@@ -78,8 +78,17 @@ group="cisd"
 task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     doFirst {
         cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
-        commandLine 'java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', 
-            sourceSets.main.output.classesDir, sourceSets.test.output.classesDir, '-cp', configurations.testCompile.asPath
+        cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDir]
+        if (sourceSets.test.output.classesDir.exists()) {
+            cmd.add(sourceSets.test.output.classesDir)
+        }
+        cmd.add('-cp')
+        cmd.add(sourceSets.main.output.classesDir)
+        if (sourceSets.test.output.classesDir.exists()) {
+            cmd.add(sourceSets.test.output.classesDir)
+        }
+        cmd.add(configurations.testCompile.asPath)
+        commandLine cmd
     }
 }
 
