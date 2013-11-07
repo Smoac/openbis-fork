@@ -23,6 +23,7 @@ import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.common.eodsql.MockDataSet;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.basic.dto.ProteinRelate
  *
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = PhosphoNetXServer.class)
 public class PhosphoNetXServerTest extends AbstractServerTestCase
 {
     private static final TechId EXPERIMENT_ID = new TechId(42L);
