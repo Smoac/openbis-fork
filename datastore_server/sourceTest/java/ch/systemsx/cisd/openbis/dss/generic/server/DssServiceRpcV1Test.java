@@ -40,6 +40,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
@@ -98,6 +99,7 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Friend(toClasses = HierarchicalContentProvider.class)
 public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
 {
     private static final String SHARE_ID = "share-1";

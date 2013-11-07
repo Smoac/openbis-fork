@@ -48,6 +48,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -78,6 +79,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
  * @author Franz-Josef Elmer
  */
 @Test
+@Friend(toClasses = HierarchicalContentProvider.class)
 public class DatasetDownloadServletTest
 {
     private static final String REQUEST_URI_PREFIX = "/" + DATA_STORE_SERVER_WEB_APPLICATION_NAME

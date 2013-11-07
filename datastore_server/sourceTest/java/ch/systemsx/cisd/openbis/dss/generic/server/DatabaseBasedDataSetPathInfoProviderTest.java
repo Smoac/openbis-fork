@@ -39,7 +39,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = DatabaseBasedDataSetPathInfoProvider.class)
+@Friend(toClasses = {DatabaseBasedDataSetPathInfoProvider.class, 
+        DatabaseBasedDataSetPathInfoProvider.IPathInfoDAO.class, 
+        DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord.class})
 public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
 {
     private static final Long DATA_SET_ID = 41L;

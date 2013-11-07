@@ -22,12 +22,14 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.StreamRepository.IUniqueIdGenerator;
 
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = StreamRepository.class)
 public class StreamRepositoryTest extends AssertJUnit
 {
     private IUniqueIdGenerator idGenerator;

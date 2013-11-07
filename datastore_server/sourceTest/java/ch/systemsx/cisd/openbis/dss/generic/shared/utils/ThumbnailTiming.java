@@ -25,11 +25,13 @@ import javax.imageio.ImageIO;
 
 import org.springframework.util.StopWatch;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 
 /**
  * @author Chandrasekhar Ramakrishnan
  */
+@Friend(toClasses = ImageUtil.class)
 public class ThumbnailTiming
 {
 

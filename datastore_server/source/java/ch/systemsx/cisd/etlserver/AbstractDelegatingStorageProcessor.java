@@ -64,7 +64,6 @@ abstract public class AbstractDelegatingStorageProcessor implements IStorageProc
         this.delegate = delegateStorageProcessor;
     }
 
-    @Private
     static IStorageProcessorTransactional createDelegateStorageProcessor(Properties properties)
     {
         String delegateClass =

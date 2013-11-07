@@ -75,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 public class OpenbisServiceFacade implements IOpenbisServiceFacade
 {
 
-    @Private
     public static IOpenbisServiceFacade tryCreate(final String username, final String password,
             final String openbisUrl, final long timeoutInMillis)
     {
@@ -117,7 +116,6 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
         return caller.callWithRetry();
     }
 
-    @Private
     public static IOpenbisServiceFacade tryCreate(final String sessionToken,
             final String openbisUrl, final long timeoutInMillis)
     {

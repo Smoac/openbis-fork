@@ -26,7 +26,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskInfoP
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses = DssPropertyParametersUtil.class)
+@Friend(toClasses = {DssPropertyParametersUtil.class, PluginTaskInfoProvider.class})
 public class PluginUtilTest
 {
     public static IPluginTaskInfoProvider createPluginTaskProviders(File storeRoot)

@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
  * 
  * @author Kaloyan Enimanev
  */
-@Private
 public class ShareFactory
 {
     @Private

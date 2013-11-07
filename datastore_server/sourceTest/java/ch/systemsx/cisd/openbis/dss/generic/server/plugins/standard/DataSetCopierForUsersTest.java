@@ -54,7 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBu
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = DataSetCopier.class)
+@Friend(toClasses = DataSetCopierForUsers.class)
 public class DataSetCopierForUsersTest extends AbstractFileSystemTestCase
 {
     private static final String USER_ID = "test-user";

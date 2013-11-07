@@ -229,7 +229,8 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
                     : BooleanStatus.createFalse();
         }
     }
-
+    
+    @Friend(toClasses = AbstractArchiverProcessingPlugin.class)
     private static final class MockArchiver extends AbstractArchiverProcessingPlugin implements
             IAbstractArchiverMethods
     {

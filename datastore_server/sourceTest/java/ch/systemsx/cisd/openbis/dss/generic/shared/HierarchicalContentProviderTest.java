@@ -27,6 +27,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentFactory;
@@ -41,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  * 
  * @author Piotr Buczek
  */
+@Friend(toClasses = HierarchicalContentProvider.class)
 public class HierarchicalContentProviderTest extends AssertJUnit
 {
 
