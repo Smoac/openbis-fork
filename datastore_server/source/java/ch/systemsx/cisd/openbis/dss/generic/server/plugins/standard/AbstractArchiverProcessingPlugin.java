@@ -92,7 +92,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private transient IEncapsulatedOpenBISService service;
 
-    @Private
     transient IDataSetStatusUpdater statusUpdater;
 
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,

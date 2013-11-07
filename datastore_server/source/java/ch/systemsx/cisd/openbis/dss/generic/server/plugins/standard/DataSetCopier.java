@@ -72,7 +72,6 @@ public class DataSetCopier extends AbstractDropboxProcessingPlugin
                 new ImmutableCopierFactory(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    @Private
     DataSetCopier(Properties properties, File storeRoot, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory,
             IImmutableCopierFactory immutableCopierFactory, ITimeProvider timeProvider)
