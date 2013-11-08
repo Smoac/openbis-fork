@@ -29,44 +29,41 @@ public interface IMailClient
 {
 
     /**
-     * Warning: deprecated, use
-     * {@link #sendEmailMessage(String, String, EMailAddress, EMailAddress, EMailAddress...)}
-     * instead. They do proper escaping of personal names with comas and semi-colons.<br>
+     * Warning: deprecated, use {@link #sendEmailMessage(String, String, EMailAddress, EMailAddress, EMailAddress...)} instead. They do proper
+     * escaping of personal names with comas and semi-colons.<br>
      * <br>
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>.
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>.
      * 
      * @param replyToOrNull reply-to part of the email header. Can be <code>null</code>.
-     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified -
-     *            will overwrite the 'from' value specified for the client.
+     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified - will overwrite the 'from' value specified for the
+     *            client.
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
+     * @deprecated Use {@link #sendEmailMessage(String, String, EMailAddress, EMailAddress, EMailAddress...)} instead. They do proper escaping of
+     *             personal names with comas and semi-colons.
      */
-    // TODO 2010-06-15, Tomasz Pylak: @deprecated, use the new method
+    @Deprecated
     public void sendMessage(String subject, String content, String replyToOrNull, From fromOrNull,
             String... recipients) throws EnvironmentFailureException;
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>.
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>.
      * 
      * @param replyToOrNull Reply-to email header. Can be <code>null</code>.
-     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified -
-     *            will overwrite the 'from' value specified for the client.
+     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified - will overwrite the 'from' value specified for the
+     *            client.
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
     public void sendEmailMessage(String subject, String content, EMailAddress replyToOrNull,
             EMailAddress fromOrNull, EMailAddress... recipients) throws EnvironmentFailureException;
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>, includig the given <var>attachment</var>
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>, includig the given <var>attachment</var>
      * 
      * @param replyToOrNull reply-to part of the email header. Can be <code>null</code>.
-     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified -
-     *            will overwrite the 'from' value specified for the client.
+     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified - will overwrite the 'from' value specified for the
+     *            client.
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
-     * @deprecated Use
-     *             {@link #sendEmailMessageWithAttachment(String, String, String, DataHandler, EMailAddress, EMailAddress, EMailAddress...)}
+     * @deprecated Use {@link #sendEmailMessageWithAttachment(String, String, String, DataHandler, EMailAddress, EMailAddress, EMailAddress...)}
      *             instead. They do proper escaping of personal names with comas and semi-colons.
      */
     @Deprecated
@@ -75,12 +72,11 @@ public interface IMailClient
             final From fromOrNull, final String... recipients) throws EnvironmentFailureException;
 
     /**
-     * Sends a mail with given <var>subject</var> and <var>content</var> to given
-     * <var>recipients</var>, includig the given <var>attachment</var>
+     * Sends a mail with given <var>subject</var> and <var>content</var> to given <var>recipients</var>, includig the given <var>attachment</var>
      * 
      * @param replyToOrNull Reply-to email header. Can be <code>null</code>.
-     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified -
-     *            will overwrite the 'from' value specified for the client.
+     * @param fromOrNull from part of the email header. Can be <code>null</code>. If specified - will overwrite the 'from' value specified for the
+     *            client.
      * @param recipients list of recipients (of type <code>Message.RecipientType.TO</code>)
      */
     public void sendEmailMessageWithAttachment(final String subject, final String content,
