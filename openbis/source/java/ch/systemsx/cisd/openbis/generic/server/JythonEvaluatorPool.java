@@ -16,9 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -36,9 +37,8 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IEvaluationRunne
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyFunctions;
 
 /**
- * Pool of Jython Evaluators for managed properties. When the pool is created, it is filled with new
- * Evaluator instances for every managed property script. Enables thread-safe execution of calls to
- * python functions defined in these scripts.
+ * Pool of Jython Evaluators for managed properties. When the pool is created, it is filled with new Evaluator instances for every managed property
+ * script. Enables thread-safe execution of calls to python functions defined in these scripts.
  * 
  * @author anttil
  */
@@ -54,6 +54,8 @@ public class JythonEvaluatorPool
     private Map<String, EvaluatorState> cache;
 
     private Lock cacheLock;
+
+    private static ThreadLocal<Stack<Map<String, Object>>> stack = new ThreadLocal<Stack<Map<String, Object>>>();
 
     public JythonEvaluatorPool(IDAOFactory daoFactory, String poolSize)
     {
@@ -107,9 +109,8 @@ public class JythonEvaluatorPool
     }
 
     /**
-     * Evaluate python functions from a script using an Evaluator instance in the pool. If the
-     * Evaluator instance does not exist, create it. Give access to the instance for only one thread
-     * at a time.
+     * Evaluate python functions from a script using an Evaluator instance in the pool. If the Evaluator instance does not exist, create it. Give
+     * access to the instance for only one thread at a time.
      */
     private <T> T evaluate(String expression, Class<?> clazz, String script,
             IAtomicEvaluation<T> evaluation)
@@ -134,14 +135,27 @@ public class JythonEvaluatorPool
             }
         }
 
-        Lock lock = state.getLock();
+        ReentrantLock lock = (ReentrantLock) state.getLock();
+
+        if (false == lock.isHeldByCurrentThread())
+        {
+            stack.set(new Stack<Map<String, Object>>());
+        }
+
         lock.lock();
+        state.push();
+
         try
         {
-            return evaluation.evaluate(state.getCleanInstance());
+            return evaluation.evaluate(state.getEvaluator());
         } finally
         {
+            state.pop();
             lock.unlock();
+            if (false == lock.isHeldByCurrentThread())
+            {
+                stack.set(null);
+            }
         }
     }
 
@@ -168,37 +182,52 @@ public class JythonEvaluatorPool
     }
 
     /**
-     * The pooled object. Contains the Evaluator and its initial state to which it is always
-     * returned to when a new evaluation is started.
+     * The pooled object. Contains the Evaluator and its initial state to which it is always returned to when a new evaluation is started.
      */
     public static class EvaluatorState
     {
         private final Evaluator evaluator;
 
-        private final Collection<String> globals;
+        private Stack<Map<String, Object>> globalsStack;
 
         private final Lock lock;
 
         public EvaluatorState(Evaluator evaluator)
         {
             this.evaluator = evaluator;
-            this.globals = evaluator.getGlobalVariables();
             this.lock = new ReentrantLock();
+            this.globalsStack = new Stack<Map<String, Object>>();
         }
 
-        /**
-         * Returns an evaluator instance in its initial state.
-         */
-        public synchronized Evaluator getCleanInstance()
+        public void push()
         {
-            for (String value : evaluator.getGlobalVariables())
+            Map<String, Object> globalsValues = new HashMap<String, Object>();
+            for (String globalName : evaluator.getGlobalVariables())
             {
-                if (globals.contains(value) == false)
-                {
-                    evaluator.delete(value);
-                }
+                Object globalValue = evaluator.get(globalName);
+                globalsValues.put(globalName, globalValue);
             }
-            return this.evaluator;
+            globalsStack.push(globalsValues);
+        }
+
+        public void pop()
+        {
+            Map<String, Object> globalsValues = globalsStack.pop();
+
+            for (String globalName : evaluator.getGlobalVariables())
+            {
+                evaluator.delete(globalName);
+            }
+
+            for (String globalName : globalsValues.keySet())
+            {
+                evaluator.set(globalName, globalsValues.get(globalName));
+            }
+        }
+
+        public Evaluator getEvaluator()
+        {
+            return evaluator;
         }
 
         public Lock getLock()

@@ -107,7 +107,8 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
                     try
                     {
                         evaluator.set(ENTITY_VARIABLE_NAME, entity);
-                        return evaluator.evalAsStringLegacy2_2();
+                        String x = evaluator.evalAsStringLegacy2_2();
+                        return x;
                     } finally
                     {
                         evaluator.releaseResources();

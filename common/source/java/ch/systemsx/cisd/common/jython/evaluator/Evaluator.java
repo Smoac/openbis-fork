@@ -236,6 +236,11 @@ public final class Evaluator
         interpreter.set(name, value);
     }
 
+    public Object get(String name)
+    {
+        return interpreter.get(name);
+    }
+
     /**
      * Deletes the variable <var>name</var> from the evaluator's name space.
      */
