@@ -101,13 +101,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 							var propertyType = propertyTypeGroup.propertyTypes[j];
 							if(propertyType.dataType === "BOOLEAN") {
-								$("#"+propertyType.code.replace('$','\\$')).prop('checked', sample.properties[propertyType.code] === "true");
+								$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).prop('checked', sample.properties[propertyType.code] === "true");
 							} else {
 								var value = sample.properties[propertyType.code];
 								if(!value && propertyType.code.charAt(0) === '$') {
 									value = sample.properties[propertyType.code.substr(1)];
 								}
-								$("#"+propertyType.code.replace('$','\\$')).val(value);
+								$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val(value);
 							}
 						}
 					}
@@ -128,7 +128,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 						var propertyType = propertyTypeGroup.propertyTypes[j];
 						if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
-							$("#"+propertyType.code.replace('$','\\$')).prop('disabled', true);
+							$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).prop('disabled', true);
 						}
 					}
 				}
@@ -545,9 +545,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				var value = null;
 				
 				if (propertyType.dataType === "BOOLEAN") {
-					value = $("#"+propertyType.code.replace('$','\\$')+":checked").val() === "on";
+					value = $("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')+":checked").val() === "on";
 				} else {
-					value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$')).val());
+					value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val());
 				}
 				
 				properties[propertyType.code] = value;

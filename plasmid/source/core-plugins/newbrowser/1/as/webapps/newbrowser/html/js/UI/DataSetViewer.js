@@ -135,6 +135,13 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 			var dataset = this.sampleDataSets[datasetCode];
 			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
 			
+			if(!datasetFiles) {
+				$container.append($("<p>")
+						.append($("<i>", { class: "icon-ban-circle" }))
+						.append(" Please configure properly trusted-cross-origin-domains for this web app, datasets can't be retrieved from the DSS server."));
+				return;
+			}
+			
 			for(var i = 0; i < datasetFiles.length; i++) {
 				var $tableRow = $("<tr>")
 									.append($("<td>").html(dataset.code))
