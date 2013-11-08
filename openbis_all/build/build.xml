@@ -164,6 +164,9 @@
         <include name="*/source/java/OpenBISScreeningML.java"/>
         <include name="*/source/java/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"/>
         <include name="*/source/java/ch/systemsx/cisd/**/etlserver/registrator/*.java"/>
+      	
+      	<!-- include classes that allow sending emails from the dropboxes -->
+      	<include name="*/source/java/ch/systemsx/cisd/common/mail/*.java"/>
       </fileset>
 
       <classpath>
