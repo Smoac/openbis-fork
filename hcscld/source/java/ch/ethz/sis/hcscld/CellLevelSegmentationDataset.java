@@ -16,7 +16,9 @@
 
 package ch.ethz.sis.hcscld;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.List;
 
 import ch.systemsx.cisd.hdf5.BitSetConversionUtils;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
@@ -111,6 +113,26 @@ class CellLevelSegmentationDataset extends CellLevelDataset implements
         return numberOfObjectsInt;
     }
 
+    @Override
+    public ImageId[] getImageIds(ObjectType objectType)
+    {
+        final String prefix = createPrefixString(INDEX_PREFIX, objectType.getId());
+        final List<String> entries = reader.object().getGroupMembers(getObjectPath());
+        final List<ImageId> imageIds = new ArrayList<ImageId>(entries.size());
+        for (String entry : entries)
+        {
+            if (entry.startsWith(prefix))
+            {
+                final ImageId imageId = ImageId.tryParseSpecifier(prefix, entry);
+                if (imageId != null)
+                {
+                    imageIds.add(imageId);
+                }
+            }
+        }
+        return imageIds.toArray(new ImageId[imageIds.size()]);
+    }
+    
     @Override
     public SegmentedObject getObject(ImageId wellId, ObjectType objectType, int objectId,
             boolean withEdge)

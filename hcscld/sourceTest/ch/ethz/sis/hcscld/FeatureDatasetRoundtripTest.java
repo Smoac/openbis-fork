@@ -490,6 +490,32 @@ public class FeatureDatasetRoundtripTest
         writer.close();
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f).enumAsOrdinal();
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        final ImageId[] imageIds = ds.getImageIds(ds.getFeatureGroup("DEFAULT"));
+        assertEquals(24, imageIds.length);
+        assertEquals(new ImageId(0, 0, 0, 0), imageIds[0]);
+        assertEquals(new ImageId(0, 0, 1, 0), imageIds[1]);
+        assertEquals(new ImageId(0, 0, 2, 0), imageIds[2]);
+        assertEquals(new ImageId(0, 0, 3, 0), imageIds[3]);
+        assertEquals(new ImageId(0, 1, 0, 0), imageIds[4]);
+        assertEquals(new ImageId(0, 1, 1, 0), imageIds[5]);
+        assertEquals(new ImageId(0, 1, 2, 0), imageIds[6]);
+        assertEquals(new ImageId(0, 1, 3, 0), imageIds[7]);
+        assertEquals(new ImageId(0, 2, 0, 0), imageIds[8]);
+        assertEquals(new ImageId(0, 2, 1, 0), imageIds[9]);
+        assertEquals(new ImageId(0, 2, 2, 0), imageIds[10]);
+        assertEquals(new ImageId(0, 2, 3, 0), imageIds[11]);
+        assertEquals(new ImageId(1, 0, 0, 0), imageIds[12]);
+        assertEquals(new ImageId(1, 0, 1, 0), imageIds[13]);
+        assertEquals(new ImageId(1, 0, 2, 0), imageIds[14]);
+        assertEquals(new ImageId(1, 0, 3, 0), imageIds[15]);
+        assertEquals(new ImageId(1, 1, 0, 0), imageIds[16]);
+        assertEquals(new ImageId(1, 1, 1, 0), imageIds[17]);
+        assertEquals(new ImageId(1, 1, 2, 0), imageIds[18]);
+        assertEquals(new ImageId(1, 1, 3, 0), imageIds[19]);
+        assertEquals(new ImageId(1, 2, 0, 0), imageIds[20]);
+        assertEquals(new ImageId(1, 2, 1, 0), imageIds[21]);
+        assertEquals(new ImageId(1, 2, 2, 0), imageIds[22]);
+        assertEquals(new ImageId(1, 2, 3, 0), imageIds[23]);
         for (CellLevelFeatures clf : ds.getValues())
         {
             assertEquals(FeatureGroupDataType.COMPOUND, clf.getFeatureGroup().getDataType());
@@ -664,11 +690,13 @@ public class FeatureDatasetRoundtripTest
         final String dsCode = "123";
         final File f = new File(workingDirectory, "float32TwoFeatureGroups.cld");
         f.delete();
-        f.deleteOnExit();
+        //f.deleteOnExit();
         createTwoFeatureFloat32GroupsSameNamespaceDataset(f, dsCode);
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        final ImageId[] ids = ds.getImageIds(ds.getObjectNamespace("CELL"));
+        assertEquals(24, ids.length);
         final float[][] vals = ds.getFloatValues(new ImageId(1, 2, 3), ds.getObjectNamespace("CELL")).toMatrix();
         for (int i = 0; i < vals.length; ++i)
         {

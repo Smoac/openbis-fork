@@ -105,6 +105,9 @@ public class SegmentationDatasetRoundtripTest
         ObjectType type = objectTypeIt.next();
         assertEquals(1, objectTypes.size());
         assertEquals("CELL", type.getId());
+        final ImageId[] imageIds = rds.getImageIds(type);
+        assertEquals(1, imageIds.length);
+        assertEquals(new ImageId(1, 2, 3), imageIds[0]);
         assertEquals("789", type.getDatasetCode());
         assertEquals(3, rds.getNumberOfSegmentedObjects(new ImageId(1, 2, 3), type));
         assertEquals("segmentationOneObjectType.cld", type.getFile().getName());

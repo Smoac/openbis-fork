@@ -25,33 +25,37 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
 {
     /**
      * Returns the image geometry of this image segmentation data set.
-     * 
-     * @return The image geometry object.
      */
     public ImageGeometry getImageGeometry();
+
+    /**
+     * Returns the list of image ids that this dataset has
+     * segmentation results for of given <var>objectType</var>.
+     */
+    public ImageId[] getImageIds(ObjectType objectType);
 
     /**
      * Returns the number of segmented objects for the given image and object objectType.
      */
     public int getNumberOfSegmentedObjects(ImageId imageId, ObjectType objectType);
-    
+
     /**
      * Returns the segmented object with given <var>objectId</var> in the given <var>wellId</var>.
      * 
-     * @param wellId The well id to read the the object from.
+     * @param imageId The image id to read the the object from.
      * @param objectType The type of segmented object to get.
      * @param objectId The object id to read.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return The object as found by <code>segmentation</code>.
      */
-    public SegmentedObject getObject(ImageId wellId, ObjectType objectType, int objectId,
+    public SegmentedObject getObject(ImageId imageId, ObjectType objectType, int objectId,
             boolean withEdge);
 
     /**
      * Returns the segmented object in the given <var>wellId</var> that is at point (x,y).
      * 
-     * @param wellId The well id to read the the object from.
+     * @param imageId The image id to read the the object from.
      * @param objectType The type of segmented object to look for.
      * @param x The x coordinate to look up the object for.
      * @param y The y coordinate to look up the object for.
@@ -60,13 +64,13 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @return The object as found by <code>segmentation</code> at point (x,y), or <code>null</code>
      *         , if no object was found at this point.
      */
-    public SegmentedObject tryFindObject(ImageId wellId, ObjectType objectType, int x, int y,
+    public SegmentedObject tryFindObject(ImageId imageId, ObjectType objectType, int x, int y,
             boolean withEdge);
 
     /**
      * Returns the segmented object in the given <var>wellId</var> that is at point (x,y).
      * 
-     * @param wellId The well id to read the the object from.
+     * @param imageId The image id to read the the object from.
      * @param x The x coordinate to look up the object for.
      * @param y The y coordinate to look up the object for.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
@@ -74,27 +78,27 @@ public interface ICellLevelSegmentationDataset extends ICellLevelDataset
      * @return The object as found by <code>segmentation</code> at point (x,y), or <code>null</code>
      *         , if no object was found at this point. Returns the first object it finds.
      */
-    public SegmentedObject tryFindObject(ImageId wellId, int x, int y, boolean withEdge);
+    public SegmentedObject tryFindObject(ImageId imageId, int x, int y, boolean withEdge);
 
     /**
      * Returns all segmented objects in the given <var>wellId</var>.
      * 
-     * @param wellId The well id to read the the object from.
+     * @param imageId The image id to read the object from.
      * @param objectType The type of segmented objects to get.
      * @param withEdge If <code>true</code>, the edge of the object will be read or, if not saved,
      *            computed.
      * @return All objects as found by <code>segmentation</code>.
      */
-    public SegmentedObject[] getObjects(ImageId wellId, ObjectType objectType, boolean withEdge);
+    public SegmentedObject[] getObjects(ImageId imageId, ObjectType objectType, boolean withEdge);
 
     /**
      * Returns <code>true</code> if this dataset has objects for the given parameters and
      * <code>false</code> otherwise.
      * 
-     * @param wellId The well id to check for existing objects.
+     * @param imageId The image id to check for existing objects.
      * @param objectType The type of segmented objects to check for existing objects.
      * @return <code>true</code> if this dataset has objects for the given parameters.
      */
-    public boolean hasObjects(ImageId wellId, ObjectType objectType);
+    public boolean hasObjects(ImageId imageId, ObjectType objectType);
 
 }

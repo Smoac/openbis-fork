@@ -16,6 +16,11 @@
 
 package ch.ethz.sis.hcscld;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * An identifier for an image. Images of an image sequence within an HCS screen are identified by:
  * <ul>
@@ -34,8 +39,10 @@ package ch.ethz.sis.hcscld;
  * 
  * @author Bernd Rinn
  */
-public class ImageId extends ImageSequenceId
+public class ImageId extends ImageSequenceId implements Comparable<ImageId>
 {
+    private static final Pattern IMAGE_ID_PATTERN = Pattern.compile("R(\\d+)_C(\\d+)_F(\\d+)_S(\\d+)");
+
     private final int seqIdx;
 
     /**
@@ -76,6 +83,22 @@ public class ImageId extends ImageSequenceId
     }
 
     /**
+     * Returns the list of image ids filtered to those that are in <var>wellId</var>. 
+     */
+    public static ImageId[] filterForWell(WellId wellId, ImageId[] imageIds)
+    {
+        final List<ImageId> filteredIds = new ArrayList<ImageId>(imageIds.length);
+        for (ImageId id : imageIds)
+        {
+            if (id.row == wellId.row && id.column == wellId.column)
+            {
+                filteredIds.add(id);
+            }
+        }
+        return filteredIds.toArray(new ImageId[filteredIds.size()]);
+    }
+
+    /**
      * Returns the sequence index (0-based).
      */
     public int getSequenceIndex()
@@ -86,21 +109,21 @@ public class ImageId extends ImageSequenceId
     @Override
     String createObjectName(String... prefixes)
     {
-        final String prefix;
-        if (prefixes.length == 0)
+        final String prefix = CellLevelDataset.createPrefixString(prefixes);
+        return String.format("%sR%d_C%d_F%d_S%d", prefix, row, column, field, seqIdx);
+    }
+
+    static ImageId tryParseSpecifier(String prefix, String specifier)
+    {
+        final Matcher m = IMAGE_ID_PATTERN.matcher(specifier.substring(prefix.length()));
+        if (m.matches())
         {
-            prefix = "";
+            return new ImageId(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
+                    Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)));
         } else
         {
-            final StringBuilder builder = new StringBuilder();
-            for (String p : prefixes)
-            {
-                builder.append(p);
-                builder.append("__");
-            }
-            prefix = builder.toString();
+            return null;
         }
-        return String.format("%sR%d_C%d_F%d_S%d", prefix, row, column, field, seqIdx);
     }
 
     @Override
@@ -126,23 +149,41 @@ public class ImageId extends ImageSequenceId
             return false;
         }
         final ImageId other = (ImageId) obj;
-        if (column != other.column)
+        return super.equals(obj) && (seqIdx == other.seqIdx);
+    }
+
+    @Override
+    public int compareTo(ImageId other)
+    {
+        if (row < other.row)
         {
-            return false;
-        }
-        if (field != other.field)
+            return -1;
+        } else if (row > other.row)
         {
-            return false;
+            return 1;
         }
-        if (row != other.row)
+        if (column < other.column)
         {
-            return false;
-        }
-        if (seqIdx != other.seqIdx)
+            return -1;
+        } else if (column > other.column)
         {
-            return false;
+            return 1;
         }
-        return true;
+        if (field < other.field)
+        {
+            return -1;
+        } else if (field > other.field)
+        {
+            return 1;
+        }
+        if (seqIdx < other.seqIdx)
+        {
+            return -1;
+        } else if (seqIdx > other.seqIdx)
+        {
+            return 1;
+        }
+        return 0;
     }
 
     @Override

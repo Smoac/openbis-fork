@@ -315,6 +315,25 @@ abstract class CellLevelDataset implements ICellLevelDataset
         return getDatasetPath(datasetCode) + "/" + name;
     }
 
+    static String createPrefixString(String... prefixes)
+    {
+        final String prefix;
+        if (prefixes.length == 0)
+        {
+            prefix = "";
+        } else
+        {
+            final StringBuilder builder = new StringBuilder();
+            for (String p : prefixes)
+            {
+                builder.append(p);
+                builder.append("__");
+            }
+            prefix = builder.toString();
+        }
+        return prefix;
+    }
+
     String getObjectPath(ImageId id, String... prefixes)
     {
         quantityStructure.checkInBounds(id);

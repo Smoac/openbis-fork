@@ -17,7 +17,7 @@
 package ch.ethz.sis.hcscld;
 
 /**
- * /** An identifier for an image sequence. Images sequence within an HCS screen are identified by:
+ * An identifier for an image sequence. Images sequence in an HCS screen are identified by:
  * <ul>
  * <li>Well (row and column)</li>
  * <li>Field of sight</li>
@@ -31,35 +31,14 @@ package ch.ethz.sis.hcscld;
  * 
  * @author Bernd Rinn
  */
-public class ImageSequenceId
+public class ImageSequenceId extends WellId
 {
-    protected final int row;
-
-    protected final int column;
-
     protected final int field;
 
     public ImageSequenceId(int row, int column, int field)
     {
-        this.row = row;
-        this.column = column;
+        super(row, column);
         this.field = field;
-    }
-
-    /**
-     * Returns the row index of the well (0-based).
-     */
-    public int getRow()
-    {
-        return row;
-    }
-
-    /**
-     * Returns the column index of the well (0-based).
-     */
-    public int getColumn()
-    {
-        return column;
     }
 
     /**
@@ -93,11 +72,7 @@ public class ImageSequenceId
     public int hashCode()
     {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + column;
-        result = prime * result + field;
-        result = prime * result + row;
-        return result;
+        return super.hashCode() * prime + field;
     }
 
     @Override
@@ -115,20 +90,8 @@ public class ImageSequenceId
         {
             return false;
         }
-        final ImageId other = (ImageId) obj;
-        if (column != other.column)
-        {
-            return false;
-        }
-        if (field != other.field)
-        {
-            return false;
-        }
-        if (row != other.row)
-        {
-            return false;
-        }
-        return true;
+        final ImageSequenceId other = (ImageSequenceId) obj;
+        return super.equals(obj) && (field == other.field);
     }
 
     @Override

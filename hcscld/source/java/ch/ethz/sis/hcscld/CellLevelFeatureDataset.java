@@ -21,11 +21,13 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import ch.ethz.sis.hcscld.IFeatureGroup.FeatureGroupDataType;
 import ch.ethz.sis.hcscld.ImageRunner.IExistChecker;
@@ -251,6 +253,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         String getObjectPath(ImageId imageId)
         {
             return CellLevelFeatureDataset.this.getObjectPath(imageId, VALUES_PREFIX, idUpperCase);
+        }
+        
+        String getIdUpperCase()
+        {
+            return idUpperCase;
         }
 
         HDF5CompoundType<Object[]> getType()
@@ -512,6 +519,82 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         return numberOfObjectsInt;
     }
 
+    @Override
+    public ImageId[] getImageIds()
+    {
+        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
+        if (namespaceOrNull == null)
+        {
+            return new ImageId[0];
+        } else
+        {
+            return getImageIds(namespaceOrNull);
+        }
+    }
+    
+    @Override
+    public ImageId[] getImageIds(ObjectNamespace namespace)
+    {
+        final List<String> prefixes = new ArrayList<String>(featureGroups.size()); 
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            prefixes.add(createPrefixString(VALUES_PREFIX, fg.getIdUpperCase()));
+        }
+        if (prefixes.size() == 1)
+        {
+            return getImageIds(prefixes.get(0));
+        }
+        final List<String> entries = reader.object().getGroupMembers(getObjectPath());
+        final Set<ImageId> imageIds = new HashSet<ImageId>(entries.size());
+        for (String entry : entries)
+        {
+            for (String prefix : prefixes)
+            {
+                if (entry.startsWith(prefix))
+                {
+                    final ImageId imageId = ImageId.tryParseSpecifier(prefix, entry);
+                    if (imageId != null)
+                    {
+                        imageIds.add(imageId);
+                        break;
+                    }
+                }
+            }
+        }
+        final ImageId[] imageIdArr = imageIds.toArray(new ImageId[imageIds.size()]);
+        Arrays.sort(imageIdArr);
+        return imageIdArr;
+    }
+    
+    @Override
+    public ImageId[] getImageIds(IFeatureGroup featureGroup)
+    {
+        final String prefix = createPrefixString(VALUES_PREFIX, ((FeatureGroup) featureGroup).getIdUpperCase());
+        return getImageIds(prefix);
+    }
+    
+    ImageId[] getImageIds(String prefix)
+    {
+        final List<String> entries = reader.object().getGroupMembers(getObjectPath());
+        final List<ImageId> imageIds = new ArrayList<ImageId>(entries.size());
+        for (String entry : entries)
+        {
+            if (entry.startsWith(prefix))
+            {
+                final ImageId imageId = ImageId.tryParseSpecifier(prefix, entry);
+                if (imageId != null)
+                {
+                    imageIds.add(imageId);
+                }
+            }
+        }
+        return imageIds.toArray(new ImageId[imageIds.size()]);
+    }
+    
     @Override
     public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId)
     {
