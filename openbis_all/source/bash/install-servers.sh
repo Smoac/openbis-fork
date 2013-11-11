@@ -29,10 +29,12 @@ rm -rf "$OPENBIS_ROOT_DIR/"openBIS-installation*tar.gz
 "$BIN_DIR/fetch-ci-artifacts.sh" -d "$OPENBIS_ROOT_DIR" gradle-installation
 
 echo "==== Unpack installation tar ball and replace console.properties"
-tar xzf "$OPENBIS_ROOT_DIR/"openBIS-installation*tar.gz -C "$OPENBIS_ROOT_DIR"
-rm -rf "$OPENBIS_ROOT_DIR/"openBIS-installation*tar.gz
-rm -f "$OPENBIS_ROOT_DIR/"openBis-installation*/console.properties
-cp "$OPENBIS_ROOT_DIR/console.properties" "$OPENBIS_ROOT_DIR/"openBis-installation*/
+TARBALL=`ls -1 $OPENBIS_ROOT_DIR/openBIS-installation*.tar.gz`
+tar xzf "$TARBALL" -C "$OPENBIS_ROOT_DIR"
+rm -rf "$TARBALL"
+INSTALLER_DIR=${TARBALL%.tar.gz}
+rm -f "$INSTALLER_DIR/console.properties"
+cp "$OPENBIS_ROOT_DIR/console.properties" "$INSTALLER_DIR/"
 
 echo "==== Upgrade installation"
-"$OPENBIS_ROOT_DIR/"openBis-installation*/run-console.sh
+"$INSTALLER_DIR/run-console.sh"
