@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -40,7 +41,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
                 createExperiment(createAnotherSpace()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null))));
+                new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
     }
 
     @Test
@@ -50,7 +51,7 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
                 createExperiment(createSpace()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null))));
+                new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
     }
 
     @Test
@@ -61,6 +62,6 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(false,
                 validator.isValid(person, ExperimentTranslator.translate(createExperiment(group),
-                        BASE_URL, null, new ManagedPropertyEvaluatorFactory(null))));
+                        BASE_URL, null, new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
     }
 }

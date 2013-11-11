@@ -34,16 +34,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -100,7 +101,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         service =
                 new ProteomicsDataServiceInternal(sessionManager, daoFactory,
                         propertiesBatchManager, commonBoFactory, boFactory,
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
         experimentType = new ExperimentTypePE();
         experimentType.setCode(EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
@@ -194,7 +195,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
                 new long[]
-                    { e1.getId(), e2.getId() });
+                { e1.getId(), e2.getId() });
 
         context.assertIsSatisfied();
     }
@@ -219,7 +220,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
                 new long[]
-                    { e1.getId(), e2.getId() });
+                { e1.getId(), e2.getId() });
 
         context.assertIsSatisfied();
     }
@@ -245,7 +246,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
         service.processProteinResultDataSets(SESSION_TOKEN, COPY_PROCESSING_KEY, EXPERIMENT_TYPE,
                 new long[]
-                    { e1.getId() });
+                { e1.getId() });
 
         context.assertIsSatisfied();
     }

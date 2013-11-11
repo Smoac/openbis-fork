@@ -20,6 +20,7 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.IDynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculatorHotDeployPlugin;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -35,9 +36,12 @@ public class DynamicPropertyCalculatorFactory
         AbstractCommonPropertyBasedHotDeployPluginFactory<IDynamicPropertyCalculatorHotDeployPlugin>
         implements IDynamicPropertyCalculatorFactory
 {
-    public DynamicPropertyCalculatorFactory(String pluginDirectoryPath)
+    private final IJythonEvaluatorPool evaluationRunnerProvider;
+
+    public DynamicPropertyCalculatorFactory(String pluginDirectoryPath, IJythonEvaluatorPool evaluationRunnerProvider)
     {
         super(pluginDirectoryPath);
+        this.evaluationRunnerProvider = evaluationRunnerProvider;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class DynamicPropertyCalculatorFactory
         switch (pluginType)
         {
             case JYTHON:
-                return JythonDynamicPropertyCalculator.create(script);
+                return JythonDynamicPropertyCalculator.create(script, evaluationRunnerProvider);
             case PREDEPLOYED:
                 IDynamicPropertyCalculator dynamicPropertyCalculator =
                         tryGetPredeployedPluginByName(scriptName);

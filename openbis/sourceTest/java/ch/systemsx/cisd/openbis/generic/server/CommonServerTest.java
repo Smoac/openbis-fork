@@ -166,9 +166,9 @@ public final class CommonServerTest extends AbstractServerTestCase
     private final CommonServer createServer()
     {
         CommonServer server =
-                createServer(new EntityValidatorFactory(null),
-                        new DynamicPropertyCalculatorFactory(null),
-                        new ManagedPropertyEvaluatorFactory(null));
+                createServer(new EntityValidatorFactory(null, new DummyJythonEvaluatorPool()),
+                        new DynamicPropertyCalculatorFactory(null, new DummyJythonEvaluatorPool()),
+                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
         server.setDssFactory(dssFactory);
         return server;
     }
@@ -745,7 +745,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         externalDataPE.setDataStore(dataStorePE);
         final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
@@ -785,7 +785,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         externalDataPE.setDataStore(dataStorePE);
         final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
         prepareGetSession();
         context.checking(new Expectations()
             {

@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,6 +76,12 @@ public class SampleBuilder implements Builder<Sample>
     public SampleBuilder withCode(String code)
     {
         this.code = code;
+        return this;
+    }
+
+    public SampleBuilder withParents(Sample... samples)
+    {
+        parents.addAll(Arrays.asList(samples));
         return this;
     }
 

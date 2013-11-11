@@ -293,16 +293,10 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
                 @Override
                 public Void evaluate(Evaluator evaluator)
                 {
-                    try
-                    {
-                        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-                        evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityProperty);
-                        evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
-                        return null;
-                    } finally
-                    {
-                        evaluator.releaseResources();
-                    }
+                    evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                    evaluator.set(PROPERTY_PE_VARIABLE_NAME, entityProperty);
+                    evaluator.evalFunction(CONFIGURE_UI_FUNCTION);
+                    return null;
                 }
             });
     }
@@ -322,16 +316,10 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
                 @Override
                 public Void evaluate(Evaluator evaluator)
                 {
-                    try
-                    {
-                        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-                        evaluator.set(PERSON_VARIABLE_NAME, person);
-                        evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
-                        return null;
-                    } finally
-                    {
-                        evaluator.releaseResources();
-                    }
+                    evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                    evaluator.set(PERSON_VARIABLE_NAME, person);
+                    evaluator.evalFunction(UPDATE_FROM_UI_FUNCTION, action);
+                    return null;
                 }
             });
     }
@@ -365,16 +353,10 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
                     @Override
                     public Void evaluate(Evaluator evaluator)
                     {
-                        try
-                        {
-                            evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-                            evaluator.set(PERSON_VARIABLE_NAME, person);
-                            evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
-                            return null;
-                        } finally
-                        {
-                            evaluator.releaseResources();
-                        }
+                        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                        evaluator.set(PERSON_VARIABLE_NAME, person);
+                        evaluator.evalFunction(UPDATE_FROM_BATCH_INPUT_FUNCTION, bindings);
+                        return null;
                     }
                 });
         }
@@ -391,16 +373,10 @@ public class JythonManagedPropertyEvaluator implements IManagedPropertyEvaluator
                     @Override
                     public Void evaluate(Evaluator evaluator)
                     {
-                        try
-                        {
-                            evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
-                            evaluator.set(PERSON_VARIABLE_NAME, person);
-                            evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION, bindings);
-                            return null;
-                        } finally
-                        {
-                            evaluator.releaseResources();
-                        }
+                        evaluator.set(PROPERTY_VARIABLE_NAME, managedProperty);
+                        evaluator.set(PERSON_VARIABLE_NAME, person);
+                        evaluator.evalFunction(UPDATE_FROM_REGISTRATION_FORM_FUNCTION, bindings);
+                        return null;
                     }
                 });
         }

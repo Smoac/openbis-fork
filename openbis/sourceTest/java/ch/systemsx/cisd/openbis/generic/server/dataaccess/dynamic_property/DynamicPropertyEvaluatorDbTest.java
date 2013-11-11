@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
@@ -37,7 +38,7 @@ public class DynamicPropertyEvaluatorDbTest extends AbstractDAOTest
     {
         evaluator =
                 new DynamicPropertyEvaluator(daoFactory, null,
-                        new DynamicPropertyCalculatorFactory(null),
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new DynamicPropertyCalculatorFactory(null, new DummyJythonEvaluatorPool()),
+                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
     }
 }

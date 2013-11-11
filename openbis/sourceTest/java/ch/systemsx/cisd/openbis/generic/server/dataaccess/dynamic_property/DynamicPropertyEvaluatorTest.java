@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AbstractBOTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.AbstractEntityAdaptor;
@@ -80,7 +81,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
             };
         evaluator =
                 new DynamicPropertyEvaluator(daoFactory, sessionProvider,
-                        new DynamicPropertyCalculatorFactory(null), managedPropertyEvaluatorFactory);
+                        new DynamicPropertyCalculatorFactory(null, new DummyJythonEvaluatorPool()), managedPropertyEvaluatorFactory);
     }
 
     @Test
@@ -93,7 +94,7 @@ public class DynamicPropertyEvaluatorTest extends AbstractBOTest
 
         final IEntityAdaptor entityAdaptor =
                 createEntity("e", Arrays.asList(new IEntityPropertyAdaptor[]
-                    { p1, p2 }));
+                { p1, p2 }));
         final ScriptPE script =
                 createScript("s1", "entity.propertyValue('p1') + ' ' + entity.propertyValue('p2')");
 

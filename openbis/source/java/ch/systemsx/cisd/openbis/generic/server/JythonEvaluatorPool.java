@@ -30,6 +30,7 @@ import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
@@ -42,20 +43,16 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyF
  * 
  * @author anttil
  */
-public class JythonEvaluatorPool
+public class JythonEvaluatorPool implements IJythonEvaluatorPool
 {
     private static Logger log = LogFactory.getLogger(LogCategory.OPERATION,
             JythonEvaluatorPool.class);
 
     public static int DEFAULT_POOL_SIZE = 100;
 
-    public static JythonEvaluatorPool INSTANCE;
-
     private Map<String, EvaluatorState> cache;
 
     private Lock cacheLock;
-
-    private static ThreadLocal<Stack<Map<String, Object>>> stack = new ThreadLocal<Stack<Map<String, Object>>>();
 
     public JythonEvaluatorPool(IDAOFactory daoFactory, String poolSize)
     {
@@ -84,9 +81,9 @@ public class JythonEvaluatorPool
             }
         }
         log.info("Initialization successful with " + cache.size() + " evaluators");
-        INSTANCE = this;
     }
 
+    @Override
     public IEvaluationRunner getManagedPropertiesRunner(final String script)
     {
         return getRunner("", ManagedPropertyFunctions.class, script);
@@ -95,6 +92,7 @@ public class JythonEvaluatorPool
     /**
      * Return runner that can be used to evaluate python functions using evaluator in the pool.
      */
+    @Override
     public IEvaluationRunner getRunner(final String expression, final Class<?> clazz,
             final String script)
     {
@@ -135,13 +133,7 @@ public class JythonEvaluatorPool
             }
         }
 
-        ReentrantLock lock = (ReentrantLock) state.getLock();
-
-        if (false == lock.isHeldByCurrentThread())
-        {
-            stack.set(new Stack<Map<String, Object>>());
-        }
-
+        Lock lock = state.getLock();
         lock.lock();
         state.push();
 
@@ -152,10 +144,6 @@ public class JythonEvaluatorPool
         {
             state.pop();
             lock.unlock();
-            if (false == lock.isHeldByCurrentThread())
-            {
-                stack.set(null);
-            }
         }
     }
 
@@ -223,6 +211,12 @@ public class JythonEvaluatorPool
             {
                 evaluator.set(globalName, globalsValues.get(globalName));
             }
+
+            if (globalsStack.isEmpty())
+            {
+                evaluator.releaseResources();
+            }
+
         }
 
         public Evaluator getEvaluator()

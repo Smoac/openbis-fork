@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -34,7 +35,7 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
     {
         PhysicalDataSet data = new PhysicalDataSet();
         data.setExperiment(ExperimentTranslator.translate(createExperiment(group),
-                "http://someURL", null, new ManagedPropertyEvaluatorFactory(null)));
+                "http://someURL", null, new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool())));
         return data;
     }
 

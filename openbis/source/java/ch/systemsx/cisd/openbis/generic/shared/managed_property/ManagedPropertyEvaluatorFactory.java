@@ -17,7 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.managed_property;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -39,9 +39,12 @@ public class ManagedPropertyEvaluatorFactory extends
         AbstractCommonPropertyBasedHotDeployPluginFactory<IManagedPropertyHotDeployEvaluator>
         implements IManagedPropertyEvaluatorFactory
 {
-    public ManagedPropertyEvaluatorFactory(String pluginDirectoryPath)
+    private final IJythonEvaluatorPool jythonEvaluatorPool;
+
+    public ManagedPropertyEvaluatorFactory(String pluginDirectoryPath, IJythonEvaluatorPool jythonEvaluatorPool)
     {
         super(pluginDirectoryPath);
+        this.jythonEvaluatorPool = jythonEvaluatorPool;
     }
 
     @Override
@@ -71,7 +74,8 @@ public class ManagedPropertyEvaluatorFactory extends
         switch (pluginType)
         {
             case JYTHON:
-                return createJythonManagedPropertyEvaluator(scriptBody);
+                return new JythonManagedPropertyEvaluator(
+                        jythonEvaluatorPool.getManagedPropertiesRunner(scriptBody));
             case PREDEPLOYED:
                 IManagedPropertyEvaluator managedPropertyEvaluator =
                         tryGetPredeployedPluginByName(scriptName);
@@ -86,18 +90,6 @@ public class ManagedPropertyEvaluatorFactory extends
         }
 
         return null;
-    }
-
-    private static JythonManagedPropertyEvaluator createJythonManagedPropertyEvaluator(String script)
-    {
-        if (JythonEvaluatorPool.INSTANCE != null)
-        {
-            return new JythonManagedPropertyEvaluator(
-                    JythonEvaluatorPool.INSTANCE.getManagedPropertiesRunner(script));
-        } else
-        {
-            return new JythonManagedPropertyEvaluator(script);
-        }
     }
 
     @Override
