@@ -1,6 +1,6 @@
 #! /bin/bash
 # 
-# Fetches artifacts from continuous integration server for a specified project. Works only for Hudson.
+# Fetches artifacts from continuous integration server for a specified project. Works only for Hudson/Jenkins.
 # 
 # Usage: fetch-ci-artifacts.sh  [-d <output folder>] [-p <regular expression for filtering artifact names>] <project>
 #
@@ -8,7 +8,7 @@
 # By default the current directory will contain the artifacts.
 # 
 # If the p option is specified only artifact file names matching the regular expression will 
-# be loaded from Hudson. 
+# be loaded from Hudson/Jenkins. 
 #
 set -o nounset
 set -o errexit
@@ -51,9 +51,9 @@ PROJECT_BASE_URL=http://$CI_HOST/job/$PROJECT
 
 ##################################################
 #
-# Load list of available artifacts on Hudson 
+# Load list of available artifacts on Hudson/Jenkins 
 #
-XML=`curl -s "$PROJECT_BASE_URL/lastSuccessfulBuild/api/xml?xpath=//fileName&wrapper=bag"`
+XML=`curl -s "$PROJECT_BASE_URL/lastSuccessfulBuild/api/xml?xpath=//relativePath&wrapper=bag"`
 if [ ${XML:0:4} != "<bag" ]; then
     echo "Couldn't get artifact information for project $PROJECT. Probably the project doesn't exist."
     exit 1
@@ -70,9 +70,10 @@ XML=${XML%*</bag>}
 # Download artifacts
 #
 mkdir -p "$OUTPUT_FOLDER"
-for f in `echo ${XML}|awk '{gsub(/<\/fileName>/,"\n")}; 1'|awk '{gsub(/<fileName>/,"")}; 1'|\
+for p in `echo ${XML}|awk '{gsub(/<\/relativePath>/,"\n")}; 1'|awk '{gsub(/<relativePath>/,"")}; 1'|\
                       egrep "$PATTERN"|sort`; do
-    download_url=$PROJECT_BASE_URL/lastSuccessfulBuild/artifact/_main/targets/dist/$f
+    f=${p##*/}
+    download_url=$PROJECT_BASE_URL/lastSuccessfulBuild/artifact/$p
     echo "download $download_url"
     wget -q -O "$OUTPUT_FOLDER/$f" $download_url
 done
