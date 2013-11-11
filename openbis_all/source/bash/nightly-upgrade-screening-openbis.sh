@@ -2,7 +2,7 @@
 # 
 # This script does the following:
 # - Creates a config snapshot of current screening installation.
-# - Install screening openBIS sprint servers based on latest builds on Hudson.
+# - Install screening openBIS sprint servers based on latest builds on Hudson/Jenkins.
 # - Using previous config files.
 # - Restore store and databases from latest snapshot.
 # - Restart AS and DSS.
@@ -13,17 +13,15 @@
 # Dependencies:
 # - check-and-exit-if-new-sprint-server.sh
 # - install-servers.sh
-# - fetch-screening-sprint-server-artifacts.sh
 # - servers-startup-from-latest-snapshot.sh
-# - config-files.txt
-# - config-files-screening.txt
 #
 set -o nounset
 set -o errexit
 
 BIN_DIR=`dirname "$0"`
-SERVERS=screening/servers
-VERSION_FILE=screening/sprint-versions.txt
+BASE_DIR=screening
+SERVERS=$BASE_DIR/servers
+VERSION_FILE=$BASE_DIR/sprint-versions.txt
 
 echo ":::::::::::::::::::: Nightly Upgrade Screening openBIS Servers [`date`] :::::::::::::::::::::"
 
@@ -34,6 +32,6 @@ if ! "$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS" "$VERSION_FILE
 # Upgrade servers and restart them
 #
 
-"$BIN_DIR/install-servers.sh" "$SERVERS"/ screening/config-snapshots/ "$BIN_DIR/fetch-screening-sprint-server-artifacts.sh" "$BIN_DIR/config-files.txt" "$BIN_DIR/config-files-screening.txt" 
-"$BIN_DIR/servers-startup-from-latest-snapshot.sh" "$SERVERS" screening/snapshots
+"$BIN_DIR/install-servers.sh" $BASE_DIR 
+"$BIN_DIR/servers-startup-from-latest-snapshot.sh" "$SERVERS" $BASE_DIR/snapshots
 
