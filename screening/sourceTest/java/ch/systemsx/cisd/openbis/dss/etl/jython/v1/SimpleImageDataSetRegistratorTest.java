@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.dss.etl.jython.v1.SimpleImageDataSetRegistrator.
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = SimpleImageDataSetRegistrator.class)
+@Friend(toClasses = {SimpleImageDataSetRegistrator.class, SimpleImageDataSetRegistrator.IImageReaderFactory.class})
 public class SimpleImageDataSetRegistratorTest extends AbstractFileSystemTestCase
 {
     private static final File TEST_DATA_FOLDER = new File(

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.screening.shared.api.internal;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 
@@ -36,7 +35,6 @@ public class DssServiceRpcScreeningHolder
 
     private Integer minorVersion;
 
-    @Private
     public DssServiceRpcScreeningHolder(String serverUrl, IDssServiceRpcScreening service)
     {
         this.serverUrl = serverUrl;

@@ -16,14 +16,12 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
-import ch.rinn.restrictions.Private;
 
 /**
  * A container class for the plate geometry of a plate.
  *
  * @author Bernd Rinn
  */
-@Private
 public class PlateGeometryContainer
 {
     public String perm_id;

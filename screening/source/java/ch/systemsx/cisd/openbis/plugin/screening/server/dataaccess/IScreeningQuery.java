@@ -23,8 +23,6 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TypeMapper;
 
-import ch.rinn.restrictions.Friend;
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
@@ -33,9 +31,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
  * 
  * @author Tomasz Pylak
  */
-@Private
-@Friend(toClasses =
-    { WellContentQueryResult.class, BasicWellContentQueryResult.class })
 public interface IScreeningQuery extends BaseQuery
 {
 

@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
  * 
  * @author Tomasz Pylak
  */
-@Friend(toClasses = WellReplicaSummaryCalculator.class)
+@Friend(toClasses = {WellReplicaSummaryCalculator.class, WellReplicaSummaryCalculator.SummaryFeatureVector.class})
 public class WellReplicaSummaryCalculatorTest extends AssertJUnit
 {
     @Test

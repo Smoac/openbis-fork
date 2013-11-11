@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
 
@@ -25,7 +24,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellReference;
  * 
  * @author Tomasz Pylak
  */
-@Private
 public class BasicWellContentQueryResult implements IWellReference
 {
     private String well_code;
