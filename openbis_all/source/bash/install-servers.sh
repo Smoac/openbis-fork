@@ -12,7 +12,7 @@
 set -o nounset
 set -o errexit
 
-if [ $# -lt 4 ]; then
+if [ $# -lt 1 ]; then
     echo "Usage: install-servers.sh <openBIS installation folder>"
     exit 1
 fi
