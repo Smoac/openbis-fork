@@ -14,6 +14,6 @@ set -o nounset
 set -o errexit
 
 BIN_DIR=`dirname "$0"`
-REPOSITORY=~/snapshots
+REPOSITORY=~/openbis/snapshots
 
 $BIN_DIR/create-snapshot.sh ~/sprint $REPOSITORY $REPOSITORY/snapshot.config
