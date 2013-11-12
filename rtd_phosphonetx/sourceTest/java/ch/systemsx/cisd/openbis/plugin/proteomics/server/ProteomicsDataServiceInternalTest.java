@@ -34,7 +34,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
@@ -101,7 +101,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         service =
                 new ProteomicsDataServiceInternal(sessionManager, daoFactory,
                         propertiesBatchManager, commonBoFactory, boFactory,
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
         experimentType = new ExperimentTypePE();
         experimentType.setCode(EXPERIMENT_TYPE);
         experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());

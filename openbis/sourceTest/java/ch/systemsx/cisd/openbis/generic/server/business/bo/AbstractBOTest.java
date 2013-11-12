@@ -25,7 +25,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
@@ -186,7 +186,7 @@ public abstract class AbstractBOTest extends AssertJUnit
         sampleLister = context.mock(ISampleLister.class);
         datasetLister = context.mock(IDatasetLister.class);
         dataManagementSystemDAO = context.mock(IExternalDataManagementSystemDAO.class);
-        managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool());
+        managedPropertyEvaluatorFactory = new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool());
         context.checking(new Expectations()
             {
                 {

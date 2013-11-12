@@ -26,7 +26,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
@@ -68,7 +68,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         externalDataPE.setDataStore(createStore());
         AbstractExternalData data =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         PhysicalDataSet translated = data.tryGetAsDataSet();
 
@@ -135,7 +135,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         externalDataPE.setSampleAcquiredFrom(samplePE);
         AbstractExternalData data =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         PhysicalDataSet translated = data.tryGetAsDataSet();
 
@@ -193,7 +193,7 @@ public class DataSetTranslatorTest extends AssertJUnit
 
         AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(2, externalData.getParents().size());
@@ -237,7 +237,7 @@ public class DataSetTranslatorTest extends AssertJUnit
 
         AbstractExternalData externalData =
                 DataSetTranslator.translate(linkDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         assertEquals("my-experiment", externalData.getExperiment().getCode());
         assertEquals(2, externalData.getParents().size());

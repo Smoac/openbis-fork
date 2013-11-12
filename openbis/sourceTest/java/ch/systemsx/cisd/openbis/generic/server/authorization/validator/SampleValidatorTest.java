@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -41,7 +41,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createAnotherSpace()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
+                new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createDatabaseInstance()), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
+                new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 
     @Test
@@ -61,7 +61,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(false, validator.isValid(person, SampleTranslator.translate(
                 createSample(createDatabaseInstance("blabla")), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
+                new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createSpace()), BASE_URL, null, new ManagedPropertyEvaluatorFactory(
-                        null, new DummyJythonEvaluatorPool()))));
+                        null, new TestJythonEvaluatorPool()))));
     }
 
     @Test
@@ -81,6 +81,6 @@ public class SampleValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
         assertEquals(false, validator.isValid(person, SampleTranslator.translate(
-                createSample(group), BASE_URL, null, new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()))));
+                createSample(group), BASE_URL, null, new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 }

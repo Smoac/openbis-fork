@@ -23,7 +23,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
@@ -167,6 +167,6 @@ public class DynamicPropertyCalculatorTest extends AssertJUnit
 
     public IJythonEvaluatorPool getPool()
     {
-        return new DummyJythonEvaluatorPool();
+        return new TestJythonEvaluatorPool();
     }
 }

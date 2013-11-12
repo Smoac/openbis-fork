@@ -42,7 +42,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
@@ -149,7 +149,7 @@ public class DatasetListerTest extends AbstractDAOTest
         List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
         List<Sample> samples =
                 SampleTranslator.translate(samplePEs, "", new HashMap<Long, Set<Metaproject>>(),
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         Map<Sample, List<AbstractExternalData>> dataSets = lister.listAllDataSetsFor(samples);
 

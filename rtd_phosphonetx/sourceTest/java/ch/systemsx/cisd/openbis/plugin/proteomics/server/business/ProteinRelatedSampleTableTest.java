@@ -23,7 +23,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.common.eodsql.MockDataSet;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
@@ -63,7 +63,7 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
         super.setUp();
         table =
                 new ProteinRelatedSampleTable(daoFactory, specificDAOFactory,
-                        new ManagedPropertyEvaluatorFactory(null, new DummyJythonEvaluatorPool()));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         SpacePE space =
                 new SpacePEBuilder()

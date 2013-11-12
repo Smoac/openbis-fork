@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyF
 /**
  * @author anttil
  */
-public class DummyJythonEvaluatorPool implements IJythonEvaluatorPool
+public class TestJythonEvaluatorPool implements IJythonEvaluatorPool
 {
     @Override
     public IEvaluationRunner getRunner(final String expression, final Class<?> clazz, final String script)

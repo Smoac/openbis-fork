@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.DummyJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -76,7 +76,7 @@ public final class ScriptBOTest extends AbstractBOTest
     private final ScriptBO createScriptBO()
     {
         return new ScriptBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, scriptFactory,
-                managedPropertyEvaluatorFactory, new DummyJythonEvaluatorPool());
+                managedPropertyEvaluatorFactory, new TestJythonEvaluatorPool());
     }
 
     @Test

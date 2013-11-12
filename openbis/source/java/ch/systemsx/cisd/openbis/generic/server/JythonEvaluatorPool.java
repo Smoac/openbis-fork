@@ -176,6 +176,8 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
     {
         private final Evaluator evaluator;
 
+        private final Map<String, Object> initialGlobals;
+
         private Stack<Map<String, Object>> globalsStack;
 
         private final Lock lock;
@@ -185,6 +187,11 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
             this.evaluator = evaluator;
             this.lock = new ReentrantLock();
             this.globalsStack = new Stack<Map<String, Object>>();
+            this.initialGlobals = new HashMap<String, Object>();
+            for (String globalName : evaluator.getGlobalVariables())
+            {
+                initialGlobals.put(globalName, evaluator.get(globalName));
+            }
         }
 
         public void push()
@@ -196,6 +203,17 @@ public class JythonEvaluatorPool implements IJythonEvaluatorPool
                 globalsValues.put(globalName, globalValue);
             }
             globalsStack.push(globalsValues);
+
+            for (String globalName : globalsValues.keySet())
+            {
+                evaluator.delete(globalName);
+            }
+
+            for (String globalName : initialGlobals.keySet())
+            {
+                evaluator.set(globalName, initialGlobals.get(globalName));
+            }
+
         }
 
         public void pop()
