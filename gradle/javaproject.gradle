@@ -123,7 +123,8 @@ compileJava {
     doFirst {
         options.forkOptions.with {
             executable = 'java'
-            jvmArgs = [ '-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-source', '1.6' ]
+            jvmArgs = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', 
+                       '-nowarn', '-source', '1.6' ]
         }
     }
 }
@@ -134,7 +135,8 @@ compileTestJava {
     doFirst {
         options.forkOptions.with {
             executable = 'java'
-            jvmArgs = [ '-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', '-source', '1.6' ]
+            jvmArgs = ['-cp', configurations.ecj.asPath, 'org.eclipse.jdt.internal.compiler.batch.Main', 
+                       '-nowarn', '-source', '1.6' ]
         }
     }
 }
