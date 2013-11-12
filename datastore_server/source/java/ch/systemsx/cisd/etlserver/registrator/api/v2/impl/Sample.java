@@ -45,9 +45,7 @@ public class Sample extends SampleImmutable implements ISample
     private final SampleBatchUpdateDetails updateDetails;
 
     /**
-     * This code is derived from
-     * {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in
-     * a test source folder.
+     * This code is derived from {@link ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder}, which is in a test source folder.
      */
     private static ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample buildSampleWithIdentifier(
             String identifier)
@@ -114,7 +112,15 @@ public class Sample extends SampleImmutable implements ISample
     public void setExperiment(IExperimentImmutable experiment)
     {
         ExperimentImmutable exp = (ExperimentImmutable) experiment;
-        getSample().setExperiment(exp.getExperiment());
+
+        if (exp == null)
+        {
+            getSample().setExperiment(null);
+        } else
+        {
+            getSample().setExperiment(exp.getExperiment());
+        }
+
         updateDetails.setExperimentUpdateRequested(true);
     }
 
