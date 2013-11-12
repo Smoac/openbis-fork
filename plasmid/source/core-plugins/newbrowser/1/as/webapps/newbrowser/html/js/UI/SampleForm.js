@@ -41,7 +41,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
 	this.isELNExperiment = isELNExperiment;
+	this.experiments = [];
 	this.projects = [];
+	this.projectsObj = [];
 	this.spaces = [];
 	this.sampleTypesLinksTables = {};
 	this.mode = mode;
@@ -55,86 +57,106 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 			this.storage = new Storage(this.serverFacade,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
 			this.storage.init();
-			
+				
 			this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
-				//Init Basic Form elements
+				//Collection information
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
-				localReference.repaint();
-				//Check Mode
-				if(localReference.mode === SampleFormMode.CREATE) {
-					//Set the default space or project if available
-					$("#sampleSpaceProject").val();
-					if(localReference.isELNExperiment) {
-						//Check if default project is available
-						var defaultProject = localReference.profile.displaySettings.projectCode;
-						if(defaultProject !== null) {
-							$("#sampleSpaceProject").val(defaultProject);
-						}
-					} else {
-						//Check if default space is available
-						var defaultSpace = localReference.profile.displaySettings.spaceCode;
-						if(defaultSpace !== null) {
-							$("#sampleSpaceProject").val(defaultSpace);
-						}
-					}
-				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
-					this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.serverFacade, localReference.profile.allDataStores[0].downloadUrl);
-					this.dataSetViewer.init();
-					
-					var sample = localReference.sample;
-					//Populate Project/Space and Code
-					if(localReference.isELNExperiment) {
-						var project = sample.experimentIdentifierOrNull.split("/")[0] + "/" + sample.experimentIdentifierOrNull.split("/")[1];
-						$("#sampleSpaceProject").val(project);
-					} else {
-						$("#sampleSpaceProject").val(sample.spaceCode);
-					}
-					$("#sampleSpaceProject").prop('disabled', true);
-					
-					$("#sampleCode").val(sample.code);
-					$("#sampleCode").prop('disabled', true);
-					
-					//Populate fields
-					var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
-					for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-						var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-							var propertyType = propertyTypeGroup.propertyTypes[j];
-							if(propertyType.dataType === "BOOLEAN") {
-								$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).prop('checked', sample.properties[propertyType.code] === "true");
-							} else {
-								var value = sample.properties[propertyType.code];
-								if(!value && propertyType.code.charAt(0) === '$') {
-									value = sample.properties[propertyType.code.substr(1)];
+				
+				localReference.serverFacade.listExperiments(localReference.projectsObj,
+					function(experimentsResponse) {
+						localReference.experiments = experimentsResponse.result;
+						
+						//Init Form elements
+						localReference.repaint();
+						
+						//Check Mode
+						if(localReference.mode === SampleFormMode.CREATE) {
+							//Set the default space or project if available
+							$("#sampleSpaceProject").val();
+							if(localReference.isELNExperiment) {
+								//Check if default project is available
+								var defaultProject = localReference.profile.displaySettings.projectCode;
+								if(defaultProject !== null) {
+									$("#sampleSpaceProject").val(defaultProject);
 								}
-								$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val(value);
+							} else {
+								//Check if default space is available
+								var defaultSpace = localReference.profile.displaySettings.spaceCode;
+								if(defaultSpace !== null) {
+									$("#sampleSpaceProject").val(defaultSpace);
+									localReference.updateExperimentsForSpace();
+								}
+							}
+						} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
+							this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.serverFacade, localReference.profile.allDataStores[0].downloadUrl);
+							this.dataSetViewer.init();
+					
+							var sample = localReference.sample;
+							//Populate Project/Space and Code
+							if(localReference.isELNExperiment) {
+								var spaceCode = sample.experimentIdentifierOrNull.split("/")[1];
+								var projectCode = sample.experimentIdentifierOrNull.split("/")[2];
+								$("#sampleSpaceProject").val("/" + spaceCode + "/" + projectCode);
+							} else {
+								$("#sampleSpaceProject").val(sample.spaceCode);
+								localReference.updateExperimentsForSpace();
+							}
+							$("#sampleSpaceProject").prop('disabled', true);
+					
+							$("#sampleCode").val(sample.code);
+							$("#sampleCode").prop('disabled', true);
+					
+							if(!localReference.isELNExperiment && sample.experimentIdentifierOrNull) {
+								$("#sampleExperiment").val(sample.experimentIdentifierOrNull);
+							}
+					
+							//Populate fields
+							var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+							for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+								var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+								for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+									var propertyType = propertyTypeGroup.propertyTypes[j];
+									if(propertyType.dataType === "BOOLEAN") {
+										$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).prop('checked', sample.properties[propertyType.code] === "true");
+									} else {
+										var value = sample.properties[propertyType.code];
+										if(!value && propertyType.code.charAt(0) === '$') {
+											value = sample.properties[propertyType.code.substr(1)];
+										}
+										$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val(value);
+									}
+								}
+							}
+					
+							//Populate Links
+							for (var i = 0; i < sample.parents.length; i++) {
+								var parent = sample.parents[i];
+								var parentGroup = localReference.profile.getGroupTypeCodeForTypeCode(parent.sampleTypeCode);
+								var linkTableId = "sampleParents_" + parentGroup;
+								localReference.sampleTypesLinksTables[linkTableId].addSample(parent);
 							}
 						}
-					}
-					
-					//Populate Links
-					for (var i = 0; i < sample.parents.length; i++) {
-						var parent = sample.parents[i];
-						var parentGroup = localReference.profile.getGroupTypeCodeForTypeCode(parent.sampleTypeCode);
-						var linkTableId = "sampleParents_" + parentGroup;
-						localReference.sampleTypesLinksTables[linkTableId].addSample(parent);
-					}
-				}
 				
-				//Disable fields if needed
-				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
-				for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
-					var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-					for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-						var propertyType = propertyTypeGroup.propertyTypes[j];
-						if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
-							$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).prop('disabled', true);
+						//Disable fields if needed
+						if (localReference.mode === SampleFormMode.VIEW) {
+							$("#sampleExperiment").prop('disabled', true);
 						}
-					}
-				}
 				
-				//Allow user input
-				Util.unblockUI();
+						var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+						for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+							var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+							for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+								var propertyType = propertyTypeGroup.propertyTypes[j];
+								if (localReference.mode === SampleFormMode.VIEW || propertyType.managed || propertyType.dinamic) {
+									$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).prop('disabled', true);
+								}
+							}
+						}
+						
+						//Allow user input
+						Util.unblockUI();
+					}
+				);
 			});
 	}
 	
@@ -144,9 +166,33 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			if(data.result[i].projects) {
 				for(var j = 0; j < data.result[i].projects.length; j++) {
 					this.projects.push("/" + data.result[i].projects[j].spaceCode + "/" + data.result[i].projects[j].code);
+					this.projectsObj.push(data.result[i].projects[j]);
 				}
 			}
 		}
+	}
+	
+	this.updateExperimentsForSpace = function() {
+		if(this.isELNExperiment) {
+			return;
+		}
+		
+		var sampleSpace = $("#sampleSpaceProject").val();
+		
+		var component = "";
+		component += "<select id='sampleExperiment'>";
+		component += "<option selected></option>";
+		
+		for(var i = 0; i < this.experiments.length; i++) {
+			var identifierSpace = this.experiments[i].identifier.split("/")[1];
+			if(identifierSpace === sampleSpace) {
+				component += "<option value='"+this.experiments[i].identifier+"'>"+this.experiments[i].code+"</option>";
+			}
+		}
+		component += "</select> <i class='icon-info-sign'></i> This is required for Samples that need to upload datasets containing information about them.";
+		
+		$("#sampleExperimentContainer").empty();
+		$("#sampleExperimentContainer").append(component);
 	}
 	
 	this.getTextBox = function(id, alt, isRequired) {
@@ -166,7 +212,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.getInputField = function(type, id, alt, isRequired) {
-		var component = "<input type='" + type + "' id='" + id + "' alt='" + alt + "' ";
+		var component = "<input type='" + type + "' id='" + id + "' alt='" + alt + "'";
 		
 		if (isRequired) {
 			component += "required> (Required)";
@@ -394,6 +440,16 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "<input type='text' placeholder='Code' id='sampleCode' required> (Required)";
 			component += "</div>";
 			component += "</div>";
+			
+			if(!this.isELNExperiment) {
+				component += "<div class='control-group'>";
+				component += "<label class='control-label' for='inputExperiment'>Dataset Box:</label>";
+				component += "<div class='controls' id='sampleExperimentContainer'>";
+				component += "<p><i class='icon-info-sign'></i> Select a space first.</p>";
+				component += "</div>";
+				component += "</div>";
+			}
+			
 			component += "</fieldset>";
 			
 			//
@@ -489,12 +545,19 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		this.storage.repaint();
 		
 		//Enable Events
-		
 		$("#sampleCode").change(
 			function() {
 				$(this).val($(this).val().toUpperCase()); //Codes can only be upper case
 			}
 		);
+		
+		var localInstance = this;
+		$("#sampleSpaceProject").change(
+			function() {
+				localInstance.updateExperimentsForSpace();
+			}
+		);
+		
 		
 		if (this.mode !== SampleFormMode.CREATE) {
 			this.enablePINButtonEvent();
@@ -527,11 +590,15 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		var sampleSpace = null;
 		var sampleProject = null;
+		var sampleExperiment = null;
 		if(this.isELNExperiment) {
 			sampleSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
 			sampleProject = $("#sampleSpaceProject")[0].value.split("/")[2];
+			sampleExperiment = sampleCode;
 		} else {
 			sampleSpace = $("#sampleSpaceProject").val();
+			sampleProject = $("#sampleExperiment").val().split("/")[2];
+			sampleExperiment = $("#sampleExperiment").val().split("/")[3];
 		}
 		
 		//Other properties
@@ -584,7 +651,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				"sampleParents": sampleParentsFinal,
 				//ELN Creation Related parameters
 				"sampleExperimentCreate": isELNExperiment && (this.mode === SampleFormMode.CREATE),
-				"sampleExperimentCode": sampleCode,
+				"sampleExperimentCode": sampleExperiment,
 				"sampleExperimentType": this.sampleTypeCode,
 				"sampleExperimentProject": sampleProject
 		};
@@ -633,15 +700,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			
 			var callbackOk = function() {
-				if(localReference.mode == SampleFormMode.EDIT) {
-					var sampleIdentifier = localReference.sample.permId;
-					localReference.serverFacade.searchWithUniqueId(sampleIdentifier, function(samples) {
-						localReference.sample = samples[0];
-						localReference.init();
-					});
-				} else {
-					Util.unblockUI();
-				}
+				Util.unblockUI();
 			}
 			
 			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);

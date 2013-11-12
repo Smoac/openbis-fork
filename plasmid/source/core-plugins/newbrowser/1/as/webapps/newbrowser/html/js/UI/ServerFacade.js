@@ -56,7 +56,11 @@ function ServerFacade(openbisServer) {
 	this.listSpacesWithProjectsAndRoleAssignments = function(somethingOrNull, callbackFunction) {
 		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, callbackFunction);
 	}
-
+	
+	this.listExperiments = function(projects, callbackFunction) {
+		this.openbisServer.listExperiments(projects, null, callbackFunction);
+	}
+	
 	//
 	// Data Set Related Functions
 	//

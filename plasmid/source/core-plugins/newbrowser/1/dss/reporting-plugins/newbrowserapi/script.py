@@ -37,6 +37,7 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("MESSAGE", "Operation Failed");
 
 def insertSample(tr, parameters, tableBuilder):
+
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
 	sampleProject = parameters.get("sampleProject"); #String
@@ -55,18 +56,31 @@ def insertSample(tr, parameters, tableBuilder):
 	
 	#Create/Get for update sample	
 	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode
-	
+
 	method = parameters.get("method");
 	if method == "insertSample":
 		sample = tr.createNewSample(sampleIdentifier, sampleType); #Create Sample given his id
 		
-		#Assign sample to a newly created experiment
-		if sampleExperimentCreate and sampleExperimentProject != None and sampleExperimentCode != None and sampleExperimentType != None:
-			experiment = tr.createNewExperiment('/' +sampleSpace+ '/' + sampleExperimentProject + '/' +sampleExperimentCode, sampleExperimentType)
-			sample.setExperiment(experiment)
-		
 	if method == "updateSample":
 		sample = tr.getSampleForUpdate(sampleIdentifier) #Retrieve Sample
+	
+	#Obtain experiment identifier
+	experimentIdentifier = None
+	if sampleSpace != None and sampleExperimentProject != None and sampleExperimentCode != None:
+		experimentIdentifier = '/' +sampleSpace+ '/' + sampleExperimentProject + '/' +sampleExperimentCode;
+
+	#Obtain experiment
+	experiment = None
+	if sampleExperimentCreate and experimentIdentifier != None and sampleExperimentType != None:
+		experiment = tr.createNewExperiment(experimentIdentifier, sampleExperimentType);
+	elif experimentIdentifier != None:
+		experiment = tr.getExperiment(experimentIdentifier);
+	
+	#Assign experiment
+	if experiment != None:
+		sample.setExperiment(experiment);
+	elif sample.getExperiment() != None:
+		sample.setExperiment(None);
 	
 	#Assign sample properties
 	for key in sampleProperties.keySet():
