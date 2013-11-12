@@ -557,49 +557,33 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     private void applyDefaultSpaceProjectToExperiments(List<? extends NewBasicExperiment> experiments, String sessionToken)
     {
-
         String defaultProjectIdentifier = getUserDefaultProject(sessionToken); // If default project is present
-
-        // Fix identifier 'EXPERIMENT_ID' alone
-        for (NewBasicExperiment experiment : experiments)
-        {
-            String newExperimentIdentifier = experiment.getIdentifier();
-            if (newExperimentIdentifier.indexOf('/') == -1 &&
-                    defaultProjectIdentifier != null)
-            {
-                experiment.setIdentifier(defaultProjectIdentifier + "/" + newExperimentIdentifier);
-            }
-        }
-
-        // Fix identifier '/EXPERIMENT_ID' alone with forward slash
-        for (NewBasicExperiment experiment : experiments)
-        {
-            String newExperimentIdentifier = experiment.getIdentifier();
-            int numberSlash = count('/', newExperimentIdentifier);
-            if (newExperimentIdentifier.indexOf('/') > -1 &&
-                    numberSlash == 1 &&
-                    defaultProjectIdentifier != null)
-            {
-                experiment.setIdentifier(defaultProjectIdentifier + newExperimentIdentifier);
-            }
-        }
-
         String defaultSpaceIdentifier = getUserDefaultSpace(sessionToken); // If default space is present
 
-        // Fix identifier '/PROJECT/EXPERIMENT_ID' with project
         for (NewBasicExperiment experiment : experiments)
         {
             String newExperimentIdentifier = experiment.getIdentifier();
-            int numberSlash = count('/', newExperimentIdentifier);
-            if (newExperimentIdentifier.indexOf('/') > -1 &&
-                    numberSlash == 2 &&
-                    defaultSpaceIdentifier != null)
+            int numberOfSlashes = count('/', newExperimentIdentifier);
+
+            switch (numberOfSlashes)
             {
-                experiment.setIdentifier("/" + defaultSpaceIdentifier + newExperimentIdentifier);
+                case 0:
+                    if (defaultProjectIdentifier != null)
+                    {
+                        experiment.setIdentifier(defaultProjectIdentifier + "/" + newExperimentIdentifier);
+                    }
+                    break;
+                case 1:
+                    if (defaultSpaceIdentifier != null && (newExperimentIdentifier.startsWith("/") == false)
+                            && (newExperimentIdentifier.endsWith("/") == false))
+                    {
+                        experiment.setIdentifier("/" + defaultSpaceIdentifier + "/" + newExperimentIdentifier);
+                    }
+                    break;
+                default:
             }
         }
 
-        // Throw meaningful error
         for (NewBasicExperiment experiment : experiments)
         {
             String newExperimentIdentifier = experiment.getIdentifier();

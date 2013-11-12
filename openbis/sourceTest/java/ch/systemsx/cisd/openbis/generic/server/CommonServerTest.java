@@ -245,7 +245,7 @@ public final class CommonServerTest extends AbstractServerTestCase
                         false, false, false, BatchOperationKind.REGISTRATION);
 
         assertEquals(
-                "# Three short formats are accepted for identifiers, 'EXPERIMENT_CODE', '/EXPERIMENT_CODE', '/PROJECT_CODE/EXPERIMENT_CODE' when the full identifier is not given '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE' the default space and project are applied, if they are not configured an error will be thrown.\nidentifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
+                "# Besides the full identifier of format '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE', two short formats 'EXPERIMENT_CODE' and 'PROJECT_CODE/EXPERIMENT_CODE' are accepted given that the default project (former short format) or default space (latter short format) are configured. If the proper default value is not configured when using a short format, experiment import will fail.\nidentifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
                         + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
         context.assertIsSatisfied();
     }
