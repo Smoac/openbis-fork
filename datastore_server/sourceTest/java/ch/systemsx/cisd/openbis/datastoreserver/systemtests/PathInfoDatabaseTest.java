@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -318,12 +319,18 @@ public class PathInfoDatabaseTest extends SystemTestCase
     {
         Assert.assertEquals(actualFiles.size(), expectedRelativePaths.length);
 
-        for (int i = 0; i < expectedRelativePaths.length; i++)
+        if (actualFiles.size() > 0)
         {
-            String expectedRelativePath = expectedRelativePaths[i];
-            DataSetPathInfo actualFile = actualFiles.get(i);
+            String[] actualRelativePaths = new String[actualFiles.size()];
 
-            Assert.assertEquals(actualFile.getRelativePath(), expectedRelativePath);
+            for (int i = 0; i < actualFiles.size(); i++)
+            {
+                actualRelativePaths[i] = actualFiles.get(i).getRelativePath();
+            }
+
+            Arrays.sort(actualRelativePaths);
+            Arrays.sort(expectedRelativePaths);
+            Assert.assertEquals(actualRelativePaths, expectedRelativePaths);
         }
     }
 
