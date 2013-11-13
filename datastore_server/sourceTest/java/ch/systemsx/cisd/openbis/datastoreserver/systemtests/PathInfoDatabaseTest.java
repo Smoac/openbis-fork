@@ -31,9 +31,12 @@ import javax.sql.DataSource;
 import net.lemnik.eodsql.QueryTool;
 
 import org.apache.commons.lang.time.StopWatch;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
@@ -44,19 +47,34 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvi
 @Test(groups = "slow")
 public class PathInfoDatabaseTest extends SystemTestCase
 {
+
+    @BeforeTest
+    private void initDatabase() throws Exception
+    {
+        DataSource dataSource = PathInfoDataSourceProvider.getDataSource();
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        cleanUpDatabase(dataSource);
+
+        System.out.println(stopWatch.getTime() + " msec for cleaning up old entries");
+
+        stopWatch.reset();
+        stopWatch.start();
+
+        int n = feedDataBase(dataSource);
+
+        System.out.println(stopWatch.getTime() + " msec for creating " + n + " entries");
+    }
+
     @Test
     public void testPathInfoDatabase() throws Exception
     {
         DataSource dataSource = PathInfoDataSourceProvider.getDataSource();
-        cleanUpDatabase(dataSource);
-
         StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        int n = feedDataBase(dataSource);
-        System.out.println(stopWatch.getTime() + " msec for creating " + n + " entries");
-
-        stopWatch.reset();
         List<String> paths = new ArrayList<String>();
+
         Connection connection = null;
         String regex = ".*file-[2-3].*81.*(25|49).*36.*";
         try
@@ -123,15 +141,209 @@ public class PathInfoDatabaseTest extends SystemTestCase
                 + "file-3-9/file-9-81/file-7-49/file-6-36-xyz.xml]", paths.toString());
     }
 
+    @Test
+    public void testListMatchingPathInfosWithRelativePathPatternWithExactMatch()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider
+                .listMatchingPathInfos("file-9-81/file-9-81/file-9-81/file-9-81-xyz.xml");
+
+        assertRelativePaths(actualFiles, "file-9-81/file-9-81/file-9-81/file-9-81-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithRelativePathPatternWithoutAnyMatch()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider
+                .listMatchingPathInfos("file-9-81/file-9-81/file-9-81/file-9-81-xyz.xml.notexisting");
+
+        assertRelativePaths(actualFiles, new String[] {});
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithRelativePathPatternWithSpecialCharactersConvertableToLike()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-2");
+
+        List<DataSetPathInfo> actualFiles = provider
+                .listMatchingPathInfos("special_characters_%\\?\\.file-9-81/.*file.*1.*xml");
+
+        assertRelativePaths(actualFiles, "special_characters_%?.file-9-81/special_characters_%?.file-1-1-xyz.xml",
+                "special_characters_%?.file-9-81/special_characters_%?.file-4-16-xyz.xml",
+                "special_characters_%?.file-9-81/special_characters_%?.file-9-81-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithRelativePathPatternWithSpecialCharactersNotConvertableToLike()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-2");
+
+        List<DataSetPathInfo> actualFiles = provider
+                .listMatchingPathInfos("special_characters_%\\?\\.file-9-81/.*(file-0-0|file-2-4).*");
+
+        assertRelativePaths(actualFiles, "special_characters_%?.file-9-81/special_characters_%?.file-0-0-xyz.xml",
+                "special_characters_%?.file-9-81/special_characters_%?.file-2-4-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathAndFileNamePatternWithExactMatch()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "file-9-81/file-9-81/file-9-81", "file-9-81-xyz.xml");
+
+        assertRelativePaths(actualFiles, "file-9-81/file-9-81/file-9-81/file-9-81-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithEmptyStartingPath()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-2");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos("", "special_characters_%\\?\\.file-8-64");
+
+        assertRelativePaths(actualFiles, "special_characters_%?.file-8-64");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithNullStartingPath()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-2");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(null, "special_characters_%\\?\\.file-8-64");
+
+        assertRelativePaths(actualFiles, "special_characters_%?.file-8-64");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathWithoutSlash()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "file-9-81/file-9-81/file-9-81", "file-9-81-xyz.xml");
+
+        assertRelativePaths(actualFiles, "file-9-81/file-9-81/file-9-81/file-9-81-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathWithSlash()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "file-9-81/file-9-81/file-9-81/", "file-9-81-xyz.xml");
+
+        assertRelativePaths(actualFiles, "file-9-81/file-9-81/file-9-81/file-9-81-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathAndFileNamePatternWithoutAnyMatch()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "file-9-81/file-9-81/file-9-81", "file-9-81-xyz.xml.notexisting");
+
+        assertRelativePaths(actualFiles, new String[] {});
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathThatMatchesRelativePathAndEmptyFileNamePattern()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-1");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "file-9-81/file-9-81/file-9-81-xyz.xml", "");
+
+        assertRelativePaths(actualFiles, new String[] {});
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathWithSpecialCharactersAndFileNamePatternConvertableToLike()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-2");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "special_characters_%?.file-9-81", ".*file.*1.*xml");
+
+        assertRelativePaths(actualFiles, "special_characters_%?.file-9-81/special_characters_%?.file-1-1-xyz.xml",
+                "special_characters_%?.file-9-81/special_characters_%?.file-4-16-xyz.xml",
+                "special_characters_%?.file-9-81/special_characters_%?.file-9-81-xyz.xml");
+    }
+
+    @Test
+    public void testListMatchingPathInfosWithStartingPathWithSpecialCharactersAndFileNamePatternNotConvertableToLike()
+    {
+        ISingleDataSetPathInfoProvider provider = ServiceProvider
+                .getDataSetPathInfoProvider()
+                .tryGetSingleDataSetPathInfoProvider("ds-2");
+
+        List<DataSetPathInfo> actualFiles = provider.listMatchingPathInfos(
+                "special_characters_%?.file-9-81", ".*(file-0-0|file-2-4).*");
+
+        assertRelativePaths(actualFiles, "special_characters_%?.file-9-81/special_characters_%?.file-0-0-xyz.xml",
+                "special_characters_%?.file-9-81/special_characters_%?.file-2-4-xyz.xml");
+    }
+
+    private void assertRelativePaths(List<DataSetPathInfo> actualFiles, String... expectedRelativePaths)
+    {
+        Assert.assertEquals(actualFiles.size(), expectedRelativePaths.length);
+
+        for (int i = 0; i < expectedRelativePaths.length; i++)
+        {
+            String expectedRelativePath = expectedRelativePaths[i];
+            DataSetPathInfo actualFile = actualFiles.get(i);
+
+            Assert.assertEquals(actualFile.getRelativePath(), expectedRelativePath);
+        }
+    }
+
     private int feedDataBase(DataSource dataSource)
     {
         int numberOfEntries = 0;
         IPathsInfoDAO dao = QueryTool.getQuery(dataSource, IPathsInfoDAO.class);
         try
         {
-            long id = dao.createDataSet("ds-1", "a/b/c/");
-            long parentId = dao.createDataSetFile(id, null, "", "ds-1", 0, true, new Date(4711));
-            numberOfEntries += feedDataBase(dao, id, parentId, 3, "");
+            long id;
+            long parentId;
+
+            id = dao.createDataSet("ds-1", "a/b/c/");
+            parentId = dao.createDataSetFile(id, null, "", "ds-1", 0, true, new Date(4711));
+            numberOfEntries += feedDataBase(dao, id, parentId, 3, "", "");
+
+            id = dao.createDataSet("ds-2", "a2/b2/c2/");
+            parentId = dao.createDataSetFile(id, null, "", "ds-2", 0, true, new Date(4722));
+            numberOfEntries += feedDataBase(dao, id, parentId, 1, "", "special_characters_%?.");
+
             dao.commit();
         } catch (Exception ex)
         {
@@ -143,13 +355,13 @@ public class PathInfoDatabaseTest extends SystemTestCase
     }
 
     private int feedDataBase(IPathsInfoDAO dao, long dataSetId, Long parentId, int level,
-            String prefix)
+            String prefix, String fileNamePrefix)
     {
         int numberOfEntries = 0;
         for (int i = 0; i < 10; i++)
         {
             boolean directory = level > 0;
-            String fileName = "file-" + i + "-" + (i * i) + (directory ? "" : "-xyz.xml");
+            String fileName = fileNamePrefix + "file-" + i + "-" + (i * i) + (directory ? "" : "-xyz.xml");
             long id =
                     dao.createDataSetFile(dataSetId, parentId, prefix + fileName, fileName, level
                             * 100 + i, directory, new Date(4711));
@@ -157,7 +369,7 @@ public class PathInfoDatabaseTest extends SystemTestCase
             if (directory)
             {
                 numberOfEntries +=
-                        feedDataBase(dao, dataSetId, id, level - 1, prefix + fileName + "/");
+                        feedDataBase(dao, dataSetId, id, level - 1, prefix + fileName + "/", fileNamePrefix);
             }
         }
         return numberOfEntries;
@@ -183,7 +395,7 @@ public class PathInfoDatabaseTest extends SystemTestCase
         try
         {
             connection = dataSource.getConnection();
-            connection.createStatement().execute("delete from data_sets where code like 'ds-1'");
+            connection.createStatement().execute("delete from data_sets where code like 'ds-1' or code like 'ds-2'");
         } finally
         {
             close(connection);

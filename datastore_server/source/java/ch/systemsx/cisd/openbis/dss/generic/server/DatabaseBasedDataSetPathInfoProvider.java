@@ -91,14 +91,16 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
                 String relativePathLikeExpression);
 
         @Select(SELECT_DATA_SET_FILES
-                + "WHERE dase_id = ?{1} AND relative_path = '?{2}' AND file_name ~ ?{3}")
-        public List<DataSetFileRecord> listDataSetFilesByFilenameRegex(long dataSetId,
-                String startingPath, String filenameRegex);
+                + "WHERE dase_id = ?{1} AND relative_path = ?{2} || file_name AND file_name ~ ?{3}")
+        public List<DataSetFileRecord> listDataSetFilesByFilenameRegex(
+                long dataSetId, String startingPath, String filenameRegex);
 
         @Select(SELECT_DATA_SET_FILES
-                + "WHERE dase_id = ?{1} AND relative_path = '?{2}' AND file_name LIKE ?{3}")
-        public List<DataSetFileRecord> listDataSetFilesByFilenameLikeExpression(long dataSetId,
-                String startingPath, String filenameLikeExpression);
+                + "WHERE dase_id = ?{1} AND relative_path = ?{2} || file_name AND file_name LIKE ?{3}")
+        public List<DataSetFileRecord> listDataSetFilesByFilenameLikeExpression(
+                long dataSetId, String startingPath,
+                String filenameLikeExpression);
+
     }
 
     private static interface ILoader
@@ -162,7 +164,8 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         Map<String, Integer> files = new HashMap<String, Integer>();
         IPathInfoDAO queries = getDao();
         Long id = queries.tryToGetDataSetId(dataSetCode);
-        if (id == null) {
+        if (id == null)
+        {
             return files;
         }
         List<DataSetFileRecord> records = getDao().listDataSetFiles(id);
@@ -255,18 +258,31 @@ public class DatabaseBasedDataSetPathInfoProvider implements IDataSetPathInfoPro
         public List<DataSetPathInfo> listMatchingPathInfos(String startingPath,
                 String fileNamePattern)
         {
+            String aStartingPath = null;
+
+            if (startingPath == null || startingPath.trim().length() == 0)
+            {
+                aStartingPath = "";
+            } else if (startingPath.endsWith("/"))
+            {
+                aStartingPath = startingPath;
+            } else
+            {
+                aStartingPath = startingPath + "/";
+            }
+
             String likeExpressionOrNull =
                     DBUtils.tryToTranslateRegExpToLikePattern(prepareDBStyleRegex(fileNamePattern));
             List<DataSetFileRecord> records;
             if (likeExpressionOrNull == null)
             {
                 records =
-                        dao.listDataSetFilesByFilenameRegex(dataSetId, startingPath,
+                        dao.listDataSetFilesByFilenameRegex(dataSetId, aStartingPath,
                                 prepareDBStyleRegex(fileNamePattern));
             } else
             {
                 records =
-                        dao.listDataSetFilesByFilenameLikeExpression(dataSetId, startingPath,
+                        dao.listDataSetFilesByFilenameLikeExpression(dataSetId, aStartingPath,
                                 likeExpressionOrNull);
             }
             return asPathInfos(records);
