@@ -13,7 +13,9 @@
 	<!-- Third party libraries -->
 	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css" />
 	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css" />
+	<link type="text/css" rel="stylesheet" href="./flowplayer/skin/minimalist.css" />
 	<script type="text/javascript" src="./js/jquery.blockUI.js"></script>
+	<script type="text/javascript" src="./flowplayer/flowplayer.min.js"></script>
 	
 	<!-- App files -->
 	<link type="text/css" rel="stylesheet" href="./css/style.css" />
@@ -197,6 +199,7 @@
 		}
 
 		function showContainedSamples(sampleIdentifier) {
+			$.blockUI({ message: '<h1><img src="./css/busy.gif" /> Please wait...</h1>' }); 
 			var displayName = sampleIdentifier.substring(10);
 			$("#main").empty();
 
@@ -205,26 +208,57 @@
 				function(pdfFiles) {
 					$("#main").append("<h1>" + displayName + "</h1>");
 
+					var component = "<div>";
 					for(var i = 0; i < pdfFiles.length; i++) {
 						var pdfFileUrl = pdfFiles[i];
-						var component = "";
-
-						component += "<div style='float: left; margin-right:20px;'>";
+						
+						component += "<div style='margin-right:20px;'>";
 						if(pdfFileUrl.indexOf("rnaProfile.pdf") !== -1) {
 							component += "<h2>RNA Profile:</h2>";
 						} else if(pdfFileUrl.indexOf("geneProfile.pdf") !== -1) {
 							component += "<h2>Gene Profile:</h2>";
 						}
-						component += "<iframe src='" + pdfFileUrl + "' style='width:" + ($("#main").width()/7) * 3 + "px; height:" + $(window).height()/2 + "px; ' frameborder='0'></iframe>";
-						component += "</div>";
-
-						$("#main").append(component);
+						component += "<iframe src='" + pdfFileUrl + "' style='width:100%; ' frameborder='0'></iframe>";
+						component += "</div>";	
 					}
+					$("#main").append(component + "</div>");
 
-					//Obtain movies URL
-					$("#main").append("<h2>Control Videos:</h2>");
+					//Movies Containers
+					$("#main").append("<div id='controlVideosContainer'><h2>Control Videos:</h2></div>");
+					$("#main").append("<div id='geneVideosContainer'><h2>Gene Videos:</h2></div>");
 
-					$("#main").append("<h2>Gene Videos:</h2>");
+					//Load Movies URL
+					getDataSetFilesFor(sampleIdentifier, "VIDEOS", allDataStores[0].downloadUrl,
+						function(videoFiles) {
+							for(var i = 0; i < videoFiles.length; i++) {
+								var id = "player_"+i;
+								var component = "";
+									component += "<div id='" + id + "' class='flowplayer' style='width:30%;' data-swf='./flowplayer/flowplayer.swf'>";
+									component += "</div> ";
+
+								if( videoFiles[i].indexOf("/original/geneVideos/") !== -1) {
+									$("#geneVideosContainer").append(component);
+								} else if( videoFiles[i].indexOf("/original/controlVideos/") !== -1) {
+									$("#controlVideosContainer").append(component);
+								}
+								
+								$("#"+id).flowplayer({
+									playlist: [
+										[
+											{ mp4:   videoFiles[i] }
+										]
+									]
+								});
+
+							}
+
+							$.unblockUI();
+						}
+					);
+
+					
+
+
 				}
 			);
 		}
@@ -309,11 +343,17 @@
                 <img src="./images/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-firefox.png" style="width: 43px; height:43px;" />
             </center>
     </div>
-	
+    <!--
+	<div class='flowplayer color-light' style='width:30%;' data-swf='./flowplayer/flowplayer.swf'>
+	<video preload='none' controls>
+		<source src='https://mat-openbis.dbm.unibas.ch:8444/datastore_server/20131022120243488-7519/original/geneVideos/p1g5_v168_cell5.mp4?sessionID=barillac-131113140031685x4B608B9F5412933B1D49F2FFC9F148FB' type='video/mp4'>
+		</video>
+	</div>
+	-->
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<div id ="menu" class="span3"></div>
-			<div id ="main" class="span9"></div>
+			<div id ="menu" class="span2"></div>
+			<div id ="main" class="span10"></div>
 		</div>
 	</div>
 </body>

@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+	<title>Sinergia</title>
+	
+	<!-- openBIS -->
+	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
+	<script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
+
+	
+	<!-- Third party libraries -->
+	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css" />
+	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css" />
+	<script type="text/javascript" src="./js/jquery.blockUI.js"></script>
+	<script type="text/javascript" src="./js/pdfobject.js"></script>
+	
+	<!-- App files -->
+	<link type="text/css" rel="stylesheet" href="./css/style.css" />
+	<script type="text/javascript" src="./js/search.js"></script>
+
+	<script type="text/javascript">
+		//
+		// Global variables
+		//
+		var openbis = new openbis();
+		var experimentCode = 'CLUSTERS';
+		var experimentIdentifier = '/SINERGIA/CLUSTERS/CLUSTERS';
+		var sampleType ='CLUSTER';
+
+		var allDataStores = null;
+		var mainCluster = null;
+		var clusters = {};		
+		var allDataSets = null;
+
+		//
+		// Login
+		//
+		$(document).ready(function() {
+			//Attach function to form login
+			var submitFunction = function(event) {
+				event.preventDefault();
+				 $.blockUI({ message: '<h1><img src="./css/busy.gif" /> Please wait...</h1>' }); 
+				
+				openbis.login($.trim($('#username').val()), $.trim($('#password').val()),
+				function(data) {
+					$.unblockUI();
+					enterApp(data) 
+				});
+			}
+			$("#loginForm").submit(submitFunction);
+			
+			//Avoid login if we got already a cookie
+			openbis.ifRestoredSessionActive(function(data) { enterApp(data) });
+		});
+
+		function enterApp(data){
+			if(data.result === null) {
+				//Login not correct
+				window.alert("Login information incorrect.");
+				return;
+			} 
+			else {
+				$("#login-form-div").hide();
+				//Loading main experiment
+				openbis.listExperimentsForIdentifiers([experimentIdentifier],
+					function (data) {
+						mainCluster = data.result[0];
+						//Get datastores
+						openbis.listDataStores(
+							function(data) {
+								allDataStores = data.result;
+								loadAllDataSets(); //Get all datasets using the experiment
+							}
+						);
+
+						
+					}
+				);
+
+				//Build menu and load samples data structure
+				searchSamplesWithType(sampleType,
+					function(data) {
+						buildLogout();
+						buildMenu(data);
+					}
+				);
+			}
+
+
+		}
+		
+		//
+		// Logout
+		//
+		function buildLogout() {
+			$("#menu").append("<a class='logout-btn' href='javascript:logout()'>Logout <img src='./images/System-Logout-icon.png'></a>");
+		}
+ 		function logout() {
+ 			openbis.logout(function(data) { 
+                $("#menu").empty();
+                $("#main").empty();
+                clusters = {};
+                $("#login-form-div").show();
+            });
+ 		}
+
+		//
+		// Menu Setup
+		//
+		function buildMenu(data) {
+			var $menu = $("<ul>");
+			//$("#menu").append("<lu></lu>"); // this is equivalent to the above. It's only good for static things. The above is better for dynamic things, as in this case.
+			var $experimentLevel = $("<li>")
+										.append("<a href='javascript:showExperiment(\""+experimentCode+"\")'>" + experimentCode + "</a>");
+			$menu
+				.append($experimentLevel);
+
+				var $samplesMenu = $("<ul>");
+				$experimentLevel
+					.append($samplesMenu);
+
+				for (var i = 0; i < data.length; i++) {
+					clusters[data[i].code] = data[i]; //Build a general data structure
+					
+					var $sampleLevel = $("<li>")
+											.append("<a href='javascript:showSamples(\""+data[i].code+"\")'>" + data[i].code + "</a>");
+					$samplesMenu
+						.append($sampleLevel);
+
+					var geneLevelCreator = function() {
+						var $containedSamplesMenu = $("<ul>");
+						$sampleLevel
+								.append($containedSamplesMenu);
+
+						var callbackFunction =  function(data) {
+							clusters[data[0].code.substring(0, data[0].code.indexOf(":"))].genes = data;
+
+								for (var j = 0; j < data.length; j++) {
+									var cleanGeneCode = data[j].code.substring(data[j].code.indexOf(":")+1);
+									$containedSamplesMenu.append(
+												$("<li>")
+													.append("<a href='javascript:showContainedSamples(\""+cleanGeneCode+"\")'>" + cleanGeneCode + "</a>"));
+
+							}
+						}
+
+						searchSamplesWithTypeAndCode("GENE", data[i].code + ":*", callbackFunction);
+					}
+
+					geneLevelCreator();
+			}			
+
+			$("#menu").append($menu);
+
+		}
+
+
+		//
+		// Navigation 
+		//
+		function showExperiment(code) {
+			$("#main").empty();
+
+			//Obtain PDF URL
+			getDataSetFilesFor(null, "PDF", allDataStores[0].downloadUrl,
+				function(files) {
+					$("#main").append("<h1>Gene Clusters<h1>");
+					var pdfFile = files[0];
+					var failureMessage =  'It appears you do not have a PDF plugin for this browser. '
+					//$("#main").append("<object data='" + pdfFile + "#toolbar=1&amp;navpanes=0&amp;scrollbar=1&amp;page=1&amp;view=FitH" +  "' type='application/pdf' width='100%' height='100%'>" +  failureMessage + "</object>");
+					$("#main").append("<iframe src='" + pdfFile + " height = '100%' width ='100%'></iframe>" ;
+				}
+			);
+		}
+
+		function showSamples(code) {
+			$("#main").append(code);
+		}
+
+		function showContainedSamples(code) {
+			$("#main").append(code);
+		}
+
+		//
+		// Data Loader
+		//
+    	function loadAllDataSets() {
+    		openbis.listDataSetsForExperiments([mainCluster], null,
+    			function(datasets) {
+    				allDataSets = datasets.result;
+    			}
+    		);
+    	};
+
+    	function getDataSetFilesFor(sampleIdentifier, dataSetTypeCode, datastoreDownloadURL, callback) {
+    		//Obtain datasets
+			var datasets = [];
+			for(var i = 0; i < allDataSets.length; i++) {
+				if(	allDataSets[i].sampleIdentifierOrNull === sampleIdentifier && 
+					allDataSets[i].dataSetTypeCode === dataSetTypeCode ) {
+					datasets.push(allDataSets[i]);
+				}
+			}
+			//List dataset files
+			var allDatasetFiles = [];
+
+			var callBackForFiles = function(datasetFiles) {
+				if(datasetFiles) {
+					var dataset = datasets.pop();
+
+					for(var i = 0; i < datasetFiles.result.length; i++) {
+						if(!datasetFiles.result[i].isDirectory) {
+							var dowloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles.result[i].pathInDataSet + "?sessionID=" + openbis.getSession();
+							allDatasetFiles.push(dowloadUrl);
+						}
+					}
+				}
+
+				if(datasets.length === 0) {
+					callback(allDatasetFiles);
+				} else {
+					openbis.listFilesForDataSet(datasets[datasets.length-1].code, "/", true, callBackForFiles);
+				}
+			};
+
+			callBackForFiles(null);
+    	}
+
+
+
+	</script>
+</head>
+
+
+
+
+
+
+<body class="bodyLogin">
+    <div id="login-form-div" class="loginForm">
+            <img class="loginLogo" src="./images/openBIS_Logo.png" alt="openBIS" />
+            <h1>Sinergia Project</h1>
+            
+            <form id="loginForm" action="javascript:">
+                <fieldset>
+                        <div class='loginInputBox'>
+                            <input placeholder="User Name" id="username" type="text" required="required">
+                        </div>
+                    
+                        <div class='loginInputBox'>
+                            <input placeholder="Password" id="password" type="password" required="required">
+                        </div>
+                    
+                        <button class="btn" id="login-button" type="submit"><i class="icon-arrow-right"></i></button>
+                </fieldset>
+            </form>
+            
+            <center>
+                <div style="margin-bottom: 5px; margin-top: 100px;">Compatible With:</div>
+                <img src="./images/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-firefox.png" style="width: 43px; height:43px;" />
+            </center>
+    </div>
+	
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div id ="menu" class="span3"></div>
+			<div id ="main" class="span8"></div>
+		</div>
+	</div>
+</body>
+
+</html>
