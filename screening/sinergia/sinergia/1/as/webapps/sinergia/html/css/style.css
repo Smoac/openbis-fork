@@ -123,6 +123,33 @@ body, h1, h2 {
     text-decoration: underline;
 }
 
+/*
+ * Player Widget
+ */
+.playerWidget {
+    -webkit-box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.8);
+    -moz-box-shadow:    0px 0px 10px rgba(50, 50, 50, 0.8);
+    box-shadow:         0px 0px 10px rgba(50, 50, 50, 0.8); 
+
+    border-radius: 10px;
+    padding: 3px 5px 3px 5px;
+    border: 40;
+    
+    font-family: "Helvetica Neue",sans-serif;
+    background-color: white;
+    color: #005580;
+    text-decoration: none;
+}
+
+.playerWidget .videoList {
+    margin: 10px !important;
+}
+
+.flowplayer {
+    height: 100%;
+    min-height: 300px !important;
+    margin: 10px auto !important;
+}
 
 /*
  * General Layout

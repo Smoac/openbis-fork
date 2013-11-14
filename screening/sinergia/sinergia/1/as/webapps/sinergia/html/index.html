@@ -230,28 +230,22 @@
 					//Load Movies URL
 					getDataSetFilesFor(sampleIdentifier, "VIDEOS", allDataStores[0].downloadUrl,
 						function(videoFiles) {
+							var geneVideosURLs = [];
+							var controlVideosURLs = [];
+
 							for(var i = 0; i < videoFiles.length; i++) {
-								var id = "player_"+i;
-								var component = "";
-									component += "<div id='" + id + "' class='flowplayer' style='width:30%;' data-swf='./flowplayer/flowplayer.swf'>";
-									component += "</div> ";
 
 								if( videoFiles[i].indexOf("/original/geneVideos/") !== -1) {
-									$("#geneVideosContainer").append(component);
+									geneVideosURLs.push(videoFiles[i]);
 								} else if( videoFiles[i].indexOf("/original/controlVideos/") !== -1) {
-									$("#controlVideosContainer").append(component);
+									controlVideosURLs.push(videoFiles[i]);
 								}
 								
-								$("#"+id).flowplayer({
-									playlist: [
-										[
-											{ mp4:   videoFiles[i] }
-										]
-									]
-								});
-
 							}
-
+							
+							$("#geneVideosContainer").append(getPlayerWidget('geneVideosContainerPlayer',geneVideosURLs));
+							$("#controlVideosContainer").append(getPlayerWidget('controlVideosContainerPlayer',controlVideosURLs));
+							
 							$.unblockUI();
 						}
 					);
@@ -308,6 +302,58 @@
 
 			callBackForFiles(null);
     	}
+
+    	//
+    	//Widget
+    	//
+    	function getPlayerWidget(id, videoListURL) {
+    	 var $playerWidgetContainer = $("<div>", { 'class' : 'row'});
+
+    	 var $paddingLeft = $("<div>", { 'class' : 'span2'});
+         var $playerWidget = $("<div>", { 'class' : 'span8 playerWidget'});
+         var $paddingRight = $("<div>", { 'class' : 'span2'});
+
+         var $videoList = $("<div>", { 'class' : 'span2 videoList'});
+         var $playerWrapper = $("<div>", { 'class' : 'span6' });
+         var $player = $("<div>", { 'id': id, 'class' : 'flowplayer', 'data-swf' : './flowplayer/flowplayer.swf' });
+         $playerWrapper.append($player);
+
+         $playerWidget.append($videoList);
+         $playerWidget.append($playerWrapper);
+
+         for(var i = 0; i < videoListURL.length; i++) {
+            var greatJSObjectOrientation = function() {
+               var idForFunc = id;
+               var urlForFun = videoListURL[i];
+              
+               $videoLink = $("<a>").click(function() {
+                  $("#" + idForFunc).empty();
+                  $("#"+idForFunc).flowplayer({
+									playlist: [
+										[
+											{ mp4:   urlForFun }
+										]
+									]
+								});
+
+               }).html("Video " + (i+1));
+
+               $videoList.append($videoLink);
+               $videoList.append($("<br>"));
+            }
+            
+            greatJSObjectOrientation();
+         }
+
+         $playerWidgetContainer.append($paddingLeft);
+         $playerWidgetContainer.append($playerWidget);
+         $playerWidgetContainer.append($paddingRight);
+		 
+         return $playerWidgetContainer;
+      }
+
+
+
 
 
 
