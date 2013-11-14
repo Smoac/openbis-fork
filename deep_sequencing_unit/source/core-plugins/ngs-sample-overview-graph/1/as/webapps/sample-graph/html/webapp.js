@@ -375,9 +375,9 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 }
 
 SampleGraphPresenter.prototype.updateVisibility = function() {
-	// Turn off visibility on all nodes
-	this.allNodes.forEach(function(samps, i) { 
-		samps.forEach(function(s) { s.visible = (i > 0) ? false : true })
+	// Turn off visibility on all nodes except the root node
+	this.allNodes.forEach(function(samps) {
+		samps.forEach(function(s) { s.visible = s.identifier == model.sampleIdentifier;	})
 	});
 	var outEdgesGetter = this.outEdgesFunction();
 	// Figure out if the nodes should be visible
