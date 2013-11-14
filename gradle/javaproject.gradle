@@ -43,8 +43,9 @@ repositories repositoryConfig
 
 // Gathering version and revision
 def gatheringTask = new ch.systemsx.cisd.ant.task.subversion.GatherRevisionAndVersionTask()
-gatheringTask.setProjectNames(project.getAllprojects().collect { it.getName() })
-println "project:"+project.name+", all projects:"+gatheringTask.projectNames
+includeFlat = { String[] projectNames -> gatheringTask.setProjectNames(Arrays.asList(projectNames)) }
+apply from: project.file('settings.gradle')
+println "PROJECT: ${project.name}, gather revision for following projects: ${gatheringTask.projectNames}"
 def antProject = new org.apache.tools.ant.Project()
 antProject.setBaseDir(new File("${project.projectDir}"))
 gatheringTask.setProject(antProject)
