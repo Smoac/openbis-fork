@@ -33,8 +33,8 @@ var LINE_HEIGHT = 20;
 var FIRST_COLLAPSED_COLUMN = 2;
 
 // The colors used for the different samples. The colors are used when one sample has multiple parents or children to disambiguate.
-//var sampleColors = d3.scale.category10();
-var sampleColors = d3.scale.ordinal().range(['#999']);
+var sampleColors = d3.scale.category10();
+//var sampleColors = d3.scale.ordinal().range(['#999']);
 
 // The color used when the connection between two samples is unambiguous
 var oneToOneColor = "#999"
@@ -274,6 +274,7 @@ function SampleGraphPresenter(model) {
 	this.selectedNode = null;
 	this.didCreateVis = false;
 	this.useBottomUpMode();
+	this.useWithColorsMode();
 	this.initializePresenter();
 }
 
@@ -332,6 +333,16 @@ SampleGraphPresenter.prototype.useBottomUpMode = function() {
 SampleGraphPresenter.prototype.useTopDownMode = function() {
 	this.bottomUpMode = false;
 	this.calcuateVisibleColumnOffsets();
+};
+
+SampleGraphPresenter.prototype.useWithColorsMode = function() {
+	this.withColorsMode = true;
+	sampleColors = d3.scale.category10();
+};
+
+SampleGraphPresenter.prototype.useNoColorsMode = function() {
+	this.withColorsMode = false;
+	sampleColors = d3.scale.ordinal().range(['#999']);
 };
 
 /**
@@ -468,6 +479,23 @@ function clickedTopDown() {
 	presenter.draw();
 }
 
+function clickedWithColors() {
+	if (presenter.withColorsMode) return;
+
+	displayActiveMode($('#with-colors'), $('#no-colors'));
+	presenter.useWithColorsMode();
+	presenter.initializeGraphSamples();
+	presenter.draw();
+}
+
+function clickedNoColors() {
+	if (!presenter.withColorsMode) return;
+
+	displayActiveMode($('#no-colors'), $('#with-colors'));
+	presenter.useNoColorsMode();
+	presenter.initializeGraphSamples();
+	presenter.draw();
+}
 
 function textBBoxForGraphNode(node) {
 	var bbox = presenter.renderer.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
@@ -915,6 +943,8 @@ function enterApp(data)
 {
 	$('#bottom-up').click(clickedBottomUp);
 	$('#top-down').click(clickedTopDown);
+	$('#with-colors').click(clickedWithColors);
+	$('#no-colors').click(clickedNoColors);
 	presenter = new SampleGraphPresenter(model);
 	presenter.useBottomUpMode()
     model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.draw() });
