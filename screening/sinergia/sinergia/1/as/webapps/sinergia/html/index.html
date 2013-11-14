@@ -14,8 +14,15 @@
 	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css" />
 	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css" />
 	<link type="text/css" rel="stylesheet" href="./flowplayer/skin/minimalist.css" />
+	<link type="text/css" rel="stylesheet" href="./dynatree/src/skin-vista/ui.dynatree.css" id="skinSheet">
 	<script type="text/javascript" src="./js/jquery.blockUI.js"></script>
 	<script type="text/javascript" src="./flowplayer/flowplayer.min.js"></script>
+ 	<script type="text/javascript" src="./dynatree/jquery/jquery-ui.custom.js"></script>
+ 	<script type="text/javascript" src="./dynatree/jquery/jquery.cookie.js"></script>
+ 	<script type="text/javascript" src="./dynatree/src/jquery.dynatree.js"></script>
+
+
+
 	
 	<!-- App files -->
 	<link type="text/css" rel="stylesheet" href="./css/style.css" />
@@ -32,7 +39,8 @@
 
 		var allDataStores = null;
 		var mainCluster = null;
-		var clusters = {};		
+		var clusters = [];
+
 		var allDataSets = null;
 
 		//
@@ -42,7 +50,7 @@
 			//Attach function to form login
 			var submitFunction = function(event) {
 				event.preventDefault();
-				 $.blockUI({ message: '<h1><img src="./css/busy.gif" /> Please wait...</h1>' }); 
+				 blockUIWithMessage();
 				
 				openbis.login($.trim($('#username').val()), $.trim($('#password').val()),
 				function(data) {
@@ -83,7 +91,7 @@
 				searchSamplesWithType(sampleType,
 					function(data) {
 						buildLogout();
-						buildMenu(data);
+						buildData(data);
 					}
 				);
 			}
@@ -99,20 +107,63 @@
 		}
  		function logout() {
  			openbis.logout(function(data) { 
+                /*
                 $("#menu").empty();
                 $("#main").empty();
-                clusters = {};
+                clusters = [];
                 $("#login-form-div").show();
+                */
+                location.reload();
             });
  		}
 
 		//
 		// Menu Setup
 		//
-		function buildMenu(data) {
+
+		function getClusterWithCode(code) {
+			for(var clusterIndex = 0; clusterIndex < clusters.length; clusterIndex++) {
+				var auxCluster = clusters[clusterIndex];
+				if(auxCluster.code === code) {
+					return auxCluster;
+				}
+			}
+			return null;
+		}
+
+		function buildData(dataToBuild) {
+			var initalizeGenes = [];
+
+			for (var i = 0; i < dataToBuild.length; i++) {
+				clusters.push(dataToBuild[i]); //Build a general data structure
+
+				var geneLevelCreatorJSRocks = function(dataCode) {
+					var geneLevelCreator = function() {
+						var callbackFunction =  function(data) {
+							getClusterWithCode(dataCode).genes = data;
+
+							if(initalizeGenes.length == 0) {
+								buildMenu();
+							} else {
+								var nextCall = initalizeGenes.pop();
+								nextCall();
+							}
+						}
+						searchSamplesWithTypeAndCode("GENE", dataCode + ":*", callbackFunction);
+					}
+					return geneLevelCreator;
+				}
+				initalizeGenes.push(geneLevelCreatorJSRocks(dataToBuild[i].code));
+			}
+
+			var firstFunction = initalizeGenes.pop();
+			firstFunction();
+		}
+
+		function buildMenu() {
 			var $menu = $("<ul>");
-			//$("#menu").append("<lu></lu>"); // this is equivalent to the above. It's only good for static things. The above is better for dynamic things, as in this case.
-			var $experimentLevel = $("<li>")
+			//$("#menu").append("<ul></ul>"); // this is equivalent to the above. It's only good for static things. The above is better for dynamic things, as in this case.
+			var $experimentLevel = $("<li>", {'class' : 'folder expanded'})
 										.append("<a href='javascript:showExperiment()'>" + experimentCode + "</a>");
 			$menu
 				.append($experimentLevel);
@@ -121,46 +172,44 @@
 				$experimentLevel
 					.append($samplesMenu);
 
-				for (var i = 0; i < data.length; i++) {
-					clusters[data[i].code] = data[i]; //Build a general data structure
+				for (var i = 0; i < clusters.length; i++) {
 					
-					var $sampleLevel = $("<li>")
-											.append("<a href='javascript:showSamples(\""+data[i].identifier+"\")'>" + data[i].code + "</a>");
+					var $sampleLevel = $("<li>", {'class' : 'folder'})
+											.append("<a href='javascript:showSamples(\""+clusters[i].identifier+"\")'>" + clusters[i].code + "</a>");
 					$samplesMenu
 						.append($sampleLevel);
 
-					var geneLevelCreator = function() {
-						var $containedSamplesMenu = $("<ul>");
+					var $containedSamplesMenu = $("<ul>");
 						$sampleLevel
 								.append($containedSamplesMenu);
 
-						var callbackFunction =  function(data) {
-							clusters[data[0].code.substring(0, data[0].code.indexOf(":"))].genes = data;
-
-								for (var j = 0; j < data.length; j++) {
-									var cleanGeneCode = data[j].code.substring(data[j].code.indexOf(":")+1);
+					for (var j = 0; j < clusters[i].genes.length; j++) {
+									var cleanIdentifier = clusters[i].genes[j].identifier;
+									var cleanGeneCode = clusters[i].genes[j].code.substring(clusters[i].genes[j].code.indexOf(":")+1);
 									$containedSamplesMenu.append(
 												$("<li>")
-													.append("<a href='javascript:showContainedSamples(\""+data[j].identifier+"\")'>" + cleanGeneCode + "</a>"));
+													.append($("<a>", {'href' : "javascript:showContainedSamples('" +  cleanIdentifier + "')"}).text(cleanGeneCode))
+												);
 
-							}
-						}
-
-						searchSamplesWithTypeAndCode("GENE", data[i].code + ":*", callbackFunction);
 					}
-
-					geneLevelCreator();
 			}			
 
 			$("#menu").append($menu);
-
+			
+			$("#menu").dynatree({
+				onClick: function(node, e) {
+					if(e.target.className === "dynatree-title" && node.data.href) {
+						eval(node.data.href);
+					}
+				}
+			});	
 		}
-
 
 		//
 		// Navigation 
 		//
 		function showExperiment() {
+			blockUIWithMessage();
 			$("#main").empty();
 
 			//Obtain PDF URL
@@ -169,11 +218,13 @@
 					var pdfFileUrl = files[0];
 					$("#main").append("<h1>Gene Clusters</h1>");
 					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; height:" + $(window).height() + "px; ' frameborder='0'></iframe>");
+					$.unblockUI();
 				}
 			);
 		}
 
 		function showSamples(sampleIdentifier) {
+			blockUIWithMessage();
 			var displayName = sampleIdentifier.substring(10);
 			$("#main").empty();
 
@@ -190,8 +241,9 @@
 					getDataSetFilesFor(sampleIdentifier, "PNG_IMAGES", allDataStores[0].downloadUrl,
 						function(pngFiles) {
 							for(var i = 0; i < pngFiles.length; i++) {
-								$("#main").append("<a target='_blank' href='" + pngFiles[i] + "'><img src='" + pngFiles[i] + "' style='width: 20%;' /></a>");
+								$("#main").append("<a target='_blank' href='" + pngFiles[i] + "'><img src='" + pngFiles[i] + "' style='width: 20%; min-width:220px;' /></a>");
 							}
+							$.unblockUI();
 						}
 					);
 				}
@@ -199,7 +251,7 @@
 		}
 
 		function showContainedSamples(sampleIdentifier) {
-			$.blockUI({ message: '<h1><img src="./css/busy.gif" /> Please wait...</h1>' }); 
+			blockUIWithMessage();
 			var displayName = sampleIdentifier.substring(10);
 			$("#main").empty();
 
@@ -264,7 +316,7 @@
     		openbis.listDataSetsForExperiments([mainCluster], null,
     			function(datasets) {
     				allDataSets = datasets.result;
-    				$.unblockUI();
+    				showExperiment();
     			}
     		);
     	};
@@ -314,12 +366,10 @@
          var $paddingRight = $("<div>", { 'class' : 'span2'});
 
          var $videoList = $("<div>", { 'class' : 'span2 videoList'});
-         var $playerWrapper = $("<div>", { 'class' : 'span6' });
-         var $player = $("<div>", { 'id': id, 'class' : 'flowplayer', 'data-swf' : './flowplayer/flowplayer.swf' });
-         $playerWrapper.append($player);
-
+         var $player = $("<div>", { 'id': id, 'class' : 'span6 flowplayer', 'data-swf' : './flowplayer/flowplayer.swf' });
+         
          $playerWidget.append($videoList);
-         $playerWidget.append($playerWrapper);
+         $playerWidget.append($player);
 
          for(var i = 0; i < videoListURL.length; i++) {
             var greatJSObjectOrientation = function() {
@@ -352,8 +402,25 @@
          return $playerWidgetContainer;
       }
 
+      //
+      // BlockUI
+      //
+      blockUIWithMessage = function(message) {
 
-
+        var css = { 
+                    'border': 'none', 
+                    'padding': '10px',
+                    '-webkit-border-radius': '10px', 
+                    '-moz-border-radius': '10px', 
+                    'border-radius' : '10px',
+                    'box-shadow' : '0px 0px 10px rgba(50, 50, 50, 0.8)',
+                    '-webkit-box-shadow' : '0px 0px 10px rgba(50, 50, 50, 0.8)',
+                    '-moz-box-shadow' : '0px 0px 10px rgba(50, 50, 50, 0.8)',
+                    'cursor' : 'default'
+        };
+        
+        $.blockUI({ message: '<h1><img src="./css/busy.gif" /> Please wait...</h1>' , css: css });
+    }
 
 
 

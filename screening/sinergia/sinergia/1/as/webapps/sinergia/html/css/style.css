@@ -152,6 +152,14 @@ body, h1, h2 {
 }
 
 /*
+ * Tree View
+ */
+.dynatree-container {
+    background-color: none !important;
+    border: none !important;
+}
+
+/*
  * General Layout
  */
 
