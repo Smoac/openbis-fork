@@ -678,6 +678,31 @@ DagreGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 }
 
 var RANK_SEPARATION = 50;
+
+DagreGraphRenderer.prototype.normalizeNodeYPos = function() 
+{
+	var nodes = presenter.nodes;
+	function dagrey(node) { return node.dagre.y }
+	// Look at all the nodes and the edges and fix the height so that nodes of the same type form a row
+	minmaxy = nodes.map(function(d) { return [ d3.min(d, dagrey), d3.max(d, dagrey) ]});
+	miny = [minmaxy[0][0]];
+	// Look the levels as pairs and ensure that the min of level i+1 is > min of level i
+	minmaxy.reduce(function(a,b) {
+		var bcopy = b.slice(0);
+		if (bcopy[0] < a[1] + RANK_SEPARATION) {
+			bcopy[0] = a[1] + RANK_SEPARATION;
+			if (bcopy[1] < bcopy[0]) bcopy[1] = bcopy[0] + RANK_SEPARATION;
+		}
+		miny.push(bcopy[0]);
+		return bcopy;
+	});
+	nodes.forEach(function(group, i) { group.forEach(function(node) {
+		// look at the nodes in this group. Leave the ones that have parents/children within the group alone.
+		// Change the y position for the other ones
+		if (node.dagre.y < miny[i]) node.dagre.y = miny[i];
+	})});
+}
+
 /**
  * Display the sample nodes.
  */
@@ -705,6 +730,11 @@ DagreGraphRenderer.prototype.draw = function()
 			.style("fill", "#333")
 			.append("svg:path").attr("d", "M 0 0 L 10 5 L 0 10 z");
 
+	// Edges -- this has to come before the nodes so that the edges are under the nodes
+	this.edges = this.viz.selectAll("g.edge").data([0]);
+	this.edges.enter().append("svg:g").attr("class", "edge");
+	this.edges.exit().remove();
+
 	// Columns
 	this.columns = this.viz.selectAll("g.column").data(function(d) { return d });
 	this.columns.enter().append("svg:g").attr("class", "column");
@@ -723,6 +753,7 @@ DagreGraphRenderer.prototype.draw = function()
 		.nodes(dagreNodes)
 		.edges(presenter.edges)
 	    .run();
+	this.normalizeNodeYPos();
 	this.redrawNodes();
 	this.drawHeaders();
 	this.drawEdges();
@@ -766,6 +797,7 @@ DagreGraphRenderer.prototype.drawHeaders = function()
 		.attr("x", "0")
 		.attr("text-anchor", "begin")
 		.style("font-weight", "bold");
+	header.exit().remove();
 	header
 		.attr("y", function(d, i) {
 			var nodesAtLevel = sampleNodeGroup[i];
@@ -852,7 +884,7 @@ DagreGraphRenderer.prototype.redrawNodes = function()
  */
 DagreGraphRenderer.prototype.drawEdges = function()
 {
-	var link = this.viz.selectAll("path.link").data(presenter.edges);
+	var link = this.edges.selectAll("path.link").data(presenter.edges);
 	link.enter().append("svg:path")
 		.attr("class", "link")
 		.attr("pointer-events", "none")
