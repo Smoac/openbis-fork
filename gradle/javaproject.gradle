@@ -43,12 +43,15 @@ repositories repositoryConfig
 
 // Gathering version and revision
 def gatheringTask = new ch.systemsx.cisd.ant.task.subversion.GatherRevisionAndVersionTask()
-includeFlat = { String[] projectNames ->
-    names = new ArrayList(Arrays.asList(projectNames))
-    names.add(project.name)
-    gatheringTask.setProjectNames(names) 
+List names = new ArrayList()
+names.add(project.name)
+includeFlat = { String[] projectNames -> names.addAll(Arrays.asList(projectNames)) }
+try {
+    apply from: project.file('settings.gradle')
+} catch (Exception e) {
+    println "Warning: Couldn't evaluate 'settings.gradle' in ${project.projectDir}. Possible reason: Other statements than 'includeFlat': ${e}"
 }
-apply from: project.file('settings.gradle')
+gatheringTask.setProjectNames(names) 
 println "PROJECT: ${project.name}, gather revision for following projects: ${gatheringTask.projectNames}"
 def antProject = new org.apache.tools.ant.Project()
 antProject.setBaseDir(new File("${project.projectDir}"))
