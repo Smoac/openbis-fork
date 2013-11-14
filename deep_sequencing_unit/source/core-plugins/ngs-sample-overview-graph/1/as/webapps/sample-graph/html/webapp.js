@@ -17,8 +17,8 @@ var FLOWLANE_SAMPLE_TYPE = "FLOWLANE";
 // The view is organized in columns that correspond to a sample type. The columns are defined here.
 // The order of the sample types here matches the bottom-up order of the sample types.
 var COLUMNS = [
-	{ type : FLOWLANE_SAMPLE_TYPE, label : "Flowlane", width : 200 },
 	{ type : FLOWCELL_SAMPLE_TYPE, label : "Flowcell", width : 200 },
+	{ type : FLOWLANE_SAMPLE_TYPE, label : "Flowlane", width : 200 },
 	{ type : "MULTIPLEX", label : "Multiplex", width : 300 },
 	{ type : "LIBRARY", label : "Library", width : 240 },
 	{ type : "ALIQUOT", label : "Aliquot", width : 400 },
@@ -49,6 +49,8 @@ openbisServer = new openbis('/openbis/openbis', '/datastore_server');
 openbisServer.useSession(webappContext.getSessionId());
 
 function parseJson(jsonString) { return eval('(' + jsonString + ')'); }
+
+function flowcellIdFromFlowlaneId(flowlaneId) { return flowlaneId.split(":")[0]; }
 
 /**
  * The node stores the information necessary for presenting the sample data in the graph.
@@ -158,7 +160,7 @@ SampleGraphModel.prototype.requestFlowcellData = function(callback) {
 	// Collect the Flowcell code and spaces
 	var flowlaneIds = [];
 	this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(flowlane) {
-		var flowcellId = flowlane.identifier.split(":")[0];
+		var flowcellId = flowcellIdFromFlowlaneId(flowlane.identifier);
 		var codeAndSpace = codeAndSpaceFromIdentifier(flowcellId);
 		flowlaneIds.push(codeAndSpace);
 	});
@@ -253,18 +255,11 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 	// flowcell should become the parent of the flowlanes.
 	var flowcellsByIdentifier = this.flowcellsByIdentifier;
 	this.samplesByType[FLOWLANE_SAMPLE_TYPE].forEach(function(flowlane) {
-		var flowcellId = flowlane.identifier.split(":")[0];
+		var flowcellId = flowcellIdFromFlowlaneId(flowlane.identifier);
 		var flowcell = flowcellsByIdentifier[flowcellId];
 		if (flowcell) {
-			var parents = flowcell.parents;
-			parents = parents.concat(flowlane.parents);
-			flowcell.parents = parents;
-			flowcell.children.push(flowlane);
-			flowlane.parents.forEach(function(parent) {
-				var children = parent.children;
-				children.splice(children.indexOf(flowlane), 1, flowcell);
-			})
-			flowlane.parents = [flowcell];
+			flowcell.parents.push(flowlane);
+			flowlane.children.push(flowcell);
 		}
 	});
 }
