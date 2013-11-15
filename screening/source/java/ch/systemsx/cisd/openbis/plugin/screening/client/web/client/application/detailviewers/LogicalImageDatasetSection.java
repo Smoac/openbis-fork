@@ -96,7 +96,7 @@ public class LogicalImageDatasetSection extends TabContent
                 new LogicalImageViewer(logicalImageReference,
                         LogicalImageDatasetSection.this.getViewContext(), identifier, experimentPermId,
                         true);
-        Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks());
+        Widget viewerWidget = viewer.getViewerWidget(imageInfo.getChannelStacks(), "LogicalImageDatasetSection");
         return viewerWidget;
     }
 }

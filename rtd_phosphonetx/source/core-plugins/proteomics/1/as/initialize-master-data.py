@@ -9,8 +9,19 @@ vocabulary_TREATMENT_TYPE.setManagedInternally(False)
 vocabulary_TREATMENT_TYPE.setInternalNamespace(False)
 vocabulary_TREATMENT_TYPE.setChosenFromList(True)
 
+prop_type_NOT_PROCESSED = tr.getOrCreateNewPropertyType('NOT_PROCESSED', DataType.VARCHAR)
+prop_type_NOT_PROCESSED.setLabel('Not Processed')
+prop_type_NOT_PROCESSED.setDescription('Reason why prot.xml file has not been processed.')
+prop_type_NOT_PROCESSED.setManagedInternally(False)
+prop_type_NOT_PROCESSED.setInternalNamespace(False)
+
 exp_type_MS_SEARCH = tr.getOrCreateNewExperimentType('MS_SEARCH')
 exp_type_MS_SEARCH.setDescription('MS_SEARCH experiment')
+
+assignment_MS_SEARCH_NOT_PROCESSED = tr.assignPropertyType(exp_type_MS_SEARCH, prop_type_NOT_PROCESSED)
+assignment_MS_SEARCH_NOT_PROCESSED.setMandatory(False)
+assignment_MS_SEARCH_NOT_PROCESSED.setSection(None)
+assignment_MS_SEARCH_NOT_PROCESSED.setPositionInForms(1)
 
 samp_type_MS_INJECTION = tr.getOrCreateNewSampleType('MS_INJECTION')
 samp_type_MS_INJECTION.setDescription('injection of a biological sample into a MS')

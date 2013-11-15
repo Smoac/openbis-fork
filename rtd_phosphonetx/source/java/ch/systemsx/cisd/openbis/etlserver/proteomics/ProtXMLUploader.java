@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.etlserver.proteomics;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -26,7 +27,6 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
@@ -35,6 +35,8 @@ import ch.systemsx.cisd.etlserver.IDataSetUploader;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummary;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 
 /**
  * @author Franz-Josef Elmer
@@ -103,8 +105,20 @@ public class ProtXMLUploader implements IDataSetUploader
     @Override
     public void upload(File dataSet, DataSetInformation dataSetInformation)
     {
+        Experiment experiment = dataSetInformation.tryToGetExperiment();
+        if (experiment != null)
+        {
+            List<IEntityProperty> properties = experiment.getProperties();
+            for (IEntityProperty property : properties)
+            {
+                if (property.getPropertyType().getCode().equals(DataSetInfoExtractorForProteinResults.NOT_PROCESSED_PROPERTY))
+                {
+                    return;
+                }
+            }
+        }
         long time = System.currentTimeMillis();
-        File protXMLFile = getProtXMLFile(dataSet);
+        File protXMLFile = Util.tryGetProtXMLFile(dataSet);
         ProteinSummary summary = loader.readProtXML(protXMLFile);
         if (operationLog.isInfoEnabled())
         {
@@ -132,7 +146,10 @@ public class ProtXMLUploader implements IDataSetUploader
     {
         try
         {
-            currentResultDataSetUploader.commit();
+            if (currentResultDataSetUploader != null)
+            {
+                currentResultDataSetUploader.commit();
+            }
         } finally
         {
             currentResultDataSetUploader = null;
@@ -169,20 +186,4 @@ public class ProtXMLUploader implements IDataSetUploader
                 msInjectionSampleDelimiter, restrictedSampleResolving);
     }
 
-    private File getProtXMLFile(File dataSet)
-    {
-        if (dataSet.isDirectory() == false)
-        {
-            return dataSet;
-        }
-        File[] files = dataSet.listFiles();
-        for (File file : files)
-        {
-            if (file.getName().endsWith("prot.xml"))
-            {
-                return file;
-            }
-        }
-        throw new UserFailureException("No *prot.xml file found in data set '" + dataSet + "'.");
-    }
 }

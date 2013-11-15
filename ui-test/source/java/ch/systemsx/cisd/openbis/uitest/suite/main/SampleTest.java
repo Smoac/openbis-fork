@@ -78,11 +78,4 @@ public class SampleTest extends MainSuite
         assertThat(browserEntryOf(sample), containsLink(vocabularyType.getLabel(),
                 "http://www.ask.com/web?q=MOUSE"));
     }
-
-    @Test(enabled = false)
-    public void visibilityOfPropertiesOfSampleTypeCanBeSetFromSampleBrowserSettings()
-            throws Exception
-    {
-
-    }
 }

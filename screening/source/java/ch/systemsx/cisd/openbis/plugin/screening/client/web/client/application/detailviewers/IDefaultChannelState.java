@@ -20,9 +20,9 @@ public interface IDefaultChannelState
 
     public String tryGetDefaultTransformation(String channel);
 
-    public ImageResolution tryGetDefaultResolution();
+    public ImageResolution tryGetDefaultResolution(String windowId);
 
-    public void setDefaultResolution(ImageResolution resolution);
+    public void setDefaultResolution(ImageResolution resolution, String windowId);
 
     public void setIntensityRange(String channel, IntensityRange intensityRange);
 

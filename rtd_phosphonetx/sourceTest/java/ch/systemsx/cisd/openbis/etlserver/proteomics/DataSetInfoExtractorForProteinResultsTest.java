@@ -25,6 +25,8 @@ import static ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractor
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.hamcrest.BaseMatcher;
@@ -39,15 +41,15 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.etlserver.IDataSetInfoExtractor;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.DataSetInfoExtractorForProteinResults;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentTypePropertyType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
@@ -71,6 +73,8 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
 
     private File dataSet;
 
+    private File protXmlFile;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -78,6 +82,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         service = context.mock(IEncapsulatedOpenBISService.class);
         dataSet = new File(workingDirectory, "space1&project1");
         dataSet.mkdirs();
+        protXmlFile = new File(dataSet, "prot.xml");
     }
 
     @AfterMethod
@@ -91,6 +96,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testWithNonDefaultExperimentTypeAndPropertiesFileName()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP_TO_BE_IGNORED\n"
@@ -123,6 +129,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testWithProvidedExperimentCode()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + DataSetInfoExtractorForProteinResults.EXPERIMENT_CODE_KEY + "= MY_EXP1\n");
@@ -132,11 +139,11 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
         prepare(experimentType, false);
         context.checking(new Expectations()
-        {
             {
-                one(service).registerExperiment(with(any(NewExperiment.class)));
-            }
-        });
+                {
+                    one(service).registerExperiment(with(any(NewExperiment.class)));
+                }
+            });
         
         IDataSetInfoExtractor extractor = createExtractor(properties);
         
@@ -149,6 +156,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testRegistrationWithOneMandatoryProperty()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         FileUtilities.writeToFile(new File(dataSet,
                 DataSetInfoExtractorForProteinResults.DEFAULT_EXPERIMENT_PROPERTIES_FILE_NAME),
                 "answer=42\nblabla=blub\n" + PARENT_DATA_SET_CODES + "=1 2  3   4\n");
@@ -198,7 +206,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     }
 
     @Test
-    public void testRegistrationWithMissingMandatoryProperty()
+    public void testRegistrationWithMissingProtXmlFile()
     {
         prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
 
@@ -209,15 +217,35 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
             fail("UserFailureException expected");
         } catch (UserFailureException ex)
         {
-            assertEquals("The following mandatory properties are missed: [answer]", ex.getMessage());
+            assertEquals("No *prot.xml file found in data set '" + dataSet + "'.", ex.getMessage());
         }
 
         context.assertIsSatisfied();
     }
-
+    
     @Test
-    public void testWithParentDataSetsDefinedByBaseExperiment()
+    public void testRegistrationWithMissingMandatoryProperty()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
+        prepare(DEFAULT_EXPERIMENT_TYPE_CODE);
+        
+        IDataSetInfoExtractor extractor = createExtractor(new Properties());
+        try
+        {
+            extractor.getDataSetInformation(dataSet, service);
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
+        {
+            assertEquals("The following mandatory properties are missed: [answer]", ex.getMessage());
+        }
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testWithParentDataSetsDefinedByBaseExperimentAndProtXmlFileTooLarge()
+    {
+        FileUtilities.writeToFile(protXmlFile, "abc");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n");
@@ -225,7 +253,9 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
         String experimentType = "MY_EXPERIMENT";
         properties.setProperty(EXPERIMENT_TYPE_CODE_KEY, experimentType);
         properties.setProperty(EXPERIMENT_PROPERTIES_FILE_NAME_KEY, propertiesFile);
+        properties.setProperty(DataSetInfoExtractorForProteinResults.PROT_XML_SIZE_THRESHOLD, "0");
         prepare(experimentType);
+        final RecordingMatcher<NewExperiment> experimentMatcher = new RecordingMatcher<NewExperiment>();
         context.checking(new Expectations()
             {
                 {
@@ -240,7 +270,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                     AbstractExternalData ds2 = new DataSetBuilder().code("ds2").getDataSet();
                     will(returnValue(Arrays.asList(ds1, ds2)));
 
-                    one(service).registerExperiment(with(any(NewExperiment.class)));
+                    one(service).registerExperiment(with(experimentMatcher));
                 }
             });
 
@@ -250,12 +280,16 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
 
         assertEquals("/SPACE1/PROJECT1/E4711", info.getExperimentIdentifier().toString());
         assertEquals("[ds1, ds2]", info.getParentDataSetCodes().toString());
+        IEntityProperty[] expProps = experimentMatcher.recordedObject().getProperties();
+        assertEquals("Size of prot.xml file prot.xml is with 3 bytes too large. Maximum size is 0 bytes",
+                asMap(expProps).get(DataSetInfoExtractorForProteinResults.NOT_PROCESSED_PROPERTY).getValue());
         context.assertIsSatisfied();
     }
 
     @Test
     public void testWithUnkownBaseExperiment()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n");
@@ -291,6 +325,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testWithUnkownParentDataSets()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n" + PARENT_DATA_SET_CODES_KEY
@@ -320,6 +355,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testWithParentDataSetsSeparatedBySpaces()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + EXPERIMENT_IDENTIFIER_KEY + "= /TEST/PROJECT/EXP1\n" + PARENT_DATA_SET_CODES_KEY
@@ -350,6 +386,7 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
     @Test
     public void testWithParentDataSetsSeparatedByComma()
     {
+        FileUtilities.writeToFile(protXmlFile, "");
         String propertiesFile = "my.properties";
         FileUtilities.writeToFile(new File(dataSet, propertiesFile), "answer=42\nblabla=blub\n"
                 + PARENT_DATA_SET_CODES_KEY + " = ds1,ds2");
@@ -394,12 +431,16 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
 
                     one(service).getExperimentType(experimentType);
                     ExperimentType type = new ExperimentType();
-                    ExperimentTypePropertyType etpt = new ExperimentTypePropertyType();
-                    PropertyType propertyType = new PropertyType();
-                    propertyType.setCode("answer");
-                    etpt.setPropertyType(propertyType);
-                    etpt.setMandatory(true);
-                    type.setExperimentTypePropertyTypes(Arrays.asList(etpt));
+                    ExperimentTypePropertyType etpt1 = new ExperimentTypePropertyType();
+                    PropertyType propertyType1 = new PropertyType();
+                    propertyType1.setCode("answer");
+                    etpt1.setPropertyType(propertyType1);
+                    etpt1.setMandatory(true);
+                    ExperimentTypePropertyType etpt2 = new ExperimentTypePropertyType();
+                    PropertyType propertyType2 = new PropertyType();
+                    propertyType2.setCode(DataSetInfoExtractorForProteinResults.NOT_PROCESSED_PROPERTY);
+                    etpt2.setPropertyType(propertyType2);
+                    type.setExperimentTypePropertyTypes(Arrays.asList(etpt1, etpt2));
                     will(returnValue(type));
                 }
             });
@@ -419,6 +460,16 @@ public class DataSetInfoExtractorForProteinResultsTest extends AbstractFileSyste
                     will(returnValue(data));
                 }
             });
+    }
+    
+    private Map<String, IEntityProperty> asMap(IEntityProperty[] properties)
+    {
+        Map<String, IEntityProperty> result = new HashMap<String, IEntityProperty>();
+        for (IEntityProperty property : properties)
+        {
+            result.put(property.getPropertyType().getCode(), property);
+        }
+        return result;
     }
 
     private IDataSetInfoExtractor createExtractor(Properties properties)

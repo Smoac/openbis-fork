@@ -24,14 +24,12 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.ProtXMLUploader;
-import ch.systemsx.cisd.openbis.etlserver.proteomics.ResultDataSetUploader;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummary;
 import ch.systemsx.cisd.openbis.etlserver.proteomics.dto.ProteinSummaryHeader;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 
 /**
  * 
@@ -137,25 +135,18 @@ public class ProtXMLUploaderTest extends ProtXMLTestCase
     }
     
     @Test
-    public void testDataSetIsFolderWithoutProtXMLFile()
+    public void testDataSetIsFolderWithProtXMLFileToBeTooLarge()
     {
         File dataSet = new File(workingDirectory, "data-set");
         dataSet.mkdir();
-        FileUtilities.writeToFile(new File(dataSet, "pep.xml"), "peptides");
+        FileUtilities.writeToFile(new File(dataSet, "test-prot.xml"), EXAMPLE);
         DataSetInformation dataSetInformation = new DataSetInformation();
+        dataSetInformation.setExperiment(new ExperimentBuilder().property(
+                DataSetInfoExtractorForProteinResults.NOT_PROCESSED_PROPERTY, "too large").getExperiment());
         
-        try
-        {
-            uploader.upload(dataSet, dataSetInformation);
-            fail("UserFailureException expected");
-        } catch (UserFailureException ex)
-        {
-            assertEquals(
-                    "No *prot.xml file found in data set "
-                            + "'targets/unit-test-wd/ch.systemsx.cisd.openbis.etlserver.proteomics.ProtXMLUploaderTest/data-set'.",
-                    ex.getMessage());
-        }
+        uploader.upload(dataSet, dataSetInformation);
         
+        assertEquals(null, uploader.getDataSetInformation());
         context.assertIsSatisfied();
     }
 }

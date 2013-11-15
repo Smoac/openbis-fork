@@ -190,6 +190,12 @@ public class Application
 
         }
 
-        return command.execute();
+        try
+        {
+            return command.execute();
+        } finally
+        {
+            console.reset();
+        }
     }
 }

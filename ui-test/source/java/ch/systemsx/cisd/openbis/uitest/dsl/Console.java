@@ -29,9 +29,9 @@ public class Console extends Writer
 {
     private static long DEFAULT_TIMEOUT = 60000;
 
-    private LinkedBlockingQueue<String> queue;
+    private volatile LinkedBlockingQueue<String> queue;
 
-    private boolean buffering;
+    private volatile boolean buffering;
 
     private long startTime;
 
@@ -74,8 +74,11 @@ public class Console extends Writer
 
     public void startBuffering()
     {
-        this.queue = new LinkedBlockingQueue<String>();
-        this.buffering = true;
+        if (buffering == false)
+        {
+            this.queue = new LinkedBlockingQueue<String>();
+            this.buffering = true;
+        }
         this.startTime = System.currentTimeMillis();
     }
 
@@ -88,6 +91,7 @@ public class Console extends Writer
     {
         this.timeout = DEFAULT_TIMEOUT;
         this.error = null;
+        this.buffering = false;
     }
 
     public void waitFor(String... text)
@@ -104,13 +108,13 @@ public class Console extends Writer
             }
             if (line != null && containsAll(line, text))
             {
-                this.buffering = false;
                 break;
             }
 
             if (line != null && error != null && containsAll(line, new String[]
-                { error }))
+            { error }))
             {
+
                 throw new CommandNotSuccessful("Failed: " + line);
             }
 
