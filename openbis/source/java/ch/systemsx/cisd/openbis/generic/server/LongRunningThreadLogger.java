@@ -17,14 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
+import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerFactory;
 import ch.systemsx.cisd.openbis.generic.server.LongRunningThreadInterceptor.InvocationStart;
 
 public class LongRunningThreadLogger implements Runnable
@@ -66,43 +66,60 @@ public class LongRunningThreadLogger implements Runnable
     {
         if (invocations.size() != 0)
         {
-            logger.warn("Long running invocation report at " + format(System.currentTimeMillis()));
-            for (InvocationStart invocation : invocations)
+            logger.warn("Long running invocation report");
+            logger.warn("------------------------------");
+            for (final InvocationStart invocation : invocations)
             {
-                Method method = invocation.invocation.getMethod();
+
+                final Object wrappedObject = invocation.invocation.getThis();
+                if (wrappedObject instanceof IInvocationLoggerFactory<?> == false)
+                {
+                    continue;
+                }
+
+                final IInvocationLoggerFactory<?> loggerFactory =
+                        (IInvocationLoggerFactory<?>) wrappedObject;
+                final Object serviceLogger = loggerFactory.createLogger(new IInvocationLoggerContext()
+                    {
+
+                        @Override
+                        public String tryToGetSessionToken()
+                        {
+                            return null;
+                        }
+
+                        @Override
+                        public boolean invocationFinished()
+                        {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean invocationWasSuccessful()
+                        {
+                            return false;
+                        }
+
+                        @Override
+                        public long getElapsedTime()
+                        {
+                            return System.currentTimeMillis() - invocation.startTime;
+                        }
+                    });
+                final Method method = invocation.invocation.getMethod();
+
                 long duration = (System.currentTimeMillis() - invocation.startTime) / 1000;
                 logger.warn("Thread " + invocation.threadName + " has been executing " + method.getDeclaringClass().getCanonicalName() + "."
-                        + method.getName() + "(" + argumentsToString(invocation.invocation.getArguments()) + ") for "
-                        + String.format("%d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60)));
-
+                        + method.getName() + " for " + String.format("%d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60)));
+                try
+                {
+                    method.invoke(serviceLogger, invocation.invocation.getArguments());
+                } catch (Exception e)
+                {
+                    logger.error(e);
+                }
             }
             logger.info("-----------");
         }
-    }
-
-    private String argumentsToString(Object[] arguments)
-    {
-        if (arguments.length == 0)
-        {
-            return "";
-        }
-        String args = "";
-        for (Object argument : arguments)
-        {
-            if (argument != null)
-            {
-                args += ", " + argument.toString();
-            } else
-            {
-                args += ", null";
-            }
-        }
-        return args.substring(2);
-    }
-
-    private String format(long time)
-    {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return format.format(new Date(time));
     }
 }
