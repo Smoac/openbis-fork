@@ -1,6 +1,38 @@
-body,div,td,.default-text {
-	font-family: verdana, tahoma, helvetica;
-	font-size: 12px;
+/*
+ * Font change
+ */
+
+body,
+div,
+td,
+.default-text,
+.x-small-editor .x-form-field,
+.x-tree3-node-text,
+.x-btn button,
+.x-progress,
+.x-date-days td,
+.x-date-left,
+.my-tree-item-text span,
+.x-date-days td,
+.x-info-tl .x-info-header,
+.x-info-body,
+.my-list,
+.x-view-item,
+.x-view-item-check td,
+.my-tbl,
+.my-tbl-col-text,
+.my-tbl-data .my-tbl-item-cell-text,
+.my-treetbl-item-text span,
+.my-treetbl-col-text,
+.my-treetbl-data .my-treetbl-cell-text,
+.x-grid3-td-numberer div,
+.x-box-mc,
+.x-panel-header,
+.x-panel-tl .x-panel-header,
+.x-menu-list-item,
+.x-tab-strip span.x-tab-strip-text {
+	font-family: "Telex-Regular" !important;
+	font-size: 13px !important;
 }
 
 .default-text {
@@ -8,12 +40,30 @@ body,div,td,.default-text {
 	color: black;
 }
 
+/*
+ * Links
+ */
 .link-style {
-	color: blue;
-	text-decoration: underline;
-	cursor: pointer;
+    color: #0c73b6 !important;
+    cursor: pointer;
+    text-decoration: none;
 }
 
+.gwt-InlineHTML > a {
+	color: #0c73b6 !important;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.x-grid3-cell-inner > a {
+	color: #0c73b6 !important;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/*
+ * Others
+ */
 .inline {
 	display: inline;
 }

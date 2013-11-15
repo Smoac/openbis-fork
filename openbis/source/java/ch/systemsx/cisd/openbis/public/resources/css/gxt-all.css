@@ -7454,3 +7454,11 @@ body.x-body-masked .x-window-plain .x-window-mc {
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) { .x-grid3-row td.x-grid3-cell { padding-left: 0; padding-right: 0; }}
+
+/*
+ * New Font
+ */
+@font-face {  
+	font-family: 'Telex-Regular';  
+	src: url('../fonts/telex/Telex-Regular.ttf');
+}
