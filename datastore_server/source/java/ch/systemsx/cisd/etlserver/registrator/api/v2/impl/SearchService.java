@@ -363,6 +363,20 @@ public class SearchService implements ISearchService
     }
 
     @Override
+    public IDataSetImmutable getThinDataSet(String dataSetCode)
+    {
+
+        AbstractExternalData dataSet = openBisService.tryGetThinDataSet(dataSetCode);
+        if (dataSet == null)
+        {
+            return null;
+        } else
+        {
+            return new DataSetImmutable(dataSet, openBisService);
+        }
+    }
+
+    @Override
     public IExperimentImmutable getExperiment(String experimentIdentifierString)
     {
         ExperimentIdentifier experimentIdentifier =

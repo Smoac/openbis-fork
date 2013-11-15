@@ -243,6 +243,14 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
+    public AbstractExternalData tryGetThinDataSet(String dataSetCode) throws UserFailureException
+    {
+        AbstractExternalData data = encapsulatedService.tryGetThinDataSet(dataSetCode);
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, data,
+                externalDataCodeMapper, AuthorizationHelper.EntityKind.DATA_SET);
+    }
+
+    @Override
     public AbstractExternalData tryGetLocalDataSet(String dataSetCode) throws UserFailureException
     {
         AbstractExternalData data = encapsulatedService.tryGetLocalDataSet(dataSetCode);

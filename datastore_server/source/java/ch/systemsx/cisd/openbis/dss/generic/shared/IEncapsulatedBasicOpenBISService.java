@@ -77,8 +77,14 @@ public interface IEncapsulatedBasicOpenBISService
     public AbstractExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
 
     /**
-     * Tries to get the data set for the specified data set code, using the ETL server's session
-     * token.
+     * Tries to get the data set for the specified data set code, using the ETL server's session token. The returned data set contains only basic
+     * attributes, and no related entities.
+     */
+    @ManagedAuthentication
+    public AbstractExternalData tryGetThinDataSet(final String dataSetCode) throws UserFailureException;
+
+    /**
+     * Tries to get the data set for the specified data set code, using the ETL server's session token.
      * 
      * @return null if the data set is not local to the caller data store.
      */

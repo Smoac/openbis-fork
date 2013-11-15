@@ -165,6 +165,14 @@ public interface ISearchService
     IDataSetImmutable getDataSet(String dataSetCode);
 
     /**
+     * Get a data set from the openBIS AS. Returns null if the data set does not exist. The returned data set will contain only basic information, and
+     * no related entities.
+     * 
+     * @return A data set or null
+     */
+    IDataSetImmutable getThinDataSet(String dataSetCode);
+
+    /**
      * Get a sample from the openBIS AS. Returns null if the sample does not exist.
      * 
      * @return A sample or null
