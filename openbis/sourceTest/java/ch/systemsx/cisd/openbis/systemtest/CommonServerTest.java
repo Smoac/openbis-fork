@@ -166,7 +166,9 @@ public class CommonServerTest extends SystemTestCase
         AbstractExternalData dataSet = commonServer.getDataSetInfo(systemSessionToken, new TechId(10));
 
         assertEquals("20081105092259900-0", dataSet.getCode());
-        assertEntities("[20081105092359990-2]", dataSet.getChildren());
+
+        // assertEntities("[20081105092359990-2]", dataSet.getChildren()); //removed as children are no more fetched with this call
+        assertEntities("[]", dataSet.getChildren());
         assertEntities("[20081105092259000-9]", new ArrayList<AbstractExternalData>(dataSet.getParents()));
     }
 
