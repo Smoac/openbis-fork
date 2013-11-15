@@ -1145,6 +1145,27 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
+    @RolesAllowed(value =
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public AbstractExternalData tryGetThinDataSet(String sessionToken, String dataSetCode) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert dataSetCode != null : "Unspecified data set code.";
+
+        Session session = getSession(sessionToken); // assert authenticated
+
+        IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(dataSetCode);
+        DataPE dataPE = dataBO.tryGetData();
+        if (null == dataPE)
+        {
+            return null;
+        }
+        return DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
+                Collections.<Metaproject> emptyList(), managedPropertyEvaluatorFactory);
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException
     {

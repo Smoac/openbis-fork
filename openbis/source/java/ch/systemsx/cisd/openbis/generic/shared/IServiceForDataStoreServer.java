@@ -363,6 +363,13 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             throws UserFailureException;
 
     /**
+     * Tries to return the data set specified by its code, but without any fetch options.
+     */
+    @Transactional(readOnly = true)
+    public AbstractExternalData tryGetThinDataSet(String sessionToken, String dataSetCode)
+            throws UserFailureException;
+
+    /**
      * Tries to return the data set specified by its code, but only if it belongs to the data store of the caller.
      */
     @Transactional(readOnly = true)
