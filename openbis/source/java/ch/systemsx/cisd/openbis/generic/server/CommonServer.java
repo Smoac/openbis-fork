@@ -1754,7 +1754,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IDataBO datasetBO = businessObjectFactory.createDataBO(session);
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
-        datasetBO.enrichWithChildren();
+        // not fetching children, as no caller is using them and it's causing potential performance problem with many children
+        // datasetBO.enrichWithChildren();
         datasetBO.enrichWithContainedDataSets();
         datasetBO.enrichWithProperties();
         final DataPE dataset = datasetBO.getData();
