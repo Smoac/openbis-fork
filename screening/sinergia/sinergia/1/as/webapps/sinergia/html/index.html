@@ -376,16 +376,19 @@
                var idForFunc = id;
                var urlForFun = videoListURL[i];
               
-               $videoLink = $("<a>").click(function() {
-                  $("#" + idForFunc).empty();
-                  $("#"+idForFunc).flowplayer({
-									playlist: [
-										[
-											{ mp4:   urlForFun }
-										]
-									]
-								});
-
+               var $videoLink = $("<a>").click(function() {
+				  if($("#" + idForFunc).html().length > 0) {
+					  var api = $("#"+idForFunc).data("flowplayer");
+					  api.load(urlForFun);
+				  } else {
+	                  $("#"+idForFunc).flowplayer({
+	  									playlist: [
+	  										[
+	  											{ mp4:   urlForFun }
+	  										]
+	  									]
+	  								});
+				  }
                }).html("Video " + (i+1));
 
                $videoList.append($videoLink);
