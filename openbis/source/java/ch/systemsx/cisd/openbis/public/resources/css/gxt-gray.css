@@ -580,8 +580,11 @@ td.x-grid3-hd-over .x-grid3-hd-inner,td.sort-desc .x-grid3-hd-inner,td.sort-asc 
 }
 /* Background / Borders */
 
+/* Toolbar */
 .x-toolbar {
-	border: none;
+	border-top-width: 1px;
+	border-bottom-width: 1px;
+	border-color: d0d0d0;
 	background-image: none !important;
 	background-color: #f1f1f1;
 }
@@ -650,4 +653,15 @@ td.x-grid3-hd-over .x-grid3-hd-inner,td.sort-desc .x-grid3-hd-inner,td.sort-asc 
 .x-toolbar .x-btn-pressed .x-btn-mc em.x-btn-split
 {
   background-image: url(../images/gray/button/s-arrow-o.gif);
+}
+
+/* Managed Properties Loading Bar */
+.x-progress-wrap {
+    border: none;
+}
+
+.x-progress-bar {
+    background-color: #f1f1f1;
+    background-image: url("../images/gray/progress/progress-bg.gif");
+    border: none;
 }
