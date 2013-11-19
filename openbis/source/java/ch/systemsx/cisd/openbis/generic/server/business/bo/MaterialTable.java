@@ -98,6 +98,7 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         dataChanged = true;
     }
 
+    @Override
     public void add(List<NewMaterialWithType> newMaterials, Map<String, MaterialTypePE> materialTypePE)
     {
         assert newMaterials != null : "New materials undefined.";

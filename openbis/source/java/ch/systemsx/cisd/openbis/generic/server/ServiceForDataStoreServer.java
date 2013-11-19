@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -1836,15 +1835,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             checkMaterialCreationAllowed(session, materialRegs);
         }
 
-        List<NewMaterialWithType> materials = new LinkedList<NewMaterialWithType>();
-        for (Entry<String, List<NewMaterial>> materialReg : materialRegs.entrySet())
-        {
-            String materialType = materialReg.getKey();
-            for (NewMaterial newMaterial : materialReg.getValue())
-            {
-                materials.add(new NewMaterialWithType(materialType, newMaterial));
-            }
-        }
+        List<NewMaterialWithType> materials = materialHelper.convertMaterialRegistrationIntoMaterialsWithType(materialRegs);
 
         Map<String, Set<String>> materialTypesWithMateiralProperties = materialHelper.getPropertyTypesOfMaterialType(materialRegs.keySet());
 

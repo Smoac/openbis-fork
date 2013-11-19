@@ -22,8 +22,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -101,6 +103,20 @@ public class MaterialHelper
         this.propertiesBatchManager = propertiesBatchManager;
         this.materialConfig = materialConfig;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
+
+    public List<NewMaterialWithType> convertMaterialRegistrationIntoMaterialsWithType(Map<String, List<NewMaterial>> materialRegs)
+    {
+        List<NewMaterialWithType> materials = new LinkedList<NewMaterialWithType>();
+        for (Entry<String, List<NewMaterial>> materialReg : materialRegs.entrySet())
+        {
+            String materialType = materialReg.getKey();
+            for (NewMaterial newMaterial : materialReg.getValue())
+            {
+                materials.add(new NewMaterialWithType(materialType, newMaterial));
+            }
+        }
+        return materials;
     }
 
     public Map<String, Set<String>> getPropertyTypesOfMaterialType(Collection<String> materialTypeCodes)

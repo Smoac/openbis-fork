@@ -72,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCrite
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -1192,13 +1193,15 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(entityOperationChecker).assertMaterialCreationAllowed(userSession,
                             newMaterials);
                     List<NewMaterial> newMaterialsList = newMaterials.values().iterator().next();
-                    one(propertiesBatchManager).manageProperties(materialType, newMaterialsList,
-                            user);
 
                     one(boFactory).createMaterialTable(userSession);
                     will(returnValue(materialTable));
 
-                    one(materialTable).add(newMaterialsList, materialType);
+                    NewMaterialWithType mats = new NewMaterialWithType(materialType.getCode(), newMaterialsList.get(0));
+                    HashMap<String, MaterialTypePE> map = new HashMap<String, MaterialTypePE>();
+                    map.put(materialType.getCode(), materialType);
+
+                    one(materialTable).add(Collections.singletonList(mats), map);
                     one(materialTable).save();
                     one(materialTable).getMaterials();
                     will(returnValue(Arrays.asList(material)));

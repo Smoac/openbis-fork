@@ -19,7 +19,7 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 /**
  * A material to register.
  * 
- * @author Izabela Adamczyk
+ * @author Jakub Straszewski
  */
 public final class NewMaterialWithType implements IPropertiesBean
 {
