@@ -5,6 +5,7 @@ body, h1, h2 {
   font-family: "Helvetica Neue",sans-serif;
   color: #333333;
   font-weight: 200;
+  /*background-color: #D6EAFF;*/
 }
 
 /*
@@ -104,9 +105,9 @@ body, h1, h2 {
     right: 10px;
     top: 10px;
 
-    -webkit-box-shadow: 0px 0px 10px rgba(50, 50, 50, 0.8);
-    -moz-box-shadow:    0px 0px 10px rgba(50, 50, 50, 0.8);
-    box-shadow:         0px 0px 10px rgba(50, 50, 50, 0.8); 
+    -webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.8);
+    -moz-box-shadow:    0px 0px 5px rgba(50, 50, 50, 0.8);
+    box-shadow:         0px 0px 5px rgba(50, 50, 50, 0.8); 
 
     border-radius: 10px;
     padding: 3px 5px 3px 5px;
@@ -145,10 +146,10 @@ body, h1, h2 {
     margin: 10px !important;
 }
 
-.flowplayer {
-    height: 100%;
-    min-height: 300px !important;
-    margin: 10px auto !important;
+video {
+    width: 97% !important;
+    height: auto !important;
+    margin: 10px !important;
 }
 
 /*
@@ -158,6 +159,13 @@ body, h1, h2 {
     background-color: none !important;
     border: none !important;
 }
+
+.half {
+    -moz-transform:scale(0.5);
+    -webkit-transform:scale(0.5);
+    transform:scale(0.5);
+}
+
 
 /*
  * General Layout

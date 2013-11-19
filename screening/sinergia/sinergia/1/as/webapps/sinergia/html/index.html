@@ -13,15 +13,11 @@
 	<!-- Third party libraries -->
 	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css" />
 	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css" />
-	<link type="text/css" rel="stylesheet" href="./flowplayer/skin/minimalist.css" />
 	<link type="text/css" rel="stylesheet" href="./dynatree/src/skin-vista/ui.dynatree.css" id="skinSheet">
 	<script type="text/javascript" src="./js/jquery.blockUI.js"></script>
-	<script type="text/javascript" src="./flowplayer/flowplayer.min.js"></script>
  	<script type="text/javascript" src="./dynatree/jquery/jquery-ui.custom.js"></script>
  	<script type="text/javascript" src="./dynatree/jquery/jquery.cookie.js"></script>
  	<script type="text/javascript" src="./dynatree/src/jquery.dynatree.js"></script>
-
-
 
 	
 	<!-- App files -->
@@ -163,7 +159,7 @@
 		function buildMenu() {
 			var $menu = $("<ul>");
 			//$("#menu").append("<ul></ul>"); // this is equivalent to the above. It's only good for static things. The above is better for dynamic things, as in this case.
-			var $experimentLevel = $("<li>", {'class' : 'folder expanded'})
+			var $experimentLevel = $("<li>", {'class' : 'folder'})
 										.append("<a href='javascript:showExperiment()'>" + experimentCode + "</a>");
 			$menu
 				.append($experimentLevel);
@@ -216,8 +212,8 @@
 			getDataSetFilesFor(null, "PDF", allDataStores[0].downloadUrl,
 				function(files) {
 					var pdfFileUrl = files[0];
-					$("#main").append("<h1>Gene Clusters</h1>");
-					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; height:" + $(window).height() + "px; ' frameborder='0'></iframe>");
+					$("#main").append("<h1 center>Gene Clusters</h1>");
+					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height() + "px; ' frameborder='0'></iframe>");
 					$.unblockUI();
 				}
 			);
@@ -233,15 +229,15 @@
 				function(pdfFiles) {
 					var pdfFileUrl = pdfFiles[0];
 					$("#main").append("<h1>" + displayName + "</h1>");
-					$("#main").append("<h2>Genes: </h2>");
-					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; height:" + $(window).height()/2 + "px; ' frameborder='0'></iframe>");
-					$("#main").append("<h2>Representative Images: </h2>");
+					$("#main").append("<h2 style='margin-top:40px;'>Genes: </h2>");
+					$("#main").append("<iframe src='" + pdfFileUrl + "' style='width:100%; margin-top:20px; height:" + $(window).height()/2 + "px; ' frameborder='0'></iframe>");
+					$("#main").append("<h2 style='margin-top:40px;'>Representative Images: </h2>");
 
 					//Obtain Image URL
 					getDataSetFilesFor(sampleIdentifier, "PNG_IMAGES", allDataStores[0].downloadUrl,
 						function(pngFiles) {
 							for(var i = 0; i < pngFiles.length; i++) {
-								$("#main").append("<a target='_blank' href='" + pngFiles[i] + "'><img src='" + pngFiles[i] + "' style='width: 20%; min-width:220px;' /></a>");
+								$("#main").append("<a target='_blank' href='" + pngFiles[i] + "'><img src='" + pngFiles[i] + "' style='width: 20%; margin-top:20px;  min-width:220px;' /></a>");
 							}
 							$.unblockUI();
 						}
@@ -264,7 +260,7 @@
 					for(var i = 0; i < pdfFiles.length; i++) {
 						var pdfFileUrl = pdfFiles[i];
 						
-						component += "<div style='margin-right:20px;'>";
+						component += "<div style='margin-top:40px; margin-right:20px;'>";
 						if(pdfFileUrl.indexOf("rnaProfile.pdf") !== -1) {
 							component += "<h2>RNA Profile:</h2>";
 						} else if(pdfFileUrl.indexOf("geneProfile.pdf") !== -1) {
@@ -276,8 +272,8 @@
 					$("#main").append(component + "</div>");
 
 					//Movies Containers
-					$("#main").append("<div id='controlVideosContainer'><h2>Control Videos:</h2></div>");
-					$("#main").append("<div id='geneVideosContainer'><h2>Gene Videos:</h2></div>");
+					$("#main").append("<div id='controlVideosContainer' style='margin-top:40px;'><h2>Control Videos:</h2></div>");
+					$("#main").append("<div id='geneVideosContainer' style='margin-top:40px;'><h2>Gene Videos:</h2></div>");
 
 					//Load Movies URL
 					getDataSetFilesFor(sampleIdentifier, "VIDEOS", allDataStores[0].downloadUrl,
@@ -301,9 +297,6 @@
 							$.unblockUI();
 						}
 					);
-
-					
-
 
 				}
 			);
@@ -366,16 +359,29 @@
          var $paddingRight = $("<div>", { 'class' : 'span2'});
 
          var $videoList = $("<div>", { 'class' : 'span2 videoList'});
-         var $player = $("<div>", { 'id': id, 'class' : 'span6 flowplayer', 'data-swf' : './flowplayer/flowplayer.swf' });
+         var $player = $("<div>", { 'id': id, 'class' : 'span6', 'style' : "width: 80%"});
          
          $playerWidget.append($videoList);
          $playerWidget.append($player);
 
+ 
          for(var i = 0; i < videoListURL.length; i++) {
             var greatJSObjectOrientation = function() {
                var idForFunc = id;
                var urlForFun = videoListURL[i];
               
+<<<<<<< .mine
+               var $videoLink = $("<a>").click(function() {
+               		$("#" + idForFunc).empty();
+				  	var component = "";
+				  		component += "<video controls>";
+				  		component += "<source src='" + urlForFun + "' type='video/mp4'>";
+				  		component += "Your browser does not support the video tag";
+				  		component += "</video>";
+				  	$("#" + idForFunc).append(component);
+               }).html("Video " + (i+1));            
+
+=======
                var $videoLink = $("<a>").click(function() {
 				  if($("#" + idForFunc).html().length > 0) {
 					  var api = $("#"+idForFunc).data("flowplayer");
@@ -389,8 +395,7 @@
 	  									]
 	  								});
 				  }
-               }).html("Video " + (i+1));
-
+>>>>>>> .r30171
                $videoList.append($videoLink);
                $videoList.append($("<br>"));
             }
@@ -412,7 +417,7 @@
 
         var css = { 
                     'border': 'none', 
-                    'padding': '10px',
+                    'padding': '2px',
                     '-webkit-border-radius': '10px', 
                     '-moz-border-radius': '10px', 
                     'border-radius' : '10px',
@@ -422,7 +427,8 @@
                     'cursor' : 'default'
         };
         
-        $.blockUI({ message: '<h1><img src="./css/busy.gif" /> Please wait...</h1>' , css: css });
+        $.blockUI({ message: '<h1><img class="half" src="./css/busy.gif" /> Please wait...</h1>' , css: css });
+        //$.blockUI({ message: '<h1><img src="./images/ajax-loader.gif" /> Please wait...</h1>' , css: css });
     }
 
 
@@ -469,7 +475,7 @@
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<div id ="menu" class="span2"></div>
-			<div id ="main" class="span10"></div>
+			<div id ="main" class="span10" style="background-color:white'"></div>
 		</div>
 	</div>
 </body>
