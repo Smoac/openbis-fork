@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -96,6 +97,66 @@ public class MaterialHelper
         this.propertiesBatchManager = propertiesBatchManager;
         this.materialConfig = materialConfig;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
+
+    public List<Material> registerMaterials(final List<NewMaterialWithType> newMaterials)
+    {
+        assert newMaterials != null : "Unspecified new materials.";
+
+        // Does nothing if material list is empty.
+        if (newMaterials.size() == 0)
+        {
+            return Collections.emptyList();
+        }
+        ServerUtils.prevalidate(newMaterials, "material");
+        final HashMap<String, MaterialTypePE> materialTypePEs = new HashMap<String, MaterialTypePE>();
+
+        for (NewMaterialWithType newMaterialWithType : newMaterials)
+        {
+            String typeCode = newMaterialWithType.getType();
+            if (false == materialTypePEs.containsKey(typeCode))
+            {
+                MaterialTypePE materialType = findMaterialType(typeCode);
+                materialTypePEs.put(typeCode, materialType);
+            }
+        }
+
+        final List<MaterialPE> registeredMaterials = new ArrayList<MaterialPE>();
+        IBatchOperation<NewMaterialWithType> strategy = new IBatchOperation<NewMaterialWithType>()
+            {
+
+                @Override
+                public void execute(List<NewMaterialWithType> entities)
+                {
+                    final IMaterialTable materialTable =
+                            businessObjectFactory.createMaterialTable(session);
+                    materialTable.add(entities, materialTypePEs);
+                    materialTable.save();
+                    registeredMaterials.addAll(materialTable.getMaterials());
+                }
+
+                @Override
+                public List<NewMaterialWithType> getAllEntities()
+                {
+                    return newMaterials;
+                }
+
+                @Override
+                public String getEntityName()
+                {
+                    return "material";
+                }
+
+                @Override
+                public String getOperationName()
+                {
+                    return "register";
+                }
+            };
+        BatchOperationExecutor.executeInBatches(strategy);
+
+        return MaterialTranslator.translate(registeredMaterials,
+                new HashMap<Long, Set<Metaproject>>(), managedPropertyEvaluatorFactory);
     }
 
     public List<Material> registerMaterials(String materialTypeCode,

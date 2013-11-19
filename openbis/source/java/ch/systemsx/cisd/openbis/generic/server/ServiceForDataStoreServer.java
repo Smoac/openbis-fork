@@ -155,6 +155,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -1834,12 +1835,23 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             checkMaterialCreationAllowed(session, materialRegs);
         }
-        int index = 0;
-        for (Entry<String, List<NewMaterial>> newMaterialsEntry : materialRegs.entrySet())
+
+        List<NewMaterialWithType> materials = new LinkedList<NewMaterialWithType>();
+        for (Entry<String, List<NewMaterial>> materialReg : materialRegs.entrySet())
         {
-            String materialType = newMaterialsEntry.getKey();
-            List<NewMaterial> newMaterials = newMaterialsEntry.getValue();
-            materialHelper.registerMaterials(materialType, newMaterials);
+            String materialType = materialReg.getKey();
+            for (NewMaterial newMaterial : materialReg.getValue())
+            {
+                materials.add(new NewMaterialWithType(materialType, newMaterial));
+            }
+        }
+
+        List<List<NewMaterialWithType>> materialGroups = MaterialGroupingDAG.groupByDepencies(materials);
+        int index = 0;
+
+        for (List<NewMaterialWithType> materialsGroup : materialGroups)
+        {
+            materialHelper.registerMaterials(materialsGroup);
             progress.update("createMaterials", materialRegs.size(), ++index);
         }
         return index;
