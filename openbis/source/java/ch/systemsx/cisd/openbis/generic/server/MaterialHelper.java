@@ -18,8 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.MaterialCodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -48,6 +51,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -97,6 +101,29 @@ public class MaterialHelper
         this.propertiesBatchManager = propertiesBatchManager;
         this.materialConfig = materialConfig;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
+
+    public Map<String, Set<String>> getPropertyTypesOfMaterialType(Collection<String> materialTypeCodes)
+    {
+        final HashMap<String, Set<String>> result = new HashMap<String, Set<String>>();
+
+        for (String typeCode : materialTypeCodes)
+        {
+            Set<String> materialProperties = new HashSet<String>();
+            result.put(typeCode, materialProperties);
+
+            MaterialTypePE materialType = findMaterialType(typeCode);
+            Set<MaterialTypePropertyTypePE> tpts = materialType.getMaterialTypePropertyTypes();
+            for (MaterialTypePropertyTypePE materialTypePropertyTypePE : tpts)
+            {
+                if (materialTypePropertyTypePE.getPropertyType().getType().getCode() == DataTypeCode.MATERIAL)
+                {
+                    materialProperties.add(materialTypePropertyTypePE.getPropertyType().getCode());
+                }
+            }
+        }
+        return result;
+
     }
 
     public List<Material> registerMaterials(final List<NewMaterialWithType> newMaterials)

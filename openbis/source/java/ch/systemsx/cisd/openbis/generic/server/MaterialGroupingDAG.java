@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -30,24 +32,30 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
  */
 public class MaterialGroupingDAG extends EntityGroupingDAG<NewMaterialWithType>
 {
-    private MaterialGroupingDAG(Collection<NewMaterialWithType> samples)
+    private Map<String, Set<String>> typesWithMaterialProperty;
+
+    private MaterialGroupingDAG(Collection<NewMaterialWithType> materials, Map<String, Set<String>> typesWithMaterialProperty)
     {
-        super(samples);
+        super(materials);
+        this.typesWithMaterialProperty = typesWithMaterialProperty;
     }
 
     /**
-     * Return the new samples in the list of groups, where the earlier groups are independent to the latter ones.
+     * Return the new materials in the list of groups, where the earlier groups are independent to the latter ones.
      * 
-     * @param samples The list of samples to create.
+     * @param materials The list of samples to create.
+     * @param typesWithMaterialProperty The cache saying which properties of a certain type are materials, so that they can be used to calculate
+     *            dependencies
      */
-    public static List<List<NewMaterialWithType>> groupByDepencies(Collection<NewMaterialWithType> samples)
+    public static List<List<NewMaterialWithType>> groupByDepencies(Collection<NewMaterialWithType> materials,
+            Map<String, Set<String>> typesWithMaterialProperty)
     {
-        if (samples.size() == 0)
+        if (materials.size() == 0)
         {
             return Collections.emptyList();
         }
 
-        MaterialGroupingDAG dag = new MaterialGroupingDAG(samples);
+        MaterialGroupingDAG dag = new MaterialGroupingDAG(materials, typesWithMaterialProperty);
         return dag.getDependencyGroups();
     }
 
@@ -66,8 +74,6 @@ public class MaterialGroupingDAG extends EntityGroupingDAG<NewMaterialWithType>
     @Override
     public Collection<String> getDependencies(NewMaterialWithType newMaterial)
     {
-        // get potential dependencies to other materials from properties
-
         LinkedList<String> relatedMaterials = null;
         IEntityProperty[] properties = newMaterial.getProperties();
 
@@ -77,11 +83,11 @@ public class MaterialGroupingDAG extends EntityGroupingDAG<NewMaterialWithType>
             {
                 relatedMaterials = new LinkedList<String>();
             }
-            // TODO: it would be better to translate property into the real material -
-            // or at least know here that the given property is indeed a material link
-            // this way there is a risk that someone will add property value to be the name
-            // of other existing property and cause false loop dependency error
-            relatedMaterials.add(iEntityProperty.getValue());
+
+            if (typesWithMaterialProperty.get(newMaterial.getType()).contains(iEntityProperty.getPropertyType().getCode()))
+            {
+                relatedMaterials.add(iEntityProperty.getValue());
+            }
         }
         return relatedMaterials;
     }

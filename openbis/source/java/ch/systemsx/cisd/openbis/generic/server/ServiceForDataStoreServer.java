@@ -1846,7 +1846,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             }
         }
 
-        List<List<NewMaterialWithType>> materialGroups = MaterialGroupingDAG.groupByDepencies(materials);
+        Map<String, Set<String>> materialTypesWithMateiralProperties = materialHelper.getPropertyTypesOfMaterialType(materialRegs.keySet());
+
+        List<List<NewMaterialWithType>> materialGroups = MaterialGroupingDAG.groupByDepencies(materials, materialTypesWithMateiralProperties);
         int index = 0;
 
         for (List<NewMaterialWithType> materialsGroup : materialGroups)

@@ -26,10 +26,9 @@ import ch.systemsx.cisd.common.collection.GroupingDAG;
 /**
  * Implementation of the topological sort to group entities in the groups of items.
  * <p>
- * This class is designed for inheritance. It is required to provide a <code>getCode()</code>
- * method, that calculates the code of the entity. For the purpose of creating dependency graph it
- * is essential to implement <code>getDependent</code> and <code>getDependencies</code>, but please
- * have in mind, that each dependency should be listed only once.
+ * This class is designed for inheritance. It is required to provide a <code>getCode()</code> method, that calculates the code of the entity. For the
+ * purpose of creating dependency graph it is essential to implement <code>getDependent</code> and <code>getDependencies</code>, but please have in
+ * mind, that each dependency should be listed only once.
  * 
  * @author Jakub Straszewski
  */
@@ -46,19 +45,24 @@ public abstract class EntityGroupingDAG<T>
     public EntityGroupingDAG(Collection<T> items)
     {
         this.items = items;
-        buildGraph();
-        calculateResults();
     }
 
+    /**
+     * Calculate dependency groups, or return them if they already have been calculated
+     */
     public List<List<T>> getDependencyGroups()
     {
+        if (resultGroups == null)
+        {
+            buildGraph();
+            calculateResults();
+        }
         return resultGroups;
     }
 
     /**
-     * Get the unique string representation of the <code>item</code>. The value of this function
-     * must be the same as values returned from <code>getDependent</code> and
-     * <code>getDependencies</code>
+     * Get the unique string representation of the <code>item</code>. The value of this function must be the same as values returned from
+     * <code>getDependent</code> and <code>getDependencies</code>
      */
     protected abstract String getCode(T item);
 
