@@ -7,3 +7,4 @@
 4	SIRNA	Oligo nucleotide	1	2009-03-23 15:34:44.462776+01	\N
 8	SELF_REF	Self Referencing Material	1	2012-03-13 15:34:44.462776+01	\N
 9	SLOW_GENE	Slowly validating material	1	2009-03-23 15:34:44.462776+01	10
+10	OTHER_REF	 Material Referencing Other Material	1	2012-03-13 15:34:44.462776+01	\N
