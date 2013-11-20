@@ -190,7 +190,14 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     @Override
     public boolean canRecoverFromError(Throwable ex)
     {
-        return HighLevelException.isRetriable(ex);
+        if (ex instanceof HighLevelException)
+        {
+            return HighLevelException.isRetriable(ex);
+        }
+        else
+        {
+            return true;
+        }
     }
 
     @Override
