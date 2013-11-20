@@ -83,7 +83,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         for (RecoveryTestCase t : testCases)
         {
             resultsList[index++] = new Object[]
-                { t };
+            { t };
         }
 
         return resultsList;
@@ -167,15 +167,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected HashMap<String, String> overrideProperties;
 
         /**
-         * If true, than autorecovery should take place. If not, then transaction should be rolled
-         * back, and recovery artifacts removed.
+         * If true, than autorecovery should take place. If not, then transaction should be rolled back, and recovery artifacts removed.
          */
         protected boolean canRecoverFromError = true;
 
         /**
-         * Desrcibed the result of the check whether the registration was successful. If
-         * REGISTRATION_SUCCEEDED - we can continue recovery IF REGISTRATION_FAILED - we can
-         * rollback IF CHECK_FAILED - we don't know and we have to try again.
+         * Desrcibed the result of the check whether the registration was successful. If REGISTRATION_SUCCEEDED - we can continue recovery IF
+         * REGISTRATION_FAILED - we can rollback IF CHECK_FAILED - we don't know and we have to try again.
          */
         protected RegistrationCheckResult registrationCheckResult =
                 RegistrationCheckResult.REGISTRATION_SUCCEEDED;
@@ -183,8 +181,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         protected RecoveryResult recoveryResult = RecoveryResult.RECOVERY_SUCCEEDED;
 
         /**
-         * if set to a value > 0, before calling the recovery the retryCount will be set to this
-         * value
+         * if set to a value > 0, before calling the recovery the retryCount will be set to this value
          */
         protected int recoveryRertyCount = 0;
 
@@ -716,15 +713,15 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] retryCounters()
     {
         return new Object[][]
-            {
+        {
                 { 1 },
                 { 5 },
                 { 15 } };
     }
 
     /**
-     * This test tests that when the perform entity operation fails with the recoverable error, it
-     * will repeat the registration N times, and then fail.
+     * This test tests that when the perform entity operation fails with the recoverable error, it will repeat the registration N times, and then
+     * fail.
      */
     @Test(dataProvider = "retryDP")
     public void testRetryRegistrationNTimesAndFail(Integer retryCount)
@@ -810,7 +807,7 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] retrySuccessDP()
     {
         return new Object[][]
-            {
+        {
                 { 1, RetrySuccessMethod.OPERATIONS_SUCCEDED },
                 { 1, RetrySuccessMethod.CHECK_SUCCEEDED },
                 { 5, RetrySuccessMethod.OPERATIONS_SUCCEDED },
@@ -1040,14 +1037,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
     public Object[][] multipleCheckpointsData()
     {
         return new Object[][]
-            {
+        {
                 { "v2-simple-testcase.py", false },
                 { "v2-container-testcase.py", true } };
     }
 
     /**
-     * This tests the registration with adventure, where the failure and recovery happens at every
-     * possible step.
+     * This tests the registration with adventure, where the failure and recovery happens at every possible step.
      */
     @Test(dataProvider = "multipleCheckpointsDataProvider")
     public void testRecoveryAtMultipleCheckpoints(String script, boolean includeContainer)
@@ -1080,9 +1076,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
                 "pre_metadata_registration");
 
         /*
-         * Second run - check that the datasets has been registered, and run the post_registration
-         * hook The file system is made unavailable, so the storage will fail. Restore the
-         * filesystem after this run.
+         * Second run - check that the datasets has been registered, and run the post_registration hook The file system is made unavailable, so the
+         * storage will fail. Restore the filesystem after this run.
          */
 
         handleAndMakeRecoverableImmediately(testCase);
@@ -1095,15 +1090,13 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         makeFileSystemAvailable(workingDirectory);
 
         /*
-         * Third run - Start after the post registration hook, and run the storage - this will
-         * succeed now. Throw exception from storage confirmation.
+         * Third run - Start after the post registration hook, and run the storage - this will succeed now. Throw exception from storage confirmation.
          */
 
         handleAndMakeRecoverableImmediately(testCase);
         JythonHookTestTool.assertMessagesInWorkingDirectory(workingDirectory); // assert no messages
         /*
-         * Last run. now only do the storage confirm part. After this is done, the registration
-         * should be complete.
+         * Last run. now only do the storage confirm part. After this is done, the registration should be complete.
          */
 
         handler.handle(markerFile);
@@ -1233,9 +1226,8 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
         }
 
         /**
-         * This method should make sure that the registration will fail, and it will go into the
-         * recovery mode. It means that it also has to assure that the subsequent retries introduce
-         * in SP-107 are failing.
+         * This method should make sure that the registration will fail, and it will go into the recovery mode. It means that it also has to assure
+         * that the subsequent retries introduce in SP-107 are failing.
          */
         protected void registerDataSetsAndThrow(boolean canRecoverFromError)
         {
@@ -1251,11 +1243,11 @@ public class JythonDropboxRecoveryTest extends AbstractJythonDataSetHandlerTest
             }
             one(openBisService).performEntityOperations(with(atomicatOperationDetails));
 
-            Exception e;
+            Throwable e;
             if (canRecoverFromError)
             {
                 e =
-                        new EnvironmentFailureException(
+                        new Throwable(
                                 "Potentially recoverable failure in registration");
             } else
             {
