@@ -48,7 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "materialType" })
+{ "db", "materialType" })
 public final class EntityTypeDAOTest extends AbstractDAOTest
 {
 
@@ -139,7 +139,7 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
     public final void testListMaterialTypes()
     {
         final IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(EntityKind.MATERIAL);
-        assertEquals(9, entityTypeDAO.listEntityTypes().size());
+        assertEquals(10, entityTypeDAO.listEntityTypes().size());
     }
 
     @Test(dependsOnMethods = "testListMaterialTypes")
