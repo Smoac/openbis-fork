@@ -207,6 +207,15 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         return HibernateUtils.isInitialized(getDataSetParentRelationships());
     }
 
+    /**
+     * Returns <code>true</code>, if and only if the relationships have been initialized.
+     */
+    @Transient
+    public boolean isChildrenRelationshipsInitialized()
+    {
+        return HibernateUtils.isInitialized(getDataSetChildRelationships());
+    }
+
     public void setParentRelationships(final Set<DataSetRelationshipPE> parentRelationships)
     {
         getDataSetParentRelationships().clear();
