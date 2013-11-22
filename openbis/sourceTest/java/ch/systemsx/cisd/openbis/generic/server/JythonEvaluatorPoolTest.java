@@ -48,13 +48,16 @@ import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
+import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool.EvaluatorState;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
+import ch.systemsx.cisd.openbis.generic.shared.managed_property.IEvaluationRunner;
 
 /**
  * @author anttil
@@ -76,6 +79,39 @@ public class JythonEvaluatorPoolTest
             List<Evaluator> resultList = executeParallel(getEvaluatorInUse());
             assertThat(resultList, isFilledWithSameInstanceOf(Evaluator.class));
         }
+    }
+
+    @Test
+    public void globalVariablesAreHandledCorrectlyWhenThereAreNestedCalls() throws Exception
+    {
+        TestResources resources = new TestResources(getClass());
+        String script = FileUtilities.loadToString(resources.getResourceFile("recursive_property.py"));
+        final IEvaluationRunner runner =
+                pool.getRunner("calculate()", Math.class, script);
+
+        final IAtomicEvaluation<String> action = new IAtomicEvaluation<String>()
+            {
+
+                int counter = 5;
+
+                @Override
+                public String evaluate(Evaluator evaluator)
+                {
+                    evaluator.set("action", this);
+                    evaluator.set("runner", runner);
+                    evaluator.set("value", counter);
+                    if (counter > 0)
+                    {
+                        counter--;
+                        return evaluator.evalAsStringLegacy2_2();
+                    } else
+                    {
+                        return "";
+                    }
+                }
+            };
+        runner.evaluate(action);
+        // Assertion in the python script!
     }
 
     @Test

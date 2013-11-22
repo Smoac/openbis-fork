@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IScriptUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
@@ -49,19 +50,24 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
 
     private final IScriptFactory scriptFactory;
 
+    private final IJythonEvaluatorPool jythonEvaluatorPool;
+
     public ScriptBO(final IDAOFactory daoFactory, final Session session,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IJythonEvaluatorPool jythonEvaluationPool)
     {
-        this(daoFactory, session, new ScriptFactory(), managedPropertyEvaluatorFactory);
+        this(daoFactory, session, new ScriptFactory(), managedPropertyEvaluatorFactory, jythonEvaluationPool);
     }
 
     @Private
     // for testing
     ScriptBO(final IDAOFactory daoFactory, final Session session, IScriptFactory scriptFactory,
-            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
+            IJythonEvaluatorPool jythonEvaluationPool)
     {
         super(daoFactory, session, managedPropertyEvaluatorFactory);
         this.scriptFactory = scriptFactory;
+        this.jythonEvaluatorPool = jythonEvaluationPool;
     }
 
     @Private
@@ -268,12 +274,12 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
         } else if (scriptType == ScriptType.DYNAMIC_PROPERTY)
         {
             JythonDynamicPropertyCalculator calculator =
-                    JythonDynamicPropertyCalculator.create(scriptExpression);
+                    JythonDynamicPropertyCalculator.create(scriptExpression, jythonEvaluatorPool);
             calculator.checkScriptCompilation();
         } else
         {
             JythonEntityValidationCalculator calculator =
-                    JythonEntityValidationCalculator.create(scriptExpression, null);
+                    JythonEntityValidationCalculator.create(scriptExpression, null, jythonEvaluatorPool);
             calculator.checkScriptCompilation();
         }
     }

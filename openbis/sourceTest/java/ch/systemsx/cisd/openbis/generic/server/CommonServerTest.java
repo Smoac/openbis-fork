@@ -166,9 +166,9 @@ public final class CommonServerTest extends AbstractServerTestCase
     private final CommonServer createServer()
     {
         CommonServer server =
-                createServer(new EntityValidatorFactory(null),
-                        new DynamicPropertyCalculatorFactory(null),
-                        new ManagedPropertyEvaluatorFactory(null));
+                createServer(new EntityValidatorFactory(null, new TestJythonEvaluatorPool()),
+                        new DynamicPropertyCalculatorFactory(null, new TestJythonEvaluatorPool()),
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
         server.setDssFactory(dssFactory);
         return server;
     }
@@ -244,8 +244,9 @@ public final class CommonServerTest extends AbstractServerTestCase
                 createServer().getTemplateColumns(SESSION_TOKEN, EntityKind.EXPERIMENT, type,
                         false, false, false, BatchOperationKind.REGISTRATION);
 
-        assertEquals("identifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
-                + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
+        assertEquals(
+                "# Besides the full identifier of format '/SPACE_CODE/PROJECT_CODE/EXPERIMENT_CODE', two short formats 'EXPERIMENT_CODE' and 'PROJECT_CODE/EXPERIMENT_CODE' are accepted given that the default project (former short format) or default space (latter short format) are configured. If the proper default value is not configured when using a short format, experiment import will fail.\nidentifier\tNON-MANAGED-PROP\tMANAGED-PROP-NO-SUBCOLUMNS\t"
+                        + "MANAGED-PROP-SUBCOLUMNS:A\tMANAGED-PROP-SUBCOLUMNS:B", template);
         context.assertIsSatisfied();
     }
 
@@ -744,7 +745,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         externalDataPE.setDataStore(dataStorePE);
         final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
         prepareGetSession();
         final boolean showOnlyDirectlyConnected = true;
         context.checking(new Expectations()
@@ -784,7 +785,7 @@ public final class CommonServerTest extends AbstractServerTestCase
         externalDataPE.setDataStore(dataStorePE);
         final AbstractExternalData externalData =
                 DataSetTranslator.translate(externalDataPE, BASE_INDEX_URL, null,
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
         prepareGetSession();
         context.checking(new Expectations()
             {

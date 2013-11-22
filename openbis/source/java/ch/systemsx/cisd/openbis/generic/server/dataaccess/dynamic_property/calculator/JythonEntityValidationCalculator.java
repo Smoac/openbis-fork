@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
@@ -56,42 +56,17 @@ public class JythonEntityValidationCalculator
      * The script is expected to contain validate method with two parameters: "entity" and "isNewEntity"
      */
     public static JythonEntityValidationCalculator create(String expression,
-            final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate)
+            final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequestedDelegate,
+            IJythonEvaluatorPool jythonEvaluatorPool)
     {
         String initialScript = AbstractCalculator.getBasicInitialScript();
         initialScript += VALIDATION_REQUEST_FUNCTION;
         initialScript += expression;
         String calculatedExpression = INVOKE_CALCULATE_EXPR;
 
-        if (JythonEvaluatorPool.INSTANCE != null)
-        {
-            return new JythonEntityValidationCalculator(JythonEvaluatorPool.INSTANCE.getRunner(
-                    calculatedExpression, Math.class, initialScript), validationRequestedDelegate);
-        } else
-        {
-            return new JythonEntityValidationCalculator(calculatedExpression, initialScript,
-                    validationRequestedDelegate);
-        }
+        return new JythonEntityValidationCalculator(jythonEvaluatorPool.getRunner(
+                calculatedExpression, Math.class, initialScript), validationRequestedDelegate);
 
-    }
-
-    private JythonEntityValidationCalculator(final String expression, final String script,
-            final IValidationRequestDelegate<INonAbstractEntityAdapter> validationRequested)
-    {
-        this(new IEvaluationRunner()
-            {
-                private Evaluator evaluator;
-                {
-                    this.evaluator = new Evaluator(expression, Math.class, script);
-                }
-
-                @Override
-                public <T> T evaluate(IAtomicEvaluation<T> evaluation)
-                {
-                    return evaluation.evaluate(evaluator);
-                }
-
-            }, validationRequested);
     }
 
     public JythonEntityValidationCalculator(IEvaluationRunner runner,
@@ -130,16 +105,10 @@ public class JythonEntityValidationCalculator
                 @Override
                 public String evaluate(Evaluator evaluator)
                 {
-                    try
-                    {
-                        evaluator.set(CALCULATOR_VARIABLE, wrappedValidationRequestedDelegate);
-                        evaluator.set(ENTITY_VARIABLE_NAME, entity);
-                        evaluator.set(IS_NEW_ENTITY_VARIABLE_NAME, isNewEntity);
-                        return evaluator.evalAsStringLegacy2_2();
-                    } finally
-                    {
-                        evaluator.releaseResources();
-                    }
+                    evaluator.set(CALCULATOR_VARIABLE, wrappedValidationRequestedDelegate);
+                    evaluator.set(ENTITY_VARIABLE_NAME, entity);
+                    evaluator.set(IS_NEW_ENTITY_VARIABLE_NAME, isNewEntity);
+                    return evaluator.evalAsStringLegacy2_2();
                 }
             });
     }

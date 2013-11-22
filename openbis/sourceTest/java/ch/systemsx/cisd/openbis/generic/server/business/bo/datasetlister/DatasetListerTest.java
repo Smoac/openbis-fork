@@ -42,18 +42,19 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -65,9 +66,9 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class })
+{ DatasetRecord.class })
 @Test(groups =
-    { "db", "dataset" })
+{ "db", "dataset" })
 public class DatasetListerTest extends AbstractDAOTest
 {
     private IDatasetLister lister;
@@ -148,7 +149,7 @@ public class DatasetListerTest extends AbstractDAOTest
         List<SamplePE> samplePEs = daoFactory.getSampleDAO().listByPermID(samplePermIDs);
         List<Sample> samples =
                 SampleTranslator.translate(samplePEs, "", new HashMap<Long, Set<Metaproject>>(),
-                        new ManagedPropertyEvaluatorFactory(null));
+                        new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
 
         Map<Sample, List<AbstractExternalData>> dataSets = lister.listAllDataSetsFor(samples);
 

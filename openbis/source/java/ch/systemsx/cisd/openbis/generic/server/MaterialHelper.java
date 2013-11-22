@@ -18,10 +18,14 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,14 +43,17 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMater
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.MaterialCodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -96,6 +103,103 @@ public class MaterialHelper
         this.propertiesBatchManager = propertiesBatchManager;
         this.materialConfig = materialConfig;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
+
+    public List<NewMaterialWithType> convertMaterialRegistrationIntoMaterialsWithType(Map<String, List<NewMaterial>> materialRegs)
+    {
+        List<NewMaterialWithType> materials = new LinkedList<NewMaterialWithType>();
+        for (Entry<String, List<NewMaterial>> materialReg : materialRegs.entrySet())
+        {
+            String materialType = materialReg.getKey();
+            for (NewMaterial newMaterial : materialReg.getValue())
+            {
+                materials.add(new NewMaterialWithType(materialType, newMaterial));
+            }
+        }
+        return materials;
+    }
+
+    public Map<String, Set<String>> getPropertyTypesOfMaterialType(Collection<String> materialTypeCodes)
+    {
+        final HashMap<String, Set<String>> result = new HashMap<String, Set<String>>();
+
+        for (String typeCode : materialTypeCodes)
+        {
+            Set<String> materialProperties = new HashSet<String>();
+            result.put(typeCode, materialProperties);
+
+            MaterialTypePE materialType = findMaterialType(typeCode);
+            Set<MaterialTypePropertyTypePE> tpts = materialType.getMaterialTypePropertyTypes();
+            for (MaterialTypePropertyTypePE materialTypePropertyTypePE : tpts)
+            {
+                if (materialTypePropertyTypePE.getPropertyType().getType().getCode() == DataTypeCode.MATERIAL)
+                {
+                    materialProperties.add(materialTypePropertyTypePE.getPropertyType().getCode());
+                }
+            }
+        }
+        return result;
+
+    }
+
+    public List<Material> registerMaterials(final List<NewMaterialWithType> newMaterials)
+    {
+        assert newMaterials != null : "Unspecified new materials.";
+
+        // Does nothing if material list is empty.
+        if (newMaterials.size() == 0)
+        {
+            return Collections.emptyList();
+        }
+        ServerUtils.prevalidate(newMaterials, "material");
+        final HashMap<String, MaterialTypePE> materialTypePEs = new HashMap<String, MaterialTypePE>();
+
+        for (NewMaterialWithType newMaterialWithType : newMaterials)
+        {
+            String typeCode = newMaterialWithType.getType();
+            if (false == materialTypePEs.containsKey(typeCode))
+            {
+                MaterialTypePE materialType = findMaterialType(typeCode);
+                materialTypePEs.put(typeCode, materialType);
+            }
+        }
+
+        final List<MaterialPE> registeredMaterials = new ArrayList<MaterialPE>();
+        IBatchOperation<NewMaterialWithType> strategy = new IBatchOperation<NewMaterialWithType>()
+            {
+
+                @Override
+                public void execute(List<NewMaterialWithType> entities)
+                {
+                    final IMaterialTable materialTable =
+                            businessObjectFactory.createMaterialTable(session);
+                    materialTable.add(entities, materialTypePEs);
+                    materialTable.save();
+                    registeredMaterials.addAll(materialTable.getMaterials());
+                }
+
+                @Override
+                public List<NewMaterialWithType> getAllEntities()
+                {
+                    return newMaterials;
+                }
+
+                @Override
+                public String getEntityName()
+                {
+                    return "material";
+                }
+
+                @Override
+                public String getOperationName()
+                {
+                    return "register";
+                }
+            };
+        BatchOperationExecutor.executeInBatches(strategy);
+
+        return MaterialTranslator.translate(registeredMaterials,
+                new HashMap<Long, Set<Metaproject>>(), managedPropertyEvaluatorFactory);
     }
 
     public List<Material> registerMaterials(String materialTypeCode,

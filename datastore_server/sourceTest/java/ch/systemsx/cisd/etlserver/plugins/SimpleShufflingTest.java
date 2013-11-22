@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = SimpleShuffling.class)
+@Friend(toClasses = {SimpleShuffling.class, EagerShufflingTask.class})
 public class SimpleShufflingTest extends AbstractFileSystemTestCase
 {
     private static final String DSS_CODE = "dss1";

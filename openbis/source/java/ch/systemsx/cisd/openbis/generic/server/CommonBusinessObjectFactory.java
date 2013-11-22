@@ -86,6 +86,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.SampleLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.IMasterDataScriptRegistrationRunner;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -99,15 +100,19 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         ICommonBusinessObjectFactory
 {
 
+    private final IJythonEvaluatorPool jythonEvaluatorPool;
+
     public CommonBusinessObjectFactory(IDAOFactory daoFactory, IDataStoreServiceFactory dssFactory,
             IRelationshipService relationshipService,
             IEntityOperationChecker entityOperationChecker,
             IServiceConversationClientManagerLocal conversationClient,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            IMultiplexer multiplexer)
+            IMultiplexer multiplexer,
+            IJythonEvaluatorPool jythonEvaluatorPool)
     {
         super(daoFactory, dssFactory, relationshipService, entityOperationChecker,
                 conversationClient, managedPropertyEvaluatorFactory, multiplexer);
+        this.jythonEvaluatorPool = jythonEvaluatorPool;
     }
 
     @Override
@@ -125,7 +130,7 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
     @Override
     public final IScriptBO createScriptBO(final Session session)
     {
-        return new ScriptBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory());
+        return new ScriptBO(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), jythonEvaluatorPool);
     }
 
     @Override

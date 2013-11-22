@@ -158,6 +158,12 @@ public final class MaterialIdentifier implements Serializable
     /** Prints the identifier in the canonical form */
     public static String print(String code, String typeCode)
     {
+        return toString(code, typeCode);
+    }
+
+    /** Prints the identifier in the canonical form */
+    public static String toString(String code, String typeCode)
+    {
         return code + TYPE_SEPARATOR_PREFIX + typeCode + TYPE_SEPARATOR_SUFFIX;
     }
 

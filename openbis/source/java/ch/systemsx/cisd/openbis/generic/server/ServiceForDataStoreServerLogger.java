@@ -357,6 +357,13 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public AbstractExternalData tryGetThinDataSet(String sessionToken, String dataSetCode) throws UserFailureException
+    {
+        logAccess(sessionToken, "tryGetThinDataSet", "DATA_SET(%s)", dataSetCode);
+        return null;
+    }
+
+    @Override
     public AbstractExternalData tryGetLocalDataSet(String sessionToken, String dataSetCode,
             String dataStore) throws UserFailureException
     {

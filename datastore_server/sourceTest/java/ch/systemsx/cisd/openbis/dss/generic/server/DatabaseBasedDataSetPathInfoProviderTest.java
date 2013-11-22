@@ -39,7 +39,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetPathInfo;
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = DatabaseBasedDataSetPathInfoProvider.class)
+@Friend(toClasses = { DatabaseBasedDataSetPathInfoProvider.class,
+        DatabaseBasedDataSetPathInfoProvider.IPathInfoDAO.class,
+        DatabaseBasedDataSetPathInfoProvider.DataSetFileRecord.class })
 public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
 {
     private static final Long DATA_SET_ID = 41L;
@@ -349,7 +351,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listDataSetFilesByFilenameRegex(DATA_SET_ID, startingPath,
+                    one(dao).listDataSetFilesByFilenameRegex(DATA_SET_ID, startingPath + "/",
                             "^" + regex + "$");
                     will(returnValue(Arrays.asList(rc1, rc2)));
                 }
@@ -376,7 +378,7 @@ public class DatabaseBasedDataSetPathInfoProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(dao).listDataSetFilesByFilenameLikeExpression(DATA_SET_ID, startingPath,
+                    one(dao).listDataSetFilesByFilenameLikeExpression(DATA_SET_ID, startingPath + "/",
                             "child%");
                     will(returnValue(Arrays.asList(rc1, rc2)));
                 }

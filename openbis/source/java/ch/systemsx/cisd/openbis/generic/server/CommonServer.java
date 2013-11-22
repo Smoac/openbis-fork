@@ -221,6 +221,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsF
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewColumnOrFilter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETNewPTAssigments;
@@ -247,6 +248,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -1752,7 +1754,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IDataBO datasetBO = businessObjectFactory.createDataBO(session);
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
-        datasetBO.enrichWithChildren();
+        // not fetching children, as no caller is using them and it's causing potential performance problem with many children
+        // datasetBO.enrichWithChildren();
         datasetBO.enrichWithContainedDataSets();
         datasetBO.enrichWithProperties();
         final DataPE dataset = datasetBO.getData();
@@ -3014,6 +3017,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                             sb.insert(0, NewSample.WITH_EXPERIMENTS_COMMENT);
                         }
                         sb.insert(0, NewSample.SAMPLE_REGISTRATION_TEMPLATE_COMMENT);
+                    } else if (entityKind.equals(EntityKind.EXPERIMENT))
+                    {
+                        sb.insert(0, NewBasicExperiment.EXPERIMENT_REGISTRATION_TEMPLATE_COMMENT);
                     }
                     break;
                 case UPDATE:
@@ -3023,6 +3029,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     } else if (entityKind.equals(EntityKind.DATA_SET))
                     {
                         sb.insert(0, UpdatedDataSet.DATASET_UPDATE_TEMPLATE_COMMENT);
+                    } else if (entityKind.equals(EntityKind.EXPERIMENT))
+                    {
+                        sb.insert(0, UpdatedBasicExperiment.EXPERIMENT_UPDATE_TEMPLATE_COMMENT);
                     } else
                     {
                         sb.insert(0, UPDATE_TEMPLATE_COMMENT);

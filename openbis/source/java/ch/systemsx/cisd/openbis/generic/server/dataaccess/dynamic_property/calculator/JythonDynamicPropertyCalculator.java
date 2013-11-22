@@ -18,8 +18,8 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
-import ch.systemsx.cisd.openbis.generic.server.JythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.calculator.AbstractCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IAtomicEvaluation;
@@ -51,7 +51,7 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
      * <li>result of invocation of 'calculate()' function for a *multiline* expression
      * </ul>
      */
-    public static JythonDynamicPropertyCalculator create(String expression)
+    public static JythonDynamicPropertyCalculator create(String expression, IJythonEvaluatorPool pool)
     {
         String calculatedExpression = expression;
         String initialScript = AbstractCalculator.getBasicInitialScript();
@@ -61,34 +61,9 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
             initialScript += expression;
             calculatedExpression = INVOKE_CALCULATE_EXPR;
         }
+        return new JythonDynamicPropertyCalculator(pool.getRunner(
+                calculatedExpression, Math.class, initialScript));
 
-        if (JythonEvaluatorPool.INSTANCE != null)
-        {
-            return new JythonDynamicPropertyCalculator(JythonEvaluatorPool.INSTANCE.getRunner(
-                    calculatedExpression, Math.class, initialScript));
-        } else
-        {
-            return new JythonDynamicPropertyCalculator(calculatedExpression, initialScript);
-        }
-
-    }
-
-    private JythonDynamicPropertyCalculator(final String expression, final String script)
-    {
-        this(new IEvaluationRunner()
-            {
-                private Evaluator evaluator;
-                {
-                    this.evaluator = new Evaluator(expression, Math.class, script);
-                }
-
-                @Override
-                public <T> T evaluate(IAtomicEvaluation<T> evaluation)
-                {
-                    return evaluation.evaluate(evaluator);
-                }
-
-            });
     }
 
     private JythonDynamicPropertyCalculator(IEvaluationRunner runner)
@@ -104,14 +79,8 @@ public class JythonDynamicPropertyCalculator implements IDynamicPropertyCalculat
                 @Override
                 public String evaluate(Evaluator evaluator)
                 {
-                    try
-                    {
-                        evaluator.set(ENTITY_VARIABLE_NAME, entity);
-                        return evaluator.evalAsStringLegacy2_2();
-                    } finally
-                    {
-                        evaluator.releaseResources();
-                    }
+                    evaluator.set(ENTITY_VARIABLE_NAME, entity);
+                    return evaluator.evalAsStringLegacy2_2();
                 }
             });
     }

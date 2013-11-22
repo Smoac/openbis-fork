@@ -17,11 +17,11 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import static ch.systemsx.cisd.openbis.generic.shared.Constants.USER_PARAMETER;
+
 import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
@@ -45,7 +45,6 @@ public class DataSetCopierForUsers extends DataSetCopier
                 new ImmutableCopierFactory(), SystemTimeProvider.SYSTEM_TIME_PROVIDER);
     }
 
-    @Private
     DataSetCopierForUsers(Properties properties, File storeRoot,
             IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory,

@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
@@ -41,6 +43,12 @@ public interface IMaterialTable
      * Calls of this method cannot be mixed with calls to {@link #update}.
      */
     public void add(List<NewMaterial> newMaterials, MaterialTypePE materialTypePE);
+
+    /**
+     * Defines new materials with mixed type, given the cache of the {@link MaterialTypePE}'s. Calls of this method cannot be mixed with calls to
+     * {@link #update}.
+     */
+    public void add(List<NewMaterialWithType> newMaterials, Map<String, MaterialTypePE> materialTypePE);
 
     /**
      * Changes given materials. Currently allowed changes: properties.<br>

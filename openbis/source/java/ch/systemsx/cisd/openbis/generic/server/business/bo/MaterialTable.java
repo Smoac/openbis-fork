@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConve
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -92,6 +93,24 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         for (NewMaterial newMaterial : newMaterials)
         {
             materials.add(createMaterial(newMaterial, materialTypePE));
+        }
+        setBatchUpdateMode(false);
+        dataChanged = true;
+    }
+
+    @Override
+    public void add(List<NewMaterialWithType> newMaterials, Map<String, MaterialTypePE> materialTypePE)
+    {
+        assert newMaterials != null : "New materials undefined.";
+        assert materialTypePE != null : "Material type undefined.";
+        if (materials == null)
+        {
+            materials = new ArrayList<MaterialPE>();
+        }
+        setBatchUpdateMode(true);
+        for (NewMaterialWithType newMaterial : newMaterials)
+        {
+            materials.add(createMaterial(newMaterial.getMaterial(), materialTypePE.get(newMaterial.getType())));
         }
         setBatchUpdateMode(false);
         dataChanged = true;

@@ -28,16 +28,19 @@
   
   <bean id="entity-validation-factory" class="ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.EntityValidatorFactory" >
     <constructor-arg value="${entity-validation-plugins-directory}" />
+    <constructor-arg ref="jython-evaluator-pool" />
   </bean>
   
   <bean id="dynamic-property-calculator-factory"
         class="ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.DynamicPropertyCalculatorFactory">
         <constructor-arg value="${dynamic-property-plugins-directory}" />
+        <constructor-arg ref="jython-evaluator-pool" />
   </bean>
   
   <bean id="managed-property-evaluator-factory"
         class="ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory">
         <constructor-arg value="${managed-property-plugins-directory}" />
+        <constructor-arg ref="jython-evaluator-pool" />
   </bean>
   
   <bean id="properties-batch-manager" class="ch.systemsx.cisd.openbis.generic.server.business.PropertiesBatchManager" >
@@ -142,6 +145,7 @@
         <constructor-arg ref="service-conversation-client-manager" />
         <constructor-arg ref="managed-property-evaluator-factory" />
         <constructor-arg ref="multiplexer" />
+        <constructor-arg ref="jython-evaluator-pool" />
     </bean>
 
     <bean id="last-modification-state"

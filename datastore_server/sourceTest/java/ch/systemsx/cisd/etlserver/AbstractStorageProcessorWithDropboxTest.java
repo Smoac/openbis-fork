@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.AbstractDatasetDropboxH
 /**
  * @author Tomasz Pylak
  */
-@Friend(toClasses = DelegatingStorageProcessorWithDropbox.class)
+@Friend(toClasses = {DelegatingStorageProcessorWithDropbox.class})
 public class AbstractStorageProcessorWithDropboxTest extends AbstractFileSystemTestCase
 {
     @Test

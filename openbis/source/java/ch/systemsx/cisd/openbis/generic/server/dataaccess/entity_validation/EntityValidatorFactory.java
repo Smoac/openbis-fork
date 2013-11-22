@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.INonAbstractEntityAdapter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.JythonEntityValidationCalculator.IValidationRequestDelegate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
+import ch.systemsx.cisd.openbis.generic.shared.IJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PluginType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -33,9 +34,12 @@ public class EntityValidatorFactory extends
         AbstractCommonPropertyBasedHotDeployPluginFactory<IEntityValidatorHotDeployPlugin>
         implements IEntityValidatorFactory
 {
-    public EntityValidatorFactory(String pluginDirectoryPath)
+    private final IJythonEvaluatorPool jythonEvaluatorPool;
+
+    public EntityValidatorFactory(String pluginDirectoryPath, IJythonEvaluatorPool jythonEvaluatorPool)
     {
         super(pluginDirectoryPath);
+        this.jythonEvaluatorPool = jythonEvaluatorPool;
     }
 
     @Override
@@ -63,7 +67,7 @@ public class EntityValidatorFactory extends
         switch (pluginType)
         {
             case JYTHON:
-                return new JythonEntityValidator(script);
+                return new JythonEntityValidator(script, jythonEvaluatorPool);
             case PREDEPLOYED:
                 IEntityValidator entityValidator = tryGetPredeployedPluginByName(scriptName);
                 if (entityValidator != null)

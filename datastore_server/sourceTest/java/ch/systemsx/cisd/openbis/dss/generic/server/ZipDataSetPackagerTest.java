@@ -31,6 +31,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.io.IOUtilities;
@@ -62,6 +63,7 @@ import de.schlichtherle.io.FileInputStream;
  *
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = HierarchicalContentProvider.class)
 public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "ds1";

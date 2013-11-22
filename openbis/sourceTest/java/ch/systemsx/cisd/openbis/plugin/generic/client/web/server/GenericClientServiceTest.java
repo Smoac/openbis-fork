@@ -790,6 +790,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             }
                         });
 
+                    exactly(2).of(genericServer).getAuthSession(SESSION_TOKEN);
+                    
                     one(genericServer).updateExperiments(with(equal(SESSION_TOKEN)),
                             with(new IsAnything<UpdatedExperimentsWithType>()));
                     will(new CustomAction("check experiment")
@@ -872,6 +874,8 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                             }
                         });
 
+                    exactly(2).of(genericServer).getAuthSession(SESSION_TOKEN);
+                    
                     one(genericServer).updateExperiments(with(equal(SESSION_TOKEN)),
                             with(new IsAnything<UpdatedExperimentsWithType>()));
                     will(new CustomAction("check experiment")

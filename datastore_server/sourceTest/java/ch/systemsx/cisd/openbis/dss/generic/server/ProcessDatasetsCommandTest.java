@@ -33,6 +33,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = ProcessDatasetsCommand.ProxyMailClient.class)
 public class ProcessDatasetsCommandTest extends AssertJUnit
 {
     private static final String EXAMPLE_TASK_LABEL = "My task";

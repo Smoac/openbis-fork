@@ -206,7 +206,10 @@ public class RelationshipService implements IRelationshipService
         PersonPE actor = session.tryGetPerson();
         DataSetRelationshipPE relationship = new DataSetRelationshipPE(parent, data, actor);
         data.addParentRelationship(relationship);
-        parent.addChildRelationship(relationship);
+        if (parent.isChildrenRelationshipsInitialized())
+        {
+            parent.addChildRelationship(relationship);
+        }
         RelationshipUtils.updateModificationDateAndModifier(data, session);
         RelationshipUtils.updateModificationDateAndModifier(parent, session);
     }

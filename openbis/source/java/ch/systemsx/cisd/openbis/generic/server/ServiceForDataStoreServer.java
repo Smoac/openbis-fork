@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -155,6 +154,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialWithType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMetaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewProject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
@@ -1145,6 +1145,27 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
+    @RolesAllowed(value =
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public AbstractExternalData tryGetThinDataSet(String sessionToken, String dataSetCode) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        assert dataSetCode != null : "Unspecified data set code.";
+
+        Session session = getSession(sessionToken); // assert authenticated
+
+        IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.loadByCode(dataSetCode);
+        DataPE dataPE = dataBO.tryGetData();
+        if (null == dataPE)
+        {
+            return null;
+        }
+        return DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
+                Collections.<Metaproject> emptyList(), managedPropertyEvaluatorFactory);
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public void checkInstanceAdminAuthorization(String sessionToken) throws UserFailureException
     {
@@ -1813,12 +1834,17 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             checkMaterialCreationAllowed(session, materialRegs);
         }
+
+        List<NewMaterialWithType> materials = materialHelper.convertMaterialRegistrationIntoMaterialsWithType(materialRegs);
+
+        Map<String, Set<String>> materialTypesWithMateiralProperties = materialHelper.getPropertyTypesOfMaterialType(materialRegs.keySet());
+
+        List<List<NewMaterialWithType>> materialGroups = MaterialGroupingDAG.groupByDepencies(materials, materialTypesWithMateiralProperties);
         int index = 0;
-        for (Entry<String, List<NewMaterial>> newMaterialsEntry : materialRegs.entrySet())
+
+        for (List<NewMaterialWithType> materialsGroup : materialGroups)
         {
-            String materialType = newMaterialsEntry.getKey();
-            List<NewMaterial> newMaterials = newMaterialsEntry.getValue();
-            materialHelper.registerMaterials(materialType, newMaterials);
+            materialHelper.registerMaterials(materialsGroup);
             progress.update("createMaterials", materialRegs.size(), ++index);
         }
         return index;

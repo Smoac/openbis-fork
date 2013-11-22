@@ -19,7 +19,6 @@ package ch.systemsx.cisd.etlserver;
 import java.io.File;
 import java.util.Properties;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.filesystem.FileOperations;
 import ch.systemsx.cisd.common.filesystem.IFileOperations;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -54,7 +53,6 @@ public abstract class DelegatingStorageProcessorWithDropbox extends
                 .createDelegateStorageProcessor(properties), FileOperations.getInstance());
     }
 
-    @Private
     DelegatingStorageProcessorWithDropbox(Properties properties,
             IStorageProcessorTransactional delegateStorageProcessor, IFileOperations fileOperations)
     {

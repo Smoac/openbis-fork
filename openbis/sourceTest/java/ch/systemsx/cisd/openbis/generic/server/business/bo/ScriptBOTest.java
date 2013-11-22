@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
@@ -43,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Izabela Adamczyk
  */
 @Friend(toClasses =
-    { ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
+{ ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
 public final class ScriptBOTest extends AbstractBOTest
 {
 
@@ -52,18 +53,18 @@ public final class ScriptBOTest extends AbstractBOTest
     private final static Object[][] scriptTypes()
     {
         return new Object[][]
-            {
-                        {
-                                ScriptType.DYNAMIC_PROPERTY,
-                                "Error evaluating '1+': SyntaxError: "
-                                        + "(\"no viable alternative at input ')'\", "
-                                        + "('expression: 1+', 1, 14, '__result__=(1+)\\n'))" },
-                        {
-                                ScriptType.MANAGED_PROPERTY,
-                                "SyntaxError: (\"no viable alternative at input '\\\\n\\\\n'\", "
-                                        + "('<string>', 1, 2, '1+\\n'))" }
+        {
+                {
+                        ScriptType.DYNAMIC_PROPERTY,
+                        "Error evaluating '1+': SyntaxError: "
+                                + "(\"no viable alternative at input ')'\", "
+                                + "('expression: 1+', 1, 14, '__result__=(1+)\\n'))" },
+                {
+                        ScriptType.MANAGED_PROPERTY,
+                        "SyntaxError: (\"no viable alternative at input '\\\\n\\\\n'\", "
+                                + "('<string>', 1, 2, '1+\\n'))" }
 
-            };
+        };
     }
 
     private static final String SCRIPT = "1+1";
@@ -75,7 +76,7 @@ public final class ScriptBOTest extends AbstractBOTest
     private final ScriptBO createScriptBO()
     {
         return new ScriptBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, scriptFactory,
-                managedPropertyEvaluatorFactory);
+                managedPropertyEvaluatorFactory, new TestJythonEvaluatorPool());
     }
 
     @Test
