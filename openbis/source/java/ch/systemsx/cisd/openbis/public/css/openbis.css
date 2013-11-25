@@ -31,7 +31,8 @@ td,
 .x-panel-header,
 .x-panel-tl .x-panel-header,
 .x-menu-list-item,
-.x-tab-strip span.x-tab-strip-text {
+.x-tab-strip span.x-tab-strip-text,
+.x-window-dlg .ext-mb-text, .x-window-dlg .x-window-header-text {
 	font-family: "Telex-Regular" !important;
 	font-size: 13px !important;
 }
@@ -44,20 +45,11 @@ td,
 /*
  * Links
  */
-.link-style {
-    color: #0c73b6 !important;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.gwt-InlineHTML > a {
-	color: #0c73b6 !important;
-    cursor: pointer;
-    text-decoration: none;
-}
-
+td > div > a,
+.link-style,
+.gwt-InlineHTML > a,
 .x-grid3-cell-inner > a {
-	color: #0c73b6 !important;
+    color: #0c73b6 !important;
     cursor: pointer;
     text-decoration: none;
 }

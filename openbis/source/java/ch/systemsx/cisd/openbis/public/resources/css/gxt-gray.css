@@ -665,3 +665,14 @@ td.x-grid3-hd-over .x-grid3-hd-inner,td.sort-desc .x-grid3-hd-inner,td.sort-asc 
     background-image: url("../images/gray/progress/progress-bg.gif");
     border: none;
 }
+
+/* Pop Up */
+.x-window-plain .x-window-body {
+	background: none repeat scroll 0 0 white !important;
+    border: 1px solid #D0D0D0 !important;
+}
+
+/* Delete Radios/Experiment */
+.gray-delete-radios {
+	margin-left: 10px;
+}

@@ -18,9 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.experi
 
 import java.util.Collections;
 
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
@@ -33,6 +30,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
+
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 // TODO extend AbstractDataListTrashDeletionConfirmationDialog when trash is working properly
 public final class ExperimentListDeletionConfirmationDialog extends
@@ -96,12 +96,14 @@ public final class ExperimentListDeletionConfirmationDialog extends
     protected final RadioGroup createRadio()
     {
         final IViewContext<ICommonClientServiceAsync> context = getViewContext();
-        return WidgetUtils.createAllOrSelectedRadioGroup(
+        RadioGroup onlySelectedOrAll = WidgetUtils.createAllOrSelectedRadioGroup(
                 onlySelectedRadioOrNull =
                         WidgetUtils.createRadio(context.getMessage(Dict.ONLY_SELECTED_RADIO,
                                 data.size())), WidgetUtils.createRadio(context.getMessage(
                         Dict.ALL_RADIO, selectedAndDisplayedItemsOrNull.getDisplayedItemsCount())),
                 context.getMessage(Dict.EXPERIMENTS_RADIO_GROUP_LABEL), data.size());
+        onlySelectedOrAll.setStyleName("gray-delete-radios");
+        return onlySelectedOrAll;
     }
 
 }
