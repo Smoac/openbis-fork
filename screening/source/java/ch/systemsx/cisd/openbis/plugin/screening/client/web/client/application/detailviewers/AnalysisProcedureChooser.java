@@ -53,17 +53,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 class AnalysisProcedureChooser extends LayoutContainer
 {
 
-    private static final int COMBOX_WIDTH_PX = 320;
-
-    private static final int PANEL_WIDTH_PX = COMBOX_WIDTH_PX + 40;
-
     private final static String UNSPECIFIED_PROCEDURE = "Unspecified";
 
     private final static String ALL_PROCEDURES = "All";
 
     /**
-     * Can be used from external classes wishing to be notified when the analysis procedure
-     * selection changes.
+     * Can be used from external classes wishing to be notified when the analysis procedure selection changes.
      */
     public static interface IAnalysisProcedureSelectionListener
     {
@@ -77,8 +72,8 @@ class AnalysisProcedureChooser extends LayoutContainer
     }
 
     /**
-     * Creates the combobox with a list of numerical datasets analysis procedures
-     * (HCS_ANALYSIS_WELL*), they are fetched from the server for the specified experiment criteria.<br>
+     * Creates the combobox with a list of numerical datasets analysis procedures (HCS_ANALYSIS_WELL*), they are fetched from the server for the
+     * specified experiment criteria.<br>
      * The label will be in the same row before the combobox.
      */
     public static final AnalysisProcedureChooser createHorizontal(
@@ -96,8 +91,8 @@ class AnalysisProcedureChooser extends LayoutContainer
     }
 
     /**
-     * Creates the combobox with a list of numerical datasets analysis procedures
-     * (HCS_ANALYSIS_WELL*), they are fetched from the server for the specified experiment criteria.<br>
+     * Creates the combobox with a list of numerical datasets analysis procedures (HCS_ANALYSIS_WELL*), they are fetched from the server for the
+     * specified experiment criteria.<br>
      * The label will be in the separate row above the combobox.
      */
     public static final AnalysisProcedureChooser createVertical(
@@ -115,8 +110,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     }
 
     /**
-     * Creates the combobox for a specified list of analysis procedures. The label will be in the
-     * separate row above the combobox.
+     * Creates the combobox for a specified list of analysis procedures. The label will be in the separate row above the combobox.
      */
     public static final AnalysisProcedureChooser create(IViewContext<?> viewContext,
             final AnalysisProcedures analysisProcedures,
@@ -217,7 +211,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     private static VerticalPanel createVerticalPanel()
     {
         final VerticalPanel layoutPanel = new VerticalPanel();
-        layoutPanel.setWidth(PANEL_WIDTH_PX);
+        layoutPanel.setStyleAttribute("margin-right", "40px");
         return layoutPanel;
     }
 
@@ -288,7 +282,7 @@ class AnalysisProcedureChooser extends LayoutContainer
     {
         SimpleModelComboBox<String> comboBox =
                 new SimpleModelComboBox<String>(messageProvider,
-                        new ArrayList<LabeledItem<String>>(), COMBOX_WIDTH_PX);
+                        new ArrayList<LabeledItem<String>>(), null);
 
         comboBox.setTriggerAction(TriggerAction.ALL);
         comboBox.setAllowBlank(false);

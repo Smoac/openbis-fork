@@ -565,6 +565,7 @@ public class WellSearchGrid extends TypedTableGrid<WellContent> implements
     private ToolBar createToolbar()
     {
         ToolBar toolbar = new ToolBar();
+        toolbar.setEnableOverflow(false);
         AnalysisProcedureChooser analysisProcedureChooser = createAnalysisProcedureChooser();
         toolbar.add(createExperimentChooser(analysisProcedureChooser));
         toolbar.add(analysisProcedureChooser);
