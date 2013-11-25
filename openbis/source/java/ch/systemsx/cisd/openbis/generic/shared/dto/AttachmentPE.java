@@ -69,16 +69,16 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  */
 @Entity
 @Table(name = TableNames.ATTACHMENTS_TABLE, uniqueConstraints =
-    {
-            @UniqueConstraint(columnNames =
-                { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
-                        ColumnNames.VERSION_COLUMN }),
-            @UniqueConstraint(columnNames =
-                { ColumnNames.SAMPLE_COLUMN, ColumnNames.FILE_NAME_COLUMN,
-                        ColumnNames.VERSION_COLUMN }),
-            @UniqueConstraint(columnNames =
-                { ColumnNames.PROJECT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
-                        ColumnNames.VERSION_COLUMN }) })
+{
+        @UniqueConstraint(columnNames =
+        { ColumnNames.EXPERIMENT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+                ColumnNames.VERSION_COLUMN }),
+        @UniqueConstraint(columnNames =
+        { ColumnNames.SAMPLE_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+                ColumnNames.VERSION_COLUMN }),
+        @UniqueConstraint(columnNames =
+        { ColumnNames.PROJECT_COLUMN, ColumnNames.FILE_NAME_COLUMN,
+                ColumnNames.VERSION_COLUMN }) })
 @ClassBridge(impl = AttachmentPE.AttachmentSearchBridge.class, index = Index.TOKENIZED, store = Store.NO)
 public class AttachmentPE extends HibernateAbstractRegistrationHolder implements Serializable,
         Comparable<AttachmentPE>, IIdHolder
@@ -109,14 +109,12 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
     private String title;
 
     /**
-     * This bridge allows to save in the search index not only the content of the attachment, but
-     * also corresponding file name and version.
+     * This bridge allows to save in the search index not only the content of the attachment, but also corresponding file name and version.
      */
     public static class AttachmentSearchBridge implements FieldBridge
     {
         /**
-         * The user can force indexing of the attachment by putting this prefix into attachment
-         * description.
+         * The user can force indexing of the attachment by putting this prefix into attachment description.
          */
         private static final String SEARCHABLE_ATTACHMENT_MARKER = "[searchable]";
 
@@ -219,7 +217,7 @@ public class AttachmentPE extends HibernateAbstractRegistrationHolder implements
      */
     @Column(name = ColumnNames.FILE_NAME_COLUMN)
     @NotNull(message = ValidationMessages.FILE_NAME_NOT_NULL_MESSAGE)
-    @Length(max = 100, message = ValidationMessages.FILE_NAME_LENGTH_MESSAGE)
+    @Length(max = 255, message = ValidationMessages.FILE_NAME_LENGTH_MESSAGE)
     public String getFileName()
     {
         return fileName;
