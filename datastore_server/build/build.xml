@@ -496,6 +496,7 @@
       </fileset>
       <manifest>
         <attribute name="Main-Class" value="ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient" />
+        <attribute name="Permissions" value="all-permissions" />
         <attribute name="Class-Path"
                    value="cisd-base.jar cisd-args4j.jar cglib-nodep.jar stream-supporting-httpinvoker.jar log4j.jar commons-lang.jar commons-io.jar commons-logging.jar 
  commons-codec.jar commons-httpclient.jar spring.jar jline.jar jython.jar poi.jar poi-ooxml.jar poi-ooxml-schemas.jar dom4j-1.6.1.jar geronimo-stax-api_1.0_spec-1.0.jar xmlbeans-2.3.0.jar" />
