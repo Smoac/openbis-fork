@@ -175,6 +175,12 @@ class CellLevelDataReader implements ICellLevelDataReader
                             ImageGeometry.class), desc.getFormatType(), desc
                             .getFormatVersionNumber()));
                     break;
+                case TRACKING:
+                    result.add(new CellLevelTrackingDataset(reader, code, reader.readCompound(
+                            CellLevelDataset.getImageQuantityStructureObjectPath(code),
+                            ImageQuantityStructure.class), desc.getFormatType(),
+                            desc.getFormatVersionNumber()));
+                    break;
                 default:
                     throw new Error("Unknown enum type.");
             }
