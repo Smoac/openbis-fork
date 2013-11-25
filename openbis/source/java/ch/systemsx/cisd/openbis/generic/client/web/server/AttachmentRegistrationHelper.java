@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -91,18 +92,34 @@ public abstract class AttachmentRegistrationHelper
     {
         if (uploadedFiles != null)
         {
+            List<IUncheckedMultipartFile> unmatchedFiles = new ArrayList<IUncheckedMultipartFile>();
+            List<NewAttachment> matchedAttachments = new ArrayList<NewAttachment>();
             for (final IUncheckedMultipartFile multipartFile : uploadedFiles.iterable())
             {
                 final String fileName = multipartFile.getOriginalFilename();
-                // NOTE: this will load the entire attachments in memory
-                final byte[] content = multipartFile.getBytes();
                 final NewAttachment attachmentOrNull = attachments.get(fileName);
                 if (attachmentOrNull != null)
                 {
+                    // NOTE: this will load the entire attachments in memory
+                    final byte[] content = multipartFile.getBytes();
                     attachmentOrNull.setContent(content);
+                    matchedAttachments.add(attachmentOrNull);
+                } else
+                {
+                    // this can happen because RFC 2388 says:
+                    // The sending application MAY supply a file name; if the file name of the sender's
+                    // operating system is not in US-ASCII, the file name might be approximated, or encoded
+                    // using the method of RFC 2231.
+                    unmatchedFiles.add(multipartFile);
                 }
+            }
+            List<NewAttachment> unmatchedAttachments = new ArrayList<NewAttachment>(attachments.values());
+            unmatchedAttachments.removeAll(matchedAttachments);
+            if (unmatchedAttachments.size() == 1 && unmatchedFiles.size() == 1)
+            {
+                // If only one file name doesn't match we ignore the file name and set the content anyway.
+                unmatchedAttachments.get(0).setContent(unmatchedFiles.get(0).getBytes());
             }
         }
     }
-
 }
