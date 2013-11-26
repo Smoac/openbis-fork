@@ -19,6 +19,10 @@ class CommonJar extends Jar {
         from('targets/dist') {
             include 'BUILD*INFO'
         }
+        manifest {
+            attributes("Version": project.versionNumber,
+                   "Build-Number": "${project.versionNumber} (r${project.revisionNumber},${project.cleanFlag})")
+    }   
     }
 }
 
@@ -28,6 +32,7 @@ task jarImageIO(type: CommonJar) {
         include '**/imagereaders/*.class'
         include '**/imagereaders/imageio/*.class'
     })
+    from('resource/manifest/imageio')
 }
 
 task jarBioformats(type: CommonJar) {
@@ -35,6 +40,7 @@ task jarBioformats(type: CommonJar) {
     from(project.compileJava.outputs.getFiles().getAsFileTree().matching {
         include '**/imagereaders/bioformats/*.class'
     })
+    from('resource/manifest/bioformats')
 }
 
 
