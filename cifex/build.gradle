@@ -1,0 +1,28 @@
+evaluationDependsOn(':common')
+evaluationDependsOn(':authentication')
+evaluationDependsOn(':dbmigration')
+
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+    compile project(':common'),
+        project(':authentication'),
+        project(':dbmigration'),
+        'apache:commons-fileupload:+',
+        'bouncycastle:bcpg:+',
+        'jline:jline:+',
+        'google:gwt-user:+',
+        'sencha:gxt:+',
+        'springframework:spring-test:+'
+        
+    testCompile project(path: ':common', configuration: 'tests')
+}
+
+sourceSets { 
+    test {
+        resources {
+            srcDirs = ['source/java']
+        }
+    }
+}
+
