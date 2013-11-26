@@ -34,5 +34,5 @@ if ! "$BIN_DIR/check-and-exit-if-new-sprint-server.sh" "$SERVERS" "$VERSION_FILE
 #
 
 "$BIN_DIR/install-servers.sh" $BASE_DIR 
-"$BIN_DIR/servers-startup-from-latest-snapshot.sh" "$SERVERS" $BASE_DIR/snapshots
+"$BIN_DIR/servers-startup-from-latest-snapshot.sh" "$SERVERS" snapshots
 
