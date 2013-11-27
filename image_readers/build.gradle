@@ -14,33 +14,52 @@ dependencies {
     testCompile project(path: ':common', configuration: 'tests')
 }
 
-class CommonJar extends Jar {
-    CommonJar() {
+def jarConfiguration(parameters){
+    return {
+        baseName = parameters.get('baseName')
+        libraryName = parameters.get('libraryName')
+        
         from('targets/dist') {
             include 'BUILD*INFO'
         }
+        from(project.compileJava.outputs.getFiles().getAsFileTree().matching {
+            include '**/imagereaders/*.class'
+            include "**/imagereaders/${libraryName}/*.class"
+        })
+        from("resource/manifest/${libraryName}")
         manifest {
             attributes("Version": project.versionNumber,
                    "Build-Number": "${project.versionNumber} (r${project.revisionNumber},${project.cleanFlag})")
-    }   
+        }
     }
 }
 
-task jarImageIO(type: CommonJar) {
-    baseName 'cisd-image_readers'
-    from(project.compileJava.outputs.getFiles().getAsFileTree().matching {
-        include '**/imagereaders/*.class'
-        include '**/imagereaders/imageio/*.class'
-    })
-    from('resource/manifest/imageio')
+task jarImageIO(type: Jar) {
+    configure jarConfiguration([
+        baseName : 'cisd-image_readers',
+        libraryName : 'imageio'  
+    ])
 }
 
-task jarBioformats(type: CommonJar) {
-    baseName 'cisd-image_readers-bioformats'
-    from(project.compileJava.outputs.getFiles().getAsFileTree().matching {
-        include '**/imagereaders/bioformats/*.class'
-    })
-    from('resource/manifest/bioformats')
+task jarJai(type: Jar) {
+    configure jarConfiguration([
+        baseName : 'cisd-image_readers-jai', 
+        libraryName : 'jai'
+    ])
 }
 
+task jarBioformats(type: Jar) {
+    configure jarConfiguration([
+        baseName : 'cisd-image_readers-bioformats',
+        libraryName : 'bioformats'
+    ])
+}
 
+task jarImageJ(type: Jar) {
+    configure jarConfiguration([
+        baseName : 'cisd-image_readers-imagej',
+        libraryName : 'ij'
+    ])
+}
+
+jar.dependsOn([ jarImageIO, jarJai, jarBioformats, jarImageJ ])
