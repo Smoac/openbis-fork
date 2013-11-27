@@ -199,11 +199,20 @@
 					}
 				}
 			});	
+
+			$("#menu").append($("<a>", {'href' : "javascript:showIFrame('genefamilies.htm')" , 'class' : 'btn'}).text("GENE FAMILIES"));
 		}
+
 
 		//
 		// Navigation 
 		//
+		function showIFrame(url) {
+			blockUIWithMessage();
+			$("#main").empty();
+			$( "#main" ).load(url);
+   			$.unblockUI();
+		}
 		function showExperiment() {
 			blockUIWithMessage();
 			$("#main").empty();
@@ -255,6 +264,48 @@
 			getDataSetFilesFor(sampleIdentifier, "PDF", allDataStores[0].downloadUrl,
 				function(pdfFiles) {
 					$("#main").append("<h1>" + displayName + "</h1>");
+					$("#main").append("<div id='infoContainer'></div>");
+					searchSamplesWithTypeAndCodeAndGeneProperty(
+											"SIRNA_WELL",
+											"*-10X:*",
+											"\"" + displayName.substring(displayName.indexOf(":")+1) + "\"",
+											function(data) {
+												var geneFamilyLine = "<span class='propertyName'>Gene Family: </span><span class='propertyValue'>";
+												var geneFamilyValue = null;
+												var sirnasLine = "<span class='propertyName'>siRNA: </span><span class='propertyValue'>";
+
+												for(var i=0; i<data.length; i++){
+													var sample = data[i];
+													if(sample.experimentIdentifierOrNull.indexOf("/SIRNA_TIMELAPSES_10X/") === -1) {
+														continue;
+													}
+
+													if(geneFamilyValue === null) {
+														geneFamilyValue = sample.properties["GENE_FAMILY"];
+													}
+													
+													var sirna = sample.properties["SIRNA"].replace("(SIRNA)", "");
+													if(i === 0) {
+														sirnasLine += sirna;
+													} else {
+														sirnasLine += ", " +sirna;
+													}
+												}
+												geneFamilyLine += geneFamilyValue;
+												searchMaterialWithTypeAndCode(
+												"GENE",
+												"\"" + displayName.substring(displayName.indexOf(":")+1) + "\"",
+												function(data) {
+													var synonimsLine = "<span class='propertyName'>Gene Synonyms: </span><span class='propertyValue'>" + data[0].properties["GENE_SYMBOLS"];
+
+													$("#infoContainer").append(geneFamilyLine + "</span><br><br>" + synonimsLine + "</span><br><br>" + sirnasLine + "</span>");
+												});
+
+												
+											});
+
+
+
 
 					var component = "<div>";
 					for(var i = 0; i < pdfFiles.length; i++) {
@@ -355,7 +406,7 @@
     	 var $playerWidgetContainer = $("<div>", { 'class' : 'row'});
 
     	 var $paddingLeft = $("<div>", { 'class' : 'span2'});
-         var $playerWidget = $("<div>", { 'class' : 'span8 playerWidget'});
+         var $playerWidget = $("<div>", { 'class' : 'span8 playerWidget', 'h2':"TEST"});
          var $paddingRight = $("<div>", { 'class' : 'span2'});
 
          var $videoList = $("<div>", { 'class' : 'span2 videoList'});
@@ -370,7 +421,6 @@
                var idForFunc = id;
                var urlForFun = videoListURL[i];
               
-<<<<<<< .mine
                var $videoLink = $("<a>").click(function() {
                		$("#" + idForFunc).empty();
 				  	var component = "";
@@ -381,21 +431,6 @@
 				  	$("#" + idForFunc).append(component);
                }).html("Video " + (i+1));            
 
-=======
-               var $videoLink = $("<a>").click(function() {
-				  if($("#" + idForFunc).html().length > 0) {
-					  var api = $("#"+idForFunc).data("flowplayer");
-					  api.load(urlForFun);
-				  } else {
-	                  $("#"+idForFunc).flowplayer({
-	  									playlist: [
-	  										[
-	  											{ mp4:   urlForFun }
-	  										]
-	  									]
-	  								});
-				  }
->>>>>>> .r30171
                $videoList.append($videoLink);
                $videoList.append($("<br>"));
             }

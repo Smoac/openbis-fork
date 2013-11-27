@@ -1,25 +1,59 @@
 /*
  * Generic Style
  */
+body{
+  /* background: url("../images/main_bg.gif") repeat scroll 0 0 #FFFFFF; */
+}
+
 body, h1, h2 {
   font-family: "Helvetica Neue",sans-serif;
   color: #333333;
   font-weight: 200;
-  /*background-color: #D6EAFF;*/
 }
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.propertyName {
+    font-family: "Helvetica Neue",sans-serif;
+    color: black;
+    font-weight: 200;
+    font-size: 25px;
+}
+
+.propertyValue {
+    font-family: "Helvetica Neue",sans-serif;
+    color: #333333;
+    font-weight: 200;
+    font-size: 20px;
+}
+
+ul.dynatree-container {
+    background-color: transparent !important;
+}
+
+ul.dynatree-container a {
+    border: none;
+}
+
+/*
+*Reduce size of busy image
+*/
+.half {
+    -moz-transform:scale(0.5);
+    -webkit-transform:scale(0.5);
+    transform:scale(0.5);
+} 
 
 /*
  * Cool login form
  */
 .bodyLogin {
-    /*background: url(../css/loginBackground.jpg) no-repeat center center fixed; */
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-    
     font-family: "Helvetica Neue",sans-serif;
 }
+
+
 
 .loginForm {
     width: 360px;
@@ -160,13 +194,6 @@ video {
     border: none !important;
 }
 
-.half {
-    -moz-transform:scale(0.5);
-    -webkit-transform:scale(0.5);
-    transform:scale(0.5);
-}
-
-
 /*
  * General Layout
  */
@@ -174,5 +201,6 @@ video {
 body {
   margin-top : 60px;
   margin-left: 20px;
+  margin-bottom: 20px;
 }
 

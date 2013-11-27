@@ -167,3 +167,67 @@ function searchSamplesWithTypeAndCode(sampleType, sampleCode, callbackFunction)
 		callbackFunction(localReference.getInitializedSamples(data.result));
 	});
 }
+
+function searchSamplesWithTypeAndCodeAndGeneProperty(sampleType, sampleCode, sampleGene, callbackFunction)
+{    
+	var matchClauses = [ 
+			{
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",            
+				attribute : "TYPE",
+				desiredValue : sampleType
+			},
+			{
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",            
+				attribute : "CODE",
+				desiredValue : sampleCode 
+			},
+			{
+				"@type":"PropertyMatchClause",
+				fieldType : "PROPERTY",            
+				propertyCode : "GENE",
+				desiredValue : sampleGene 
+			} 
+	]
+	
+	var sampleCriteria = 
+	{
+		matchClauses : matchClauses,
+		operator : "MATCH_ALL_CLAUSES"
+	};
+	
+	var localReference = this;
+	openbis.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+		callbackFunction(localReference.getInitializedSamples(data.result));
+	});
+}
+
+function searchMaterialWithTypeAndCode(materialType, materialCode, callbackFunction)
+{    
+	var matchClauses = [ 
+			{
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",            
+				attribute : "TYPE",
+				desiredValue : materialType
+			},
+			{
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",            
+				attribute : "CODE",
+				desiredValue : materialCode 
+			}
+	]
+	
+	var materialCriteria = 
+	{
+		matchClauses : matchClauses,
+		operator : "MATCH_ALL_CLAUSES"
+	};
+	
+	var localReference = this;
+	openbis.searchForMaterials(materialCriteria, function(data) {
+		callbackFunction(data.result);
+	});
+}
