@@ -17,6 +17,7 @@ class ArtifactRepository():
         self.localRepositoryFolder = localRepositoryFolder
         if not os.path.exists(localRepositoryFolder):
             os.makedirs(localRepositoryFolder)
+        print "Artifact repository: %s" % localRepositoryFolder
             
     def clear(self):
         """
@@ -26,6 +27,7 @@ class ArtifactRepository():
             path = "%s/%s" % (self.localRepositoryFolder, f)
             if os.path.isfile(path):
                 os.remove(path)
+        print "Artifact repository cleared."
         
     def getPathToArtifact(self, project, pattern='.*'):
         """
@@ -37,7 +39,7 @@ class ArtifactRepository():
         """
         files = [f for f in os.listdir(self.localRepositoryFolder) if re.match(pattern, f)]
         if len(files) > 1:
-            raise Exception("More than one artifact in '%s' matches the pattern '%': %s" 
+            raise Exception("More than one artifact in '%s' matches the pattern '%s': %s" 
                             % (self.localRepositoryFolder, pattern, files))
         if len(files) == 0:
             f = self.downloadArtifact(project, pattern)
