@@ -35,16 +35,6 @@ public abstract class MainSuite extends SeleniumTest
     {
         useGui();
 
-        // <<< REMOVE THIS
-        try
-        {
-            initPageProxy(MainSuite.class.getMethod("before"));
-        } catch (Exception ex)
-        {
-            System.out.println("Couldn't initialize screenshot shooter: " + ex);
-        }
-        // << REMOVE THIS
-
         login(ADMIN_USER, ADMIN_PASSWORD);
 
         enableLegacyUi(); // This is here to enable the legacy UI for metadata since tests use it
