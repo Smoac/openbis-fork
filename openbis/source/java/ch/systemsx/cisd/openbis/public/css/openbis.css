@@ -45,7 +45,7 @@ td,
 /*
  * Links
  */
-div > div > div > a,
+span.gwt-InlineHTML > div > a,
 td > div > a,
 .link-style,
 .gwt-InlineHTML > a,
