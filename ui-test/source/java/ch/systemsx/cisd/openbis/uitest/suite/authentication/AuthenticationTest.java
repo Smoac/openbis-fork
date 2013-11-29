@@ -11,6 +11,7 @@ import ch.systemsx.cisd.openbis.uitest.menu.AdminMenu;
 import ch.systemsx.cisd.openbis.uitest.menu.TopBar;
 import ch.systemsx.cisd.openbis.uitest.page.InvalidPasswordDialog;
 import ch.systemsx.cisd.openbis.uitest.page.RoleAssignmentBrowser;
+import ch.systemsx.cisd.openbis.uitest.page.UserSettingsDialog;
 
 public class AuthenticationTest extends SeleniumTest
 {
@@ -19,6 +20,16 @@ public class AuthenticationTest extends SeleniumTest
     public void fixture()
     {
         useGui();
+        enableLegacyUi();
+    }
+    
+    protected void enableLegacyUi()
+    {
+        login(ADMIN_USER, ADMIN_PASSWORD);
+        UserSettingsDialog settings = browser().goTo(userSettings());
+        settings.setLegacyUi();
+        settings.save();
+        logout();
     }
 
     @Test
