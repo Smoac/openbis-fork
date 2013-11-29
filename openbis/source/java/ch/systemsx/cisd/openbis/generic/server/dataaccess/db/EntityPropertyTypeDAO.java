@@ -201,10 +201,38 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     {
         assert assignment != null : "Unspecified assignment.";
 
-        String query =
-                String.format(
-                        "SELECT pv.entity.id FROM %s pa join pa.propertyValues pv WHERE pa = ?",
-                        entityKind.getEntityTypePropertyTypeAssignmentClass().getSimpleName());
+        String query = null;
+
+        switch (entityKind)
+        {
+            case SAMPLE:
+                query =
+                        String.format("SELECT DISTINCT sample.id "
+                                + "FROM SamplePE sample, SampleTypePropertyTypePE stpt "
+                                + "WHERE sample.sampleType = stpt.entityTypeInternal AND stpt = ?");
+                break;
+            case DATA_SET:
+                query =
+                        String.format("SELECT DISTINCT data.id "
+                                + "FROM DataPE data, DataSetTypePropertyTypePE dtpt "
+                                + "WHERE data.dataSetType = dtpt.entityTypeInternal AND dtpt = ?");
+                break;
+            case MATERIAL:
+                query =
+                        String.format("SELECT DISTINCT material.id "
+                                + "FROM MaterialPE material, MaterialTypePropertyTypePE mtpt "
+                                + "WHERE material.materialType = mtpt.entityTypeInternal AND mtpt = ?");
+                break;
+            case EXPERIMENT:
+                query =
+                        String.format("SELECT DISTINCT experiment.id "
+                                + "FROM ExperimentPE experiment, ExperimentTypePropertyTypePE etpt "
+                                + "WHERE experiment.experimentType = etpt.entityTypeInternal AND etpt = ?");
+                break;
+            default:
+                throw new IllegalArgumentException(entityKind.toString());
+        }
+
         final List<Long> list = cast(getHibernateTemplate().find(query, toArray(assignment)));
 
         if (operationLog.isInfoEnabled())

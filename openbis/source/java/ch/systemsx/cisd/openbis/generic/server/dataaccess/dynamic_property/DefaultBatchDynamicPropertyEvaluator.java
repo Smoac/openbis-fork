@@ -39,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -68,6 +69,7 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
         entityKindsByClass.put(ExperimentPE.class, EntityKind.EXPERIMENT);
         entityKindsByClass.put(MaterialPE.class, EntityKind.MATERIAL);
         entityKindsByClass.put(DataPE.class, EntityKind.DATA_SET);
+        entityKindsByClass.put(ExternalDataPE.class, EntityKind.DATA_SET);
     }
 
     private final int batchSize;
@@ -307,12 +309,41 @@ final class DefaultBatchDynamicPropertyEvaluator implements IBatchDynamicPropert
     private static List<Long> listEntityIdsWithDynamicProperty(Session hibernateSession,
             EntityKind entityKind) throws DataAccessException
     {
-        final String query =
-                String.format("SELECT DISTINCT pv.entity.id FROM %s pa JOIN pa.propertyValues pv "
-                        + "WHERE pa.script IS NOT NULL                                           "
-                        + "AND pa.script.scriptType = '%s'", entityKind
-                        .getEntityTypePropertyTypeAssignmentClass().getSimpleName(),
-                        ScriptType.DYNAMIC_PROPERTY.name());
+        String query = null;
+        switch (entityKind)
+        {
+            case SAMPLE:
+                query =
+                        String.format("SELECT DISTINCT sample.id "
+                                + "FROM SamplePE sample JOIN sample.sampleType.sampleTypePropertyTypesInternal pti "
+                                + "WHERE pti.script.scriptType = '%s'",
+                                ScriptType.DYNAMIC_PROPERTY.name());
+                break;
+            case DATA_SET:
+                query =
+                        String.format("SELECT DISTINCT data.id "
+                                + "FROM DataPE data JOIN data.dataSetType.dataSetTypePropertyTypesInternal pti "
+                                + "WHERE pti.script.scriptType = '%s'",
+                                ScriptType.DYNAMIC_PROPERTY.name());
+                break;
+            case EXPERIMENT:
+                query =
+                        String.format("SELECT DISTINCT experiment.id "
+                                + "FROM ExperimentPE experiment JOIN experiment.experimentType.experimentTypePropertyTypesInternal pti "
+                                + "WHERE pti.script.scriptType = '%s'",
+                                ScriptType.DYNAMIC_PROPERTY.name());
+                break;
+            case MATERIAL:
+                query =
+                        String.format("SELECT DISTINCT material.id "
+                                + "FROM MaterialPE material JOIN material.materialType.materialTypePropertyTypesInternal pti "
+                                + "WHERE pti.script.scriptType = '%s'",
+                                ScriptType.DYNAMIC_PROPERTY.name());
+                break;
+            default:
+                throw new IllegalArgumentException(entityKind.toString());
+        }
+
         final List<Long> list = list(hibernateSession.createQuery(query));
 
         if (operationLog.isDebugEnabled())
