@@ -9,13 +9,20 @@ import time
 CI_BASE_URL = 'http://bs-ci01.ethz.ch:8090'
 
 reuseRepository = False
+suppressCleanUp = False
 cmd = sys.argv[0]
 if len(sys.argv) > 1:
     firstArgument = sys.argv[1]
     if firstArgument == '-r':
         reuseRepository = True
+    if firstArgument == '-sr' or firstArgument == '-rs':
+        reuseRepository = True
+        suppressCleanUp = True
+    if firstArgument == '-s':
+        suppressCleanUp = True
     if firstArgument == '-h':
-        print "Usage: %s [-h|-r]\n-h: prints this help\n-r: reuses artifact repository" % os.path.basename(cmd)
+        print ("Usage: %s [-h|-r|-s|-rs]\n-h: prints this help\n-r: reuses artifact repository\n"
+            + "-s: suppress clean up\n-sr: both options") % os.path.basename(cmd)
         exit(1)
 
 dirname = os.path.dirname(cmd)
