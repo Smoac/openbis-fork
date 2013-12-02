@@ -63,6 +63,13 @@ def insertSample(tr, parameters, tableBuilder):
 	if method == "updateSample":
 		sample = tr.getSampleForUpdate(sampleIdentifier); #Retrieve Sample
 	
+	#Obtain space
+	space = None;
+	if sampleSpace != None:
+		space = tr.getSpace(sampleSpace);
+		if space == None:
+			space = tr.createNewSpace(sampleSpace, None);
+			
 	#Obtain project
 	project = None;
 	if sampleSpace != None and sampleExperimentProject != None:
