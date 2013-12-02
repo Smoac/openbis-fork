@@ -86,6 +86,23 @@ $.extend(DefaultProfile.prototype, {
 		//
 		// Per Lab Extensions
 		//
+		
+		/*
+		 * Used by Sample Form
+		 */
+		
+		this.getSpaceForSampleType = function(type) {
+			return "DEFAULT";
+		}
+		
+		this.getExperimentIdentifierForSample = function(type, code, properties) {
+			return "/" + this.getSpaceForSampleType(type) + "/PROJECT_" + type + "/FOLDER_" + type;
+		}
+		
+		/*
+		 * Used by Inspector
+		 */
+		
 		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
 			return {
 					"isSingleColumn" : false,

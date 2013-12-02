@@ -22,7 +22,7 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
 		isOk = insertSample(tr, parameters, tableBuilder);
-
+	
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -37,7 +37,7 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("MESSAGE", "Operation Failed");
 
 def insertSample(tr, parameters, tableBuilder):
-
+	
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
 	sampleProject = parameters.get("sampleProject"); #String
@@ -48,33 +48,36 @@ def insertSample(tr, parameters, tableBuilder):
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
 	
-	#Only used to create an experiment with the same code as the sample for the case of the ELN experiment
-	sampleExperimentCreate = parameters.get("sampleExperimentCreate"); #Boolean
+	#Used to create the experiment if doesn't exist already
 	sampleExperimentCode = parameters.get("sampleExperimentCode"); #String
 	sampleExperimentType = parameters.get("sampleExperimentType"); #String
 	sampleExperimentProject = parameters.get("sampleExperimentProject"); #String
 	
 	#Create/Get for update sample	
-	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode
-
+	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode;
+	
 	method = parameters.get("method");
 	if method == "insertSample":
 		sample = tr.createNewSample(sampleIdentifier, sampleType); #Create Sample given his id
 		
 	if method == "updateSample":
-		sample = tr.getSampleForUpdate(sampleIdentifier) #Retrieve Sample
+		sample = tr.getSampleForUpdate(sampleIdentifier); #Retrieve Sample
 	
-	#Obtain experiment identifier
-	experimentIdentifier = None
+	#Obtain project
+	project = None;
+	if sampleSpace != None and sampleExperimentProject != None:
+		projectIdentifier = '/' +sampleSpace+ '/' + sampleExperimentProject;
+		project = tr.getProject(projectIdentifier);
+		if project == None:
+			project = tr.createNewProject(projectIdentifier);
+	
+	#Obtain experiment
+	experiment = None;
 	if sampleSpace != None and sampleExperimentProject != None and sampleExperimentCode != None:
 		experimentIdentifier = '/' +sampleSpace+ '/' + sampleExperimentProject + '/' +sampleExperimentCode;
-
-	#Obtain experiment
-	experiment = None
-	if sampleExperimentCreate and experimentIdentifier != None and sampleExperimentType != None:
-		experiment = tr.createNewExperiment(experimentIdentifier, sampleExperimentType);
-	elif experimentIdentifier != None:
 		experiment = tr.getExperiment(experimentIdentifier);
+		if experiment == None:
+			experiment = tr.createNewExperiment(experimentIdentifier, sampleExperimentType);
 	
 	#Assign experiment
 	if experiment != None:
