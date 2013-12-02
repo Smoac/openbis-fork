@@ -60,13 +60,13 @@ var common = {
   add_unofficial_vocabulary_term_dialog_title: "Add Ad Hoc Term",
   breadcrumbs_separator: "»",
   storage_confirmation: "Storage Confirmed",
-  metaproject: "Metaproject",
-  metaprojects: "Metaprojects",
-  metaprojects_hint: "List of metaprojects names separated by commas (\",\") or one metaproject name per line. If a metaproject does not exist, it will be created.",
-  add_metaproject: "Add Metaproject...",
-  choose_metaproject: "Choose a Metaproject",
-  create_not_existing_metaprojects_confirmation_title: "Confirm metaprojects creation",
-  create_not_existing_metaprojects_confirmation_msg: "Metaprojects {0} do not exist. Do you want to create them?",
+  metaproject: "Tags",
+  metaprojects: "Tags",
+  metaprojects_hint: "List of tag names separated by commas (\",\") or one tag name per line. If a tag does not exist, it will be created.",
+  add_metaproject: "Add Tag...",
+  choose_metaproject: "Choose a Tag",
+  create_not_existing_metaprojects_confirmation_title: "Confirm tags creation",
+  create_not_existing_metaprojects_confirmation_msg: "Tags {0} do not exist. Do you want to create them?",
   
   //
   // Form
@@ -162,9 +162,9 @@ var common = {
   button_add: "Add {0}",
   button_save: "Save",
   button_tag: "Tag",
-  button_tag_tooltip: "Assign metaprojects to selected entities",
+  button_tag_tooltip: "Assign tags to selected entities",
   button_untag: "Untag",
-  button_untag_tooltip: "Remove metaproject assignments from selected entities",
+  button_untag_tooltip: "Remove tags assignments from selected entities",
   button_upload: "Upload",
   button_save_and_upload: "Save + Upload Data Set",
   button_choose: "Choose",
@@ -184,7 +184,7 @@ var common = {
   button_delete_material: "Delete Material",
   button_delete_data_set: "Delete Data Set",
   button_delete_project: "Delete Project",
-  button_delete_metaproject: "Delete Metaproject",
+  button_delete_metaproject: "Delete Tag",
   button_configure: "Settings",  
   button_filters: "Filters",  
   button_upload_data_via_cifex: "Upload Data",
@@ -500,7 +500,7 @@ var common = {
   PROJECT_MENU_BROWSE: "Projects",
   PROJECT_MENU_NEW: "Project",
   
-  METAPROJECT_MENU_BROWSE: "Metaprojects",
+  METAPROJECT_MENU_BROWSE: "Tags",
   
   menu_property_types: "Metadata",
   PROPERTY_TYPES_MENU_BROWSE_PROPERTY_TYPES: "Browse Property Types",
@@ -633,7 +633,7 @@ var common = {
   HELP__TABLE_SETTINGS__CUSTOM_FILTER__EDIT: "Add or Edit Custom Filter",
   HELP__EXPORT_DATA__ACTION: "Data Exporting",
   HELP__PERFORM_COMPUTATION__ACTION: "Performing Computations on Data Sets",
-  HELP__METAPROJECT__BROWSE: "Metaproject Browser",
+  HELP__METAPROJECT__BROWSE: "Tags Browser",
     
   //
   // User Settings Dialog
@@ -756,7 +756,7 @@ var common = {
  // Metaproject Tree
  //
  
- metaproject_tree_column_header: "Metaproject / Entity Kind / Entity",
+ metaproject_tree_column_header: "Tag / Entity Kind / Entity",
  metaproject_tree_info_link: "(info)",
  metaproject_tree_description_not_available: "(not available)",
  metaproject_tree_metaproject_tooltip: "Name: {0}\nDescription: {1}",
@@ -764,8 +764,8 @@ var common = {
  //
  // Metaproject Browser
  //
- metaproject_browser: "Metaproject Browser",
- metaproject_browser_tree_title: "Metaprojects",
+ metaproject_browser: "Tag Browser",
+ metaproject_browser_tree_title: "Tags",
  metaproject_browser_tree_tooltip: "Click on a row with an entity type (i.e. Experiments, Samples, Data Sets, Materials) to see entities of that type that belong to the given metaproject.",
  metaproject_browser_entities_title: "Entities",
  
@@ -782,7 +782,7 @@ var common = {
  // Metaproject Viewer
  //
 
- metaproject_properties: "Metaproject properties",
+ metaproject_properties: "Tag properties",
  
  //
  // Project Registration
@@ -943,8 +943,8 @@ default_group: "Default Space",
 // Metaproject chooser
 //
 button_create_metaprojects: "Create",
-button_create_new_metaprojects: "Create New Metaprojects",
-topic_create_metaprojects: "Create Metaprojects",
+button_create_new_metaprojects: "Create New Tags",
+topic_create_metaprojects: "Create Tags",
 
 //
 // Script Browser

@@ -24,12 +24,12 @@ public class MetaprojectNameConstants
 
     public static final int MAX_LENGTH = 60;
 
-    public static final String MAX_LENGTH_ERROR_MESSAGE = "Metaproject name cannot be longer than "
+    public static final String MAX_LENGTH_ERROR_MESSAGE = "Tag name cannot be longer than "
             + MAX_LENGTH + " characters.";
 
     public static final String PATTERN = "^[^\\s,/\\\\]+$";
 
     public static final String PATTERN_ERROR_MESSAGE =
-            "Metaproject name cannot contain white spaces, commas, slashes or backslashes.";
+            "Tag name cannot contain white spaces, commas, slashes or backslashes.";
 
 }
