@@ -99,8 +99,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult.class,
-            PlateGeometryContainer.class })
+{ ch.systemsx.cisd.openbis.plugin.screening.server.dataaccess.WellContentQueryResult.class,
+        PlateGeometryContainer.class })
 public class ScreeningApiImpl
 {
     private final Session session;
@@ -891,7 +891,7 @@ public class ScreeningApiImpl
         }
 
         List<ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata> plateMetadatas =
-                PlateContentLoader.loadPlateMetadata(session, businessObjectFactory,
+                PlateContentLoader.loadPlateMetadata(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                         managedPropertyEvaluatorFactory, techIds);
 
         List<PlateMetadata> result = new ArrayList<PlateMetadata>();

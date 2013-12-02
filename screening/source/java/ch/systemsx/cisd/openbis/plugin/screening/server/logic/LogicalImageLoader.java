@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.Query;
+
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -45,16 +47,16 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.IImageDatasetLoa
 public class LogicalImageLoader
 {
     /**
-     * Loads information about the logical image in the chosen image dataset (restricted to one well
-     * in HCS case).
+     * Loads information about the logical image in the chosen image dataset (restricted to one well in HCS case).
      */
     public static LogicalImageInfo loadLogicalImageInfo(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String datasetCode,
             String datastoreCode, WellLocation wellLocationOrNull)
     {
         LogicalImageInfo logicalImageInfo =
-                new LogicalImageLoader(session, businessObjectFactory,
+                new LogicalImageLoader(session, hibernateSession, businessObjectFactory,
                         managedPropertyEvaluatorFactory).tryLoadLogicalImageInfo(datasetCode,
                         datastoreCode, wellLocationOrNull);
         if (logicalImageInfo == null)
@@ -66,26 +68,30 @@ public class LogicalImageLoader
     }
 
     public static ImageDatasetEnrichedReference getImageDatasetReference(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, String datasetCode,
             String datastoreCode)
     {
-        return new LogicalImageLoader(session, businessObjectFactory,
+        return new LogicalImageLoader(session, hibernateSession, businessObjectFactory,
                 managedPropertyEvaluatorFactory).getImageDatasetReference(datasetCode,
                 datastoreCode);
     }
 
     private final Session session;
 
+    private final org.hibernate.classic.Session hibernateSession;
+
     private final IScreeningBusinessObjectFactory businessObjectFactory;
 
     private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     public LogicalImageLoader(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory,
+            org.hibernate.classic.Session hibernateSession, IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;
+        this.hibernateSession = hibernateSession;
         this.businessObjectFactory = businessObjectFactory;
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
@@ -166,8 +172,13 @@ public class LogicalImageLoader
 
     private List<AbstractExternalData> fetchOverlayDatasets(DataPE imageDataset)
     {
+        Query query = hibernateSession.createQuery(
+                "SELECT rel.childDataSet from DataSetRelationshipPE rel WHERE rel.parentDataSet = :parent")
+                .setParameter("parent", imageDataset);
+        @SuppressWarnings("unchecked")
+        List<DataPE> children = query.list();
         List<DataPE> overlayPEs =
-                ScreeningUtils.filterImageOverlayDatasets(imageDataset.getChildren());
+                ScreeningUtils.filterImageOverlayDatasets(children);
         Collection<Long> datasetIds = extractIds(overlayPEs);
         return businessObjectFactory.createDatasetLister(session).listByDatasetIds(datasetIds);
     }
