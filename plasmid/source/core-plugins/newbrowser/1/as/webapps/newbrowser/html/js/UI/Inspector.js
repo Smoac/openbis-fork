@@ -140,8 +140,12 @@ function Inspector(serverFacade, containerId, profile) {
 	this.toogleInspector = function(permId) {
 		if($("#" + permId).is(":visible")) {
 			$("#" + permId).hide();
+			$("#" + permId+"_ICON").removeClass("icon-chevron-up");
+			$("#" + permId+"_ICON").addClass("icon-chevron-down");
 		} else {
 			$("#" + permId).show();
+			$("#" + permId+"_ICON").removeClass("icon-chevron-down");
+			$("#" + permId+"_ICON").addClass("icon-chevron-up");
 		}
 	}
 	
@@ -237,19 +241,22 @@ function Inspector(serverFacade, containerId, profile) {
 			var divID = entity.sampleTypeCode + "_" + entity.code + "_INSPECTOR";
 			inspector += "<div id='"+divID+"' class='inspector' style='background-color:" + defaultColor + ";' >";
 			
+			if(withLinks) {
+				var toogleButton = "<span class='btn' style='float:left; margin: 2px' onclick='mainController.inspector.toogleInspector(\""+entity.permId+"_TOOGLE\")'><i id='"+entity.permId+"_TOOGLE_ICON' class='icon-chevron-up'></i></span>";
+				inspector += toogleButton;
+			}
+			
 			inspector += "<strong>" + entity.code + "</strong>";
 			
 			if(showClose) {
-				var removeButton = "<span class='btn close' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='icon-remove'></i></span>";
+				var removeButton = "<span class='btn' style='float:right; margin: 2px' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='icon-remove'></i></span>";
 				inspector += removeButton;
 			}
 			
 			if(withLinks) {
-				var printButton = "<span class='btn close' onclick='mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='icon-print'></i></span>";
+				var printButton = "<span class='btn' style='float:right; margin: 2px;' onclick='mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='icon-print'></i></span>";
 				inspector += printButton;
-				var toogleButton = "<span class='btn close' onclick='mainController.inspector.toogleInspector(\""+entity.permId+"_TOOGLE\")'><i class='icon-eye-open'></i></span>";
-				inspector += toogleButton;
-				var viewButton = "<span class='btn close' onclick='mainController.inspector.showViewSamplePage(\""+entity.permId+"\")'><i class='icon-search'></i></span>";
+				var viewButton = "<span class='btn' style='float:right; margin: 2px' onclick='mainController.inspector.showViewSamplePage(\""+entity.permId+"\")'><i class='icon-search'></i></span>";
 				inspector += viewButton;
 			}
 			

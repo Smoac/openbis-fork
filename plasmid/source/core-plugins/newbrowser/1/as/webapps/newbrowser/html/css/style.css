@@ -388,18 +388,6 @@ div.inspector:hover,div.inspector:focus{
   width:75%;
 }
 
-.close {
-	float: right;
-	opacity: 1;
-	margin: 2px;
-}
-
-.close:hover {
-	opacity: 1;
-	color: #AAA;
-	cursor: pointer;
-}
-
 .downloads {
 	color: black;
 	background-color:#DDDDDD;;
