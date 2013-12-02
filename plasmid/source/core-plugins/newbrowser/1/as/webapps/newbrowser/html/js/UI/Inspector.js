@@ -109,6 +109,42 @@ function Inspector(serverFacade, containerId, profile) {
 		this.repaint();
 	}
 	
+	this.showViewSamplePage = function(entityPermId) {
+		for(var i = 0; i < this.inspectedSamples.length; i++) {
+			if(this.inspectedSamples[i].permId === entityPermId) {
+				mainController.showViewSamplePage(this.inspectedSamples[i]);
+				break;
+			}
+		}
+	}
+	
+	this.printInspector = function(entityPermId) {
+		var newWindow = window.open(null,"print " + entityPermId);
+		
+		var pageToPrint = "";
+			pageToPrint += "<html>";
+			pageToPrint += "<head>";
+			pageToPrint += "</head>";
+			pageToPrint += "<body stlye='font-family: '\"'Helvetica Neue\",Helvetica,Arial,sans-serif;'>";
+			for(var i = 0; i < this.inspectedSamples.length; i++) {
+				if(this.inspectedSamples[i].permId === entityPermId) {
+					pageToPrint += this.getInspectorTable(this.inspectedSamples[i], false, false, false);
+				}
+			}
+			pageToPrint += "</body>";
+			pageToPrint += "</html>";
+		
+		$(newWindow.document.body).html(pageToPrint);
+	}
+	
+	this.toogleInspector = function(permId) {
+		if($("#" + permId).is(":visible")) {
+			$("#" + permId).hide();
+		} else {
+			$("#" + permId).show();
+		}
+	}
+	
 	this.printInspectors = function() {
 		var newWindow = window.open(null,"print");
 		
@@ -204,10 +240,22 @@ function Inspector(serverFacade, containerId, profile) {
 			inspector += "<strong>" + entity.code + "</strong>";
 			
 			if(showClose) {
-				inspector += "<span class='close' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'>x</span>";
+				var removeButton = "<span class='btn close' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='icon-remove'></i></span>";
+				inspector += removeButton;
 			}
 			
-			inspector += "<table class='properties table'>"
+			if(withLinks) {
+				var printButton = "<span class='btn close' onclick='mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='icon-print'></i></span>";
+				inspector += printButton;
+				var toogleButton = "<span class='btn close' onclick='mainController.inspector.toogleInspector(\""+entity.permId+"_TOOGLE\")'><i class='icon-eye-open'></i></span>";
+				inspector += toogleButton;
+				var viewButton = "<span class='btn close' onclick='mainController.inspector.showViewSamplePage(\""+entity.permId+"\")'><i class='icon-search'></i></span>";
+				inspector += viewButton;
+			}
+			
+			
+			
+			inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table'>"
 			
 			//Show Properties following the order given on openBIS
 			var sampleTypePropertiesCode =  this.profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);

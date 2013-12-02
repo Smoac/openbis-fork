@@ -390,10 +390,12 @@ div.inspector:hover,div.inspector:focus{
 
 .close {
 	float: right;
+	opacity: 1;
+	margin: 2px;
 }
 
 .close:hover {
-	opacity: 0.5;
+	opacity: 1;
 	color: #AAA;
 	cursor: pointer;
 }
