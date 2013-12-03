@@ -24,12 +24,14 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -37,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.SimplifiedBaseModelData;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
@@ -186,6 +189,7 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
                 }
             });
         add(fdrComboBox);
+        add(new Label("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
         add(new LabelToolItem(viewContext.getMessage(Dict.AGGREGATE_FUNCTION_LABEL)
                 + GenericConstants.LABEL_SEPARATOR));
         aggregateFunctionComboBox =
@@ -247,8 +251,12 @@ class ProteinByExperimentBrowerToolBar extends ToolBar
         comboBox.setValue(fdr0);
         comboBox.addSelectionChangedListener(changedListener);
         comboBox.setEnabled(true);
-        comboBox.setWidth(60);
+        comboBox.setWidth(70);
         comboBox.setTriggerAction(TriggerAction.ALL);
+        AbstractImagePrototype infoIcon =
+                AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
+        FieldUtil.addInfoIcon(comboBox, viewContext.getMessage(Dict.FDR_COMBO_INFO),
+                infoIcon.createImage(), 3, 3);
         return comboBox;
     }
 
