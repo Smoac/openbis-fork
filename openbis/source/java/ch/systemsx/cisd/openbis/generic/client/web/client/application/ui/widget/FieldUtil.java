@@ -42,7 +42,7 @@ public class FieldUtil
 {
 
     private static final int[] INFO_LINK_FIELD_OFFSETS = new int[]
-        { 20, 3 };
+    { 20, 3 };
 
     private static final String INFO_LINK_POSITION = "tl-tr";
 
@@ -135,6 +135,18 @@ public class FieldUtil
      */
     public static void addInfoIcon(final Field<?> field, final String message, final Image image)
     {
+        addInfoIcon(field, message, image, INFO_LINK_FIELD_OFFSETS);
+    }
+
+    public static void addInfoIcon(final Field<?> field, final String message, final Image image,
+            int xOffset, int yOffset)
+    {
+        addInfoIcon(field, message, image, new int[] { xOffset, yOffset });
+    }
+
+    private static void addInfoIcon(final Field<?> field, final String message, final Image image,
+            final int[] infoLinkFieldOffsets)
+    {
         final WidgetComponent infoIcon = createInfoIcon(message, image);
 
         final IDelegatedAction alignInfoIcon = new IDelegatedAction()
@@ -143,7 +155,7 @@ public class FieldUtil
                 public void execute()
                 {
                     infoIcon.el().alignTo(field.getElement(), INFO_LINK_POSITION,
-                            INFO_LINK_FIELD_OFFSETS);
+                            infoLinkFieldOffsets);
                 }
             };
 
