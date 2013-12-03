@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.registrator.monitor;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
@@ -215,12 +216,14 @@ public class DssRegistrationHealthMonitor
         return updateKeyAvailability(path.getAbsolutePath(), isAvailable, path.toString());
     }
 
+    private static AtomicInteger counter = new AtomicInteger();
+
     /**
      * private function that checks if the given path is available by creating and deleting a temporary file.
      */
     private boolean checkFilesystemAvailable(File path)
     {
-        File temporaryFile = new File(path, "dss_health_monitor.tmp");
+        File temporaryFile = new File(path, "dss_health_monitor_" + counter.decrementAndGet() + ".tmp");
         try
         {
             // delete file just in case it already exists...
