@@ -41,8 +41,8 @@ import ch.systemsx.cisd.openbis.plugin.query.server.QueryServer;
 import ch.systemsx.cisd.openbis.systemtest.base.BaseTest;
 
 /**
- * This test tests registering and deactivating a person. It also tests authorization of
- * {@link CommonServer}, {@link ServiceForDataStoreServer}, {@link GenericServer}, and {@link QueryServer}.
+ * This test tests registering and deactivating a person. It also tests authorization of {@link CommonServer}, {@link ServiceForDataStoreServer},
+ * {@link GenericServer}, and {@link QueryServer}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -53,7 +53,7 @@ public class PersonManagementTest extends BaseTest
     @BeforeMethod
     public void setUpLogger()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "AUTH.CommonServer");
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, ".*AUTH.CommonServer");
     }
 
     @AfterMethod
@@ -103,7 +103,7 @@ public class PersonManagementTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testForCommonServerCountActivePersonsFailedBecauseOfInsufficientAuthorization()
     {
         String sessionToken =
@@ -113,7 +113,7 @@ public class PersonManagementTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testForETLServiceCountActivePersonsFailedBecauseOfInsufficientAuthorization()
     {
         String sessionToken =
@@ -123,7 +123,7 @@ public class PersonManagementTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testForGenericServerCountActivePersonsFailedBecauseOfInsufficientAuthorization()
     {
         String sessionToken =
@@ -133,7 +133,7 @@ public class PersonManagementTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testForQueryServerCountActivePersonsFailedBecauseOfInsufficientAuthorization()
     {
         String sessionToken =
@@ -168,7 +168,7 @@ public class PersonManagementTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testRegisterPersonFailedBecauseOfInsufficientAuthorization()
     {
         String sessionToken =
@@ -197,7 +197,7 @@ public class PersonManagementTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { AuthorizationFailureException.class })
+    { AuthorizationFailureException.class })
     public void testSetSessionUserFailedBecauseOfInsufficientAuthorization()
     {
         String sessionToken =

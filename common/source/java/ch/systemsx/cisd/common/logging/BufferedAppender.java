@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.logging;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
@@ -69,14 +70,14 @@ public final class BufferedAppender extends WriterAppender
     }
 
     /**
-     * Creates an instance for specified optional pattern, log level and snippet of the logger name
+     * Creates an instance for specified optional layout pattern, log level and regex of the logger name
      * onto which log entries are filtered.
      */
-    public BufferedAppender(final String patternOrNull, final Level logLevel,
-            final String loggerNameSnippetToFilterOnOrNull)
+    public BufferedAppender(final String patternOrNull, final Level logLevel, final String loggerNameRegex)
     {
         logRecorder = new ByteArrayOutputStream();
-        if (loggerNameSnippetToFilterOnOrNull != null)
+        final Pattern pattern = Pattern.compile(loggerNameRegex);
+        if (loggerNameRegex != null)
         {
             this.addFilter(new Filter()
                 {
@@ -84,8 +85,7 @@ public final class BufferedAppender extends WriterAppender
                     public int decide(LoggingEvent event)
                     {
                         String loggerName = event.getLoggerName();
-                        return loggerName.indexOf(loggerNameSnippetToFilterOnOrNull) >= 0 ? Filter.ACCEPT
-                                : Filter.DENY;
+                        return pattern.matcher(loggerName).matches() ? Filter.ACCEPT : Filter.DENY;
                     }
                 });
         }
