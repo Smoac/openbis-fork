@@ -9,20 +9,23 @@ import time
 CI_BASE_URL = 'http://bs-ci01.ethz.ch:8090'
 
 reuseRepository = False
-suppressCleanUp = False
+devMode = False
 cmd = sys.argv[0]
 if len(sys.argv) > 1:
     firstArgument = sys.argv[1]
     if firstArgument == '-r':
         reuseRepository = True
-    if firstArgument == '-sr' or firstArgument == '-rs':
+    elif firstArgument == '-dr' or firstArgument == '-rd':
         reuseRepository = True
-        suppressCleanUp = True
-    if firstArgument == '-s':
-        suppressCleanUp = True
-    if firstArgument == '-h':
-        print ("Usage: %s [-h|-r|-s|-rs]\n-h: prints this help\n-r: reuses artifact repository\n"
-            + "-s: suppress clean up\n-sr: both options") % os.path.basename(cmd)
+        devMode = True
+    elif firstArgument == '-d':
+        devMode = True
+    elif firstArgument == '-h':
+        print ("Usage: %s [-h|-r|-d|-rd]\n-h: prints this help\n-r: reuses artifact repository\n"
+            + "-d: developing mode\n-rd: both options") % os.path.basename(cmd)
+        exit(1)
+    else:
+        print "Unknown option: %s. Use option '-h' to see usage." % firstArgument
         exit(1)
 
 dirname = os.path.dirname(cmd)

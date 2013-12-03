@@ -1,3 +1,4 @@
+import re
 import os
 import os.path
 import shutil
@@ -13,7 +14,42 @@ PLAYGROUND = 'targets/playground'
 TEMPLATES = 'templates'
 PSQL_EXE = 'psql'
 
-class TestCase():
+class TestCase(object):
+    """
+    Abstract superclass of a test case. 
+    Subclasses have to override execute() and optionally executeInDevMode(). 
+    The test case is run by invoking runTest(). 
+    Here is a skeleton of a test case:
+    
+    #!/usr/bin/python
+    import settings
+    import systemtest.testcase
+
+    class TestCase(systemtest.testcase.TestCase):
+    
+        def execute(self):
+            ....
+            
+        def executeInDevMode(self):
+            ....
+            
+    TestCase(settings, __file__).runTest()
+
+    There are two execution modes (controlled by command line option -d and -rd):
+    
+    Normal mode: 
+        1. Cleans up playground: Kills running servers and deletes playground folder of this test case.
+        2. Invokes execute() method.
+        3. Release resources: Shuts down running servers.
+        
+    Developing mode:
+        1. Invokes executeInDevMode() method.
+        
+    The developing mode allows to reuse already installed servers. 
+    Servers might be restarted. This mode leads to fast development 
+    of test code by doing incremental development. Working code
+    can be moved from executeInDevMode() to execute(). 
+    """
     def __init__(self, settings, filePath):
         self.artifactRepository = settings.REPOSITORY
         self.project = None
@@ -21,22 +57,24 @@ class TestCase():
         self.name = fileName[0:fileName.rfind('.')]
         self.playgroundFolder = "%s/%s" % (PLAYGROUND, self.name)
         self.numberOfFailures = 0
-        self.suppressCleanUp = settings.suppressCleanUp
+        self.devMode = settings.devMode
+        self.runningOpenbisInstances = []
 
     def runTest(self):
         """
         Runs this test case. This is a final method. It should not be overwritten.
         """
         startTime = time.time()
-        print "\n/''''''''''''''''''' %s started at %s ''''''''''" % (self.name, time.strftime('%Y-%m-%d %H:%M:%S'))
+        print "\n/''''''''''''''''''' %s started at %s %s ''''''''''" % (self.name, time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                         'in DEV MODE' if self.devMode else '')
         try:
-            if os.path.exists(self.playgroundFolder):
-                if not self.suppressCleanUp:
+            if not self.devMode:
+                if os.path.exists(self.playgroundFolder):
                     self._cleanUpPlayground()
-                    os.makedirs(self.playgroundFolder)
-            else:
                 os.makedirs(self.playgroundFolder)
-            self.execute()
+                self.execute()
+            else:
+                self.executeInDevMode()
             success = self.numberOfFailures == 0
         except:
             traceback.print_exc()
@@ -44,6 +82,8 @@ class TestCase():
             raise Exception("%s failed" % self.name)
         finally:
             duration = time.time() - startTime
+            if not self.devMode:
+                self.releaseResources()
             if success:
                 print "\...........SUCCESS: %s executed in %d seconds .........." % (self.name, duration)
             else:
@@ -51,26 +91,56 @@ class TestCase():
         
     def execute(self):
         """
-        Executes this test case. This is an abstract method which has to be overwritten in subclasses.
+        Executes this test case in normal mode. 
+        This is an abstract method which has to be overwritten in subclasses.
         """
         pass
     
+    def executeInDevMode(self):
+        """
+        Executes this test case in developing mode. 
+        This method can be overwritten in subclasses.
+        """
+        pass
+    
+    def releaseResources(self):
+        """
+        Releases resources. It shuts down all running servers.
+        This method can be overwritten in subclasses. 
+        Note, this method can be invoked in subclasses as follows:
+        
+                super(type(self), self).releaseResources()
+        
+        """
+        self._shutdownSevers()
+        
+    def assertPatternInLog(self, log, pattern):
+        if not re.search(pattern, log):
+            self.fail("Pattern doesn't match: %s" % pattern)
+    
     def assertEquals(self, itemName, expected, actual):
         """
-        Asserts that expected == actual. If not both will be printed and the test will be counted as failed.
+        Asserts that expected == actual. If not the test will be continued but counted as failed.
         """
         if expected != actual:
-            self.numberOfFailures += 1
-            print "ERROR: %s\n  expected: <%s>\n   but was: <%s>" % (itemName, expected, actual)
+            self.fail("%s\n  expected: <%s>\n   but was: <%s>" % (itemName, expected, actual))
         else:
             print "%s as expected: <%s>" % (itemName, expected)
     
+    def fail(self, errorMessage):
+        """
+        Prints specified error message and mark test case as failed.
+        """
+        self.numberOfFailures += 1
+        print "ERROR: %s" % errorMessage
+        
 
     def installOpenbis(self, instanceName = 'openbis', technologies = []):
         """
         Installs openBIS from the installer. 
         
-        The instanceName specifies the subfolder in the playground folder where the instance will be installed. 
+        The instanceName specifies the subfolder in the playground folder 
+        where the instance will be installed. 
         In addition it is also part of the database names.
         The technologies are an array of enabled technologies.
         An instance of OpenbisController is returned.
@@ -89,10 +159,20 @@ class TestCase():
         util.writeProperties(consolePropertiesFile, consoleProperties)
         util.executeCommand("%s/%s/run-console.sh" % (self.playgroundFolder, installerFileName), 
                             "Couldn't install openBIS", consoleInput='admin\nadmin')
-        return OpenbisController(self.name, installPath, instanceName)
+        return OpenbisController(self, self.name, installPath, instanceName)
     
     def createOpenbisController(self, instanceName = 'openbis'):
-        return OpenbisController(self.name, self._getOpenbisInstallPath(instanceName), instanceName, dropDatabases = False)
+        """
+        Creates an openBIS controller object assuming that an openBIS instance for the specified name is installed.
+        """
+        return OpenbisController(self, self.name, self._getOpenbisInstallPath(instanceName), instanceName, dropDatabases = False)
+    
+    def installScreeningTestClient(self):
+        """ Installs the screening test client and returns an instance of ScreeningTestClient. """
+        zipFile = self.artifactRepository.getPathToArtifact(OPENBIS_STANDARD_TECHNOLOGIES_PROJECT, 'openBIS-screening-API')
+        installPath = "%s/screeningAPI" % self.playgroundFolder
+        util.unzip(zipFile, installPath)
+        return ScreeningTestClient(self, installPath)
     
     def _getOpenbisInstallPath(self, instanceName):
         return os.path.abspath("%s/%s" % (self.playgroundFolder, instanceName))
@@ -107,7 +187,6 @@ class TestCase():
             util.killProcess("%s/servers/openBIS-server/jetty/openbis.pid" % path)
         util.deleteFolder(self.playgroundFolder)
 
-        
     def _getAndCreateFolder(self, folderPath):
         """
         Creates a folder inside the playground. The argument is a relative path to the playground.
@@ -117,11 +196,37 @@ class TestCase():
         os.makedirs(path)
         return path
     
+    def _shutdownSevers(self):
+        for instance in self.runningOpenbisInstances:
+            instance.allDown()
+            
+class ScreeningTestClient():
+    """
+    Class representing the screeing test client.
+    """
+    def __init__(self, testCase, installPath):
+        self.testCase = testCase
+        self.installPath = installPath
+        
+    def run(self):
+        """ Runs the test client and returns the console output as a list of strings. """
+        output = util.executeCommand(['java', "-Djavax.net.ssl.trustStore=%s/openBIS.keystore" % self.installPath,
+                                      '-jar', "%s/openbis_screening_api.jar" % self.installPath, 'admin', 'admin', 
+                                      'https://localhost:8443'], suppressStdOut = True)
+        with open("%s/log.txt" % self.installPath, 'w') as log:
+            for line in output:
+                log.write("%s\n" % line)
+        return output
+    
 class OpenbisController():
     """
     Class to control AS and DSS of an installed openBIS instance.
     """
-    def __init__(self, testName, installPath, instanceName, dropDatabases = True):
+    def __init__(self, testCase, testName, installPath, instanceName, dropDatabases = True):
+        """
+        Creates a new instance for specifies test case with specified test and instance name, installation path.
+        """
+        self.testCase = testCase
         self.testName = testName
         self.instanceName = instanceName
         self.installPath = installPath
@@ -136,23 +241,70 @@ class OpenbisController():
         self.databaseKind = "%s_%s" % (testName, instanceName)
         self.asProperties['database.kind'] = self.databaseKind
         self.asPropertiesModified = True
-        if dropDatabases:
-            util.dropDatabase(PSQL_EXE, "openbis_%s" % self.databaseKind)
         self.dssServicePropertiesFile = "%s/servers/datastore_server/etc/service.properties" % installPath
         self.dssProperties = util.readProperties(self.dssServicePropertiesFile)
         self.dssProperties['path-info-db.databaseKind'] = self.databaseKind
         self.dssProperties['imaging-database.kind'] = self.databaseKind
+        self.dssProperties['proteomics-database-kind'] = self.databaseKind
         self.dssPropertiesModified = True
         if dropDatabases:
+            util.dropDatabase(PSQL_EXE, "openbis_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "pathinfo_%s" % self.databaseKind)
+            util.dropDatabase(PSQL_EXE, "imaging_%s" % self.databaseKind)
+            util.dropDatabase(PSQL_EXE, "proteomics_%s" % self.databaseKind)
         self._applyCorePlugins()
         
+    def assertFileExist(self, pathRelativeToInstallPath):
+        """
+        Asserts that the specified path (relative to the installation path) exists.
+        """
+        relativePath = "%s/%s" % (self.installPath, pathRelativeToInstallPath)
+        if os.path.exists(relativePath):
+            print "Path exists as expected: %s" % relativePath
+        else:
+            self.testCase.fail("Path doesn't exist: %s" % relativePath)
+            
+    def assertEmptyFolder(self, pathRelativeToInstallPath):
+        """
+        Asserts that the specified path (relative to the installation path) is an empty folder.
+        """
+        relativePath = "%s/%s" % (self.installPath, pathRelativeToInstallPath)
+        if not os.path.isdir(relativePath):
+            self.testCase.fail("Doesn't exist or isn't a folder: %s" % relativePath)
+        files = os.listdir(relativePath)
+        if len(files) == 0:
+            print "Empty folder as expected: %s" % relativePath
+        else:
+            self.testCase.fail("%s isn't empty. It contains the following files:\n  %s" % (relativePath, files))
+            
+    def assertNumberOfDataSets(self, expectedNumberOfDataSets):
+        """
+        Asserts that the specified number of data sets are in the store and in the database.
+        Some meta data of all data sets are returned.
+        """
+        metaData = self.queryDatabase("openbis", "select e.code,data.code,t.code,location from data"
+                                               + " join external_data as ed on ed.data_id = data.id" 
+                                               + " join data_set_types as t on data.dsty_id = t.id"
+                                               + " join experiments as e on data.expe_id = e.id")
+        util.printResultSet(metaData)
+        self.testCase.assertEquals('number of data sets', expectedNumberOfDataSets, len(metaData));
+        for row in metaData:
+            self.assertFileExist("data/store/1/%s/original" % row[3])
+        return metaData
+        
     def createTestDatabase(self, databaseType):
+        """
+        Creates a test database for the specified database type.
+        """
         database = "%s_%s" % (databaseType, self.databaseKind)
         scriptPath = "%s/%s.sql" % (self.templatesFolder, database)
         util.createDatabase(PSQL_EXE, database, scriptPath)
         
     def queryDatabase(self, databaseType, queryStatement):
+        """
+        Executes the specified SQL statement for the specified database type. Result set is returned
+        as a list of lists.
+        """
         database = "%s_%s" % (databaseType, self.databaseKind)
         return util.queryDatabase(PSQL_EXE, database, queryStatement)
         
@@ -162,6 +314,7 @@ class OpenbisController():
         """
         self._saveAsPropertiesIfModified()
         self._saveDssPropertiesIfModified()
+        self.testCase.runningOpenbisInstances.append(self)
         util.executeCommand([self.bisUpScript], "Starting up openBIS AS '%s' failed." % self.instanceName)
         util.executeCommand([self.dssUpScript], "Starting up openBIS DSS '%s' failed." % self.instanceName)
         
@@ -171,6 +324,7 @@ class OpenbisController():
         """
         self._saveAsPropertiesIfModified()
         self._saveDssPropertiesIfModified()
+        self.testCase.runningOpenbisInstances.remove(self)
         util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
         util.executeCommand([self.bisDownScript], "Shutting down openBIS AS '%s' failed." % self.instanceName)
         
@@ -183,7 +337,7 @@ class OpenbisController():
                                   "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
                                   timeOutInMinutes=5)
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
-        monitor.waitUntilEvent(util.RegexCondition('Post registration'))
+        monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
         
     def _applyCorePlugins(self):
         corePluginsFolder = "%s/servers/core-plugins" % self.installPath

@@ -34,12 +34,14 @@ class UtilTest(TestCaseWithFiles):
         monitor = self._createMonitor(logFile)
         monitor.addNotificationCondition(util.RegexCondition('.*'))
         
-        monitor.waitUntilEvent(util.StartsWithCondition('Post registration'))
+        monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
         
-        self.assertEqual(['Start monitoring TEST log at 2013-10-01 10:50:00', 
-                          'TEST log: 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
-                          'TEST log: 2013-10-01 10:50:20,559 INFO  blabla', 
-                          'TEST log: 2013-10-01 10:50:30,559 INFO  Post registration of 1. of 1 data sets'], 
+        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+                          '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
+                          '>> 2013-10-01 10:50:20,559 INFO  blabla', 
+                          '>> 2013-10-01 10:50:25,559 INFO  Post registration of 1. of 2 data sets',
+                          '>> 2013-10-01 10:50:30,559 INFO  Post registration of 2. of 2 data sets',
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
                          monitor.printer.recorder)
 
     def test_LogMonitor_for_error_event(self):
@@ -55,9 +57,11 @@ class UtilTest(TestCaseWithFiles):
             self.fail('Exception expected')
         except Exception as e:
             self.assertEqual('Error spotted in TEST log.', str(e))
-        self.assertEqual(['Start monitoring TEST log at 2013-10-01 10:50:00', 
-                          'TEST log: 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
-                          'TEST log: 2013-10-01 10:50:20,559 ERROR test'], monitor.printer.recorder)
+        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+                          '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
+                          '>> 2013-10-01 10:50:20,559 ERROR test',
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
+                         monitor.printer.recorder)
 
     def test_LogMonitor_timeout(self):
         logFile = self._createExampleLog()
@@ -68,13 +72,17 @@ class UtilTest(TestCaseWithFiles):
             self.fail('Exception expected')
         except Exception as e:
             self.assertEqual('Time out after 1 minutes for monitoring TEST log.', str(e))
+        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
+                         monitor.printer.recorder)
 
     def _createExampleLog(self):
         return self._createLogFromEvents(['2013-10-01 10:40:20,559 INFO  blabla',
                                           '2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION',
                                           'ch.systemsx.cisd.common.exceptions.UserFailureException: Experiment',
                                           '2013-10-01 10:50:20,559 INFO  blabla',
-                                          '2013-10-01 10:50:30,559 INFO  Post registration of 1. of 1 data sets',
+                                          '2013-10-01 10:50:25,559 INFO  Post registration of 1. of 2 data sets',
+                                          '2013-10-01 10:50:30,559 INFO  Post registration of 2. of 2 data sets',
                                           '2013-10-01 10:50:40,559 INFO  blabla',
                                           '2013-10-01 10:50:50,559 INFO  blabla',
                                           '2013-10-01 10:51:30,559 INFO  Too late'])

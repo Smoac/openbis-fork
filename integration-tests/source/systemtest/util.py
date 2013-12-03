@@ -1,11 +1,9 @@
-import fcntl
 import os
 import os.path
 import re
 import time
 import shutil
 import subprocess
-import threading
 
 USER=os.environ['USER']
 
@@ -54,7 +52,7 @@ def executeCommand(commandWithArguments, failingMessage = None, consoleInput = N
     if exitValue != 0 and failingMessage != None: 
         print "---- FAILED %d: %s" % (exitValue, commandWithArguments)
         raise Exception(failingMessage)
-    print "---- FINISHED: %s" % commandWithArguments
+    print "---- FINISHED: %s\n" % commandWithArguments
     return lines
     
 def killProcess(pidFile):
@@ -71,7 +69,7 @@ def unzip(zipFile, destination):
     """
     Unzips specified ZIP file at specified destination.
     """
-    executeCommand(['unzip', '-q', zipFile, '-d', destination], "Couldn't unzip %s at %s" % (zipFile, destination))
+    executeCommand(['unzip', '-q', '-o', zipFile, '-d', destination], "Couldn't unzip %s at %s" % (zipFile, destination))
     
 def deleteFolder(folderPath):
     """
@@ -104,7 +102,8 @@ def createDatabase(psqlExe, database, scriptPath = None):
     
 def queryDatabase(psqlExe, database, queryStatement):
     """
-    Queries specified database by applying specified SQL statement.
+    Queries specified database by applying specified SQL statement and returns the result set as a list
+    where each row is a list, too.
     """
     lines = executeCommand([psqlExe, '-U', 'postgres', '-tA', '-d', database, '-c', queryStatement], 
                            "Couldn't execute query: %s" % queryStatement, suppressStdOut = True)
@@ -112,6 +111,13 @@ def queryDatabase(psqlExe, database, queryStatement):
     for line in lines:
         result.append(line.split('|'))
     return result
+
+def printResultSet(resultSet):
+    """
+    Prints the specified result set.
+    """
+    for row in resultSet:
+        print row
     
 class LogMonitor():
     """
@@ -145,37 +151,42 @@ class LogMonitor():
         self.conditions.append(condition)
         startTime = self.timeProvider.time()
         renderedStartTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(startTime))
-        self.printer.printMsg("Start monitoring %s log at %s" % (self.logName, renderedStartTime))
+        self.printer.printMsg(">>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" % (self.logName, renderedStartTime))
         finalTime = startTime + self.timeOutInMinutes * 60
-        while True:
-            log = open(self.logFilePath, 'r')
+        try:
+            alreadyPrintedLines = set()
             while True:
-                actualTime = self.timeProvider.time()
-                if actualTime > finalTime:
-                    raise Exception("Time out after %d minutes for monitoring %s log." 
-                                    % (self.timeOutInMinutes, self.logName))
-                line = log.readline()
-                if line == '':
-                    break
-                match = re.match('(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d{3} (.{6})(.*)', line)
-                if match == None:
-                    continue
-                timestamp = match.group(1)
-                eventType = match.group(2)
-                message = match.group(3)
-                eventTime = time.mktime(time.strptime(timestamp, '%Y-%m-%d %H:%M:%S'))
-                if eventTime < startTime:
-                    continue
-                for c in self.conditions:
-                    if c.match(message):
-                        self.printer.printMsg("%s log: %s" % (self.logName, line.strip()))
+                log = open(self.logFilePath, 'r')
+                while True:
+                    actualTime = self.timeProvider.time()
+                    if actualTime > finalTime:
+                        raise Exception("Time out after %d minutes for monitoring %s log." 
+                                        % (self.timeOutInMinutes, self.logName))
+                    line = log.readline()
+                    if line == '':
                         break
-                if condition.match(message):
-                    return
-                if eventType.strip() == 'ERROR':
-                    raise Exception("Error spotted in %s log." % self.logName)
-            log.seek(0, 1)
-            time.sleep(5)
+                    match = re.match('(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d{3} (.{6})(.*)', line)
+                    if match == None:
+                        continue
+                    timestamp = match.group(1)
+                    eventType = match.group(2)
+                    message = match.group(3)
+                    eventTime = time.mktime(time.strptime(timestamp, '%Y-%m-%d %H:%M:%S'))
+                    if eventTime < startTime:
+                        continue
+                    for c in self.conditions:
+                        if c.match(message) and not line in alreadyPrintedLines:
+                            alreadyPrintedLines.add(line)
+                            self.printer.printMsg(">> %s" % line.strip())
+                            break
+                    if condition.match(message):
+                        return
+                    if eventType.strip() == 'ERROR':
+                        raise Exception("Error spotted in %s log." % self.logName)
+                log.seek(0, os.SEEK_CUR)
+                time.sleep(5)
+        finally:
+            self.printer.printMsg(">>>>> Finished monitoring %s log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" % self.logName)
             
 class StartsWithCondition():
     """
@@ -186,7 +197,7 @@ class StartsWithCondition():
         
     def match(self, message):
         return message.startswith(self.startsWithString)
-            
+    
 class RegexCondition():
     """
     A condition which matches if the message matches a specified regular expression.
