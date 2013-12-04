@@ -9,6 +9,7 @@ import util
 
 INSTALLER_PROJECT = 'gradle-installation'
 OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'gradle-openbis-standard-technologies'
+DATAMOVER_PROJECT = 'datamover'
 
 PLAYGROUND = 'targets/playground'
 TEMPLATES = 'templates'
@@ -58,7 +59,7 @@ class TestCase(object):
         self.playgroundFolder = "%s/%s" % (PLAYGROUND, self.name)
         self.numberOfFailures = 0
         self.devMode = settings.devMode
-        self.runningOpenbisInstances = []
+        self.runningInstances = []
 
     def runTest(self):
         """
@@ -134,6 +135,27 @@ class TestCase(object):
         self.numberOfFailures += 1
         print "ERROR: %s" % errorMessage
         
+    def installScriptBasedServer(self, templateName, instanceName, 
+                                 startCommand = ['./start.sh'], stopCommand = ['./stop.sh']):
+        installPath = self._getInstallPath(instanceName)
+        if os.path.exists(installPath):
+            shutil.rmtree(installPath)
+        shutil.copytree("%s/%s" % (self.getTemplatesFolder(), templateName), installPath)
+        return ScriptBasedServerController(self, self.name, installPath, instanceName, startCommand, stopCommand)
+        
+    def createScriptBasedServerController(self, instanceName, startCommand = ['./start.sh'], stopCommand = ['./stop.sh']):
+        return ScriptBasedServerController(self, self.name, self._getInstallPath(instanceName), instanceName, 
+                                           startCommand, stopCommand)
+        
+    def installDatamover(self, instanceName = 'datamover'):
+        zipFile = self.artifactRepository.getPathToArtifact(DATAMOVER_PROJECT, 'datamover')
+        installPath = self._getInstallPath(instanceName)
+        util.unzip(zipFile, self.playgroundFolder)
+        os.rename("%s/datamover" % (self.playgroundFolder), installPath)
+        return DatamoverController(self, self.name, installPath, instanceName)
+    
+    def createDatamoverController(self, instanceName = 'datamover'):
+        return DatamoverController(self, self.name, self._getInstallPath(instanceName), instanceName)
 
     def installOpenbis(self, instanceName = 'openbis', technologies = []):
         """
@@ -143,7 +165,6 @@ class TestCase(object):
         where the instance will be installed. 
         In addition it is also part of the database names.
         The technologies are an array of enabled technologies.
-        An instance of OpenbisController is returned.
         """
         installerPath = self.artifactRepository.getPathToArtifact(INSTALLER_PROJECT, 'openBIS-installation')
         installerFileName = os.path.basename(installerPath).split('.')[0]
@@ -151,7 +172,7 @@ class TestCase(object):
                             "Couldn't untar openBIS installer.")
         consolePropertiesFile = "%s/%s/console.properties" % (self.playgroundFolder, installerFileName)
         consoleProperties = util.readProperties(consolePropertiesFile)
-        installPath = self._getOpenbisInstallPath(instanceName)
+        installPath = self._getInstallPath(instanceName)
         consoleProperties['INSTALL_PATH'] = installPath
         consoleProperties['DSS_ROOT_DIR'] = "%s/data" % installPath
         for technology in technologies:
@@ -159,13 +180,29 @@ class TestCase(object):
         util.writeProperties(consolePropertiesFile, consoleProperties)
         util.executeCommand("%s/%s/run-console.sh" % (self.playgroundFolder, installerFileName), 
                             "Couldn't install openBIS", consoleInput='admin\nadmin')
-        return OpenbisController(self, self.name, installPath, instanceName)
+        shutil.rmtree("%s/%s" % (self.playgroundFolder, installerFileName))
+        
+    def cloneOpenbisInstance(self, nameOfInstanceToBeCloned, nameOfNewInstance, dataStoreServerOnly = False):
+        """ Clones an openBIS instance. """
+        
+        oldInstanceInstallPath = "%s/%s" % (self.playgroundFolder, nameOfInstanceToBeCloned)
+        newInstanceInstallPath = "%s/%s" % (self.playgroundFolder, nameOfNewInstance)
+        paths = ['bin', 'data', 'servers/core-plugins', 'servers/datastore_server']
+        if not dataStoreServerOnly:
+            paths.append('servers/openBIS-server')
+        for path in paths:
+            util.copyFromTo(oldInstanceInstallPath, newInstanceInstallPath, path)
+        dssPropsFile = "%s/servers/datastore_server/etc/service.properties" % newInstanceInstallPath
+        dssProps = util.readProperties(dssPropsFile)
+        dssProps['root-dir'] = "%s/data" % newInstanceInstallPath
+        util.writeProperties(dssPropsFile, dssProps)
+        
     
-    def createOpenbisController(self, instanceName = 'openbis'):
+    def createOpenbisController(self, instanceName = 'openbis', dropDatabases = True):
         """
         Creates an openBIS controller object assuming that an openBIS instance for the specified name is installed.
         """
-        return OpenbisController(self, self.name, self._getOpenbisInstallPath(instanceName), instanceName, dropDatabases = False)
+        return OpenbisController(self, self.name, self._getInstallPath(instanceName), instanceName, dropDatabases)
     
     def installScreeningTestClient(self):
         """ Installs the screening test client and returns an instance of ScreeningTestClient. """
@@ -174,7 +211,10 @@ class TestCase(object):
         util.unzip(zipFile, installPath)
         return ScreeningTestClient(self, installPath)
     
-    def _getOpenbisInstallPath(self, instanceName):
+    def getTemplatesFolder(self):
+        return "%s/%s" % (TEMPLATES, self.name)
+    
+    def _getInstallPath(self, instanceName):
         return os.path.abspath("%s/%s" % (self.playgroundFolder, instanceName))
 
     def _cleanUpPlayground(self):
@@ -185,6 +225,7 @@ class TestCase(object):
             print "clean up %s" % path
             util.killProcess("%s/servers/datastore_server/datastore_server.pid" % path)
             util.killProcess("%s/servers/openBIS-server/jetty/openbis.pid" % path)
+            util.killProcess("%s/datamover.pid" % path)
         util.deleteFolder(self.playgroundFolder)
 
     def _getAndCreateFolder(self, folderPath):
@@ -196,11 +237,97 @@ class TestCase(object):
         os.makedirs(path)
         return path
     
+    def _addToRunningInstances(self, controller):
+        self.runningInstances.append(controller)
+        
+    def _removeFromRunningInstances(self, controller):
+        if controller in self.runningInstances:
+            self.runningInstances.remove(controller)
+    
     def _shutdownSevers(self):
-        for instance in self.runningOpenbisInstances:
-            instance.allDown()
+        for instance in reversed(self.runningInstances):
+            instance.stop()
             
-class ScreeningTestClient():
+class _Controller(object):
+    def __init__(self, testCase, testName, installPath, instanceName):
+        self.testCase = testCase
+        self.testName = testName
+        self.instanceName = instanceName
+        self.installPath = installPath
+
+class ScriptBasedServerController(_Controller):
+    def __init__(self, testCase, testName, installPath, instanceName, startCommand, stopCommand):
+        super(ScriptBasedServerController, self).__init__(testCase, testName, installPath, instanceName)
+        self.startCommand = startCommand
+        self.stopCommand = stopCommand
+        
+    def start(self):
+        self.testCase._addToRunningInstances(self)
+        util.executeCommand(self.startCommand, "Couldn't start server '%s'" % self.instanceName, 
+                            workingDir = self.installPath)
+        
+    def stop(self):
+        self.testCase._removeFromRunningInstances(self)
+        util.executeCommand(self.stopCommand, "Couldn't stop server '%s'" % self.instanceName, 
+                            workingDir = self.installPath)
+        
+            
+class DatamoverController(_Controller):
+    def __init__(self, testCase, testName, installPath, instanceName):
+        super(DatamoverController, self).__init__(testCase, testName, installPath, instanceName)
+        self.servicePropertiesFile = "%s/etc/service.properties" % self.installPath
+        self.serviceProperties = util.readProperties(self.servicePropertiesFile)
+        self.serviceProperties['check-interval'] = 2
+        self.serviceProperties['quiet-period'] = 5
+        self.serviceProperties['inactivity-period'] = 15
+        dataCompletedScript = "%s/%s/data-completed.sh" % (testCase.getTemplatesFolder(), instanceName)
+        if os.path.exists(dataCompletedScript):
+            self.serviceProperties['data-completed-script'] = "../../../../%s" % dataCompletedScript
+        
+    def setPrefixForIncoming(self, prefix):
+        """ Set service property 'prefix-for-incoming'. """
+        self.serviceProperties['prefix-for-incoming'] = prefix
+        
+    def setTreatIncomingAsRemote(self, flag):
+        """ Set service property 'treat-incoming-as-remote'. """
+        self.serviceProperties['treat-incoming-as-remote'] = flag
+        
+    def setOutgoingTarget(self, path):
+        """ 
+        Set service property 'outgoing-target'. 
+        This has to be a path relative to installation path of the datamover. 
+        """
+        self.serviceProperties['outgoing-target'] = path
+        
+    def setExtraCopyDir(self, path):
+        """ 
+        Set service property 'extra-copy-dir'. 
+        This has to be a path relative to installation path of the datamover. 
+        """
+        self.serviceProperties['extra-copy-dir'] = path
+        
+    def start(self):
+        """ Starts up datamover server. """
+        util.writeProperties(self.servicePropertiesFile, self.serviceProperties)
+        self.testCase._addToRunningInstances(self)
+        output = util.executeCommand(["%s/datamover.sh" % self.installPath, 'start'], suppressStdOut=True)
+        joinedOutput = '\n'.join(output)
+        if 'FAILED' in joinedOutput:
+            print "Start up of datamover %s failed:\n%s" % (self.instanceName, joinedOutput)
+            raise Exception("Couldn't start up datamover '%s'." % self.instanceName)
+            
+    def stop(self):
+        """ Stops datamover server. """
+        self.testCase._removeFromRunningInstances(self)
+        util.executeCommand(["%s/datamover.sh" % self.installPath, 'stop'],
+                            "Couldn't shut down datamover '%s'." % self.instanceName)
+        
+    def drop(self, testDataSetName):
+        """ Drops the specified test data set into incoming folder. """
+        util.copyFromTo("testData", "%s/data/incoming" % self.installPath, testDataSetName)
+
+            
+class ScreeningTestClient(object):
     """
     Class representing the screeing test client.
     """
@@ -210,20 +337,16 @@ class ScreeningTestClient():
         
     def run(self):
         """ Runs the test client and returns the console output as a list of strings. """
-        currentDir = os.getcwd()
-        os.chdir(self.installPath)
-        try:
-            output = util.executeCommand(['java', '-Djavax.net.ssl.trustStore=openBIS.keystore',
-                                          '-jar', 'openbis_screening_api.jar', 'admin', 'admin', 
-                                          'https://localhost:8443'], suppressStdOut = True)
-        finally:
-            os.chdir(currentDir)
+        output = util.executeCommand(['java', '-Djavax.net.ssl.trustStore=openBIS.keystore',
+                                      '-jar', 'openbis_screening_api.jar', 'admin', 'admin', 
+                                      'https://localhost:8443'], suppressStdOut = True,
+                                      workingDir=self.installPath)
         with open("%s/log.txt" % self.installPath, 'w') as log:
             for line in output:
                 log.write("%s\n" % line)
         return output
     
-class OpenbisController():
+class OpenbisController(_Controller):
     """
     Class to control AS and DSS of an installed openBIS instance.
     """
@@ -231,21 +354,20 @@ class OpenbisController():
         """
         Creates a new instance for specifies test case with specified test and instance name, installation path.
         """
-        self.testCase = testCase
-        self.testName = testName
-        self.instanceName = instanceName
-        self.installPath = installPath
-        self.templatesFolder = "%s/%s" % (TEMPLATES, testName)
+        super(OpenbisController, self).__init__(testCase, testName, installPath, instanceName)
+        self.templatesFolder = testCase.getTemplatesFolder()
         self.binFolder = "%s/bin" % installPath
         self.bisUpScript = "%s/bisup.sh" % self.binFolder
         self.bisDownScript = "%s/bisdown.sh" % self.binFolder
         self.dssUpScript = "%s/dssup.sh" % self.binFolder
         self.dssDownScript = "%s/dssdown.sh" % self.binFolder
-        self.asServicePropertiesFile = "%s/servers/openBIS-server/jetty/etc/service.properties" % installPath
-        self.asProperties = util.readProperties(self.asServicePropertiesFile)
         self.databaseKind = "%s_%s" % (testName, instanceName)
-        self.asProperties['database.kind'] = self.databaseKind
-        self.asPropertiesModified = True
+        self.asServicePropertiesFile = "%s/servers/openBIS-server/jetty/etc/service.properties" % installPath
+        self.asProperties = None
+        if os.path.exists(self.asServicePropertiesFile):
+            self.asProperties = util.readProperties(self.asServicePropertiesFile)
+            self.asProperties['database.kind'] = self.databaseKind
+            self.asPropertiesModified = True
         self.dssServicePropertiesFile = "%s/servers/datastore_server/etc/service.properties" % installPath
         self.dssProperties = util.readProperties(self.dssServicePropertiesFile)
         self.dssProperties['path-info-db.databaseKind'] = self.databaseKind
@@ -258,6 +380,22 @@ class OpenbisController():
             util.dropDatabase(PSQL_EXE, "imaging_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "proteomics_%s" % self.databaseKind)
         self._applyCorePlugins()
+        
+    def setDummyAuthentication(self):
+        """ Disables authentication. """
+        self.asProperties['authentication-service'] = 'dummy-authentication-service'
+        
+    def setDataStoreServerCode(self, code):
+        """ Sets the code of the Data Store Server. """
+        self.dssProperties['data-store-server-code'] = code
+        
+    def setDataStoreServerPort(self, port):
+        """ Sets the port of the Data Store Server. """
+        self.dssProperties['port'] = port
+        
+    def setDataStoreServerUsername(self, username):
+        """ Sets the username of the Data Store Server. """
+        self.dssProperties['username'] = username
         
     def assertFileExist(self, pathRelativeToInstallPath):
         """
@@ -312,37 +450,56 @@ class OpenbisController():
         """
         database = "%s_%s" % (databaseType, self.databaseKind)
         return util.queryDatabase(PSQL_EXE, database, queryStatement)
-        
+    
     def allUp(self):
-        """
-        Starts up AS and DSS.
-        """
+        """ Starts up AS and DSS. """
         self._saveAsPropertiesIfModified()
         self._saveDssPropertiesIfModified()
-        self.testCase.runningOpenbisInstances.append(self)
+        self.testCase._addToRunningInstances(self)
         util.executeCommand([self.bisUpScript], "Starting up openBIS AS '%s' failed." % self.instanceName)
         util.executeCommand([self.dssUpScript], "Starting up openBIS DSS '%s' failed." % self.instanceName)
         
-    def allDown(self):
-        """
-        Shuts down AS and DSS.
-        """
-        self._saveAsPropertiesIfModified()
-        self._saveDssPropertiesIfModified()
-        self.testCase.runningOpenbisInstances.remove(self)
-        util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
-        util.executeCommand([self.bisDownScript], "Shutting down openBIS AS '%s' failed." % self.instanceName)
+    def stop(self):
+        self.allDown()
         
-    def drop(self, zipFileName, dropBoxName, timeOutInMinutes = 1):
+    def allDown(self):
+        """ Shuts down AS and DSS. """
+        self.testCase._removeFromRunningInstances(self)
+        util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
+        if self.asProperties:
+            util.executeCommand([self.bisDownScript], "Shutting down openBIS AS '%s' failed." % self.instanceName)
+        
+    def dssUp(self):
+        """ Starts up DSS. """
+        self._saveDssPropertiesIfModified()
+        self.testCase._addToRunningInstances(self)
+        util.executeCommand([self.dssUpScript], "Starting up openBIS DSS '%s' failed." % self.instanceName)
+        
+    def dssDown(self):
+        """ Shuts down DSS. """
+        self.testCase._removeFromRunningInstances(self)
+        util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
+        
+    def drop(self, zipFileName, dropBoxName, timeOutInMinutes = 5):
         """
         Unzip the specified ZIP file into the specified drop box and wait until data set has been registered.
         """
         util.unzip("%s/%s" % (self.templatesFolder, zipFileName), "%s/data/%s" % (self.installPath, dropBoxName))
+        self.waitUntilDataSetRegistrationFinished(timeOutInMinutes)
+        
+    def waitUntilDataSetRegistrationFinished(self, failOnError = True, timeOutInMinutes = 5):
+        """ 
+        Waits until data set registration is finished.
+        Returns True if no ERROR event occurred and failOnError == False. Otherwise False is returned or
+        an Exception is raised. 
+        """
         monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
                                   "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
-                                  timeOutInMinutes=5)
+                                  timeOutInMinutes)
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
-        monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
+        monitor.addNotificationCondition(util.RegexCondition('post-registration'))
+        return monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'), 
+                                      failOnError=failOnError)
         
     def _applyCorePlugins(self):
         corePluginsFolder = "%s/servers/core-plugins" % self.installPath

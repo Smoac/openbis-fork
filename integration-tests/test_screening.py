@@ -5,7 +5,8 @@ import systemtest.testcase
 class TestCase(systemtest.testcase.TestCase):
     
     def execute(self):
-        openbisController = self.installOpenbis(technologies = ['screening'])
+        self.installOpenbis(technologies = ['screening'])
+        openbisController = self.createOpenbisController()
         openbisController.createTestDatabase('openbis')
         openbisController.allUp()
         openbisController.drop('data-incoming-analysis.zip', 'incoming-analysis')
@@ -42,13 +43,10 @@ class TestCase(systemtest.testcase.TestCase):
                                      + "Image resolution: 720x468")
     
     def executeInDevMode(self):
-        openbisController = self.createOpenbisController()
-#        openbisController.allUp()
+        openbisController = self.createOpenbisController(dropDatabases = False)
+        openbisController.allUp()
         openbisController.drop('data-incoming-analysis.zip', 'incoming-analysis')
-        openbisController.assertNumberOfDataSets(3)
         self.assertSpotSizes(openbisController, [['24', '16'], ['24', '16']])
-        self.assertFeatureVectorLabel(openbisController, 'HITRATE', 'Hit Rate')
-        self.assertFeatureVectorLabel(openbisController, 'CELLNUMBER', 'cellNumber')
         
     def assertSpotSizes(self, openbisController, expected):
         actual = openbisController.queryDatabase('imaging', 

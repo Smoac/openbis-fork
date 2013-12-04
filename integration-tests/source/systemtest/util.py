@@ -30,30 +30,44 @@ def writeProperties(propertiesFile, dictionary):
         for key in sorted(dictionary):
             f.write("%s=%s\n" % (key, dictionary[key]))
             
-def executeCommand(commandWithArguments, failingMessage = None, consoleInput = None, suppressStdOut = False):
+def executeCommand(commandWithArguments, failingMessage = None, consoleInput = None, suppressStdOut = False, 
+                   workingDir = None):
     """
     Executes specified command with arguments. 
     If the exit value of the command is not zero and a failing message has been specified 
     an exception with the failing message will be thrown. 
     Optionally a string for console input can be specified.
-    If flag suppressStdOut is set standard output will be suppressed but returned as a list of output lines-
+    If flag suppressStdOut is set standard output will be suppressed but returned as a list of output lines.
+    If workingDir is specified a change to workingDir is done for execution.
     """
     print "------- START: %s" % commandWithArguments
-    processIn = subprocess.PIPE if consoleInput != None else None
-    processOut = subprocess.PIPE if suppressStdOut else None
-    p = subprocess.Popen(commandWithArguments, stdin = processIn, stdout = processOut)
-    if consoleInput != None:
-        p.communicate(consoleInput)
-    lines = []
-    if suppressStdOut:
-        for line in iter(p.stdout.readline,''):
-            lines.append(line.strip())
-    exitValue = p.wait()
-    if exitValue != 0 and failingMessage != None: 
-        print "---- FAILED %d: %s" % (exitValue, commandWithArguments)
-        raise Exception(failingMessage)
-    print "---- FINISHED: %s\n" % commandWithArguments
-    return lines
+    currentDir = None
+    if workingDir != None:
+        print "change to working directory '%s'" % workingDir
+        currentDir = os.getcwd()
+        os.chdir(workingDir)
+    try:
+        processIn = subprocess.PIPE if consoleInput != None else None
+        processOut = subprocess.PIPE if suppressStdOut else None
+        p = subprocess.Popen(commandWithArguments, stdin = processIn, stdout = processOut)
+        if consoleInput != None:
+            p.communicate(consoleInput)
+        lines = []
+        if suppressStdOut:
+            for line in iter(p.stdout.readline,''):
+                lines.append(line.strip())
+        exitValue = p.wait()
+        if currentDir != None:
+            print "change back to previous working directory '%s'" % currentDir
+        if exitValue != 0 and failingMessage != None: 
+            print "---- FAILED %d: %s" % (exitValue, commandWithArguments)
+            raise Exception(failingMessage)
+        print "---- FINISHED: %s\n" % commandWithArguments
+        return lines
+    finally:
+        if currentDir != None:
+            os.chdir(currentDir)
+        
     
 def killProcess(pidFile):
     """
@@ -81,6 +95,11 @@ def deleteFolder(folderPath):
         _, path, _ = args
         raise Exception("Couldn't delete %s" % path)
     shutil.rmtree(folderPath, onerror = errorHandler)
+    
+def copyFromTo(sourceFolder, destinationFolder, relativePathInSourceFolder):
+    shutil.copytree("%s/%s" % (sourceFolder, relativePathInSourceFolder), 
+                    "%s/%s" % (destinationFolder, relativePathInSourceFolder))
+    print "%s copied from %s to %s" % (relativePathInSourceFolder, sourceFolder, destinationFolder)
     
 def dropDatabase(psqlExe, database):
     """
@@ -144,14 +163,17 @@ class LogMonitor():
         """
         self.conditions.append(condition)
         
-    def waitUntilEvent(self, condition):
+    def waitUntilEvent(self, condition, failOnError = True):
         """
-        Waits until an event matches the specified condition. Only log events after creation
+        Waits until an event matches the specified condition. Only log events after creation.
+        Returns True if no ERROR event occurred and failOnError == False. Otherwise False is returned or
+        an Exception is raised.
         """
         self.conditions.append(condition)
         startTime = self.timeProvider.time()
         renderedStartTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(startTime))
-        self.printer.printMsg(">>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" % (self.logName, renderedStartTime))
+        self.printer.printMsg(">>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" 
+                              % (self.logName, renderedStartTime))
         finalTime = startTime + self.timeOutInMinutes * 60
         try:
             alreadyPrintedLines = set()
@@ -180,13 +202,17 @@ class LogMonitor():
                             self.printer.printMsg(">> %s" % line.strip())
                             break
                     if condition.match(message):
-                        return
+                        return False
                     if eventType.strip() == 'ERROR':
-                        raise Exception("Error spotted in %s log." % self.logName)
+                        if failOnError:
+                            raise Exception("Error spotted in %s log." % self.logName)
+                        else:
+                            return True
                 log.seek(0, os.SEEK_CUR)
                 time.sleep(5)
         finally:
-            self.printer.printMsg(">>>>> Finished monitoring %s log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" % self.logName)
+            self.printer.printMsg(">>>>> Finished monitoring %s log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" 
+                                  % self.logName)
             
 class StartsWithCondition():
     """

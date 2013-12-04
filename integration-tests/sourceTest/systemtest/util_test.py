@@ -34,8 +34,9 @@ class UtilTest(TestCaseWithFiles):
         monitor = self._createMonitor(logFile)
         monitor.addNotificationCondition(util.RegexCondition('.*'))
         
-        monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
+        errorOccured = monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
         
+        self.assertEquals(False, errorOccured)
         self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
                           '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
                           '>> 2013-10-01 10:50:20,559 INFO  blabla', 
@@ -60,6 +61,24 @@ class UtilTest(TestCaseWithFiles):
         self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
                           '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
                           '>> 2013-10-01 10:50:20,559 ERROR test',
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
+                         monitor.printer.recorder)
+
+    def test_LogMonitor_not_fail_on_error_event(self):
+        logFile = self._createLogFromEvents(['2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION',
+                                             'ch.systemsx.cisd.common.exceptions.UserFailureException: Experiment',
+                                             '2013-10-01 10:50:20,559 ERROR test',
+                                             '2013-10-01 10:50:20,559 INFO  blabla']);
+        monitor = self._createMonitor(logFile)
+        monitor.addNotificationCondition(util.RegexCondition('.*'))
+        
+        errorOccured = monitor.waitUntilEvent(util.StartsWithCondition('blabla'), failOnError = False)
+        
+        self.assertEquals(True, errorOccured)
+        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+                          '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
+                          '>> 2013-10-01 10:50:20,559 ERROR test',
+                          '>> 2013-10-01 10:50:20,559 INFO  blabla',
                           '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
                          monitor.printer.recorder)
 
