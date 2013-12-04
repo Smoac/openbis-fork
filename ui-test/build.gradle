@@ -1,0 +1,15 @@
+evaluationDependsOn(':common')
+evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':authentication')
+evaluationDependsOn(':dbmigration')
+evaluationDependsOn(':openbis')
+evaluationDependsOn(':datastore_server')
+
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+dependencies {
+	compile project(':datastore_server'),
+			'selenium:selenium-java:+',
+			'google:gwt-dev:+'
+} 
