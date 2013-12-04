@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.type;
 
+import java.util.Collection;
+
 /**
  * @author anttil
  */
@@ -28,6 +30,8 @@ public abstract class DataSet implements Entity
     public abstract Sample getSample();
 
     public abstract Experiment getExperiment();
+
+    public abstract Collection<DataSet> getParents();
 
     @Override
     public final boolean equals(Object o)

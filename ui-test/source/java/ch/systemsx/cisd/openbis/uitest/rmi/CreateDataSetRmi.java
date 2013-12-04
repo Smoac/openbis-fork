@@ -110,10 +110,17 @@ public class CreateDataSetRmi implements Command<DataSet>
                 }
 
                 @Override
+                public Collection<DataSet> getParents()
+                {
+                    return dataSet.getParents();
+                }
+
+                @Override
                 public String toString()
                 {
                     return "DataSet " + getCode();
                 }
+
             };
     }
 }
