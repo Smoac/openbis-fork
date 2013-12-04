@@ -76,9 +76,9 @@ public final class BufferedAppender extends WriterAppender
     public BufferedAppender(final String patternOrNull, final Level logLevel, final String loggerNameRegex)
     {
         logRecorder = new ByteArrayOutputStream();
-        final Pattern pattern = Pattern.compile(loggerNameRegex);
         if (loggerNameRegex != null)
         {
+            final Pattern pattern = Pattern.compile(loggerNameRegex);
             this.addFilter(new Filter()
                 {
                     @Override
