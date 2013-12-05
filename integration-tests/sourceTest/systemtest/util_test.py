@@ -34,15 +34,15 @@ class UtilTest(TestCaseWithFiles):
         monitor = self._createMonitor(logFile)
         monitor.addNotificationCondition(util.RegexCondition('.*'))
         
-        errorOccured = monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
+        elements = monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
         
-        self.assertEquals(False, errorOccured)
-        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+        self.assertEquals(('2',), elements)
+        self.assertEqual(['\n>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
                           '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
                           '>> 2013-10-01 10:50:20,559 INFO  blabla', 
                           '>> 2013-10-01 10:50:25,559 INFO  Post registration of 1. of 2 data sets',
                           '>> 2013-10-01 10:50:30,559 INFO  Post registration of 2. of 2 data sets',
-                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'], 
                          monitor.printer.recorder)
 
     def test_LogMonitor_for_error_event(self):
@@ -53,33 +53,13 @@ class UtilTest(TestCaseWithFiles):
         monitor = self._createMonitor(logFile)
         monitor.addNotificationCondition(util.RegexCondition('.*'))
         
-        try:
-            monitor.waitUntilEvent(util.StartsWithCondition('Too late'))
-            self.fail('Exception expected')
-        except Exception as e:
-            self.assertEqual('Error spotted in TEST log.', str(e))
-        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+        elements = monitor.waitUntilEvent(util.EventTypeCondition('ERROR'))
+        
+        self.assertEquals((), elements)
+        self.assertEqual(['\n>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
                           '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
                           '>> 2013-10-01 10:50:20,559 ERROR test',
-                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
-                         monitor.printer.recorder)
-
-    def test_LogMonitor_not_fail_on_error_event(self):
-        logFile = self._createLogFromEvents(['2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION',
-                                             'ch.systemsx.cisd.common.exceptions.UserFailureException: Experiment',
-                                             '2013-10-01 10:50:20,559 ERROR test',
-                                             '2013-10-01 10:50:20,559 INFO  blabla']);
-        monitor = self._createMonitor(logFile)
-        monitor.addNotificationCondition(util.RegexCondition('.*'))
-        
-        errorOccured = monitor.waitUntilEvent(util.StartsWithCondition('blabla'), failOnError = False)
-        
-        self.assertEquals(True, errorOccured)
-        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
-                          '>> 2013-10-01 10:50:00,025 WARN  [qtp797130442-28] OPERATION', 
-                          '>> 2013-10-01 10:50:20,559 ERROR test',
-                          '>> 2013-10-01 10:50:20,559 INFO  blabla',
-                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'], 
                          monitor.printer.recorder)
 
     def test_LogMonitor_timeout(self):
@@ -91,8 +71,8 @@ class UtilTest(TestCaseWithFiles):
             self.fail('Exception expected')
         except Exception as e:
             self.assertEqual('Time out after 1 minutes for monitoring TEST log.', str(e))
-        self.assertEqual(['>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
-                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n'], 
+        self.assertEqual(['\n>>>>> Start monitoring TEST log at 2013-10-01 10:50:00 >>>>>>>>>>>>>>>>>>>>', 
+                          '>>>>> Finished monitoring TEST log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'], 
                          monitor.printer.recorder)
 
     def _createExampleLog(self):

@@ -194,7 +194,7 @@ class TestCase(object):
             util.copyFromTo(oldInstanceInstallPath, newInstanceInstallPath, path)
         dssPropsFile = "%s/servers/datastore_server/etc/service.properties" % newInstanceInstallPath
         dssProps = util.readProperties(dssPropsFile)
-        dssProps['root-dir'] = "%s/data" % newInstanceInstallPath
+        dssProps['root-dir'] = dssProps['root-dir'].replace(nameOfInstanceToBeCloned, nameOfNewInstance)
         util.writeProperties(dssPropsFile, dssProps)
         
     
@@ -254,6 +254,7 @@ class _Controller(object):
         self.testName = testName
         self.instanceName = instanceName
         self.installPath = installPath
+        print "Controller created for instance '%s'. Installation path: %s" % (instanceName, installPath)
 
 class ScriptBasedServerController(_Controller):
     def __init__(self, testCase, testName, installPath, instanceName, startCommand, stopCommand):
@@ -480,26 +481,35 @@ class OpenbisController(_Controller):
         self.testCase._removeFromRunningInstances(self)
         util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
         
-    def drop(self, zipFileName, dropBoxName, timeOutInMinutes = 5):
+    def drop(self, zipFileName, dropBoxName, numberOfDataSets = 1, timeOutInMinutes = 5):
         """
         Unzip the specified ZIP file into the specified drop box and wait until data set has been registered.
         """
         util.unzip("%s/%s" % (self.templatesFolder, zipFileName), "%s/data/%s" % (self.installPath, dropBoxName))
-        self.waitUntilDataSetRegistrationFinished(timeOutInMinutes)
+        self.waitUntilDataSetRegistrationFinished(numberOfDataSets = numberOfDataSets, timeOutInMinutes = timeOutInMinutes)
         
-    def waitUntilDataSetRegistrationFinished(self, failOnError = True, timeOutInMinutes = 5):
-        """ 
-        Waits until data set registration is finished.
-        Returns True if no ERROR event occurred and failOnError == False. Otherwise False is returned or
-        an Exception is raised. 
-        """
+    def waitUntilDataSetRegistrationFinished(self, numberOfDataSets = 1, timeOutInMinutes = 5):
+        """ Waits until the specified number of data sets have been registrated. """
         monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
                                   "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
                                   timeOutInMinutes)
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
         monitor.addNotificationCondition(util.RegexCondition('post-registration'))
-        return monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'), 
-                                      failOnError=failOnError)
+        numberOfRegisteredDataSets = 0
+        while numberOfRegisteredDataSets < numberOfDataSets:
+            elements = monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
+            numberOfRegisteredDataSets += int(elements[0])
+            print "%d of %d data sets registered" % (numberOfRegisteredDataSets, numberOfDataSets)
+        
+    def waitUntilDataSetRegistrationFailed(self, timeOutInMinutes = 5):
+        """ Waits until data set registration failed. """
+        monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
+                                  "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
+                                  timeOutInMinutes)
+        monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
+        monitor.addNotificationCondition(util.RegexCondition('post-registration'))
+        monitor.waitUntilEvent(util.EventTypeCondition('ERROR'))
+        print "Data set registration failed as expected."
         
     def _applyCorePlugins(self):
         corePluginsFolder = "%s/servers/core-plugins" % self.installPath

@@ -40,7 +40,7 @@ def executeCommand(commandWithArguments, failingMessage = None, consoleInput = N
     If flag suppressStdOut is set standard output will be suppressed but returned as a list of output lines.
     If workingDir is specified a change to workingDir is done for execution.
     """
-    print "------- START: %s" % commandWithArguments
+    print "\n------- START: %s" % commandWithArguments
     currentDir = None
     if workingDir != None:
         print "change to working directory '%s'" % workingDir
@@ -62,7 +62,7 @@ def executeCommand(commandWithArguments, failingMessage = None, consoleInput = N
         if exitValue != 0 and failingMessage != None: 
             print "---- FAILED %d: %s" % (exitValue, commandWithArguments)
             raise Exception(failingMessage)
-        print "---- FINISHED: %s\n" % commandWithArguments
+        print "---- FINISHED: %s" % commandWithArguments
         return lines
     finally:
         if currentDir != None:
@@ -140,8 +140,11 @@ def printResultSet(resultSet):
     
 class LogMonitor():
     """
-    Monitor of a log file. Conditions can be specified for printing a notification and waiting. A condition
-    is a function with the method 'match' which gets the log message and returns True or False. 
+    Monitor of a log file. Conditions can be specified for printing a notification and waiting. 
+    
+    A condition has to be a class with method 'match' which has two string arguments: 
+    Event type and log message. It returns 'None' in case of no match and 
+    a tuple with zero or more matching elements found in log message.
     """
     def __init__(self, logName, logFilePath, timeOutInMinutes = 5):
         """
@@ -163,16 +166,15 @@ class LogMonitor():
         """
         self.conditions.append(condition)
         
-    def waitUntilEvent(self, condition, failOnError = True):
+    def waitUntilEvent(self, condition):
         """
-        Waits until an event matches the specified condition. Only log events after creation.
-        Returns True if no ERROR event occurred and failOnError == False. Otherwise False is returned or
-        an Exception is raised.
+        Waits until an event matches the specified condition. 
+        Returns tuple with zero or more elements of matching log message.
         """
         self.conditions.append(condition)
         startTime = self.timeProvider.time()
         renderedStartTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(startTime))
-        self.printer.printMsg(">>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" 
+        self.printer.printMsg("\n>>>>> Start monitoring %s log at %s >>>>>>>>>>>>>>>>>>>>" 
                               % (self.logName, renderedStartTime))
         finalTime = startTime + self.timeOutInMinutes * 60
         try:
@@ -191,29 +193,33 @@ class LogMonitor():
                     if match == None:
                         continue
                     timestamp = match.group(1)
-                    eventType = match.group(2)
+                    eventType = match.group(2).strip()
                     message = match.group(3)
                     eventTime = time.mktime(time.strptime(timestamp, '%Y-%m-%d %H:%M:%S'))
                     if eventTime < startTime:
                         continue
                     for c in self.conditions:
-                        if c.match(message) and not line in alreadyPrintedLines:
+                        if c.match(eventType, message) != None and not line in alreadyPrintedLines:
                             alreadyPrintedLines.add(line)
                             self.printer.printMsg(">> %s" % line.strip())
                             break
-                    if condition.match(message):
-                        return False
-                    if eventType.strip() == 'ERROR':
-                        if failOnError:
-                            raise Exception("Error spotted in %s log." % self.logName)
-                        else:
-                            return True
+                    elements = condition.match(eventType, message)
+                    if elements != None:
+                        return elements
                 log.seek(0, os.SEEK_CUR)
                 time.sleep(5)
         finally:
-            self.printer.printMsg(">>>>> Finished monitoring %s log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" 
+            self.printer.printMsg(">>>>> Finished monitoring %s log >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" 
                                   % self.logName)
             
+class EventTypeCondition():
+    """ A condition which matches in case of specified event type. """
+    def __init__(self, eventType):
+        self.eventType = eventType
+        
+    def match(self, eventType, message):
+        return () if self.eventType == eventType else None
+        
 class StartsWithCondition():
     """
     A condition which matches if the message starts with a specified string.
@@ -221,8 +227,8 @@ class StartsWithCondition():
     def __init__(self, startsWithString):
         self.startsWithString = startsWithString
         
-    def match(self, message):
-        return message.startswith(self.startsWithString)
+    def match(self, eventType, message):
+        return () if message.startswith(self.startsWithString) else None
     
 class RegexCondition():
     """
@@ -231,5 +237,6 @@ class RegexCondition():
     def __init__(self, regex):
         self.regex = regex
         
-    def match(self, message):
-        return re.search(self.regex, message)
+    def match(self, eventType, message):
+        match = re.search(self.regex, message)
+        return match.groups() if match else None

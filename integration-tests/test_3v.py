@@ -27,25 +27,28 @@ class TestCase(systemtest.testcase.TestCase):
         datamover1.setExtraCopyDir('data/extra_local_copy')
         datamover2 = self.installDatamover("datamover2")
         datamover2.setOutgoingTarget('../openbis1/data/incoming-analysis')
+        os.makedirs("%s/data/drop-box1" % openbis2.installPath)
+        os.makedirs("%s/data/drop-box2" % openbis2.installPath)
         dummyImageAnalyser = self.installScriptBasedServer('dummy-img-analyser', 'dummy-img-analyser')
         datamover1.start()
         datamover2.start()
         dummyImageAnalyser.start()
         
         datamover1.drop("3VCP1")
-        openbis1.waitUntilDataSetRegistrationFinished()
+        openbis1.waitUntilDataSetRegistrationFinished(2)
         
         datamover1.drop("3VCP1")
-        failedOnError = openbis1.waitUntilDataSetRegistrationFinished(failOnError=False)
-        self.assertEquals("failed-on-error flag", True, failedOnError)
+        openbis1.waitUntilDataSetRegistrationFailed()
         
         datamover1.drop("3VCP3")
-        openbis1.waitUntilDataSetRegistrationFinished()
+        openbis1.waitUntilDataSetRegistrationFinished(3)
         
         datamover1.drop("UnknownPlate")
-        failedOnError = openbis1.waitUntilDataSetRegistrationFinished(failOnError=False)
-        self.assertEquals("failed-on-error flag", True, failedOnError)
+        openbis1.waitUntilDataSetRegistrationFailed()
         
+        with open("%s/data/incoming/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt" % openbis2.installPath, "w") as f:
+            f.write("hello world")
+        openbis2.waitUntilDataSetRegistrationFinished()
         
         
     def executeInDevMode(self):
@@ -66,8 +69,8 @@ class TestCase(systemtest.testcase.TestCase):
         datamover2.start()
         dummyImageAnalyser.start()
         """
-        with open("%s/data/incoming/nemo.exp1_MICROX-3VCP1.MICROX-3VCP3.txt" % openbis2.installPath, "w") as f:
-            f.write("hello world")
-        openbis2.waitUntilDataSetRegistrationFinished()
+        openbis1.assertNumberOfDataSets(6)
+        openbis2.assertNumberOfDataSets(1)
+
         
 TestCase(settings, __file__).runTest()
