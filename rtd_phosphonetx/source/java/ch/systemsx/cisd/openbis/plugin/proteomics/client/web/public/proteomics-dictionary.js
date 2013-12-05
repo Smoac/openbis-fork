@@ -16,6 +16,11 @@ var proteomics = {
   protein_description: "Protein",
   coverage: "Protein Coverage (in %)",
   false_discovery_rate: "FDR",
+  fdr_combo_info: "<html><div style='width:250px'>This False Discovery Rate determines which ProteinProphet probability " +
+                    "cut-off is applied to the combined ProteinProphet output. Only proteins above this " +
+                    "probability are displayed in the table.<br/><br/>" + 
+                    "Note, that the spectral counts are not affected by this threshold and values for individual " +
+                    "samples stay unchanged as long as the protein is displayed at all.</div></html>",
   
   // Protein in experiment viewer
   loading_protein_details_waiting_message: "Loading details for protein {0}",

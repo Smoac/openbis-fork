@@ -41,7 +41,14 @@ public class ExcelRowTokenizer implements ILineTokenizer<Row>
 
     public static String[] tokenizeRow(Row row)
     {
-        String[] line = new String[row.getLastCellNum()];
+        short lastCellNum = row.getLastCellNum();
+
+        if (lastCellNum < 0)
+        {
+            throw new ParserException("Unreadable data in line " + row.getRowNum());
+        }
+
+        String[] line = new String[lastCellNum];
         for (int i = 0; i < line.length; i++)
         {
             line[i] = "";

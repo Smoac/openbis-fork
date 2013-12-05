@@ -74,7 +74,13 @@ public class DataSetCreator
 
         String typeCode = dataset.getType().getCode();
 
-        return getNewDataSet(file, id, typeCode, ownerType);
+        List<String> parentCodes = new ArrayList<String>();
+        for (DataSet ds : dataset.getParents())
+        {
+            parentCodes.add(ds.getCode());
+        }
+
+        return getNewDataSet(file, id, typeCode, ownerType, parentCodes);
     }
 
     public InputStream getData()
@@ -128,7 +134,7 @@ public class DataSetCreator
 
     @SuppressWarnings("hiding")
     private NewDataSetDTO getNewDataSet(File fileToUpload, String ownerId, String typeCode,
-            DataSetOwnerType ownerType)
+            DataSetOwnerType ownerType, List<String> parentCodes)
     {
         String ownerIdentifier = ownerId;
         DataSetOwner owner = new NewDataSetDTO.DataSetOwner(ownerType, ownerIdentifier);
@@ -137,13 +143,16 @@ public class DataSetCreator
         ArrayList<FileInfoDssDTO> fileInfos = getFileInfosForPath(file);
 
         // Get the parent
-        String parentNameOrNull = null;
+        String folderNameOrNull = null;
         if (file.isDirectory())
         {
-            parentNameOrNull = file.getName();
+            folderNameOrNull = file.getName();
         }
 
-        NewDataSetDTO dataSet = new NewDataSetDTO(owner, parentNameOrNull, fileInfos);
+        NewDataSetDTO dataSet = new NewDataSetDTO(owner, folderNameOrNull, fileInfos);
+
+        dataSet.setParentDataSetCodes(parentCodes);
+
         dataSet.setDataSetTypeOrNull(typeCode);
         return dataSet;
     }

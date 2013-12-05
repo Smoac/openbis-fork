@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.uitest.dsl.type;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 
 import ch.systemsx.cisd.openbis.uitest.dsl.Application;
@@ -44,12 +46,15 @@ public class DataSetBuilder implements Builder<DataSet>
 
     private boolean external;
 
+    private Collection<DataSet> parents;
+
     public DataSetBuilder(UidGenerator uid)
     {
         this.uid = uid;
         this.sample = null;
         this.experiment = null;
         this.external = false;
+        this.parents = new HashSet<DataSet>();
     }
 
     public DataSetBuilder ofType(DataSetType type)
@@ -76,6 +81,12 @@ public class DataSetBuilder implements Builder<DataSet>
         return this;
     }
 
+    public DataSetBuilder withParents(DataSet... dataSets)
+    {
+        parents.addAll(Arrays.asList(dataSets));
+        return this;
+    }
+
     @Override
     public DataSet build(Application openbis, Ui ui)
     {
@@ -90,7 +101,7 @@ public class DataSetBuilder implements Builder<DataSet>
             sample = new SampleBuilder(uid).in(experiment).build(openbis, ui);
         }
 
-        return openbis.execute(new CreateDataSetRmi(new DataSetDsl(type, sample, experiment,
+        return openbis.execute(new CreateDataSetRmi(new DataSetDsl(type, sample, experiment, parents,
                 new HashSet<MetaProject>()), external));
     }
 }

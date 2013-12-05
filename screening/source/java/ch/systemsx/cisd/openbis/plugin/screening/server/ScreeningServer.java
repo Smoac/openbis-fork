@@ -53,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -195,6 +196,9 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.MULTIPLEXER)
     private IMultiplexer multiplexer;
 
+    @Resource(name = ComponentNames.DAO_FACTORY)
+    private DAOFactory daoFactory;
+
     private IDssServiceRpcScreeningMultiplexer dssMultiplexer;
 
     public ScreeningServer()
@@ -269,7 +273,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             TechId plateId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImagesAndMetadata(session, businessObjectFactory,
+        return PlateContentLoader.loadImagesAndMetadata(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                 managedPropertyEvaluatorFactory, plateId);
     }
 
@@ -280,7 +284,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             DatasetReference dataset, CodeAndLabel featureName)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadFeatureVectorDataset(session, businessObjectFactory,
+        return PlateContentLoader.loadFeatureVectorDataset(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                 managedPropertyEvaluatorFactory, dataset, featureName);
     }
 
@@ -291,7 +295,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             TechId datasetId)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.loadImagesAndMetadataForDataset(session, businessObjectFactory,
+        return PlateContentLoader.loadImagesAndMetadataForDataset(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                 managedPropertyEvaluatorFactory, datasetId);
     }
 
@@ -347,7 +351,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             String datasetCode, String datastoreCode, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
-        return LogicalImageLoader.loadLogicalImageInfo(session, businessObjectFactory,
+        return LogicalImageLoader.loadLogicalImageInfo(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                 managedPropertyEvaluatorFactory, datasetCode, datastoreCode, wellLocationOrNull);
     }
 
@@ -358,7 +362,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             String datasetCode, String datastoreCode)
     {
         Session session = getSession(sessionToken);
-        return LogicalImageLoader.getImageDatasetReference(session, businessObjectFactory,
+        return LogicalImageLoader.getImageDatasetReference(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                 managedPropertyEvaluatorFactory, datasetCode, datastoreCode);
     }
 
@@ -381,7 +385,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             TechId sampleId, WellLocation wellLocationOrNull)
     {
         Session session = getSession(sessionToken);
-        return PlateContentLoader.getImageDatasetInfosForSample(session, businessObjectFactory,
+        return PlateContentLoader.getImageDatasetInfosForSample(session, daoFactory.getSessionFactory().getCurrentSession(), businessObjectFactory,
                 managedPropertyEvaluatorFactory, sampleId, wellLocationOrNull);
     }
 

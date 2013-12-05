@@ -21,6 +21,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadCo
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +46,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
  */
 @Controller
 @RequestMapping(
-    { "/" + ATTACHMENT_DOWNLOAD_SERVLET_NAME, "/openbis/" + ATTACHMENT_DOWNLOAD_SERVLET_NAME })
+{ "/" + ATTACHMENT_DOWNLOAD_SERVLET_NAME, "/openbis/" + ATTACHMENT_DOWNLOAD_SERVLET_NAME })
 public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
 {
 
@@ -79,7 +80,8 @@ public class AttachmentDownloadServlet extends AbstractFileDownloadServlet
             versionOrNull = Integer.parseInt(versionStringOrNull);
         }
 
-        String fileName = request.getParameter(AttachmentDownloadConstants.FILE_NAME_PARAMETER);
+        String fileName = StringEscapeUtils.unescapeHtml(
+                request.getParameter(AttachmentDownloadConstants.FILE_NAME_PARAMETER));
         String encoding = request.getCharacterEncoding();
         if (encoding == null)
         {

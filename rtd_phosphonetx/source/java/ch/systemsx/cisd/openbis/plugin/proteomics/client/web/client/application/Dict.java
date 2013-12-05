@@ -40,6 +40,8 @@ public class Dict
     public static final String COVERAGE = "coverage";
     
     public static final String FALSE_DISCOVERY_RATE = "false_discovery_rate";
+    
+    public static final String FDR_COMBO_INFO = "fdr_combo_info";
 
     public static final String DATA_SET = "data_set";
     

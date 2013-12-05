@@ -36,14 +36,17 @@ class DataSetDsl extends DataSet
 
     private Experiment experiment;
 
+    private Collection<DataSet> parents;
+
     private Collection<MetaProject> metaProjects;
 
-    public DataSetDsl(DataSetType type, Sample sample, Experiment experiment,
+    public DataSetDsl(DataSetType type, Sample sample, Experiment experiment, Collection<DataSet> parents,
             Collection<MetaProject> metaProjects)
     {
         this.type = type;
         this.sample = sample;
         this.experiment = experiment;
+        this.parents = parents;
         this.metaProjects = metaProjects;
     }
 
@@ -72,6 +75,12 @@ class DataSetDsl extends DataSet
     }
 
     @Override
+    public Collection<DataSet> getParents()
+    {
+        return parents;
+    }
+
+    @Override
     public Collection<MetaProject> getMetaProjects()
     {
         return this.metaProjects;
@@ -95,6 +104,11 @@ class DataSetDsl extends DataSet
     void setMetaProjects(Collection<MetaProject> metaProjects)
     {
         this.metaProjects = metaProjects;
+    }
+
+    void setParents(Collection<DataSet> parents)
+    {
+        this.parents = parents;
     }
 
     @Override

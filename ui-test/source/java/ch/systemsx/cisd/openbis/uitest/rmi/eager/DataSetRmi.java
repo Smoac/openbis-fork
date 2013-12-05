@@ -83,4 +83,10 @@ public class DataSetRmi extends DataSet
     {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Collection<DataSet> getParents()
+    {
+        throw new UnsupportedOperationException();
+    }
 }

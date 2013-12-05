@@ -84,14 +84,15 @@ public class PlateContentLoader
             PlateContentLoader.class);
 
     /**
-     * Loads data about the plate for a specified sample id. Attaches information about images and
-     * image analysis datasets.
+     * Loads data about the plate for a specified sample id. Attaches information about images and image analysis datasets.
+     * 
+     * @param hibernateSession
      */
     public static PlateContent loadImagesAndMetadata(Session session,
-            IScreeningBusinessObjectFactory businessObjectFactory,
+            org.hibernate.classic.Session hibernateSession, IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId plateId)
     {
-        return new PlateContentLoader(session, businessObjectFactory,
+        return new PlateContentLoader(session, hibernateSession, businessObjectFactory,
                 managedPropertyEvaluatorFactory).getPlateContent(plateId);
     }
 
@@ -99,11 +100,12 @@ public class PlateContentLoader
      * Loads feature vector of specified dataset with one feature specified by name.
      */
     public static FeatureVectorDataset loadFeatureVectorDataset(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
             DatasetReference dataset, CodeAndLabel featureName)
     {
-        return new PlateContentLoader(session, businessObjectFactory,
+        return new PlateContentLoader(session, hibernateSession, businessObjectFactory,
                 managedPropertyEvaluatorFactory).fetchFeatureVector(dataset, featureName);
     }
 
@@ -111,33 +113,35 @@ public class PlateContentLoader
      * Loads data about the plate for a specified dataset, which is supposed to contain images.
      */
     public static PlateImages loadImagesAndMetadataForDataset(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId datasetId)
     {
-        return new PlateContentLoader(session, businessObjectFactory,
+        return new PlateContentLoader(session, hibernateSession, businessObjectFactory,
                 managedPropertyEvaluatorFactory).getPlateContentForDataset(datasetId);
     }
 
     /**
-     * Loads information about datasets connected to specified sample (microscopy) or a container
-     * sample (HCS). In particular loads the logical images in datasets belonging to the specified
-     * sample (restricted to one well in HCS case).
+     * Loads information about datasets connected to specified sample (microscopy) or a container sample (HCS). In particular loads the logical images
+     * in datasets belonging to the specified sample (restricted to one well in HCS case).
      */
     public static ImageSampleContent getImageDatasetInfosForSample(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, TechId sampleId,
             WellLocation wellLocationOrNull)
     {
-        return new PlateContentLoader(session, businessObjectFactory,
+        return new PlateContentLoader(session, hibernateSession, businessObjectFactory,
                 managedPropertyEvaluatorFactory).getImageDatasetInfosForSample(sampleId,
                 wellLocationOrNull);
     }
 
     public static List<PlateMetadata> loadPlateMetadata(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory, List<TechId> plateIds)
     {
-        return new PlateContentLoader(session, businessObjectFactory,
+        return new PlateContentLoader(session, hibernateSession, businessObjectFactory,
                 managedPropertyEvaluatorFactory).getPlateMetadatas(plateIds);
     }
 
@@ -150,13 +154,14 @@ public class PlateContentLoader
     private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     private PlateContentLoader(Session session,
+            org.hibernate.classic.Session hibernateSession,
             IScreeningBusinessObjectFactory businessObjectFactory,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         this.session = session;
         this.businessObjectFactory = businessObjectFactory;
         this.imageLoader =
-                new LogicalImageLoader(session, businessObjectFactory,
+                new LogicalImageLoader(session, hibernateSession, businessObjectFactory,
                         managedPropertyEvaluatorFactory);
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
     }
