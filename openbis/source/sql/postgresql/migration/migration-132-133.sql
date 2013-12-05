@@ -442,3 +442,12 @@ CREATE OR REPLACE RULE data_set_properties_delete AS
          OLD.MODIFICATION_TIMESTAMP,
          current_timestamp
        );
+
+-- change FILE_NAME domain to VARCHAR(255), unfortunately a type cannot be altered for an existing domain
+
+ALTER TABLE ATTACHMENTS ALTER COLUMN FILE_NAME TYPE VARCHAR(255);
+
+DROP DOMAIN FILE_NAME;
+CREATE DOMAIN FILE_NAME AS VARCHAR(255);
+
+ALTER TABLE ATTACHMENTS ALTER COLUMN FILE_NAME TYPE FILE_NAME;

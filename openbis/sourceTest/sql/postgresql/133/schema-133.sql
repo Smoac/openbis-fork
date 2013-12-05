@@ -25,7 +25,7 @@ CREATE DOMAIN entity_kind AS character varying(40)
 CREATE DOMAIN event_type AS character varying(40)
 	CONSTRAINT event_type_check CHECK (((VALUE)::text = ANY (ARRAY[('DELETION'::character varying)::text, ('MOVEMENT'::character varying)::text])));
 CREATE DOMAIN file AS bytea;
-CREATE DOMAIN file_name AS character varying(100);
+CREATE DOMAIN file_name AS character varying(255);
 CREATE DOMAIN grid_expression AS character varying(2000);
 CREATE DOMAIN grid_id AS character varying(200);
 CREATE DOMAIN identifier AS character varying(200);
