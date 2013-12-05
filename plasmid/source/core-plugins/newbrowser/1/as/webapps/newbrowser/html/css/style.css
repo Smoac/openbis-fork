@@ -388,6 +388,14 @@ div.inspector:hover,div.inspector:focus{
   width:75%;
 }
 
+.inspectorToolbar {
+opacity: 0.5;
+}
+
+.inspectorToolbar:hover {
+opacity: 0.8;
+}
+
 .downloads {
 	color: black;
 	background-color:#DDDDDD;;
