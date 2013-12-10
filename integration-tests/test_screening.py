@@ -16,7 +16,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.assertEmptyFolder('data/incoming-analysis');
         openbisController.assertEmptyFolder('data/incoming-images-merged-channels');
         openbisController.assertEmptyFolder('data/incoming-images-split-channels');
-        openbisController.assertNumberOfDataSets(3)
+        openbisController.assertNumberOfDataSets(3, openbisController.getDataSets())
         self.assertSpotSizes(openbisController, [['24', '16'], ['24', '16']])
         self.assertFeatureVectorLabel(openbisController, 'HITRATE', 'Hit Rate')
         self.assertFeatureVectorLabel(openbisController, 'CELLNUMBER', 'cellNumber')

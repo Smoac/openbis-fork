@@ -13,6 +13,7 @@ DATAMOVER_PROJECT = 'datamover'
 
 PLAYGROUND = 'targets/playground'
 TEMPLATES = 'templates'
+TEST_DATA = 'testData'
 PSQL_EXE = 'psql'
 
 class TestCase(object):
@@ -256,6 +257,33 @@ class _Controller(object):
         self.installPath = installPath
         print "Controller created for instance '%s'. Installation path: %s" % (instanceName, installPath)
 
+
+    def assertEmptyFolder(self, pathRelativeToInstallPath):
+        """
+        Asserts that the specified path (relative to the installation path) is an empty folder.
+        """
+        relativePath = "%s/%s" % (self.installPath, pathRelativeToInstallPath)
+        files = self._getFiles(relativePath)
+        if len(files) == 0:
+            print "Empty folder as expected: %s" % relativePath
+        else:
+            self.testCase.fail("%s isn't empty. It contains the following files:\n  %s" % (relativePath, files))
+            
+    def assertFiles(self, folderPathRelativeToInstallPath, expectedFiles):
+        """
+        Asserts that the specified path (relative to the installation path) contains the specified files.
+        """
+        relativePath = "%s/%s" % (self.installPath, folderPathRelativeToInstallPath)
+        files = self._getFiles(relativePath)
+        self.testCase.assertEquals("Files in %s" % relativePath, expectedFiles, sorted(files))
+        
+    def _getFiles(self, relativePath):
+        if not os.path.isdir(relativePath):
+            self.testCase.fail("Doesn't exist or isn't a folder: %s" % relativePath)
+        files = os.listdir(relativePath)
+        return files
+
+            
 class ScriptBasedServerController(_Controller):
     def __init__(self, testCase, testName, installPath, instanceName, startCommand, stopCommand):
         super(ScriptBasedServerController, self).__init__(testCase, testName, installPath, instanceName)
@@ -325,7 +353,7 @@ class DatamoverController(_Controller):
         
     def drop(self, testDataSetName):
         """ Drops the specified test data set into incoming folder. """
-        util.copyFromTo("testData", "%s/data/incoming" % self.installPath, testDataSetName)
+        util.copyFromTo(TEST_DATA, "%s/data/incoming" % self.installPath, testDataSetName)
 
             
 class ScreeningTestClient(object):
@@ -346,6 +374,26 @@ class ScreeningTestClient(object):
             for line in output:
                 log.write("%s\n" % line)
         return output
+    
+class DataSet(object):
+        def __init__(self, resultSetRow):
+            self.id = resultSetRow[0]
+            self.dataStore = resultSetRow[1]
+            self.experimentCode = resultSetRow[2]
+            self.code = resultSetRow[3]
+            self.type = resultSetRow[4]
+            self.location = resultSetRow[5]
+            self.producer = resultSetRow[6]
+            self.productionTimeStamp = resultSetRow[7]
+            self.parents = []
+            self.children = []
+        
+        def __str__(self):
+            parents = [d.id for d in self.parents]  
+            children = [d.id for d in self.children]
+            return "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (self.id, self.dataStore, self.code, self.type, 
+                                                      self.location, parents, children, self.experimentCode, 
+                                                      self.producer, self.productionTimeStamp) 
     
 class OpenbisController(_Controller):
     """
@@ -390,6 +438,9 @@ class OpenbisController(_Controller):
         """ Sets the code of the Data Store Server. """
         self.dssProperties['data-store-server-code'] = code
         
+    def getDataStoreServerCode(self):
+        return self.dssProperties['data-store-server-code']
+        
     def setDataStoreServerPort(self, port):
         """ Sets the port of the Data Store Server. """
         self.dssProperties['port'] = port
@@ -408,33 +459,56 @@ class OpenbisController(_Controller):
         else:
             self.testCase.fail("Path doesn't exist: %s" % relativePath)
             
-    def assertEmptyFolder(self, pathRelativeToInstallPath):
-        """
-        Asserts that the specified path (relative to the installation path) is an empty folder.
-        """
-        relativePath = "%s/%s" % (self.installPath, pathRelativeToInstallPath)
-        if not os.path.isdir(relativePath):
-            self.testCase.fail("Doesn't exist or isn't a folder: %s" % relativePath)
-        files = os.listdir(relativePath)
-        if len(files) == 0:
-            print "Empty folder as expected: %s" % relativePath
-        else:
-            self.testCase.fail("%s isn't empty. It contains the following files:\n  %s" % (relativePath, files))
+    def assertDataSetContent(self, pathToOriginal, dataSet):
+        path = "%s/data/store/1/%s/original" % (self.installPath, dataSet.location)
+        path = "%s/%s" % (path, os.listdir(path)[0])
+        numberOfDifferences = util.getNumberOfDifferences(pathToOriginal, path)
+        if numberOfDifferences > 0:
+            self.testCase.fail("%s differences found." % numberOfDifferences)
             
-    def assertNumberOfDataSets(self, expectedNumberOfDataSets):
+    def assertNumberOfDataSets(self, expectedNumberOfDataSets, dataSets):
         """
-        Asserts that the specified number of data sets are in the store and in the database.
-        Some meta data of all data sets are returned.
+        Asserts that the specified number of data sets from the specified list of DataSet instances 
+        are in the data store. 
         """
-        metaData = self.queryDatabase("openbis", "select e.code,data.code,t.code,location from data"
-                                               + " join external_data as ed on ed.data_id = data.id" 
-                                               + " join data_set_types as t on data.dsty_id = t.id"
-                                               + " join experiments as e on data.expe_id = e.id")
-        util.printResultSet(metaData)
-        self.testCase.assertEquals('number of data sets', expectedNumberOfDataSets, len(metaData));
-        for row in metaData:
-            self.assertFileExist("data/store/1/%s/original" % row[3])
-        return metaData
+        count = 0
+        for dataSet in dataSets:
+            if dataSet.dataStore != self.getDataStoreServerCode():
+                continue
+            count += 1
+            self.assertFileExist("data/store/1/%s/original" % dataSet.location)
+        self.testCase.assertEquals("Number of data sets in data store %s" % self.getDataStoreServerCode(), 
+                                   expectedNumberOfDataSets, count)
+    
+    def getDataSets(self):
+        """
+        Returns all data sets as a list (ordered by data set ids) of instances of class DataSet.
+        """
+        resultSet = self.queryDatabase('openbis', 
+                                       "select data.id,ds.code,e.code,data.code,t.code,location,"
+                                       + "    data.data_producer_code,data.production_timestamp from data"
+                                       + " join external_data as ed on ed.data_id = data.id" 
+                                       + " join data_set_types as t on data.dsty_id = t.id"
+                                       + " join experiments as e on data.expe_id = e.id"
+                                       + " join data_stores as ds on data.dast_id = ds.id order by data.id")
+        dataSets = []
+        dataSetsById = {}
+        for row in resultSet:
+            dataSet = DataSet(row)
+            dataSets.append(dataSet)
+            dataSetsById[dataSet.id] = dataSet
+        relationships = self.queryDatabase('openbis', 
+                                           "select data_id_parent, data_id_child from data_set_relationships"
+                                           + " order by data_id_parent, data_id_child")
+        for parent_id, child_id in relationships:
+            parent = dataSetsById[parent_id]
+            child = dataSetsById[child_id]
+            parent.children.append(child)
+            child.parents.append(parent)
+        print "All data sets:\nid,dataStore,code,type,location,experiment,parents,children\n"
+        for dataSet in dataSets:
+            print dataSet
+        return dataSets 
         
     def createTestDatabase(self, databaseType):
         """

@@ -1,3 +1,4 @@
+import filecmp
 import os
 import os.path
 import re
@@ -137,6 +138,18 @@ def printResultSet(resultSet):
     """
     for row in resultSet:
         print row
+
+def getNumberOfDifferences(fileOrFolder1, fileOrFolder2):
+    """
+    Gets and reports differences in file system structures between both arguments.
+    """
+    result = filecmp.dircmp(fileOrFolder1, fileOrFolder2, ignore=['.svn'])
+    result.report()
+    return len(result.left_only) + len(result.right_only) + len(result.diff_files)
+
+def getContent(path):
+    with open(path, "r") as f:
+        return [ l.rstrip() for l in f.readlines()]
     
 class LogMonitor():
     """
