@@ -8,8 +8,54 @@ evaluationDependsOn(':datastore_server')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+
+sourceSets { 
+    main {
+        java {
+            srcDirs = ['sourceTest/java']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['source/java']
+        }
+        resources {
+            srcDirs = ['resource']
+        }
+    }
+}
+
+configurations.create('testRuntimeFirst')
+configurations.create('externalDss')
+
 dependencies {
-	compile project(':datastore_server'),
+	testCompile project(':datastore_server'),
 			'selenium:selenium-java:+',
-			'google:gwt-dev:+'
+			'mortbay:jetty:+'
+			
+	testRuntimeFirst 'javax:servlet-api:+', 'reflections:reflections:+'
+	
+	externalDss project(':datastore_server')
 } 
+
+sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + sourceSets.test.runtimeClasspath
+
+task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
+	from project(':openbis_standard_technologies').war
+	into 'targets/gradle/openbis-war'
+	rename {filename -> 'openbis.war'}
+}
+
+test {
+    useTestNG()
+    options.suites('source/java/tests.xml')    
+
+    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
+    
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+    systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath   
+}
+test.dependsOn copyWar
+
+

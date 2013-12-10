@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.uitest.dsl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -49,8 +50,14 @@ public class StartApplicationServer
                     Server server = new Server(10000);
 
                     WebAppContext context = new WebAppContext();
-                    context.setDescriptor("targets/www/WEB-INF/web.xml");
-                    context.setResourceBase("targets/www");
+                    
+                    if (new File("targets/gradle/openbis-war/openbis.war").exists() == false) {
+                        context.setDescriptor("targets/www/WEB-INF/web.xml");
+                        context.setResourceBase("targets/www");                    	
+                    } else {
+                        context.setWar("targets/gradle/openbis-war/openbis.war");
+                    }
+                    
                     context.setContextPath("/");
                     context.setParentLoaderPriority(true);
 
