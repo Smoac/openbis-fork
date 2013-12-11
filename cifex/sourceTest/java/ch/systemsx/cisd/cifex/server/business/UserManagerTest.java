@@ -29,6 +29,7 @@ import org.jmock.api.Invocation;
 import org.jmock.lib.action.CustomAction;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -44,6 +45,8 @@ import ch.systemsx.cisd.cifex.server.business.bo.IBusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IUserDAO;
 import ch.systemsx.cisd.cifex.server.business.dto.UserDTO;
+import ch.systemsx.cisd.cifex.server.business.exception.ExternalUserNotFoundInExternalAuthenticationServiceException;
+import ch.systemsx.cisd.cifex.server.business.exception.UserNotFoundException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 
@@ -692,10 +695,10 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                     one(userDAO).listUsersByCode(userId);
                     will(returnValue(Arrays.asList(user)));
-                    
+
                     one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
-                    
+
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
                 }
@@ -727,7 +730,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                     one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
-                    
+
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
                 }
@@ -756,19 +759,19 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                     one(userDAO).listUsersByCode(userId);
                     will(returnValue(Arrays.asList(user)));
-                    
+
                     one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
-                    
+
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
 
                     one(userDAO).listUsersByEmail(email);
                     will(returnValue(Arrays.asList(user)));
-                    
+
                     one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
-                    
+
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
                 }
@@ -806,6 +809,461 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         } finally
         {
             context.assertIsSatisfied();
+        }
+    }
+
+    @Test
+    public void testGetUsersByUserNameWhereFoundInLocalDBByUserNameAndIsExternalAndFoundInExternalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+        final String externalEmail = "external@users.com";
+
+        final UserDTO localUser = UserManager.createExternalUser(userId, localFirstName + " " + localLastName, localEmail, active);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, externalEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Arrays.asList(localUser)));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(Arrays.asList(userId), null, null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(localUser, externalPrincipal, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByUserNameWhereFoundInLocalDBByUserNameAndIsExternalAndNotFoundInExternalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final UserDTO localUser = UserManager.createExternalUser(userId, localFirstName + " " + localLastName, localEmail, active);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Arrays.asList(localUser)));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(null));
+                }
+            });
+
+        try
+        {
+            userManager.getUsers(Arrays.asList(userId), null, null);
+            Assert.fail();
+        } catch (ExternalUserNotFoundInExternalAuthenticationServiceException e)
+        {
+            assertEquals(userId, e.getUserCode());
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
+    }
+
+    @Test
+    public void testGetUsersByUserNameWhereFoundInLocalDBByUserNameAndIsLocal()
+    {
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final UserDTO localUser = UserManager.createLocalUser(userId, localFirstName + " " + localLastName, localEmail);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Arrays.asList(localUser)));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(Arrays.asList(userId), null, null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(localUser, null, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByUserNameWhereNotFoundInLocalDBByUserNameAndFoundInExternalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+        final String externalEmail = "external@users.com";
+
+        final UserDTO newUser = UserManager.createExternalUser(userId, externalFirstName + " " + externalLastName, externalEmail, active);
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, externalEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(null));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    one(userDAO).createUser(newUser);
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(Arrays.asList(userId), null, null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(null, externalPrincipal, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByUserNameWhereNotFoundInLocalDBByUserNameAndNotFoundInExternalDBByUserName()
+    {
+        final String userId = "newuser";
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(null));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(null));
+                }
+            });
+
+        try
+        {
+            userManager.getUsers(Arrays.asList(userId), null, null);
+            Assert.fail();
+        } catch (UserNotFoundException e)
+        {
+            assertEquals(userId, e.getUserCode());
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereFoundInLocalDBByEmailAndIsExternalAndFoundInExternalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+        final String externalEmail = "external@users.com";
+
+        final UserDTO localUser = UserManager.createExternalUser(userId, localFirstName + " " + localLastName, localEmail, active);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, externalEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(localEmail);
+                    will(returnValue(Arrays.asList(localUser)));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(localEmail), null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(localUser, externalPrincipal, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereFoundInLocalDBByEmailAndIsExternalAndNotFoundInExternalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final UserDTO localUser = UserManager.createExternalUser(userId, localFirstName + " " + localLastName, localEmail, active);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(localEmail);
+                    will(returnValue(Arrays.asList(localUser)));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(null));
+                }
+            });
+
+        try
+        {
+            userManager.getUsers(null, Arrays.asList(localEmail), null);
+            Assert.fail();
+        } catch (ExternalUserNotFoundInExternalAuthenticationServiceException e)
+        {
+            assertEquals(userId, e.getUserCode());
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereFoundInLocalDBByEmailAndIsLocal()
+    {
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final UserDTO localUser = UserManager.createLocalUser(userId, localFirstName + " " + localLastName, localEmail);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(localEmail);
+                    will(returnValue(Arrays.asList(localUser)));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(localEmail), null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(localUser, null, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndFoundInLocalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+        final String externalEmail = "external@users.com";
+
+        final UserDTO localUser = UserManager.createExternalUser(userId, localFirstName + " " + localLastName, localEmail, active);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, externalEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(externalEmail);
+                    will(returnValue(null));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(externalEmail, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Arrays.asList(localUser)));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(externalEmail), null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(localUser, externalPrincipal, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndNotFoundInLocalDBByUserName()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+        final String externalEmail = "external@users.com";
+
+        final UserDTO newUser = UserManager.createExternalUser(userId, externalFirstName + " " + externalLastName, externalEmail, active);
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, externalEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(externalEmail);
+                    will(returnValue(null));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(externalEmail, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(null));
+
+                    one(userDAO).createUser(newUser);
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(externalEmail), null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(null, externalPrincipal, results.iterator().next());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndNotFoundInExternalDBByEmail()
+    {
+        final String externalEmail = "external@users.com";
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(externalEmail);
+                    will(returnValue(null));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(externalEmail, null);
+                    will(returnValue(null));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(externalEmail), null);
+
+        assertEquals(0, results.size());
+
+        context.assertIsSatisfied();
+    }
+
+    private void assertResultMergedFromExistingLocalAndExternalUsers(UserDTO localUser, Principal externalPrincipal, UserDTO result)
+    {
+        if (externalPrincipal != null)
+        {
+            assertEquals(externalPrincipal.getUserId(), result.getUserCode());
+            assertEquals(externalPrincipal.getFirstName() + " " + externalPrincipal.getLastName(), result.getUserFullName());
+            assertEquals(externalPrincipal.getEmail(), result.getEmail());
+        } else
+        {
+            assertEquals(localUser.getUserCode(), result.getUserCode());
+            assertEquals(localUser.getUserFullName(), result.getUserFullName());
+            assertEquals(localUser.getEmail(), result.getEmail());
+        }
+
+        if (localUser != null)
+        {
+            assertEquals(localUser.getID(), result.getID());
+            assertEquals(localUser.getQuotaGroupId(), result.getQuotaGroupId());
         }
     }
 
