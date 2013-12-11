@@ -11,10 +11,13 @@ INSTALLER_PROJECT = 'gradle-installation'
 OPENBIS_STANDARD_TECHNOLOGIES_PROJECT = 'gradle-openbis-standard-technologies'
 DATAMOVER_PROJECT = 'datamover'
 
+PSQL_EXE = 'psql'
+
 PLAYGROUND = 'targets/playground'
 TEMPLATES = 'templates'
 TEST_DATA = 'testData'
-PSQL_EXE = 'psql'
+
+DEFAULT_TIME_OUT_IN_MINUTES = 5
 
 class TestCase(object):
     """
@@ -476,7 +479,7 @@ class OpenbisController(_Controller):
             if dataSet.dataStore != self.getDataStoreServerCode():
                 continue
             count += 1
-            self.assertFileExist("data/store/1/%s/original" % dataSet.location)
+            self.assertFileExist("data/store/1/%s" % dataSet.location)
         self.testCase.assertEquals("Number of data sets in data store %s" % self.getDataStoreServerCode(), 
                                    expectedNumberOfDataSets, count)
     
@@ -555,14 +558,20 @@ class OpenbisController(_Controller):
         self.testCase._removeFromRunningInstances(self)
         util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
         
-    def drop(self, zipFileName, dropBoxName, numberOfDataSets = 1, timeOutInMinutes = 5):
+    def drop(self, dataName, dropBoxName, numberOfDataSets = 1, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """
-        Unzip the specified ZIP file into the specified drop box and wait until data set has been registered.
+        Drops the specified data into the specified drop box. The data is either a folder or a ZIP file
+        in TEST_DATA. A ZIP file will be unpacked in the drop box. After dropping the method waits
+        until the specified number of data sets have been registered.
         """
-        util.unzip("%s/%s" % (self.templatesFolder, zipFileName), "%s/data/%s" % (self.installPath, dropBoxName))
+        destination = "%s/data/%s" % (self.installPath, dropBoxName)
+        if dataName.endswith('.zip'):
+            util.unzip("%s/%s" % (TEST_DATA, dataName), destination)
+        else:
+            util.copyFromTo(TEST_DATA, destination , dataName)
         self.waitUntilDataSetRegistrationFinished(numberOfDataSets = numberOfDataSets, timeOutInMinutes = timeOutInMinutes)
         
-    def waitUntilDataSetRegistrationFinished(self, numberOfDataSets = 1, timeOutInMinutes = 5):
+    def waitUntilDataSetRegistrationFinished(self, numberOfDataSets = 1, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """ Waits until the specified number of data sets have been registrated. """
         monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
                                   "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
@@ -575,7 +584,7 @@ class OpenbisController(_Controller):
             numberOfRegisteredDataSets += int(elements[0])
             print "%d of %d data sets registered" % (numberOfRegisteredDataSets, numberOfDataSets)
         
-    def waitUntilDataSetRegistrationFailed(self, timeOutInMinutes = 5):
+    def waitUntilDataSetRegistrationFailed(self, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """ Waits until data set registration failed. """
         monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
                                   "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 

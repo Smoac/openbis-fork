@@ -2143,7 +2143,7 @@ COPY experiment_properties (id, expe_id, etpt_id, value, cvte_id, mate_prop_id, 
 --
 
 COPY experiment_type_property_types (id, exty_id, prty_id, is_mandatory, is_managed_internally, pers_id_registerer, registration_timestamp, ordinal, section) FROM stdin;
-1	1	1	t	t	1	2008-06-17 16:38:49.023295+02	1	\N
+1	1	1	f	t	1	2008-06-17 16:38:49.023295+02	1	\N
 2	2	1	t	t	1	2008-06-17 16:38:49.301922+02	1	\N
 5	1	13	f	f	1	2009-12-17 10:54:01.261178+01	2	\N
 \.
