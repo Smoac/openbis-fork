@@ -156,7 +156,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     private final Object[][] provideAllBooleans()
     {
         return new Object[][]
-            {
+        {
                 { true },
                 { false } };
     }
@@ -184,7 +184,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
 
         return new Object[][]
-            {
+        {
                 { 1L, "alice@users.com", getSimpleUser(1L, "alice@users.com") },
                 { 2L, "alice", getSimpleUser(2L, "alice") } };
     }
@@ -340,7 +340,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     {
 
         final Object[][] data =
-            {
+        {
                 { null, null },
                 { "before", null },
                 { null, "after" },
@@ -517,7 +517,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
 
-                    // create user
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(Collections.emptyList()));
+
                     one(userDAO).createUser(user);
                 }
             });
@@ -579,25 +581,12 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     one(userDAO).listUsersByCode(userId, userId2);
                     will(returnValue(new ArrayList<UserDTO>()));
 
-                    one(userDAO).listUsersByEmail(email3);
-                    will(returnValue(new ArrayList<UserDTO>()));
-
                     one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
                     will(returnValue(new Principal(userId, firstName, lastName, email)));
 
-                    one(externalAuthService).tryGetAndAuthenticateUser(userId2, null);
-                    will(returnValue(new Principal(userId2, firstName, lastName2, email2)));
-
-                    one(externalAuthService).supportsListingByEmail();
-                    will(returnValue(true));
-
-                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(email3, null);
-                    will(returnValue(new Principal(userId3, firstName, lastName3, email3)));
-
-                    exactly(3).of(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
                     will(returnValue(active));
 
-                    // create user
                     one(userDAO).createUser(user1);
                     will(new CustomAction("set technical user id")
                         {
@@ -609,7 +598,12 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                             }
                         });
 
-                    // create user
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId2, null);
+                    will(returnValue(new Principal(userId2, firstName, lastName2, email2)));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
                     one(userDAO).createUser(user2);
                     will(new CustomAction("set technical user id")
                         {
@@ -621,7 +615,21 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                             }
                         });
 
-                    // create user
+                    one(userDAO).listUsersByEmail(email3);
+                    will(returnValue(new ArrayList<UserDTO>()));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(email3, null);
+                    will(returnValue(new Principal(userId3, firstName, lastName3, email3)));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    one(userDAO).listUsersByCode(userId3);
+                    will(returnValue(new ArrayList<UserDTO>()));
+
                     one(userDAO).createUser(user3);
                     will(new CustomAction("set technical user id")
                         {
@@ -684,6 +692,12 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                     one(userDAO).listUsersByCode(userId);
                     will(returnValue(Arrays.asList(user)));
+                    
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+                    
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
                 }
             });
         final Collection<UserDTO> users = userManager.getUsers(Arrays.asList(userId), null, null);
@@ -710,6 +724,12 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                     one(userDAO).listUsersByEmail(email);
                     will(returnValue(Arrays.asList(user)));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+                    
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
                 }
             });
         final Collection<UserDTO> users = userManager.getUsers(null, Arrays.asList(email), null);
@@ -736,9 +756,21 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
                     one(userDAO).listUsersByCode(userId);
                     will(returnValue(Arrays.asList(user)));
+                    
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+                    
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
 
                     one(userDAO).listUsersByEmail(email);
                     will(returnValue(Arrays.asList(user)));
+                    
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(new Principal(userId, firstName, lastName, email)));
+                    
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
                 }
             });
         final Collection<UserDTO> users =
@@ -765,8 +797,16 @@ public class UserManagerTest extends AbstractFileSystemTestCase
                     will(returnValue(null));
                 }
             });
-        assertTrue(userManager.getUsers(Arrays.asList(userId), null, null).isEmpty());
-        context.assertIsSatisfied();
+        try
+        {
+            userManager.getUsers(Arrays.asList(userId), null, null);
+        } catch (UserFailureException e)
+        {
+            assertTrue(e.getMessage().equals("User with code: " + userId + " does not exist."));
+        } finally
+        {
+            context.assertIsSatisfied();
+        }
     }
 
 }

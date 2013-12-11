@@ -18,9 +18,12 @@ package ch.systemsx.cisd.cifex.server.business;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -487,192 +490,307 @@ class UserManager extends AbstractManager implements IUserManager
 
     @Override
     @Transactional
+    /**
+        Searching by USER_NAME
+        ======================
+    
+        Example: "id:test"
+    
+        Algorithm:
+    
+        IF (found a user by USER_NAME in the local DB):
+            IF (is_externally_authenticated):
+                IF (found a user by USER_NAME in the external DB):
+                    Take the user from the external DB
+                ELSE:
+                    Error - user probably has left ETHZ
+            ELSE:
+                Take the user from the local DB
+        ELSE:
+            IF (found a user by USER_NAME in the external DB):
+                Create a new user in the local DB
+            ELSE:
+                Error - incorrect user name
+    
+        Searching by EMAIL
+        ==================
+    
+        Example: "test@ethz.ch"
+        
+        Algorithm:
+    
+        IF (found a user by EMAIL in the local DB):
+            IF (is_externally_authenticated):
+                IF (found a user by USER_NAME in the external DB):
+                    Take the user from the external DB
+                ELSE:
+                    Error - user probably has left ETHZ
+            ELSE:
+                Take the user from the local DB
+        ELSE:
+            IF (found a user by EMAIL in the external DB):
+                Take the user from the external DB
+                IF (did not find a user by USER_NAME in the local DB):
+                    Create a new user 
+            ELSE:
+                Create a temporary user for that email
+
+     */
     public Collection<UserDTO> getUsers(List<String> userCodesOrNull,
             List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
     {
-        final Collection<UserDTO> users = getUsersInDB(userCodesOrNull, emailAddressesOrNull);
-        if (authenticationService instanceof NullAuthenticationService == false)
-        {
-            final List<String> unknownUserCodes = findUnknownUserCodes(users, userCodesOrNull);
-            createUsersInExternalAuthenticationRepositoryByUserCode(users, unknownUserCodes,
-                    logOrNull);
-            final List<String> unknownAndNonPermanentEmails =
-                    findUnknownAndNonPermanentEmailAddresses(users, emailAddressesOrNull);
-            createUsersInExternalAuthenticationRepositoryByEmail(users,
-                    unknownAndNonPermanentEmails, logOrNull);
-        }
+        Collection<UserDTO> usersByCodes = getUsersByCodes(userCodesOrNull, logOrNull);
+        Collection<UserDTO> usersByEmails = getUsersByEmails(emailAddressesOrNull, logOrNull);
+
+        Set<UserDTO> users = new LinkedHashSet<UserDTO>();
+        users.addAll(usersByCodes);
+        users.addAll(usersByEmails);
+
         return users;
     }
 
-    private void createUsersInExternalAuthenticationRepositoryByUserCode(
-            final Collection<UserDTO> users, final List<String> userCodes,
-            final IUserActionLog logOrNull)
+    private Collection<UserDTO> getUsersByCodes(List<String> userCodesOrNull, IUserActionLog logOrNull)
     {
-        if (userCodes.isEmpty())
-        {
-            return;
-        }
-        for (String userCode : userCodes)
-        {
-            final Principal principalOrNull =
-                    authenticationService.tryGetAndAuthenticateUser(userCode, null);
-            if (principalOrNull != null)
-            {
-                final UserDTO userDTO =
-                        createExternalUser(principalOrNull.getUserId(),
-                                UserUtils.extractDisplayName(principalOrNull),
-                                principalOrNull.getEmail(),
-                                businessContext.isNewExternallyAuthenticatedUserStartActive());
-                boolean success = false;
-                try
-                {
-                    createUser(userDTO, null);
-                    users.add(userDTO);
-                    success = true;
-                } finally
-                {
-                    if (logOrNull != null)
-                    {
-                        logOrNull.logCreateUser(userDTO, success);
-                    }
-                }
-            }
-        }
-    }
-
-    private void createUsersInExternalAuthenticationRepositoryByEmail(
-            final Collection<UserDTO> users, final List<String> emailAddresses,
-            final IUserActionLog logOrNull)
-    {
-        if (emailAddresses.isEmpty() || authenticationService.supportsListingByEmail() == false)
-        {
-            return;
-        }
-        for (String emailAddress : emailAddresses)
-        {
-            Principal principalOrNull =
-                    authenticationService.tryGetAndAuthenticateUserByEmail(emailAddress, null);
-            if (principalOrNull != null)
-            {
-                UserDTO userDTO =
-                        createExternalUser(principalOrNull.getUserId(),
-                                UserUtils.extractDisplayName(principalOrNull),
-                                principalOrNull.getEmail(),
-                                businessContext.isNewExternallyAuthenticatedUserStartActive());
-                boolean createUser = true;
-                boolean success = false;
-                try
-                {
-                    if (isAliasEmailAddress(userDTO, emailAddress))
-                    {
-                        final UserDTO existingUserForAliasEmailOrNull =
-                                daoFactory.getUserDAO().tryFindUserByCode(userDTO.getUserCode());
-                        if (existingUserForAliasEmailOrNull != null)
-                        {
-                            userDTO = existingUserForAliasEmailOrNull;
-                            userDTO.setEmailAlias(emailAddress);
-                            createUser = false;
-                        }
-                    }
-                    if (createUser)
-                    {
-                        createUser(userDTO, null);
-                    }
-                    users.add(userDTO);
-                    success = true;
-                } finally
-                {
-                    if (logOrNull != null && createUser)
-                    {
-                        logOrNull.logCreateUser(userDTO, success);
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean isAliasEmailAddress(UserDTO userDTO, String emailAddress)
-    {
-        return emailAddress.equals(userDTO.getEmail()) == false;
-    }
-
-    private List<String> findUnknownUserCodes(Collection<UserDTO> relevantUsers,
-            Collection<String> userCodesOrNull)
-    {
-        final List<String> unknownUserCodes = new ArrayList<String>();
         if (userCodesOrNull == null || userCodesOrNull.isEmpty())
         {
-            return unknownUserCodes;
+            return new LinkedList<UserDTO>();
         }
-        final TableMap<String, UserDTO> existingUsers =
-                UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(relevantUsers);
-        for (String userCode : userCodesOrNull)
+
+        if (authenticationService instanceof NullAuthenticationService)
         {
-            final UserDTO userOrNull = existingUsers.tryGet(userCode);
-            if (userOrNull == null)
+            Collection<UserDTO> usersFromLocalDB = getUsersByCodesFromLocalDB(userCodesOrNull);
+            Set<String> externallyAuthenticatedUsersCodes = new TreeSet<String>();
+
+            for (UserDTO userFromLocalDB : usersFromLocalDB)
             {
-                unknownUserCodes.add(userCode);
+                if (userFromLocalDB.isExternallyAuthenticated())
+                {
+                    externallyAuthenticatedUsersCodes.add(userFromLocalDB.getUserCode());
+                }
             }
+
+            if (false == externallyAuthenticatedUsersCodes.isEmpty())
+            {
+                throw new UserFailureException("Cannot load information for the following users: " + externallyAuthenticatedUsersCodes
+                        + ". They are externally authenticated, but the authentication service hasn't been specified.");
+            }
+
+            return usersFromLocalDB;
+
+        } else
+        {
+            LinkedHashSet<UserDTO> users = new LinkedHashSet<UserDTO>();
+
+            Collection<UserDTO> usersFromLocalDB = getUsersByCodesFromLocalDB(userCodesOrNull);
+            TableMap<String, UserDTO> usersFromLocalDBMap = UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(usersFromLocalDB);
+
+            for (String userCode : userCodesOrNull)
+            {
+                UserDTO userFromLocalDB = usersFromLocalDBMap.tryGet(userCode);
+
+                if (userFromLocalDB != null)
+                {
+                    if (userFromLocalDB.isExternallyAuthenticated())
+                    {
+                        UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
+
+                        if (userFromExternalAuthenticationService != null)
+                        {
+                            // TODO refactor by creating a common update method
+                            userFromLocalDB.setEmail(userFromExternalAuthenticationService.getEmail());
+                            userFromLocalDB.setEmailAlias(userFromExternalAuthenticationService.getEmailAlias());
+                            users.add(userFromLocalDB);
+                        } else
+                        {
+                            throw new UserFailureException("User with code: " + userCode
+                                    + " is externally authenticated, but hasn't been found in the authentication service.");
+                        }
+                    } else
+                    {
+                        users.add(userFromLocalDB);
+                    }
+                } else
+                {
+                    UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
+
+                    if (userFromExternalAuthenticationService != null)
+                    {
+                        boolean success = false;
+                        try
+                        {
+                            createUser(userFromExternalAuthenticationService, null);
+                            users.add(userFromExternalAuthenticationService);
+                            success = true;
+                        } finally
+                        {
+                            if (logOrNull != null)
+                            {
+                                logOrNull.logCreateUser(userFromExternalAuthenticationService, success);
+                            }
+                        }
+                    } else
+                    {
+                        throw new UserFailureException("User with code: " + userCode + " does not exist.");
+                    }
+                }
+            }
+
+            return users;
         }
-        return unknownUserCodes;
     }
 
-    private List<String> findUnknownAndNonPermanentEmailAddresses(
-            Collection<UserDTO> relevantUsers, List<String> emailAddressesOrNull)
+    private Collection<UserDTO> getUsersByEmails(List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
     {
-        final List<String> unknownEmailAddresses = new ArrayList<String>();
         if (emailAddressesOrNull == null || emailAddressesOrNull.isEmpty())
         {
-            return unknownEmailAddresses;
+            return new LinkedList<UserDTO>();
         }
-        final TableMapNonUniqueKey<String, UserDTO> existingUsers =
-                UserUtils.createTableMapOfExistingUsersWithEmailAsKey(relevantUsers);
-        for (String emailAddress : emailAddressesOrNull)
+
+        if (authenticationService instanceof NullAuthenticationService)
         {
-            final Set<UserDTO> usersOrNull = existingUsers.tryGet(emailAddress);
-            if (containsPermanentUsers(usersOrNull) == false)
+            Collection<UserDTO> usersFromLocalDB = getUsersByEmailsFromLocalDB(emailAddressesOrNull);
+            Set<String> externallyAuthenticatedUsersCodes = new TreeSet<String>();
+
+            for (UserDTO userFromLocalDB : usersFromLocalDB)
             {
-                unknownEmailAddresses.add(emailAddress);
+                if (userFromLocalDB.isExternallyAuthenticated())
+                {
+                    externallyAuthenticatedUsersCodes.add(userFromLocalDB.getUserCode());
+                }
             }
+
+            if (externallyAuthenticatedUsersCodes.isEmpty() == false)
+            {
+                throw new UserFailureException("Cannot load information for the following users: " + externallyAuthenticatedUsersCodes
+                        + ". They are externally authenticated, but the authentication service hasn't been specified.");
+            }
+
+            return usersFromLocalDB;
+        } else
+        {
+            LinkedHashSet<UserDTO> users = new LinkedHashSet<UserDTO>();
+
+            Collection<UserDTO> usersFromLocalDB = getUsersByEmailsFromLocalDB(emailAddressesOrNull);
+            TableMapNonUniqueKey<String, UserDTO> usersFromLocalDBMap = UserUtils.createTableMapOfExistingUsersWithEmailAsKey(usersFromLocalDB);
+
+            for (String emailAddress : emailAddressesOrNull)
+            {
+                Set<UserDTO> usersFromLocalDBForEmail = usersFromLocalDBMap.tryGet(emailAddress);
+
+                if (usersFromLocalDBForEmail == null || usersFromLocalDBForEmail.isEmpty())
+                {
+                    UserDTO userFromExternalAuthenticationService =
+                            getUserByEmailFromExternalAuthenticationService(emailAddress);
+                    if (userFromExternalAuthenticationService != null)
+                    {
+                        Collection<UserDTO> usersFromLocalDBForCode =
+                                getUsersByCodesFromLocalDB(Collections.singletonList(userFromExternalAuthenticationService.getUserCode()));
+
+                        if (usersFromLocalDBForCode == null || usersFromLocalDBForCode.isEmpty())
+                        {
+                            boolean success = false;
+                            try
+                            {
+                                createUser(userFromExternalAuthenticationService, null);
+                                success = true;
+                            } finally
+                            {
+                                if (logOrNull != null)
+                                {
+                                    logOrNull.logCreateUser(userFromExternalAuthenticationService, success);
+                                }
+                            }
+                        }
+
+                        users.add(userFromExternalAuthenticationService);
+                    }
+                } else
+                {
+                    for (UserDTO userFromLocalDBForEmail : usersFromLocalDBForEmail)
+                    {
+                        if (userFromLocalDBForEmail.isExternallyAuthenticated())
+                        {
+                            UserDTO userFromExternalAuthenticationService =
+                                    getUserByCodeFromExternalAuthenticationService(userFromLocalDBForEmail.getUserCode());
+
+                            if (userFromExternalAuthenticationService != null)
+                            {
+                                // TODO refactor by creating a common update method
+                                userFromLocalDBForEmail.setEmail(userFromExternalAuthenticationService.getEmail());
+                                userFromLocalDBForEmail.setEmailAlias(userFromExternalAuthenticationService.getEmailAlias());
+                                users.add(userFromLocalDBForEmail);
+                            } else
+                            {
+                                throw new UserFailureException("User with code: " + userFromLocalDBForEmail.getUserCode()
+                                        + " is externally authenticated, but hasn't been found in the authentication service.");
+                            }
+                        } else
+                        {
+                            // should we handle permanent and temporary users in a different way ?
+                            users.add(userFromLocalDBForEmail);
+                        }
+                    }
+                }
+
+            }
+
+            return users;
         }
-        return unknownEmailAddresses;
     }
 
-    private boolean containsPermanentUsers(Set<UserDTO> users)
+    private Collection<UserDTO> getUsersByCodesFromLocalDB(final List<String> userCodes)
     {
-        if (users == null)
-        {
-            return false;
-        }
-        for (UserDTO user : users)
-        {
-            if (user.isPermanent())
-            {
-                return true;
-            }
-        }
-        return false;
+        return daoFactory.getUserDAO().listUsersByCode(userCodes.toArray(new String[userCodes.size()]));
     }
 
-    private Collection<UserDTO> getUsersInDB(final List<String> userCodesOrNull,
-            final List<String> emailAddressesOrNull)
+    private Collection<UserDTO> getUsersByEmailsFromLocalDB(final List<String> emailAddresses)
     {
-        final int numberOfUserCodes = (userCodesOrNull != null) ? userCodesOrNull.size() : 0;
-        final int numberOfEmailAddresses =
-                (emailAddressesOrNull != null) ? emailAddressesOrNull.size() : 0;
-        final LinkedHashSet<UserDTO> users =
-                new LinkedHashSet<UserDTO>(numberOfUserCodes + numberOfEmailAddresses);
-        if (numberOfUserCodes > 0)
+        return daoFactory.getUserDAO().listUsersByEmail(emailAddresses.toArray(new String[emailAddresses.size()]));
+    }
+
+    private UserDTO getUserByCodeFromExternalAuthenticationService(final String userCode)
+    {
+        final Principal principalOrNull =
+                authenticationService.tryGetAndAuthenticateUser(userCode, null);
+
+        if (principalOrNull != null)
         {
-            users.addAll(daoFactory.getUserDAO().listUsersByCode(
-                    userCodesOrNull.toArray(new String[userCodesOrNull.size()])));
-        }
-        if (numberOfEmailAddresses > 0)
+            UserDTO user = createExternalUser(principalOrNull.getUserId(),
+                    UserUtils.extractDisplayName(principalOrNull),
+                    principalOrNull.getEmail(),
+                    businessContext.isNewExternallyAuthenticatedUserStartActive());
+            return user;
+        } else
         {
-            users.addAll(daoFactory.getUserDAO().listUsersByEmail(
-                    emailAddressesOrNull.toArray(new String[emailAddressesOrNull.size()])));
+            return null;
         }
-        return users;
+    }
+
+    private UserDTO getUserByEmailFromExternalAuthenticationService(final String emailAddress)
+    {
+        if (authenticationService.supportsListingByEmail() == false)
+        {
+            return null;
+        }
+
+        Principal principalOrNull =
+                authenticationService.tryGetAndAuthenticateUserByEmail(emailAddress, null);
+
+        if (principalOrNull != null)
+        {
+            UserDTO user = createExternalUser(principalOrNull.getUserId(),
+                    UserUtils.extractDisplayName(principalOrNull),
+                    principalOrNull.getEmail(),
+                    businessContext.isNewExternallyAuthenticatedUserStartActive());
+            if (false == emailAddress.equals(principalOrNull.getEmail()))
+            {
+                user.setEmailAlias(emailAddress);
+            }
+            return user;
+        } else
+        {
+            return null;
+        }
     }
 
     @Private
