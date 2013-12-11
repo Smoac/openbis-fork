@@ -383,6 +383,77 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			}
 		};
 	
+		/*
+		 * Used by Sample Form
+		 */
+		this.getSpaceForSampleType = function(type) {
+			if(type === "BACTERIA") {
+				return "YEAST_LAB";
+			} else if(type === "SOLUTIONS_BUFFERS") {
+				return "YEAST_LAB";
+			} else if(type === "MEDIA") {
+				return "YEAST_LAB";
+			} else if(type === "ENZYME") {
+				return "YEAST_LAB";
+			} else if(type === "CHEMICAL") {
+				return "YEAST_LAB";
+			} else if(type === "ANTIBODY") {
+				return "YEAST_LAB";
+			} else if(type === "OLIGO") {
+				return "YEAST_LAB";
+			} else if(type === "PLASMID") {
+				return "YEAST_LAB";
+			} else if(type === "WESTERN_BLOTTING") {
+				return "YEAST_LAB";
+			} else if(type === "READOUT") {
+				return "YEAST_LAB";
+			} else if(type === "PCR") {
+				return "YEAST_LAB";
+			} else if(type === "GENERAL_PROTOCOL") {
+				return "YEAST_LAB";
+			} else if(type === "YEAST") {
+				return "YEAST_LAB";
+			} else if(type === "POMBE") {
+				return "YEAST_LAB";
+			} else {
+				return null;
+			}
+		}
+		
+		this.getExperimentIdentifierForSample = function(type, code, properties) {
+			if(type === "BACTERIA") {
+				return "/YEAST_LAB/BACTERIA/LAB_BENCH_BACTERIA";
+			} else if(type === "SOLUTIONS_BUFFERS") {
+				return "/YEAST_LAB/CHEMICALS/SOLUTIONS_BUFFERS";
+			} else if(type === "MEDIA") {
+				return "/YEAST_LAB/CHEMICALS/MEDIA";
+			} else if(type === "ENZYME") {
+				return "/YEAST_LAB/CHEMICALS/ENZYMES";
+			} else if(type === "CHEMICAL") {
+				return "/YEAST_LAB/CHEMICALS/CHEMICALS";
+			} else if(type === "ANTIBODY") {
+				return "/YEAST_LAB/CHEMICALS/ANTIBODIES";
+			} else if(type === "OLIGO") {
+				return "/YEAST_LAB/OLIGO/81_BOXES";
+			} else if(type === "PLASMID") {
+				return "/YEAST_LAB/PLASMIDS/LAB_BENCH_PLASMIDS";
+			} else if(type === "WESTERN_BLOTTING") {
+				return "/YEAST_LAB/PROTOCOLS/WESTERN_BLOTTING";
+			} else if(type === "READOUT") {
+				return "/YEAST_LAB/PROTOCOLS/READOUTS";
+			} else if(type === "PCR") {
+				return "/YEAST_LAB/PROTOCOLS/PCR";
+			} else if(type === "GENERAL_PROTOCOL") {
+				return "/YEAST_LAB/PROTOCOLS/GENERAL_PROTOCOLS";
+			} else if(type === "YEAST") {
+				return "/YEAST_LAB/YEAST/LAB_BENCH_YEASTS";
+			} else if(type === "POMBE") {
+				return "/YEAST_LAB/YEAST/LAB_BENCH_POMBE";
+			} else {
+				return null;
+			}
+		}
+		
 		this.getHTMLTableFromXML = function(xmlDocument) {
 			var table_head = null;
 			var table_body = "";
