@@ -3,6 +3,24 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.entity
 import java.util.ArrayList;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
@@ -24,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.S
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.material.MaterialTypeGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property_type.PropertyTypeAssignmentGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.sample.SampleTypeGrid;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FormPanelWithSavePoint.DirtyChangeEvent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
@@ -42,24 +61,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewPTNewAssigment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
-
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class NewEntityTypeForm extends ContentPanel implements IComponentWithCloseConfirmation
 {
@@ -337,18 +338,17 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
     {
         List<Field<?>> formFields = dialogForm.getFields();
 
+        ((CodeField) formFields.get(0)).setValue(entityToEdit.getCode());
+        ((CodeField) formFields.get(0)).setEnabled(false);
+        FieldUtil.setValueWithUnescaping(((DescriptionField) formFields.get(1)), entityToEdit.getDescription());
+        if (entityToEdit.getValidationScript() != null)
+        {
+            ((ScriptChooserField) formFields.get(2)).setValue(entityToEdit.getValidationScript().getName());
+        }
         switch (kind)
         {
             case SAMPLE:
                 SampleType sampleToEdit = (SampleType) entityToEdit;
-
-                ((CodeField) formFields.get(0)).setValue(sampleToEdit.getCode());
-                ((CodeField) formFields.get(0)).setEnabled(false);
-                ((DescriptionField) formFields.get(1)).setValue(sampleToEdit.getDescription());
-                if (sampleToEdit.getValidationScript() != null)
-                {
-                    ((ScriptChooserField) formFields.get(2)).setValue(sampleToEdit.getValidationScript().getName());
-                }
                 ((CheckBoxField) formFields.get(3)).setValue(sampleToEdit.isListable());
                 ((CheckBoxField) formFields.get(4)).setValue(sampleToEdit.isShowContainer());
                 ((CheckBoxField) formFields.get(5)).setValue(sampleToEdit.isShowParents());
@@ -359,41 +359,11 @@ public class NewEntityTypeForm extends ContentPanel implements IComponentWithClo
                 break;
             case DATA_SET:
                 DataSetType datasetToEdit = (DataSetType) entityToEdit;
-
-                ((CodeField) formFields.get(0)).setValue(datasetToEdit.getCode());
-                ((CodeField) formFields.get(0)).setEnabled(false);
-                ((DescriptionField) formFields.get(1)).setValue(datasetToEdit.getDescription());
-                if (datasetToEdit.getValidationScript() != null)
-                {
-                    ((ScriptChooserField) formFields.get(2)).setValue(datasetToEdit.getValidationScript().getName());
-                }
                 ((DataSetKindSelectionWidget) formFields.get(3)).setValue(new DataSetKindModel(datasetToEdit.getDataSetKind()));
                 ((DataSetKindSelectionWidget) formFields.get(3)).setEnabled(false);
                 ((CheckBoxField) formFields.get(4)).setValue(datasetToEdit.isDeletionDisallow());
-                ((TextField<String>) formFields.get(5)).setValue(datasetToEdit.getMainDataSetPattern());
-                ((TextField<String>) formFields.get(6)).setValue(datasetToEdit.getMainDataSetPath());
-                break;
-            case EXPERIMENT:
-                ExperimentType experimentToEdit = (ExperimentType) entityToEdit;
-
-                ((CodeField) formFields.get(0)).setValue(experimentToEdit.getCode());
-                ((CodeField) formFields.get(0)).setEnabled(false);
-                ((DescriptionField) formFields.get(1)).setValue(experimentToEdit.getDescription());
-                if (experimentToEdit.getValidationScript() != null)
-                {
-                    ((ScriptChooserField) formFields.get(2)).setValue(experimentToEdit.getValidationScript().getName());
-                }
-                break;
-            case MATERIAL:
-                MaterialType materialToEdit = (MaterialType) entityToEdit;
-
-                ((CodeField) formFields.get(0)).setValue(materialToEdit.getCode());
-                ((CodeField) formFields.get(0)).setEnabled(false);
-                ((DescriptionField) formFields.get(1)).setValue(materialToEdit.getDescription());
-                if (materialToEdit.getValidationScript() != null)
-                {
-                    ((ScriptChooserField) formFields.get(2)).setValue(materialToEdit.getValidationScript().getName());
-                }
+                FieldUtil.setValueWithUnescaping(((TextField<String>) formFields.get(5)), datasetToEdit.getMainDataSetPattern());
+                FieldUtil.setValueWithUnescaping(((TextField<String>) formFields.get(6)), datasetToEdit.getMainDataSetPath());
                 break;
         }
 
