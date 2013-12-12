@@ -755,9 +755,10 @@ DagreGraphRenderer.prototype.normalizeNodeYPos = function()
 DagreGraphRenderer.prototype.normalizeNodeXPos = function()
 {
 	var nodes = presenter.nodes;
-	function dagrex(node) { return node.dagre.x }
-	// Look at all the nodes and the edges and fix the height so that nodes of the same type form a row
-	minmaxx = nodes.map(function(d) { return [ d3.min(d, dagrex), d3.max(d, dagrex) ]});
+	function dagrex(node) { return node.dagre.x }	
+	function dagrexwidth(node) { return node.dagre.x + node.dagre.width }
+	// Look at all the nodes and the edges and fix the x pos so that nodes of the same type form a column
+	minmaxx = nodes.map(function(d) { return [ d3.min(d, dagrex), d3.max(d, dagrexwidth) ]});
 	minx = [minmaxx[0][0]];
 	// Look the levels as pairs and ensure that the min of level i+1 is > min of level i
 	minmaxx.reduce(function(a,b) {
