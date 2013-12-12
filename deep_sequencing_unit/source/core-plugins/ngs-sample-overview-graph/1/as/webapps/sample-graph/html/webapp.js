@@ -270,8 +270,8 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
  */
 function SampleGraphPresenter(model) {
 	this.model = model;
-//	this.renderer = new DagreGraphRenderer();
-	this.renderer = new SimpleGraphRenderer();
+	this.renderer = new DagreGraphRenderer();
+//	this.renderer = new SimpleGraphRenderer();
 	this.selectedNode = null;
 	this.didCreateVis = false;
 	this.useBottomUpMode();
@@ -695,11 +695,11 @@ function DagreGraphRenderer() {
 	// Function used to draw paths between elements
 	function source(d) {
 		var dagre = d.source.dagre;
-		return { x : dagre.x + (dagre.width / 2), y  : dagre.y + dagre.height + 5};
+		return { x : dagre.x + dagre.width + 9, y  : dagre.y + (dagre.height / 2) + 5 };
 	}
 	function target(d) {
 		var dagre = d.target.dagre;
-		return { x : dagre.x + (dagre.width / 2), y  : dagre.y };
+		return { x : dagre.x, y  : dagre.y + (dagre.height / 2) + 5};
 	}
 
 	this.useLineLinkPath(source, target);
@@ -823,10 +823,11 @@ DagreGraphRenderer.prototype.draw = function()
 		.nodeSep(RANK_SEPARATION)
 		.edgeSep(10)
 		.rankSep(RANK_SEPARATION)
+		.rankDir("LR")
 		.nodes(dagreNodes)
 		.edges(presenter.edges)
 	    .run();
-	this.normalizeNodeYPos();
+	this.normalizeNodeXPos();
 	this.redrawNodes();
 	this.drawHeaders();
 	this.drawEdges();
@@ -867,17 +868,17 @@ DagreGraphRenderer.prototype.drawHeaders = function()
 	var header = this.viz.selectAll("text.header").data(function(d, i) { return presenter.visibleColumns });
 	header.enter().append("svg:text")
 		.attr("class", "header")
-		.attr("x", "0")
+		.attr("y", LINE_HEIGHT - 10)
 		.attr("text-anchor", "begin")
 		.style("font-weight", "bold");
 	header.exit().remove();
 	header
-		.attr("y", function(d, i) {
+		.attr("x", function(d, i) {
 			var nodesAtLevel = sampleNodeGroup[i];
 			if (nodesAtLevel.length < 1) return 0;
 			if (!nodesAtLevel[0]) return 0;
 			var dagre = nodesAtLevel.filter(function(d) { return d != null }).map(function(d) { return d.__data__.dagre });
-			return d3.min(dagre, function(d) { return d.y + d.height }) - 1;
+			return d3.min(dagre, function(d) { return d.x }) - 1;
 		})
 		.attr("opacity", function(d, i) {
 			var nodesAtLevel = sampleNodeGroup[i];
