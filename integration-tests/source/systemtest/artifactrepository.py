@@ -4,6 +4,8 @@ import re
 import urllib
 import xml.dom.minidom
 
+from systemtest.util import printAndFlush
+
 class ArtifactRepository():
     """
     Abstract artifact repository which keeps artifacts in a local repository folder.
@@ -17,7 +19,7 @@ class ArtifactRepository():
         self.localRepositoryFolder = localRepositoryFolder
         if not os.path.exists(localRepositoryFolder):
             os.makedirs(localRepositoryFolder)
-        print "Artifact repository: %s" % localRepositoryFolder
+        printAndFlush("Artifact repository: %s" % localRepositoryFolder)
             
     def clear(self):
         """
@@ -27,7 +29,7 @@ class ArtifactRepository():
             path = "%s/%s" % (self.localRepositoryFolder, f)
             if os.path.isfile(path):
                 os.remove(path)
-        print "Artifact repository cleared."
+        printAndFlush("Artifact repository cleared.")
         
     def getPathToArtifact(self, project, pattern='.*'):
         """
@@ -97,6 +99,6 @@ class JenkinsArtifactRepository(ArtifactRepository):
                 url = "%s/lastSuccessfulBuild/artifact/%s" % (projectUrl, relativePath)
         if url == None:
             raise Exception("For pattern '%s' no artifact found in project '%s'." % (pattern, project))
-        print "Download %s to %s." % (url, self.localRepositoryFolder)
+        printAndFlush("Download %s to %s." % (url, self.localRepositoryFolder))
         self._download(urllib.urlopen(url), fileName)
         return fileName

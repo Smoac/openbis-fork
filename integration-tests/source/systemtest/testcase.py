@@ -70,8 +70,8 @@ class TestCase(object):
         Runs this test case. This is a final method. It should not be overwritten.
         """
         startTime = time.time()
-        print "\n/''''''''''''''''''' %s started at %s %s ''''''''''" % (self.name, time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                                         'in DEV MODE' if self.devMode else '')
+        util.printAndFlush("\n/''''''''''''''''''' %s started at %s %s ''''''''''" 
+                           % (self.name, time.strftime('%Y-%m-%d %H:%M:%S'), 'in DEV MODE' if self.devMode else ''))
         try:
             if not self.devMode:
                 if os.path.exists(self.playgroundFolder):
@@ -90,9 +90,9 @@ class TestCase(object):
             if not self.devMode:
                 self.releaseResources()
             if success:
-                print "\...........SUCCESS: %s executed in %d seconds .........." % (self.name, duration)
+                util.printAndFlush("\...........SUCCESS: %s executed in %d seconds .........." % (self.name, duration))
             else:
-                print "\............FAILED: %s executed in %d seconds .........." % (self.name, duration)
+                util.printAndFlush("\............FAILED: %s executed in %d seconds .........." % (self.name, duration))
         
     def execute(self):
         """
@@ -130,14 +130,14 @@ class TestCase(object):
         if expected != actual:
             self.fail("%s\n  expected: <%s>\n   but was: <%s>" % (itemName, expected, actual))
         else:
-            print "%s as expected: <%s>" % (itemName, expected)
+            util.printAndFlush("%s as expected: <%s>" % (itemName, expected))
     
     def fail(self, errorMessage):
         """
         Prints specified error message and mark test case as failed.
         """
         self.numberOfFailures += 1
-        print "ERROR: %s" % errorMessage
+        util.printAndFlush("ERROR: %s" % errorMessage)
         
     def installScriptBasedServer(self, templateName, instanceName, 
                                  startCommand = ['./start.sh'], stopCommand = ['./stop.sh']):
@@ -226,7 +226,7 @@ class TestCase(object):
             path = "%s/%s" % (self.playgroundFolder, f)
             if not os.path.isdir(path):
                 continue
-            print "clean up %s" % path
+            util.printAndFlush("clean up %s" % path)
             util.killProcess("%s/servers/datastore_server/datastore_server.pid" % path)
             util.killProcess("%s/servers/openBIS-server/jetty/openbis.pid" % path)
             util.killProcess("%s/datamover.pid" % path)
@@ -258,7 +258,7 @@ class _Controller(object):
         self.testName = testName
         self.instanceName = instanceName
         self.installPath = installPath
-        print "Controller created for instance '%s'. Installation path: %s" % (instanceName, installPath)
+        util.printAndFlush("Controller created for instance '%s'. Installation path: %s" % (instanceName, installPath))
 
 
     def assertEmptyFolder(self, pathRelativeToInstallPath):
@@ -268,7 +268,7 @@ class _Controller(object):
         relativePath = "%s/%s" % (self.installPath, pathRelativeToInstallPath)
         files = self._getFiles(relativePath)
         if len(files) == 0:
-            print "Empty folder as expected: %s" % relativePath
+            util.printAndFlush("Empty folder as expected: %s" % relativePath)
         else:
             self.testCase.fail("%s isn't empty. It contains the following files:\n  %s" % (relativePath, files))
             
@@ -345,7 +345,7 @@ class DatamoverController(_Controller):
         output = util.executeCommand(["%s/datamover.sh" % self.installPath, 'start'], suppressStdOut=True)
         joinedOutput = '\n'.join(output)
         if 'FAILED' in joinedOutput:
-            print "Start up of datamover %s failed:\n%s" % (self.instanceName, joinedOutput)
+            util.printAndFlush("Start up of datamover %s failed:\n%s" % (self.instanceName, joinedOutput))
             raise Exception("Couldn't start up datamover '%s'." % self.instanceName)
             
     def stop(self):
@@ -419,13 +419,13 @@ class OpenbisController(_Controller):
         if os.path.exists(self.asServicePropertiesFile):
             self.asProperties = util.readProperties(self.asServicePropertiesFile)
             self.asProperties['database.kind'] = self.databaseKind
+            self.asProperties['proteomics-database-kind'] = self.databaseKind
             self.asPropertiesModified = True
         self.dssServicePropertiesFile = "%s/servers/datastore_server/etc/service.properties" % installPath
         self.dssProperties = util.readProperties(self.dssServicePropertiesFile)
         self.dssProperties['path-info-db.databaseKind'] = self.databaseKind
         self.dssProperties['imaging-database.kind'] = self.databaseKind
         self.dssProperties['proteomics-database-kind'] = self.databaseKind
-        self.asProperties['proteomics-database-kind'] = self.databaseKind
         self.dssPropertiesModified = True
         if dropDatabases:
             util.dropDatabase(PSQL_EXE, "openbis_%s" % self.databaseKind)
@@ -459,7 +459,7 @@ class OpenbisController(_Controller):
         """
         relativePath = "%s/%s" % (self.installPath, pathRelativeToInstallPath)
         if os.path.exists(relativePath):
-            print "Path exists as expected: %s" % relativePath
+            util.printAndFlush("Path exists as expected: %s" % relativePath)
         else:
             self.testCase.fail("Path doesn't exist: %s" % relativePath)
             
@@ -509,9 +509,9 @@ class OpenbisController(_Controller):
             child = dataSetsById[child_id]
             parent.children.append(child)
             child.parents.append(parent)
-        print "All data sets:\nid,dataStore,code,type,location,experiment,parents,children\n"
+        util.printAndFlush("All data sets:\nid,dataStore,code,type,location,experiment,parents,children\n")
         for dataSet in dataSets:
-            print dataSet
+            util.printAndFlush(dataSet)
         return dataSets 
         
     def createTestDatabase(self, databaseType):
@@ -583,7 +583,7 @@ class OpenbisController(_Controller):
         while numberOfRegisteredDataSets < numberOfDataSets:
             elements = monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
             numberOfRegisteredDataSets += int(elements[0])
-            print "%d of %d data sets registered" % (numberOfRegisteredDataSets, numberOfDataSets)
+            util.printAndFlush("%d of %d data sets registered" % (numberOfRegisteredDataSets, numberOfDataSets))
         
     def waitUntilDataSetRegistrationFailed(self, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """ Waits until data set registration failed. """
@@ -593,7 +593,7 @@ class OpenbisController(_Controller):
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
         monitor.addNotificationCondition(util.RegexCondition('post-registration'))
         monitor.waitUntilEvent(util.EventTypeCondition('ERROR'))
-        print "Data set registration failed as expected."
+        util.printAndFlush("Data set registration failed as expected.")
         
     def _applyCorePlugins(self):
         corePluginsFolder = "%s/servers/core-plugins" % self.installPath

@@ -2,11 +2,21 @@ import filecmp
 import os
 import os.path
 import re
+import sys
 import time
 import shutil
 import subprocess
 
 USER=os.environ['USER']
+
+def printAndFlush(data):
+    """ 
+    Prints argument onto the standard console and flushes output.
+    This is necessary to get Python output and bash output in sync on CI server.
+    """
+    print data
+    sys.stdout.flush()
+    
 
 def readProperties(propertiesFile):
     """
@@ -41,10 +51,10 @@ def executeCommand(commandWithArguments, failingMessage = None, consoleInput = N
     If flag suppressStdOut is set standard output will be suppressed but returned as a list of output lines.
     If workingDir is specified a change to workingDir is done for execution.
     """
-    print "\n------- START: %s" % commandWithArguments
+    printAndFlush("\n------- START: %s" % commandWithArguments)
     currentDir = None
     if workingDir != None:
-        print "change to working directory '%s'" % workingDir
+        printAndFlush("change to working directory '%s'" % workingDir)
         currentDir = os.getcwd()
         os.chdir(workingDir)
     try:
@@ -59,11 +69,11 @@ def executeCommand(commandWithArguments, failingMessage = None, consoleInput = N
                 lines.append(line.strip())
         exitValue = p.wait()
         if currentDir != None:
-            print "change back to previous working directory '%s'" % currentDir
+            printAndFlush("change back to previous working directory '%s'" % currentDir)
         if exitValue != 0 and failingMessage != None: 
-            print "---- FAILED %d: %s" % (exitValue, commandWithArguments)
+            printAndFlush("---- FAILED %d: %s" % (exitValue, commandWithArguments))
             raise Exception(failingMessage)
-        print "---- FINISHED: %s" % commandWithArguments
+        printAndFlush("---- FINISHED: %s" % commandWithArguments)
         return lines
     finally:
         if currentDir != None:
@@ -91,7 +101,7 @@ def deleteFolder(folderPath):
     Deletes the specified folder.
     Raises an exception in case of error.
     """
-    print "Delete %s" % folderPath
+    printAndFlush("Delete %s" % folderPath)
     def errorHandler(*args):
         _, path, _ = args
         raise Exception("Couldn't delete %s" % path)
@@ -100,7 +110,7 @@ def deleteFolder(folderPath):
 def copyFromTo(sourceFolder, destinationFolder, relativePathInSourceFolder):
     shutil.copytree("%s/%s" % (sourceFolder, relativePathInSourceFolder), 
                     "%s/%s" % (destinationFolder, relativePathInSourceFolder))
-    print "%s copied from %s to %s" % (relativePathInSourceFolder, sourceFolder, destinationFolder)
+    printAndFlush("%s copied from %s to %s" % (relativePathInSourceFolder, sourceFolder, destinationFolder))
     
 def dropDatabase(psqlExe, database):
     """
@@ -137,7 +147,7 @@ def printResultSet(resultSet):
     Prints the specified result set.
     """
     for row in resultSet:
-        print row
+        printAndFlush(row)
 
 def getNumberOfDifferences(fileOrFolder1, fileOrFolder2):
     """
@@ -170,7 +180,7 @@ class LogMonitor():
         self.timeProvider = time
         class SystemPrinter:
             def printMsg(self, msg):
-                print msg
+                printAndFlush(msg)
         self.printer = SystemPrinter()
     
     def addNotificationCondition(self, condition):
