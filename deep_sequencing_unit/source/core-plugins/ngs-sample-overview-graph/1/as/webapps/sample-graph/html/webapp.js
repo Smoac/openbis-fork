@@ -232,7 +232,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 		var node = nodeForSample(sample);
 		node.parents = sample.parents.map(nodeForSample);
-		node.parents.forEach(function(p) { p.children = [node]});
+		node.parents.forEach(function(p) { p.children ? p.children.push(node) : p.children = [node]});
 	}
 
 	function resolveChildren(sample) {
@@ -244,7 +244,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 
 		var node = nodeForSample(sample);
 		node.children = sample.children.map(nodeForSample);
-		node.children.forEach(function(p) { p.parents = [node]});
+		node.children.forEach(function(p) { p.parents ? p.parents.push(node) : p.parents = [node]});
 	}
 
 	samples.forEach(convertSampleToNode);
