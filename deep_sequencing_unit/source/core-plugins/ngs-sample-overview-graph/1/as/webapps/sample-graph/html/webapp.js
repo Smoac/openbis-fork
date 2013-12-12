@@ -731,6 +731,30 @@ DagreGraphRenderer.prototype.normalizeNodeYPos = function()
 	})});
 }
 
+DagreGraphRenderer.prototype.normalizeNodeXPos = function() 
+{
+	var nodes = presenter.nodes;
+	function dagrex(node) { return node.dagre.x }
+	// Look at all the nodes and the edges and fix the height so that nodes of the same type form a row
+	minmaxx = nodes.map(function(d) { return [ d3.min(d, dagrex), d3.max(d, dagrex) ]});
+	minx = [minmaxx[0][0]];
+	// Look the levels as pairs and ensure that the min of level i+1 is > min of level i
+	minmaxx.reduce(function(a,b) {
+		var bcopy = b.slice(0);
+		if (bcopy[0] < a[1] + RANK_SEPARATION) {
+			bcopy[0] = a[1] + RANK_SEPARATION;
+			if (bcopy[1] < bcopy[0]) bcopy[1] = bcopy[0] + RANK_SEPARATION;
+		}
+		minx.push(bcopy[0]);
+		return bcopy;
+	});
+	nodes.forEach(function(group, i) { group.forEach(function(node) {
+		// look at the nodes in this group. Leave the ones that have parents/children within the group alone.
+		// Change the y position for the other ones
+		if (node.dagre.x < minx[i]) node.dagre.x = minx[i];
+	})});
+}
+
 /**
  * Display the sample nodes.
  */
