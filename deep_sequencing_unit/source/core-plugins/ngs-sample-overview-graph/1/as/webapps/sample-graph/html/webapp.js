@@ -357,6 +357,16 @@ SampleGraphPresenter.prototype.outEdgesFunction = function() {
 }
 
 /**
+ * Return a function that gives the incoming edges for a sample.
+ *
+ * The incoming edges depends on whether the view is top-down or bottom-up
+ */
+SampleGraphPresenter.prototype.inEdgesFunction = function() {
+	var bottomUpMode = this.bottomUpMode;
+	return function(samp) { return bottomUpMode ? samp.children : samp.parents }
+}
+
+/**
  * Initialize the sample nodes
  */
 SampleGraphPresenter.prototype.initializeGraphSamples = function()
@@ -364,6 +374,7 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 	var colors = sampleColors;
 	var nodes = this.visibleColumns.map(function(c) { return model.samplesByType[c.type] });
 	var outEdgesGetter = this.outEdgesFunction();
+	var inEdgesGetter = this.inEdgesFunction();
 	// Compute the x/y coordinates for each sample
 	for (var col = 0; col < nodes.length; ++col) {
 		var colData = nodes[col];
@@ -376,8 +387,8 @@ SampleGraphPresenter.prototype.initializeGraphSamples = function()
 			sampleData.colOffset = xOffset;
 			var outEdges = outEdgesGetter(sampleData);
 			var oneEdgeOrLess = outEdges.length < 2;
-			var connectedNodesWithMultipleEdges = outEdges.filter(function(c) { return outEdgesGetter(c).length > 1 });
-			var oneToOne = oneEdgeOrLess && connectedNodesWithMultipleEdges.length == 0;
+			var connectedNodesWithMultipleInEdges = outEdges.filter(function(c) { return inEdgesGetter(c).length > 1 });
+			var oneToOne = oneEdgeOrLess && connectedNodesWithMultipleInEdges.length == 0;
 			sampleData.color = (!oneToOne) ? colors(row) : oneToOneColor;
 			sampleData.userEdgesVisible = null;
 			sampleData.edgesVisible = col + 1 < FIRST_COLLAPSED_COLUMN;
