@@ -878,7 +878,8 @@ DagreGraphRenderer.prototype.drawHeaders = function()
 			if (nodesAtLevel.length < 1) return 0;
 			if (!nodesAtLevel[0]) return 0;
 			var dagre = nodesAtLevel.filter(function(d) { return d != null }).map(function(d) { return d.__data__.dagre });
-			return d3.min(dagre, function(d) { return d.x }) - 1;
+
+			return d3.mean(dagre, function(d) { return d.x + (d.width * 0.5) }) - 1;
 		})
 		.attr("opacity", function(d, i) {
 			var nodesAtLevel = sampleNodeGroup[i];
