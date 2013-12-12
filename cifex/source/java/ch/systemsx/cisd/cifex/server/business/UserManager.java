@@ -561,87 +561,84 @@ class UserManager extends AbstractManager implements IUserManager
 
         if (authenticationService instanceof NullAuthenticationService)
         {
-            Collection<UserDTO> usersFromLocalDB = getUsersByCodesFromLocalDB(userCodesOrNull);
-            Set<String> externallyAuthenticatedUsersCodes = new TreeSet<String>();
-
-            for (UserDTO userFromLocalDB : usersFromLocalDB)
-            {
-                if (userFromLocalDB.isExternallyAuthenticated())
-                {
-                    externallyAuthenticatedUsersCodes.add(userFromLocalDB.getUserCode());
-                }
-            }
-
-            if (false == externallyAuthenticatedUsersCodes.isEmpty())
-            {
-                throw new ExternalAuthenticationServiceNotConfiguredForExternalUsersException(externallyAuthenticatedUsersCodes);
-            }
-
-            return usersFromLocalDB;
-
+            return getUsersByCodesWithNullAuthenticationService(userCodesOrNull, logOrNull);
         } else
         {
-            LinkedHashSet<UserDTO> users = new LinkedHashSet<UserDTO>();
+            return getUsersByCodesWithNotNullAuthenticationService(userCodesOrNull, logOrNull);
+        }
+    }
 
-            Collection<UserDTO> usersFromLocalDB = getUsersByCodesFromLocalDB(userCodesOrNull);
-            TableMap<String, UserDTO> usersFromLocalDBMap = null;
+    private Collection<UserDTO> getUsersByCodesWithNullAuthenticationService(List<String> userCodesOrNull, IUserActionLog logOrNull)
+    {
+        Collection<UserDTO> usersFromLocalDB = getUsersByCodesFromLocalDB(userCodesOrNull);
+        Set<String> externallyAuthenticatedUsersCodes = new TreeSet<String>();
 
-            if (usersFromLocalDB != null && usersFromLocalDB.isEmpty() == false)
+        for (UserDTO userFromLocalDB : usersFromLocalDB)
+        {
+            if (userFromLocalDB.isExternallyAuthenticated())
             {
-                usersFromLocalDBMap = UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(usersFromLocalDB);
+                externallyAuthenticatedUsersCodes.add(userFromLocalDB.getUserCode());
             }
+        }
 
-            for (String userCode : userCodesOrNull)
+        if (false == externallyAuthenticatedUsersCodes.isEmpty())
+        {
+            throw new ExternalAuthenticationServiceNotConfiguredForExternalUsersException(externallyAuthenticatedUsersCodes);
+        }
+
+        return usersFromLocalDB;
+    }
+
+    private Collection<UserDTO> getUsersByCodesWithNotNullAuthenticationService(List<String> userCodesOrNull, IUserActionLog logOrNull)
+    {
+        LinkedHashSet<UserDTO> users = new LinkedHashSet<UserDTO>();
+
+        Collection<UserDTO> usersFromLocalDB = getUsersByCodesFromLocalDB(userCodesOrNull);
+        TableMap<String, UserDTO> usersFromLocalDBMap = null;
+
+        if (usersFromLocalDB != null && usersFromLocalDB.isEmpty() == false)
+        {
+            usersFromLocalDBMap = UserUtils.createTableMapOfExistingUsersWithUserCodeAsKey(usersFromLocalDB);
+        }
+
+        for (String userCode : userCodesOrNull)
+        {
+            UserDTO userFromLocalDB = usersFromLocalDBMap != null ? usersFromLocalDBMap.tryGet(userCode) : null;
+
+            if (userFromLocalDB != null)
             {
-                UserDTO userFromLocalDB = usersFromLocalDBMap != null ? usersFromLocalDBMap.tryGet(userCode) : null;
-
-                if (userFromLocalDB != null)
-                {
-                    if (userFromLocalDB.isExternallyAuthenticated())
-                    {
-                        UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
-
-                        if (userFromExternalAuthenticationService != null)
-                        {
-                            mergeLocalAndExternalUsers(userFromLocalDB, userFromExternalAuthenticationService);
-                            users.add(userFromLocalDB);
-                        } else
-                        {
-                            throw new ExternalUserNotFoundInExternalAuthenticationServiceException(userCode);
-                        }
-                    } else
-                    {
-                        users.add(userFromLocalDB);
-                    }
-                } else
+                if (userFromLocalDB.isExternallyAuthenticated())
                 {
                     UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
 
                     if (userFromExternalAuthenticationService != null)
                     {
-                        boolean success = false;
-                        try
-                        {
-                            UserDTO newUser = createUser(userFromExternalAuthenticationService, null);
-                            mergeLocalAndExternalUsers(newUser, userFromExternalAuthenticationService);
-                            users.add(newUser);
-                            success = true;
-                        } finally
-                        {
-                            if (logOrNull != null)
-                            {
-                                logOrNull.logCreateUser(userFromExternalAuthenticationService, success);
-                            }
-                        }
+                        mergeLocalAndExternalUsers(userFromLocalDB, userFromExternalAuthenticationService);
+                        users.add(userFromLocalDB);
                     } else
                     {
-                        throw new UserNotFoundException(userCode);
+                        throw new ExternalUserNotFoundInExternalAuthenticationServiceException(userCode);
                     }
+                } else
+                {
+                    users.add(userFromLocalDB);
+                }
+            } else
+            {
+                UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
+
+                if (userFromExternalAuthenticationService != null)
+                {
+                    UserDTO newUser = createLocalUserFromExternalUser(userFromExternalAuthenticationService, logOrNull);
+                    users.add(newUser);
+                } else
+                {
+                    throw new UserNotFoundException(userCode);
                 }
             }
-
-            return users;
         }
+
+        return users;
     }
 
     private Collection<UserDTO> getUsersByEmails(List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
@@ -653,100 +650,97 @@ class UserManager extends AbstractManager implements IUserManager
 
         if (authenticationService instanceof NullAuthenticationService)
         {
-            Collection<UserDTO> usersFromLocalDB = getUsersByEmailsFromLocalDB(emailAddressesOrNull);
-            Set<String> externallyAuthenticatedUsersCodes = new TreeSet<String>();
-
-            for (UserDTO userFromLocalDB : usersFromLocalDB)
-            {
-                if (userFromLocalDB.isExternallyAuthenticated())
-                {
-                    externallyAuthenticatedUsersCodes.add(userFromLocalDB.getUserCode());
-                }
-            }
-
-            if (externallyAuthenticatedUsersCodes.isEmpty() == false)
-            {
-                throw new ExternalAuthenticationServiceNotConfiguredForExternalUsersException(externallyAuthenticatedUsersCodes);
-            }
-
-            return usersFromLocalDB;
+            return getUsersByEmailsWithNullAuthenticationService(emailAddressesOrNull, logOrNull);
         } else
         {
-            LinkedHashSet<UserDTO> users = new LinkedHashSet<UserDTO>();
+            return getUsersByEmailsWithNotNullAuthenticationService(emailAddressesOrNull, logOrNull);
+        }
+    }
 
-            Collection<UserDTO> usersFromLocalDB = getUsersByEmailsFromLocalDB(emailAddressesOrNull);
-            TableMapNonUniqueKey<String, UserDTO> usersFromLocalDBMap = null;
+    private Collection<UserDTO> getUsersByEmailsWithNullAuthenticationService(List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
+    {
+        Collection<UserDTO> usersFromLocalDB = getUsersByEmailsFromLocalDB(emailAddressesOrNull);
+        Set<String> externallyAuthenticatedUsersCodes = new TreeSet<String>();
 
-            if (usersFromLocalDB != null && usersFromLocalDB.isEmpty() == false)
+        for (UserDTO userFromLocalDB : usersFromLocalDB)
+        {
+            if (userFromLocalDB.isExternallyAuthenticated())
             {
-                usersFromLocalDBMap = UserUtils.createTableMapOfExistingUsersWithEmailAsKey(usersFromLocalDB);
+                externallyAuthenticatedUsersCodes.add(userFromLocalDB.getUserCode());
             }
+        }
 
-            for (String emailAddress : emailAddressesOrNull)
+        if (externallyAuthenticatedUsersCodes.isEmpty() == false)
+        {
+            throw new ExternalAuthenticationServiceNotConfiguredForExternalUsersException(externallyAuthenticatedUsersCodes);
+        }
+
+        return usersFromLocalDB;
+    }
+
+    private Collection<UserDTO> getUsersByEmailsWithNotNullAuthenticationService(List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
+    {
+        LinkedHashSet<UserDTO> users = new LinkedHashSet<UserDTO>();
+
+        Collection<UserDTO> usersFromLocalDB = getUsersByEmailsFromLocalDB(emailAddressesOrNull);
+        TableMapNonUniqueKey<String, UserDTO> usersFromLocalDBMap = null;
+
+        if (usersFromLocalDB != null && usersFromLocalDB.isEmpty() == false)
+        {
+            usersFromLocalDBMap = UserUtils.createTableMapOfExistingUsersWithEmailAsKey(usersFromLocalDB);
+        }
+
+        for (String emailAddress : emailAddressesOrNull)
+        {
+            Set<UserDTO> usersFromLocalDBForEmail = usersFromLocalDBMap != null ? usersFromLocalDBMap.tryGet(emailAddress) : null;
+
+            if (usersFromLocalDBForEmail == null || usersFromLocalDBForEmail.isEmpty())
             {
-                Set<UserDTO> usersFromLocalDBForEmail = usersFromLocalDBMap != null ? usersFromLocalDBMap.tryGet(emailAddress) : null;
+                UserDTO userFromExternalAuthenticationService = getUserByEmailFromExternalAuthenticationService(emailAddress);
 
-                if (usersFromLocalDBForEmail == null || usersFromLocalDBForEmail.isEmpty())
+                if (userFromExternalAuthenticationService != null)
                 {
-                    UserDTO userFromExternalAuthenticationService =
-                            getUserByEmailFromExternalAuthenticationService(emailAddress);
-                    if (userFromExternalAuthenticationService != null)
-                    {
-                        Collection<UserDTO> usersFromLocalDBForCode =
-                                getUsersByCodesFromLocalDB(Collections.singletonList(userFromExternalAuthenticationService.getUserCode()));
+                    Collection<UserDTO> usersFromLocalDBForCode =
+                            getUsersByCodesFromLocalDB(Collections.singletonList(userFromExternalAuthenticationService.getUserCode()));
 
-                        if (usersFromLocalDBForCode == null || usersFromLocalDBForCode.isEmpty())
-                        {
-                            boolean success = false;
-                            try
-                            {
-                                UserDTO newUser = createUser(userFromExternalAuthenticationService, null);
-                                mergeLocalAndExternalUsers(newUser, userFromExternalAuthenticationService);
-                                users.add(newUser);
-                                success = true;
-                            } finally
-                            {
-                                if (logOrNull != null)
-                                {
-                                    logOrNull.logCreateUser(userFromExternalAuthenticationService, success);
-                                }
-                            }
-                        } else
-                        {
-                            UserDTO userFromLocalDBForCode = usersFromLocalDBForCode.iterator().next();
-                            mergeLocalAndExternalUsers(userFromLocalDBForCode, userFromExternalAuthenticationService);
-                            users.add(userFromLocalDBForCode);
-                        }
-                    }
-                } else
-                {
-                    for (UserDTO userFromLocalDBForEmail : usersFromLocalDBForEmail)
+                    if (usersFromLocalDBForCode == null || usersFromLocalDBForCode.isEmpty())
                     {
-                        if (userFromLocalDBForEmail.isExternallyAuthenticated())
-                        {
-                            UserDTO userFromExternalAuthenticationService =
-                                    getUserByCodeFromExternalAuthenticationService(userFromLocalDBForEmail.getUserCode());
-
-                            if (userFromExternalAuthenticationService != null)
-                            {
-                                mergeLocalAndExternalUsers(userFromLocalDBForEmail, userFromExternalAuthenticationService);
-                                users.add(userFromLocalDBForEmail);
-                            } else
-                            {
-                                throw new ExternalUserNotFoundInExternalAuthenticationServiceException(userFromLocalDBForEmail.getUserCode());
-                            }
-                        } else
-                        {
-                            // should we handle permanent and temporary users in a different way ?
-                            users.add(userFromLocalDBForEmail);
-                        }
+                        UserDTO newUser = createLocalUserFromExternalUser(userFromExternalAuthenticationService, logOrNull);
+                        users.add(newUser);
+                    } else
+                    {
+                        UserDTO userFromLocalDBForCode = usersFromLocalDBForCode.iterator().next();
+                        mergeLocalAndExternalUsers(userFromLocalDBForCode, userFromExternalAuthenticationService);
+                        users.add(userFromLocalDBForCode);
                     }
                 }
+            } else
+            {
+                for (UserDTO userFromLocalDBForEmail : usersFromLocalDBForEmail)
+                {
+                    if (userFromLocalDBForEmail.isExternallyAuthenticated())
+                    {
+                        UserDTO userFromExternalAuthenticationService =
+                                getUserByCodeFromExternalAuthenticationService(userFromLocalDBForEmail.getUserCode());
 
+                        if (userFromExternalAuthenticationService != null)
+                        {
+                            mergeLocalAndExternalUsers(userFromLocalDBForEmail, userFromExternalAuthenticationService);
+                            users.add(userFromLocalDBForEmail);
+                        } else
+                        {
+                            throw new ExternalUserNotFoundInExternalAuthenticationServiceException(userFromLocalDBForEmail.getUserCode());
+                        }
+                    } else
+                    {
+                        users.add(userFromLocalDBForEmail);
+                    }
+                }
             }
 
-            return users;
         }
+
+        return users;
     }
 
     private Collection<UserDTO> getUsersByCodesFromLocalDB(final List<String> userCodes)
@@ -804,6 +798,32 @@ class UserManager extends AbstractManager implements IUserManager
         }
     }
 
+    private void mergeLocalAndExternalUsers(UserDTO localUser, UserDTO externalUser)
+    {
+        localUser.setUserFullName(externalUser.getUserFullName());
+        localUser.setEmail(externalUser.getEmail());
+        localUser.setEmailAlias(externalUser.getEmailAlias());
+    }
+
+    private UserDTO createLocalUserFromExternalUser(UserDTO externalUser, final IUserActionLog logOrNull)
+    {
+        UserDTO newUser = null;
+        boolean success = false;
+        try
+        {
+            newUser = createUser(externalUser, null);
+            mergeLocalAndExternalUsers(newUser, externalUser);
+            success = true;
+        } finally
+        {
+            if (logOrNull != null)
+            {
+                logOrNull.logCreateUser(newUser, success);
+            }
+        }
+        return newUser;
+    }
+
     @Private
     static UserDTO createExternalUser(String code, String displayName, String email,
             boolean isNewExternallyAuthenticatedUserStartActive)
@@ -830,13 +850,6 @@ class UserManager extends AbstractManager implements IUserManager
         userDTO.setExternallyAuthenticated(false);
         userDTO.setAdmin(false);
         return userDTO;
-    }
-
-    static void mergeLocalAndExternalUsers(UserDTO localUser, UserDTO externalUser)
-    {
-        localUser.setUserFullName(externalUser.getUserFullName());
-        localUser.setEmail(externalUser.getEmail());
-        localUser.setEmailAlias(externalUser.getEmailAlias());
     }
 
 }
