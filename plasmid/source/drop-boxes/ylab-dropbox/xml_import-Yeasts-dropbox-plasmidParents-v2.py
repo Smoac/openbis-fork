@@ -151,30 +151,28 @@ def process(transaction):
 	  else:
 	    node.text = ""  
 
-	for path in [ './Plasmids']:
-	  node = tree.find(path)
- 	  if node.text != "":
-		plasmids= node.text
-	  else:
-	    node.text = ""  
-	
-				
+	plasmids=""	
+
 	def Plasmids():
 	  for path in [ './Plasmids']:
 		node = tree.find(path)
 		if node.text is not None:
 		  plasmids = node.text
+		  relationship_list=[]
+		  annotation_list	=[]
+		  plasmids_list=[]
 		  tokens = plasmids.split(',')
 		  for token in tokens:
-		    if re.search(':', token): 
+			print "token", token
+			if re.search(':', token): 
 			  token = token.split(':')
 			  plasmid_name = token[0][:-4]
 			  plasmid_relationship= token[0][-3:]
 			  plasmid_annotation=token[1][:-1]
- 			  plasmids_list.append(plasmid_name)
+			  plasmids_list.append(plasmid_name)
 			  relationship_list.append(plasmid_relationship)
 			  annotation_list.append(plasmid_annotation)
-		    else:
+			else:
 			  plasmid_name=token  
 			  plasmid_relationship = ""
 			  plasmid_annotation =""
@@ -182,84 +180,20 @@ def process(transaction):
 			  relationship_list.append(plasmid_relationship)
 			  annotation_list.append(plasmid_annotation)
 		else:
-		  node.text = "" 
+		  plasmids= None
+		  plasmid_name=None  
+		  plasmid_relationship = None
+		  plasmid_annotation =None
+		  plasmids_list=None
+		  relationship_list=None
+		  annotation_list=None
+
 	  return  plasmids, plasmids_list, relationship_list, annotation_list	  
 	
 	Plasmids()
+
+	plasmids=Plasmids()[0]
 	 
-	def Chemicals():
-	  for path in [ './Chemicals']:
-		node = tree.find(path)
-		if node.text is not None:
-		  chemicals = node.text
-		  tokens = chemicals.split(',')
-		  for token in tokens:
-		    if re.search(":", token): 
-			  token = token.split(':')
-			  chemical_name = token[0]
-			  chemical_concentration=token[1]
-			  chemicals_list.append(chemical_name)
-			  concentration_list.append(chemical_concentration)
-		    else:
-			  chemical_name=token  
-			  chemical_concentration = "n.a."
-			  chemicals_list.append(chemical_name)
-			  concentration_list.append(chemical_concentration)
-		else:
-		  node.text = "n.a." 	  
-	  return chemicals_list, concentration_list	  
-	
-	Chemicals()
-
-	def Buffers():
-		  for path in [ './Solutions_Buffers']:
-			node = tree.find(path)
-			if node.text is not None:
-			  buffers = node.text
-			  tokens = buffers.split(',')
-			  for token in tokens:
-				if re.search(":", token): 
-				  token = token.split(':')
-				  buffer_name = token[0]
-				  buffer_concentration=token[1]
-				  buffers_list.append(buffer_name)
-				  buffers_concentration_list.append(buffer_concentration)
-				else:
-				  buffer_name=token  
-				  buffer_concentration = "n.a."
-				  buffers_list.append(buffer_name)
-				  buffers_concentration_list.append(buffer_concentration)
-			else:
-			  node.text = "n.a." 	  
-		  return buffers_list, buffers_concentration_list
-		  
-	Buffers()	  
-	
-	def Medias():
-		  for path in [ './Media']:
-			node = tree.find(path)
-			if node.text is not None:
-			  medias = node.text
-			  tokens = medias.split(',')
-			  for token in tokens:
-				if re.search(":", token): 
-				  token = token.split(':')
-				  media_name = token[0]
-				  media_concentration=token[1]
-				  medias_list.append(media_name)
-				  medias_concentration_list.append(media_concentration)
-				else:
-				  media_name=token  
-				  media_concentration = "n.a."
-				  medias_list.append(media_name)
-				  medias_concentration_list.append(media_concentration)
-			else:
-			  node.text = "n.a." 	  
-		  return medias_list, medias_concentration_list
-		  
-	Medias()	  
-
-
 	
 	for path in [ './XMLCOMMENTS']:
 	  node = tree.find(path)
@@ -457,6 +391,7 @@ def process(transaction):
  			parents = parentsInput.split(',')
 			for parent in parents:
  				YeastPath= "/YEAST_LAB/" + parent.strip()
+ 				print "Yeast Path", YeastPath
 				parentPlasmids = transaction.getSample(YeastPath).getPropertyValue('PLASMIDS')
 
  				if parentPlasmids is " ":
@@ -482,150 +417,6 @@ def process(transaction):
 				elements.append(plasmidPath)   
 		return elements          
 
-
-
-
-###IMPORT CHEMICALS####################################################################
-
-
-	def _createChemicalsSampleLink(chemicals_list, concentration_list):
-		"""
-		   Creates sample link XML element for sample with specified 'code'. The element will contain
-		   given code as 'code' attribute apart from standard 'permId' attribute.
-		   
-		   If the sample doesn't exist in DB a fake link will be created with the 'code' as permId.
-		   
-		   @return: sample link XML element as string, e.g.:
-		   - '<Sample code="FRP1" permId="20110309154532868-4219"/>'
-		   - '<Sample code="FAKE_SAMPLE_CODE" permId="FAKE_SAMPLE_CODE"/>
-		"""
-		if chemicals_list is not None:
-		  chemicalPath= "/YEAST_LAB/" + chemicals_list
-		  permId =transaction.getSample(chemicalPath).getSample().getPermId()
-		  name = transaction.getSample(chemicalPath).getPropertyValue("NAME")
-		  if not permId:
-			permId = chemicals_list
-		  sampleLink = elementFactory.createSampleLink(permId)
-		
-		  sampleLink.addAttribute(ATR_CODE, chemicals_list)
-		  sampleLink.addAttribute(ATR_NAME, name)
-		  sampleLink.addAttribute(ATR_CONC, concentration_list)
-
-  
-		return sampleLink    
-	    
-	
-	"""
-	Example input:
-	
-	FRC1: 2nM, FRC2, FRC3: 4nM, FRC4
-	"""
-	
-	
-	def updateChemicalsFromBatchInput(chemicals_list, concentration_list):
-		elements = []
-		input = chemicals_list
-		input2 = concentration_list
-		if input != "":
-		   for i, j in zip(chemicals_list,concentration_list): #zip is used to iterate over two lists in parallel
-				sampleLink = _createChemicalsSampleLink(i.strip(), j.strip())
-				elements.append(sampleLink)
-		return propertyConverter.convertToString(elements)
-
-
-###IMPORT SOLUTION BUFFERS####################################################################
-
-
-	def _createBuffersLink(buffers_list, buffers_concentration_list):
-		"""
-		   Creates sample link XML element for sample with specified 'code'. The element will contain
-		   given code as 'code' attribute apart from standard 'permId' attribute.
-		   
-		   If the sample doesn't exist in DB a fake link will be created with the 'code' as permId.
-		   
-		   @return: sample link XML element as string, e.g.:
-		   - '<Sample code="FRP1" permId="20110309154532868-4219"/>'
-		   - '<Sample code="FAKE_SAMPLE_CODE" permId="FAKE_SAMPLE_CODE"/>
-		"""
-		if buffers_list is not None:
-		  buffersPath= "/YEAST_LAB/" + buffers_list
-		  permId =transaction.getSample(buffersPath).getSample().getPermId()
-		  if not permId:
-			permId = buffers_list
-		  name = transaction.getSample(buffersPath).getPropertyValue("NAME")
-		  sampleLink = elementFactory.createSampleLink(permId)
-		
-		  sampleLink.addAttribute(ATR_CODE, buffers_list)
-		  sampleLink.addAttribute(ATR_NAME, name)
-		  sampleLink.addAttribute(ATR_CONC, buffers_concentration_list)
-		 		 
-		return sampleLink    
-	    
-	
-	"""
-	Example input:
-	
-	FRC1: 2nM, FRC2, FRC3: 4nM, FRC4
-	"""
-	
-	
-	def updateBuffersFromBatchInput(buffers_list, buffers_concentration_list):
-		elements = []
-		input = buffers_list
-		input2 = buffers_concentration_list
-		if input != "":
-		   for i, j in zip(buffers_list,buffers_concentration_list): #zip is used to iterate over two lists in parallel
-				sampleLink = _createBuffersLink(i.strip(), j.strip())
-				elements.append(sampleLink)
-		return propertyConverter.convertToString(elements)
-		
-###IMPORT MEDIA####################################################################
-
-
-	def _createMediasLink(medias_list, medias_concentration_list):
-		"""
-		   Creates sample link XML element for sample with specified 'code'. The element will contain
-		   given code as 'code' attribute apart from standard 'permId' attribute.
-		   
-		   If the sample doesn't exist in DB a fake link will be created with the 'code' as permId.
-		   
-		   @return: sample link XML element as string, e.g.:
-		   - '<Sample code="FRP1" permId="20110309154532868-4219"/>'
-		   - '<Sample code="FAKE_SAMPLE_CODE" permId="FAKE_SAMPLE_CODE"/>
-		"""
-		if medias_list is not None:
-		  mediasPath= "/YEAST_LAB/" + medias_list
-		  permId =transaction.getSample(mediasPath).getSample().getPermId()
-		  if not permId:
-			permId = medias_list
-		  name = transaction.getSample(mediasPath).getPropertyValue("NAME")
-		  sampleLink = elementFactory.createSampleLink(permId)
-		
-		  sampleLink.addAttribute(ATR_CODE, medias_list)
-		  sampleLink.addAttribute(ATR_NAME, name)
-		  sampleLink.addAttribute(ATR_CONC, medias_concentration_list)
-		
-
- 
-		return sampleLink    
-	    
-	
-	"""
-	Example input:
-	
-	FRC1: 2nM, FRC2, FRC3: 4nM, FRC4
-	"""
-	
-	
-	def updateMediasFromBatchInput(medias_list, medias_concentration_list):
-		elements = []
-		input = medias_list
-		input2 = medias_concentration_list
-		if input != "":
-		   for i, j in zip(medias_list,medias_concentration_list): #zip is used to iterate over two lists in parallel
-				sampleLink = _createMediasLink(i.strip(), j.strip())
-				elements.append(sampleLink)
-		return propertyConverter.convertToString(elements)			
 		
 		
 ###IMPORT COMMENTS####################################################################
@@ -671,15 +462,9 @@ def process(transaction):
 			newSample.setPropertyValue("YEAST_PARENTS", updateYeastFromBatchInput(yeast_parents))
   		if child.tag == "Plasmids":
   			newSample.setPropertyValue("PLASMIDS",updatePlasmidFromBatchInput(plasmids_list, relationship_list, annotation_list))
-		if child.tag == "Chemicals":
-			newSample.setPropertyValue("CHEMICALS",updateChemicalsFromBatchInput(chemicals_list,concentration_list))
-		if child.tag == "Solutions_Buffers":
-			newSample.setPropertyValue("SOLUTIONS_BUFFERS",updateBuffersFromBatchInput(buffers_list,buffers_concentration_list))
-		if child.tag == "Media":
-			newSample.setPropertyValue("Media",updateMediasFromBatchInput(medias_list,medias_concentration_list))
-  		if child.tag == "XMLCOMMENTS":
+		if child.tag == "XMLCOMMENTS":
   			newSample.setPropertyValue("XMLCOMMENTS", updateCommentsFromBatchInput(comment_text_list))
-		if child.tag != "Identifier" and child.tag !="Experiment" and child.tag != "Yeast_Parents" and child.tag != "Plasmids" and child.tag != "Chemicals" and child.tag != "XMLCOMMENTS" and child.tag != "Solutions_Buffers" and child.tag != "Media":
+		if child.tag != "Identifier" and child.tag !="Experiment" and child.tag != "Yeast_Parents" and child.tag != "Plasmids" and child.tag != "XMLCOMMENTS":
 			if child.text != None:
 				newSample.setPropertyValue(child.tag, child.text)
   			else:
