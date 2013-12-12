@@ -514,6 +514,15 @@ function translate(x, y) {
 	return "translate(" + x + "," + y + ")";
 }
 
+function countParentsOfSameType(d) {
+	var type = d.sampleType;
+	var count = 0;
+	d.parents.forEach(function(parent) {
+		if (parent.sampleType == type) count++;
+	});
+	return count;
+}
+
 var yLinkOffset = LINE_HEIGHT * 0.33;
 
 
@@ -522,37 +531,37 @@ var yLinkOffset = LINE_HEIGHT * 0.33;
  */
 function SimpleGraphRenderer() {
 	// Function used to draw paths between elements
-	function source(d) {
+	function end(d) {
 		// Find the associated text node in the DOM and use that as a basis for creating the edges
-		var bbox = textBBoxForGraphNode(d.source);
+		var bbox = textBBoxForGraphNode(d);
 		return { x : bbox.x + bbox.width + 7, y  : bbox.y + yLinkOffset };
 	}
-	function target(d) {
-		var bbox = textBBoxForGraphNode(d.target);
+	function start(d) {
+		var bbox = textBBoxForGraphNode(d);
 		return { x : bbox.x, y  : bbox.y + yLinkOffset }
 	}
 
-	this.useLineLinkPath(source, target);
+	this.useLineLinkPath(start, end);
 }
 
 /**
  * Draw edges using the diagonal function
  */
-SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(source, target) {
+SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(start, end) {
 	var diagonal = d3.svg.diagonal();
-	diagonal.source(source);
-	diagonal.target(target);
+	diagonal.source(function(d) { return (countParentsOfSameType(d.target) > 0) ? start(d.source) : end(d.source)});
+	diagonal.target(function(d) { return start(d.target)});
 	this.path = diagonal;
 }
 
 /**
  * Draw edges using the line function
  */
-SimpleGraphRenderer.prototype.useLineLinkPath = function(source, target) {
+SimpleGraphRenderer.prototype.useLineLinkPath = function(start, end) {
 	var line = d3.svg.line();
 	this.path = function(d) {
-		var src = source(d);
-		var dst = target(d);
+		var src = (countParentsOfSameType(d.target) > 0) ? start(d.source) : end(d.source);
+		var dst = start(d.target);
 		return line([[src.x, src.y], [dst.x, dst.y]]);
 	}
 }
@@ -560,17 +569,8 @@ SimpleGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 SimpleGraphRenderer.prototype.updateNodeOffsets = function()
 {
 	var nodes = presenter.nodes;
-
-	function countParentsOfSameType(d) {
-		var type = d.sampleType;
-		var count = 0;
-		d.parents.forEach(function(parent) {
-			if (parent.sampleType == type) count++;
-		});
-		return count;
-	}
 	function initializeOffsetsAtLevel(level) {
-		level.forEach(function(d) { d.xOffset = countParentsOfSameType(d) * 10; });
+		level.forEach(function(d) { d.xOffset = countParentsOfSameType(d) * 20; });
 	}
 	nodes.forEach(initializeOffsetsAtLevel)
 };
