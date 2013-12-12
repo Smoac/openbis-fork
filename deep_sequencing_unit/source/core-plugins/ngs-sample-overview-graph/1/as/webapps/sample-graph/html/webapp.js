@@ -233,6 +233,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 		var node = nodeForSample(sample);
 		node.parents = sample.parents.map(nodeForSample);
 		node.parents.forEach(function(p) { p.children ? p.children.push(node) : p.children = [node]});
+		node.parents.sort(function(a, b) { return a.identifier < b.identifier; });
 	}
 
 	function resolveChildren(sample) {
@@ -245,6 +246,7 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
 		var node = nodeForSample(sample);
 		node.children = sample.children.map(nodeForSample);
 		node.children.forEach(function(p) { p.parents ? p.parents.push(node) : p.parents = [node]});
+		node.children.sort(function(a, b) { return a.identifier < b.identifier; })
 	}
 
 	samples.forEach(convertSampleToNode);
@@ -270,8 +272,8 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
  */
 function SampleGraphPresenter(model) {
 	this.model = model;
-	this.renderer = new DagreGraphRenderer();
-//	this.renderer = new SimpleGraphRenderer();
+//	this.renderer = new DagreGraphRenderer();
+	this.renderer = new SimpleGraphRenderer();
 	this.selectedNode = null;
 	this.didCreateVis = false;
 	this.useBottomUpMode();
@@ -525,11 +527,12 @@ function translate(x, y) {
 	return "translate(" + x + "," + y + ")";
 }
 
-function countParentsOfSameType(d) {
+function countInLinksOfSameType(d) {
 	var type = d.sampleType;
 	var count = 0;
-	d.parents.forEach(function(parent) {
-		if (parent.sampleType == type) count++;
+	var outEdges = presenter.inEdgesFunction();
+	outEdges(d).forEach(function(edge) {
+		if (edge.sampleType == type) count++;
 	});
 	return count;
 }
@@ -560,7 +563,7 @@ function SimpleGraphRenderer() {
  */
 SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(start, end) {
 	var diagonal = d3.svg.diagonal();
-	diagonal.source(function(d) { return (countParentsOfSameType(d.target) > 0) ? start(d.source) : end(d.source)});
+	diagonal.source(function(d) { return (countInLinksOfSameType(d.target) > 0) ? start(d.source) : end(d.source)});
 	diagonal.target(function(d) { return start(d.target)});
 	this.path = diagonal;
 }
@@ -571,7 +574,7 @@ SimpleGraphRenderer.prototype.useDiagonalLinkPath = function(start, end) {
 SimpleGraphRenderer.prototype.useLineLinkPath = function(start, end) {
 	var line = d3.svg.line();
 	this.path = function(d) {
-		var src = (countParentsOfSameType(d.target) > 0) ? start(d.source) : end(d.source);
+		var src = (countInLinksOfSameType(d.target) > 0) ? start(d.source) : end(d.source);
 		var dst = start(d.target);
 		return line([[src.x, src.y], [dst.x, dst.y]]);
 	}
@@ -581,7 +584,7 @@ SimpleGraphRenderer.prototype.updateNodeOffsets = function()
 {
 	var nodes = presenter.nodes;
 	function initializeOffsetsAtLevel(level) {
-		level.forEach(function(d) { d.xOffset = countParentsOfSameType(d) * 20; });
+		level.forEach(function(d) { d.xOffset = countInLinksOfSameType(d) * 20; });
 	}
 	nodes.forEach(initializeOffsetsAtLevel)
 };
@@ -667,7 +670,7 @@ SimpleGraphRenderer.prototype.drawNodes = function()
 		.transition()
 			.style("opacity", 0).remove();
 	ring
-		.attr("cx", function(d) { return textBBoxForGraphNode(d).width + 7 })
+		.attr("cx", function(d) { return textBBoxForGraphNode(d).width + d.xOffset + 7 })
 		.attr("cy", function(d, i) { return LINE_HEIGHT * (i+2) - yLinkOffset})
 		.style("fill", function(d) { return d.edgesVisible ? "none" : d.color})
 		.style("stroke", function(d) { return d.color})
@@ -765,26 +768,34 @@ DagreGraphRenderer.prototype.normalizeNodeYPos = function()
 
 DagreGraphRenderer.prototype.normalizeNodeXPos = function()
 {
-	var nodes = presenter.nodes;
-	function dagrex(node) { return node.dagre.x }	
-	function dagrexwidth(node) { return node.dagre.x + node.dagre.width }
-	// Look at all the nodes and the edges and fix the x pos so that nodes of the same type form a column
-	minmaxx = nodes.map(function(d) { return [ d3.min(d, dagrex), d3.max(d, dagrexwidth) ]});
-	minx = [minmaxx[0][0]];
-	// Look the levels as pairs and ensure that the min of level i+1 is > min of level i
-	minmaxx.reduce(function(a,b) {
-		var bcopy = b.slice(0);
-		if (bcopy[0] < a[1] + RANK_SEPARATION) {
-			bcopy[0] = a[1] + RANK_SEPARATION;
-			if (bcopy[1] < bcopy[0]) bcopy[1] = bcopy[0] + RANK_SEPARATION;
-		}
-		minx.push(bcopy[0]);
-		return bcopy;
-	});
+	var nodes = presenter.nodes;	
+	function computeMinX() {
+		function dagrex(node) { return node.dagre.x }	
+		function dagrexwidth(node) { return node.dagre.x + node.dagre.width }
+		// Look at all the nodes and the edges and fix the x pos so that nodes of the same type form a column
+		minmaxx = nodes.map(function(d) { return [ d3.min(d, dagrex), d3.max(d, dagrexwidth) ]});
+		minx = [minmaxx[0][0]];
+		// Look the levels as pairs and ensure that the min of level i+1 is > min of level i
+		minmaxx.reduce(function(a,b) {
+			var bcopy = b.slice(0);
+			if (bcopy[0] < a[1] + RANK_SEPARATION) {
+				bcopy[0] = a[1] + RANK_SEPARATION;
+				if (bcopy[1] < bcopy[0]) bcopy[1] = bcopy[0] + RANK_SEPARATION;
+			}
+			minx.push(bcopy[0]);
+			return bcopy;
+		});
+		return minx;
+	}
+
+	var minx = computeMinX();
 	nodes.forEach(function(group, i) { group.forEach(function(node) {
 		// look at the nodes in this group. Leave the ones that have parents/children within the group alone.
 		// Change the y position for the other ones
-		if (node.dagre.x < minx[i]) node.dagre.x = minx[i];
+		if (node.dagre.x < minx[i]) {
+			node.dagre.x = minx[i];
+			minx = computeMinX();
+		}
 	})});
 }
 
