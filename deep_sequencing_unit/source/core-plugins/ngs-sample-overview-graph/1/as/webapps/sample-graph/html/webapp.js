@@ -270,7 +270,8 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
  */
 function SampleGraphPresenter(model) {
 	this.model = model;
-	this.renderer = new DagreGraphRenderer();
+//	this.renderer = new DagreGraphRenderer();
+	this.renderer = new SimpleGraphRenderer();
 	this.selectedNode = null;
 	this.didCreateVis = false;
 	this.useBottomUpMode();
@@ -552,8 +553,27 @@ SimpleGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 	this.path = function(d) {
 		var src = source(d);
 		var dst = target(d);
-		return line([[src.x, src.y], [dst.x, dst.y]]); }
+		return line([[src.x, src.y], [dst.x, dst.y]]);
+	}
 }
+
+SimpleGraphRenderer.prototype.updateNodeOffsets = function()
+{
+	var nodes = presenter.nodes;
+
+	function countParentsOfSameType(d) {
+		var type = d.sampleType;
+		var count = 0;
+		d.parents.forEach(function(parent) {
+			if (parent.sampleType == type) count++;
+		});
+		return count;
+	}
+	function initializeOffsetsAtLevel(level) {
+		level.forEach(function(d) { d.xOffset = countParentsOfSameType(d) * 10; });
+	}
+	nodes.forEach(initializeOffsetsAtLevel)
+};
 
 /**
  * Display the sample nodes.
@@ -561,6 +581,7 @@ SimpleGraphRenderer.prototype.useLineLinkPath = function(source, target) {
 SimpleGraphRenderer.prototype.draw = function()
 {
 	presenter.updateState();
+	this.updateNodeOffsets();
 	var nodes = presenter.nodes;
 
 	// Display the graph in an SVG element
@@ -619,7 +640,7 @@ SimpleGraphRenderer.prototype.drawNodes = function()
 		.transition()
 			.style("opacity", 0).remove();
 	sample
-		.attr("x", "0")
+		.attr("x", function(d, i) { return d.xOffset; })
 		.attr("y", function(d, i) { return LINE_HEIGHT * (i+2)})
 
 		.text(function(d) { return d.identifier });
@@ -731,7 +752,7 @@ DagreGraphRenderer.prototype.normalizeNodeYPos = function()
 	})});
 }
 
-DagreGraphRenderer.prototype.normalizeNodeXPos = function() 
+DagreGraphRenderer.prototype.normalizeNodeXPos = function()
 {
 	var nodes = presenter.nodes;
 	function dagrex(node) { return node.dagre.x }
