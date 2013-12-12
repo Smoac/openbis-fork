@@ -1,0 +1,69 @@
+evaluationDependsOn(':common')
+evaluationDependsOn(':openbis_api')
+evaluationDependsOn(':openbis-common')
+evaluationDependsOn(':authentication')
+evaluationDependsOn(':dbmigration')
+evaluationDependsOn(':openbis')
+evaluationDependsOn(':datastore_server')
+evaluationDependsOn(':ui-test')
+evaluationDependsOn(':screening')
+evaluationDependsOn(':rtd_phosphonetx')
+
+
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+sourceSets { 
+    main {
+        java {
+            srcDirs = ['sourceTest/java']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['source/java']
+        }
+        resources {
+            srcDirs = ['servers/common/openBIS-server/etc', 'servers/common/openBIS-server/resource']
+        }
+    }
+}
+
+configurations.create('testRuntimeFirst')
+configurations.create('externalDss')
+
+dependencies {
+	testCompile project(path: ':ui-test', configuration: 'tests')
+	
+	testRuntime project(':screening'), project(':rtd_phosphonetx')
+	
+	testRuntimeFirst 'javax:servlet-api:+', 'reflections:reflections:+'
+	
+	externalDss project(':screening'), project(':rtd_phosphonetx')
+} 
+
+sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + sourceSets.test.runtimeClasspath
+
+task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
+	from project(':openbis_standard_technologies').war
+	into 'targets/gradle/openbis-war'
+	rename {filename -> 'openbis.war'}
+}
+
+test {
+    useTestNG()
+    options.suites('source/java/tests.xml')    
+
+    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
+    
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+    systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
+    systemProperty 'jetty.home', '../../../targets/gradle'
+	systemProperty 'ui-test.start-page', 'http://localhost:20000/openbis'
+	systemProperty 'org.mortbay.util.FileResource.checkAliases', 'false'
+    
+    workingDir = 'servers/common/openBIS-server'
+}
+test.dependsOn copyWar
+
+

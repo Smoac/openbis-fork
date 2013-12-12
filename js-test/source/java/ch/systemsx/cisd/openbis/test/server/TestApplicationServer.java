@@ -17,10 +17,12 @@
 package ch.systemsx.cisd.openbis.test.server;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
+import java.util.Map;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
@@ -49,18 +51,31 @@ public class TestApplicationServer
 
         Runnable r = new Runnable()
             {
-                @Override
+                @SuppressWarnings({ "unchecked", "rawtypes" })
+				@Override
                 public void run()
                 {
                     Server server = new Server(getPort());
 
                     WebAppContext context = new WebAppContext();
-                    context.setDescriptor(getWebXmlPath());
-                    context.setResourceBase(getRootPath());
+                    
+                    File war = new File("../../../targets/gradle/openbis-war/openbis.war");
+                    if (war.exists()) {
+                    	context.setWar(war.getAbsolutePath());
+                    	context.setExtractWAR(true);
+                    	context.setTempDirectory(new File(System.getProperty("jetty.home")+"/webapps"));
+						Map initParams = context.getInitParams();
+                    	initParams.put("org.mortbay.jetty.servlet.Default.aliases", "true");
+                    	context.setInitParams(initParams);
+                    } else {
+	                    context.setDescriptor(getWebXmlPath());
+	                    context.setResourceBase(getRootPath());
+                    }
                     context.setContextPath(getContextPath());
                     context.setParentLoaderPriority(true);
-
+                    
                     server.setHandler(context);
+                    
                     try
                     {
                         server.start();

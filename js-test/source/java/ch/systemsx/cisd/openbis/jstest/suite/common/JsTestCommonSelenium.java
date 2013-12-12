@@ -24,6 +24,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.base.unix.Unix;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisJsWebappLocation;
 import ch.systemsx.cisd.openbis.jstest.layout.OpenbisScreeningJsWebappLocation;
@@ -36,7 +37,16 @@ import ch.systemsx.cisd.openbis.uitest.layout.Location;
  */
 public class JsTestCommonSelenium extends SeleniumTest
 {
-
+	{
+		try {
+			String jettyHome = new File(System.getProperty("jetty.home")).getAbsolutePath();
+			new File(jettyHome+"/webapps").mkdirs();
+			Unix.createSymbolicLink(jettyHome+"/webapps/webapp", jettyHome+"/webapps/openbis");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
     @Override
     protected String startApplicationServer() throws Exception
     {
