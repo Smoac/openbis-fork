@@ -425,6 +425,7 @@ class OpenbisController(_Controller):
         self.dssProperties['path-info-db.databaseKind'] = self.databaseKind
         self.dssProperties['imaging-database.kind'] = self.databaseKind
         self.dssProperties['proteomics-database-kind'] = self.databaseKind
+        self.asProperties['proteomics-database-kind'] = self.databaseKind
         self.dssPropertiesModified = True
         if dropDatabases:
             util.dropDatabase(PSQL_EXE, "openbis_%s" % self.databaseKind)
