@@ -769,7 +769,7 @@ final class FileManager extends AbstractManager implements IFileManager
                 userCodes.add(UserUtils.extractUserCode(trimmedIdentifier));
             } else if (UserUtils.isEmail(trimmedIdentifier))
             {
-                validEmailAddresses.add(UserUtils.extractEmail(trimmedIdentifier));
+                validEmailAddresses.add(trimmedIdentifier.toLowerCase());
             } else
             {
                 invalidIdentifiers.add(trimmedIdentifier);

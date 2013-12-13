@@ -16,22 +16,83 @@
 
 package ch.systemsx.cisd.cifex.client.application.ui;
 
-import ch.systemsx.cisd.cifex.client.application.ui.itemswidget.ItemsField;
-import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
- * @author Franz-Josef Elmer
- * @author Juan Fuentes
+ * @author Basil Neff
  */
-public class UserTextArea extends ItemsField
+public class UserTextArea extends TextArea
 {
 
     public UserTextArea()
     {
-        super(null, CifexValidator.USER_VALIDATOR);
+    }
+
+    public final String[] getUserEntries()
+    {
+        if (this.isValid() == false)
+        {
+            return new String[0];
+        }
+
+        final List<String> list = new ArrayList<String>();
+        String[] entries = this.getValueAsString().split("[,\n\r\t\f ]");
+        for (int i = 0; i < entries.length; i++)
+        {
+            if (StringUtils.isBlank(entries[i]) == false)
+            {
+                list.add(entries[i]);
+            }
+        }
+        if (list.size() > 0)
+        {
+            return list.toArray(new String[list.size()]);
+        } else
+        {
+            return new String[0];
+        }
+    }
+
+    private String getValueAsString()
+    {
+        String valueOrNull = getValue();
+        return valueOrNull == null ? "" : valueOrNull;
+    }
+
+    public final void setUserEntries(final String[] users)
+    {
+        this.setValue("");
+        if (users != null && users.length != 0)
+        {
+            for (int i = 0; i < users.length; i++)
+            {
+                addUser(users[i]);
+            }
+        }
+    }
+
+    /**
+     * Adds the email address to the textfield.
+     */
+    public final void addUser(final String email)
+    {
+        if (StringUtils.isBlank(email) == false)
+        {
+            if (StringUtils.isBlank(getValueAsString()))
+            {
+                this.setValue(email);
+            } else
+            {
+                this.setValue(this.getValueAsString() + ", " + email);
+            }
+        }
     }
 
     /**
@@ -43,12 +104,11 @@ public class UserTextArea extends ItemsField
         {
             if (StringUtils.isBlank(user.getUserCode()) == false)
             {
-                addItem(Constants.USER_ID_PREFIX + user.getUserCode());
+                addUser(Constants.USER_ID_PREFIX + user.getUserCode());
             } else if (StringUtils.isBlank(user.getEmail()) == false)
             {
-                addItem(user.getEmail());
+                addUser(user.getEmail());
             }
         }
     }
-    
 }

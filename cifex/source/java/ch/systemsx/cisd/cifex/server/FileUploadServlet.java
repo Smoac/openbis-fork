@@ -19,7 +19,6 @@ package ch.systemsx.cisd.cifex.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.Message;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.string.StringUtilities;
 
 /**
  * Servlet for uploading file into Cifex.
@@ -261,14 +261,13 @@ public final class FileUploadServlet extends AbstractFileUploadDownloadServlet
             // Need to update the list of pathnames before doing anything else because the progress
             // listener needs the up-to-date list of parameters.
             formIndexedPathnamesAndNulls.add(null);
-            String recipientsAsString = Streams.asString(stream);
             if (item.getFieldName().equals(RECIPIENTS_FIELD_NAME))
             {
-                userIdentifier.addAll(Arrays.asList(recipientsAsString.split(",")));
+                userIdentifier.addAll(StringUtilities.tokenize(Streams.asString(stream)));
             }
             if (item.getFieldName().equals(COMMENT_FIELD_NAME))
             {
-                comment.append(recipientsAsString);
+                comment.append(Streams.asString(stream));
             }
         }
 

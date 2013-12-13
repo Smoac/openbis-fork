@@ -116,7 +116,7 @@ public final class EditFileWidget extends LayoutContainer
 
     private final TextArea createCommentField()
     {
-        final TextArea textAreaConfig = new TextArea();
+        final UserTextArea textAreaConfig = new UserTextArea();
         textAreaConfig.setAllowBlank(true);
         textAreaConfig.setFieldLabel(msg(LIST_FILES_COMMENT_COLUMN_HEADER));
         textAreaConfig.setName("file-comment");

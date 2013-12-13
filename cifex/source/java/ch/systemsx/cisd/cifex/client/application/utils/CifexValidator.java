@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
-import ch.systemsx.cisd.cifex.shared.basic.IValidator;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
@@ -34,35 +33,6 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
  */
 public class CifexValidator
 {
-
-    /**
-     * Validator for user inputs like 'id:<user code>' or e-mail addresses.
-     */
-    public static IValidator USER_VALIDATOR = new IValidator()
-        {
-            @Override
-            public String validate(String value)
-            {
-                final String[] result = value.split(",\\s*");
-                if (result.length == 0)
-                {
-                    return msg(VALIDATION_REQUIRED_BLANK_MSG);
-                }
-                for (int i = 0; i < result.length; i++)
-                {
-                    assert result[i] != null : "Must not be null.";
-                    final String item = result[i].trim();
-                    if (item.length() > 0
-                            && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
-                            && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
-                                    item, Constants.CASE_INSENSITIVE_MATCHING) == false)
-                    {
-                        return msg(UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG);
-                    }
-                }
-                return null;
-            }
-        };
 
     /**
      * Returns a validator for a user field. The validator allows to specify email addresses and
@@ -77,7 +47,24 @@ public class CifexValidator
                 @Override
                 public String validate(Field<?> field, String value)
                 {
-                    return USER_VALIDATOR.validate(value);
+                    final String[] result = value.split("[,\\s]+");
+                    if (result.length == 0)
+                    {
+                        return msg(VALIDATION_REQUIRED_BLANK_MSG);
+                    }
+                    for (int i = 0; i < result.length; i++)
+                    {
+                        assert result[i] != null : "Must not be null.";
+                        final String item = result[i].trim();
+                        if (item.length() > 0
+                                && StringUtils.matches(Constants.EMAIL_REGEX, item) == false
+                                && StringUtils.matches(Constants.USER_CODE_WITH_ID_PREFIX_REGEX,
+                                        item, Constants.CASE_INSENSITIVE_MATCHING) == false)
+                        {
+                            return msg(UPLOAD_FILES_RECIPIENT_FIELD_INVALID_MSG);
+                        }
+                    }
+                    return null;
                 }
             };
     }
