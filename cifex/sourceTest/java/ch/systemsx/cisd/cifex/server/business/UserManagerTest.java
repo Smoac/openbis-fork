@@ -1003,7 +1003,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetUsersByEmailWhereFoundInLocalDBByEmailAndIsExternalAndFoundInExternalDBByUserName()
+    public void testGetUsersByEmailWhereFoundInLocalDBByEmailAndIsExternalAndFoundInExternalDBByUserNameWithDifferentEmail()
     {
         final boolean active = true;
         final String userId = "newuser";
@@ -1043,6 +1043,50 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
         assertEquals(1, results.size());
         assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), localUser, externalPrincipal, localEmail);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetUsersByEmailWhereFoundInLocalDBByEmailAndIsExternalAndFoundInExternalDBByUserNameWithSameEmail()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String localFirstName = "LocalFirstName";
+        final String localLastName = "LocalLastName";
+        final String localEmail = "local@users.com";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+
+        final UserDTO localUser = UserManager.createExternalUser(userId, localFirstName + " " + localLastName, localEmail, active);
+        localUser.setID(1L);
+        localUser.setQuotaGroupId(100L);
+
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, localEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(localEmail);
+                    will(returnValue(Arrays.asList(localUser)));
+
+                    one(externalAuthService).tryGetAndAuthenticateUser(userId, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(localEmail), null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), localUser, externalPrincipal, null);
 
         context.assertIsSatisfied();
     }
@@ -1121,7 +1165,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndFoundInLocalDBByUserName()
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailWithSameEmailAndFoundInLocalDBByUserName()
     {
         final boolean active = true;
         final String userId = "newuser";
@@ -1172,7 +1216,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndFoundInLocalDBByUserNameWithAliasEmail()
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailWithDifferentEmailAndFoundInLocalDBByUserName()
     {
         final boolean active = true;
         final String userId = "newuser";
@@ -1224,7 +1268,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndNotFoundInLocalDBByUserName()
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailWithSameEmailAndNotFoundInLocalDBByUserName()
     {
         final boolean active = true;
         final String userId = "newuser";
@@ -1268,9 +1312,9 @@ public class UserManagerTest extends AbstractFileSystemTestCase
 
         context.assertIsSatisfied();
     }
-    
+
     @Test
-    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndNotFoundInLocalDBByUserNameWithAliasEmail()
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailWithDifferentEmailAndNotFoundInLocalDBByUserName()
     {
         final boolean active = true;
         final String userId = "newuser";

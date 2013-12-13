@@ -730,7 +730,11 @@ class UserManager extends AbstractManager implements IUserManager
 
                         if (userFromExternalAuthenticationService != null)
                         {
-                            userFromExternalAuthenticationService.setEmailAlias(emailAddress);
+                            if (false == emailAddress.equals(userFromExternalAuthenticationService.getEmail()))
+                            {
+                                userFromExternalAuthenticationService.setEmailAlias(emailAddress);
+                            }
+
                             mergeLocalAndExternalUsers(userFromLocalDBForEmail, userFromExternalAuthenticationService);
                             users.add(userFromLocalDBForEmail);
                         } else
