@@ -59,6 +59,7 @@ import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
@@ -73,8 +74,7 @@ import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIFEXService
 {
     /**
-     * The attribute name that holds the absolute paths of the files that should be uploaded in the
-     * next request.
+     * The attribute name that holds the absolute paths of the files that should be uploaded in the next request.
      */
     static final String FILES_TO_UPLOAD = "files-to-upload";
 
@@ -754,28 +754,46 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     @Override
     public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
-            throws InvalidSessionException
+            throws InvalidSessionException, UserFailureException, EnvironmentFailureException
     {
-        privGetCurrentUser();
-        final IUserManager userManager = domainModel.getUserManager();
-        final Collection<UserDTO> users =
-                userManager.getUsers(Arrays.asList(userCode), null, userActionLog);
-        if (users.isEmpty())
+        try
         {
-            return null;
+            privGetCurrentUser();
+            final IUserManager userManager = domainModel.getUserManager();
+            final Collection<UserDTO> users =
+                    userManager.getUsers(Arrays.asList(userCode), null, userActionLog);
+            if (users.isEmpty())
+            {
+                return null;
+            }
+            assert users.size() == 1; // A user code is unique in the database.
+            return BeanUtils.createBean(UserInfoDTO.class, users.iterator().next());
+        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw new UserFailureException(e.getMessage());
+        } catch (ConfigurationFailureException e)
+        {
+            throw new EnvironmentFailureException(e.getMessage());
         }
-        assert users.size() == 1; // A user code is unique in the database.
-        return BeanUtils.createBean(UserInfoDTO.class, users.iterator().next());
     }
 
     @Override
-    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException
+    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException, UserFailureException, EnvironmentFailureException
     {
-        privGetCurrentUser();
-        final IUserManager userManager = domainModel.getUserManager();
-        final Collection<UserDTO> users =
-                userManager.getUsers(null, Arrays.asList(email), userActionLog);
-        return BeanUtils.createBeanList(UserInfoDTO.class, users);
+        try
+        {
+            privGetCurrentUser();
+            final IUserManager userManager = domainModel.getUserManager();
+            final Collection<UserDTO> users =
+                    userManager.getUsers(null, Arrays.asList(email), userActionLog);
+            return BeanUtils.createBeanList(UserInfoDTO.class, users);
+        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw new UserFailureException(e.getMessage());
+        } catch (ConfigurationFailureException e)
+        {
+            throw new EnvironmentFailureException(e.getMessage());
+        }
     }
 
     @Override
@@ -844,7 +862,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
     @Override
     public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
-            UserFailureException
+            UserFailureException, EnvironmentFailureException
     {
         for (String user : usersToAdd)
         {
@@ -884,7 +902,7 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
 
     private void createSharingLink(final long fileId, final String userIdentifiers)
             throws UserFailureException, InvalidSessionException, InsufficientPrivilegesException,
-            FileNotFoundException
+            FileNotFoundException, EnvironmentFailureException
     {
         final UserDTO requestUser = privGetCurrentUser();
         final IFileManager fileManager = domainModel.getFileManager();
@@ -917,9 +935,12 @@ public final class CIFEXServiceImpl extends AbstractCIFEXService implements ICIF
             invalidEmailAddresses =
                     fileManager.shareFilesWith(url, requestUser, userIdentifierList, files,
                             fileInfo.getFileDTO().getComment(), userActionLog);
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        } catch (ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw new UserFailureException(e.getMessage());
+        } catch (ConfigurationFailureException e)
+        {
+            throw new EnvironmentFailureException(e.getMessage());
         }
         if (invalidEmailAddresses.isEmpty() == false)
         {

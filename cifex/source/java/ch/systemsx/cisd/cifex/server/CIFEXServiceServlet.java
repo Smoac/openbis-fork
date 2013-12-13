@@ -47,8 +47,8 @@ import ch.systemsx.cisd.common.servlet.GWTSpringController;
 /**
  * The server <code>ICifexService</code> implementation.
  * <p>
- * Note that this is a servlet. It is usually good practice to let the constructor body empty and to
- * put initialization stuff in {@link #init(ServletConfig)}.
+ * Note that this is a servlet. It is usually good practice to let the constructor body empty and to put initialization stuff in
+ * {@link #init(ServletConfig)}.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -230,13 +230,13 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
 
     @Override
     public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
-            throws InvalidSessionException
+            throws UserFailureException, EnvironmentFailureException
     {
         return cifexServiceDelegate.tryFindUserByUserCodeOrCreate(userCode);
     }
 
     @Override
-    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException
+    public List<UserInfoDTO> findUserByEmail(final String email) throws UserFailureException, EnvironmentFailureException
     {
         return cifexServiceDelegate.findUserByEmail(email);
     }
@@ -265,7 +265,7 @@ public final class CIFEXServiceServlet extends GWTSpringController implements IC
     @Override
     public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
-            UserFailureException
+            UserFailureException, EnvironmentFailureException
     {
         cifexServiceDelegate.updateSharingLinks(fileId, usersToAdd, usersToRemove);
     }

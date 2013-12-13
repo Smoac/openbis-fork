@@ -38,8 +38,7 @@ public interface ICIFEXService extends RemoteService
 {
 
     /**
-     * Sends a keep-alive ping and returns back whether it was successful, i.e. whether the session
-     * is still alive.
+     * Sends a keep-alive ping and returns back whether it was successful, i.e. whether the session is still alive.
      */
     public Boolean keepSessionAlive();
 
@@ -75,8 +74,7 @@ public interface ICIFEXService extends RemoteService
     public CurrentUserInfoDTO getCurrentUser() throws InvalidSessionException;
 
     /**
-     * Returns the currently logged in user (if a user is authenticated), refreshing its quota
-     * information.
+     * Returns the currently logged in user (if a user is authenticated), refreshing its quota information.
      * 
      * @return The currently logged in user with current quota information.
      */
@@ -102,16 +100,16 @@ public interface ICIFEXService extends RemoteService
     public UserInfoDTO tryFindUserByUserCode(final String userCode) throws InvalidSessionException;
 
     /**
-     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists
-     * ann could not be created as externally authenticated user.
+     * Returns the user for the given <var>code</var>, or <code>null</code>, if no such user exists ann could not be created as externally
+     * authenticated user.
      */
     public UserInfoDTO tryFindUserByUserCodeOrCreate(final String userCode)
-            throws InvalidSessionException;
+            throws InvalidSessionException, UserFailureException, EnvironmentFailureException;
 
     /**
      * Returns a list with all users, which have the given email address.
      */
-    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException;
+    public List<UserInfoDTO> findUserByEmail(final String email) throws InvalidSessionException, UserFailureException, EnvironmentFailureException;
 
     /**
      * Returns the list of users that are owned by the given user.
@@ -126,8 +124,7 @@ public interface ICIFEXService extends RemoteService
             throws InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Creates a new <code>User</code> in Cifex with the given <var>password</var> and returns the
-     * new user.
+     * Creates a new <code>User</code> in Cifex with the given <var>password</var> and returns the new user.
      * <p>
      * This method sends an email to the new user, to inform him about the new user account.
      * </p>
@@ -156,12 +153,12 @@ public interface ICIFEXService extends RemoteService
             EnvironmentFailureException;
 
     /**
-     * Updates the sharing links for file <var>fileId</var>, adding the users in
-     * <var>usersToAdd</var> and removing the users in <var>usersToRemove</var>.
+     * Updates the sharing links for file <var>fileId</var>, adding the users in <var>usersToAdd</var> and removing the users in
+     * <var>usersToRemove</var>.
      */
     public void updateSharingLinks(long fileId, List<String> usersToAdd, List<String> usersToRemove)
             throws InvalidSessionException, InsufficientPrivilegesException, FileNotFoundException,
-            UserFailureException;
+            UserFailureException, EnvironmentFailureException;
 
     /**
      * Tries to delete the user given by its <var>id</var>.
@@ -212,8 +209,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Registers the file names for the next upload request in the session.
      * 
-     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or
-     *            empty.
+     * @param filenamesForUpload the client absolute file paths. Can not be <code>null</code> or empty.
      */
     public void registerFilenamesForUpload(final String[] filenamesForUpload)
             throws InvalidSessionException;
@@ -221,8 +217,7 @@ public interface ICIFEXService extends RemoteService
     /**
      * Gets current file upload feedback.
      * <p>
-     * Note that this method never returns <code>null</code> but waits till the first feedback is in
-     * the queue.
+     * Note that this method never returns <code>null</code> but waits till the first feedback is in the queue.
      * </p>
      */
     public FileUploadFeedback getFileUploadFeedback() throws InvalidSessionException;
@@ -243,16 +238,14 @@ public interface ICIFEXService extends RemoteService
     /**
      * Try to change user type from internally authenticated to externally authenticated.
      * 
-     * @throws EnvironmentFailureException if user is already externally authenticated or user with
-     *             given code does not exist
+     * @throws EnvironmentFailureException if user is already externally authenticated or user with given code does not exist
      */
     public UserInfoDTO trySwitchToExternalAuthentication(final String userCode,
             final String plainPassword) throws EnvironmentFailureException,
             InvalidSessionException, InsufficientPrivilegesException;
 
     /**
-     * Checks if 'switch to external authentication' option should be available for given
-     * <code>User<code>.
+     * Checks if 'switch to external authentication' option should be available for given <code>User<code>.
      */
     public Boolean showSwitchToExternalOption(UserInfoDTO user);
 
