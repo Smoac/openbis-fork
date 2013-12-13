@@ -700,6 +700,11 @@ class UserManager extends AbstractManager implements IUserManager
 
                 if (userFromExternalAuthenticationService != null)
                 {
+                    if (false == emailAddress.equals(userFromExternalAuthenticationService.getEmail()))
+                    {
+                        userFromExternalAuthenticationService.setEmailAlias(emailAddress);
+                    }
+
                     Collection<UserDTO> usersFromLocalDBForCode =
                             getUsersByCodesFromLocalDB(Collections.singletonList(userFromExternalAuthenticationService.getUserCode()));
 
@@ -725,6 +730,7 @@ class UserManager extends AbstractManager implements IUserManager
 
                         if (userFromExternalAuthenticationService != null)
                         {
+                            userFromExternalAuthenticationService.setEmailAlias(emailAddress);
                             mergeLocalAndExternalUsers(userFromLocalDBForEmail, userFromExternalAuthenticationService);
                             users.add(userFromLocalDBForEmail);
                         } else
@@ -787,10 +793,6 @@ class UserManager extends AbstractManager implements IUserManager
                     UserUtils.extractDisplayName(principalOrNull),
                     principalOrNull.getEmail(),
                     businessContext.isNewExternallyAuthenticatedUserStartActive());
-            if (false == emailAddress.equals(principalOrNull.getEmail()))
-            {
-                user.setEmailAlias(emailAddress);
-            }
             return user;
         } else
         {

@@ -1042,7 +1042,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(localEmail), null);
 
         assertEquals(1, results.size());
-        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), localUser, externalPrincipal, null);
+        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), localUser, externalPrincipal, localEmail);
 
         context.assertIsSatisfied();
     }
@@ -1166,7 +1166,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(externalEmail), null);
 
         assertEquals(1, results.size());
-        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), localUser, externalPrincipal, externalEmail);
+        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), localUser, externalPrincipal, null);
 
         context.assertIsSatisfied();
     }
@@ -1264,7 +1264,54 @@ public class UserManagerTest extends AbstractFileSystemTestCase
         Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(externalEmail), null);
 
         assertEquals(1, results.size());
-        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), null, externalPrincipal, externalEmail);
+        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), null, externalPrincipal, null);
+
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetUsersByEmailWhereNotFoundInLocalDBByEmailAndFoundInExternalDBByEmailAndNotFoundInLocalDBByUserNameWithAliasEmail()
+    {
+        final boolean active = true;
+        final String userId = "newuser";
+
+        final String externalFirstName = "ExternalFirstName";
+        final String externalLastName = "ExternalLastName";
+        final String externalEmail = "external@users.com";
+        final String externalEmailAlias = "externalalias@users.com";
+
+        final UserDTO newUser = UserManager.createExternalUser(userId, externalFirstName + " " + externalLastName, externalEmail, active);
+        final Principal externalPrincipal = new Principal(userId, externalFirstName, externalLastName, externalEmail);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(daoFactory).getUserDAO();
+                    will(returnValue(userDAO));
+
+                    one(userDAO).listUsersByEmail(externalEmailAlias);
+                    will(returnValue(null));
+
+                    one(externalAuthService).supportsListingByEmail();
+                    will(returnValue(true));
+
+                    one(externalAuthService).tryGetAndAuthenticateUserByEmail(externalEmailAlias, null);
+                    will(returnValue(externalPrincipal));
+
+                    one(businessContext).isNewExternallyAuthenticatedUserStartActive();
+                    will(returnValue(active));
+
+                    one(userDAO).listUsersByCode(userId);
+                    will(returnValue(null));
+
+                    one(userDAO).createUser(newUser);
+                }
+            });
+
+        Collection<UserDTO> results = userManager.getUsers(null, Arrays.asList(externalEmailAlias), null);
+
+        assertEquals(1, results.size());
+        assertResultMergedFromExistingLocalAndExternalUsers(results.iterator().next(), null, externalPrincipal, externalEmailAlias);
 
         context.assertIsSatisfied();
     }
@@ -1299,7 +1346,7 @@ public class UserManagerTest extends AbstractFileSystemTestCase
     }
 
     private void assertResultMergedFromExistingLocalAndExternalUsers(UserDTO searchResult, UserDTO localUser,
-            Principal externalPrincipal, String externalSearchEmail)
+            Principal externalPrincipal, String emailAlias)
     {
         if (localUser != null)
         {
@@ -1312,20 +1359,19 @@ public class UserManagerTest extends AbstractFileSystemTestCase
             assertEquals(externalPrincipal.getUserId(), searchResult.getUserCode());
             assertEquals(externalPrincipal.getFirstName() + " " + externalPrincipal.getLastName(), searchResult.getUserFullName());
             assertEquals(externalPrincipal.getEmail(), searchResult.getEmail());
-
-            if (externalSearchEmail != null && externalSearchEmail.equals(externalPrincipal.getEmail()) == false)
-            {
-                assertEquals(externalSearchEmail, searchResult.getEmailAlias());
-            } else
-            {
-                assertNull(searchResult.getEmailAlias());
-            }
         } else
         {
             assertEquals(localUser.getUserCode(), searchResult.getUserCode());
             assertEquals(localUser.getUserFullName(), searchResult.getUserFullName());
             assertEquals(localUser.getEmail(), searchResult.getEmail());
+        }
+
+        if (emailAlias == null)
+        {
             assertNull(searchResult.getEmailAlias());
+        } else
+        {
+            assertEquals(emailAlias, searchResult.getEmailAlias());
         }
     }
 
