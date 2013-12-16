@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.cifex.server.business;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -491,26 +490,25 @@ class UserManager extends AbstractManager implements IUserManager
         userDAO.changeUserCode(before, after);
     }
 
-    @Override
-    @Transactional
     /**
-        Searching by USER_NAME
+     * <pre>
+        Searching by USER_CODE
         ======================
     
         Example: "id:test"
     
         Algorithm:
     
-        IF (found a user by USER_NAME in the local DB):
+        IF (found a user by USER_CODE in the local DB):
             IF (is_externally_authenticated):
-                IF (found a user by USER_NAME in the external DB):
-                    Take the user from the external DB
+                IF (found a user by USER_CODE in the external authentication service):
+                    Take the user from the external authentication service
                 ELSE:
                     Error - user probably has left ETHZ
             ELSE:
                 Take the user from the local DB
         ELSE:
-            IF (found a user by USER_NAME in the external DB):
+            IF (found a user by USER_CODE in the external authentication service):
                 Create a new user in the local DB
             ELSE:
                 Error - incorrect user name
@@ -524,21 +522,23 @@ class UserManager extends AbstractManager implements IUserManager
     
         IF (found a user by EMAIL in the local DB):
             IF (is_externally_authenticated):
-                IF (found a user by USER_NAME in the external DB):
-                    Take the user from the external DB
+                IF (found a user by USER_CODE in the external authentication service):
+                    Take the user from the external authentication service
                 ELSE:
                     Error - user probably has left ETHZ
             ELSE:
                 Take the user from the local DB
         ELSE:
-            IF (found a user by EMAIL in the external DB):
-                Take the user from the external DB
-                IF (did not find a user by USER_NAME in the local DB):
+            IF (found a user by EMAIL in the external authentication service):
+                Take the user from the external authentication service
+                IF (did not find a user by USER_CODE in the local DB):
                     Create a new user 
             ELSE:
                 Return null
-
+        </pre>
      */
+    @Override
+    @Transactional
     public Collection<UserDTO> getUsers(List<String> userCodesOrNull,
             List<String> emailAddressesOrNull, final IUserActionLog logOrNull)
     {
@@ -607,22 +607,7 @@ class UserManager extends AbstractManager implements IUserManager
 
             if (userFromLocalDB != null)
             {
-                if (userFromLocalDB.isExternallyAuthenticated())
-                {
-                    UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
-
-                    if (userFromExternalAuthenticationService != null)
-                    {
-                        mergeLocalAndExternalUsers(userFromLocalDB, userFromExternalAuthenticationService);
-                        users.add(userFromLocalDB);
-                    } else
-                    {
-                        throw new ExternalUserNotFoundInExternalAuthenticationServiceException(userCode);
-                    }
-                } else
-                {
-                    users.add(userFromLocalDB);
-                }
+                addModifiedUser(users, userFromLocalDB, null);
             } else
             {
                 UserDTO userFromExternalAuthenticationService = getUserByCodeFromExternalAuthenticationService(userCode);
@@ -700,11 +685,7 @@ class UserManager extends AbstractManager implements IUserManager
 
                 if (userFromExternalAuthenticationService != null)
                 {
-                    if (false == emailAddress.equals(userFromExternalAuthenticationService.getEmail()))
-                    {
-                        userFromExternalAuthenticationService.setEmailAlias(emailAddress);
-                    }
-
+                    setEmailAliasIfEmailNotEquals(userFromExternalAuthenticationService, emailAddress);
                     Collection<UserDTO> usersFromLocalDBForCode =
                             getUsersByCodesFromLocalDB(Collections.singletonList(userFromExternalAuthenticationService.getUserCode()));
 
@@ -723,34 +704,35 @@ class UserManager extends AbstractManager implements IUserManager
             {
                 for (UserDTO userFromLocalDBForEmail : usersFromLocalDBForEmail)
                 {
-                    if (userFromLocalDBForEmail.isExternallyAuthenticated())
-                    {
-                        UserDTO userFromExternalAuthenticationService =
-                                getUserByCodeFromExternalAuthenticationService(userFromLocalDBForEmail.getUserCode());
-
-                        if (userFromExternalAuthenticationService != null)
-                        {
-                            if (false == emailAddress.equals(userFromExternalAuthenticationService.getEmail()))
-                            {
-                                userFromExternalAuthenticationService.setEmailAlias(emailAddress);
-                            }
-
-                            mergeLocalAndExternalUsers(userFromLocalDBForEmail, userFromExternalAuthenticationService);
-                            users.add(userFromLocalDBForEmail);
-                        } else
-                        {
-                            throw new ExternalUserNotFoundInExternalAuthenticationServiceException(userFromLocalDBForEmail.getUserCode());
-                        }
-                    } else
-                    {
-                        users.add(userFromLocalDBForEmail);
-                    }
+                    addModifiedUser(users, userFromLocalDBForEmail, emailAddress);
                 }
             }
 
         }
 
         return users;
+    }
+
+    public void addModifiedUser(LinkedHashSet<UserDTO> users, UserDTO user, String emailAliasOrNull)
+    {
+        if (user.isExternallyAuthenticated())
+        {
+            UserDTO userFromExternalAuthenticationService =
+                    getUserByCodeFromExternalAuthenticationService(user.getUserCode());
+
+            if (userFromExternalAuthenticationService != null)
+            {
+                setEmailAliasIfEmailNotEquals(userFromExternalAuthenticationService, emailAliasOrNull);
+                mergeLocalAndExternalUsers(user, userFromExternalAuthenticationService);
+                users.add(user);
+            } else
+            {
+                throw new ExternalUserNotFoundInExternalAuthenticationServiceException(user.getUserCode());
+            }
+        } else
+        {
+            users.add(user);
+        }
     }
 
     private Collection<UserDTO> getUsersByCodesFromLocalDB(final List<String> userCodes)
@@ -765,20 +747,7 @@ class UserManager extends AbstractManager implements IUserManager
 
     private UserDTO getUserByCodeFromExternalAuthenticationService(final String userCode)
     {
-        final Principal principalOrNull =
-                authenticationService.tryGetAndAuthenticateUser(userCode, null);
-
-        if (principalOrNull != null)
-        {
-            UserDTO user = createExternalUser(principalOrNull.getUserId(),
-                    UserUtils.extractDisplayName(principalOrNull),
-                    principalOrNull.getEmail(),
-                    businessContext.isNewExternallyAuthenticatedUserStartActive());
-            return user;
-        } else
-        {
-            return null;
-        }
+        return asUserOrNull(authenticationService.tryGetAndAuthenticateUser(userCode, null));
     }
 
     private UserDTO getUserByEmailFromExternalAuthenticationService(final String emailAddress)
@@ -788,19 +757,14 @@ class UserManager extends AbstractManager implements IUserManager
             return null;
         }
 
-        Principal principalOrNull =
-                authenticationService.tryGetAndAuthenticateUserByEmail(emailAddress, null);
+        return asUserOrNull(authenticationService.tryGetAndAuthenticateUserByEmail(emailAddress, null));
+    }
 
-        if (principalOrNull != null)
+    private void setEmailAliasIfEmailNotEquals(UserDTO userFromExternalAuthenticationService, String emailAddress)
+    {
+        if (emailAddress != null && false == emailAddress.equals(userFromExternalAuthenticationService.getEmail()))
         {
-            UserDTO user = createExternalUser(principalOrNull.getUserId(),
-                    UserUtils.extractDisplayName(principalOrNull),
-                    principalOrNull.getEmail(),
-                    businessContext.isNewExternallyAuthenticatedUserStartActive());
-            return user;
-        } else
-        {
-            return null;
+            userFromExternalAuthenticationService.setEmailAlias(emailAddress);
         }
     }
 
@@ -828,6 +792,18 @@ class UserManager extends AbstractManager implements IUserManager
             }
         }
         return newUser;
+    }
+    
+    private UserDTO asUserOrNull(Principal principalOrNull)
+    {
+        if (principalOrNull == null)
+        {
+            return null;
+        }
+        return createExternalUser(principalOrNull.getUserId(),
+                UserUtils.extractDisplayName(principalOrNull),
+                principalOrNull.getEmail(),
+                businessContext.isNewExternallyAuthenticatedUserStartActive());
     }
 
     @Private
