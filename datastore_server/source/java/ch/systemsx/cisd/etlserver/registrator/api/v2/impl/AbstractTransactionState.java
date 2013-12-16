@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.NewLinkCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
@@ -947,6 +949,19 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             NewFileCommand cmd = new NewFileCommand(dstFile.getAbsolutePath());
             executeCommand(cmd);
             return dstFile.getAbsolutePath();
+        }
+
+        public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
+        {
+            @SuppressWarnings("unchecked")
+            DataSet<T> dataSet = (DataSet<T>) dst;
+            File dataSetFolder = dataSet.getDataSetStagingFolder();
+            File dstFolder = new File(dataSetFolder, dstInDataset);
+            File link = new File(dstFolder, linkName);
+
+            NewLinkCommand cmd = new NewLinkCommand(link.getAbsolutePath(), linkTarget);
+            executeCommand(cmd);
+            return link.getAbsolutePath();
         }
 
         public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)

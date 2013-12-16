@@ -336,6 +336,17 @@ public interface IDataSetRegistrationTransactionV2
     String createNewFile(IDataSet dst, String dstInDataset, String fileName);
 
     /**
+     * Create a new hard link and return the path.
+     * 
+     * @param dst The data set to add the file to.
+     * @param dstInDataset The path of the file in the data set
+     * @param linkName The name of the new link to create
+     * @param linkTarget The path of file/directory the new link should point to
+     * @return The absolute path of the new link.
+     */
+    String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget);
+
+    /**
      * Retrieve the search service for this transaction. If the user is available for this transaction, then the search service results will be
      * filtered for this user.
      * 

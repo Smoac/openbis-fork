@@ -401,4 +401,10 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
         return transaction.listAttachments(sample);
     }
 
+    @Override
+    public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
+    {
+        return transaction.createNewLink(dst, dstInDataset, linkName, linkTarget);
+    }
+
 }

@@ -462,4 +462,10 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
         return transaction.listAttachments(sample);
     }
 
+    @Override
+    public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
+    {
+        return transaction.createNewLink(dst, dstInDataset, linkName, linkTarget);
+    }
+
 }

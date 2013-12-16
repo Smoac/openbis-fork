@@ -533,6 +533,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
         return getStateAsLiveState().createNewFile(dst, dstInDataset, fileName);
     }
 
+    @Override
+    public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
+    {
+        return getStateAsLiveState().createNewLink(dst, dstInDataset, linkName, linkTarget);
+    }
+
     public void deleteFile(String src)
     {
         getStateAsLiveState().deleteFile(src);
