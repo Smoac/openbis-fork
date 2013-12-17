@@ -16,7 +16,8 @@ dependencies {
 			'jmock:jmock:+',
 			'testng:testng:+',
 			'marathon:marathon-spring-util:+',
-			'cisd:cisd-base:+'
+			'cisd:cisd-base:+',
+			'rinn:restrictions:+'
 					
 	testCompile 'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',
