@@ -11,6 +11,8 @@ dependencies {
         'apache:log4j:+',
         'javax:activation:+',
         'javax:mail:+'
+        
+    testCompile project(path: ':common', configuration: 'tests')
 }
 
 jar {
@@ -46,3 +48,6 @@ task dist(type: Zip, dependsOn: jar) {
     rename 'activation.*', 'activation.jar'
     rename 'mail.*', 'mail.jar'
 }
+
+build.dependsOn test
+build.dependsOn dist
