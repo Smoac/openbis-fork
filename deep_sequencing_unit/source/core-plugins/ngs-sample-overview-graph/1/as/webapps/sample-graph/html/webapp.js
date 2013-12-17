@@ -272,10 +272,9 @@ SampleGraphModel.prototype.coalesceGraphData = function(data, callback) {
  */
 function SampleGraphPresenter(model) {
 	this.model = model;
-//	this.renderer = new DagreGraphRenderer();
-	this.renderer = new SimpleGraphRenderer();
 	this.selectedNode = null;
 	this.didCreateVis = false;
+	this.useSpaceSavingRenderer();
 	this.useBottomUpMode();
 	this.useWithColorsMode();
 	this.initializePresenter();
@@ -294,6 +293,26 @@ SampleGraphPresenter.prototype.initializePresenter = function()
 	this.rootLabel.text(this.model.sampleIdentifier);
 	this.didCreateVis = true;
 }
+
+SampleGraphPresenter.prototype.useSpaceSavingRenderer = function() {
+	this.renderer = new SimpleGraphRenderer();
+}
+
+SampleGraphPresenter.prototype.useSpaceFillingRenderer = function() {
+	this.renderer = new DagreGraphRenderer();
+}
+
+SampleGraphPresenter.prototype.isSpaceSavingMode = function() {
+	return this.renderer instanceof SimpleGraphRenderer;
+}
+
+SampleGraphPresenter.prototype.isSpaceFillingMode = function() {
+	return this.renderer instanceof DagreGraphRenderer;
+}
+
+SampleGraphPresenter.prototype.clear = function() {
+	this.root.selectAll("svg").remove();
+};
 
 SampleGraphPresenter.prototype.calcuateVisibleColumnOffsets = function() {
 	// Calculate the offsets for the columns -- only need to do this once
@@ -457,7 +476,6 @@ SampleGraphPresenter.prototype.draw = function()
 	this.renderer.draw();
 }
 
-
 SampleGraphPresenter.prototype.toggleExpand = function(svgNode, d) {
 	// toggle visiblity
 	d.userEdgesVisible = (null == d.userEdgesVisible) ? !d.edgesVisible :!d.userEdgesVisible;
@@ -511,8 +529,30 @@ function clickedNoColors() {
 	presenter.draw();
 }
 
+function clickedSpaceSaving() {
+	if (presenter.isSpaceSavingMode()) return;
+
+	displayActiveMode($('#space-saving'), $('#space-filling'));
+	presenter.useSpaceSavingRenderer();
+	presenter.initializeGraphSamples();
+	presenter.clear();
+	presenter.draw();
+}
+
+function clickedSpaceFilling() {
+	if (presenter.isSpaceFillingMode()) return;
+
+	displayActiveMode($('#space-filling'), $('#space-saving'));
+	presenter.useSpaceFillingRenderer();
+	presenter.initializeGraphSamples();
+	presenter.clear();
+	presenter.draw();
+}
+
 function textBBoxForGraphNode(node) {
-	var bbox = presenter.renderer.columns.selectAll("text.sample")[node.col][node.visibleIndex].getBBox();
+	var element = presenter.renderer.columns.selectAll("text.sample")[node.col][node.visibleIndex];
+	if (!element) return {x: node.colOffset, y: 0, width : 0, height : 0 };
+	var bbox = element.getBBox();
 	// Correct for the column
 	bbox.x += node.colOffset;
 	return bbox;
@@ -611,6 +651,7 @@ SimpleGraphRenderer.prototype.draw = function()
 	this.drawHeaders();
 	this.drawNodes();
 	this.drawEdges();
+
 
 	var vizHeight = (d3.max(nodes, function(d) { return d.length}) + 1) * LINE_HEIGHT + 5;
 	var vizWidth = d3.sum(presenter.visibleColumns, function(column) { return column.width });
@@ -1015,6 +1056,8 @@ function enterApp(data)
 	$('#top-down').click(clickedTopDown);
 	$('#with-colors').click(clickedWithColors);
 	$('#no-colors').click(clickedNoColors);
+	$('#space-saving').click(clickedSpaceSaving);
+	$('#space-filling').click(clickedSpaceFilling);
 	presenter = new SampleGraphPresenter(model);
 	presenter.useBottomUpMode()
     model.requestGraphData(function() { presenter.initializeGraphSamples(); presenter.draw() });
