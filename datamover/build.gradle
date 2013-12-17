@@ -2,6 +2,47 @@ evaluationDependsOn(':common')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+configurations.create('libJars')
 dependencies {
     compile project(':common')
+    
+    libJars 'cisd:cisd-base:+',
+        'cisd:cisd-args4j:+',
+        'apache:log4j:+',
+        'javax:activation:+',
+        'javax:mail:+'
+}
+
+jar {
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }
+    from (project(':common').compileJava.outputs.getFiles().getAsFileTree().matching {
+        include 'ch/systemsx/cisd/common/**/*.class'    
+    })
+    manifest {
+        attributes("Main-Class": "ch.systemsx.cisd.datamover.Main",
+                   "Class-Path": "log4j.jar cisd-base.jar cisd-args4j.jar commons-lang.jar commons-io.jar activation.jar mail.jar",
+                   "Version": project.versionNumber,
+                   "Build-Number": "${project.versionNumber} (r${project.revisionNumber},${project.cleanFlag})")
+    }
+}
+
+task dist(type: Zip, dependsOn: jar) {
+    from 'dist'
+    into 'datamover'
+    from (jar.outputs.getFiles()) {
+        into 'lib'
+    }
+    from (configurations.libJars.files) {
+        into 'lib'
+    }
+    rename 'log4j.*', 'log4j.jar'
+    rename 'cisd-base.*', 'cisd-base.jar'
+    rename 'cisd-args4j.*', 'cisd-args4j.jar'
+    rename 'datamover.*jar', 'datamover.jar'
+    rename 'commons-lang.*', 'commons-lang.jar' 
+    rename 'commons-io.*', 'commons-io.jar'
+    rename 'activation.*', 'activation.jar'
+    rename 'mail.*', 'mail.jar'
 }
