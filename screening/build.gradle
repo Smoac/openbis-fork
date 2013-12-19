@@ -55,3 +55,7 @@ task systemTestSuite(type: Test) {
 test.dependsOn(systemTestSuite)
 test.dependsOn(copyTestData)
 
+project.ext.gwt_module = 'ch.systemsx.cisd.openbis.plugin.screening.OpenBIS'
+project.ext.gwt_app_path = 'openbis-test-screening'
+apply from: '../openbis/gwtdev.gradle'
+

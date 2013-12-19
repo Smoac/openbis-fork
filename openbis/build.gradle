@@ -69,3 +69,7 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 test.dependsOn(copyTestData)
 test.dependsOn(cleanDbSuite)
 
+project.ext.gwt_module = 'ch.systemsx.cisd.openbis.OpenBIS'
+project.ext.gwt_app_path = 'openbis-test'
+
+apply from: 'gwtdev.gradle'

@@ -1,0 +1,67 @@
+
+configurations.create('gwt')
+
+dependencies {
+    gwt 'reveregroup:gwt-image-loader:1.1.4','google:gwt-dev:+'
+}
+
+task deleteGWT(type: Delete) {
+    delete '.gwt-cache', 'targets/www'
+}
+
+task prepareGWT(type:Copy, dependsOn: deleteGWT) {
+    from 'resource/server'
+    from file('../common/resource/server')
+    from file('../openbis/resource/server/bis-common.xml')
+    into 'targets/www/WEB-INF'
+    
+    from (project.configurations.runtime.files) {
+        into 'lib'
+    }
+    from (file('targets/gradle/classes/main')) {
+        into 'classes'
+    }
+}
+
+def classpathGWT
+if (project.name.equals('openbis')) {
+    classpathGWT = [configurations.gwt,
+        project(':openbis_api').sourceSets.main.java.srcDirs,
+        project(':common').sourceSets.main.java.srcDirs,
+        sourceSets.main.java.srcDirs,
+        sourceSets.main.output.resourcesDir,
+        sourceSets.main.output.classesDir,
+        sourceSets.main.compileClasspath]
+} else
+{
+    classpathGWT = [configurations.gwt,
+        sourceSets.main.output.resourcesDir,
+        sourceSets.main.java.srcDirs,
+        project(':openbis_api').sourceSets.main.java.srcDirs,
+        project(':common').sourceSets.main.java.srcDirs,
+        project(':openbis').sourceSets.main.java.srcDirs,
+        project(':openbis').sourceSets.main.output.resourcesDir,
+        project(':openbis').sourceSets.main.output.classesDir,
+        project(':openbis').sourceSets.main.compileClasspath]
+}
+
+task compileGWT (type: JavaExec) {
+    inputs.source sourceSets.main.java.srcDirs
+    inputs.dir sourceSets.main.output.resourcesDir
+    outputs.dir 'targets/www'
+
+    main = 'com.google.gwt.dev.Compiler'
+    maxHeapSize = '1024m'
+    classpath { classpathGWT }
+    args = [ '-war',
+             'targets/www',
+             "${project.gwt_module}Safari",
+             '-draftCompile',
+             '-style', 'PRETTY',
+             '-logLevel', 'ERROR']
+}
+
+task compileAndCopyGWT (type: Copy, dependsOn: compileGWT) {
+    from "targets/www/${project.gwt_module}"
+    into "targets/www/${project.gwt_app_path}"
+}
