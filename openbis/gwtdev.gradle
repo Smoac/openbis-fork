@@ -2,7 +2,7 @@
 configurations.create('gwt')
 
 dependencies {
-    gwt 'reveregroup:gwt-image-loader:1.1.4','google:gwt-dev:+'
+    gwt 'reveregroup:gwt-image-loader:+','google:gwt-dev:+'
 }
 
 task deleteGWT(type: Delete) {
@@ -17,6 +17,7 @@ task prepareGWT(type:Copy, dependsOn: deleteGWT) {
     
     from (project.configurations.runtime.files) {
         into 'lib'
+        exclude 'cisd-cifex*'
     }
     from (file('targets/gradle/classes/main')) {
         into 'classes'

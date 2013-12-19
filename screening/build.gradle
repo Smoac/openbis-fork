@@ -9,22 +9,21 @@ evaluationDependsOn(':datastore_server')
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 dependencies {
-	compile project(':common'),
-			project(':datastore_server')
-			
-	compile 'openhms:jackcess:+',
-			'google:gwt-image-loader:+'
-			
-	testCompile project(path: ':datastore_server', configuration: 'tests')		
-			
+    compile project(':common'),
+            project(':datastore_server'),
+            'openhms:jackcess:+',
+            'reveregroup:gwt-image-loader:+'
+            
+    testCompile project(path: ':datastore_server', configuration: 'tests')
+            
 }
 
 sourceSets { 
-	test {
-		resources {
-			srcDirs = ['source/java']
-		}
-	}
+    test {
+        resources {
+            srcDirs = ['source/java']
+        }
+    }
 }
 
 jar {
@@ -46,10 +45,10 @@ task copyTestData(type: Copy, dependsOn: testClasses) {
 }
 
 task systemTestSuite(type: Test) {
-	useTestNG()
-	options.suites('sourceTest/java/tests_system.xml')
-	jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'	
-	testReportDir = file("${project.buildDir}/reports/tests-system")
+    useTestNG()
+    options.suites('sourceTest/java/tests_system.xml')
+    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m'    
+    testReportDir = file("${project.buildDir}/reports/tests-system")
 }
 
 test.dependsOn(systemTestSuite)

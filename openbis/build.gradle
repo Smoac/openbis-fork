@@ -20,6 +20,7 @@ dependencies {
 			'eclipse:jetty-deploy:8.1.8.v20121106',
 			'google:gwt-debug-panel:1.0',
 			'google:gwt-user:2.4',
+			'reveregroup:gwt-image-loader:+',
 			'springframework:spring-orm:2.5.6.SEC01',
 			'cisd:cisd-hotdeploy:13.01.0',
 			'apache:poi-ooxml:3.8-20120326',
