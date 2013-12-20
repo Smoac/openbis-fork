@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "hibernateSearch" })
+{ "db", "hibernateSearch" })
 @Friend(toClasses = HibernateSearchDAO.class)
 public final class HibernateSearchDAOTest extends AbstractDAOTest
 {
@@ -83,10 +83,10 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     private final static Object[][] getRegistratorTerm()
     {
         return new Object[][]
-            {
-                    { "john" },
-                    { "Jo?n" },
-                    { "*ohn" } };
+        {
+                { "john" },
+                { "Jo?n" },
+                { "*ohn" } };
     }
 
     @Test
@@ -141,9 +141,9 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     protected Object[][] getExperimentQueriesAndModeToTest()
     {
         return new Object[][]
-            {
-                    { "exp-*", "exp-", true },
-                    { "exp-", "exp-", false } };
+        {
+                { "exp-*", "exp-", true },
+                { "exp-", "exp-", false } };
     }
 
     @Test(dataProvider = "experimentQueriestAndModeToTest")
@@ -154,7 +154,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
         final List<MatchingEntity> hits =
                 hibernateSearchDAO.searchEntitiesByTerm(USER_ID, SearchableEntity.EXPERIMENT,
                         query, createDataProvider(), useWildcardMode, 0, Integer.MAX_VALUE);
-        assertEquals(7, hits.size());
+        assertEquals(8, hits.size());
         for (MatchingEntity matchingEntity : hits)
         {
             AssertionUtil.assertContainsInsensitive(querySubstring, matchingEntity.getCode());
@@ -283,8 +283,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     }
 
     /**
-     * a more loose check for the database contents, where we expect to know only part of the
-     * resutls.
+     * a more loose check for the database contents, where we expect to know only part of the resutls.
      */
     private void assertAtLeastDatasetsFound(DetailedSearchCriteria criteria,
             int expectedTotalResults, DSLoc... expectedLocations)
@@ -584,8 +583,7 @@ public final class HibernateSearchDAOTest extends AbstractDAOTest
     // TODO 2010-10-22, Piotr Buczek: write a different test (auto update is switched off)
     @Test(groups = "broken")
     /*
-     * Checks if the dataset search index is properly updated after properties of a dataset have
-     * changed.
+     * Checks if the dataset search index is properly updated after properties of a dataset have changed.
      */
     public final void testSearchForDataSetsAfterPropertiesUpdate() throws InterruptedException
     {
