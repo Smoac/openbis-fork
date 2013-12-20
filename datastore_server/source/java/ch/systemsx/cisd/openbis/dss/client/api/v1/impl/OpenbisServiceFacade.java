@@ -21,10 +21,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.RetryProxyFactory;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
@@ -173,9 +174,9 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     private final IGeneralInformationChangingService changingService;
 
     private final IDssComponent dssComponent;
-    
+
     private final int minorVersionInformationService;
-    
+
     private final int minorVersionChangingService;
 
     public OpenbisServiceFacade(String sessionToken, IGeneralInformationService service,
@@ -326,7 +327,7 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
                 .createExperimentCriteria(experimentCriteria));
         return service.searchForSamples(sessionToken, searchCriteria, null);
     }
-    
+
     @Override
     public List<Sample> listSamplesOfSample(final String samplePermId)
     {
@@ -358,17 +359,51 @@ public class OpenbisServiceFacade implements IOpenbisServiceFacade
     public List<Sample> listSamplesForProjects(List<String> projectIdentifiers,
             EnumSet<SampleFetchOption> fetchOptions)
     {
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.setOperator(SearchOperator.MATCH_ANY_CLAUSES);
+
         for (ProjectIdentifier projectIdentifier : parseProjectIdentifiers(projectIdentifiers))
         {
-            searchCriteria.addMatchClause(MatchClause.createAttributeMatch(
+            experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(
                     MatchClauseAttribute.PROJECT, projectIdentifier.getProjectCode()));
         }
 
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria));
+
         List<Sample> samples =
                 service.searchForSamples(sessionToken, searchCriteria, fetchOptions);
-        return samples;
+
+        if (samples == null || samples.isEmpty())
+        {
+            return Collections.emptyList();
+        } else
+        {
+            final Set<String> projectIdentifiersSet = new HashSet<String>(projectIdentifiers);
+
+            List<Sample> filteredSamples =
+                    CollectionUtils.filter(samples, new CollectionUtils.ICollectionFilter<Sample>()
+                        {
+                            @Override
+                            public boolean isPresent(Sample sample)
+                            {
+                                String experimentIdentifier = sample.getExperimentIdentifierOrNull();
+
+                                if (experimentIdentifier != null)
+                                {
+                                    ExperimentIdentifier experimentIdentifierObject = ExperimentIdentifierFactory.parse(experimentIdentifier);
+                                    ProjectIdentifier projectIdentifierObject =
+                                            new ProjectIdentifier(experimentIdentifierObject.getSpaceCode(), experimentIdentifierObject
+                                                    .getProjectCode());
+                                    return projectIdentifiersSet.contains(projectIdentifierObject.toString());
+                                } else
+                                {
+                                    return false;
+                                }
+                            }
+                        });
+            return filteredSamples;
+        }
     }
 
     @Override

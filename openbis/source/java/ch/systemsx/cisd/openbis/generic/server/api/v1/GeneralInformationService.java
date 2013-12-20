@@ -331,6 +331,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @ReturnValueFilter(validatorClass = SampleByIdentiferValidator.class)
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria,
             EnumSet<SampleFetchOption> fetchOptions)
     {
