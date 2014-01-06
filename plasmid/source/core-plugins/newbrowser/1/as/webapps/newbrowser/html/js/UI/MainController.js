@@ -220,4 +220,14 @@ function MainController(profile) {
 		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
 		this.sampleForm.init();
 	}
+	
+	this.showCreateDataSetPage = function(sample) {
+		//Update menu
+		var breadCrumbPage = new BreadCrumbPage('new-dataset-'+sample.permId, "showCreateDataSetPage", sample, 'Create Data Set for '+sample.code);
+		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+		
+		//Show Form
+		this.datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
+		this.datasetForm.init();
+	}
 }

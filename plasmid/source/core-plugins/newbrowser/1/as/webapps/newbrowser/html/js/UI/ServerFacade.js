@@ -52,6 +52,10 @@ function ServerFacade(openbisServer) {
 	this.listVocabularies = function(callbackFunction) {
 		this.openbisServer.listVocabularies(callbackFunction);
 	}
+	
+	this.listDataSetTypes = function(callbackFunction) {
+		this.openbisServer.listDataSetTypes(callbackFunction);
+	}
 
 	this.listSpacesWithProjectsAndRoleAssignments = function(somethingOrNull, callbackFunction) {
 		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, callbackFunction);

@@ -97,7 +97,17 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 	this.repaint = function() {
 		var $container = $("#"+this.containerId);
 		$container.empty();
-		$container.append($("<legend>").html("DataSets"));
+		
+		//Upload Button
+		$uploadButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-upload" }));
+		
+		var localSample = this.sample;
+		$uploadButton.click(function() { 
+			mainController.showCreateDataSetPage(localSample);
+		} );
+		
+		//Title
+		$container.append($("<legend>").html("DataSets ").append($uploadButton));
 		
 		//
 		// Don't paint datasets for entities that don't have
