@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Tomasz Pylak
  */
 @Test(groups =
-    { "db", "sample" })
+{ "db", "sample" })
 @Friend(toClasses = SamplePE.class)
 public final class SampleDAOTest extends AbstractDAOTest
 {
@@ -215,7 +215,11 @@ public final class SampleDAOTest extends AbstractDAOTest
         List<String> identifiers = new ArrayList<String>();
         for (SamplePE sample : samples)
         {
-            identifiers.add(sample.getIdentifier());
+            String identifier = sample.getIdentifier();
+            if (identifier.contains("LINKED"))
+            {
+                identifiers.add(identifier);
+            }
         }
         Collections.sort(identifiers);
         assertEquals("[/LINKED_SAMPLE1, /LINKED_SAMPLE2]", identifiers.toString());
@@ -391,7 +395,7 @@ public final class SampleDAOTest extends AbstractDAOTest
 
         // delete
         deleteSamples(new SamplePE[]
-            { sample1, sample2 });
+        { sample1, sample2 });
 
         // test successful deletion of sample
         assertNull(sampleDAO.tryGetByTechId(TechId.create(sample1)));
