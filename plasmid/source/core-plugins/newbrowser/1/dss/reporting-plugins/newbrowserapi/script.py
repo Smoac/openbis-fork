@@ -65,14 +65,18 @@ def insertDataSet(tr, parameters, tableBuilder):
 		dataSet.setPropertyValue(key,propertyValue);
 	
 	#Move File
+	tempDir = System.getProperty("java.io.tmpdir");
+	temFile = File(tempDir + filename);
+	
 	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
 	inputStream = dss_component.getFileFromSessionWorkspace(fileSessionKey);
-	rawFile = IOUtils.toByteArray(inputStream);
-	tempDir = System.getProperty("java.io.tmpdir");
-	file = File(tempDir + filename);
-	FileOutputStream(file).write(rawFile);
-	print file.getAbsolutePath();
-	tr.moveFile(file.getAbsolutePath(), dataSet);
+	outputStream = FileOutputStream(temFile);
+	
+	IOUtils.copyLarge(inputStream, outputStream);
+	IOUtils.closeQuietly(inputStream);
+	IOUtils.closeQuietly(outputStream);
+	
+	tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	
 	#Clean File from workspace
 	dss_component.deleteSessionWorkspaceFile(fileSessionKey);
