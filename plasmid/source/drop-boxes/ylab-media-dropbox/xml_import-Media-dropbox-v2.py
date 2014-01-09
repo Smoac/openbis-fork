@@ -68,110 +68,148 @@ def process(transaction):
 	for path in [ './Identifier']:
 	  node = tree.find(path)
 	  if node.text != "":
-	    sample_name = node.text
+		sample_name = node.text
 	  else:
-	    node.text = ""  
-	    
+		node.text = ""  
+		
 	  
 	for path in [ './Experiment']:
 	  node = tree.find(path)
- 	  if node.text != "":
+	  if node.text != "":
 		experiment_name = node.text
 	  else:
-	    node.text = ""  
+		node.text = ""  
 	
-        print experiment_name   	  
-	def Chemicals():
-	  for path in [ './Chemicals']:
-		node = tree.find(path)
-		if node.text is not None:
-		  chemicals = node.text
-		  tokens = chemicals.split(',')
-		  for token in tokens:
-		    if re.search(":", token): 
-			  token = token.split(':')
-			  chemical_name = token[0]
-			  chemical_concentration=token[1]
-			  chemicals_list.append(chemical_name)
-			  concentration_list.append(chemical_concentration)
-		    else:
-			  chemical_name=token  
-			  chemical_concentration = "n.a."
-			  chemicals_list.append(chemical_name)
-			  concentration_list.append(chemical_concentration)
-		else:
-		  node.text = "n.a." 	  
-	  print "CHEM", chemicals_list, concentration_list
-	  return chemicals_list, concentration_list	  
+		print experiment_name   	  
 	
-	Chemicals()
+	chemicals_found = False
+	for child in root.getchildren():
+		if child.tag == 'Chemicals':
+			chemicals_found = True	  
+			def Chemicals():
+				for path in [ './Chemicals']:
+					node = tree.find(path)
+					if node.text is not None:
+						chemicals = node.text
+						tokens = chemicals.split(',')
+						for token in tokens:
+							if re.search(":", token): 
+								token = token.split(':')
+								chemical_name = token[0]
+								chemical_concentration=token[1]
+								chemicals_list.append(chemical_name)
+								concentration_list.append(chemical_concentration)
+							else:
+								chemical_name=token  
+								chemical_concentration = "n.a."
+								chemicals_list.append(chemical_name)
+								concentration_list.append(chemical_concentration)
+					else:
+						node.text = "n.a." 	  
+				return chemicals_list, concentration_list	  
+	
+			Chemicals()
+		if not chemicals_found:
+			chemicals= None
+			chemical_name = None
+			chemical_concentration = None
+			chemicals_list = None
+			concentration_list = None
 
-	def Buffers():
-		  for path in [ './Solutions_Buffers']:
-			node = tree.find(path)
-			if node.text is not None:
-			  buffers = node.text
-			  tokens = buffers.split(',')
-			  for token in tokens:
-				if re.search(":", token): 
-				  token = token.split(':')
-				  buffer_name = token[0]
-				  buffer_concentration=token[1]
-				  buffers_list.append(buffer_name)
-				  buffers_concentration_list.append(buffer_concentration)
+
+
+	buffers_found = False
+	for child in root.getchildren():
+		if child.tag == 'Solutions_Buffers':
+			buffers_found = True
+			def Buffers():
+				  for path in [ './Solutions_Buffers']:
+					node = tree.find(path)
+					if node.text is not None:
+					  buffers = node.text
+					  tokens = buffers.split(',')
+					  for token in tokens:
+						if re.search(":", token): 
+						  token = token.split(':')
+						  buffer_name = token[0]
+						  buffer_concentration=token[1]
+						  buffers_list.append(buffer_name)
+						  buffers_concentration_list.append(buffer_concentration)
+						else:
+						  buffer_name=token  
+						  buffer_concentration = "n.a."
+						  buffers_list.append(buffer_name)
+						  buffers_concentration_list.append(buffer_concentration)
+					else:
+					  node.text = "n.a." 	  
+				  return buffers_list, buffers_concentration_list
+				  
+			Buffers()	  
+		if not chemicals_found:
+			buffers= None
+			buffer_name = None
+			buffer_concentration = None
+			buffers_list = None
+			buffers_concentration_list = None
+	
+
+	medias_found = False
+	for child in root.getchildren():
+		if child.tag == 'Media':
+			medias_found = True
+			def Medias():
+				  for path in [ './Media']:
+					node = tree.find(path)
+					if node.text is not None:
+					  medias = node.text
+					  tokens = medias.split(',')
+					  for token in tokens:
+						if re.search(":", token): 
+						  token = token.split(':')
+						  media_name = token[0]
+						  media_concentration=token[1]
+						  medias_list.append(media_name)
+						  medias_concentration_list.append(media_concentration)
+						else:
+						  media_name=token  
+						  media_concentration = "n.a."
+						  medias_list.append(media_name)
+						  medias_concentration_list.append(media_concentration)
+					else:
+					  node.text = "n.a." 	  
+				  return medias_list, medias_concentration_list
+				  
+			Medias()	  
+		if not medias_found:
+			medias= None
+			media_name = None
+			media_concentration = None
+			medias_list = None
+			medias_concentration_list = None
+
+	
+	
+
+	xmlcomments_found = False
+	for child in root.getchildren():
+		if child.tag == 'XMLCOMMENTS':
+			xmlcomments_found = True
+			for path in [ './XMLCOMMENTS']:
+				node = tree.find(path)
+				if node.text is not None:
+					comment_text_list= node.text
 				else:
-				  buffer_name=token  
-				  buffer_concentration = "n.a."
-				  buffers_list.append(buffer_name)
-				  buffers_concentration_list.append(buffer_concentration)
-			else:
-			  node.text = "n.a." 	  
-		  print "BUFF", buffers_list, buffers_concentration_list
-		  return buffers_list, buffers_concentration_list
-		  
-	Buffers()	  
-	
-	def Medias():
-		  for path in [ './Media']:
-			node = tree.find(path)
-			if node.text is not None:
-			  medias = node.text
-			  tokens = medias.split(',')
-			  for token in tokens:
-				if re.search(":", token): 
-				  token = token.split(':')
-				  media_name = token[0]
-				  media_concentration=token[1]
-				  medias_list.append(media_name)
-				  medias_concentration_list.append(media_concentration)
-				else:
-				  media_name=token  
-				  media_concentration = "n.a."
-				  medias_list.append(media_name)
-				  medias_concentration_list.append(media_concentration)
-			else:
-			  node.text = "n.a." 	  
-		  print "MEDIA", medias_list, medias_concentration_list
-		  return medias_list, medias_concentration_list
-		  
-	Medias()	  
+					comment_text_list = None 
+		if not xmlcomments_found:
+			comment_text_list = None
 
-
-	
-	
-	for path in [ './XMLCOMMENTS']:
-	  node = tree.find(path)
-	  if node.text is not None:
-		comment_text_list= node.text
-	  else:
-	    comment_text_list = None 
 
 
 
 	elementFactory = ElementFactory()
 	
 	propertyConverter = XmlStructuredPropertyConverter(elementFactory);
-    
+	
 
 
 ###IMPORT CHEMICALS####################################################################
@@ -202,7 +240,7 @@ def process(transaction):
 
 
 		return sampleLink    
-	    
+		
 	
 	"""
 	Example input:
@@ -251,7 +289,7 @@ def process(transaction):
 	
 		 
 		return sampleLink    
-	    
+		
 	
 	"""
 	Example input:
@@ -298,7 +336,7 @@ def process(transaction):
 		
  
 		return sampleLink    
-	    
+		
 	
 	"""
 	Example input:
@@ -325,7 +363,7 @@ def process(transaction):
 	def _createCommentsSampleLink(comment_text_list):
 		#if comment_text_list is not None:
 		commentEntry = elementFactory.createElement(COMMENT_ENTRY_ELEMENT_LABEL)
-		  		
+				
 		user = transaction.getUserId()
 		commentEntry.addAttribute(PERSON_ATTRIBUTE, user)
 		commentEntry.addAttribute(DATE_ATTRIBUTE,str(create_openbis_timestamp()))
@@ -355,25 +393,28 @@ def process(transaction):
 	exp = transaction.getExperiment(experiment_name)
 	newSample.setExperiment(exp)
 
-        """ Set medias, chemicals,  buffers as parents for the sample"""
+	""" Set medias, chemicals,  buffers as parents for the sample"""
 
-   	mediaId_list=[]
-        for media in medias_list:
-                mediaIdentifier = "/YEAST_LAB/" + media.strip()
-                mediaId_list.append(mediaIdentifier)
+	mediaId_list =[]
+	if medias_list != None:
+		for media in medias_list:
+			mediaIdentifier = "/YEAST_LAB/" + media.strip()
+			mediaId_list.append(mediaIdentifier)
 
-        chemicalId_list =[]
-        for chemical in chemicals_list:
-                chemicalIdentifier = "/YEAST_LAB/" + chemical.strip()
-                chemicalId_list.append(chemicalIdentifier)
-                
-        bufferId_list =[]
-        for buffer in buffers_list:
-                bufferIdentifier = "/YEAST_LAB/" + buffer.strip()
-                bufferId_list.append(bufferIdentifier)
+	chemicalId_list =[]
+	if chemicals_list != None:
+		for chemical in chemicals_list:
+			chemicalIdentifier = "/YEAST_LAB/" + chemical.strip()
+			chemicalId_list.append(chemicalIdentifier)
 
-        parents_list =  mediaId_list + chemicalId_list + bufferId_list
-        newSample.setParentSampleIdentifiers(parents_list)	
+	bufferId_list =[]
+	if buffers_list !=None:
+		for buffer in buffers_list:
+			bufferIdentifier = "/YEAST_LAB/" + buffer.strip()
+			bufferId_list.append(bufferIdentifier)
+
+	parents_list =  mediaId_list + chemicalId_list + bufferId_list
+	newSample.setParentSampleIdentifiers(parents_list)	
 	
 	for child in root:
 		if child.tag == "Chemicals":
@@ -382,11 +423,11 @@ def process(transaction):
 			newSample.setPropertyValue("SOLUTIONS_BUFFERS",updateBuffersFromBatchInput(buffers_list,buffers_concentration_list))
 		if child.tag == "Media":
 			newSample.setPropertyValue("Media",updateMediasFromBatchInput(medias_list,medias_concentration_list))
-  		if child.tag == "XMLCOMMENTS":
-  			newSample.setPropertyValue("XMLCOMMENTS", updateCommentsFromBatchInput(comment_text_list))
+		if child.tag == "XMLCOMMENTS":
+			newSample.setPropertyValue("XMLCOMMENTS", updateCommentsFromBatchInput(comment_text_list))
 		if child.tag != "Identifier" and child.tag !="Experiment" and child.tag != "Chemicals" and child.tag != "XMLCOMMENTS" and child.tag != "Solutions_Buffers" and child.tag != "Media":
 			if child.text != None:
 				newSample.setPropertyValue(child.tag, child.text)
-  			else:
+			else:
 				child.text= ""
 				newSample.setPropertyValue(child.tag, child.text)
