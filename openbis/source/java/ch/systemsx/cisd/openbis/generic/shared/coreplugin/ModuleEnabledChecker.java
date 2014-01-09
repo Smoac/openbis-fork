@@ -24,7 +24,6 @@ import java.util.regex.PatternSyntaxException;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.openbis.generic.shared.Constants;
 
 /**
  * Helper class for checking enabled module.
@@ -35,9 +34,9 @@ public class ModuleEnabledChecker
 {
     private final List<Pattern> enabledModulesPatterns;
 
-    public ModuleEnabledChecker(Properties properties)
+    public ModuleEnabledChecker(Properties properties, String key)
     {
-        this(PropertyUtils.getList(properties, Constants.ENABLED_MODULES_KEY));
+        this(PropertyUtils.getList(properties, key));
     }
 
     public ModuleEnabledChecker(List<String> moduleRegExs)

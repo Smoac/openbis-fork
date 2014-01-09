@@ -60,15 +60,20 @@ public class CorePluginRegistrator implements InitializingBean
         String sessionToken = getSessionToken();
         for (CorePlugin plugin : pluginScanner.scanForPlugins())
         {
-            if (moduleEnabledChecker.isModuleEnabled(plugin.getName())
-                    && false == disabledMasterDataInitializationChecker.isModuleEnabled(plugin.getName()))
+            if (moduleEnabledChecker.isModuleEnabled(plugin.getName()))
             {
-                try
+                if (disabledMasterDataInitializationChecker.isModuleEnabled(plugin.getName()))
                 {
-                    commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
-                } catch (Exception ex)
+                    operationLog.info("Registering of master data for plugin " + plugin + " is disabled");
+                } else
                 {
-                    operationLog.error("Failed to install core plugin: " + plugin, ex);
+                    try
+                    {
+                        commonServer.registerPlugin(sessionToken, plugin, pluginScanner);
+                    } catch (Exception ex)
+                    {
+                        operationLog.error("Failed to install core plugin: " + plugin, ex);
+                    }
                 }
             }
         }

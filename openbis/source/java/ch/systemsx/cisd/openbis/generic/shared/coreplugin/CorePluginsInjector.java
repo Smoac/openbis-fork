@@ -43,6 +43,7 @@ import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CorePlugin;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
@@ -105,7 +106,8 @@ public class CorePluginsInjector
     public Map<String, File> injectCorePlugins(Properties properties,
             String corePluginsFolderPath)
     {
-        ModuleEnabledChecker moduleEnabledChecker = new ModuleEnabledChecker(properties);
+        ModuleEnabledChecker moduleEnabledChecker =
+                new ModuleEnabledChecker(properties, Constants.ENABLED_MODULES_KEY);
         List<String> disabledPlugins = PropertyUtils.getList(properties, DISABLED_CORE_PLUGINS_KEY);
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties, pluginTypes);
         Set<String> pluginNames = new HashSet<String>();

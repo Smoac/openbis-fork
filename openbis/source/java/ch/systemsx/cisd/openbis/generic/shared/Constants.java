@@ -27,6 +27,8 @@ public class Constants
 
     public static final String ENABLED_MODULES_KEY = "enabled-modules";
 
+    public static final String DISABLED_MASTER_DATA_INITIALIZATION = "disabled-master-data-initialization";
+
     public static final int MAX_SPEED = 100;
 
     public static final int DEFAULT_SPEED_HINT = -MAX_SPEED / 2;
