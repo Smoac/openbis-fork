@@ -355,6 +355,7 @@
         <property name="commonServer" ref="common-server"/>
         <property name="pluginsFolderName" value="${core-plugins-folder}"/>
         <property name="enabledTechnologies" value="${enabled-modules}"/>
+        <property name="disabledMasterDataInitialization" value="${disabled-master-data-initialization}"/>
     </bean>
     
     <!--

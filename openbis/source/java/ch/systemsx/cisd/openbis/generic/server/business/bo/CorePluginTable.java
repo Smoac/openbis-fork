@@ -46,11 +46,6 @@ public final class CorePluginTable extends AbstractBusinessObject implements ICo
 {
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    /**
-     * A Jython script that initializes the core plugin's master data.
-     */
-    public static final String INIT_MASTER_DATA_SCRIPT = "initialize-master-data.py";
-
     private final IMasterDataScriptRegistrationRunner masterDataScriptRunner;
 
     public CorePluginTable(IDAOFactory daoFactory, Session session,

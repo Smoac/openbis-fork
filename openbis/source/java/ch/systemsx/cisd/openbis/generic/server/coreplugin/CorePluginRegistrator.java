@@ -44,9 +44,10 @@ public class CorePluginRegistrator implements InitializingBean
 
     private ModuleEnabledChecker moduleEnabledChecker;
 
+    private ModuleEnabledChecker disabledMasterDataInitializationChecker;
+
     /**
-     * Loads and installs the deployed core plugins. Invoked from the Spring container after the
-     * object is initialized.
+     * Loads and installs the deployed core plugins. Invoked from the Spring container after the object is initialized.
      */
     public void registerPlugins()
     {
@@ -59,7 +60,8 @@ public class CorePluginRegistrator implements InitializingBean
         String sessionToken = getSessionToken();
         for (CorePlugin plugin : pluginScanner.scanForPlugins())
         {
-            if (moduleEnabledChecker.isModuleEnabled(plugin.getName()))
+            if (moduleEnabledChecker.isModuleEnabled(plugin.getName())
+                    && false == disabledMasterDataInitializationChecker.isModuleEnabled(plugin.getName()))
             {
                 try
                 {
@@ -88,6 +90,13 @@ public class CorePluginRegistrator implements InitializingBean
         moduleEnabledChecker =
                 new ModuleEnabledChecker(new ArrayList<String>(
                         ServerUtils.extractSet(listOfEnabledTechnologies)));
+    }
+
+    public void setDisabledMasterDataInitialization(String listOfDisabledMasterDataInitialization)
+    {
+        disabledMasterDataInitializationChecker =
+                new ModuleEnabledChecker(new ArrayList<String>(
+                        ServerUtils.extractSet(listOfDisabledMasterDataInitialization)));
     }
 
     public void setCommonServer(ICommonServerForInternalUse commonServer)
