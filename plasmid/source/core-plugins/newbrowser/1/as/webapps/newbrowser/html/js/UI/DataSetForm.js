@@ -260,6 +260,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	// Form Submit
 	//
 	this._submitDataSet = function() {
+		Util.blockUI();
 		var localInstance = this;
 		
 		//

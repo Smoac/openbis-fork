@@ -118,10 +118,9 @@ function ServerFacade(openbisServer) {
 	// Data Set Import Related Functions
 	//
 	
-	this.fileUploadToWorkspace = function(dataStoreURL, fileFieldId, filename, callbackHandler) {
+	this.fileUploadToWorkspace = function(dataStoreURL, fileFieldId, fileSessionKey, callbackHandler) {
 		//File
 		var file = document.getElementById(fileFieldId).files[0];
-		//var filename = file.name;
 		var sessionID = this.openbisServer.getSession();
 		var id = 0;
 		var startByte = 0;
@@ -129,8 +128,8 @@ function ServerFacade(openbisServer) {
 		
 		$.ajax({
 			type: "POST",
-			url: dataStoreURL + "/session_workspace_file_upload?sessionID=" + sessionID + "&filename=" + filename + "&id=" + id + "&startByte=" + startByte + "&endByte=" + endByte,
-			contentType: false,
+			url: dataStoreURL + "/session_workspace_file_upload?sessionID=" + sessionID + "&filename=" + fileSessionKey + "&id=" + id + "&startByte=" + startByte + "&endByte=" + endByte,
+			contentType: "multipart/form-data",
 			processData: false,
 			data: file,
 			success: function(result) {

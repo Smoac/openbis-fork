@@ -18,6 +18,7 @@ from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from org.apache.commons.io import IOUtils
 from java.io import File
 from java.io import FileOutputStream
+from java.lang import System
 
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
@@ -67,10 +68,14 @@ def insertDataSet(tr, parameters, tableBuilder):
 	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
 	inputStream = dss_component.getFileFromSessionWorkspace(fileSessionKey);
 	rawFile = IOUtils.toByteArray(inputStream);
-	file = File(filename);
+	tempDir = System.getProperty("java.io.tmpdir");
+	file = File(tempDir + filename);
 	FileOutputStream(file).write(rawFile);
+	print file.getAbsolutePath();
 	tr.moveFile(file.getAbsolutePath(), dataSet);
 	
+	#Clean File from workspace
+	dss_component.deleteSessionWorkspaceFile(fileSessionKey);
 	
 	#Return from the call
 	return True;
