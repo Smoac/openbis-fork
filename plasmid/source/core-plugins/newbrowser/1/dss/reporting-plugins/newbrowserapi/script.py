@@ -14,6 +14,11 @@
 # limitations under the License.
 #
 
+from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
+from org.apache.commons.io import IOUtils
+from java.io import File
+from java.io import FileOutputStream
+
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
 	
@@ -22,7 +27,9 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
 		isOk = insertSample(tr, parameters, tableBuilder);
-	
+	if method == "insertDataSet":
+		isOk = insertDataSet(tr, parameters, tableBuilder);
+
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -36,6 +43,38 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("STATUS","FAIL");
 		row.setCell("MESSAGE", "Operation Failed");
 
+def insertDataSet(tr, parameters, tableBuilder):
+	#Mandatory parameters
+	sampleIdentifier = parameters.get("sampleIdentifier"); #String
+	dataSetType = parameters.get("dataSetType"); #String
+	fileSessionKey = parameters.get("fileSessionKey"); #String
+	filename = parameters.get("filename"); #String
+	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
+	
+	dataSetSample = tr.getSample(sampleIdentifier);
+	dataSet = tr.createNewDataSet(dataSetType);
+	dataSet.setSample(dataSetSample);
+	
+	#Assign Data Set properties
+	for key in metadata.keySet():
+		propertyValue = unicode(metadata[key]);
+		if propertyValue == "":
+			propertyValue = None;
+		
+		dataSet.setPropertyValue(key,propertyValue);
+	
+	#Move File
+	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
+	inputStream = dss_component.getFileFromSessionWorkspace(fileSessionKey);
+	rawFile = IOUtils.toByteArray(inputStream);
+	file = File(filename);
+	FileOutputStream(file).write(rawFile);
+	tr.moveFile(file.getAbsolutePath(), dataSet);
+	
+	
+	#Return from the call
+	return True;
+	
 def insertSample(tr, parameters, tableBuilder):
 	
 	#Mandatory parameters

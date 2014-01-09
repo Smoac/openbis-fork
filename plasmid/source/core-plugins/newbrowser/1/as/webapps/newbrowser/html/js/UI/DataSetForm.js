@@ -56,7 +56,10 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		var localInstance = this;
 		var container = $("#"+containerId);
 		container.empty();
+		
 		var $wrapper = $('<form>', { class : 'form-horizontal'});
+		$wrapper.submit(function(event) {localInstance._submitDataSet(); event.preventDefault();});
+		
 		$wrapper.append($('<h2>').text("Create Data Set"));
 		
 		//Drop Down DataSetType Field Set
@@ -87,7 +90,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 										.append($('<legend>').text("File to upload"))
 										.append($('<div>', { class : "control-group"}))
 										.append($('<div>', {class: 'controls'})
-														.append($('<input>', {'type' : 'file', class : "filestyle", 'data-buttonText' : 'Find file'})).append(' (Required)'));
+														.append($('<input>', {'id' : 'fileToUpload', 'type' : 'file', class : "filestyle", 'data-buttonText' : 'Find file'})).append(' (Required)'));
 		
 		$wrapper.append($fileFieldSet);
 		
@@ -245,17 +248,90 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		var $spanAddOn = $('<span>', {'class' : 'add-on'})
 							.append($('<i>', {'data-date-icon' : 'icon-calendar' , 'data-time-icon' : 'icon-time' }));
 		
-		//Jquery evaluate javascript instead of leaving the browser to do it when is inserted.
-		//We need this executed after the elements are inserted into the DOM, that's why we have a timeout of 1s.
-		//This opens the door to a race condition, if the elements take more time to be inserted into the DOM it will not work.
-		var $script = $('<script>', {'type' : 'text/javascript'})
-				.text("$(setTimeout(function() { $('#datetimepicker_" + id + "').datetimepicker({ language: 'en' });  }) , 1000);");
-		
 		$subComponent.append($input);
 		$subComponent.append($spanAddOn);
+		$subComponent.datetimepicker({ language: 'en' });
 		$component.append($subComponent);
-		$component.append($script);
 		
 		return $component;
+	}
+	
+	//
+	// Form Submit
+	//
+	this._submitDataSet = function() {
+		var localInstance = this;
+		
+		//
+		// Metadata Submit and Creation (Step 2)
+		//
+		var callbackHandler = function(fileSessionKey) {
+			var metadata = { };
+			
+			var dataSetType = localInstance._getDataSetType($('#DATASET_TYPE').val());
+			for(var i = 0; i < dataSetType.propertyTypeGroups.length; i++) {
+				var propertyTypeGroup = dataSetType.propertyTypeGroups[i];
+				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+					var propertyType = propertyTypeGroup.propertyTypes[j];
+					var value = null;
+					
+					if (propertyType.dataType === "BOOLEAN") {
+						value = $("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')+":checked").val() === "on";
+					} else {
+						value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val());
+					}
+					
+					metadata[propertyType.code] = value;
+				}
+			}
+			
+			var parameters = {
+					//API Method
+					"method" : "insertDataSet",
+					//Identification Info
+					"sampleIdentifier" : sample.identifier,
+					"dataSetType" : $('#DATASET_TYPE').val(),
+					"fileSessionKey" : fileSessionKey,
+					"filename" : document.getElementById('fileToUpload').files[0].name,
+					//Metadata
+					"metadata" : metadata,
+					//For Moving files
+					"sessionID" : localInstance.serverFacade.openbisServer.getSession(),
+					"openBISURL" : localInstance.serverFacade.openbisServer._internal.openbisUrl
+			};
+			
+			if(localInstance.profile.allDataStores.length > 0) {
+				localInstance.serverFacade.createReportFromAggregationService(localInstance.profile.allDataStores[0].code, parameters, function(response) {
+					alert("Works !!!!");
+				});
+			} else {
+				Util.showError("No DSS available.", function() {Util.unblockUI();});
+			}
+		}
+		
+		//
+		// File Upload (Step 1)
+		//
+		var fileSessionKey = this._getUUID();
+		var fileFieldId = 'fileToUpload';
+		this.serverFacade.fileUploadToWorkspace(profile.allDataStores[0].downloadUrl, fileFieldId, fileSessionKey, function() { callbackHandler(fileSessionKey);});
+	}
+	
+	this._getUUID = function() {
+	    var seed = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.~';
+	
+	    //Start the UUID with 4 digits of seed from the current date/time in seconds
+	    //(which is almost a year worth of second data).
+	    var seconds = Math.floor((new Date().getTime())/1000);
+	
+	    var ret = seed[seconds % seed.length];
+	    ret += seed[Math.floor(seconds/=seed.length) % seed.length];
+	    ret += seed[Math.floor(seconds/=seed.length) % seed.length];
+	    ret += seed[Math.floor(seconds/=seed.length) % seed.length];
+	
+	    for(var i = 0; i < 8; i++)
+	        ret += seed[Math.random()*seed.length|0];
+	
+	    return ret;
 	}
 }

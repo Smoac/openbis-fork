@@ -47,6 +47,7 @@ function MainController(profile) {
 	this.navigationBar = null; //Top Bar
 	this.sampleTable = null; //Table that holds the samples
 	this.sampleForm = null; //Form to Create a new Sample
+	this.datasetForm = null;
 	
 	//
 	// Validates and enters the app

@@ -82,8 +82,8 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 				var dataset = datasets.result[i];
 				var listFilesForDataSet = function(dataset){ return function() { //Files in dataset
 					localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
-						localReference.sampleDataSets[dataset.dataSetTypeCode] = dataset;
-						localReference.sampleDataSetsFiles[dataset.dataSetTypeCode] = files.result;
+						localReference.sampleDataSets[dataset.code] = dataset;
+						localReference.sampleDataSetsFiles[dataset.code] = files.result;
 						callback();
 					});
 				}}	

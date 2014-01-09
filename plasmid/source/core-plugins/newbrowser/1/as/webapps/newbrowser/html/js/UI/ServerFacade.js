@@ -115,6 +115,34 @@ function ServerFacade(openbisServer) {
 	}
 
 	//
+	// Data Set Import Related Functions
+	//
+	
+	this.fileUploadToWorkspace = function(dataStoreURL, fileFieldId, filename, callbackHandler) {
+		//File
+		var file = document.getElementById(fileFieldId).files[0];
+		//var filename = file.name;
+		var sessionID = this.openbisServer.getSession();
+		var id = 0;
+		var startByte = 0;
+		var endByte = file.size;
+		
+		$.ajax({
+			type: "POST",
+			url: dataStoreURL + "/session_workspace_file_upload?sessionID=" + sessionID + "&filename=" + filename + "&id=" + id + "&startByte=" + startByte + "&endByte=" + endByte,
+			contentType: false,
+			processData: false,
+			data: file,
+			success: function(result) {
+				callbackHandler(result);
+			},
+			error: function(result) {
+				Util.showError("The upload failed. Configure your environment properly.", function() {Util.unblockUI();});
+			}
+		});
+	}
+	
+	//
 	// Sample Create/Update Functions
  	//
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction) {
