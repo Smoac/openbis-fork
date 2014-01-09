@@ -66,110 +66,145 @@ def process(transaction):
 	for path in [ './Identifier']:
 	  node = tree.find(path)
 	  if node.text != "":
-	    sample_name = node.text
+		sample_name = node.text
 	  else:
-	    node.text = ""  
-	    
+		node.text = ""  
+		
 	  
 	for path in [ './Experiment']:
 	  node = tree.find(path)
- 	  if node.text != "":
+	  if node.text != "":
 		experiment_name = node.text
 	  else:
-	    node.text = ""  
+		node.text = ""  
 	
 	
-       
-	  
-	def Chemicals():
-	  for path in [ './Chemicals']:
-		node = tree.find(path)
-		if node.text is not None:
-		  chemicals = node.text
-		  tokens = chemicals.split(',')
-		  for token in tokens:
-		    if re.search(":", token): 
-			  token = token.split(':')
-			  chemical_name = token[0]
-			  chemical_concentration=token[1]
-			  chemicals_list.append(chemical_name)
-			  concentration_list.append(chemical_concentration)
-		    else:
-			  chemical_name=token  
-			  chemical_concentration = "n.a."
-			  chemicals_list.append(chemical_name)
-			  concentration_list.append(chemical_concentration)
-		else:
-		  node.text = "n.a." 	  
-	  print "CHEM", chemicals_list, concentration_list
-	  return chemicals_list, concentration_list	  
+	   
+	chemicals_found = False
+	for child in root.getchildren():
+		if child.tag == 'Chemicals':
+			chemicals_found = True	  
+			def Chemicals():
+				for path in [ './Chemicals']:
+					node = tree.find(path)
+					if node.text is not None:
+						chemicals = node.text
+						tokens = chemicals.split(',')
+						for token in tokens:
+							if re.search(":", token): 
+								token = token.split(':')
+								chemical_name = token[0]
+								chemical_concentration=token[1]
+								chemicals_list.append(chemical_name)
+								concentration_list.append(chemical_concentration)
+							else:
+								chemical_name=token  
+								chemical_concentration = "n.a."
+								chemicals_list.append(chemical_name)
+								concentration_list.append(chemical_concentration)
+					else:
+						node.text = "n.a." 	  
+				return chemicals_list, concentration_list	  
 	
-	Chemicals()
+			Chemicals()
+		if not chemicals_found:
+			chemicals= None
+			chemical_name = None
+			chemical_concentration = None
+			chemicals_list = None
+			concentration_list = None
 
-	def Buffers():
-		  for path in [ './Solutions_Buffers']:
-			node = tree.find(path)
-			if node.text is not None:
-			  buffers = node.text
-			  tokens = buffers.split(',')
-			  for token in tokens:
-				if re.search(":", token): 
-				  token = token.split(':')
-				  buffer_name = token[0]
-				  buffer_concentration=token[1]
-				  buffers_list.append(buffer_name)
-				  buffers_concentration_list.append(buffer_concentration)
-				else:
-				  buffer_name=token  
-				  buffer_concentration = "n.a."
-				  buffers_list.append(buffer_name)
-				  buffers_concentration_list.append(buffer_concentration)
-			else:
-			  node.text = "n.a." 	  
-		  print "BUFF", buffers_list, buffers_concentration_list
-		  return buffers_list, buffers_concentration_list
+
+	buffers_found = False
+	for child in root.getchildren():
+		if child.tag == 'Solutions_Buffers':
+			buffers_found = True
+			def Buffers():
+				  for path in [ './Solutions_Buffers']:
+					node = tree.find(path)
+					if node.text is not None:
+					  buffers = node.text
+					  tokens = buffers.split(',')
+					  for token in tokens:
+						if re.search(":", token): 
+						  token = token.split(':')
+						  buffer_name = token[0]
+						  buffer_concentration=token[1]
+						  buffers_list.append(buffer_name)
+						  buffers_concentration_list.append(buffer_concentration)
+						else:
+						  buffer_name=token  
+						  buffer_concentration = "n.a."
+						  buffers_list.append(buffer_name)
+						  buffers_concentration_list.append(buffer_concentration)
+					else:
+					  node.text = "n.a." 	  
+				  return buffers_list, buffers_concentration_list
+				  
+			Buffers()	  
+		if not chemicals_found:
+			buffers= None
+			buffer_name = None
+			buffer_concentration = None
+			buffers_list = None
+			buffers_concentration_list = None
+	
+
+
+	antibodies_found = False
+	for child in root.getchildren():
+		if child.tag == 'Antibodies':
+			antibodies_found = True
+			def Antibodies():
+				for path in [ './Antibodies']:
+					node = tree.find(path)
+					if node.text is not None:
+						antibodies = node.text
+						tokens = antibodies.split(',')
+						for token in tokens:
+							if re.search(":", token): 
+								token = token.split(':')
+								antibody_name = token[0]
+								antibody_concentration=token[1]
+								antibodies_list.append(antibody_name)
+							else:
+								antibody_name=token  
+								antibody_concentration = "n.a."
+								antibodies_list.append(antibody_name)
+					else:
+						node.text = "n.a." 	  
 		  
-	Buffers()	  
+				return antibodies_list
+			Antibodies()
+		if not antibodies_found:
+			antibodies= None
+			antibody_name = None
+			antibody_concentration = None
+			antibodies_list = None
+
+
+
 	
-	def Antibodies():
-		  for path in [ './Antibodies']:
-			node = tree.find(path)
-			if node.text is not None:
-			  antibodies = node.text
-			  tokens = antibodies.split(',')
-			  for token in tokens:
-				if re.search(":", token): 
-				  token = token.split(':')
-				  antibody_name = token[0]
-				  antibody_concentration=token[1]
-				  antibodies_list.append(antibody_name)
+	
+	xmlcomments_found = False
+	for child in root.getchildren():
+		if child.tag == 'XMLCOMMENTS':
+			xmlcomments_found = True
+			for path in [ './XMLCOMMENTS']:
+				node = tree.find(path)
+				if node.text is not None:
+					comment_text_list= node.text
 				else:
-				  antibody_name=token  
-				  antibody_concentration = "n.a."
-				  antibodies_list.append(antibody_name)
-			else:
-			  node.text = "n.a." 	  
-		  print "ANTIBODY", antibodies_list
-		  return antibodies_list
-		  
-	Antibodies()	  
-
-
-	
-	
-	for path in [ './XMLCOMMENTS']:
-	  node = tree.find(path)
-	  if node.text is not None:
-		comment_text_list= node.text
-	  else:
-	    comment_text_list = None 
+					comment_text_list = None 
+		if not xmlcomments_found:
+			comment_text_list = None
 
 
 
 	elementFactory = ElementFactory()
 	
 	propertyConverter = XmlStructuredPropertyConverter(elementFactory);
-    
+	
 
 
 ###IMPORT CHEMICALS####################################################################
@@ -197,9 +232,9 @@ def process(transaction):
 		  sampleLink.addAttribute(ATR_CODE, chemicals_list)
 		  sampleLink.addAttribute(ATR_NAME, name)
 		  sampleLink.addAttribute(ATR_CONC, concentration_list)
-		 		 
+				 
 		return sampleLink    
-	    
+		
 	
 	"""
 	Example input:
@@ -247,7 +282,7 @@ def process(transaction):
 
 		 
 		return sampleLink    
-	    
+		
 	
 	"""
 	Example input:
@@ -290,9 +325,9 @@ def process(transaction):
 		
 		  sampleLink.addAttribute(ATR_CODE, antibodies_list)
 		  sampleLink.addAttribute(ATR_NAME, name)
-		 		 
+				 
 		return sampleLink    
-	    
+		
 	
 	"""
 	Example input:
@@ -318,7 +353,7 @@ def process(transaction):
 	def _createCommentsSampleLink(comment_text_list):
 		#if comment_text_list is not None:
 		commentEntry = elementFactory.createElement(COMMENT_ENTRY_ELEMENT_LABEL)
-		  		
+				
 		user = transaction.getUserId()
 		commentEntry.addAttribute(PERSON_ATTRIBUTE, user)
 		commentEntry.addAttribute(DATE_ATTRIBUTE,str(create_openbis_timestamp()))
@@ -351,19 +386,22 @@ def process(transaction):
 	""" Set antibodies, chemicals, buffers as parents for the sample"""	
 
 	antibodyId_list =[]
-	for antibody in antibodies_list:
-		antibodyIdentifier = "/YEAST_LAB/" + antibody.strip()
-		antibodyId_list.append(antibodyIdentifier)
+	if antibodies_list != None:
+		for antibody in antibodies_list:
+			antibodyIdentifier = "/YEAST_LAB/" + antibody.strip()
+			antibodyId_list.append(antibodyIdentifier)
 
 	chemicalId_list =[]
-	for chemical in chemicals_list:
-		chemicalIdentifier = "/YEAST_LAB/" + chemical.strip()
-		chemicalId_list.append(chemicalIdentifier)
+	if chemicals_list != None:
+		for chemical in chemicals_list:
+			chemicalIdentifier = "/YEAST_LAB/" + chemical.strip()
+			chemicalId_list.append(chemicalIdentifier)
 		
 	bufferId_list =[]
-	for buffer in buffers_list:
-		bufferIdentifier = "/YEAST_LAB/" + buffer.strip()
-		bufferId_list.append(bufferIdentifier)
+	if buffers_list != None:
+		for buffer in buffers_list:
+			bufferIdentifier = "/YEAST_LAB/" + buffer.strip()
+			bufferId_list.append(bufferIdentifier)
 		
 	parents_list = antibodyId_list + chemicalId_list + bufferId_list
 	newSample.setParentSampleIdentifiers(parents_list)	
@@ -376,11 +414,11 @@ def process(transaction):
 			newSample.setPropertyValue("SOLUTIONS_BUFFERS",updateBuffersFromBatchInput(buffers_list,buffers_concentration_list))
 		if child.tag == "Antibodies":
 			newSample.setPropertyValue("ANTIBODIES",updateAntibodiesFromBatchInput(antibodies_list))
-  		if child.tag == "XMLCOMMENTS":
-  			newSample.setPropertyValue("XMLCOMMENTS", updateCommentsFromBatchInput(comment_text_list))
+		if child.tag == "XMLCOMMENTS":
+			newSample.setPropertyValue("XMLCOMMENTS", updateCommentsFromBatchInput(comment_text_list))
 		if child.tag != "Identifier" and child.tag !="Experiment" and child.tag != "Chemicals" and child.tag != "XMLCOMMENTS" and child.tag != "Solutions_Buffers" and child.tag != "Antibodies":
 			if child.text != None:
 				newSample.setPropertyValue(child.tag, child.text)
-  			else:
+			else:
 				child.text= ""
 				newSample.setPropertyValue(child.tag, child.text)
