@@ -7,6 +7,9 @@ evaluationDependsOn(':openbis')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+configurations.create('testRuntimeFirst')
+configurations.create('testRuntimeSecond')
+
 dependencies {
 	compile project(':common'),
 			project(':openbis-common'),
@@ -29,7 +32,16 @@ dependencies {
 	testCompile project(path: ':common', configuration: 'tests'),
 				project(path: ':openbis-common', configuration: 'tests'),
 				project(path: ':openbis', configuration: 'tests')						
+
+	testRuntimeFirst 'javax:servlet-api:+'
+	testRuntimeSecond 'google:gwt-user:+'
 }
+
+configurations {
+	testRuntime.exclude group: 'google', module: 'gwt-servlet'
+}
+
+sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
 sourceSets { 
 	test {
