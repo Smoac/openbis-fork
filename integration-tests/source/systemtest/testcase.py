@@ -522,6 +522,9 @@ class OpenbisController(_Controller):
         scriptPath = "%s/%s.sql" % (self.templatesFolder, database)
         util.createDatabase(PSQL_EXE, database, scriptPath)
         
+    def dropDatabase(self, databaseType):
+        util.dropDatabase(PSQL_EXE, "%s_%s" % (databaseType, self.databaseKind))
+        
     def queryDatabase(self, databaseType, queryStatement):
         """
         Executes the specified SQL statement for the specified database type. Result set is returned
