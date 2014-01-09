@@ -143,43 +143,64 @@ def process(transaction):
 	  else:
 	    node.text = ""  
 	
-	
-	for path in [ './Yeast_Parents']:
-	  node = tree.find(path)
- 	  if node.text != "":
-		yeast_parents = node.text
-	  else:
-	    node.text = ""  
+	yeast_parents_found = False
+	for child in root.getchildren():
+		if child.tag == 'Yeast_Parents':
+			pombe_parents_found = True	
+			for path in [ './Yeast_Parents']:
+			  node = tree.find(path)
+		 	  if node.text != "":
+				yeast_parents = node.text
+			  else:
+			    node.text = "" 
+		if not yeast_parents_found:
+			yeast_parents = None 
 
 	plasmids=""	
 
-	def Plasmids():
-	  for path in [ './Plasmids']:
-		node = tree.find(path)
-		if node.text is not None:
-		  plasmids = node.text
-		  relationship_list=[]
-		  annotation_list	=[]
-		  plasmids_list=[]
-		  tokens = plasmids.split(',')
-		  for token in tokens:
-			print "token", token
-			if re.search(':', token): 
-			  token = token.split(':')
-			  plasmid_name = token[0][:-4]
-			  plasmid_relationship= token[0][-3:]
-			  plasmid_annotation=token[1][:-1]
-			  plasmids_list.append(plasmid_name)
-			  relationship_list.append(plasmid_relationship)
-			  annotation_list.append(plasmid_annotation)
-			else:
-			  plasmid_name=token  
-			  plasmid_relationship = ""
-			  plasmid_annotation =""
-			  plasmids_list.append(plasmid_name)
-			  relationship_list.append(plasmid_relationship)
-			  annotation_list.append(plasmid_annotation)
-		else:
+
+ 	plasmids_found = False
+	for child in root.getchildren():
+		if child.tag == 'Plasmids':
+			plasmids_found = True
+			def Plasmids():
+			  for path in [ './Plasmids']:
+				node = tree.find(path)
+				if node.text is not None:
+				  plasmids = node.text
+				  relationship_list=[]
+				  annotation_list	=[]
+				  plasmids_list=[]
+				  tokens = plasmids.split(',')
+				  for token in tokens:
+					if re.search(':', token): 
+					  token = token.split(':')
+					  plasmid_name = token[0][:-4]
+					  plasmid_relationship= token[0][-3:]
+					  plasmid_annotation=token[1][:-1]
+					  plasmids_list.append(plasmid_name)
+					  relationship_list.append(plasmid_relationship)
+					  annotation_list.append(plasmid_annotation)
+					else:
+					  plasmid_name=token  
+					  plasmid_relationship = ""
+					  plasmid_annotation =""
+					  plasmids_list.append(plasmid_name)
+					  relationship_list.append(plasmid_relationship)
+					  annotation_list.append(plasmid_annotation)
+				else:
+				  plasmids= None
+				  plasmid_name=None  
+				  plasmid_relationship = None
+				  plasmid_annotation =None
+				  plasmids_list=None
+				  relationship_list=None
+				  annotation_list=None
+
+			  return  plasmids, plasmids_list, relationship_list, annotation_list	
+			Plasmids()  
+			plasmids=Plasmids()[0]
+		if not plasmids_found:
 		  plasmids= None
 		  plasmid_name=None  
 		  plasmid_relationship = None
@@ -188,19 +209,21 @@ def process(transaction):
 		  relationship_list=None
 		  annotation_list=None
 
-	  return  plasmids, plasmids_list, relationship_list, annotation_list	  
 	
-	Plasmids()
-
-	plasmids=Plasmids()[0]
-	 
 	
-	for path in [ './XMLCOMMENTS']:
-	  node = tree.find(path)
-	  if node.text is not None:
-		comment_text_list= node.text
-	  else:
-	    comment_text_list = None 
+	
+	xmlcomments_found = False
+	for child in root.getchildren():
+		if child.tag == 'XMLCOMMENTS':
+			xmlcomments_found = True
+			for path in [ './XMLCOMMENTS']:
+				node = tree.find(path)
+				if node.text is not None:
+					comment_text_list= node.text
+				else:
+					comment_text_list = None 
+		if not xmlcomments_found:
+			comment_text_list = None
 
 
 	elementFactory = ElementFactory()
