@@ -19,6 +19,7 @@ package ch.ethz.sis.hcscld;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.ethz.sis.hcscld.CellLevelBaseWritableDataset.IObjectNamespaceBasedFlushable;
@@ -34,13 +35,13 @@ import ch.systemsx.cisd.base.mdarray.MDShortArray;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationType.EnumStorageForm;
+import ch.systemsx.cisd.hdf5.EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
 import ch.systemsx.cisd.hdf5.HDF5FloatStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5IntStorageFeatures;
 import ch.systemsx.cisd.hdf5.HDF5TimeDurationArray;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
-import ch.systemsx.cisd.hdf5.ReflectionUtils;
 
 /**
  * A writable dataset for cell-level features.
@@ -233,6 +234,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         final FeatureGroup fg = (FeatureGroup) featureGroup;
         fg.getNamespace().checkNumberOfSegmentedObjects(getImageQuantityStructure(), id,
                 featureValues.length);
+        fg.checkNumberOfFeatureValues(id, featureValues);
         switch (featureGroup.getDataType())
         {
             case BOOL:
@@ -292,12 +294,9 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                                         * fg.getType().getRecordSize())));
                 break;
             case ENUM:
-                base.writer.enumeration().writeMDArray(
-                        fg.getObjectPath(id),
-                        toEnumArray(((IEnumTypeProvider) fg).tryGetEnumType(), featureValues),
-                        HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                                .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                final Collection<HDF5EnumerationType> enumTypes =
+                        ((IEnumTypeProvider) fg).getEnumTypes();
+                writeFeatures(id, fg, toEnumArray(enumTypes, featureValues));
                 break;
             default:
                 base.writer.compound().writeArray(
@@ -509,82 +508,8 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     }
 
     @Override
-    public <T extends Enum<T>> void writeFeatures(ImageId id, IFeatureGroup featureGroup,
-            T[][] featureValues)
-    {
-        final HDF5EnumerationType enumType = ((IEnumTypeProvider) featureGroup).tryGetEnumType();
-        @SuppressWarnings("unchecked")
-        Class<? extends Enum<?>> enumClazz =
-                (Class<? extends Enum<?>>) featureValues.getClass().getComponentType()
-                        .getComponentType();
-        final List<String> enumOptions = Arrays.asList(ReflectionUtils.getEnumOptions(enumClazz));
-        if (enumType.getValues().equals(enumOptions) == false)
-        {
-            throw new IllegalArgumentException("Inconsistent enum options.");
-        }
-        writeFeatures(id, featureGroup, toArray(enumType, featureValues));
-    }
-
-    private <T extends Enum<T>> HDF5EnumerationValueMDArray toArray(HDF5EnumerationType enumType,
-            T[][] featureValues)
-    {
-        final HDF5EnumerationValueMDArray featureValueArray;
-        switch (enumType.getStorageForm())
-        {
-            case BYTE:
-            {
-                final MDByteArray ordinals = new MDByteArray(new int[]
-                    { featureValues.length, featureValues[0].length });
-                int idx = 0;
-                for (T[] fvv : featureValues)
-                {
-                    for (T fv : fvv)
-                    {
-                        ordinals.set((byte) fv.ordinal(), idx++);
-                    }
-                }
-                featureValueArray = new HDF5EnumerationValueMDArray(enumType, ordinals);
-                break;
-            }
-            case SHORT:
-            {
-                final MDShortArray ordinals = new MDShortArray(new int[]
-                    { featureValues.length, featureValues[0].length });
-                int idx = 0;
-                for (T[] fvv : featureValues)
-                {
-                    for (T fv : fvv)
-                    {
-                        ordinals.set((short) fv.ordinal(), idx++);
-                    }
-                }
-                featureValueArray = new HDF5EnumerationValueMDArray(enumType, ordinals);
-                break;
-            }
-            case INT:
-            {
-                final MDIntArray ordinals = new MDIntArray(new int[]
-                    { featureValues.length, featureValues[0].length });
-                int idx = 0;
-                for (T[] fvv : featureValues)
-                {
-                    for (T fv : fvv)
-                    {
-                        ordinals.set(fv.ordinal(), idx++);
-                    }
-                }
-                featureValueArray = new HDF5EnumerationValueMDArray(enumType, ordinals);
-                break;
-            }
-            default:
-                throw new Error("Illegal storage form.");
-        }
-        return featureValueArray;
-    }
-
-    @Override
     public void writeFeatures(ImageId id, IFeatureGroup featureGroup,
-            HDF5EnumerationValueMDArray featureValues)
+            HDF5EnumerationFeatureMatrix featureValues)
     {
         if (featureValues.rank() != 2)
         {
@@ -600,11 +525,28 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
             throw new WrongFeatureGroupStorageTypeException(datasetCode, fg.getId(),
                     FeatureGroupDataType.ENUM, fg.getDataType());
         }
-        base.writer.enumeration().writeMDArray(
-                fg.getObjectPath(id),
-                featureValues,
-                HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+        if (featureValues.getStorageForm() == EnumStorageForm.BYTE)
+        {
+            base.writer.uint8().writeMDArray(
+                    fg.getObjectPath(id),
+                    (MDByteArray) featureValues.getOrdinalValues(),
+                    HDF5IntStorageFeatures.createIntegerScalingUnsigned(featureValues
+                            .getMaxNumberOfBits()));
+        } else if (featureValues.getStorageForm() == EnumStorageForm.SHORT)
+        {
+            base.writer.uint16().writeMDArray(
+                    fg.getObjectPath(id),
+                    (MDShortArray) featureValues.getOrdinalValues(),
+                    HDF5IntStorageFeatures.createIntegerScalingUnsigned(featureValues
+                            .getMaxNumberOfBits()));
+        } else if (featureValues.getStorageForm() == EnumStorageForm.INT)
+        {
+            base.writer.uint32().writeMDArray(
+                    fg.getObjectPath(id),
+                    (MDIntArray) featureValues.getOrdinalValues(),
+                    HDF5IntStorageFeatures.createIntegerScalingUnsigned(featureValues
+                            .getMaxNumberOfBits()));
+        }
     }
 
     private MDDoubleArray toDoubleArray(Object[][] featureValues)
@@ -733,11 +675,39 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
         return result;
     }
 
-    private HDF5EnumerationValueMDArray toEnumArray(HDF5EnumerationType type,
+    private EnumStorageForm getStorageFormSuitableForAllTypes(Collection<HDF5EnumerationType> types)
+    {
+        EnumStorageForm storageForm = EnumStorageForm.BYTE;
+        final Iterator<HDF5EnumerationType> iter = types.iterator();
+        while (iter.hasNext())
+        {
+            final HDF5EnumerationType type = iter.next();
+            if (type.getStorageForm().getStorageSize() > storageForm.getStorageSize())
+            {
+                storageForm = type.getStorageForm();
+            }
+        }
+        return storageForm;
+    }
+
+    EnumerationType[] toEnumerationTypeArray(Collection<HDF5EnumerationType> types)
+    {
+        final EnumerationType[] enumTypes = new EnumerationType[types.size()];
+        final Iterator<HDF5EnumerationType> iter = types.iterator();
+        for (int i = 0; i < enumTypes.length; ++i)
+        {
+            enumTypes[i] = iter.next().getEnumerationType();
+        }
+        return enumTypes;
+    }
+
+    private HDF5EnumerationFeatureMatrix toEnumArray(Collection<HDF5EnumerationType> types,
             Object[][] featureValues)
     {
+        final EnumerationType[] enumTypes = toEnumerationTypeArray(types);
         final MDAbstractArray<?> result;
-        switch (type.getStorageForm())
+        final EnumStorageForm storageForm = getStorageFormSuitableForAllTypes(types);
+        switch (storageForm)
         {
             case BYTE:
             {
@@ -751,6 +721,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                     int idxFeature = 0;
                     for (Object value : vector)
                     {
+                        final EnumerationType type = enumTypes[idxFeature];
                         final Number val =
                                 (value instanceof Number) ? (Number) value : type
                                         .tryGetIndexForValue(value.toString());
@@ -779,6 +750,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                     int idxFeature = 0;
                     for (Object value : vector)
                     {
+                        final EnumerationType type = enumTypes[idxFeature];
                         final Number val =
                                 (value instanceof Number) ? (Number) value : type
                                         .tryGetIndexForValue(value.toString());
@@ -807,6 +779,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                     int idxFeature = 0;
                     for (Object value : vector)
                     {
+                        final EnumerationType type = enumTypes[idxFeature];
                         final Number val =
                                 (value instanceof Number) ? (Number) value : type
                                         .tryGetIndexForValue(value.toString());
@@ -824,10 +797,9 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 break;
             }
             default:
-                throw new IllegalArgumentException("Unsupported storage form "
-                        + type.getStorageForm() + ".");
+                throw new IllegalArgumentException("Unsupported storage form " + storageForm + ".");
         }
-        return new HDF5EnumerationValueMDArray(type, result);
+        return new HDF5EnumerationFeatureMatrix(enumTypes, result);
     }
 
     @Override
@@ -929,7 +901,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
     }
 
     @Override
-    public void writeFeatures(ImageId id, HDF5EnumerationValueMDArray featureValues)
+    public void writeFeatures(ImageId id, HDF5EnumerationFeatureMatrix featureValues)
     {
         checkDefaultFeatureGroup();
         writeFeatures(id, getFirstFeatureGroup(), featureValues);

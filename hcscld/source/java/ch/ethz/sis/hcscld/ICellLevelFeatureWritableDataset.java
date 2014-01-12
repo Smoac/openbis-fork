@@ -25,7 +25,6 @@ import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
 import ch.systemsx.cisd.base.mdarray.MDLongArray;
 import ch.systemsx.cisd.base.mdarray.MDShortArray;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
 
 /**
  * An interface for a writable dataset of cell-level features.
@@ -224,27 +223,11 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * 
      * @param id The well and field to write the features for.
      * @param featureGroup The feature group to write.
-     * @param featureValues The feature values to write. It has to be of rank 2. The first index is
-     *            the object id, the second index is the feature index as defined by the
-     *            <var>featureGroup</var>.
-     */
-    public void writeFeatures(ImageId id, IFeatureGroup featureGroup,
-            HDF5EnumerationValueMDArray featureValues);
-
-    /**
-     * Writes the values of the feature group to the dataset. This method is only allowed if
-     * {@link IFeatureGroup#getDataType()} equals {@link FeatureGroupDataType#ENUM}.
-     * 
-     * @param id The well and field to write the features for.
-     * @param featureGroup The feature group to write.
      * @param featureValues The feature values to write. The first index is the object id, the
      *            second index is the feature index as defined by the <var>featureGroup</var>.
-     * @throws IllegalArgumentException if <var>T</var> is not compatible with
-     *        <var>featureGroup</var>.
      */
-    public <T extends Enum<T>> void writeFeatures(ImageId id, IFeatureGroup featureGroup,
-            T[][] featureValues);
-
+    public void writeFeatures(ImageId id, IFeatureGroup featureGroup,
+            HDF5EnumerationFeatureMatrix featureValues);
 
     //
     // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -437,7 +420,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      *            the object id, the second index is the feature index as defined by the
      *            <var>featureGroup</var>.
      */
-    public void writeFeatures(ImageId id, HDF5EnumerationValueMDArray featureValues);
+    public void writeFeatures(ImageId id, HDF5EnumerationFeatureMatrix featureValues);
 
     /**
      * Writes the values of the feature group to the dataset. This method is only allowed if
@@ -450,7 +433,7 @@ public interface ICellLevelFeatureWritableDataset extends ICellLevelWritableData
      * @param featureValues The feature values to write. The first index is the object id, the
      *            second index is the feature index as defined by the <var>featureGroup</var>.
      * @throws IllegalArgumentException if <var>T</var> is not compatible with
-     *        <var>featureGroup</var>.
+     *             <var>featureGroup</var>.
      */
     public <T extends Enum<T>> void writeFeatures(ImageId id, T[][] featureValues);
 }

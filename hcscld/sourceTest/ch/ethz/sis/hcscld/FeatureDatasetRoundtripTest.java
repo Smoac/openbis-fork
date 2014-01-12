@@ -77,9 +77,19 @@ public class FeatureDatasetRoundtripTest
         rootDirectory.deleteOnExit();
     }
 
-    enum State
+    enum State1
     {
         A, B, C
+    }
+    
+    enum State2
+    {
+        D, E, F, G
+    }
+
+    enum State3
+    {
+        H, I
     }
 
     private ICellLevelFeatureWritableDataset createDefaultFeatureGroupDataset(
@@ -216,8 +226,8 @@ public class FeatureDatasetRoundtripTest
                 writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
         ObjectNamespace namespace = wds.addObjectNamespace("main");
         IFeatureGroup fg =
-                wds.createFeaturesDefinition(namespace).addEnumFeature("a", State.class)
-                        .addEnumFeature("b", State.class).addEnumFeature("c", State.class)
+                wds.createFeaturesDefinition(namespace).addEnumFeature("a", State1.class)
+                        .addEnumFeature("b", State1.class).addEnumFeature("c", State1.class)
                         .createFeatureGroup("main");
         if (idOrNull != null)
         {
@@ -227,6 +237,29 @@ public class FeatureDatasetRoundtripTest
             for (ImageId id : wds.getImageQuantityStructure())
             {
                 wds.writeFeatures(id, fg, createStandardEnumValue(id));
+            }
+        }
+        writer.close();
+    }
+
+    private void createMainThreeEnumsFeatureGroupDataset(File file, String dsCode, ImageId idOrNull)
+    {
+        ICellLevelDataWriter writer = CellLevelDataFactory.open(file);
+        ICellLevelFeatureWritableDataset wds =
+                writer.addFeatureDataset(dsCode, new ImageQuantityStructure(2, 3, 4));
+        ObjectNamespace namespace = wds.addObjectNamespace("main");
+        IFeatureGroup fg =
+                wds.createFeaturesDefinition(namespace).addEnumFeature("a", State1.class)
+                        .addEnumFeature("b", State2.class).addEnumFeature("c", State3.class)
+                        .createFeatureGroup("main");
+        if (idOrNull != null)
+        {
+            wds.writeFeatures(idOrNull, fg, createStandardThreeEnumsValue(idOrNull));
+        } else
+        {
+            for (ImageId id : wds.getImageQuantityStructure())
+            {
+                wds.writeFeatures(id, fg, createStandardThreeEnumsValue(id));
             }
         }
         writer.close();
@@ -310,7 +343,7 @@ public class FeatureDatasetRoundtripTest
     {
         return new Object[][]
             {
-                { id.getRow(), 0 + id.getColumn() / 10f, State.A },
+                { id.getRow(), 0 + id.getColumn() / 10f, State1.A },
                 { id.getRow() + 1, 1 + id.getColumn() / 10f, "B" },
                 { id.getRow() + 2, 2 + id.getColumn() / 10f, "C" },
                 { id.getRow() + 3, 3 + id.getColumn() / 10f, "A" },
@@ -318,7 +351,7 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 5, 5 + id.getColumn() / 10f, "C" },
                 { id.getRow() + 6, 6 + id.getColumn() / 10f, 0 },
                 { id.getRow() + 7, 7 + id.getColumn() / 10f, "B" },
-                { id.getRow() + 8, 8 + id.getColumn() / 10f, State.C },
+                { id.getRow() + 8, 8 + id.getColumn() / 10f, State1.C },
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" } };
     }
 
@@ -402,14 +435,24 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 9, 9 + id.getColumn(), 4 } };
     }
 
-    private State[][] createStandardEnumValue(ImageId id)
+    private State1[][] createStandardEnumValue(ImageId id)
     {
-        return new State[][]
+        return new State1[][]
             {
-                { State.A, State.B, State.C },
-                { State.C, State.B, State.A },
-                { State.A, State.C, State.B },
-                { State.B, State.B, State.B }, };
+                { State1.A, State1.B, State1.C },
+                { State1.C, State1.B, State1.A },
+                { State1.A, State1.C, State1.B },
+                { State1.B, State1.B, State1.B }, };
+    }
+
+    private Object[][] createStandardThreeEnumsValue(ImageId id)
+    {
+        return new Object[][]
+            {
+                { State1.A, State2.D, State3.H },
+                { State1.C, State2.E, State3.I },
+                { State1.A, State2.F, State3.I },
+                { State1.B, State2.G, State3.H }, };
     }
 
     private Object[][] createStandardBoolValue(ImageId id)
@@ -426,7 +469,7 @@ public class FeatureDatasetRoundtripTest
     {
         return new Object[][]
             {
-                { id.getRow(), 0 + id.getColumn() / 10f, State.A },
+                { id.getRow(), 0 + id.getColumn() / 10f, State1.A },
                 { id.getRow() + 1, 1 + id.getColumn() / 10f, "B" },
                 { id.getRow() + 2, 2 + id.getColumn() / 10f, "C" },
                 { id.getRow() + 3, 3 + id.getColumn() / 10f, "A" },
@@ -434,7 +477,7 @@ public class FeatureDatasetRoundtripTest
                 { id.getRow() + 5, 5 + id.getColumn() / 10f, "C" },
                 { id.getRow() + 6, 6 + id.getColumn() / 10f, 0 },
                 { id.getRow() + 7, 7 + id.getColumn() / 10f, "B" },
-                { id.getRow() + 8, 8 + id.getColumn() / 10f, State.C },
+                { id.getRow() + 8, 8 + id.getColumn() / 10f, State1.C },
                 { id.getRow() + 9, 9 + id.getColumn() / 10f, "A" },
                 { id.getRow() + 10, 10 + id.getColumn() / 10f, 1 } };
     }
@@ -629,7 +672,7 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(3, clf.getValues()[i].length);
                 assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
                 assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
-                assertEquals(State.values()[i % 3].toString(), clf.getValues()[i][2]);
+                assertEquals(State1.values()[i % 3].toString(), clf.getValues()[i][2]);
             }
         }
         reader.close();
@@ -690,7 +733,7 @@ public class FeatureDatasetRoundtripTest
         final String dsCode = "123";
         final File f = new File(workingDirectory, "float32TwoFeatureGroups.cld");
         f.delete();
-        //f.deleteOnExit();
+        f.deleteOnExit();
         createTwoFeatureFloat32GroupsSameNamespaceDataset(f, dsCode);
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
@@ -796,6 +839,7 @@ public class FeatureDatasetRoundtripTest
         final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
         final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
         assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        ds.getEnumValues(new ImageId(0, 0, 0));
         for (CellLevelFeatures clf : ds.getValues())
         {
             assertEquals(FeatureGroupDataType.ENUM, clf.getFeatureGroup().getDataType());
@@ -825,6 +869,49 @@ public class FeatureDatasetRoundtripTest
         vals = ds.getValues(new ImageId(1, 2, 3), 3);
         assertTrue(Arrays.equals(new Object[]
             { "B", "B", "B" }, vals));
+        reader.close();
+    }
+
+    @Test
+    public void testThreeEnumsFeatureGroup()
+    {
+        final String dsCode = "123";
+        final File f = new File(workingDirectory, "threeEnumsFeatureGroup.cld");
+        f.delete();
+        f.deleteOnExit();
+        createMainThreeEnumsFeatureGroupDataset(f, dsCode, null);
+        final ICellLevelDataReader reader = CellLevelDataFactory.openForReading(f);
+        final ICellLevelFeatureDataset ds = reader.getDataSet("123").toFeatureDataset();
+        assertTrue(System.currentTimeMillis() - ds.getCreationDate().getTime() < 100);
+        for (CellLevelFeatures clf : ds.getValues())
+        {
+            assertEquals(FeatureGroupDataType.ENUM, clf.getFeatureGroup().getDataType());
+            assertEquals("All", clf.getFeatureGroup().getId());
+            assertEquals(Arrays.asList("a", "b", "c"), clf.getFeatureGroup().getFeatureNames());
+            assertEquals(4, clf.getValues().length);
+            assertTrue(Arrays.equals(clf.getValues()[0], new Object[]
+                { "A", "D", "H" }));
+            assertTrue(Arrays.equals(clf.getValues()[1], new Object[]
+                { "C", "E", "I" }));
+            assertTrue(Arrays.equals(clf.getValues()[2], new Object[]
+                { "A", "F", "I" }));
+            assertTrue(Arrays.equals(clf.getValues()[3], new Object[]
+                { "B", "G", "H" }));
+            assertEquals(4,
+                    ds.getNumberOfSegmentedObjects(clf.getImageId(), ds.getObjectNamespace("MAIN")));
+        }
+        Object[] vals = ds.getValues(new ImageId(1, 2, 3), 0);
+        assertTrue(Arrays.equals(new Object[]
+            { "A", "D", "H" }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 1);
+        assertTrue(Arrays.equals(new Object[]
+            { "C", "E", "I" }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 2);
+        assertTrue(Arrays.equals(new Object[]
+            { "A", "F", "I" }, vals));
+        vals = ds.getValues(new ImageId(1, 2, 3), 3);
+        assertTrue(Arrays.equals(new Object[]
+            { "B", "G", "H" }, vals));
         reader.close();
     }
 
@@ -920,7 +1007,7 @@ public class FeatureDatasetRoundtripTest
                 assertEquals(3, clf.getValues()[i].length);
                 assertEquals(clf.getImageId().getRow() + i, clf.getValues()[i][0]);
                 assertEquals(i + clf.getImageId().getColumn() / 10f, clf.getValues()[i][1]);
-                assertEquals(State.values()[i % 3].toString(), clf.getValues()[i][2]);
+                assertEquals(State1.values()[i % 3].toString(), clf.getValues()[i][2]);
             }
         }
         reader.close();

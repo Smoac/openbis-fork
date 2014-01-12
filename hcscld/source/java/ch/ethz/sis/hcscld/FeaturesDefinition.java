@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ch.ethz.sis.hcscld.Feature.FeatureDataType;
+import ch.systemsx.cisd.hdf5.EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberMapping;
@@ -220,6 +221,12 @@ class FeaturesDefinition implements IFeaturesDefinition
         memberDefinitions.add(new Feature(name, CellLevelBaseWritableDataset
                 .getEnumOptions(enumClass)));
         return this;
+    }
+
+    @Override
+    public IFeaturesDefinition addEnumFeature(String name, EnumerationType enumType)
+    {
+        return addEnumFeature(name, enumType.getName(), enumType.getValues());
     }
 
     @Override

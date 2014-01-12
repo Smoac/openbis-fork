@@ -16,17 +16,19 @@
 
 package ch.ethz.sis.hcscld;
 
+import java.util.Collection;
+
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
 
 /**
- * A role which can provide an enum type.
+ * A role which can provide enum types.
  *
  * @author Bernd Rinn
  */
 interface IEnumTypeProvider
 {
     /**
-     * Returns the HDF5 enum type or <code>null</code>.
+     * Returns the HDF5 enum types.
      */
-    public HDF5EnumerationType tryGetEnumType();
+    public Collection<HDF5EnumerationType> getEnumTypes();
 }

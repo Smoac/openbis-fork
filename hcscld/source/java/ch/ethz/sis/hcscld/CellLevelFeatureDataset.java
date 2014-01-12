@@ -19,6 +19,7 @@ package ch.ethz.sis.hcscld;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,14 +41,15 @@ import ch.systemsx.cisd.base.mdarray.MDLongArray;
 import ch.systemsx.cisd.base.mdarray.MDShortArray;
 import ch.systemsx.cisd.hdf5.CompoundElement;
 import ch.systemsx.cisd.hdf5.CompoundType;
+import ch.systemsx.cisd.hdf5.EnumerationType;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMappingHints;
 import ch.systemsx.cisd.hdf5.HDF5CompoundMemberInformation;
 import ch.systemsx.cisd.hdf5.HDF5CompoundType;
 import ch.systemsx.cisd.hdf5.HDF5DataClass;
 import ch.systemsx.cisd.hdf5.HDF5DataSetInformation;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationType;
+import ch.systemsx.cisd.hdf5.HDF5EnumerationType.EnumStorageForm;
 import ch.systemsx.cisd.hdf5.HDF5EnumerationValue;
-import ch.systemsx.cisd.hdf5.HDF5EnumerationValueMDArray;
 import ch.systemsx.cisd.hdf5.IHDF5Reader;
 
 /**
@@ -158,7 +160,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         private final List<Feature> features;
 
         private final List<String> featureNames;
-        
+
         private final Map<String, Integer> featureIndices;
 
         private final FeatureGroupDataType groupDataType;
@@ -254,7 +256,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         {
             return CellLevelFeatureDataset.this.getObjectPath(imageId, VALUES_PREFIX, idUpperCase);
         }
-        
+
         String getIdUpperCase()
         {
             return idUpperCase;
@@ -319,29 +321,26 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return groupDataType;
         }
 
-        //
+        void checkNumberOfFeatureValues(ImageId imageId, Object[][] featureValues)
+        {
+            for (Object[] vector : featureValues)
+            {
+                if (vector.length != getNumberOfFeatures())
+                {
+                    throw new WrongNumberOfFeatureValuesException(datasetCode, imageId,
+                            getNumberOfFeatures(), vector.length);
+                }
+            }
+        }
+
         //
         // IEnumTypeProvider
+        //
 
         @Override
-        public HDF5EnumerationType tryGetEnumType()
+        public Collection<HDF5EnumerationType> getEnumTypes()
         {
-            if (type.getEnumTypeMap().size() == 1)
-            {
-                return null;
-            } else
-            {
-                final HDF5EnumerationType eType = type.getEnumTypeMap().values().iterator().next();
-                // Check that all map entries are the same type.
-                for (HDF5EnumerationType enumType : type.getEnumTypeMap().values())
-                {
-                    if (enumType.equals(eType) == false)
-                    {
-                        return null;
-                    }
-                }
-                return eType;
-            }
+            return type.getEnumTypeMap().values();
         }
 
         @Override
@@ -531,11 +530,11 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             return getImageIds(namespaceOrNull);
         }
     }
-    
+
     @Override
     public ImageId[] getImageIds(ObjectNamespace namespace)
     {
-        final List<String> prefixes = new ArrayList<String>(featureGroups.size()); 
+        final List<String> prefixes = new ArrayList<String>(featureGroups.size());
         for (FeatureGroup fg : featureGroups.values())
         {
             if (namespace.equals(fg.getNamespace()) == false)
@@ -569,14 +568,15 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         Arrays.sort(imageIdArr);
         return imageIdArr;
     }
-    
+
     @Override
     public ImageId[] getImageIds(IFeatureGroup featureGroup)
     {
-        final String prefix = createPrefixString(VALUES_PREFIX, ((FeatureGroup) featureGroup).getIdUpperCase());
+        final String prefix =
+                createPrefixString(VALUES_PREFIX, ((FeatureGroup) featureGroup).getIdUpperCase());
         return getImageIds(prefix);
     }
-    
+
     ImageId[] getImageIds(String prefix)
     {
         final List<String> entries = reader.object().getGroupMembers(getObjectPath());
@@ -594,7 +594,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
         return imageIds.toArray(new ImageId[imageIds.size()]);
     }
-    
+
     @Override
     public Object[] getValues(ImageId id, IFeatureGroup featureGroup, int cellId)
     {
@@ -663,12 +663,8 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             }
             case ENUM:
             {
-                final HDF5EnumerationValueMDArray array =
-                        reader.enumeration().readMDArrayBlockWithOffset(
-                                ((FeatureGroup) featureGroup).getObjectPath(id), new int[]
-                                    { 1, featureGroup.getNumberOfFeatures() }, new long[]
-                                    { cellId, 0 });
-                return toObjectArray(array)[0];
+                final HDF5EnumerationFeatureMatrix matrix = getEnumValues(id, featureGroup, cellId);
+                return toObjectArray(matrix)[0];
             }
             case COMPOUND:
             default:
@@ -758,14 +754,86 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     }
 
     @Override
-    public HDF5EnumerationValueMDArray getEnumValues(ImageId id, IFeatureGroup featureGroup)
+    public HDF5EnumerationFeatureMatrix getEnumValues(ImageId id, IFeatureGroup featureGroup)
     {
         if (featureGroup.getDataType() != FeatureGroupDataType.ENUM)
         {
             throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
                     + " is of storage data type " + featureGroup.getDataType());
         }
-        return reader.enumeration().readMDArray(((FeatureGroup) featureGroup).getObjectPath(id));
+        final List<Feature> features = featureGroup.getFeatures();
+        final EnumerationType[] enumTypes = new EnumerationType[features.size()];
+        for (int i = 0; i < enumTypes.length; ++i)
+        {
+            final Feature feature = features.get(i);
+            enumTypes[i] =
+                    new EnumerationType("Type of dataset=" + datasetCode + ", feature="
+                            + feature.getName(), feature.tryGetOptions());
+        }
+        final String objectPath = ((FeatureGroup) featureGroup).getObjectPath(id);
+        final int elementSize = reader.object().getElementSize(objectPath);
+        if (elementSize == 1)
+        {
+            return new HDF5EnumerationFeatureMatrix(enumTypes, reader.int8()
+                    .readMDArray(objectPath));
+        } else if (elementSize == 2)
+        {
+            return new HDF5EnumerationFeatureMatrix(enumTypes, reader.int16().readMDArray(
+                    objectPath));
+        } else if (elementSize == 4)
+        {
+            return new HDF5EnumerationFeatureMatrix(enumTypes, reader.int32().readMDArray(
+                    objectPath));
+        } else
+        {
+            throw new IllegalStateException("Illegal data type element size (" + elementSize
+                    + ") of enum feature group " + featureGroup.getId() + ".");
+        }
+    }
+
+    HDF5EnumerationFeatureMatrix getEnumValues(ImageId id, IFeatureGroup featureGroup,
+            int cellId)
+    {
+        if (featureGroup.getDataType() != FeatureGroupDataType.ENUM)
+        {
+            throw new IllegalArgumentException("Feature Group " + featureGroup.getId()
+                    + " is of storage data type " + featureGroup.getDataType());
+        }
+        final List<Feature> features = featureGroup.getFeatures();
+        final EnumerationType[] enumTypes = new EnumerationType[features.size()];
+        for (int i = 0; i < enumTypes.length; ++i)
+        {
+            final Feature feature = features.get(i);
+            enumTypes[i] =
+                    new EnumerationType("Type of dataset=" + datasetCode + ", feature="
+                            + feature.getName(), feature.tryGetOptions());
+        }
+        final String objectPath = ((FeatureGroup) featureGroup).getObjectPath(id);
+        final int elementSize =
+                reader.object().getElementSize(objectPath);
+        if (elementSize == 1)
+        {
+            return new HDF5EnumerationFeatureMatrix(enumTypes, reader.int8()
+                    .readMDArrayBlockWithOffset(objectPath, new int[]
+                        { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                        { cellId, 0 }));
+        } else if (elementSize == 2)
+        {
+            return new HDF5EnumerationFeatureMatrix(enumTypes, reader.int16()
+                    .readMDArrayBlockWithOffset(objectPath, new int[]
+                        { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                        { cellId, 0 }));
+        } else if (elementSize == 4)
+        {
+            return new HDF5EnumerationFeatureMatrix(enumTypes, reader.int32()
+                    .readMDArrayBlockWithOffset(objectPath, new int[]
+                        { 1, featureGroup.getNumberOfFeatures() }, new long[]
+                        { cellId, 0 }));
+        } else
+        {
+            throw new IllegalStateException("Illegal data type element size (" + elementSize
+                    + ") of enum feature group " + featureGroup.getId() + ".");
+        }
     }
 
     @Override
@@ -803,6 +871,76 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
                         numberOfFeaturesInGroup);
             }
             featureOffset += numberOfFeaturesInGroup;
+        }
+        return result;
+    }
+
+    @Override
+    public HDF5EnumerationFeatureMatrix getEnumValues(ImageId id, ObjectNamespace namespace)
+    {
+        final List<HDF5EnumerationFeatureMatrix> matrices =
+                new ArrayList<HDF5EnumerationFeatureMatrix>(featureGroups.size());
+        EnumStorageForm storageForm = EnumStorageForm.BYTE;
+        int numberOfFeatures = 0;
+        int numberOfObjects = -1;
+        for (FeatureGroup fg : featureGroups.values())
+        {
+            if (namespace.equals(fg.getNamespace()) == false)
+            {
+                continue;
+            }
+            numberOfFeatures += fg.getNumberOfFeatures();
+
+            final HDF5EnumerationFeatureMatrix matrix;
+            if (fg.hasWellFieldValues(id))
+            {
+                matrix = getEnumValues(id, fg);
+                if (numberOfObjects == -1)
+                {
+                    numberOfObjects = matrix.size(0);
+                }
+                if (matrix.getStorageForm().getStorageSize() > storageForm.getStorageSize())
+                {
+                    storageForm = matrix.getStorageForm();
+                }
+                matrices.add(matrix);
+            } else
+            {
+                final Collection<HDF5EnumerationType> enumTypeCollection = fg.getEnumTypes();
+                matrices.add(new HDF5EnumerationFeatureMatrix(enumTypeCollection
+                        .toArray(new EnumerationType[enumTypeCollection.size()]), 0));
+            }
+        }
+        if (matrices.isEmpty())
+        {
+            return new HDF5EnumerationFeatureMatrix();
+        } else if (matrices.size() == 1)
+        {
+            // Optimization for common special case of one feature group per namespace.
+            return matrices.get(0);
+        }
+        final EnumerationType[] enumTypes = new EnumerationType[numberOfFeatures];
+        int featureIdxOfs = 0;
+        for (HDF5EnumerationFeatureMatrix matrix : matrices)
+        {
+            final int len = matrix.getTypes().length;
+            System.arraycopy(matrix.getTypes(), 0, enumTypes, featureIdxOfs, len);
+            featureIdxOfs += len;
+        }
+        HDF5EnumerationFeatureMatrix result =
+                new HDF5EnumerationFeatureMatrix(enumTypes, numberOfObjects);
+        featureIdxOfs = 0;
+        for (HDF5EnumerationFeatureMatrix matrix : matrices)
+        {
+            for (int objIdx = 0; objIdx < matrix.size(0); ++objIdx)
+            {
+                for (int featureIdx = 0; featureIdx < matrix.size(1); ++featureIdx)
+                {
+                    result.setOrdinal(matrix.getOrdinal(objIdx, featureIdx), objIdx, featureIdxOfs
+                            + featureIdx);
+                }
+            }
+            featureIdxOfs += matrix.size(1);
         }
         return result;
     }
@@ -1005,79 +1143,50 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
     @Override
     public MDByteArray getByteValues(ImageId id)
     {
-        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
-        if (namespaceOrNull == null)
-        {
-            return new MDByteArray(new int[2]);
-        } else
-        {
-            return getByteValues(id, namespaceOrNull);
-        }
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getByteValues(id, namespaceOrNull);
+    }
+
+    @Override
+    public HDF5EnumerationFeatureMatrix getEnumValues(ImageId id)
+    {
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getEnumValues(id, namespaceOrNull);
     }
 
     @Override
     public MDShortArray getShortValues(ImageId id)
     {
-        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
-        if (namespaceOrNull == null)
-        {
-            return new MDShortArray(new int[2]);
-        } else
-        {
-            return getShortValues(id, namespaceOrNull);
-        }
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getShortValues(id, namespaceOrNull);
     }
 
     @Override
     public MDIntArray getIntValues(ImageId id)
     {
-        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
-        if (namespaceOrNull == null)
-        {
-            return new MDIntArray(new int[2]);
-        } else
-        {
-            return getIntValues(id, namespaceOrNull);
-        }
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getIntValues(id, namespaceOrNull);
     }
 
     @Override
     public MDLongArray getLongValues(ImageId id)
     {
-        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
-        if (namespaceOrNull == null)
-        {
-            return new MDLongArray(new int[2]);
-        } else
-        {
-            return getLongValues(id, namespaceOrNull);
-        }
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getLongValues(id, namespaceOrNull);
     }
 
     @Override
     public MDFloatArray getFloatValues(ImageId id)
     {
-        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
-        if (namespaceOrNull == null)
-        {
-            return new MDFloatArray(new int[2]);
-        } else
-        {
-            return getFloatValues(id, namespaceOrNull);
-        }
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getFloatValues(id, namespaceOrNull);
     }
 
     @Override
     public MDDoubleArray getDoubleValues(ImageId id)
     {
-        final ObjectNamespace namespaceOrNull = tryGetOnlyNamespace();
-        if (namespaceOrNull == null)
-        {
-            return new MDDoubleArray(new int[2]);
-        } else
-        {
-            return getDoubleValues(id, namespaceOrNull);
-        }
+        final ObjectNamespace namespaceOrNull = getOnlyNamespace();
+        return getDoubleValues(id, namespaceOrNull);
     }
 
     @Override
@@ -1132,10 +1241,8 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
             }
             case ENUM:
             {
-                final HDF5EnumerationValueMDArray array =
-                        reader.enumeration().readMDArray(
-                                ((FeatureGroup) featureGroup).getObjectPath(id));
-                return toObjectArray(array);
+                final HDF5EnumerationFeatureMatrix matrix = getEnumValues(id, featureGroup);
+                return toObjectArray(matrix);
             }
             case COMPOUND:
             default:
@@ -1146,7 +1253,7 @@ class CellLevelFeatureDataset extends CellLevelDataset implements ICellLevelFeat
         }
     }
 
-    private Object[][] toObjectArray(HDF5EnumerationValueMDArray array)
+    private Object[][] toObjectArray(HDF5EnumerationFeatureMatrix array)
     {
         if (array.rank() != 2)
         {

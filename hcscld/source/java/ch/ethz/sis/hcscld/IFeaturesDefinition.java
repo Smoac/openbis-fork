@@ -18,6 +18,8 @@ package ch.ethz.sis.hcscld;
 
 import java.util.List;
 
+import ch.systemsx.cisd.hdf5.EnumerationType;
+
 /**
  * An interface for defining features.
  * <p>
@@ -112,6 +114,15 @@ public interface IFeaturesDefinition
      * @return This object (for call chaining).
      */
     public IFeaturesDefinition addEnumFeature(String name, Class<? extends Enum<?>> enumClass);
+
+    /**
+     * Adds an enumeration feature (corresponding to a Java <code>enum</code>).
+     * 
+     * @param name The name of the feature.
+     * @param enumType The enumeration type.
+     * @return This object (for call chaining).
+     */
+    public IFeaturesDefinition addEnumFeature(String name, EnumerationType enumType);
 
     /**
      * Enforces that this feature group will be stored as a compound.

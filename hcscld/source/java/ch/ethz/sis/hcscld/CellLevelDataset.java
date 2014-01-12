@@ -216,7 +216,7 @@ abstract class CellLevelDataset implements ICellLevelDataset
         final Collection<ObjectNamespace> namespaces = getObjectNamespaces();
         if (namespaces.size() > 1)
         {
-            throw new IllegalStateException(
+            throw new IllegalArgumentException(
                     "This dataset has multiple object namespaces.");
         }
         if (namespaces.isEmpty())
