@@ -27,6 +27,9 @@ class TestCase(systemtest.testcase.TestCase):
         for name in os.listdir(self.getExpectedErrorLogsFolder(openbisController.testName)):
             dataName = name[0:-4]
             self.dropInvalidData(openbisController, dataName)
+        self.dropInvalidData(openbisController, 'ignore-empty-dir', expectingEmptyData=True)
+        self.dropInvalidData(openbisController, 'ignore-no-index', expectingEmptyData=True)
+
 
     def executeInDevMode(self):
         openbisController = self.createOpenbisController(dropDatabases=False)
@@ -38,30 +41,38 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.assertNumberOfDataSets(numberOfDataSets, openbisController.getDataSets())
         
 
-    def dropInvalidData(self, openbisController, dataName):
+    def dropInvalidData(self, openbisController, dataName, expectingEmptyData = False):
         openbisController.drop(dataName, 'incoming')
         openbisController.waitUntilConditionMatched(util.RegexCondition("File %s not written to faulty paths" % dataName))
         dataFolder = "%s/data/incoming/%s" % (openbisController.installPath, dataName)
         logFile = "%s/error-log.txt" % dataFolder
-        if not os.path.exists("%s/_delete_me_after_correcting_errors" % dataFolder):
-            self.fail("Expected marker file '_delete_me_after_correcting_errors' doesn't exists in %s." % dataFolder)
-        if not os.path.exists(logFile):
-            self.fail("Expected error log doesn't exist: %s" % logFile)
-        else:
-            lines = self.getErrorLog(logFile)
-            expectedLines = self.getExpectedLogEntries(openbisController.testName, dataName)
-            failed = False
-            for i, line, expectedLine in zip(range(len(lines)), lines, expectedLines):
-                if not self.assertEquals("%d. line of '%s'" % (i+1, dataName), expectedLine.rstrip(), line.rstrip()):
-                    self.printLogEntries(lines)
-                    failed = True
-                    break
-            if not failed:
-                if not self.assertEquals("number of log entries", len(expectedLines), len(lines)):
-                    self.printLogEntries(lines)
+        try:
+            if expectingEmptyData:
+                if os.path.exists("%s/_delete_me_after_correcting_errors" % dataFolder):
+                    self.fail("Not expecting marker file '_delete_me_after_correcting_errors' in %s." % dataFolder)
+                if os.path.exists(logFile):
+                    self.fail("Not expecting error log file: %s" % logFile)
             else:
-                util.printAndFlush("Log file %s contains expected messages" % dataFolder)
-        util.deleteFolder(dataFolder)
+                if not os.path.exists("%s/_delete_me_after_correcting_errors" % dataFolder):
+                    self.fail("Expected marker file '_delete_me_after_correcting_errors' doesn't exists in %s." % dataFolder)
+                if not os.path.exists(logFile):
+                    self.fail("Expected error log doesn't exist: %s" % logFile)
+                else:
+                    lines = self.getErrorLog(logFile)
+                    expectedLines = self.getExpectedLogEntries(openbisController.testName, dataName)
+                    failed = False
+                    for i, line, expectedLine in zip(range(len(lines)), lines, expectedLines):
+                        if not self.assertEquals("%d. line of '%s'" % (i+1, dataName), expectedLine.rstrip(), line.rstrip()):
+                            self.printLogEntries(lines)
+                            failed = True
+                            break
+                    if not failed:
+                        if not self.assertEquals("number of log entries", len(expectedLines), len(lines)):
+                            self.printLogEntries(lines)
+                    else:
+                        util.printAndFlush("Log file %s contains expected messages" % dataFolder)
+        finally:
+            util.deleteFolder(dataFolder)
                 
     def printLogEntries(self, lines):
         util.printAndFlush("All log entries:")
