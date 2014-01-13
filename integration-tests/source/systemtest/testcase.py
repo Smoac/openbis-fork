@@ -126,11 +126,14 @@ class TestCase(object):
     def assertEquals(self, itemName, expected, actual):
         """
         Asserts that expected == actual. If not the test will be continued but counted as failed.
+        Returns False if assertion fails otherwise True.
         """
         if expected != actual:
             self.fail("%s\n  expected: <%s>\n   but was: <%s>" % (itemName, expected, actual))
+            return False
         else:
             util.printAndFlush("%s as expected: <%s>" % (itemName, expected))
+            return True
     
     def fail(self, errorMessage):
         """
@@ -232,15 +235,6 @@ class TestCase(object):
             util.killProcess("%s/datamover.pid" % path)
         util.deleteFolder(self.playgroundFolder)
 
-    def _getAndCreateFolder(self, folderPath):
-        """
-        Creates a folder inside the playground. The argument is a relative path to the playground.
-        The returned path is relative to the working directory.
-        """
-        path = "%s/%s" % (self.playgroundFolder, folderPath)
-        os.makedirs(path)
-        return path
-    
     def _addToRunningInstances(self, controller):
         self.runningInstances.append(controller)
         
@@ -260,6 +254,13 @@ class _Controller(object):
         self.installPath = installPath
         util.printAndFlush("Controller created for instance '%s'. Installation path: %s" % (instanceName, installPath))
 
+    def createFolder(self, folderPath):
+        """
+        Creates a folder with specified path relative to installation directory.
+        """
+        path = "%s/%s" % (self.installPath, folderPath)
+        os.makedirs(path)
+    
 
     def assertEmptyFolder(self, pathRelativeToInstallPath):
         """
@@ -354,9 +355,9 @@ class DatamoverController(_Controller):
         util.executeCommand(["%s/datamover.sh" % self.installPath, 'stop'],
                             "Couldn't shut down datamover '%s'." % self.instanceName)
         
-    def drop(self, testDataSetName):
+    def dropAnWait(self, testDataSetName):
         """ Drops the specified test data set into incoming folder. """
-        util.copyFromTo(TEST_DATA, "%s/data/incoming" % self.installPath, testDataSetName)
+        util.copyFromTo("%s/%s" % (TEST_DATA, self.testName), "%s/data/incoming" % self.installPath, testDataSetName)
 
             
 class ScreeningTestClient(object):
@@ -523,6 +524,9 @@ class OpenbisController(_Controller):
         util.createDatabase(PSQL_EXE, database, scriptPath)
         
     def dropDatabase(self, databaseType):
+        """
+        Drops the database for the specified database type.
+        """
         util.dropDatabase(PSQL_EXE, "%s_%s" % (databaseType, self.databaseKind))
         
     def queryDatabase(self, databaseType, queryStatement):
@@ -534,12 +538,12 @@ class OpenbisController(_Controller):
         return util.queryDatabase(PSQL_EXE, database, queryStatement)
     
     def allUp(self):
-        """ Starts up AS and DSS. """
-        self._saveAsPropertiesIfModified()
-        self._saveDssPropertiesIfModified()
-        self.testCase._addToRunningInstances(self)
-        util.executeCommand([self.bisUpScript], "Starting up openBIS AS '%s' failed." % self.instanceName)
-        util.executeCommand([self.dssUpScript], "Starting up openBIS DSS '%s' failed." % self.instanceName)
+        """ Starts up AS and DSS if not running. """
+        if not util.isAlive("%s/servers/openBIS-server/jetty/openbis.pid" % self.installPath, "openBIS.keystore"):
+            self._saveAsPropertiesIfModified()
+            util.executeCommand([self.bisUpScript], "Starting up openBIS AS '%s' failed." % self.instanceName)
+        self.dssUp()
+        
         
     def stop(self):
         self.allDown()
@@ -552,29 +556,39 @@ class OpenbisController(_Controller):
             util.executeCommand([self.bisDownScript], "Shutting down openBIS AS '%s' failed." % self.instanceName)
         
     def dssUp(self):
-        """ Starts up DSS. """
-        self._saveDssPropertiesIfModified()
-        self.testCase._addToRunningInstances(self)
-        util.executeCommand([self.dssUpScript], "Starting up openBIS DSS '%s' failed." % self.instanceName)
+        """ Starts up DSS if not running. """
+        if not util.isAlive("%s/servers/datastore_server/datastore_server.pid" % self.installPath, "openBIS.keystore"):
+            self._saveDssPropertiesIfModified()
+            self.testCase._addToRunningInstances(self)
+            util.executeCommand([self.dssUpScript], "Starting up openBIS DSS '%s' failed." % self.instanceName)
         
     def dssDown(self):
         """ Shuts down DSS. """
         self.testCase._removeFromRunningInstances(self)
         util.executeCommand([self.dssDownScript], "Shutting down openBIS DSS '%s' failed." % self.instanceName)
         
-    def drop(self, dataName, dropBoxName, numberOfDataSets = 1, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
+
+    def dropAndWait(self, dataName, dropBoxName, numberOfDataSets = 1, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """
         Drops the specified data into the specified drop box. The data is either a folder or a ZIP file
-        in TEST_DATA. A ZIP file will be unpacked in the drop box. After dropping the method waits
+        in TEST_DATA/<test name>. A ZIP file will be unpacked in the drop box. After dropping the method waits
         until the specified number of data sets have been registered.
         """
-        destination = "%s/data/%s" % (self.installPath, dropBoxName)
-        if dataName.endswith('.zip'):
-            util.unzip("%s/%s" % (TEST_DATA, dataName), destination)
-        else:
-            util.copyFromTo(TEST_DATA, destination , dataName)
+        self.drop(dataName, dropBoxName)
         self.waitUntilDataSetRegistrationFinished(numberOfDataSets = numberOfDataSets, timeOutInMinutes = timeOutInMinutes)
         
+    def drop(self, dataName, dropBoxName):
+        """
+        Drops the specified data into the specified drop box. The data is either a folder or a ZIP file
+        in TEST_DATA/<test name>. A ZIP file will be unpacked in the drop box. 
+        """
+        destination = "%s/data/%s" % (self.installPath, dropBoxName)
+        testDataFolder = "%s/%s" % (TEST_DATA, self.testName)
+        if dataName.endswith('.zip'):
+            util.unzip("%s/%s" % (testDataFolder, dataName), destination)
+        else:
+            util.copyFromTo(testDataFolder, destination, dataName)
+
     def waitUntilDataSetRegistrationFinished(self, numberOfDataSets = 1, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """ Waits until the specified number of data sets have been registrated. """
         monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
@@ -587,16 +601,21 @@ class OpenbisController(_Controller):
             elements = monitor.waitUntilEvent(util.RegexCondition('Post registration of (\\d*). of \\1 data sets'))
             numberOfRegisteredDataSets += int(elements[0])
             util.printAndFlush("%d of %d data sets registered" % (numberOfRegisteredDataSets, numberOfDataSets))
-        
+
     def waitUntilDataSetRegistrationFailed(self, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """ Waits until data set registration failed. """
-        monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
-                                  "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
-                                  timeOutInMinutes)
+        self.waitUntilConditionMatched(util.EventTypeCondition('ERROR'), timeOutInMinutes)
+        util.printAndFlush("Data set registration failed as expected.")
+
+    def waitUntilConditionMatched(self, condition, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
+        """
+        Waits until specified condition has been detected in DSS log.
+        """
+        logFilePath = "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath
+        monitor = util.LogMonitor("%s.DSS" % self.instanceName, logFilePath, timeOutInMinutes)
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
         monitor.addNotificationCondition(util.RegexCondition('post-registration'))
-        monitor.waitUntilEvent(util.EventTypeCondition('ERROR'))
-        util.printAndFlush("Data set registration failed as expected.")
+        monitor.waitUntilEvent(condition)
         
     def _applyCorePlugins(self):
         corePluginsFolder = "%s/servers/core-plugins" % self.installPath

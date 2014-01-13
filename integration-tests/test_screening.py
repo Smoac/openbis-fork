@@ -9,10 +9,10 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController = self.createOpenbisController()
         openbisController.createTestDatabase('openbis')
         openbisController.allUp()
-        openbisController.drop('data-incoming-analysis.zip', 'incoming-analysis')
+        openbisController.dropAndWait('data-incoming-analysis.zip', 'incoming-analysis')
         self.assertSpotSizes(openbisController, [['24', '16']])
-        openbisController.drop('data-incoming-images-merged-channels.zip', 'incoming-images-merged-channels')
-        openbisController.drop('data-incoming-images-split-channels.zip', 'incoming-images-split-channels')
+        openbisController.dropAndWait('data-incoming-images-merged-channels.zip', 'incoming-images-merged-channels')
+        openbisController.dropAndWait('data-incoming-images-split-channels.zip', 'incoming-images-split-channels')
         openbisController.assertEmptyFolder('data/incoming-analysis');
         openbisController.assertEmptyFolder('data/incoming-images-merged-channels');
         openbisController.assertEmptyFolder('data/incoming-images-split-channels');
@@ -41,7 +41,7 @@ class TestCase(systemtest.testcase.TestCase):
         self.assertPatternInLog(log, "Image metadata: \[Dataset [0-9]*-[0-9]* \(plate: /DEMO/PLATE3 "
                                      + "\[20100624113759640-7\]\) has \[\[DAPI, GFP\]\] channels, 9 tiles\. "
                                      + "Image resolution: 720x468")
-        openbisController.drop('PLATE1', 'incoming-hcs', numberOfDataSets = 3)
+        openbisController.dropAndWait('PLATE1', 'incoming-hcs', numberOfDataSets = 3)
         openbisController.assertNumberOfDataSets(6, openbisController.getDataSets())
         self.assertSpotSizes(openbisController, [['24', '16']]*3)
     

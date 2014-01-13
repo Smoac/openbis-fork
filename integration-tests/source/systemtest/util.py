@@ -84,11 +84,37 @@ def killProcess(pidFile):
     """
     Kills the process in specified PID file. Does nothing if PID file doesn't exist.
     """
-    if not os.path.exists(pidFile):
+    pid = getPid(pidFile)
+    if pid is None:
         return
-    with open(pidFile, 'r') as handle:
-        pid = handle.readline().rstrip()
-        executeCommand(['kill', pid])
+    executeCommand(['kill', pid])
+    
+def isAlive(pidFile, pattern):
+    """
+    Checks if the process with PID in specified file is alive. The specified regex
+    is used to check that the process of expected PID is the process expected.
+    """
+    pid = getPid(pidFile)
+    if pid is None:
+        return False
+    lines = executeCommand(['ps', '-p', pid], suppressStdOut=True)
+    print "number of lines: %s" % (len(lines))
+    if len(lines) < 2:
+        return False
+    return re.compile(pattern).search(lines[1]) is not None
+    
+    
+def getPid(pidFile):
+    if not os.path.exists(pidFile):
+        return None
+    return readFirstLine(pidFile)
+
+def readFirstLine(textFile):
+    """
+    Returns the first line of the specified textFile.
+    """
+    with open(textFile, 'r') as handle:
+        return handle.readline().rstrip()
         
 def unzip(zipFile, destination):
     """
@@ -109,7 +135,7 @@ def deleteFolder(folderPath):
     
 def copyFromTo(sourceFolder, destinationFolder, relativePathInSourceFolder):
     shutil.copytree("%s/%s" % (sourceFolder, relativePathInSourceFolder), 
-                    "%s/%s" % (destinationFolder, relativePathInSourceFolder))
+                    "%s/%s" % (destinationFolder, relativePathInSourceFolder), ignore = shutil.ignore_patterns(".svn"))
     printAndFlush("%s copied from %s to %s" % (relativePathInSourceFolder, sourceFolder, destinationFolder))
     
 def dropDatabase(psqlExe, database):

@@ -1,0 +1,1 @@
+ERROR: No datasets could be processed, because there is an error in the mapping file index.tsv: the file 'file.mzxml' appears more than once.
