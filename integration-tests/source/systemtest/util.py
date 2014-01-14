@@ -98,7 +98,6 @@ def isAlive(pidFile, pattern):
     if pid is None:
         return False
     lines = executeCommand(['ps', '-p', pid], suppressStdOut=True)
-    print "number of lines: %s" % (len(lines))
     if len(lines) < 2:
         return False
     return re.compile(pattern).search(lines[1]) is not None
@@ -127,16 +126,21 @@ def deleteFolder(folderPath):
     Deletes the specified folder.
     Raises an exception in case of error.
     """
-    printAndFlush("Delete %s" % folderPath)
+    printAndFlush("Delete '%s'" % folderPath)
     def errorHandler(*args):
         _, path, _ = args
-        raise Exception("Couldn't delete %s" % path)
+        raise Exception("Couldn't delete '%s'" % path)
     shutil.rmtree(folderPath, onerror = errorHandler)
     
 def copyFromTo(sourceFolder, destinationFolder, relativePathInSourceFolder):
-    shutil.copytree("%s/%s" % (sourceFolder, relativePathInSourceFolder), 
-                    "%s/%s" % (destinationFolder, relativePathInSourceFolder), ignore = shutil.ignore_patterns(".svn"))
-    printAndFlush("%s copied from %s to %s" % (relativePathInSourceFolder, sourceFolder, destinationFolder))
+    source = "%s/%s" % (sourceFolder, relativePathInSourceFolder)
+    destination = "%s/%s" % (destinationFolder, relativePathInSourceFolder)
+    if os.path.isfile(source):
+        shutil.copyfile(source, destination)
+    else:
+        shutil.copytree(source, 
+                    destination, ignore = shutil.ignore_patterns(".*"))
+    printAndFlush("'%s' copied from '%s' to '%s'" % (relativePathInSourceFolder, sourceFolder, destinationFolder))
     
 def dropDatabase(psqlExe, database):
     """

@@ -22,23 +22,39 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.dssProperties['data-set-file-name-entity-separator'] = '.'
         openbisController.dssProperties['metabol-database.kind'] = openbisController.databaseKind
         openbisController.allUp()
-        self.dropDataSucessfully(openbisController, 'any-file-upload', 4)
-        self.dropDataSucessfully(openbisController, 'different-sample-mapping', 3)
         for name in os.listdir(self.getExpectedErrorLogsFolder(openbisController.testName)):
-            dataName = name[0:-4]
-            self.dropInvalidData(openbisController, dataName)
-        self.dropInvalidData(openbisController, 'ignore-empty-dir', expectingEmptyData=True)
+            if name.endswith('.txt'):
+                self.dropInvalidData(openbisController, name[0:-4])
         self.dropInvalidData(openbisController, 'ignore-no-index', expectingEmptyData=True)
-
+        self.dropInvalidData(openbisController, 'ignore-empty-dir', expectingEmptyData=True)
+        openbisController.assertNumberOfDataSets(2, openbisController.getDataSets())
+        self.dropDataSucessfully(openbisController, 'any-file-upload', 4, 6)
+        self.dropDataSucessfully(openbisController, 'different-sample-mapping', 3, 9)
+        self.dropDataSucessfully(openbisController, 'real-data-small', 4, 13)
+        self.dropDataSucessfully(openbisController, 'sample-code-with-experiment', 1, 14)
+        self.dropDataSucessfully(openbisController, 'upload-mzxml-to-db', 1, 15)
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.eicML', 1, 17, 'incoming-eicml')
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.fiaML', 1, 18, 'incoming-fiaml')
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.anyText123', 1, 19, 'incoming-quantml')
+        self.assertNumberOfFiles(openbisController, 'eicml', 6)
+        self.assertNumberOfFiles(openbisController, 'fiaml', 2)
 
     def executeInDevMode(self):
         openbisController = self.createOpenbisController(dropDatabases=False)
         openbisController.allUp()
-            
-    def dropDataSucessfully(self, openbisController, dataName, numberOfDataSets):
-        openbisController.dropAndWait(dataName, 'incoming', numberOfDataSets = 3)
-        openbisController.assertEmptyFolder('data/incoming');
-        openbisController.assertNumberOfDataSets(numberOfDataSets, openbisController.getDataSets())
+        
+    def assertNumberOfFiles(self, openbisController, dropboxType, expectedNumberOfFiles):
+        count = 0
+        drobboxFolder = "%s/data/dropbox-%s" % (openbisController.installPath, dropboxType)
+        for f in os.listdir(drobboxFolder):
+            if f.startswith('TEST&TEST_PROJECT&EXP_TEST.'):
+                count += 1
+        self.assertEquals("number of files in '%s'" % drobboxFolder, expectedNumberOfFiles, count)
+        
+    def dropDataSucessfully(self, openbisController, dataName, numberOfDataSets, totalNumberOfDataSets, dropboxName = 'incoming'):
+        openbisController.dropAndWait(dataName, dropboxName, numberOfDataSets = numberOfDataSets)
+        openbisController.assertEmptyFolder("data/%s" % dropboxName);
+        openbisController.assertNumberOfDataSets(totalNumberOfDataSets, openbisController.getDataSets())
         
 
     def dropInvalidData(self, openbisController, dataName, expectingEmptyData = False):

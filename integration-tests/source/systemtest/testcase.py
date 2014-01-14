@@ -492,7 +492,7 @@ class OpenbisController(_Controller):
         resultSet = self.queryDatabase('openbis', 
                                        "select data.id,ds.code,e.code,data.code,t.code,location,"
                                        + "    data.data_producer_code,data.production_timestamp from data"
-                                       + " join external_data as ed on ed.data_id = data.id" 
+                                       + " left join external_data as ed on ed.data_id = data.id" 
                                        + " join data_set_types as t on data.dsty_id = t.id"
                                        + " join experiments as e on data.expe_id = e.id"
                                        + " join data_stores as ds on data.dast_id = ds.id order by data.id")
