@@ -19,6 +19,9 @@ from org.apache.commons.io import IOUtils
 from java.io import File
 from java.io import FileOutputStream
 from java.lang import System
+from net.lingala.zip4j.core import ZipFile
+
+import uuid
 
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
@@ -50,6 +53,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	dataSetType = parameters.get("dataSetType"); #String
 	fileSessionKey = parameters.get("fileSessionKey"); #String
 	filename = parameters.get("filename"); #String
+	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	
 	dataSetSample = tr.getSample(sampleIdentifier);
@@ -66,7 +70,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 	#Move File
 	tempDir = System.getProperty("java.io.tmpdir");
-	temFile = File(tempDir + filename);
+	temFile = File(tempDir + "/"+ filename);
 	
 	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
 	inputStream = dss_component.getFileFromSessionWorkspace(fileSessionKey);
@@ -76,7 +80,17 @@ def insertDataSet(tr, parameters, tableBuilder):
 	IOUtils.closeQuietly(inputStream);
 	IOUtils.closeQuietly(outputStream);
 	
-	tr.moveFile(temFile.getAbsolutePath(), dataSet);
+	if isZipDirectoryUpload:
+		tempFolder = tempDir + "/" +  str(uuid.uuid4());
+		print tempFolder;
+		zipFile = ZipFile(temFile.getAbsolutePath());
+		zipFile.extractAll(tempFolder);
+		tr.moveFile(tempFolder, dataSet);
+		#for item in File(tempFolder).listFiles():
+		#	tr.moveFile(item.getAbsolutePath(), dataSet);
+	else:
+		tr.moveFile(temFile.getAbsolutePath(), dataSet);
+	
 	
 	#Clean File from workspace
 	dss_component.deleteSessionWorkspaceFile(fileSessionKey);

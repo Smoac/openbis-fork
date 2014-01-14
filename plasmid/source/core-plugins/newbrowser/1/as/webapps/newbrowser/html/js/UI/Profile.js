@@ -83,6 +83,7 @@ $.extend(DefaultProfile.prototype, {
 		this.searchSorter = function(searchResults) {
 			return searchResults;
 		}
+		
 		//
 		// Per Lab Extensions
 		//
@@ -100,9 +101,19 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		/*
-		 * Used by Inspector
+		 * Used by DataSet Form
 		 */
 		
+		//Null: Show checkbox to manually input
+		//True: Automatic configuration, will unzip the file before atacching the files
+		//False: Will do nothing to the file before attaching
+		this.isZipDirectoryUpload = function(dataSetType) {
+			return null;
+		}
+		
+		/*
+		 * Used by Inspector
+		 */
 		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
 			return {
 					"isSingleColumn" : false,

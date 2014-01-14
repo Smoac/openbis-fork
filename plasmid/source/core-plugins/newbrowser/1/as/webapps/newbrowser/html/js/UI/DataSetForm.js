@@ -94,6 +94,18 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		
 		$wrapper.append($fileFieldSet);
 		
+		var isZipDirectoryUpload = this.profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
+		if(isZipDirectoryUpload === null) {
+			var $fileFieldSetIsDirectory = $('<fieldset>')
+			.append($('<div>', { class : "control-group"})
+						.append($('<label>', {class : 'control-label'}).text('ZIP compressed folder:'))
+						.append($('<div>', {class: 'controls'})
+							.append(this._getBooleanField('isZipDirectoryUpload', 'ZIP compressed folder:')))
+			);
+			$wrapper.append($fileFieldSetIsDirectory);
+		}
+		
+		
 		//Submit Button
 		var $submitButton = $('<fieldset>')
 			.append($('<div>', { class : "control-group"}))
@@ -286,6 +298,11 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				}
 			}
 			
+			var isZipDirectoryUpload = this.profile.isZipDirectoryUpload($('#DATASET_TYPE').val());			
+			if(isZipDirectoryUpload === null) {
+				isZipDirectoryUpload = $("#isZipDirectoryUpload"+":checked").val() === "on";
+			}
+			
 			var parameters = {
 					//API Method
 					"method" : "insertDataSet",
@@ -294,6 +311,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 					"dataSetType" : $('#DATASET_TYPE').val(),
 					"fileSessionKey" : fileSessionKey,
 					"filename" : document.getElementById('fileToUpload').files[0].name,
+					"isZipDirectoryUpload" : isZipDirectoryUpload,
 					//Metadata
 					"metadata" : metadata,
 					//For Moving files
