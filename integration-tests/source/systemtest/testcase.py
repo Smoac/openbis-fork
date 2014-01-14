@@ -123,7 +123,7 @@ class TestCase(object):
         if not re.search(pattern, log):
             self.fail("Pattern doesn't match: %s" % pattern)
     
-    def assertEquals(self, itemName, expected, actual):
+    def assertEquals(self, itemName, expected, actual, verbose=True):
         """
         Asserts that expected == actual. If not the test will be continued but counted as failed.
         Returns False if assertion fails otherwise True.
@@ -131,9 +131,9 @@ class TestCase(object):
         if expected != actual:
             self.fail("%s\n  expected: <%s>\n   but was: <%s>" % (itemName, expected, actual))
             return False
-        else:
+        elif verbose:
             util.printAndFlush("%s as expected: <%s>" % (itemName, expected))
-            return True
+        return True
     
     def fail(self, errorMessage):
         """
@@ -529,13 +529,13 @@ class OpenbisController(_Controller):
         """
         util.dropDatabase(PSQL_EXE, "%s_%s" % (databaseType, self.databaseKind))
         
-    def queryDatabase(self, databaseType, queryStatement):
+    def queryDatabase(self, databaseType, queryStatement, showHeaders = False):
         """
         Executes the specified SQL statement for the specified database type. Result set is returned
         as a list of lists.
         """
         database = "%s_%s" % (databaseType, self.databaseKind)
-        return util.queryDatabase(PSQL_EXE, database, queryStatement)
+        return util.queryDatabase(PSQL_EXE, database, queryStatement, showHeaders)
     
     def allUp(self):
         """ Starts up AS and DSS if not running. """

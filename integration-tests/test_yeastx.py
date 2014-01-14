@@ -38,10 +38,27 @@ class TestCase(systemtest.testcase.TestCase):
         self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.anyText123', 1, 19, 'incoming-quantml')
         self.assertNumberOfFiles(openbisController, 'eicml', 6)
         self.assertNumberOfFiles(openbisController, 'fiaml', 2)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'eic_ms_runs', 2)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'fia_ms_runs', 2)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'mz_ms_runs', 1)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'ms_quantifications', 1)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'ms_quant_concentrations', 2)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'ms_quant_compounds', 3)
+        self.assertNumberOfRowsInMetabolDev(openbisController, 'mz_scans', 19, showContentIfFailed = False)
+        result = util.executeCommand(['find', "%s/data/store/1" % openbisController.installPath, '-type', 'f'], suppressStdOut=True)
+        if not self.assertEquals("number of files in store", 19, len(result)):
+            util.printAndFlush("Files in store:")
+            for line in result:
+                util.printAndFlush(line)
+        util.printAndFlush("Check data store code and experiment code of all data sets")
+        for dataSet in dataSets:
+            self.assertEquals("data store of data set %s" % dataSet.id, 'DSS1', dataSet.dataStore, verbose=False)
+            self.assertEquals("experiment code of data set %s" % dataSet.id, 'EXP_TEST', dataSet.experimentCode, verbose=False)
 
     def executeInDevMode(self):
         openbisController = self.createOpenbisController(dropDatabases=False)
         openbisController.allUp()
+        dataSets = openbisController.getDataSets();
         
     def assertNumberOfFiles(self, openbisController, dropboxType, expectedNumberOfFiles):
         count = 0
@@ -56,6 +73,12 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.assertEmptyFolder("data/%s" % dropboxName);
         openbisController.assertNumberOfDataSets(totalNumberOfDataSets, openbisController.getDataSets())
         
+    def assertNumberOfRowsInMetabolDev(self, openbisController, tableName, expectedNumberOfRows, showContentIfFailed = True):
+        result = openbisController.queryDatabase("metabol", "select * from %s" % tableName, showHeaders = True)
+        if not self.assertEquals("number of rows in %s" % tableName, expectedNumberOfRows, len(result) - 2) and showContentIfFailed:
+            util.printAndFlush("Actual content of table %s" % tableName);
+            for row in result:
+                util.printAndFlush(row)
 
     def dropInvalidData(self, openbisController, dataName, expectingEmptyData = False):
         openbisController.drop(dataName, 'incoming')

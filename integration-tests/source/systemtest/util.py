@@ -160,12 +160,13 @@ def createDatabase(psqlExe, database, scriptPath = None):
     executeCommand([psqlExe, '-q', '-U', USER, '-d', database,  '-f', scriptPath], suppressStdOut=True,
                    failingMessage="Couldn't execute script %s for database %s" % (scriptPath, database))
     
-def queryDatabase(psqlExe, database, queryStatement):
+def queryDatabase(psqlExe, database, queryStatement, showHeaders = False):
     """
     Queries specified database by applying specified SQL statement and returns the result set as a list
     where each row is a list, too.
     """
-    lines = executeCommand([psqlExe, '-U', 'postgres', '-tA', '-d', database, '-c', queryStatement], 
+    printingOption = '-A' if showHeaders else '-tA'
+    lines = executeCommand([psqlExe, '-U', 'postgres', printingOption, '-d', database, '-c', queryStatement], 
                            "Couldn't execute query: %s" % queryStatement, suppressStdOut = True)
     result = []
     for line in lines:
