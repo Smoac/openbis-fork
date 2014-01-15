@@ -124,14 +124,14 @@ public class SessionWorkspaceFileUploadServlet extends HttpServlet
             return HttpServletRequestUtils.getIntegerParameter(request, ID_PARAM);
         }
 
-        public Integer getStartByte()
+        public Long getStartByte()
         {
-            return HttpServletRequestUtils.getIntegerParameter(request, START_BYTE_PARAM);
+            return HttpServletRequestUtils.getNumberParameter(request, START_BYTE_PARAM);
         }
 
-        public Integer getEndByte()
+        public Long getEndByte()
         {
-            return HttpServletRequestUtils.getIntegerParameter(request, END_BYTE_PARAM);
+            return HttpServletRequestUtils.getNumberParameter(request, END_BYTE_PARAM);
         }
 
         public String getFileName()
