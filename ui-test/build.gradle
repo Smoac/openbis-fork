@@ -27,6 +27,7 @@ sourceSets {
 }
 
 configurations.create('testRuntimeFirst')
+configurations.create('testRuntimeSecond')
 configurations.create('externalDss')
 
 dependencies {
@@ -35,11 +36,13 @@ dependencies {
 			'mortbay:jetty:+'
 			
 	testRuntimeFirst 'javax:servlet-api:+', 'reflections:reflections:+'
+
+	testRuntimeSecond 'google:gwt-user:+'
 	
 	externalDss project(':datastore_server')
 } 
 
-sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + sourceSets.test.runtimeClasspath
+sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + configurations.testRuntimeSecond + sourceSets.test.runtimeClasspath
 
 task copyWar(type: Copy, dependsOn: project(':openbis_standard_technologies').war) {
 	from project(':openbis_standard_technologies').war
