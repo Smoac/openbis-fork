@@ -66,4 +66,28 @@ public class HttpServletRequestUtils
         }
     }
 
+    /**
+     * Returns a value of the specified request parameter as Long. If the value is null or the trimmed value is empty then returns null.
+     * 
+     * @throws IllegalArgumentException when the parameter value is not a valid integer
+     */
+    public static final Long getNumberParameter(HttpServletRequest request, String parameterName)
+    {
+        String parameterValue = getStringParameter(request, parameterName);
+
+        if (parameterValue == null)
+        {
+            return null;
+        } else
+        {
+            try
+            {
+                return Long.valueOf(parameterValue);
+            } catch (NumberFormatException e)
+            {
+                throw new IllegalArgumentException("Parameter: " + parameterName
+                        + " is not a valid number: " + parameterValue);
+            }
+        }
+    }
 }

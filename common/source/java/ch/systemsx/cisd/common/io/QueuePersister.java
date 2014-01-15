@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,12 +40,12 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * An {@link IQueuePersister} that is based on records in a file. This class uses Java serialization
- * on the queue elements and thus requires queue elements to be serializable.
+ * An {@link IQueuePersister} that is based on records in a file. This class uses Java serialization on the queue elements and thus requires queue
+ * elements to be serializable.
  * 
  * @author Pawel Glyzewski
  */
-public class QueuePersister<E> implements IQueuePersister<E>
+public class QueuePersister<E extends Serializable> implements IQueuePersister<E>
 {
     private static final int MAX_RETRIES_ON_FAILURE = 3;
 
