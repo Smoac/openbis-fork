@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-annotations.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jackson/jackson-databind.jar"/>
+	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
