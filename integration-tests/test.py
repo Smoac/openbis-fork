@@ -9,7 +9,7 @@ import sys
 import time
 
 import settings
-from systemtest.util import printAndFlush
+from systemtest.util import printAndFlush, renderDuration
 
 startTime = time.time() 
 numberOfTestCases = 0
@@ -26,7 +26,7 @@ for f in sorted(os.listdir(os.path.dirname(__file__))):
             except:
                 numberOfFailedTestCases += 1
 printAndFlush('=====================================')
-printAndFlush("%d test cases executed in %d seconds" % (numberOfTestCases, time.time() - startTime))
+printAndFlush("%d test cases executed in %s" % (numberOfTestCases, renderDuration(time.time() - startTime)))
 if numberOfFailedTestCases == 0:
     printAndFlush("no test case failed")
     exit(0)

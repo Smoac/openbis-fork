@@ -51,6 +51,7 @@ class TestCase(systemtest.testcase.TestCase):
             for line in result:
                 util.printAndFlush(line)
         util.printAndFlush("Check data store code and experiment code of all data sets")
+        dataSets = openbisController.getDataSets();
         for dataSet in dataSets:
             self.assertEquals("data store of data set %s" % dataSet.id, 'DSS1', dataSet.dataStore, verbose=False)
             self.assertEquals("experiment code of data set %s" % dataSet.id, 'EXP_TEST', dataSet.experimentCode, verbose=False)
@@ -58,7 +59,6 @@ class TestCase(systemtest.testcase.TestCase):
     def executeInDevMode(self):
         openbisController = self.createOpenbisController(dropDatabases=False)
         openbisController.allUp()
-        dataSets = openbisController.getDataSets();
         
     def assertNumberOfFiles(self, openbisController, dropboxType, expectedNumberOfFiles):
         count = 0

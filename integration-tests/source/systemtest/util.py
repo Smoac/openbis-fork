@@ -189,8 +189,27 @@ def getNumberOfDifferences(fileOrFolder1, fileOrFolder2):
     return len(result.left_only) + len(result.right_only) + len(result.diff_files)
 
 def getContent(path):
+    """
+    Returns the content at specified path as an array of lines. Trailing white spaces (including new line)
+    has been stripped off.
+    """
     with open(path, "r") as f:
         return [ l.rstrip() for l in f.readlines()]
+    
+def renderDuration(duration):
+    renderedDuration = renderNumber(duration, 'second')
+    if duration > 80:
+        minutes = duration / 60
+        seconds = duration % 60
+        if seconds > 0:
+            renderedDuration = "%s and %s" % (renderNumber(minutes, 'minute'), renderNumber(seconds, 'second'))
+        else:
+            renderedDuration = renderNumber(minutes, 'minute')
+    return renderedDuration
+
+def renderNumber(number, unit):
+    return ("1 %s" % unit) if number == 1 else ("%d %ss" % (number, unit))
+
     
 class LogMonitor():
     """

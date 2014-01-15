@@ -86,13 +86,13 @@ class TestCase(object):
             success = False
             raise Exception("%s failed" % self.name)
         finally:
-            duration = time.time() - startTime
+            duration = util.renderDuration(time.time() - startTime)
             if not self.devMode:
                 self.releaseResources()
             if success:
-                util.printAndFlush("\...........SUCCESS: %s executed in %d seconds .........." % (self.name, duration))
+                util.printAndFlush("\...........SUCCESS: %s executed in %s .........." % (self.name, duration))
             else:
-                util.printAndFlush("\............FAILED: %s executed in %d seconds .........." % (self.name, duration))
+                util.printAndFlush("\............FAILED: %s executed in %s .........." % (self.name, duration))
         
     def execute(self):
         """
@@ -355,7 +355,7 @@ class DatamoverController(_Controller):
         util.executeCommand(["%s/datamover.sh" % self.installPath, 'stop'],
                             "Couldn't shut down datamover '%s'." % self.instanceName)
         
-    def dropAnWait(self, testDataSetName):
+    def drop(self, testDataSetName):
         """ Drops the specified test data set into incoming folder. """
         util.copyFromTo("%s/%s" % (TEST_DATA, self.testName), "%s/data/incoming" % self.installPath, testDataSetName)
 
