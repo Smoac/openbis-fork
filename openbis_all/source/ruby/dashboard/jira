@@ -4,6 +4,9 @@ require 'rubygems'
 require 'json'
 require 'pp'
 require 'set'
+require './jirarb/core'
+require './jirarb/debug'
+require './jirarb/kanban'
 
 #
 # = A wrapper for scripting jira
@@ -44,297 +47,7 @@ $jira_prefs_path = File.expand_path('~/.jira')
 $jira_cookie_path = File.join($jira_prefs_path, 'cookie.txt')
 
 
-# 
-# == Issue Object
-#
-class Issue
-  
-  def initialize(data)
-    @issue = data
-  end
-  
-  def key
-    return @issue["key"]
-  end
-  
-  def fields
-    return @issue["fields"]
-  end
-  
-  def implements
-    implements = nil
-    links = self.fields["issuelinks"]
-    unless links.nil?
-      links.each { | link | implements =  Issue.new(link["outwardIssue"]) if "implements" == link["type"]["outward"] && !link["outwardIssue"].nil? }
-    end
 
-    return implements
-  end
-  
-  def implemented_by
-    implementedby = []
-    links = self.fields["issuelinks"]
-    unless links.nil?
-      links.each { | link | implementedby << Issue.new(link["inwardIssue"]) if "implements" == link["type"]["outward"] && !link["inwardIssue"].nil?}
-    end
-    return implementedby
-  end
-  
-  def time
-    return 0 if self.fields["timetracking"].nil?
-    return self.fields["timetracking"]["remainingEstimateSeconds"] ? self.fields["timetracking"]["remainingEstimateSeconds"] : 0
-  end
-  
-  def time_spent
-    # The result is preformatted by JIRA
-    return "" if self.fields["timetracking"].nil?
-    return self.fields["timetracking"]["timeSpent"] ? self.fields["timetracking"]["timeSpent"] : ""
-  end
-  
-  def status
-    return self.fields["status"] ? self.fields["status"]["name"] : nil
-  end
-  
-  def tester
-    return self.fields["customfield_10250"] ? self.fields["customfield_10250"]["name"] : nil
-  end
-  
-  def summary
-    return self.fields["summary"]
-  end
-  
-  def assignee
-    return self.fields["assignee"] ? self.fields["assignee"]["name"] : nil
-  end
-  
-  def fix_version
-    fix_versions = self.fields["fixVersions"]
-    return "Unscheduled" if fix_versions.nil?
-    return "" if fix_versions[0].nil?
-    return fix_versions[0]["name"]
-  end
-  
-  def fix_versions
-    fix_versions = self.fields["fixVersions"]
-    return "Unscheduled" if fix_versions.nil?
-    return fix_versions.collect { | each | each["name"] }.join(" ")
-  end
-  
-  def transitions
-    @issue["transitions"]
-  end
-  
-  def next_sprint
-    self.fields["customfield_10550"]
-  end
-  
-  def resolved_or_closed?
-    status = self.status
-    (status == "Resolved" || status == "Closed")
-  end
-end
-
-
-#
-# A module that implements some helpful operations
-#
-module JiraHelpers
-
-  def JiraHelpers.search(query, limit=nil)
-    search_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/search' --data-urlencode 'os_authType=cookie' --data-urlencode 'jql=#{query}' --data-urlencode 'fields=*all,-comment'"
-    search_cmd = search_cmd + " --data-urlencode 'maxResults=#{limit}'" unless limit.nil?
-    return `#{search_cmd}`
-  end
-  
-  def JiraHelpers.issue(issue_number, limit=nil)
-    issue_cmd = "curl -s --get --cookie #{$jira_cookie_path} '#{$jira_api_url}/issue/#{issue_number}' --data-urlencode 'os_authType=cookie' --data-urlencode 'expand=transitions'"
-    data = `#{issue_cmd}`
-    issue_data = JSON.load(data)
-    return Issue.new(issue_data)    
-  end  
-  
-  def JiraHelpers.rank(issue, after, before=nil)
-    rank_data = {"issueKeys" => [issue], "customFieldId" => 10050 }
-    rank_data["rankAfterKey"] = after
-    rank_data["rankBeforeKey"] = before unless before.nil?    
-    rank_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' -X PUT '#{$jira_url}/rest/greenhopper/1.0/rank' -d '#{JSON.generate(rank_data)}'"
-    return `#{rank_cmd}`
-  end 
-  
-  def JiraHelpers.create_sp_issue(summary, description, fixversion)
-    # May need to escape the summary
-    issue_data = {
-      "fields" => { 
-        "project" => {"key" => "SP" } , 
-        "summary" => summary, 
-        "description" => description, 
-        "fixVersions" => [ {"name" => fixversion } ],
-        "issuetype" => {"name" => "Task"} 
-      } 
-    }
-    issue_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/' -d '#{JSON.generate(issue_data)}'"
-    ans = `#{issue_cmd}`
-    return JSON.load(ans)
-  end
-  
-  def JiraHelpers.link_sp_to_bis(sp_key, bis_key)
-    link_data = {
-      "type" => { "name" => "Hierarchy" },
-      "inwardIssue" => { "key" => sp_key },
-      "outwardIssue" => { "key" => bis_key }
-    }
-    link_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issueLink' -d '#{JSON.generate(link_data)}'"
-    return `#{link_cmd}`
-  end
-  
-  def JiraHelpers.remove_next_sprint(bis_key)
-    update_data = {
-      "fields" => {
-        "customfield_10550" => nil
-      }
-    }
-    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}' -X PUT -d '#{JSON.generate(update_data)}'"
-    return `#{update_cmd}`
-  end
-  
-  def JiraHelpers.set_next_sprint(bis_key)
-    update_data = {
-      "fields" => {
-        "customfield_10550" => [
-            {"value"=>"Yes", "id"=>"10240", "self"=>"https://jira-bsse.ethz.ch/rest/api/2/customFieldOption/10240"}
-          ]
-      }
-    }
-    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}' -X PUT -d '#{JSON.generate(update_data)}'"
-    return `#{update_cmd}`
-  end
-  
-  def JiraHelpers.set_fix_version(bis_key, fixversion)
-    update_data = { "fields" => { "fixVersions" => [ {"name" => fixversion } ] } }
-    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}' -X PUT -d '#{JSON.generate(update_data)}'"
-    return `#{update_cmd}`
-  end
-  
-  def JiraHelpers.add_fix_version(issue, fixversion)
-    fix_versions = issue.fields["fixVersions"]
-    fix_versions = [] unless fix_versions
-    fix_versions.push({"name" => fixversion })
-    update_data = { "fields" => { "fixVersions" => fix_versions } }
-    update_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{issue.key}' -X PUT -d '#{JSON.generate(update_data)}'"
-    return `#{update_cmd}`
-  end
-  
-  def JiraHelpers.transition(bis_key, trans_id)
-    transition_data = {
-      "transition" => { "id" => "#{trans_id}"}
-    }
-    transition_cmd = "curl -s --cookie #{$jira_cookie_path} -H 'Content-Type: application/json' '#{$jira_api_url}/issue/#{bis_key}/transitions' -d '#{JSON.generate(transition_data)}'"
-    return `#{transition_cmd}`
-  end
-
-  # Search and return the full data for the found objects
-  def JiraHelpers.search_full(query, silent)
-    print "Retrieving issues" unless silent
-    ans = JiraHelpers.search(query)
-    data = JSON.load(ans)
-    
-    full_issues_data = data["issues"]
-    full_issues = full_issues_data.collect { | issue_data | Issue.new(issue_data) }
-    print "\n" unless silent   
-    return full_issues
-  end
-  
-  # Get the full data for entries that implement {issues}.
-  def JiraHelpers.retrieve_implementors(issues, silent)
-    print "Retrieving implementing issues" unless silent
-    implementors = []
-    issues.each do | issue |
-      print "." unless silent
-      implementors.concat issue.implemented_by
-    end
-
-    print "\n" unless silent   
-    return implementors
-  end
-  
-  def JiraHelpers.session_valid_raw
-    # Just get the response code, don't care about the rest
-    ans = `curl -s -w %{http_code} -o /dev/null --head --get --cookie #{$jira_cookie_path} --data-urlencode 'os_authType=cookie' '#{$jira_url}/rest/auth/1/session'`
-    return ans
-  end  
-  
-  def JiraHelpers.session_valid?
-    # Just get the response code, don't care about the rest
-    ans = JiraHelpers.session_valid_raw
-    return false if $?.to_i != 0
-    return ans == "200"
-  end
-end
-
-#
-# A module that simplifies interacting with git
-module GitHelpers
-  def GitHelpers.list_commits(key)
-    return `git cisd log --grep="#{key}" | sed -n '/git-svn-id/p' | sed -E 's/.*trunk@([0-9]+).*/r\\1/'`
-  end
-end
-
-#
-# A module that implements some helpful operations
-#
-module InputHelpers
-  def InputHelpers.args(first_arg)
-    cmd = ARGV[first_arg .. -1].inject("") { | all, each | all + " " + each }
-    cmd.strip!
-    return cmd
-  end
-  
-  def InputHelpers.sprint_name(sprint_name_or_number)
-    sprintNumber = "S" if sprint_name_or_number.nil?
-    sprintNumber = sprint_name_or_number.match("^[S|s].*") ? sprint_name_or_number : "S" + sprint_name_or_number
-    return sprintNumber
-  end
-    
-end
-  
-#
-# == Commands
-#
-
-#
-# The abstract superclass of commands
-# 
-class JiraCommand
-  
-  attr_accessor :silent
-  
-  def initialize
-    @silent = true
-  end
-  
-  # Return a description of the command to run
-  def description
-    return nil
-  end
-  
-  # Run the command and return the result
-  def run
-    return nil
-  end
-
-  # Return true if the result should be printed. 
-  #
-  # Default: print if the result is not empty.
-  def should_print_result(result)
-    return !result.empty? 
-  end
-
-  # helper method to print time in a formatted way
-  def ptime(time)
-    time == 0 ? "" : "%.1fh" % (time / 3600.0)
-  end
-
-end
 
 #
 # The help command
@@ -354,19 +67,25 @@ SYNOPSIS
     jira commmand [arguments]
 
 DESCRIPTION
-    A simple api for jira. Login as jira user and get some info. The available commands are:    
+  A simple api for jira. Login as jira user and get some info. The available commands are:    
 
-	login		asks for login and password to jira and stores a session cookie
+	login
+        asks for login and password to jira and stores a session cookie
 	
-	session		check if the session cookie is still valid
+	session
+        check if the session cookie is still valid
 
-	sprint S133	get the information about the given sprint
+  dump url
+        print given url in pure json 
 
-	dump url	print given url in pure json
+	sprint 133
+        get the information about the given sprint
 
-	plan 133	shows planned BIS issues
+	plan 133
+        shows planned BIS issues
 
-	cust 10		shows an overview of the N highest-priority issues from customer projects (OBP, SOB)
+	cust 10
+        shows an overview of the N highest-priority issues from customer projects (OBP, SOB)
 	
 	search 'project=SP AND fixVersion = S139 ORDER BY \"Global Rank\"' 
 				runs a jira query and shows the results
@@ -375,114 +94,50 @@ DESCRIPTION
 	rank SP-121 SP-122
 				ranks SP-121 after SP-122
 				
-	kanban1304 133 	returns a Kanban list of the issues in S133 designated for the 1304 release
+	kanban1304 133
+        returns a Kanban list of the issues in S133 designated for the 1304 release
 	
-	create 133 	create issues for all BIS issues designated as next sprint	
+	create 133
+        create issues for all BIS issues designated as next sprint	
 	create 133 BIS-111
 				create an issue in S133 for BIS-111
 
-	start 133	mark all BIS issues in S133 as "Active in sprint" and clear the "Next Sprint" flag
+	start 133
+        mark all BIS issues in S133 as "Active in sprint" and clear the "Next Sprint" flag
 	
-	finish 133	Show whether the parent issues to those in S133 are resolved or not				
-	finish 133 exec	mark all BIS issues in S133 that have no other open issues as resolved. 
+	finish 133
+        Show whether the parent issues to those in S133 are resolved or not				
+	finish 133 exec	
+        mark all BIS issues in S133 that have no other open issues as resolved. 
 				Set "Next Sprint" for those with open issues.
 				
-	move 133 	Set the fix version to 133 for all issues that are connected to the BIS issues
-	move 133 SP-452	Set the fix version of SP-452 to 133
+	move 133
+        Set the fix version to 133 for all issues that are connected to the BIS issues
+	move 133 SP-452
+        Set the fix version of SP-452 to 133
 	
-	fix-add 13.04.1  BIS-111	Add the fix version of 13.04.1 to BIS-111
-	fix-add 13.04.1  BIS-111,BIS-112,BIS-113	Add the fix version of 13.04.1 to BIS-111, BIS-112, and BIS-113
+	fix-add 13.04.1  BIS-111
+        Add the fix version of 13.04.1 to BIS-111
+	fix-add 13.04.1  BIS-111,BIS-112,BIS-113
+        Add the fix version of 13.04.1 to BIS-111, BIS-112, and BIS-113
 	
-	port1304 155 	returns a list of issues that need to be ported to the release branch
-	port1304 155 commit	returns a list of commits that need to be ported to the release branch	
+	port1304 155
+        returns a list of issues that need to be ported to the release branch
+	port1304 155 commit
+        returns a list of commits that need to be ported to the release branch
+  
+  report 166
+        returns a table of how much each employee worked for each beneficiary
+
+  benefit	166
+        shows the beneficiaries for all the issues in the sprint
+
+  setup 173
+        Ensure that the version number exists and create the standard tasks for the sprint
   eos
   end
 end
 
-#
-# The login command
-#
-class Login < JiraCommand
- 
-  def initialize
-    super
-    print "Enter jira login (e.g. alincoln): "
-    @jira_user = $stdin.gets().strip
-  end
- 
-  def description
-    return "login"
-  end
-  
-  def run
-    # The url portion for logging in
-    # may also want to try curl -c cookie_jar -H "Content-Type: application/json" -d '{"username" : "admin", "password" : "admin"}' #{$jira_url}/jira/rest/auth/latest/session
-    jira_login = 'secure/Dashboard.jspa?os_authType=basic'
-    Dir.mkdir($jira_prefs_path) unless File.exists?($jira_prefs_path)
-    return `curl --head -s -u #{@jira_user} --cookie-jar #{$jira_cookie_path} '#{$jira_url}/#{jira_login}'`
-  end
-end
-
-#
-# Check if the session is valid
-#
-class SessionValid < JiraCommand
- 
-  def initialize
-    super
-  end
- 
-  def description
-    return "session"
-  end
-  
-  def run
-    return JiraHelpers.session_valid_raw
-  end
-end
-
-#
-# Lists the issues in the sprint
-#
-class LoggedInCommand < JiraCommand
-  def run
-    Login.new.run unless File.exists?($jira_cookie_path)
-    Login.new.run unless JiraHelpers.session_valid?
-    return self.run_logged_in
-  end
-
-  # For subclasses to implement
-  def run_logged_in
-    return ""
-  end
-end
-
-#
-# Shows the JSON for an issue -- useful for debugging
-#
-class DumpIssue < LoggedInCommand
-  def initialize
-    super
-    @issueUrl = ARGV[1]
-  end
-  
-  def description
-    return "dump #{@issueUrl}"
-  end
-  
-  
-  def run_logged_in
-    if @issueUrl.nil?
-      ans =  JiraHelpers.search("project=SP AND fixVersion = S133 ORDER BY \"Global Rank\" ASC")
-      @issueUrl = JSON.load(ans)["issues"][0]["self"]
-    end
-
-    ans = `curl -s --get --cookie #{$jira_cookie_path} '#{@issueUrl}' --data-urlencode 'expand=transitions'`
-    data = JSON.load(ans)
-    return JSON.pretty_generate(data)
-  end
-  
-end
 
 #
 # Prioritize an issue
@@ -620,32 +275,6 @@ class RankSprint < LoggedInCommand
 end
 
 #
-# Shows the JSON for a search results -- useful for debugging
-#
-class DumpSearch < LoggedInCommand
-  def initialize
-    super
-    @query = ARGV[1]
-    @count = ARGV[2]
-  end
-  
-  def description
-    return "search #{@query} #{@count}"
-  end
-  
-  
-  def run_logged_in
-    @query = "project=SP AND fixVersion = S139 ORDER BY \"Global Rank\" ASC" if @query.nil?
-    @count = 1 if @count.nil?
-
-    ans = JiraHelpers.search(@query, @count)
-    data = JSON.load(ans)
-    return JSON.pretty_generate(data)
-  end
-  
-end
-
-#
 # Lists the issues in the sprint
 #
 class ListSprint < LoggedInCommand
@@ -689,192 +318,6 @@ class ListSprint < LoggedInCommand
   end
 end
 
-#
-# Lists the issues in the kanban cycle by combining information from the BIS project and SP project
-#
-class ListKanban1304 < LoggedInCommand
-  def initialize
-    super
-    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
-    @restrict_to_release = true
-  end
-  
-  def description
-    return "kanban1304 #{@sprintNumber}"
-  end
-  
-  
-  def run_logged_in
-    sp_query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
-    sp_issues = JiraHelpers.search_full(sp_query, @silent)
-    init_sp_issue_dict(sp_issues)
-    
-    bis_query= "project=BIS AND status not in (Resolved, Closed) OR (status in (Resolved, Closed) AND fixVersion = #{@sprintNumber}) ORDER BY \"Global Rank\" ASC"
-    bis_query= "project=BIS AND labels in (\"12.xx_REL\", \"13.04.X\") AND status not in (Resolved, Closed) OR (status in (Resolved, Closed) AND fixVersion = #{@sprintNumber}) ORDER BY \"Global Rank\" ASC" if @restrict_to_release
-    bis_issues = JiraHelpers.search_full(bis_query, @silent)
-    enrich_sp_issue_dict(JiraHelpers.retrieve_implementors(bis_issues, @silent))
-    
-    print_issues_table("BIS", bis_issues)
-    print_unseen_sp_issues_table(sp_issues)
-    
-    puts ("=" * 12)
-
-    # Nothing to show
-    issue_count = bis_issues.length
-    return "#{issue_count} issues"
-  end
-  
-  def init_sp_issue_dict(sp_issues)
-    @sp_issue_dict = {}
-    sp_issues.each do | issue |
-      key = issue.key
-      @sp_issue_dict[key] = issue
-    end
-    @seen_sp_issues = [].to_set
-  end
-  
-  #
-  # Take those issues that are not yet resolved / closed and add them to the sp issues dict
-  #
-  def enrich_sp_issue_dict(implementors)
-    implementors.each do | issue |
-      sp = issue.key
-      next if @sp_issue_dict[sp]
-      
-      status = issue.status
-      @sp_issue_dict[sp] = issue unless issue.resolved_or_closed?
-    end 
-  end
-  
-  def print_unseen_sp_issues_table(full_issues)
-    unseen_issues = full_issues.select do | issue |
-      sp = issue.key
-      !@seen_sp_issues.include?(sp)
-    end
-    
-    return if unseen_issues.length < 1
-    
-    puts ("=" * 12)
-    puts "SP Missed"
-    puts ("-" * 12)
-    header = "%12s\t%12s\t%6s\t%8s\t%8s\t%8s\t%s" % ["Key", "SP", "Time", "Devel", "Tester", "Status", "Summary"]
-    puts header
-    subtotal = 0.0
-    unseen_issues.each do | issue |
-      sp = issue.key
-      
-      key = "----"
-      key = issue.implements.key unless issue.implements.nil?
-      time_spent = issue.time_spent
-      assignee = issue.assignee
-      tester = issue.tester
-      summary = issue.summary
-      status = issue.status
-      # Tasks that are resolved can be considered to have 0 time remaining
-      status = issue.status
-      row = "%12s\t%12s\t%6s\t%8s\t%8s\t%8s\t%s" % [key, sp, time_spent, assignee, tester, status, summary]
-      puts row
-    end
-  end
-  
-  def print_issues_table(title, full_issues)
-    return if full_issues.length < 1
-    
-    puts ("=" * 12)
-    puts title
-    puts ("-" * 12)
-    header = "%12s\t%12s\t%6s\t%8s\t%8s\t%8s\t%s" % ["Key", "SP", "Time", "Devel", "Tester", "Status", "Summary"]
-    puts header
-    subtotal = 0.0
-    full_issues.each do | issue |
-      key = issue.key
-      summary = issue.summary
-      parent = issue.fields["parent"]
-      parent = parent["key"] unless parent.nil?
-      summary = "#{parent} / #{summary}" unless parent.nil?
-            
-      implementedby = []
-      issue.implemented_by.each do | sp_issue |
-        sp = sp_issue.key
-        # We are only interested in links to issues in the specified sprint
-        implementedby << sp if @sp_issue_dict[sp]
-      end
-      
-      if implementedby.length < 1
-        row = "%12s\t%12s\t%6s\t%8s\t%8s\t%8s\t%s" % [key, "", "", "", "", "", "[Unscheduled] #{summary}"]
-        puts row
-        next
-      end
-      
-      implementedby.each_with_index do | sp, index |
-        # print one row for each implemented by
-        spissue = @sp_issue_dict[sp]
-        next if spissue.nil?
-        next if @seen_sp_issues.include?(sp)
-        
-        spfields = spissue.fields
-        time_spent = spissue.time_spent
-        assignee = spissue.assignee
-        tester = spissue.tester
-
-        # Tasks that are resolved can be considered to have 0 time remaining
-        fix_version = spissue.fix_version
-        issue_in_different_sprint = fix_version != @sprintNumber
-        status = spissue.status
-        if index < 1 
-          issue_summary = summary
-          issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
-          row = "%12s\t%12s\t%6s\t%8s\t%8s\t%8s\t%s" % [key, sp, time_spent, assignee, tester, status, issue_summary]
-        else
-          issue_summary = "\""
-          issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
-          row = "%12s\t%12s\t%6s\t%8s\t%8s\t%8s\t%s" % ["\"", sp, time_spent, assignee, tester, status, issue_summary]
-        end
-        puts row
-        @seen_sp_issues.add(sp)
-      end
-    end
-  end
-end
-
-#
-# Lists the issues in the kanban cycle by referring only to the BIS project
-#
-class ListKanbanOld < LoggedInCommand
-  def initialize
-    super
-    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
-  end
-  
-  def description
-    return "kanban #{@sprintNumber}"
-  end
-  
-  
-  def run_logged_in
-    query = "project=BIS AND status not in (Resolved, Closed) OR (status = Resolved AND fixVersion = #{@sprintNumber}) ORDER BY \"Global Rank\" ASC" 
-    full_issues = JiraHelpers.search_full(query, @silent)
-    self.print_issues_table(full_issues)
-    # Nothing to show
-    return "#{full_issues.length} issues"
-  end
-  
-  def print_issues_table(full_issues)
-    header = "%8s  %12s\t%12s\t%8s\t%s" % ["Key", "Implements", "Status", "Tester", "Summary"]
-    puts header
-    full_issues.each do | issue |
-      key = issue.key
-      implements_key = issue.implements.key unless issue.implements.nil?
-      status = issue.status
-      tester = issue.tester
-      summary = issue.summary
-      row = "%8s  %12s\t%12s\t%8s\t%s" % [key, implements_key, status, tester, summary]
-      puts row
-    end
-    print " ", ("-" * 27), "\n"
-  end
-end
-
 
 #
 # List the issues slated for a sprint in a form that is helpful for planning
@@ -884,6 +327,7 @@ class PlanSprint < LoggedInCommand
     super
     @sprintNumber = InputHelpers.sprint_name(ARGV[1])
     @total = 0
+    @skip_issues_in_other_sprint = false
   end
   
   def description
@@ -1007,21 +451,23 @@ class PlanSprint < LoggedInCommand
         spissue = @sp_issue_dict[sp]
         next if spissue.nil?
         next if @seen_sp_issues.include?(sp)
+        fix_version = spissue.fix_version
+        issue_in_different_sprint = fix_version != @sprintNumber
+        next if @skip_issues_in_other_sprint && issue_in_different_sprint     
         
         spfields = spissue.fields
         time = spissue.time
 
         # Tasks that are resolved can be considered to have 0 time remaining
-        fix_version = spissue.fix_version
-        issue_in_different_sprint = fix_version != @sprintNumber
+
         status = spissue.status       
         subtotal = subtotal + time unless (status == "Resolved" || status == "Closed" || issue_in_different_sprint)
         if index < 1 
-          issue_summary = summary
+          issue_summary = spissue.summary
           issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
           row = "%8.1fh\t%12s\t%12s\t%6s\t%s" % [subtotal / 3600.0, key, sp, ptime(time), issue_summary]
         else
-          issue_summary = "\""
+          issue_summary = spissue.summary
           issue_summary =  "[#{fix_version}] #{issue_summary}" if issue_in_different_sprint
           row = "%8.1fh\t%12s\t%12s\t%6s\t%s" % [subtotal / 3600.0, "\"", sp, ptime(time), issue_summary]
         end
@@ -1340,7 +786,11 @@ class FinishSprint < LoggedInCommand
       if open_issue
         open_string = "%9s" % open_issue.key
       else
-        open_string = "%9s" % "Finished"
+        if issue.key.match(/^CCS/)
+          open_string = "%9s" % "Customer"          
+        else
+          open_string = "%9s" % "Finished"
+        end
       end
       
       print open_string, " "
@@ -1378,6 +828,12 @@ class FinishSprint < LoggedInCommand
   end
     
   def resolve(issue)
+    
+    if issue.key.match(/^CCS/)
+      print " Customer"
+      return
+    end
+    
     resolve = issue.transitions.detect { | trans | "Resolve Issue" == trans["name"] }
     if resolve
       JiraHelpers.transition(issue.key, resolve["id"])
@@ -1617,22 +1073,6 @@ class ListPort1304 < LoggedInCommand
     end 
   end  
   
-  def print_issues_table_old(full_issues)
-    header = "%8s\t%12s\t%s" % ["Key", "Status", "Commits"]
-    puts header
-    time_remaining = 0.0
-    full_issues.each do | issue |
-      key = issue.key
-      status = issue.status
-      commits = ""
-      row = "%8s\t%12s\t%s" % [key, status, commits]
-      puts row
-      
-    end
-    print " ", ("-" * 27), "\n"
-    print "#{full_issues.length} issues", "\n"
-  end
-  
   def print_issues_table(title, full_issues)
     return if full_issues.length < 1
     
@@ -1761,6 +1201,422 @@ class ListPortCommits1304 < LoggedInCommand
   end
 end
 
+#
+# Abstract command that joins together SP issues with issues from other projects
+#
+class JoinedCommand < LoggedInCommand
+  def initialize
+    super
+    @sprintNumbers = InputHelpers.sprint_names(ARGV[1])
+
+    # This is state available to subclasses
+    @joined_issues = []     # A collection of tuples where the first elt is the original issue 
+                            # and the second element a list with implementors (sorted by sprint and key)
+                            # The list is sorted accourding to implementor key
+    @standalone_issues = []  # A collction of issues that are not connected to anything
+  end
+  
+  # def description
+  #   return "benefit #{@sprintNumber}"
+  # end
+  
+  
+  def run_logged_in
+    sprints = @sprintNumbers.join(",")
+    query = "project=SP AND fixVersion in (#{sprints}) ORDER BY \"Global Rank\" ASC"
+    @sp_issues = JiraHelpers.search_full(query, @silent, 1000)
+    @implements = JiraHelpers.retrieve_full_implements(@sp_issues, @silent, 1000)
+    self.construct_joined_issues()
+
+    # Nothing to show
+    return "#{@sp_issues.length} issues"
+  end
+  
+  def construct_joined_issues
+    @implements.sort { | a, b| a.key <=> b.key }
+
+    # Need a dictionary containing the full implements issue since this information is not included in the SP issues
+    implements_dict = {}
+    joined_issues_dict = {}
+    @implements.each do | issue |
+      implements_dict[issue.key] = issue
+      joined_issues_dict[issue.key] = []
+    end
+
+    @sp_issues.each do | issue |
+      key = issue.key
+      implements = issue.implements
+      implements_key = nil
+      implements_key = implements.key if implements
+      if implements_key and joined_issues_dict[implements_key]
+        joined_issues_dict[implements_key].push(issue)
+      else
+        @standalone_issues.push(issue)
+      end
+    end
+
+    @implements.each do | issue |
+      implemented = joined_issues_dict[issue.key]
+      implemented.sort do | a, b| 
+        fix_version_order = a.fix_version <=> b.fix_version
+        if fix_version_order != 0
+          fix_version_order
+        else
+          a.key <=> b.key
+        end
+      end
+
+      @joined_issues.push([issue, implemented])
+    end
+  end
+  
+  def print_beneficiaries_report()
+    header = "Beneficiaries Report...\n"
+    header = "%8s\t%8s\t%s" % ["BIS", "SP", "Beneficiaries"]
+    puts header
+    @full_issues.each do | issue |
+      key = issue.key
+      implements = issue.implements
+      implements_key = nil
+      implements_key = implements.key if implements
+      if implements_key and @implements_dict[implements_key]
+        beneficiaries = @implements_dict[implements_key].beneficiaries
+      else
+        beneficiaries = []
+      end
+      row = "%8s\t%8s\t%s" % [implements_key, key, JSON.generate(beneficiaries)]
+      puts row      
+    end
+  end
+end
+
+#
+# Puts together a report of which clients we worked for
+#
+class BeneficiariesReport < JoinedCommand
+  
+  def description
+    return "benefit #{@sprintNumbers}"
+  end
+  
+  
+  def run_logged_in
+    super
+    self.print_beneficiaries_report()
+
+    # Nothing to show
+    return "#{@joined_issues.length + @standalone_issues.length} issues"
+  end
+  
+  def print_beneficiaries_report()
+    header = "Beneficiaries Report...\n"
+    columns = "%8s\t%8s\t%8s\t%8s\t%8s\t%20s\t%s"
+    header =  columns % ["BIS", "SP", "Sprint", "Time", "B Count", "Beneficiaries", "Summary"]
+    puts header
+    @joined_issues.each do | pair |
+      bis = pair[0]
+      sps = pair[1]
+      sps.each do | sp | 
+        row = columns % [bis.key, sp.key, sp.fix_version, sp.time_spent, bis.beneficiaries.length, JSON.generate(bis.beneficiaries), sp.summary]
+        puts row 
+      end
+    end
+    @standalone_issues.each do | sp |
+      row = columns % ["", sp.key, sp.fix_version, sp.time_spent, 1, "", sp.summary]
+      puts row     
+    end    
+  end
+end
+
+#
+# Puts together a report of which clients we worked for
+#
+class BeneficiariesReportOld < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+  end
+  
+  def description
+    return "benefit #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    @full_issues = JiraHelpers.search_full(query, @silent)
+    @implements = JiraHelpers.retrieve_full_implements(@full_issues, @silent)
+    self.construct_implements_dict()
+    self.print_beneficiaries_report()
+
+    # Nothing to show
+    return "#{@full_issues.length} issues"
+  end
+  
+  def construct_implements_dict
+    # Need a dictionary containing the full implements issue since this information is not included in the SP issues
+    @implements_dict = {}
+    @implements.each do | issue |
+      @implements_dict[issue.key] = issue
+    end
+  end
+  
+  def print_beneficiaries_report()
+    header = "Beneficiaries Report...\n"
+    header = "%8s\t%8s\t%s" % ["BIS", "SP", "Beneficiaries"]
+    puts header
+    @full_issues.each do | issue |
+      key = issue.key
+      implements = issue.implements
+      implements_key = nil
+      implements_key = implements.key if implements
+      if implements_key and @implements_dict[implements_key]
+        beneficiaries = @implements_dict[implements_key].beneficiaries
+      else
+        beneficiaries = []
+      end
+      row = "%8s\t%8s\t%s" % [implements_key, key, JSON.generate(beneficiaries)]
+      puts row      
+    end
+  end
+end
+
+#
+# Puts together a report of how much time we worked for each client
+#
+class TimeReport < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+  end
+  
+  def description
+    return "report #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    @full_issues = JiraHelpers.search_full(query, @silent)
+    @implements = JiraHelpers.retrieve_full_implements(@full_issues, @silent)
+    @users = Set.new
+    self.construct_implements_dict()
+    self.gather_time_data()
+    self.print_time_report()
+
+    # Nothing to show
+    return "#{@full_issues.length} issues"
+  end
+  
+  def construct_implements_dict
+    # Need a dictionary containing the full implements issue since this information is not included in the SP issues
+    @implements_dict = {}
+    @implements.each do | issue |
+      @implements_dict[issue.key] = issue
+    end
+  end
+
+  def accumulate_beneficiary_user_time(issue, beneficiary, factor)
+    @beneficiary_user_time[beneficiary] = {} unless @beneficiary_user_time[beneficiary]
+    entry = @beneficiary_user_time[beneficiary]
+    
+    issue.worklogs.each do | worklog_entry |
+      user = worklog_entry["author"]["name"]
+      entry[user] = 0 unless entry[user]
+      entry[user] = entry[user] + (worklog_entry["timeSpentSeconds"] * factor)   
+      @users << user
+    end
+  end  
+  
+  def accumulate_user_time(issue)
+    implements = issue.implements
+    implements_key = nil
+    implements_key = implements.key if implements
+    if implements_key and @implements_dict[implements_key]
+      beneficiaries = @implements_dict[implements_key].beneficiaries
+    else
+      beneficiaries = ["Infrastructure"]
+    end
+
+    factor = 1.0 / beneficiaries.size
+    beneficiaries.each do | beneficiary |
+      self.accumulate_beneficiary_user_time(issue, beneficiary, factor)
+    end
+  end
+  
+  
+  def gather_time_data()
+    # Summarize work per user on each issue
+    @beneficiary_user_time = {}
+    @full_issues.each do | issue |
+      accumulate_user_time(issue)
+    end
+  
+  end
+  
+  def print_time_report()
+    header = "%9s\t" % ['User']
+    beneficiaries = @beneficiary_user_time.keys.sort
+    beneficiaries.each { | key | header = header + ("%9s\t" % [key]) }
+    header = header + "Total"
+    puts header    
+
+    @users.sort.each do | user |
+      print "%9s\t" % [user]
+      total = 0
+      beneficiaries.each do | beneficiary |
+        all_time = @beneficiary_user_time[beneficiary]
+        user_time = all_time[user]
+        user_time = 0 unless user_time
+        total = total + user_time
+        print "%9s\t" % [self.ptime(user_time)]
+      end
+      print "#{self.ptime(total)}\n"
+    end
+
+    # Summary row
+    print "%9s\t" % ["Total"]
+    total = 0
+    beneficiaries.each do | beneficiary |
+      all_time = @beneficiary_user_time[beneficiary]
+      issue_total = 0 if all_time.values.empty?
+      issue_total = all_time.values.reduce(:+) unless all_time.values.empty?
+      total = total + issue_total
+      print "%9s\t" % [self.ptime(issue_total)]
+    end
+    print "#{self.ptime(total)}\n"    
+  end
+end
+
+#
+# Puts together a report of how much time we worked for each client over a range of sprints.
+# This version ignores issues with beneficiary
+#
+class TimeReportRange < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+    @sprintNumber2 = InputHelpers.sprint_name(ARGV[2])    
+  end
+  
+  def description
+    return "report #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    query = "project=SP AND fixVersion = #{@sprintNumber} ORDER BY \"Global Rank\" ASC" 
+    @full_issues = JiraHelpers.search_full(query, @silent)
+    @implements = JiraHelpers.retrieve_full_implements(@full_issues, @silent)
+    @users = Set.new
+    self.construct_implements_dict()
+    self.gather_time_data()
+    self.print_time_report()
+
+    # Nothing to show
+    return "#{@full_issues.length} issues"
+  end
+  
+  def construct_implements_dict
+    # Need a dictionary containing the full implements issue since this information is not included in the SP issues
+    @implements_dict = {}
+    @implements.each do | issue |
+      @implements_dict[issue.key] = issue
+    end
+  end
+
+  def accumulate_beneficiary_user_time(issue, beneficiary, factor)
+    @beneficiary_user_time[beneficiary] = {} unless @beneficiary_user_time[beneficiary]
+    entry = @beneficiary_user_time[beneficiary]
+    
+    issue.worklogs.each do | worklog_entry |
+      user = worklog_entry["author"]["name"]
+      entry[user] = 0 unless entry[user]
+      entry[user] = entry[user] + (worklog_entry["timeSpentSeconds"] * factor)   
+      @users << user
+    end
+  end  
+  
+  def accumulate_user_time(issue, include_empty)
+    implements = issue.implements
+    implements_key = nil
+    implements_key = implements.key if implements
+    if implements_key and @implements_dict[implements_key]
+      beneficiaries = @implements_dict[implements_key].beneficiaries
+    else
+      return if !include_empty
+      beneficiaries = ["Infrastructure"]
+    end
+
+    factor = 1.0 / beneficiaries.size
+    beneficiaries.each do | beneficiary |
+      self.accumulate_beneficiary_user_time(issue, beneficiary, factor)
+    end
+  end
+  
+  
+  def gather_time_data()
+    # Summarize work per user on each issue
+    @beneficiary_user_time = {}
+    @full_issues.each do | issue |
+      accumulate_user_time(issue, false)
+    end
+  
+  end
+  
+  def print_time_report()
+    header = "%9s\t" % ['User']
+    beneficiaries = @beneficiary_user_time.keys.sort
+    beneficiaries.each { | key | header = header + ("%9s\t" % [key]) }
+    header = header + "Total"
+    puts header    
+
+    # Summary row
+    print "%9s\t" % ["Total"]
+    total = 0
+    beneficiaries.each do | beneficiary |
+      all_time = @beneficiary_user_time[beneficiary]
+      issue_total = 0 if all_time.values.empty?
+      issue_total = all_time.values.reduce(:+) unless all_time.values.empty?
+      total = total + issue_total
+      print "%9s\t" % [self.ptime(issue_total)]
+    end
+    print "#{self.ptime(total)}\n"    
+  end
+end
+
+#
+# Set up the sprint boilerplate. Ensure that the fixVersion exists in all the projects and that the standard
+# tasks are defined.
+#
+class SetupSprint < LoggedInCommand
+  def initialize
+    super
+    @sprintNumber = InputHelpers.sprint_name(ARGV[1])
+  end
+  
+  def description
+    return "setup #{@sprintNumber}"
+  end
+  
+  
+  def run_logged_in
+    projects = ['SP', 'BIS', 'CCS', 'CISDTT', 'SYB']
+
+    # Gather the projects with index
+    project_versions = projects.collect { | each | self.find_project_version(each) }
+    project_versions.each.with_index { | each, idx | puts projects[idx], JSON.pretty_generate(each) unless each.empty? }
+
+    # Nothing to show
+    return "#{project_versions.length} versions"
+  end
+
+  def find_project_version(project)
+    versions = JiraHelpers.versions(project)
+    return versions.select { | each | each["name"] == @sprintNumber }
+  end
+  
+end
 
 def get_command
   return Help.new if ARGV.length < 1
@@ -1781,6 +1637,9 @@ def get_command
   when "session" then SessionValid.new
   when "fix-add" then FixVersionAdd.new
   when "port1304" then ARGV.length > 2 ? ListPortCommits1304.new : ListPort1304.new
+  when "report" then ARGV.length > 2 ? TimeReportRange.new : TimeReport.new
+  when "benefit" then BeneficiariesReport.new
+  when "setup" then SetupSprint.new
   else Help.new
   end
 
