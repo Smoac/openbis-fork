@@ -387,17 +387,20 @@ class DataSet(object):
             self.code = resultSetRow[3]
             self.type = resultSetRow[4]
             self.location = resultSetRow[5]
-            self.producer = resultSetRow[6]
-            self.productionTimeStamp = resultSetRow[7]
+            self.status = resultSetRow[6]
+            self.presentInArchive = resultSetRow[7]
+            self.producer = resultSetRow[8]
+            self.productionTimeStamp = resultSetRow[9]
             self.parents = []
             self.children = []
         
         def __str__(self):
             parents = [d.id for d in self.parents]  
             children = [d.id for d in self.children]
-            return "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (self.id, self.dataStore, self.code, self.type, 
-                                                      self.location, parents, children, self.experimentCode, 
-                                                      self.producer, self.productionTimeStamp) 
+            return "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" % (self.id, self.dataStore, self.code, self.type, 
+                                                            self.location, self.status, self.presentInArchive,
+                                                            parents, children, self.experimentCode, 
+                                                            self.producer, self.productionTimeStamp) 
     
 class OpenbisController(_Controller):
     """
@@ -490,7 +493,7 @@ class OpenbisController(_Controller):
         Returns all data sets as a list (ordered by data set ids) of instances of class DataSet.
         """
         resultSet = self.queryDatabase('openbis', 
-                                       "select data.id,ds.code,e.code,data.code,t.code,location,"
+                                       "select data.id,ds.code,e.code,data.code,t.code,location,status,present_in_archive,"
                                        + "    data.data_producer_code,data.production_timestamp from data"
                                        + " left join external_data as ed on ed.data_id = data.id" 
                                        + " join data_set_types as t on data.dsty_id = t.id"
