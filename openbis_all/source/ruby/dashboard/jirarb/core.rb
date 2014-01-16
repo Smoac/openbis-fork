@@ -97,7 +97,7 @@ class Issue
     if beneficiaries.nil?
       return ["openBIS"] if self.key.match(/^BIS-/)
       return ["BSSE YeastLab"] if self.key.match(/^YSC-/)
-      return ["Infrastructure"] if self.key.match(/^SWE-/)
+      return ["Operations"] if self.key.match(/^SWE-/)
       return ["Unknown"] 
     end
     return beneficiaries.collect { | b | b["value"] }

@@ -1435,7 +1435,7 @@ class TimeReport < LoggedInCommand
     if implements_key and @implements_dict[implements_key]
       beneficiaries = @implements_dict[implements_key].beneficiaries
     else
-      beneficiaries = ["Infrastructure"]
+      beneficiaries = ["Operations"]
     end
 
     factor = 1.0 / beneficiaries.size
