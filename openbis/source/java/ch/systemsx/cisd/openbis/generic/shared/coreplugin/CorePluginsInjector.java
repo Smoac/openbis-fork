@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
@@ -61,6 +63,8 @@ public class CorePluginsInjector
     static final String DISABLED_CORE_PLUGINS_KEY = "disabled-core-plugins";
 
     static final String DISABLED_MARKER_FILE_NAME = "disabled";
+
+    static final String INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME = "initialize-master-data";
 
     static final String PLUGIN_PROPERTIES_FILE_NAME = "plugin.properties";
 
@@ -112,9 +116,17 @@ public class CorePluginsInjector
         PluginKeyBundles pluginKeyBundles = new PluginKeyBundles(properties, pluginTypes);
         Set<String> pluginNames = new HashSet<String>();
         pluginKeyBundles.addAndCheckUniquePluginNames(pluginNames);
+        LinkedList<String> listOfDisabledMasterDataInitialization = new LinkedList<String>();
+
         Map<IPluginType, Map<String, NamedCorePluginFolder>> plugins =
                 scanForCorePlugins(corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
-                        pluginNames);
+                        pluginNames, listOfDisabledMasterDataInitialization);
+
+        if (false == listOfDisabledMasterDataInitialization.isEmpty())
+        {
+            injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, StringUtils.join(listOfDisabledMasterDataInitialization, ","));
+        }
+
         for (Entry<IPluginType, Map<String, NamedCorePluginFolder>> entry : plugins.entrySet())
         {
             IPluginType pluginType = entry.getKey();
@@ -186,7 +198,7 @@ public class CorePluginsInjector
 
     private Map<IPluginType, Map<String, NamedCorePluginFolder>> scanForCorePlugins(
             String corePluginsFolderPath, ModuleEnabledChecker moduleEnabledChecker,
-            List<String> disabledPlugins, Set<String> pluginNames)
+            List<String> disabledPlugins, Set<String> pluginNames, List<String> disabledMasterDataInitialization)
     {
         Map<IPluginType, Map<String, NamedCorePluginFolder>> typeToPluginsMap =
                 new LinkedHashMap<IPluginType, Map<String, NamedCorePluginFolder>>();
@@ -202,6 +214,13 @@ public class CorePluginsInjector
                         + "' are not enabled.");
                 continue;
             }
+
+            // special treatment for initialize master data, as it is not a core plugin atm
+            if (isDisabled(disabledPlugins, module + ":" + INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME))
+            {
+                disabledMasterDataInitialization.add(module);
+            }
+
             for (IPluginType pluginType : pluginTypes)
             {
                 File file =
