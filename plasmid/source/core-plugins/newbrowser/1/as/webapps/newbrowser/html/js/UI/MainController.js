@@ -118,6 +118,8 @@ function MainController(profile) {
 		
 		//Show Inspectors
 		this.inspector.repaint();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this.showMainMenu = function() {
@@ -128,6 +130,8 @@ function MainController(profile) {
 		//Show Main menu
 		var mainMenu = new MainMenu(this, "mainContainer", this.profile.menuStructure);
 		mainMenu.init();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this.showSamplesPage = function(sampleTypeCode) {
@@ -144,6 +148,8 @@ function MainController(profile) {
 		//Show Sample Table
 		this.sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);
 		this.sampleTable.init();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
@@ -171,6 +177,7 @@ function MainController(profile) {
 						$("#search").removeClass("search-query-searching");
 						localReference.sampleTable.reloadWithSamples(data);
 						Util.unblockUI();
+						history.pushState(null, "", ""); //History Push State
 					} else {
 						//Discard old response, was triggered but a new one was started
 					}
@@ -181,8 +188,6 @@ function MainController(profile) {
 		}
 		
 		setTimeout(possibleSearch, 800);
-		
-		
 	}
 
 	this.showCreateSamplePage = function(sampleTypeCode) {
@@ -198,6 +203,8 @@ function MainController(profile) {
 		var isELNExperiment = this.profile.isELNExperiment(sampleTypeCode);
 		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
 		this.sampleForm.init();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 
 	this.showEditSamplePage = function(sample) {
@@ -209,6 +216,8 @@ function MainController(profile) {
 		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
 		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, sample);
 		this.sampleForm.init();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 
 	this.showViewSamplePage = function(sample) {
@@ -220,6 +229,8 @@ function MainController(profile) {
 		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
 		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
 		this.sampleForm.init();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this.showCreateDataSetPage = function(sample) {
@@ -230,5 +241,7 @@ function MainController(profile) {
 		//Show Form
 		this.datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
 		this.datasetForm.init();
+		
+		history.pushState(null, "", ""); //History Push State
 	}
 }

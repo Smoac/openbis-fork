@@ -152,6 +152,21 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 		this.repaint();
 		this.updateMenu(breadCrumbPage.id);
 	}
+	
+	//History Pop State
+	var localReference = this;
+	var backButton = function(e) {
+		var breadCrumbIndex = -1;
+		if(localReference.activeMenuId === null) {
+			breadCrumbIndex = localReference.breadcrumb.length-1;
+		} else {
+			breadCrumbIndex = localReference.breadcrumb.length-2;
+		}
+		if(breadCrumbIndex >= 0) {
+			localReference.executeBreadCrumb(breadCrumbIndex);
+		}
+	}
+	window.addEventListener("popstate", backButton);
 }
 
 function BreadCrumbPage(id, href, hrefArgs, displayName) {

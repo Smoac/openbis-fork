@@ -58,7 +58,7 @@ function MainMenu(mainController, containerId, menuStructure) {
 				}
 				
 				var $mainMenuIconLink = $("<a>", {
-					href: "#",
+					href: "javascript:void(0)",
 					click: onClick(menuItem)
 				}).append($("<img>", { src: menuItem.image }));
 					
