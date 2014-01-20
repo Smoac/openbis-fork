@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.coreplugin.JettyWebAppPluginInjector;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
@@ -392,16 +393,16 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         new File(corePluginsFolder, "proteomics/1/dss/reporting-plugins/r1").mkdirs();
         Properties properties = createProperties();
         properties.setProperty(DISABLED_CORE_PLUGINS_KEY,
-                "screening:miscellaneous, screening:drop-boxes:dp1");
+                "screening:miscellaneous, screening:drop-boxes:dp1, screening:" + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME);
         preparePluginNameLog("screening:drop-boxes:dp2 [" + dp2 + "]");
         prepareNotEnabledTechnology("proteomics");
 
         injector.injectCorePlugins(properties);
 
         assertProperties(corePluginsFolderProperty
-                + "disabled-core-plugins = screening:miscellaneous, screening:drop-boxes:dp1\n"
-                + enabledScreeningProperty + "inputs = dp2\n", properties);
-
+                + "disabled-core-plugins = screening:miscellaneous, screening:drop-boxes:dp1, screening:"
+                + CorePluginsInjector.INITIALIZE_MASTER_DATA_CORE_PLUGIN_NAME + "\n"
+                + Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = screening\n" + enabledScreeningProperty + "inputs = dp2\n", properties);
         context.assertIsSatisfied();
     }
 

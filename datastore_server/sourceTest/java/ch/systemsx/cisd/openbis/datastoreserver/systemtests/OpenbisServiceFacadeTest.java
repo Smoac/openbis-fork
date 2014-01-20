@@ -24,10 +24,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -46,6 +50,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetO
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO.DataSetOwnerType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
@@ -229,6 +234,72 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         assertEquals("DMS_2", dataSets.get(2).getExternalDataManagementSystem().getCode());
     }
 
+    @Test
+    public void testListSamplesForProjects()
+    {
+        List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE", "/TEST-SPACE/TEST-PROJECT"));
+
+        assertIdentifiers(samples, "/CISD/CP-TEST-2", "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID",
+                "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL");
+    }
+
+    @Test
+    public void testListSamplesForProjectsWithProjectThatHasSameCodeAsProjectInDifferentSpace()
+    {
+        List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/TEST-SPACE/NOE"));
+
+        assertIdentifiers(samples, "/TEST-SPACE/CP-TEST-4");
+    }
+
+    @Test
+    public void testListSamplesForProjectsWithProjectNotInMySpace()
+    {
+        serviceFacade = createServiceFacade("test_space");
+
+        List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE", "/TEST-SPACE/TEST-PROJECT"));
+
+        assertIdentifiers(samples, "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID",
+                "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL");
+    }
+
+    @Test
+    public void testListSamplesForProjectsWithNotExistingProject()
+    {
+        List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOT_EXISTING_PROJECT"));
+
+        assertEquals(0, samples.size());
+    }
+
+    @Test
+    public void testListSamplesForProjectsWithProperties()
+    {
+        List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE"), EnumSet.of(SampleFetchOption.PROPERTIES));
+
+        assertIdentifiers(samples, "/CISD/CP-TEST-2");
+
+        Sample sample = samples.get(0);
+        Map<String, String> properties = sample.getProperties();
+        assertEquals(5, properties.size());
+    }
+
+    @Test
+    public void testListSamplesForProjectsWithoutProperties()
+    {
+        List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE"));
+
+        assertIdentifiers(samples, "/CISD/CP-TEST-2");
+
+        Sample sample = samples.get(0);
+        try
+        {
+            sample.getProperties();
+            Assert.fail();
+        } catch (IllegalArgumentException e)
+        {
+            assertTrue(e.getMessage().startsWith("Properties were not retrieved"));
+        }
+    }
+
     private List<DataSet> filterToExpected(List<DataSet> foundDataSets)
     {
         DataSet[] expected = new DataSet[3];
@@ -278,6 +349,23 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     {
         assertEquals(expectedContent,
                 FileUtilities.loadToString(new File(root, "original/my-data/" + path)).trim());
+    }
+
+    private void assertIdentifiers(List<Sample> actualSamples, String... expectedIdentifiers)
+    {
+        assertEquals(expectedIdentifiers != null ? expectedIdentifiers.length : 0, actualSamples != null ? actualSamples.size() : 0);
+
+        if (expectedIdentifiers != null && actualSamples != null)
+        {
+            Set<String> expectedIdentifiersSet = new HashSet<String>(Arrays.asList(expectedIdentifiers));
+
+            for (Sample actualSample : actualSamples)
+            {
+                expectedIdentifiersSet.remove(actualSample.getIdentifier());
+            }
+
+            assertTrue(expectedIdentifiersSet.isEmpty());
+        }
     }
 
     private SimpleDataSetInformationDTO getCodeOfLatestDataSet(String dataSetCode)

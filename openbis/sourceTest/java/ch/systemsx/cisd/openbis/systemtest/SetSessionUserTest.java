@@ -142,11 +142,11 @@ public class SetSessionUserTest extends SystemTestCase
         String sessionToken = session.getSessionToken();
         ListSampleCriteria criteria = new ListSampleCriteria();
         SampleType sampleType = new SampleType();
-        sampleType.setId(3l);
+        sampleType.setId(3L);
         criteria.setSampleType(sampleType);
         criteria.setIncludeSpace(true);
         // INSTANCE ADMIN sees all samples that were not deleted
-        assertEquals(13, commonServer.listSamples(sessionToken, criteria).size());
+        assertEquals(14, commonServer.listSamples(sessionToken, criteria).size());
 
         commonServer.setSessionUser(sessionToken, "test");
         commonServer.setSessionUser(sessionToken, "observer"); // allowed because still user 'test'

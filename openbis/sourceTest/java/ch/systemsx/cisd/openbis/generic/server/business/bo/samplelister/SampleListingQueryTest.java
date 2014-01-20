@@ -56,10 +56,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { SampleRecord.class, ExperimentProjectSpaceCodeRecord.class, ISampleListingQuery.class,
-            SampleListerDAO.class, SampleRelationRecord.class })
+{ SampleRecord.class, ExperimentProjectSpaceCodeRecord.class, ISampleListingQuery.class,
+        SampleListerDAO.class, SampleRelationRecord.class })
 @Test(groups =
-    { "db", "sample" })
+{ "db", "sample" })
 public class SampleListingQueryTest extends AbstractDAOTest
 {
 
@@ -133,7 +133,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleCount()
     {
-        assertEquals(699, query.getSampleCount(dbInstanceId)); // without deleted
+        assertEquals(700, query.getSampleCount(dbInstanceId)); // without deleted
     }
 
     @Test
@@ -171,7 +171,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         assertEquals(children1, dilutionPlate1.getGenerated().size());
         assertEquals(children2, dilutionPlate2.getGenerated().size());
         LongSet dilutionPlateIdSet = new LongOpenHashSet(new long[]
-            { dilutionPlate1.getId(), dilutionPlate2.getId() });
+        { dilutionPlate1.getId(), dilutionPlate2.getId() });
         LongSet childrenIds =
                 new LongOpenHashSet(query.getChildrenIds(parentChildRelationshipTypeId,
                         dilutionPlateIdSet));

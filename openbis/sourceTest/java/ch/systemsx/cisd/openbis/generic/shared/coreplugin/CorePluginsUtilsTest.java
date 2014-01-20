@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginScanner.ScannerType;
 
 /**
@@ -71,16 +72,16 @@ public class CorePluginsUtilsTest extends AbstractFileSystemTestCase
         File corePluginsFolder = new File(workingDirectory, "core-plugins");
         corePluginsFolder.mkdirs();
         String enabledTechnology = "tech-" + (int) (100 * Math.random());
-        String key = "enabled-modules";
         FileUtilities.writeToFile(new File(corePluginsFolder,
-                CorePluginsUtils.CORE_PLUGINS_PROPERTIES_FILE), "  " + key + " =   "
+                CorePluginsUtils.CORE_PLUGINS_PROPERTIES_FILE), "  " + Constants.ENABLED_MODULES_KEY + " =   "
                 + enabledTechnology + "   ");
+
         Properties properties = new Properties();
         properties.setProperty(CorePluginsUtils.CORE_PLUGINS_FOLDER_KEY,
                 corePluginsFolder.getPath());
 
         CorePluginsUtils.addCorePluginsProperties(properties, ScannerType.DSS);
 
-        assertEquals(enabledTechnology, properties.getProperty(key));
+        assertEquals(enabledTechnology, properties.getProperty(Constants.ENABLED_MODULES_KEY));
     }
 }

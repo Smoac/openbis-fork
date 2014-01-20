@@ -48,7 +48,7 @@ public class ModuleEnabledCheckerTest extends TestCase
     {
         Properties properties = new Properties();
         properties.setProperty(Constants.ENABLED_MODULES_KEY, "a.*, beta");
-        ModuleEnabledChecker checker = new ModuleEnabledChecker(properties);
+        ModuleEnabledChecker checker = new ModuleEnabledChecker(properties, Constants.ENABLED_MODULES_KEY);
 
         assertEquals(
                 "[true, false, true, false]",

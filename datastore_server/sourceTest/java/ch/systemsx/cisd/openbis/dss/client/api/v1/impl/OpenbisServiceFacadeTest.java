@@ -253,7 +253,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         final List<String> identifiers =
                 unmodifiableList(projectIdentifier("P1"), projectIdentifier("P2"));
         final List<Sample> samples =
-                unmodifiableList(createSample("S1", null), createSample("S2", null));
+                unmodifiableList(createSample("S1", "/DB/P1/EX1"), createSample("S2", "/DB/P2/EX2"));
 
         final RecordingMatcher<SearchCriteria> criteriaMatcher =
                 new RecordingMatcher<SearchCriteria>();
@@ -270,10 +270,16 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         assertEquals(samples, result);
         SearchCriteria criteria = criteriaMatcher.recordedObject();
         assertNotNull(criteria);
-        assertEquals(SearchOperator.MATCH_ANY_CLAUSES, criteria.getOperator());
-        assertEquals(identifiers.size(), criteria.getMatchClauses().size());
-        assertMatchClauseForProject("P1", criteria.getMatchClauses().get(0));
-        assertMatchClauseForProject("P2", criteria.getMatchClauses().get(1));
+        assertEquals(SearchOperator.MATCH_ALL_CLAUSES, criteria.getOperator());
+
+        SearchSubCriteria nestedSubCriteria = criteria.getSubCriterias().get(0);
+        SearchCriteria nestedSearchCriteria = nestedSubCriteria.getCriteria();
+
+        assertTrue(nestedSubCriteria.getTargetEntityKind().equals(SearchableEntityKind.EXPERIMENT));
+        assertEquals(SearchOperator.MATCH_ANY_CLAUSES, nestedSearchCriteria.getOperator());
+        assertEquals(identifiers.size(), nestedSearchCriteria.getMatchClauses().size());
+        assertMatchClauseForProject("P1", nestedSearchCriteria.getMatchClauses().get(0));
+        assertMatchClauseForProject("P2", nestedSearchCriteria.getMatchClauses().get(1));
     }
 
     @Test
@@ -623,16 +629,16 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
                     will(returnValue(Arrays.asList(createDataSet("ds1", "e1", null))));
                 }
             });
-        
+
         List<DataSet> dataSets = openbisFacade.listDataSetsForExperiment("abc-1");
-        
+
         assertEquals("SearchCriteria[MATCH_ALL_CLAUSES,[],[SearchSubCriteria[EXPERIMENT," +
-        		"SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.AttributeMatchClause[" +
-        		"ATTRIBUTE,PERM_ID,abc-1,EQUALS]],[]]]]]",
+                "SearchCriteria[MATCH_ALL_CLAUSES,[SearchCriteria.AttributeMatchClause[" +
+                "ATTRIBUTE,PERM_ID,abc-1,EQUALS]],[]]]]]",
                 criteriaMatcher.recordedObject().toString());
         assertEquals("[DataSet[ds1,e1,<null>,data-set-type,{}]]", dataSets.toString());
     }
-    
+
     @Test
     public void testListDataSetsForSample()
     {
@@ -697,7 +703,7 @@ public class OpenbisServiceFacadeTest extends AssertJUnit
         init.setChildren(Arrays.asList(children));
         return new Sample(init);
     }
-    
+
     private Sample createSample(String code, String experimentIdentifierOrNull)
     {
         return new Sample(createSampleInitializer(code, experimentIdentifierOrNull));

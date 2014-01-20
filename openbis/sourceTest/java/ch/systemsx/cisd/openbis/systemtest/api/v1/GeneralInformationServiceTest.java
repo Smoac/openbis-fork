@@ -153,7 +153,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
         assertEquals(
-                "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
                 projects.toString());
 
         loginAsObserver();
@@ -195,14 +195,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Sample> testResult =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
         assertEntities(
-                "[/CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/DYNA-TEST-1, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]",
+                "[/CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/DYNA-TEST-1, /TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]",
                 testResult);
 
         // executed by test on behalf of test_space
         List<Sample> onBehalfOfTestSpaceResult =
                 generalInformationService.searchForSamplesOnBehalfOfUser(sessionToken,
                         searchCriteria, EnumSet.of(SampleFetchOption.BASIC), "test_space");
-        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", onBehalfOfTestSpaceResult);
+        assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", onBehalfOfTestSpaceResult);
 
         // executed by test_space
         generalInformationService.logout(sessionToken);
@@ -211,7 +211,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
         List<Sample> testSpaceResult =
                 generalInformationService.searchForSamples(sessionToken, searchCriteria);
-        assertEntities("[/TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", testSpaceResult);
+        assertEntities("[/TEST-SPACE/CP-TEST-4, /TEST-SPACE/EV-TEST, /TEST-SPACE/FV-TEST]", testSpaceResult);
     }
 
     @Test(expectedExceptions = AuthorizationFailureException.class)
@@ -653,9 +653,10 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 generalInformationService.searchForSamples(sessionToken, searchCriteria,
                         fetchOptions);
 
-        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8, /CISD/CP-TEST-1, "
-                + "/CISD/CP-TEST-2, /CISD/CP-TEST-3, /CISD/CP1-A1, /CISD/CP1-A2, /CISD/CP1-B1, "
-                + "/CISD/CP2-A1, /CISD/PLATE_WELLSEARCH, /TEST-SPACE/FV-TEST]", samples);
+        assertEntities(
+                "[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8, /CISD/CP-TEST-1, /CISD/CP-TEST-2, /CISD/CP-TEST-3, "
+                        + "/CISD/CP1-A1, /CISD/CP1-A2, /CISD/CP1-B1, /CISD/CP2-A1, /CISD/PLATE_WELLSEARCH, /TEST-SPACE/CP-TEST-4, /TEST-SPACE/FV-TEST]",
+                samples);
 
         Sample sample0 = samples.get(0);
         assertEquals("3VCP5", sample0.getCode());
@@ -668,12 +669,12 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("3V-125", parents.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC), parents.get(0).getRetrievedFetchOptions());
 
-        Sample sample8 = samples.get(8);
-        assertEquals("CP1-A2", sample8.getCode());
+        Sample sample9 = samples.get(9);
+        assertEquals("CP1-A2", sample9.getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC, SampleFetchOption.PARENTS,
-                SampleFetchOption.CHILDREN), sample8.getRetrievedFetchOptions());
-        assertEntities("[/CISD/DP1-A]", sample8.getParents());
-        List<Sample> children = sample8.getChildren();
+                SampleFetchOption.CHILDREN), sample9.getRetrievedFetchOptions());
+        assertEntities("[/CISD/DP1-A]", sample9.getParents());
+        List<Sample> children = sample9.getChildren();
         assertEntities("[/CISD/RP1-A2X]", children);
         assertEquals("RP1-A2X", children.get(0).getCode());
         assertEquals(EnumSet.of(SampleFetchOption.BASIC), children.get(0)
@@ -1274,7 +1275,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Experiment> experiments =
                 generalInformationService.searchForExperiments(sessionToken, searchCriteria);
 
-        assertEntities("[/CISD/NOE/EXP-TEST-2]", experiments);
+        assertEntities("[/CISD/NOE/EXP-TEST-2, /TEST-SPACE/NOE/EXP-TEST-2]", experiments);
     }
 
     @Test
@@ -1860,8 +1861,8 @@ public class GeneralInformationServiceTest extends SystemTestCase
         int version = 4;
         final String[] regDates =
                 new String[]
-                    { "2008-12-10 13:49:27.901 +0100", "2008-12-10 13:49:20.236 +0100",
-                            "2008-12-10 13:49:14.564 +0100", "2008-12-10 13:48:17.996 +0100" };
+                { "2008-12-10 13:49:27.901 +0100", "2008-12-10 13:49:20.236 +0100",
+                        "2008-12-10 13:49:14.564 +0100", "2008-12-10 13:48:17.996 +0100" };
         for (Attachment a : attachments)
         {
             assertEquals("exampleExperiments.txt", a.getFileName());
