@@ -195,7 +195,8 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         AbstractExternalData parentDataset = tryGetOneParent(externalData);
         DataSetType dataSetType = externalData.getDataSetType();
         String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
-        if (parentDataset == null)
+
+        if (parentDataset == null || externalData.getSample() != null)
         {
             return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
