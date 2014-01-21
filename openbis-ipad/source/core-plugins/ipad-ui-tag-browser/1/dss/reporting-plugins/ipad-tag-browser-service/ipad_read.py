@@ -44,7 +44,7 @@ def createExperimentDictionary(experiment):
 	dictionary['CATEGORY'] = 'Experiment (' + experiment.getExperimentType() + ')'
 	dictionary['SUMMARY_HEADER'] = experiment.getExperimentIdentifier()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
+	dictionary['IDENTIFIER'] = 'Experiment'
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -62,6 +62,7 @@ def createExperimentDetailedDictionary(experiment):
 	propertyDefinitions = getPropertyDefinitions(experiment.getExperimentType(), searchService.listPropertiesDefinitionsForExperimentType)
 
 	properties = []
+	properties.append(getProperty("#TYPE", "Type", experiment.getExperimentType()))
 	properties.append(getProperty("#PERM_ID", "Perm ID", experiment.getPermId()))
 	properties.extend(getProperties(experiment, propertyDefinitions))
 	properties.append(getTimestampProperty())
@@ -75,7 +76,7 @@ def createSampleDictionary(sample):
 	dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'	
 	dictionary['SUMMARY_HEADER'] = sample.getSampleIdentifier()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
+	dictionary['IDENTIFIER'] = 'Sample'
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -92,6 +93,7 @@ def createSampleDetailedDictionary(sample):
 	propertyDefinitions = getPropertyDefinitions(sample.getSampleType(), searchService.listPropertiesDefinitionsForSampleType)
 	
 	properties = []
+	properties.append(getProperty("#TYPE", "Type", sample.getSampleType()))
 	properties.append(getProperty("#PERM_ID", "Perm ID", sample.getPermId()))
 	if sample.getExperiment():
 		properties.append(getProperty("#EXPERIMENT", "Experiment", sample.getExperiment().getExperimentIdentifier()))
@@ -107,7 +109,7 @@ def createDataSetDictionary(dataSet):
 	dictionary['CATEGORY'] = 'Data Set (' + dataSet.getDataSetType() + ')'	
 	dictionary['SUMMARY_HEADER'] = dataSet.getDataSetCode()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
+	dictionary['IDENTIFIER'] = 'Data Set'
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -124,6 +126,7 @@ def createDataSetDetailedDictionary(dataSet):
 	propertyDefinitions = getPropertyDefinitions(dataSet.getDataSetType(), searchService.listPropertiesDefinitionsForDataSetType)
 
 	properties = []
+	properties.append(getProperty("#TYPE", "Type", dataSet.getDataSetType()))
 	if dataSet.getExperiment():
 		properties.append(getProperty("#EXPERIMENT", "Experiment", dataSet.getExperiment().getExperimentIdentifier()))
 	if dataSet.getSample():
@@ -141,7 +144,7 @@ def createMaterialDictionary(material):
 	dictionary['CATEGORY'] = 'Material (' + material.getMaterialType() + ')'
 	dictionary['SUMMARY_HEADER'] = material.getMaterialIdentifier()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
+	dictionary['IDENTIFIER'] = 'Material'
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -159,6 +162,7 @@ def createMaterialDetailedDictionary(material):
 	propertyDefinitions = getPropertyDefinitions(material.getMaterialType(), searchService.listPropertiesDefinitionsForMaterialType)
 	
 	properties = []
+	properties.append(getProperty("#TYPE", "Type", material.getMaterialType()))
 	properties.extend(getProperties(material, propertyDefinitions))
 	properties.append(getTimestampProperty())
 
