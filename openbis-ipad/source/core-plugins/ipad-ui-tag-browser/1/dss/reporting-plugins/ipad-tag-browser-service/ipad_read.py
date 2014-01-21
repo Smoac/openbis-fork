@@ -25,7 +25,7 @@ def getEntitiesParameter(handler):
 def createTagDictionary(name, children):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'TAG.' + name.upper()
-	dictionary['CATEGORY'] = 'Navigation'
+	dictionary['CATEGORY'] = ' '
 	dictionary['SUMMARY_HEADER'] = name
 	dictionary['SUMMARY'] = None
 	dictionary['ROOT_LEVEL'] = True
@@ -40,11 +40,11 @@ def createTagDictionary(name, children):
 def createExperimentDictionary(experiment):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'EXPERIMENT.' + experiment.getPermId()
-	dictionary['CATEGORY'] = 'Experiment ' + experiment.getExperimentType()
+	dictionary['CATEGORY'] = 'Experiment (' + experiment.getExperimentType() + ')'
 	dictionary['SUMMARY_HEADER'] = experiment.getExperimentIdentifier()
 	dictionary['SUMMARY'] = None
 	dictionary['IDENTIFIER'] = experiment.getExperimentIdentifier()
-	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue([])
+	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
 	
@@ -66,11 +66,11 @@ def createExperimentDetailedDictionary(experiment):
 def createSampleDictionary(sample):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'SAMPLE.' + sample.getPermId()
-	dictionary['CATEGORY'] = 'Sample ' + sample.getSampleType()	
+	dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'	
 	dictionary['SUMMARY_HEADER'] = sample.getSampleIdentifier()
 	dictionary['SUMMARY'] = None
 	dictionary['IDENTIFIER'] = sample.getSampleIdentifier()
-	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue([])
+	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
 	
@@ -91,11 +91,11 @@ def createSampleDetailedDictionary(sample):
 def createDataSetDictionary(dataSet):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'DATA_SET.' + dataSet.getDataSetCode()
-	dictionary['CATEGORY'] = 'Data set ' + dataSet.getDataSetType()	
+	dictionary['CATEGORY'] = 'Data set (' + dataSet.getDataSetType() + ')'	
 	dictionary['SUMMARY_HEADER'] = dataSet.getDataSetCode()
 	dictionary['SUMMARY'] = None
 	dictionary['IDENTIFIER'] = dataSet.getDataSetCode()
-	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue([])
+	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
 	
@@ -116,11 +116,11 @@ def createDataSetDetailedDictionary(dataSet):
 def createMaterialDictionary(material):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'MATERIAL.' + material.getMaterialIdentifier()
-	dictionary['CATEGORY'] = 'Material ' + material.getMaterialType()
+	dictionary['CATEGORY'] = 'Material (' + material.getMaterialType() + ')'
 	dictionary['SUMMARY_HEADER'] = material.getMaterialIdentifier()
 	dictionary['SUMMARY'] = None
 	dictionary['IDENTIFIER'] = material.getMaterialIdentifier()
-	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue([])
+	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
 	
