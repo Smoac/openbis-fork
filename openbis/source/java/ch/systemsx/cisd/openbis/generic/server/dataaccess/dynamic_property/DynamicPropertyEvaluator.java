@@ -188,6 +188,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
                     default:
                         throw new IllegalArgumentException(etpt.getEntityType().getEntityKind().toString());
                 }
+                prop.setValue(BasicConstant.DYNAMIC_PROPERTY_PLACEHOLDER_VALUE);
                 prop.setEntityTypePropertyType(etpt);
                 prop.setRegistrator(etpt.getRegistrator());
                 prop.setAuthor(etpt.getRegistrator());

@@ -180,9 +180,9 @@ class PlateDatasetLoader
         }
     }
 
-    protected PlateIdentifier createPlateIdentifier(AbstractExternalData parentDataset)
+    protected PlateIdentifier createPlateIdentifier(AbstractExternalData dataSet)
     {
-        final Sample sample = getSample(parentDataset);
+        final Sample sample = getSample(dataSet);
         final String plateCode = sample.getCode();
         final Space space = sample.getSpace();
         final String spaceCodeOrNull = (space != null) ? space.getCode() : null;
