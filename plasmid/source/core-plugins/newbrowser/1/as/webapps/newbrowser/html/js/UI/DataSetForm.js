@@ -25,6 +25,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	this.sample = sample;
 	this.mode = mode;
 	this.dataSetTypes = null;
+	this.files = [];
 	
 	this.init = function() {
 		var localInstance = this;
@@ -60,11 +61,11 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		var $wrapper = $('<form>', { class : 'form-horizontal'});
 		$wrapper.submit(function(event) {localInstance._submitDataSet(); event.preventDefault();});
 		
-		$wrapper.append($('<h2>').text("Create Data Set"));
+		$wrapper.append($('<h2>').text('Create Data Set'));
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<fieldset>');
-		$dataSetTypeFieldSet.append($('<legend>').text("Type Info"));
+		$dataSetTypeFieldSet.append($('<legend>').text('Type Info'));
 		
 		var $dataSetTypeDropDownObj = this._getDropDownForField('DATASET_TYPE', this.dataSetTypes);
 		$dataSetTypeDropDownObj.change(function() { 
@@ -73,7 +74,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			);
 		});
 		
-		var $dataSetTypeDropDown = $('<div>', { class : "control-group"});
+		var $dataSetTypeDropDown = $('<div>', { class : 'control-group'});
 		$dataSetTypeDropDown.append($('<label>', {class: 'control-label'}).text('Data Set Type:'));
 		$dataSetTypeDropDown.append(
 			$('<div>', {class: 'controls'})
@@ -83,42 +84,50 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		$wrapper.append($dataSetTypeFieldSet);
 		
 		//Metadata Container
-		$wrapper.append($('<div>', {'id' : 'metadataContainer'}));
+		$wrapper.append($('<div>', { 'id' : 'metadataContainer'}));
 		
 		//Attach File
-		var $fileFieldSet = $('<fieldset>')
-										.append($('<legend>').text("File to upload"))
-										.append($('<div>', { class : "control-group"}))
-										.append($('<div>', {class: 'controls'})
-														.append($('<input>', {'id' : 'fileToUpload', 'type' : 'file', class : "filestyle", 'data-buttonText' : 'Find file'})).append(' (Required)'));
-		
-		$wrapper.append($fileFieldSet);
+		$wrapper.append($('<div>', { 'id' : 'APIUploader' } ));
 		
 		var isZipDirectoryUpload = this.profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
 		if(isZipDirectoryUpload === null) {
 			var $fileFieldSetIsDirectory = $('<fieldset>')
 			.append($('<div>', { class : "control-group"})
-						.append($('<label>', {class : 'control-label'}).text('ZIP compressed folder:'))
+						.append($('<label>', {class : 'control-label'}).text('Uncompress before import (used for one zip):'))
 						.append($('<div>', {class: 'controls'})
-							.append(this._getBooleanField('isZipDirectoryUpload', 'ZIP compressed folder:')))
+							.append(this._getBooleanField('isZipDirectoryUpload', 'Uncompress before import (used for one zip):')))
 			);
 			$wrapper.append($fileFieldSetIsDirectory);
 		}
 		
+		var $folderName = $('<fieldset>')
+		.append($('<div>', { class : "control-group"})
+					.append($('<label>', {class : 'control-label'}).text('Folder Name (used for multiple files):'))
+					.append($('<div>', {class: 'controls'})
+						.append(this._getInputField('text', 'folderName', 'Folder Name (used for multiple files)', null, true))
+						.append(' (Required)'))
+		);
+		$wrapper.append($folderName);
 		
 		//Submit Button
 		var $submitButton = $('<fieldset>')
 			.append($('<div>', { class : "control-group"}))
 			.append($('<div>', {class: 'controls'})
 						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : 'Create Dataset'})));
-		
+
 		$wrapper.append($submitButton);
 		
 		//Attach to main form
 		container.append($wrapper);
 		
 		//Initialize file chooser
-		$(":file").filestyle({buttonText: "Find file"});
+		
+		var onComplete = function(data) {
+			localInstance.files.push(data.name);
+		}
+		
+		//Initialize file chooser
+		this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete);
 	}
 	
 	this._getDataSetType = function(typeCode) {
@@ -278,7 +287,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		//
 		// Metadata Submit and Creation (Step 2)
 		//
-		var callbackHandler = function(fileSessionKey) {
+		var callbackHandler = function() {
 			var metadata = { };
 			
 			var dataSetType = localInstance._getDataSetType($('#DATASET_TYPE').val());
@@ -309,8 +318,8 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 					//Identification Info
 					"sampleIdentifier" : sample.identifier,
 					"dataSetType" : $('#DATASET_TYPE').val(),
-					"fileSessionKey" : fileSessionKey,
-					"filename" : document.getElementById('fileToUpload').files[0].name,
+					"filenames" : localInstance.files,
+					"folderName" : $('#folderName').val(),
 					"isZipDirectoryUpload" : isZipDirectoryUpload,
 					//Metadata
 					"metadata" : metadata,
@@ -354,9 +363,11 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		//
 		// File Upload (Step 1)
 		//
-		var fileSessionKey = this._getUUID();
-		var fileFieldId = 'fileToUpload';
-		this.serverFacade.fileUploadToWorkspace(profile.allDataStores[0].downloadUrl, fileFieldId, fileSessionKey, function() { callbackHandler(fileSessionKey);});
+		callbackHandler();
+		
+		//var fileSessionKey = this._getUUID();
+		//var fileFieldId = 'fileToUpload';
+		//this.serverFacade.fileUploadToWorkspace(profile.allDataStores[0].downloadUrl, fileFieldId, fileSessionKey, function() { callbackHandler(fileSessionKey);});
 	}
 	
 	this._getUUID = function() {

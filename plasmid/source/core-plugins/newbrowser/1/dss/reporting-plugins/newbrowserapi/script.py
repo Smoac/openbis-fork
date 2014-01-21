@@ -21,8 +21,6 @@ from java.io import FileOutputStream
 from java.lang import System
 from net.lingala.zip4j.core import ZipFile
 
-import uuid
-
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
 	
@@ -51,8 +49,8 @@ def insertDataSet(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String
 	dataSetType = parameters.get("dataSetType"); #String
-	fileSessionKey = parameters.get("fileSessionKey"); #String
-	filename = parameters.get("filename"); #String
+	folderName = parameters.get("folderName"); #String
+	fileNames = parameters.get("filenames"); #List<String>
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
 	
@@ -68,32 +66,39 @@ def insertDataSet(tr, parameters, tableBuilder):
 		
 		dataSet.setPropertyValue(key,propertyValue);
 	
-	#Move File
+	#Move All Files
 	tempDir = System.getProperty("java.io.tmpdir");
-	temFile = File(tempDir + "/"+ filename);
-	
 	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
-	inputStream = dss_component.getFileFromSessionWorkspace(fileSessionKey);
-	outputStream = FileOutputStream(temFile);
 	
-	IOUtils.copyLarge(inputStream, outputStream);
-	IOUtils.closeQuietly(inputStream);
-	IOUtils.closeQuietly(outputStream);
-	
-	if isZipDirectoryUpload:
-		tempFolder = tempDir + "/" +  str(uuid.uuid4());
-		print tempFolder;
+	for fileName in fileNames:
+		folderFile = File(tempDir + "/" + folderName);
+		folderFile.mkdir();
+		temFile = File(tempDir + "/" + folderName + "/" + fileName);
+		inputStream = dss_component.getFileFromSessionWorkspace(fileName);
+		outputStream = FileOutputStream(temFile);
+		IOUtils.copyLarge(inputStream, outputStream);
+		IOUtils.closeQuietly(inputStream);
+		IOUtils.closeQuietly(outputStream);
+		
+	#CASE - 1: Only one file as zip, uncompressed on the folder
+	if fileNames.size() == 1 and isZipDirectoryUpload:
+		temFile = File(tempDir + "/" + folderName + "/" + fileNames.get(0));
+		tempFolder = tempDir + "/" +  folderName;
 		zipFile = ZipFile(temFile.getAbsolutePath());
 		zipFile.extractAll(tempFolder);
+		temFile.delete();
 		tr.moveFile(tempFolder, dataSet);
-		#for item in File(tempFolder).listFiles():
-		#	tr.moveFile(item.getAbsolutePath(), dataSet);
-	else:
+	elif fileNames.size() > 1: #CASE - 2: Multiple files on the folder
+		temFile = File(tempDir + "/"+ folderName);
+		tr.moveFile(temFile.getAbsolutePath(), dataSet);
+	else: #CASE - 3: One file only
+		temFile = File(tempDir + "/"+ fileNames.get(0));
 		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	
 	
-	#Clean File from workspace
-	dss_component.deleteSessionWorkspaceFile(fileSessionKey);
+	#Clean Files from workspace
+	for fileName in fileNames:
+		dss_component.deleteSessionWorkspaceFile(fileName);
 	
 	#Return from the call
 	return True;
