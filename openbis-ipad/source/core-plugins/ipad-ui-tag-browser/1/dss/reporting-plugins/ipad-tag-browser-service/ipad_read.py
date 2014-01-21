@@ -1,3 +1,4 @@
+from datetime import datetime
 from java.util import Date
 from java.util import HashMap
 from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
@@ -22,17 +23,17 @@ def getEntitiesParameter(handler):
 # Dictionaries
 ###############
 
-def createTagDictionary(name, children):
+def createTagDictionary(tag, children):
 	dictionary = {}
-	dictionary['PERM_ID'] = 'TAG.' + name.upper()
+	dictionary['PERM_ID'] = 'TAG.' + tag.getName()
 	dictionary['CATEGORY'] = ' '
-	dictionary['SUMMARY_HEADER'] = name
-	dictionary['SUMMARY'] = None
+	dictionary['SUMMARY_HEADER'] = tag.getName()
+	dictionary['SUMMARY'] = tag.getDescription()
 	dictionary['ROOT_LEVEL'] = True
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 
 	refcon = {}
-	refcon['NAME'] =  name.upper()
+	refcon['NAME'] =  tag.getName()
 	dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 	
 	return dictionary
@@ -43,7 +44,7 @@ def createExperimentDictionary(experiment):
 	dictionary['CATEGORY'] = 'Experiment (' + experiment.getExperimentType() + ')'
 	dictionary['SUMMARY_HEADER'] = experiment.getExperimentIdentifier()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = experiment.getExperimentIdentifier()
+	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -59,7 +60,12 @@ def createExperimentDictionary(experiment):
 def createExperimentDetailedDictionary(experiment):
 	dictionary = createExperimentDictionary(experiment)
 	propertyDefinitions = getPropertyDefinitions(experiment.getExperimentType(), searchService.listPropertiesDefinitionsForExperimentType)
-	properties = getProperties(experiment, propertyDefinitions)
+
+	properties = []
+	properties.append(getProperty("#PERM_ID", "Perm ID", experiment.getPermId()))
+	properties.extend(getProperties(experiment, propertyDefinitions))
+	properties.append(getTimestampProperty())
+
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties) 
 	return dictionary
 
@@ -69,7 +75,7 @@ def createSampleDictionary(sample):
 	dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'	
 	dictionary['SUMMARY_HEADER'] = sample.getSampleIdentifier()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = sample.getSampleIdentifier()
+	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -84,17 +90,24 @@ def createSampleDictionary(sample):
 def createSampleDetailedDictionary(sample):
 	dictionary = createSampleDictionary(sample)
 	propertyDefinitions = getPropertyDefinitions(sample.getSampleType(), searchService.listPropertiesDefinitionsForSampleType)
-	properties = getProperties(sample, propertyDefinitions)
+	
+	properties = []
+	properties.append(getProperty("#PERM_ID", "Perm ID", sample.getPermId()))
+	if sample.getExperiment():
+		properties.append(getProperty("#EXPERIMENT", "Experiment", sample.getExperiment().getExperimentIdentifier()))
+	properties.extend(getProperties(sample, propertyDefinitions))
+	properties.append(getTimestampProperty())
+
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties) 
 	return dictionary
 
 def createDataSetDictionary(dataSet):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'DATA_SET.' + dataSet.getDataSetCode()
-	dictionary['CATEGORY'] = 'Data set (' + dataSet.getDataSetType() + ')'	
+	dictionary['CATEGORY'] = 'Data Set (' + dataSet.getDataSetType() + ')'	
 	dictionary['SUMMARY_HEADER'] = dataSet.getDataSetCode()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = dataSet.getDataSetCode()
+	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -109,7 +122,16 @@ def createDataSetDictionary(dataSet):
 def createDataSetDetailedDictionary(dataSet):
 	dictionary = createDataSetDictionary(dataSet)
 	propertyDefinitions = getPropertyDefinitions(dataSet.getDataSetType(), searchService.listPropertiesDefinitionsForDataSetType)
-	properties = getProperties(dataSet, propertyDefinitions)
+
+	properties = []
+	if dataSet.getExperiment():
+		properties.append(getProperty("#EXPERIMENT", "Experiment", dataSet.getExperiment().getExperimentIdentifier()))
+	if dataSet.getSample():
+		properties.append(getProperty("#SAMPLE", "Sample", dataSet.getSample().getSampleIdentifier()))
+	properties.append(getProperty("#FiLE_TYPE", "File Type", dataSet.getFileFormatType()))
+	properties.extend(getProperties(dataSet, propertyDefinitions))
+	properties.append(getTimestampProperty())
+
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties) 
 	return dictionary
 
@@ -119,7 +141,7 @@ def createMaterialDictionary(material):
 	dictionary['CATEGORY'] = 'Material (' + material.getMaterialType() + ')'
 	dictionary['SUMMARY_HEADER'] = material.getMaterialIdentifier()
 	dictionary['SUMMARY'] = None
-	dictionary['IDENTIFIER'] = material.getMaterialIdentifier()
+	dictionary['IDENTIFIER'] = dictionary['CATEGORY']
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
 	dictionary['ROOT_LEVEL'] = None
@@ -135,7 +157,11 @@ def createMaterialDictionary(material):
 def createMaterialDetailedDictionary(material):
 	dictionary = createMaterialDictionary(material)
 	propertyDefinitions = getPropertyDefinitions(material.getMaterialType(), searchService.listPropertiesDefinitionsForMaterialType)
-	properties = getProperties(material, propertyDefinitions)
+	
+	properties = []
+	properties.extend(getProperties(material, propertyDefinitions))
+	properties.append(getTimestampProperty())
+
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties) 
 	return dictionary
 
@@ -185,12 +211,22 @@ def getProperties(entity, propertyDefinitions):
 	for propertyDefinition in propertyDefinitions:
 		propertyValue = entity.getPropertyValue(propertyDefinition.getPropertyTypeCode())
 		if propertyValue:
-			properties.append({
-				'key' : propertyDefinition.getPropertyTypeCode(), 
-				'label' : propertyDefinition.getPropertyTypeLabel(), 
-				'value' : propertyValue
-			})
+			properties.append(getProperty(
+				propertyDefinition.getPropertyTypeCode(),
+				propertyDefinition.getPropertyTypeLabel(), 
+				propertyValue
+			))
 	return properties
+	
+def getProperty(code, label, value):
+	return {
+		'key' : code, 
+		'label' : label, 
+		'value' : value
+	}
+	
+def getTimestampProperty():
+	return getProperty("#TIMESTAMP", "Timestamp", datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
 	
 ###################
 # Request Handlers
@@ -201,7 +237,7 @@ class TagNavigationRequestHandler(NavigationRequestHandler):
 	
 	def addDataRows(self):
 		tags = self.searchService.listMetaprojects()
-		self.addRows([createTagDictionary(tag.getName(), []) for tag in tags])
+		self.addRows([createTagDictionary(tag, []) for tag in tags])
 
 class TagRootRequestHandler(RootRequestHandler):
 	"""Handler for the ROOT request."""
@@ -212,13 +248,13 @@ class TagRootRequestHandler(RootRequestHandler):
 		if tagsPermIdsAndRefcons:
 			tagName = tagsPermIdsAndRefcons[0]['REFCON']['NAME']
 			tagAssignments = self.searchService.getMetaprojectAssignments(tagName)
-			
+			tag = tagAssignments.getMetaproject()
+			tagChildren = []
+
 			experiments = tagAssignments.getExperiments();
 			samples = tagAssignments.getSamples();
 			dataSets = tagAssignments.getDataSets();
 			materials = tagAssignments.getMaterials();
-			
-			tagChildren = []
 			
 			for experiment in experiments:
 				tagChildren.append('EXPERIMENT.' + experiment.getPermId())
@@ -229,7 +265,7 @@ class TagRootRequestHandler(RootRequestHandler):
 			for material in materials:
 				tagChildren.append('MATERIAL.' + material.getMaterialIdentifier())
 			
-			self.addRows([createTagDictionary(tagName, tagChildren)])
+			self.addRows([createTagDictionary(tag, tagChildren)])
 			self.addRows([createExperimentDictionary(experiment) for experiment in experiments])
 			self.addRows([createSampleDictionary(sample) for sample in samples])
 			self.addRows([createDataSetDictionary(dataSet) for dataSet in dataSets])
