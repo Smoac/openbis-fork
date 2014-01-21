@@ -28,12 +28,13 @@ import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.plugin.screening.server.IScreeningBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDatasetReference;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCriteria.AnalysisProcedureCriteria;
@@ -196,12 +197,14 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
         DataSetType dataSetType = externalData.getDataSetType();
         String dataSetTypeCodeOrNull = dataSetType == null ? null : dataSetType.getCode();
 
+        ImageDatasetReference parentDatasetAsImageDataset = tryAsImageDataset(parentDataset);
+
         if (parentDataset == null || externalData.getSample() != null)
         {
             return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(externalData),
                     createExperimentIdentifier(externalData), extractPlateGeometry(externalData),
-                    externalData.getRegistrationDate(), null, extractProperties(externalData));
+                    externalData.getRegistrationDate(), parentDatasetAsImageDataset, extractProperties(externalData));
         } else
         {
             // Note: this only works reliably because this class sets the parents of the feature
@@ -210,7 +213,7 @@ class FeatureVectorDatasetLoader extends HCSImageDatasetLoader
             return new FeatureVectorDatasetReference(externalData.getCode(), dataSetTypeCodeOrNull,
                     getDataStoreUrlFromDataStore(dataStore), createPlateIdentifier(parentDataset),
                     createExperimentIdentifier(externalData), extractPlateGeometry(parentDataset),
-                    externalData.getRegistrationDate(), tryAsImageDataset(parentDataset),
+                    externalData.getRegistrationDate(), parentDatasetAsImageDataset,
                     extractProperties(externalData));
         }
     }
