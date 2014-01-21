@@ -122,10 +122,7 @@ public class CorePluginsInjector
                 scanForCorePlugins(corePluginsFolderPath, moduleEnabledChecker, disabledPlugins,
                         pluginNames, listOfDisabledMasterDataInitialization);
 
-        if (false == listOfDisabledMasterDataInitialization.isEmpty())
-        {
-            injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, StringUtils.join(listOfDisabledMasterDataInitialization, ","));
-        }
+        injectProperty(properties, Constants.DISABLED_MASTER_DATA_INITIALIZATION, StringUtils.join(listOfDisabledMasterDataInitialization, ","));
 
         for (Entry<IPluginType, Map<String, NamedCorePluginFolder>> entry : plugins.entrySet())
         {
