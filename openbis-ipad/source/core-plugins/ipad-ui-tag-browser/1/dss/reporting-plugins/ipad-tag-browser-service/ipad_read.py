@@ -1,15 +1,9 @@
-from ch.systemsx.cisd.openbis.ipad.v2.server import AbstractRequestHandler, ClientPreferencesRequestHandler, RootRequestHandler
-from ch.systemsx.cisd.openbis.ipad.v2.server import DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler, SearchRequestHandler
-from ch.systemsx.cisd.openbis.ipad.v2.server import EmptyDataRequestHandler, IpadServiceUtilities
-from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandlerFactory, RequestHandlerDispatcher
-from ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2 import MaterialIdentifierCollection
-from ch.systemsx.cisd.openbis.generic.shared.basic.dto import MaterialIdentifier
-from com.fasterxml.jackson.databind import ObjectMapper
-from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
 from java.util import Date
 from java.util import HashMap
-
-from datetime import datetime
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria, SearchSubCriteria
+from ch.systemsx.cisd.openbis.ipad.v2.server import RootRequestHandler, DrillRequestHandler, NavigationRequestHandler, DetailRequestHandler, SearchRequestHandler, IpadServiceUtilities
+from ch.systemsx.cisd.openbis.ipad.v2.server import IRequestHandlerFactory, RequestHandlerDispatcher
+from com.fasterxml.jackson.databind import ObjectMapper
 
 ##########
 # Request
