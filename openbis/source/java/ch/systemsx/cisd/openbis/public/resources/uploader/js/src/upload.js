@@ -26,7 +26,7 @@ var Uploader = (function() {
         file_input: "#fileinput",
         upload_form: "#upload-form",
         file_input_button: "#fileinput-button",
-        file_list_clear_button: "#filelist-clear-button",
+        //file_list_clear_button: "#filelist-clear-button",
         oncomplete: function(file) { },
         chunk_size: 100*1024,
         smart_mode: window.File && window.FileReader && window.XMLHttpRequest
@@ -45,7 +45,7 @@ var Uploader = (function() {
         current_form_id = 0;
         progress = {};
         $(settings.file_list).removeClass("visible");
-        $(settings.file_list_clear_button).css("display", "none");
+        //$(settings.file_list_clear_button).css("display", "none");
         setTimeout(function() {
             $(settings.file_list).empty();
         }, 256);
@@ -63,21 +63,21 @@ var Uploader = (function() {
     }
 
 
-    function clearFileList() {
-        if (uploadsInProgress()) {
-            $(".ready").addClass("fadeOut");
-            $(".bad").addClass("fadeOut");
-            $(".aborted").addClass("fadeOut");
-            setTimeout(function() { 
-                $(".ready").remove();
-                $(".bad").remove();
-                $(".aborted").remove();
-            }, 256);
-        }
-        else {
-            reset();
-        }
-    }
+//    function clearFileList() {
+//        if (uploadsInProgress()) {
+//            $(".ready").addClass("fadeOut");
+//            $(".bad").addClass("fadeOut");
+//            $(".aborted").addClass("fadeOut");
+//            setTimeout(function() { 
+//                $(".ready").remove();
+//                $(".bad").remove();
+//                $(".aborted").remove();
+//            }, 256);
+//        }
+//        else {
+//            reset();
+//        }
+//    }
 
 
     function styleSize(n) {
@@ -295,7 +295,7 @@ var Uploader = (function() {
 
     function uploadFiles(files) {
         $(settings.file_list).addClass("visible");
-        $(settings.file_list_clear_button).css("display", "inline");
+        //$(settings.file_list_clear_button).css("display", "inline");
         if (typeof files === "object" && files.length > 0) {
             $.each(files, function() { upload(this); });
         }
@@ -424,7 +424,7 @@ var Uploader = (function() {
                 $("#filedrop-hint").html("Click 'Select files to upload' button.");
                 generateUploadForm();
             }
-            $(settings.file_list_clear_button).click(clearFileList);
+            //$(settings.file_list_clear_button).click(clearFileList);
             $("#filedrop-hint").append("<br/>Upload starts immediately after the file selection.");
         }
     };
