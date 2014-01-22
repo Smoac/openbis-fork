@@ -53,7 +53,8 @@ def insertDataSet(tr, parameters, tableBuilder):
 	fileNames = parameters.get("filenames"); #List<String>
 	isZipDirectoryUpload = parameters.get("isZipDirectoryUpload"); #String
 	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
-	
+		
+	#Create Dataset
 	dataSetSample = tr.getSample(sampleIdentifier);
 	dataSet = tr.createNewDataSet(dataSetType);
 	dataSet.setSample(dataSetSample);
@@ -92,7 +93,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 		temFile = File(tempDir + "/"+ folderName);
 		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	else: #CASE - 3: One file only
-		temFile = File(tempDir + "/"+ fileNames.get(0));
+		temFile = File(tempDir + "/" + folderName + "/" + fileNames.get(0));
 		tr.moveFile(temFile.getAbsolutePath(), dataSet);
 	
 	

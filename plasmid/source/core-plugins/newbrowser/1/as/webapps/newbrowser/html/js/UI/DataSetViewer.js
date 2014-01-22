@@ -99,7 +99,7 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		$container.empty();
 		
 		//Upload Button
-		$uploadButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-upload" }));
+		var $uploadButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-upload" }));
 		
 		var localSample = this.sample;
 		$uploadButton.click(function() { 
@@ -127,7 +127,7 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		//
 		// Simple Files Table
 		//
-		$dataSetsTable = $("<table>", { class: "table"});
+		var $dataSetsTable = $("<table>", { class: "table"});
 		$dataSetsTable.append(
 			$("<thead>").append(
 				$("<tr>")
@@ -139,7 +139,7 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 			)
 		);
 		
-		$dataSetsTableBody = $("<tbody>");
+		var $dataSetsTableBody = $("<tbody>");
 		
 		for(var datasetCode in this.sampleDataSets) {
 			var dataset = this.sampleDataSets[datasetCode];

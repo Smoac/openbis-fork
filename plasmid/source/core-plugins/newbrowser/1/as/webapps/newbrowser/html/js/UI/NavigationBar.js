@@ -153,20 +153,21 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 		this.updateMenu(breadCrumbPage.id);
 	}
 	
-	//History Pop State
-	var localReference = this;
-	var backButton = function(e) {
+	//BackButton Logic
+	this.backButton = function(e) {
 		var breadCrumbIndex = -1;
-		if(localReference.activeMenuId === null) {
-			breadCrumbIndex = localReference.breadcrumb.length-1;
+		if(this.activeMenuId === null) {
+			breadCrumbIndex = this.breadcrumb.length-1;
 		} else {
-			breadCrumbIndex = localReference.breadcrumb.length-2;
+			breadCrumbIndex = this.breadcrumb.length-2;
 		}
 		if(breadCrumbIndex >= 0) {
-			localReference.executeBreadCrumb(breadCrumbIndex);
+			this.executeBreadCrumb(breadCrumbIndex);
 		}
 	}
-	window.addEventListener("popstate", backButton);
+	
+	var localReference = this;
+	window.addEventListener("popstate", function(e) {localReference.backButton(e);});
 }
 
 function BreadCrumbPage(id, href, hrefArgs, displayName) {
