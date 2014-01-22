@@ -26,16 +26,29 @@ def getEntitiesParameter(handler):
 def createTagDictionary(tag, children):
 	dictionary = {}
 	dictionary['PERM_ID'] = 'TAG.' + tag.getName()
-	dictionary['CATEGORY'] = ' '
+	dictionary['CATEGORY'] = 'Tag'
 	dictionary['SUMMARY_HEADER'] = tag.getName()
-	dictionary['SUMMARY'] = tag.getDescription()
+	dictionary['SUMMARY'] = None
+	dictionary['IDENTIFIER'] = 'Tag'
 	dictionary['ROOT_LEVEL'] = True
 	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 
 	refcon = {}
+	refcon['ENTITY_TYPE'] =  'TAG'
 	refcon['NAME'] =  tag.getName()
 	dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 	
+	return dictionary
+	
+def createTagDetailedDictionary(tag):
+	dictionary = createTagDictionary(tag, [])
+
+	properties = []
+	if tag.getDescription():
+		properties.append(getProperty("#DESCRIPTION", "Description", tag.getDescription()))
+	properties.append(getTimestampProperty())
+
+	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 	return dictionary
 
 def createExperimentDictionary(experiment):
@@ -200,6 +213,9 @@ def getDataSet(code):
 
 def getMaterial(code, typeCode):
 	return searchService.getMaterial(code, typeCode)
+	
+def getTag(name):
+	return searchService.getMetaproject(name)
 
 ####################
 # Entity Properties
@@ -300,6 +316,9 @@ class TagDetailRequestHandler(DetailRequestHandler):
 			if 'MATERIAL' == entityType:
 				material = getMaterial(entityRefcon['CODE'], entityRefcon['TYPE_CODE'])
 				self.addRows([createMaterialDetailedDictionary(material)])
+			if 'TAG' == entityType:
+				tag = getTag(entityRefcon['NAME'])
+				self.addRows([createTagDetailedDictionary(tag)])
 
 class TagSearchRequestHandler(SearchRequestHandler):
 	"""Handler for the SEARCH request"""
