@@ -74,6 +74,8 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
     private String enabledScreeningProperty;
 
+    private String noMasterDataDisabled;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -110,6 +112,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
         enabledScreeningProperty =
                 ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                         + " = screening\n";
+        noMasterDataDisabled = Constants.DISABLED_MASTER_DATA_INITIALIZATION + " = \n";
     }
 
     @AfterMethod
@@ -237,7 +240,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty
                 + "fdata = ../my-data\n" + "inputs = a, b, my-drop-box\n"
                 + "my-drop-box.class = blabla\n" + "my-drop-box.incoming = ${fdata}\n"
                 + "my-drop-box.script = " + myDropBox + "/handler.py\n", properties);
@@ -268,7 +271,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled
                 + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                 + " = prot.*, screening\n" + "inputs = my-drop-box\n" + "my-drop-box.script1 = "
                 + myDropBox + "/script1.py\n" + "my-drop-box.script2 = " + myDropBox
@@ -335,7 +338,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty
                 + "maintenance-plugins = t1, t2\n" + "my-report.script = " + misc + "/r.py\n"
                 + "reporting-plugins = k1, k2, my-report\n" + "t1.class = blabla\n"
                 + "t2.script = " + misc + "/task.py\n", properties);
@@ -421,7 +424,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + enabledScreeningProperty + "inputs = dp2\n",
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty + "inputs = dp2\n",
                 properties);
 
         context.assertIsSatisfied();
@@ -440,7 +443,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty
                 + PLUGIN_SERVICES_LIST_KEY + " = z\n" + "z.alpha = 42\n", properties);
 
         context.assertIsSatisfied();
@@ -459,7 +462,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + enabledScreeningProperty + "z = 42\n",
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty + "z = 42\n",
                 properties);
 
         context.assertIsSatisfied();
@@ -479,7 +482,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty + enabledScreeningProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled + enabledScreeningProperty
                 + "prefix.dss = dss1[proteomics], dss1[screening]\n"
                 + "prefix.dss1[proteomics].driver = gamma\n"
                 + "prefix.dss1[screening].driver = alpha\n"
@@ -507,7 +510,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled
                 + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                 + " = screening, proteomics\n" + "prefix.dss = dss1[proteomics], dss1[screening]\n"
                 + "prefix.dss1[proteomics].driver = beta\n"
@@ -536,7 +539,7 @@ public class CorePluginsInjectorTest extends AbstractFileSystemTestCase
 
         injector.injectCorePlugins(properties);
 
-        assertProperties(corePluginsFolderProperty
+        assertProperties(corePluginsFolderProperty + noMasterDataDisabled
                 + ch.systemsx.cisd.openbis.generic.shared.Constants.ENABLED_MODULES_KEY
                 + " = screening, dev\n" + "prefix.dss = dss1[screening], dss2[screening]\n"
                 + "prefix.dss1[screening].driver = alpha\n"
