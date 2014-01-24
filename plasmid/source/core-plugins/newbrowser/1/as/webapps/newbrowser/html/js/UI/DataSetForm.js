@@ -131,7 +131,9 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			}
 		}
 		
-		if(this.files.length > 1) {
+		if(this.files.length === 1 && 
+				this.files[0].indexOf('zip', this.files[0].length - 3) !== -1 
+				|| this.files.length > 1) {
 			var $folderName = $('<fieldset>')
 			.append($('<legend>').text('Files Options'))
 			.append($('<div>', { class : "control-group"})
@@ -340,7 +342,12 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		if(isZipDirectoryUpload === null) {
 			isZipDirectoryUpload = $("#isZipDirectoryUpload"+":checked").val() === "on";
 		}
-			
+		
+		var folderName = $('#folderName').val();
+		if(!folderName) {
+			folderName = 'DEFAULT';
+		}
+		
 		var parameters = {
 				//API Method
 				"method" : "insertDataSet",
@@ -348,7 +355,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				"sampleIdentifier" : sample.identifier,
 				"dataSetType" : $('#DATASET_TYPE').val(),
 				"filenames" : localInstance.files,
-				"folderName" : $('#folderName').val(),
+				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,
 				//Metadata
 				"metadata" : metadata,
