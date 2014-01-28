@@ -33,7 +33,9 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
  * {@link IMaintenanceTask} to revoke access to delete LDAP users.
@@ -70,20 +72,30 @@ public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
 
 	@Override
 	public void execute() {
-
 		operationLog.info("execution started");
 		// 1. Grab all users
 		IPersonDAO personDAO = CommonServiceProvider.getDAOFactory()
 				.getPersonDAO();
-		List<PersonPE> people = personDAO.listAllEntities();
+		IRoleAssignmentDAO rolesDAO = CommonServiceProvider.getDAOFactory()
+				.getRoleAssignmentDAO();
+
+		List<PersonPE> people = personDAO.listActivePersons();
 
 		// 2. Users to Revoke
 		List<PersonPE> peopleToRevoke = new ArrayList<PersonPE>();
 
 		// 3. Check if the users exists on LDAP currently
-		for (PersonPE person : people) {
+		personCheck: for (PersonPE person : people) {
 			if (false == person.isSystemUser() && person.isActive()
 					&& false == isUserAtLDAP(person.getUserId())) {
+
+				List<RoleAssignmentPE> roles = rolesDAO
+						.listRoleAssignmentsByPerson(person);
+				for (RoleAssignmentPE role : roles) {
+					if (role.getRole().name().equals("ETL_SERVER")) {
+						continue personCheck;
+					}
+				}
 				peopleToRevoke.add(person);
 			}
 		}
@@ -94,6 +106,8 @@ public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
 			String userIdToRevoke = person.getUserId();
 			person.setUserId(person.getUserId() + "-" + getTimeStamp());
 			person.setActive(false);
+			operationLog.info("person " + userIdToRevoke
+					+ " is going to be revoked.");
 			personDAO.updatePerson(person);
 			operationLog
 					.info("person " + userIdToRevoke + " has been revoked.");
