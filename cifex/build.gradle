@@ -4,6 +4,8 @@ evaluationDependsOn(':dbmigration')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+configurations.create('gwt')
+
 dependencies {
     compile project(':common'),
         project(':authentication'),
@@ -16,6 +18,11 @@ dependencies {
         'springframework:spring-test:+'
         
     testCompile project(path: ':common', configuration: 'tests')
+    
+   	gwt 'reveregroup:gwt-image-loader:1.1.4',
+        'google:gwt-dev:+',
+        'sencha:gxt:+',
+        'google:gwt-user:+'
 }
 
 sourceSets { 
@@ -26,3 +33,70 @@ sourceSets {
     }
 }
 
+
+task compileGwt (dependsOn: classes, type: JavaExec) {
+
+	buildDir = "${project.buildDir}/gwt"
+	extraDir = "${project.buildDir}/extra"
+     
+	inputs.source sourceSets.main.java.srcDirs
+	inputs.dir sourceSets.main.output.resourcesDir
+	outputs.dir buildDir
+     
+	doFirst {
+		file(buildDir).mkdirs()
+	}
+     
+	main = 'com.google.gwt.dev.Compiler'
+ 
+	classpath {
+		[
+			sourceSets.main.java.srcDirs,		
+			project(":common").sourceSets.main.java.srcDirs,
+			project(":authentication").sourceSets.main.java.srcDirs,
+			project(":dbmigration").sourceSets.main.java.srcDirs,
+			configurations.gwt
+		]   
+	}
+     
+	args =
+		[
+			'ch.systemsx.cisd.cifex.Cifex',
+			'-war', buildDir,
+			'-logLevel', 'INFO',
+			'-localWorkers', '2',
+			'-compileReport', 
+			'-extra', extraDir,
+		]
+	
+	maxHeapSize = '1024m'
+}
+
+task createWar(type: War) {
+	classpath configurations.runtime.getAsFileTree().plus(files(jar.archivePath))
+	
+	from 'source/java/cd/systemxx/cisd/cifex/public'
+	
+	from "${compileGwt.buildDir}/ch.systemsx.cisd.cifex.Cifex"
+	
+}
+createWar.dependsOn compileGwt
+createWar.dependsOn jar
+
+task mainZip(type: Zip) {
+    baseName 'cifex'
+
+    from('dist/server')
+    from('dist/etc')
+    from('etc')
+    from('source/java/ch/systemsx/cisd/cifex/public') {
+		include '*.*'
+    }
+    
+    from (createWar.archivePath) {
+		rename 'cifex.*war', 'cifex.war'
+	}
+}
+mainZip.dependsOn createWar
+
+build.dependsOn mainZip
