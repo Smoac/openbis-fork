@@ -110,7 +110,17 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		$container.append($("<legend>").html("DataSets ").append($uploadButton));
 		
 		//
-		// Don't paint datasets for entities that don't have
+		// No data store URL
+		//
+		if(datastoreDownloadURL === null) {
+			$container.append($("<p>")
+					.append($("<i>", { class: "icon-ban-circle" }))
+					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
+			return;
+		}
+		
+		//
+		// Don't paint data sets for entities that don't have
 		//
 		var numberOfDatasets = 0;
 		for(var datasetCode in this.sampleDataSets) {

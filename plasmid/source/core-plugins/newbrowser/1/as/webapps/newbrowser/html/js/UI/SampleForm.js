@@ -87,9 +87,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 							}
 						}
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
-						this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.serverFacade, localReference.profile.allDataStores[0].downloadUrl);
+						var dataStoreURL = null;
+						if(localReference.profile.allDataStores.length > 0) {
+							dataStoreURL = localReference.profile.allDataStores[0].downloadUrl
+						}
+						this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.serverFacade, dataStoreURL);
 						this.dataSetViewer.init();
-					
+						
 						var sample = localReference.sample;
 						//Populate Project/Space and Code
 						if(localReference.isELNExperiment) {
