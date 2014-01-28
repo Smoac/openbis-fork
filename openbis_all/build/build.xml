@@ -150,12 +150,6 @@
   </target>
 
   <target name="javadoc">
-    <unzip dest="${result.dir}/javadoc-external">
-        <fileset dir="../libraries">
-            <include name="**/cisd-*-src.zip"/>
-        </fileset>
-    </unzip>
-  	
     <javadoc 
 		      destdir="${result.dir}/javadoc" 
 		  	  author="true" 
@@ -174,15 +168,12 @@
       	<!-- include classes that allow sending emails from the dropboxes -->
       	<include name="*/source/java/ch/systemsx/cisd/common/mail/*.java"/>
       </fileset>
-      <fileset dir="${result.dir}/javadoc-external">
-        <include name="**/*.java"/>
-      </fileset>
 
       <classpath>
         <fileset dir="../libraries">
           <include name="**/*.jar"/>
         </fileset>
-      	<dirset dir="..">
+        <dirset dir="..">
           <include name="*/targets/ant/classes"/>
         </dirset>
       </classpath>
