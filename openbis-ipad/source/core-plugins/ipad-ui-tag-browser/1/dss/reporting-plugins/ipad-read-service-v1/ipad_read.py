@@ -267,8 +267,6 @@ def getExperimentSamplesMap(experimentIdentifiers):
 		experimentTokens = experimentIdentifier.split('/');
 		experimentCode = experimentTokens[len(experimentTokens) - 1]
 		
-		print 'Experiment code: ' + str(experimentCode)
-		
 		experimentCriteria = SearchCriteria()
 		experimentCriteria.addMatchClause(experimentCriteria.MatchClause.createAttributeMatch(experimentCriteria.MatchClauseAttribute.CODE, experimentCode))
 		sampleCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
@@ -276,9 +274,6 @@ def getExperimentSamplesMap(experimentIdentifiers):
 	samples = searchService.searchForSamples(sampleCriteria)
 	# as there is no way to search for samples by experiment identifier (only by experiment code)
 	# we have to filter out samples that have an experiment with the same code but a different identifier
-	
-	for sample in samples:
-		print 'Sample: ' + str(sample.getCode()) + " has experiment: " + str(sample.getExperiment())
 	
 	samples = [ sample for sample in samples if sample.getExperiment().getExperimentIdentifier() in experimentIdentifiers]
 
