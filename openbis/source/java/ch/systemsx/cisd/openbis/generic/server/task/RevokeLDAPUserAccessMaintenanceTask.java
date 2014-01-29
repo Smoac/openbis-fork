@@ -47,9 +47,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * 
  * @author Juan Fuentes
  */
-public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
+public class RevokeLDAPUserAccessMaintenanceTask implements IMaintenanceTask {
 	private static final Logger operationLog = LogFactory.getLogger(
-			LogCategory.OPERATION, RevokeUserAccessMaintenanceTask.class);
+			LogCategory.OPERATION, RevokeLDAPUserAccessMaintenanceTask.class);
 
 	private LDAPDirectoryConfiguration config;
 	private LDAPPrincipalQuery query;
