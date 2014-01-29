@@ -259,9 +259,9 @@ def getTag(name):
 # Entity Relations
 ###################
 
-def getExperimentSamplesMap(experimentIdentifiers):
-	sampleCriteria = SearchCriteria()
-	sampleCriteria.setOperator(sampleCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+def getExperimentEntitiesMap(experimentIdentifiers, searchFunction):
+	entityCriteria = SearchCriteria()
+	entityCriteria.setOperator(entityCriteria.SearchOperator.MATCH_ANY_CLAUSES)
 	
 	for experimentIdentifier in experimentIdentifiers:
 		experimentTokens = experimentIdentifier.split('/');
@@ -269,34 +269,37 @@ def getExperimentSamplesMap(experimentIdentifiers):
 		
 		experimentCriteria = SearchCriteria()
 		experimentCriteria.addMatchClause(experimentCriteria.MatchClause.createAttributeMatch(experimentCriteria.MatchClauseAttribute.CODE, experimentCode))
-		sampleCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
-		
-	samples = searchService.searchForSamples(sampleCriteria)
-	# as there is no way to search for samples by experiment identifier (only by experiment code)
-	# we have to filter out samples that have an experiment with the same code but a different identifier
+		entityCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
 	
-	samples = [ sample for sample in samples if sample.getExperiment().getExperimentIdentifier() in experimentIdentifiers]
-
-	experimentIdentifierToSamplesMap = {}
+	entities = searchFunction(entityCriteria)
 	
-	for sample in samples:
-		experimentIdentifier = sample.getExperiment().getExperimentIdentifier()
-		experimentSamples = experimentIdentifierToSamplesMap.get(experimentIdentifier)
-		if not experimentSamples: 
-			experimentSamples = []
-			experimentIdentifierToSamplesMap[experimentIdentifier] = experimentSamples
-		experimentSamples.append(sample)
+	# as there is no way to search for entities by experiment identifier (only by experiment code)
+	# we have to filter out ones that have an experiment with the same code but a different identifier
+	entities = [ entity for entity in entities if entity.getExperiment().getExperimentIdentifier() in experimentIdentifiers]	
+	
+	experimentIdentifierToEntitiesMap = {}
+	
+	for entity in entities:
+		experimentIdentifier = entity.getExperiment().getExperimentIdentifier()
+		experimentEntities = experimentIdentifierToEntitiesMap.get(experimentIdentifier)
+		if not experimentEntities: 
+			experimentEntities = []
+			experimentIdentifierToEntitiesMap[experimentIdentifier] = experimentEntities
+		experimentEntities.append(entity)
 		
-	return experimentIdentifierToSamplesMap
+	return experimentIdentifierToEntitiesMap
+	
+def getExperimentSamplesMap(experimentIdentifiers):
+	return getExperimentEntitiesMap(experimentIdentifiers, searchService.searchForSamples)
 
-def getExperimentDataSetsMap(dataSetIdentifiers):
-	return {}
+def getExperimentDataSetsMap(experimentIdentifiers):
+	return getExperimentEntitiesMap(experimentIdentifiers, searchService.searchForDataSets)
 
 def getSamplesParents(permIds):
 	pass
 def getSamplesChildren(permIds):
 	pass
-	
+
 
 ####################
 # Entity Properties
@@ -385,8 +388,9 @@ class TagDrillRequestHandler(DrillRequestHandler):
 			if 'EXPERIMENT' == entityType:
 				experimentIdentifier = entityRefcon['IDENTIFIER']
 				experimentSamples = getExperimentSamplesMap([experimentIdentifier]).get(experimentIdentifier, [])
+				experimentDataSets = getExperimentDataSetsMap([experimentIdentifier]).get(experimentIdentifier, [])
 				self.addRows([createSampleDictionary(sample) for sample in experimentSamples])
-
+				self.addRows([createDataSetDictionary(dataSet) for dataSet in experimentDataSets])
 
 class TagDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
