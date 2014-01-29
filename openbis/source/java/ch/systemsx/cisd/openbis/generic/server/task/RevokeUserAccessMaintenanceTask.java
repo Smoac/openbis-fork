@@ -73,6 +73,7 @@ public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
 	@Override
 	public void execute() {
 		operationLog.info("execution started");
+
 		// 1. Grab all users
 		IPersonDAO personDAO = CommonServiceProvider.getDAOFactory()
 				.getPersonDAO();
@@ -108,7 +109,15 @@ public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
 			person.setActive(false);
 			operationLog.info("person " + userIdToRevoke
 					+ " is going to be revoked.");
+
+			// Update person Id
 			personDAO.updatePerson(person);
+
+			// Delete roles
+			for (RoleAssignmentPE role : rolesDAO
+					.listRoleAssignmentsByPerson(person)) {
+				rolesDAO.delete(role);
+			}
 			operationLog
 					.info("person " + userIdToRevoke + " has been revoked.");
 		}
