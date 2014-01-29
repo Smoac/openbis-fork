@@ -150,12 +150,18 @@
   </target>
 
   <target name="javadoc">
+    <unzip dest="${result.dir}/javadoc-external">
+        <fileset dir="../libraries">
+            <include name="**/cisd-*-src.zip"/>
+        </fileset>
+    </unzip>
+
     <javadoc 
-		      destdir="${result.dir}/javadoc" 
-		  	  author="true" 
-		  	  useexternalfile="true"
-		  	  source="1.6"
-		  	  maxmemory="128M" verbose="true">
+      destdir="${result.dir}/javadoc"
+      author="true"
+      useexternalfile="true"
+      source="1.6"
+      maxmemory="384M" verbose="true">
 
       <fileset dir="../">
         <include name="*/source/java/ch/systemsx/cisd/**/api/**/*.java"/>
@@ -167,6 +173,9 @@
       	
       	<!-- include classes that allow sending emails from the dropboxes -->
       	<include name="*/source/java/ch/systemsx/cisd/common/mail/*.java"/>
+      </fileset>
+      <fileset dir="${result.dir}/javadoc-external">
+        <include name="**/*.java"/>
       </fileset>
 
       <classpath>
