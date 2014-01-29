@@ -32,10 +32,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.openbis.generic.server.CommonServiceProvider;
+import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroup;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * {@link IMaintenanceTask} to revoke access to delete LDAP users.
@@ -74,11 +79,15 @@ public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
 	public void execute() {
 		operationLog.info("execution started");
 
-		// 1. Grab all users
+		// 1. Grab all users, user roles and user authorization groups
 		IPersonDAO personDAO = CommonServiceProvider.getDAOFactory()
 				.getPersonDAO();
 		IRoleAssignmentDAO rolesDAO = CommonServiceProvider.getDAOFactory()
 				.getRoleAssignmentDAO();
+		// Used to manage the authorization groups since the IPersonDAO throw a session exception when accessing this information.
+		ICommonServerForInternalUse server = CommonServiceProvider
+				.getCommonServer();
+		SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
 
 		List<PersonPE> people = personDAO.listActivePersons();
 
@@ -103,21 +112,40 @@ public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
 
 		// 4. If is not found on the LDAP, revoke access
 		for (PersonPE person : peopleToRevoke) {
-			// User deactivation
 			String userIdToRevoke = person.getUserId();
-			person.setUserId(person.getUserId() + "-" + getTimeStamp());
-			person.setActive(false);
 			operationLog.info("person " + userIdToRevoke
 					+ " is going to be revoked.");
 
-			// Update person Id
-			personDAO.updatePerson(person);
-
-			// Delete roles
+			// Delete person roles
 			for (RoleAssignmentPE role : rolesDAO
 					.listRoleAssignmentsByPerson(person)) {
 				rolesDAO.delete(role);
 			}
+
+			// Delete person from groups
+			List<AuthorizationGroup> groups = server
+					.listAuthorizationGroups(contextOrNull.getSessionToken());
+
+			for (AuthorizationGroup group : groups) {
+				List<Person> peopleInGroup = server
+						.listPersonInAuthorizationGroup(contextOrNull
+								.getSessionToken(), new TechId(group.getId()));
+				for (Person personInGroup : peopleInGroup) {
+					if (personInGroup.getUserId().equals(userIdToRevoke)) {
+						List<String> toRemoveFromGroup = new ArrayList<String>();
+						toRemoveFromGroup.add(person.getUserId());
+						server.removePersonsFromAuthorizationGroup(
+								contextOrNull.getSessionToken(), new TechId(
+										group.getId()), toRemoveFromGroup);
+					}
+				}
+			}
+
+			// Change userId and disable
+			person.setUserId(person.getUserId() + "-" + getTimeStamp());
+			person.setActive(false);
+			personDAO.updatePerson(person);
+
 			operationLog
 					.info("person " + userIdToRevoke + " has been revoked.");
 		}
