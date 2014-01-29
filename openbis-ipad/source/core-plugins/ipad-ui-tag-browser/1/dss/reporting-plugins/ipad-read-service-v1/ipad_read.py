@@ -56,7 +56,6 @@ def createExperimentDictionaries(experiments):
 		return []
 
 	experimentIdentifiers = [experiment.getExperimentIdentifier() for experiment in experiments]
-	
 	experimentSamplesMap = getExperimentSamplesMap(experimentIdentifiers)
 	experimentDataSetsMap = getExperimentDataSetsMap(experimentIdentifiers)
 	
@@ -103,7 +102,23 @@ def createExperimentDetailedDictionary(experiment):
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties) 
 	return dictionary
 
-def createSampleDictionary(sample):
+def createSampleDictionaries(samples):
+	if not samples:
+		return []
+
+	samplePermIds = [sample.getPermId() for sample in samples]
+	sampleParentsMap = getSampleParentsMap(samplePermIds)
+	sampleChildrenMap = getSampleChildrenMap(samplePermIds)
+	
+	dictionaries = []
+	for sample in samples:
+		sampleParents = sampleParentsMap.get(sample.getPermId(), [])
+		sampleChildren = sampleChildrenMap.get(sample.getPermId(), [])
+		dictionaries.append(createSampleDictionary(sample, sampleParents, sampleChildren))
+	
+	return dictionaries
+
+def createSampleDictionary(sample, sampleParents, sampleChildren):
 	dictionary = {}
 	dictionary['PERM_ID'] = getSampleIPadId(sample)
 	dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'	
@@ -111,7 +126,10 @@ def createSampleDictionary(sample):
 	dictionary['SUMMARY'] = None
 	dictionary['IDENTIFIER'] = 'Sample'
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
-	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
+	children = []
+	children.extend([ getSampleIPadId(sampleParent) for sampleParent in sampleParents ])
+	children.extend([ getSampleIPadId(sampleChild) for sampleChild in sampleChildren ])
+	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 	dictionary['ROOT_LEVEL'] = None
 	
 	refcon = {}
@@ -122,7 +140,7 @@ def createSampleDictionary(sample):
 	return dictionary
 	
 def createSampleDetailedDictionary(sample):
-	dictionary = createSampleDictionary(sample)
+	dictionary = createSampleDictionary(sample, [], [])
 	propertyDefinitions = getPropertyDefinitions(sample.getSampleType(), searchService.listPropertiesDefinitionsForSampleType)
 	
 	properties = []
@@ -295,11 +313,39 @@ def getExperimentSamplesMap(experimentIdentifiers):
 def getExperimentDataSetsMap(experimentIdentifiers):
 	return getExperimentEntitiesMap(experimentIdentifiers, searchService.searchForDataSets)
 
-def getSamplesParents(permIds):
-	pass
-def getSamplesChildren(permIds):
-	pass
+def getSampleParentsMap(samplePermIds):
+	return {}
 
+def getSampleChildrenMap(samplePermIds):
+	parentCriteria = SearchCriteria()
+	parentCriteria.setOperator(parentCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+	
+	for samplePermId in samplePermIds:
+		parentCriteria.addMatchClause(parentCriteria.MatchClause.createAttributeMatch(parentCriteria.MatchClauseAttribute.PERM_ID, samplePermId))
+	
+	childCriteria = SearchCriteria()
+	childCriteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria))
+	
+	parents = searchService.searchForSamples(parentCriteria)
+	children = searchService.searchForSamples(childCriteria)
+
+	parentIdentifierToPermIdMap = {}
+	for parent in parents:
+		parentIdentifierToPermIdMap[parent.getSampleIdentifier()] = parent.getPermId()
+	parentPermIdToChildrenMap = {}
+	
+	for child in children:
+		parentIdentifiers = child.getParentSampleIdentifiers()
+		
+		for parentIdentifier in parentIdentifiers:
+			parentPermId = parentIdentifierToPermIdMap.get(parentIdentifier)
+			parentChildren = parentPermIdToChildrenMap.get(parentPermId)
+			if not parentChildren: 
+				parentChildren = []
+				parentPermIdToChildrenMap[parentPermId] = parentChildren
+			parentChildren.append(child)
+	print 'Map: ' + str(parentPermIdToChildrenMap) 
+	return parentPermIdToChildrenMap
 
 ####################
 # Entity Properties
@@ -371,7 +417,7 @@ class TagRootRequestHandler(RootRequestHandler):
 			
 			self.addRows([createTagDictionary(tag, tagChildren)])
 			self.addRows(createExperimentDictionaries(experiments))
-			self.addRows([createSampleDictionary(sample) for sample in samples])
+			self.addRows(createSampleDictionaries(samples))
 			self.addRows([createDataSetDictionary(dataSet) for dataSet in dataSets])
 			self.addRows([createMaterialDictionary(material) for material in materials])
 
@@ -389,8 +435,14 @@ class TagDrillRequestHandler(DrillRequestHandler):
 				experimentIdentifier = entityRefcon['IDENTIFIER']
 				experimentSamples = getExperimentSamplesMap([experimentIdentifier]).get(experimentIdentifier, [])
 				experimentDataSets = getExperimentDataSetsMap([experimentIdentifier]).get(experimentIdentifier, [])
-				self.addRows([createSampleDictionary(sample) for sample in experimentSamples])
+				self.addRows(createSampleDictionaries(experimentSamples))
 				self.addRows([createDataSetDictionary(dataSet) for dataSet in experimentDataSets])
+			if 'SAMPLE' == entityType:
+				samplePermId = entityRefcon['PERM_ID']
+				sampleParents = getSampleParentsMap([samplePermId]).get(samplePermId, [])
+				sampleChildren = getSampleChildrenMap([samplePermId]).get(samplePermId, [])
+				self.addRows(createSampleDictionaries(sampleParents))
+				self.addRows(createSampleDictionaries(sampleChildren))
 
 class TagDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
@@ -427,7 +479,7 @@ class TagSearchRequestHandler(SearchRequestHandler):
 			# there is no way to search for experiments and materials
 			
 			samples = self.searchService.searchForSamples(criteria)
-			self.addRows([createSampleDictionary(sample) for sample in samples])
+			self.addRows(createSampleDictionaries(samples))
 			
 			dataSets = self.searchService.searchForDataSets(criteria)
 			self.addRows([createDataSetDictionary(dataSet) for dataSet in dataSets])
