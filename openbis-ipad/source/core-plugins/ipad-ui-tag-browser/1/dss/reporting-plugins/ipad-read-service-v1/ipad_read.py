@@ -25,7 +25,7 @@ def getEntitiesParameter(handler):
 
 def createTagDictionary(tag, children):
 	dictionary = {}
-	dictionary['PERM_ID'] = 'TAG.' + tag.getName()
+	dictionary['PERM_ID'] = getTagIPadId(tag)
 	dictionary['CATEGORY'] = 'Tag'
 	dictionary['SUMMARY_HEADER'] = tag.getName()
 	dictionary['SUMMARY'] = None
@@ -51,15 +51,35 @@ def createTagDetailedDictionary(tag):
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 	return dictionary
 
-def createExperimentDictionary(experiment):
+def createExperimentDictionaries(experiments):
+	if not experiments:
+		return []
+
+	experimentIdentifiers = [experiment.getExperimentIdentifier() for experiment in experiments]
+	
+	experimentSamplesMap = getExperimentSamplesMap(experimentIdentifiers)
+	experimentDataSetsMap = getExperimentDataSetsMap(experimentIdentifiers)
+	
+	dictionaries = []
+	for experiment in experiments:
+		experimentSamples = experimentSamplesMap.get(experiment.getExperimentIdentifier(), [])
+		experimentDataSets = experimentDataSetsMap.get(experiment.getExperimentIdentifier(), [])
+		dictionaries.append(createExperimentDictionary(experiment, experimentSamples, experimentDataSets))
+	
+	return dictionaries
+
+def createExperimentDictionary(experiment, experimentSamples, experimentDataSets):
 	dictionary = {}
-	dictionary['PERM_ID'] = 'EXPERIMENT.' + experiment.getPermId()
+	dictionary['PERM_ID'] = getExperimentIPadId(experiment)
 	dictionary['CATEGORY'] = 'Experiment (' + experiment.getExperimentType() + ')'
 	dictionary['SUMMARY_HEADER'] = experiment.getExperimentIdentifier()
 	dictionary['SUMMARY'] = None
 	dictionary['IDENTIFIER'] = 'Experiment'
 	dictionary['IMAGES'] = IpadServiceUtilities.jsonEncodedValue({})
-	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue([])
+	children = []
+	children.extend([ getSampleIPadId(experimentSample) for experimentSample in experimentSamples ])
+	children.extend([ getDataSetIPadId(experimentDataSet) for experimentDataSet in experimentDataSets ])
+	dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 	dictionary['ROOT_LEVEL'] = None
 	
 	refcon = {}
@@ -71,7 +91,7 @@ def createExperimentDictionary(experiment):
 	return dictionary
 	
 def createExperimentDetailedDictionary(experiment):
-	dictionary = createExperimentDictionary(experiment)
+	dictionary = createExperimentDictionary(experiment, [], [])
 	propertyDefinitions = getPropertyDefinitions(experiment.getExperimentType(), searchService.listPropertiesDefinitionsForExperimentType)
 
 	properties = []
@@ -85,7 +105,7 @@ def createExperimentDetailedDictionary(experiment):
 
 def createSampleDictionary(sample):
 	dictionary = {}
-	dictionary['PERM_ID'] = 'SAMPLE.' + sample.getPermId()
+	dictionary['PERM_ID'] = getSampleIPadId(sample)
 	dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'	
 	dictionary['SUMMARY_HEADER'] = sample.getSampleIdentifier()
 	dictionary['SUMMARY'] = None
@@ -118,7 +138,7 @@ def createSampleDetailedDictionary(sample):
 
 def createDataSetDictionary(dataSet):
 	dictionary = {}
-	dictionary['PERM_ID'] = 'DATA_SET.' + dataSet.getDataSetCode()
+	dictionary['PERM_ID'] = getDataSetIPadId(dataSet)
 	dictionary['CATEGORY'] = 'Data Set (' + dataSet.getDataSetType() + ')'	
 	dictionary['SUMMARY_HEADER'] = dataSet.getDataSetCode()
 	dictionary['SUMMARY'] = None
@@ -153,7 +173,7 @@ def createDataSetDetailedDictionary(dataSet):
 
 def createMaterialDictionary(material):
 	dictionary = {}
-	dictionary['PERM_ID'] = 'MATERIAL.' + material.getMaterialIdentifier()
+	dictionary['PERM_ID'] = getMaterialIPadId(material)
 	dictionary['CATEGORY'] = 'Material (' + material.getMaterialType() + ')'
 	dictionary['SUMMARY_HEADER'] = material.getMaterialIdentifier()
 	dictionary['SUMMARY'] = None
@@ -182,6 +202,24 @@ def createMaterialDetailedDictionary(material):
 	dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties) 
 	return dictionary
 
+#################
+# Entity IPad Id
+#################
+
+def getTagIPadId(tag):
+	return 'TAG.' + tag.getName()	
+
+def getExperimentIPadId(experiment):
+	return 'EXPERIMENT.' + experiment.getPermId()
+	
+def getSampleIPadId(sample):
+	return 'SAMPLE.' + sample.getPermId()
+
+def getDataSetIPadId(dataSet):
+	return 'DATA_SET.' + dataSet.getDataSetCode()
+	
+def getMaterialIPadId(material):
+	return 'MATERIAL.' + material.getMaterialIdentifier()	
 
 #########
 # Entity
@@ -216,6 +254,54 @@ def getMaterial(code, typeCode):
 	
 def getTag(name):
 	return searchService.getMetaproject(name)
+	
+###################
+# Entity Relations
+###################
+
+def getExperimentSamplesMap(experimentIdentifiers):
+	sampleCriteria = SearchCriteria()
+	sampleCriteria.setOperator(sampleCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+	
+	for experimentIdentifier in experimentIdentifiers:
+		experimentTokens = experimentIdentifier.split('/');
+		experimentCode = experimentTokens[len(experimentTokens) - 1]
+		
+		print 'Experiment code: ' + str(experimentCode)
+		
+		experimentCriteria = SearchCriteria()
+		experimentCriteria.addMatchClause(experimentCriteria.MatchClause.createAttributeMatch(experimentCriteria.MatchClauseAttribute.CODE, experimentCode))
+		sampleCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
+		
+	samples = searchService.searchForSamples(sampleCriteria)
+	# as there is no way to search for samples by experiment identifier (only by experiment code)
+	# we have to filter out samples that have an experiment with the same code but a different identifier
+	
+	for sample in samples:
+		print 'Sample: ' + str(sample.getCode()) + " has experiment: " + str(sample.getExperiment())
+	
+	samples = [ sample for sample in samples if sample.getExperiment().getExperimentIdentifier() in experimentIdentifiers]
+
+	experimentIdentifierToSamplesMap = {}
+	
+	for sample in samples:
+		experimentIdentifier = sample.getExperiment().getExperimentIdentifier()
+		experimentSamples = experimentIdentifierToSamplesMap.get(experimentIdentifier)
+		if not experimentSamples: 
+			experimentSamples = []
+			experimentIdentifierToSamplesMap[experimentIdentifier] = experimentSamples
+		experimentSamples.append(sample)
+		
+	return experimentIdentifierToSamplesMap
+
+def getExperimentDataSetsMap(dataSetIdentifiers):
+	return {}
+
+def getSamplesParents(permIds):
+	pass
+def getSamplesChildren(permIds):
+	pass
+	
 
 ####################
 # Entity Properties
@@ -277,22 +363,35 @@ class TagRootRequestHandler(RootRequestHandler):
 			materials = tagAssignments.getMaterials();
 			
 			for experiment in experiments:
-				tagChildren.append('EXPERIMENT.' + experiment.getPermId())
+				tagChildren.append(getExperimentIPadId(experiment))
 			for sample in samples:
-				tagChildren.append('SAMPLE.' + sample.getPermId())
+				tagChildren.append(getSampleIPadId(sample))
 			for dataSet in dataSets:
-				tagChildren.append('DATA_SET.' + dataSet.getDataSetCode())
+				tagChildren.append(getDataSetIPadId(dataSet))
 			for material in materials:
-				tagChildren.append('MATERIAL.' + material.getMaterialIdentifier())
+				tagChildren.append(getMaterialIPadId(material))
 			
 			self.addRows([createTagDictionary(tag, tagChildren)])
-			self.addRows([createExperimentDictionary(experiment) for experiment in experiments])
+			self.addRows(createExperimentDictionaries(experiments))
 			self.addRows([createSampleDictionary(sample) for sample in samples])
 			self.addRows([createDataSetDictionary(dataSet) for dataSet in dataSets])
 			self.addRows([createMaterialDictionary(material) for material in materials])
 
 class TagDrillRequestHandler(DrillRequestHandler):
 	"""Handler for the DRILL request."""
+
+	def addDataRows(self):
+		entitiesPermIdsAndRefcons = getEntitiesParameter(self)
+
+		if entitiesPermIdsAndRefcons:
+			entityRefcon = entitiesPermIdsAndRefcons[0]['REFCON'] 
+			entityType = entityRefcon['ENTITY_TYPE'];
+			
+			if 'EXPERIMENT' == entityType:
+				experimentIdentifier = entityRefcon['IDENTIFIER']
+				experimentSamples = getExperimentSamplesMap([experimentIdentifier]).get(experimentIdentifier, [])
+				self.addRows([createSampleDictionary(sample) for sample in experimentSamples])
+
 
 class TagDetailRequestHandler(DetailRequestHandler):
 	"""Handler for the DETAIL request."""
