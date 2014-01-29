@@ -115,27 +115,15 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		$wrapper = $("#fileOptionsContainer"); //Clean existing
 		$wrapper.empty();
 		
-		if(this.files.length === 1 && 
-				this.files[0].indexOf('zip', this.files[0].length - 3) !== -1) {
-			
-			var isZipDirectoryUpload = this.profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
-			if(isZipDirectoryUpload === null) {
-				var $fileFieldSetIsDirectory = $('<fieldset>')
-				.append($('<legend>').text('Files Options'))
-				.append($('<div>', { class : "control-group"})
-							.append($('<label>', {class : 'control-label'}).text('Uncompress before import:'))
-							.append($('<div>', {class: 'controls'})
-								.append(this._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
-				);
-				$wrapper.append($fileFieldSetIsDirectory);
-			}
+		if( this.files.length > 1
+			||
+			this.files.length === 1 && this.files[0].indexOf('zip', this.files[0].length - 3) !== -1) {
+			var $leyend = $('<fieldset>').append($('<legend>').text('Files Options'));
+			$wrapper.append($leyend);
 		}
 		
-		if(this.files.length === 1 && 
-				this.files[0].indexOf('zip', this.files[0].length - 3) !== -1 
-				|| this.files.length > 1) {
+		if(this.files.length > 1) {
 			var $folderName = $('<fieldset>')
-			.append($('<legend>').text('Files Options'))
 			.append($('<div>', { class : "control-group"})
 					.append($('<label>', {class : 'control-label'}).text('Folder Name:'))
 					.append($('<div>', {class: 'controls'})
@@ -144,6 +132,39 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			);
 			$wrapper.append($folderName);
 		}
+		
+		if(this.files.length === 1 && 
+				this.files[0].indexOf('zip', this.files[0].length - 3) !== -1) {
+			var isZipDirectoryUpload = this.profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
+			if(isZipDirectoryUpload === null) {
+				var $fileFieldSetIsDirectory = $('<fieldset>')
+				.append($('<div>', { class : "control-group"})
+							.append($('<label>', {class : 'control-label'}).text('Uncompress before import:'))
+							.append($('<div>', {class: 'controls'})
+								.append(this._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
+				);
+				$wrapper.append($fileFieldSetIsDirectory);
+				
+				var localInstance = this;
+				$("#isZipDirectoryUpload").change(function() {
+					if($("#isZipDirectoryUpload"+":checked").val() === "on") {
+						var $folderName = $('<fieldset>', { "id" : "folderNameContainer"})
+						.append($('<div>', { class : "control-group"})
+								.append($('<label>', {class : 'control-label'}).text('Folder Name:'))
+								.append($('<div>', {class: 'controls'})
+									.append(localInstance._getInputField('text', 'folderName', 'Folder Name', null, true))
+									.append(' (Required)'))
+						);
+						$("#fileOptionsContainer").append($folderName);
+						$("#folderName").val(localInstance.files[0].substring(0, localInstance.files[0].indexOf(".")));
+					} else {
+						$( "#folderNameContainer" ).remove();
+					}
+				})
+			}
+		}
+		
+		
 	}
 	
 	this._getDataSetType = function(typeCode) {
