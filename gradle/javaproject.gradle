@@ -122,7 +122,7 @@ configurations {
 }
 
 dependencies {
-    ecj "eclipse:ecj:3.8.1"
+    ecj "eclipse:ecj:+"
 }
 
 compileJava {
