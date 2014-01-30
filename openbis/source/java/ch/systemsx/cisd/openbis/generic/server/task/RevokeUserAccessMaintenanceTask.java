@@ -25,9 +25,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.authentication.Principal;
-import ch.systemsx.cisd.authentication.ldap.LDAPDirectoryConfiguration;
-import ch.systemsx.cisd.authentication.ldap.LDAPPrincipalQuery;
+import ch.systemsx.cisd.authentication.IAuthenticationService;
+import ch.systemsx.cisd.authentication.stacked.StackedAuthenticationService;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -43,50 +42,52 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
- * {@link IMaintenanceTask} to revoke access to delete LDAP users.
+ * {@link IMaintenanceTask} to revoke access to users not present on the authentication service anymore.
  * 
  * @author Juan Fuentes
  */
-public class RevokeLDAPUserAccessMaintenanceTask implements IMaintenanceTask {
-	private static final Logger operationLog = LogFactory.getLogger(
-			LogCategory.OPERATION, RevokeLDAPUserAccessMaintenanceTask.class);
-
-	private LDAPDirectoryConfiguration config;
-	private LDAPPrincipalQuery query;
-
-	private static final String SERVER_URL_KEY = "server-url";
-	private static final String SECURITY_PRINCIPAL_DISTINGUISHED_NAME_KEY = "security-principal-distinguished-name";
-	private static final String SECURITY_PRINCIPAL_PASSWORD_KEY = "security-principal-password";
-
+public class RevokeUserAccessMaintenanceTask implements IMaintenanceTask {
+	private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, RevokeUserAccessMaintenanceTask.class);
+	private static final String AUTH_SERVICE_BEAN = "authentication-service";
+	private static final IAuthenticationService authService;
+	
+	static {
+		IAuthenticationService authServiceAux = (IAuthenticationService) CommonServiceProvider.tryToGetBean(AUTH_SERVICE_BEAN);
+	
+		if (authServiceAux instanceof StackedAuthenticationService && ((StackedAuthenticationService) authServiceAux).allServicesSupportListingByUserId())
+		{
+			authService = authServiceAux;
+		} else if(authServiceAux.supportsListingByUserId())
+		{
+			authService = authServiceAux;
+		} 
+		else
+		{
+			authService = null;
+		}
+	}
+	
 	@Override
 	public void setUp(String pluginName, Properties properties) {
 		operationLog.info("Task " + pluginName + " initialized.");
-
-		config = new LDAPDirectoryConfiguration();
-		config.setServerUrl(properties.getProperty(SERVER_URL_KEY));
-		config.setSecurityPrincipalDistinguishedName(properties
-				.getProperty(SECURITY_PRINCIPAL_DISTINGUISHED_NAME_KEY));
-		config.setSecurityPrincipalPassword(properties
-				.getProperty(SECURITY_PRINCIPAL_PASSWORD_KEY));
-		config.setQueryEmailForAliases("true");
-		config.setTimeoutStr("1000");
-		config.setTimeToWaitAfterFailureStr("1000");
-
-		query = new LDAPPrincipalQuery(config);
 	}
 
 	@Override
-	public void execute() {
+	public void execute() 
+	{
 		operationLog.info("execution started");
-
+		//0. Initial Check
+		if(authService == null) 
+		{
+			operationLog.info("This plugin doesn't work with authentication services that don't support listing by user idt.");
+			return;
+		}
 		// 1. Grab all users, user roles and user authorization groups
-		IPersonDAO personDAO = CommonServiceProvider.getDAOFactory()
-				.getPersonDAO();
-		IRoleAssignmentDAO rolesDAO = CommonServiceProvider.getDAOFactory()
-				.getRoleAssignmentDAO();
+		IPersonDAO personDAO = CommonServiceProvider.getDAOFactory().getPersonDAO();
+		IRoleAssignmentDAO rolesDAO = CommonServiceProvider.getDAOFactory().getRoleAssignmentDAO();
+		
 		// Used to manage the authorization groups since the IPersonDAO throw a session exception when accessing this information.
-		ICommonServerForInternalUse server = CommonServiceProvider
-				.getCommonServer();
+		ICommonServerForInternalUse server = CommonServiceProvider.getCommonServer();
 		SessionContextDTO contextOrNull = server.tryToAuthenticateAsSystem();
 
 		List<PersonPE> people = personDAO.listActivePersons();
@@ -95,14 +96,16 @@ public class RevokeLDAPUserAccessMaintenanceTask implements IMaintenanceTask {
 		List<PersonPE> peopleToRevoke = new ArrayList<PersonPE>();
 
 		// 3. Check if the users exists on LDAP currently
-		personCheck: for (PersonPE person : people) {
-			if (false == person.isSystemUser() && person.isActive()
-					&& false == isUserAtLDAP(person.getUserId())) {
-
-				List<RoleAssignmentPE> roles = rolesDAO
-						.listRoleAssignmentsByPerson(person);
-				for (RoleAssignmentPE role : roles) {
-					if (role.getRole().name().equals("ETL_SERVER")) {
+		personCheck:
+		for (PersonPE person : people) 
+		{
+			if (false == person.isSystemUser() && person.isActive() && false == isUserValid(person.getUserId())) 
+			{
+				List<RoleAssignmentPE> roles = rolesDAO.listRoleAssignmentsByPerson(person);
+				for (RoleAssignmentPE role : roles) 
+				{
+					if (role.getRole().name().equals("ETL_SERVER")) 
+					{
 						continue personCheck;
 					}
 				}
@@ -110,33 +113,31 @@ public class RevokeLDAPUserAccessMaintenanceTask implements IMaintenanceTask {
 			}
 		}
 
-		// 4. If is not found on the LDAP, revoke access
-		for (PersonPE person : peopleToRevoke) {
+		// 4. If is not found on the authentication service, revoke access
+		for (PersonPE person : peopleToRevoke) 
+		{
 			String userIdToRevoke = person.getUserId();
-			operationLog.info("person " + userIdToRevoke
-					+ " is going to be revoked.");
+			operationLog.info("person " + userIdToRevoke + " is going to be revoked.");
 
 			// Delete person roles
-			for (RoleAssignmentPE role : rolesDAO
-					.listRoleAssignmentsByPerson(person)) {
+			for (RoleAssignmentPE role : rolesDAO.listRoleAssignmentsByPerson(person)) 
+			{
 				rolesDAO.delete(role);
 			}
 
 			// Delete person from groups
-			List<AuthorizationGroup> groups = server
-					.listAuthorizationGroups(contextOrNull.getSessionToken());
+			List<AuthorizationGroup> groups = server.listAuthorizationGroups(contextOrNull.getSessionToken());
 
-			for (AuthorizationGroup group : groups) {
-				List<Person> peopleInGroup = server
-						.listPersonInAuthorizationGroup(contextOrNull
-								.getSessionToken(), new TechId(group.getId()));
-				for (Person personInGroup : peopleInGroup) {
-					if (personInGroup.getUserId().equals(userIdToRevoke)) {
+			for (AuthorizationGroup group : groups) 
+			{
+				List<Person> peopleInGroup = server.listPersonInAuthorizationGroup(contextOrNull.getSessionToken(), new TechId(group.getId()));
+				for (Person personInGroup : peopleInGroup) 
+				{
+					if (personInGroup.getUserId().equals(userIdToRevoke)) 
+					{
 						List<String> toRemoveFromGroup = new ArrayList<String>();
 						toRemoveFromGroup.add(person.getUserId());
-						server.removePersonsFromAuthorizationGroup(
-								contextOrNull.getSessionToken(), new TechId(
-										group.getId()), toRemoveFromGroup);
+						server.removePersonsFromAuthorizationGroup(contextOrNull.getSessionToken(), new TechId(group.getId()), toRemoveFromGroup);
 					}
 				}
 			}
@@ -146,16 +147,17 @@ public class RevokeLDAPUserAccessMaintenanceTask implements IMaintenanceTask {
 			person.setActive(false);
 			personDAO.updatePerson(person);
 
-			operationLog
-					.info("person " + userIdToRevoke + " has been revoked.");
+			operationLog.info("person " + userIdToRevoke + " has been revoked.");
 		}
 
 		operationLog.info("task executed");
 	}
 
-	private boolean isUserAtLDAP(String userId) {
-		List<Principal> principals = query.listPrincipalsByUserId(userId);
-		return false == principals.isEmpty();
+	/*
+	 * We can only delete the users if, the Principals are listable and they are not available.
+	 */
+	private boolean isUserValid(String userId) {
+		return authService.supportsListingByUserId() && false == authService.listPrincipalsByUserId(userId).isEmpty();
 	}
 
 	private String getTimeStamp() {
