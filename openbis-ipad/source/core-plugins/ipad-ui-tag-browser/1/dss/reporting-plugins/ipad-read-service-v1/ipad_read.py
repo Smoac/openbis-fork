@@ -101,7 +101,7 @@ def createExperimentDictionaries(experiments, dictionaryType):
 	for experiment in experiments:
 		dictionary = {}
 		dictionary['PERM_ID'] = getExperimentIPadId(experiment, dictionaryType)
-		dictionary['CATEGORY'] = ' Experiment (' + experiment.getExperimentType() + ')'
+		dictionary['CATEGORY'] = 'Experiment (' + experiment.getExperimentType() + ')'
 		dictionary['SUMMARY_HEADER'] = experiment.getExperimentIdentifier()
 		dictionary['SUMMARY'] = None
 		dictionary['IDENTIFIER'] = 'Experiment'
@@ -159,14 +159,7 @@ def createSampleDictionaries(samples, dictionaryType):
 	for sample in samples:
 		dictionary = {}
 		dictionary['PERM_ID'] = getSampleIPadId(sample, dictionaryType)
-		
-		if dictionaryType == DRILL_SAMPLE_PARENT:
-			dictionary['CATEGORY'] = 'Parent (' + sample.getSampleType() + ')'
-		elif dictionaryType == DRILL_SAMPLE_CHILD:
-			dictionary['CATEGORY'] = 'Child (' + sample.getSampleType() + ')'
-		else:
-			dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'
-
+		dictionary['CATEGORY'] = 'Sample (' + sample.getSampleType() + ')'
 		dictionary['SUMMARY_HEADER'] = sample.getSampleIdentifier()
 		dictionary['SUMMARY'] = None
 		dictionary['IDENTIFIER'] = 'Sample'
