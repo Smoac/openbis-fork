@@ -297,16 +297,16 @@ def getTagIPadId(tag):
 	return 'TAG.' + tag.getName()	
 
 def getExperimentIPadId(experiment, dictionaryType):
-	return 'EXPERIMENT.' + experiment.getPermId() + '.' + dictionaryType
+	return 'EXPERIMENT.' + experiment.getPermId()
 	
 def getSampleIPadId(sample, dictionaryType):
-	return 'SAMPLE.' + sample.getPermId() + '.' + dictionaryType
+	return 'SAMPLE.' + sample.getPermId()
 
 def getDataSetIPadId(dataSet, dictionaryType):
-	return 'DATA_SET.' + dataSet.getDataSetCode() + '.' + dictionaryType
+	return 'DATA_SET.' + dataSet.getDataSetCode()
 	
 def getMaterialIPadId(material, dictionaryType):
-	return 'MATERIAL.' + material.getMaterialIdentifier() + '.' + dictionaryType	
+	return 'MATERIAL.' + material.getMaterialIdentifier()	
 
 #########
 # Entity
