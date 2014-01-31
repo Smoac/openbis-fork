@@ -347,17 +347,17 @@ def getTag(name):
 ###################
 
 def getExperimentEntitiesMap(experimentIdentifiers, searchFunction):
-	entityCriteria = SearchCriteria()
-	entityCriteria.setOperator(entityCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+	experimentCriteria = SearchCriteria()
+	experimentCriteria.setOperator(experimentCriteria.SearchOperator.MATCH_ANY_CLAUSES)
 	
 	for experimentIdentifier in experimentIdentifiers:
 		experimentTokens = experimentIdentifier.split('/');
 		experimentCode = experimentTokens[len(experimentTokens) - 1]
-		
-		experimentCriteria = SearchCriteria()
 		experimentCriteria.addMatchClause(experimentCriteria.MatchClause.createAttributeMatch(experimentCriteria.MatchClauseAttribute.CODE, experimentCode))
-		entityCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
-	
+
+	entityCriteria = SearchCriteria()
+	entityCriteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria))
+
 	entities = searchFunction(entityCriteria)
 	
 	# as there is no way to search for entities by experiment identifier (only by experiment code)
@@ -389,8 +389,45 @@ def getExperimentDataSets(experimentIdentifier):
 	return getExperimentDataSetsMap([experimentIdentifier]).get(experimentIdentifier, [])
 
 def getSampleParentsMap(samplePermIds):
-	return {}
+	criteria = SearchCriteria()
+	criteria.setOperator(criteria.SearchOperator.MATCH_ANY_CLAUSES)
 	
+	for samplePermId in samplePermIds:
+		criteria.addMatchClause(criteria.MatchClause.createAttributeMatch(criteria.MatchClauseAttribute.PERM_ID, samplePermId))
+
+	samples = searchService.searchForSamples(criteria)
+	
+	parentIdentifiers = []
+	for sample in samples:
+		parentIdentifiers.extend(sample.getParentSampleIdentifiers())
+	
+	parentCriteria = SearchCriteria()
+	parentCriteria.setOperator(parentCriteria.SearchOperator.MATCH_ANY_CLAUSES)
+	
+	for parentIdentifier in parentIdentifiers:
+		parentTokens = parentIdentifier.split('/');
+		parentCode = parentTokens[len(parentTokens) - 1]
+		parentCriteria.addMatchClause(parentCriteria.MatchClause.createAttributeMatch(parentCriteria.MatchClauseAttribute.CODE, parentCode))
+
+	parents = searchService.searchForSamples(parentCriteria)
+	parents = [parent for parent in parents if parent.getSampleIdentifier() in parentIdentifiers]
+
+	parentIdentifierToParentMap = {}
+	for parent in parents:
+		parentIdentifierToParentMap[parent.getSampleIdentifier()] = parent
+		
+	samplePermIdToParentsMap = {}
+
+	for sample in samples:
+		sampleParents = []
+		for parentIdentifier in sample.getParentSampleIdentifiers():
+			parent = parentIdentifierToParentMap.get(parentIdentifier)
+			if parent:
+				sampleParents.append(parent)
+		samplePermIdToParentsMap[sample.getPermId()] = sampleParents
+		
+	return samplePermIdToParentsMap
+
 def getSampleParents(samplePermId):
 	return getSampleParentsMap([samplePermId]).get(samplePermId, [])
 
