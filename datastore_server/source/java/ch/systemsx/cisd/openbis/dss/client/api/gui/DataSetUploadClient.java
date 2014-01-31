@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -110,8 +111,70 @@ public class DataSetUploadClient extends AbstractSwingGUI
     {
         // setLookAndFeelToNative();
         setLookAndFeelToMetal();
+        
+        if(args.length != 3) { //Login Screen
+        	launchLogin();
+        } else { //Command line login
+        	launchUploader(args);
+        }
+        
+    }
+    
+    private static void launchLogin() {
+    	final DataSetUploadClientLoginForm loginForm = new DataSetUploadClientLoginForm();
+    	loginForm.getLoginButton().addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	//Collect login information
+                String serverURL = loginForm.getServerURLField().getText();
+                String userName = loginForm.getUserNameField().getText();
+                String password = new String(loginForm.getPasswordField().getPassword());
+                String[] args = {serverURL, userName, password};
+                
+                try {
+                	DssCommunicationState commState = new DssCommunicationState(args); //Try to login
+                	launchUploader(commState); //If login succeed, create the uploader view
+                	loginForm.setVisible(false);
+                } catch(Exception ex) {
+                	final JFrame frame = new JFrame(TITLE);
+                    String message = ex.getMessage();
+                    if (null == message || message.length() == 0)
+                    {
+                        message = ex.toString();
+                    }
+                    JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+                }
+                
+            }
+        });
+    	
+    	loginForm.setVisible(true);
+    }
+    
+    private static void launchUploader(DssCommunicationState commState) throws UserFailureException, EnvironmentFailureException
+    {
+    	try
+        {
+            initializeJythonWebStartWorkaround();
 
-        try
+            DataSetUploadClient newMe = new DataSetUploadClient(commState, SYSTEM_TIME_PROVIDER);
+            newMe.show();
+        } catch (RuntimeException ex)
+        {
+            final JFrame frame = new JFrame(TITLE);
+            frame.setVisible(true);
+            String message = ex.getMessage();
+            if (null == message || message.length() == 0)
+            {
+                message = ex.toString();
+            }
+            JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+    }
+    
+    private static void launchUploader(String[] args) throws UserFailureException, EnvironmentFailureException
+    {
+    	try
         {
             initializeJythonWebStartWorkaround();
             DssCommunicationState commState = new DssCommunicationState(args);
