@@ -193,12 +193,10 @@ def readConfig(logger):
   configMap['miSeqHeaderSection'] = configParameters.get(ILLUMINA, 'miSeqHeaderSection')
   configMap['miSeqReadsSection'] = configParameters.get(ILLUMINA, 'miSeqReadsSection')
   configMap['miSeqSettingsSection'] = configParameters.get(ILLUMINA, 'miSeqSettingsSection')
-  configMap['miSeqDataSection'] = configParameters.get(ILLUMINA, 'miSeqDataSection')
   configMap['miSeqWorkflow'] = configParameters.get(ILLUMINA, 'miSeqWorkflow')
   configMap['miSeqApplication'] = configParameters.get(ILLUMINA, 'miSeqApplication')
   configMap['miSeqChemistry'] = configParameters.get(ILLUMINA, 'miSeqChemistry')
 
-  configMap['truSeqAdapter'] = configParameters.get(ILLUMINA, 'truSeqAdapter')
   configMap['nexteraAdapter'] = configParameters.get(ILLUMINA, 'nexteraAdapter')
   configMap['iemFileVersion'] = configParameters.get(ILLUMINA, 'iemFileVersion')
 
@@ -387,7 +385,10 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
   # the illlumina pipeline uses always one base less than the sequencer is sequencing
   DEMULTIPLEX_INDEX_LENGTH_PENALTY = -1
 
-  # Maing sure the header is always a the top of the file
+  logger.debug (parentDict)
+  logger.debug(samplesPerLaneDict)
+
+  # Making sure the header is always a the top of the file
   sampleSheetDict[u'!'] = ([configMap['hiSeqHeader']])
   endType = flowCellDict[configMap['endType']]
   cycles = flowCellDict[configMap['cycles']]
@@ -395,14 +396,11 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
   index1Name = configMap['index1Name']
   index2Name = configMap['index2Name']
 
-  try:
-    indexRead1Length = int(flowCellDict[configMap['index1Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
-  except:
-    indexRead1Length = 0
+  indexRead1Length = int(flowCellDict[configMap['index1Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
   try:
     indexRead2Length = int(flowCellDict[configMap['index2Length']]) + DEMULTIPLEX_INDEX_LENGTH_PENALTY
   except:
-    indexRead2Length = 0
+    pass
 
   for key in parentDict.keys():
     index = ''
@@ -419,15 +417,30 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
     # little hack to make the non-indexed control lane and non-indexed runs also part of
     # the sample sheet
     # eventually hide in a function
-    if len(index) == 0 and samplesPerLaneDict[lane] == 1:
-      index = ' '
+       
+    if len(index) == 0:
+      # more than one samples in an non-indexed lane 
+      if samplesPerLaneDict[lane] > 1:
+        # if it is not a PhiX
+        if (parentDict[key]['NCBI_ORGANISM_TAXONOMY'] == '10847'):
+          # then just use this sample and skip the others if there are more
+          samplesPerLaneDict[lane] = 0
+          index = ' '
+      
+      # only one non-indexed sample in the lane   
+      elif samplesPerLaneDict[lane] == 1:
+        index = ' '
+    
 
     # Set flag if this lane is a control lane. has no influence on the result, but makes reading
     # the demultiplex statistics easier
-    if lane == flowCellDict[configMap['controlLane']]:
-      control = 'Y'
-    else:
-      control = 'N'
+    try:
+      if lane == flowCellDict[configMap['controlLane']]:
+        control = 'Y'
+      else:
+        control = 'N'
+    except:
+      control = 'N'     
 
     if len(index) > 0:
       sampleSheetDict[lane + '_' + key] = [flowCellName + COMMA
@@ -644,7 +657,13 @@ def main ():
 
   # take this variable from the FlowCellDict
 
-  flowCellName = foundFlowCell.getCode().split('_')[3][1:]
+  #flowCellName = foundFlowCell.getCode().split('_')[3][1:]
+  flowCellName = foundFlowCell.getCode()
+  if '-' in flowCellName:
+    flowCellName = flowCellName.split('_')[3]
+  else:
+    flowCellName = flowCellName.split('_')[3][1:]
+
   flowCellDict = convertSampleToDict(foundFlowCell)
 
   hiseqList = configMap['hiSeqNames'].split()
