@@ -459,6 +459,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
             existingPropertyValues.put(existingProperty, existingProperty.tryGetUntypedValue());
         }
 
+        Set<T> deletedProperties = findDeletedProperties(oldProperties, newProperties);
+        for (T t : deletedProperties)
+        {
+            // TODO: create null property history entry
+        }
+
         final List<T> convertedProperties =
                 convertPropertiesForUpdate(newProperties, entityType.getCode(), author);
         final Set<T> set = new HashSet<T>();
@@ -474,14 +480,40 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
                 if (false == existingPropertyValues.get(existingProperty).equals(newProperty.tryGetUntypedValue()))
                 {
                     existingProperty.setAuthor(author);
+                    // TODO: create modified property history entry
                 }
                 set.add(existingProperty);
             } else
             {
+                // TODO: create new property history entry
                 set.add(newProperty);
             }
         }
         return set;
+    }
+
+    private static <T extends EntityPropertyPE> Set<T> findDeletedProperties(Collection<T> oldProperties,
+            List<IEntityProperty> newProperties)
+    {
+        Set<String> newPropertiesCodes = new HashSet<String>();
+        Set<T> deletedProperties = new HashSet<T>();
+
+        for (IEntityProperty newP : newProperties)
+        {
+            if (newP.getValue() != null)
+            {
+                newPropertiesCodes.add(newP.getPropertyType().getCode());
+            }
+        }
+
+        for (T old : oldProperties)
+        {
+            if (newPropertiesCodes.contains(old.getEntityTypePropertyType().getPropertyType().getCode()) == false)
+            {
+                deletedProperties.add(old);
+            }
+        }
+        return deletedProperties;
     }
 
     /**
