@@ -145,14 +145,12 @@ def createSampleDictionaries(samples, dictionaryType):
 	samplePropertyDefinitionsMap = {}
 	
 	relationsDictionaryTypes = [ROOT_SAMPLE, DRILL_EXPERIMENT_SAMPLE, DRILL_SAMPLE_PARENT, DRILL_SAMPLE_CHILD, SEARCH_SAMPLE]
-#	if dictionaryType in relationsDictionaryTypes:
-	if True:
+	if dictionaryType in relationsDictionaryTypes:
 		sampleParentsMap = getSampleParentsMap(samplePermIds)
 		sampleChildrenMap = getSampleChildrenMap(samplePermIds)
 	
 	propertiesDictionaryTypes = [DETAIL_SAMPLE]
-#	if dictionaryType in propertiesDictionaryTypes:
-	if True:
+	if dictionaryType in propertiesDictionaryTypes:
 		sampleTypes = [sample.getSampleType() for sample in samples]
 		samplePropertyDefinitionsMap = getPropertyDefinitionsMap(sampleTypes, searchService.listPropertiesDefinitionsForSampleType)
 	
@@ -181,8 +179,7 @@ def createSampleDictionaries(samples, dictionaryType):
 		refcon['DICTIONARY_TYPE'] = dictionaryType
 		dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 
-#		if dictionaryType in relationsDictionaryTypes:
-		if True:
+		if dictionaryType in relationsDictionaryTypes:
 			sampleParents = sampleParentsMap.get(sample.getPermId(), [])
 			sampleChildren = sampleChildrenMap.get(sample.getPermId(), [])
 			children = []
@@ -190,8 +187,7 @@ def createSampleDictionaries(samples, dictionaryType):
 			children.extend([ getSampleIPadId(sampleChild, DRILL_SAMPLE_CHILD) for sampleChild in sampleChildren ])
 			dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 
-#		if dictionaryType in propertiesDictionaryTypes:
-		if True:
+		if dictionaryType in propertiesDictionaryTypes:
 			properties = []
 			properties.append(getProperty("#TYPE", "Type", sample.getSampleType()))
 			properties.append(getProperty("#PERM_ID", "Perm ID", sample.getPermId()))
@@ -582,22 +578,21 @@ class TagDetailRequestHandler(DetailRequestHandler):
 		if entitiesPermIdsAndRefcons:
 			entityRefcon = entitiesPermIdsAndRefcons[0]['REFCON']
 			entityType = entityRefcon['ENTITY_TYPE'];
-			dictionaryType = entityRefcon['DICTIONARY_TYPE'];
 			
 			if 'EXPERIMENT' == entityType:
 				experiment = getExperiment(entityRefcon['IDENTIFIER'])
-				self.addRows(createExperimentDictionaries([experiment], dictionaryType))
+				self.addRows(createExperimentDictionaries([experiment], DETAIL_EXPERIMENT))
 			if 'SAMPLE' == entityType:
 				sample = getSample(entityRefcon['PERM_ID'])
-				dictionaries = createSampleDictionaries([sample], dictionaryType)
-				dictionaries[0]['PERM_ID'] = getSampleIPadId(sample, dictionaryType)
+				dictionaries = createSampleDictionaries([sample], DETAIL_SAMPLE)
+#				dictionaries[0]['PERM_ID'] = getSampleIPadId(sample, entityRefcon['DICTIONARY_TYPE'])
 				self.addRows(dictionaries)
 			if 'DATA_SET' == entityType:
 				dataSet = getDataSet(entityRefcon['CODE'])
-				self.addRows(createDataSetDictionaries([dataSet], dictionaryType))
+				self.addRows(createDataSetDictionaries([dataSet], DETAIL_DATA_SET))
 			if 'MATERIAL' == entityType:
 				material = getMaterial(entityRefcon['CODE'], entityRefcon['TYPE_CODE'])
-				self.addRows(createMaterialDictionaries([material], dictionaryType))
+				self.addRows(createMaterialDictionaries([material], DETAIL_MATERIAL))
 			if 'TAG' == entityType:
 				tag = getTag(entityRefcon['NAME'])
 				self.addRows([createTagDetailedDictionary(tag)])
