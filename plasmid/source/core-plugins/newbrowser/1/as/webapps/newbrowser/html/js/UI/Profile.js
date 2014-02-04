@@ -206,6 +206,19 @@ $.extend(DefaultProfile.prototype, {
 			return allPropertiDisplayNames;
 		}
 	
+		this.getPropertyTypeFrom = function(sampleType, propertyCode) {
+			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+					var propertyType = propertyTypeGroup.propertyTypes[j];
+					if(propertyType.code === propertyCode) {
+						return propertyType;
+					}
+				}
+			}
+			return null;
+		}
+		
 		this.initVocabulariesForSampleTypes = function() {
 			//Build Vocabularies from sample types
 			for(var sampleTypeIdx = 0; sampleTypeIdx < this.allTypes.length; sampleTypeIdx++) {

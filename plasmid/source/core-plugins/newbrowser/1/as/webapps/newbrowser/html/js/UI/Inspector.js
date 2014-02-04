@@ -275,6 +275,31 @@ function Inspector(serverFacade, containerId, profile) {
 				var propertyCode = sampleTypePropertiesCode[i];
 				var propertyLabel = sampleTypePropertiesDisplayName[i];
 				var propertyContent = entity.properties[propertyCode];
+				
+				//
+				// Fix to show vocabulary labels instead of codes
+				//
+				var sampleType = this.profile.getTypeForTypeCode(entity.sampleTypeCode);
+				var propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode);
+				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
+					var vocabulary = null;
+					if(isNaN(propertyType.vocabulary)) {
+						vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
+					} else {
+						vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
+					}
+					
+					if(vocabulary) {
+						for(var j = 0; j < vocabulary.terms.length; j++) {
+							if(vocabulary.terms[j].code === propertyContent) {
+								propertyContent = vocabulary.terms[j].label;
+								break;
+							}
+						}
+					}
+				}
+				// End Fix
+				
 				propertyContent = Util.getEmptyIfNull(propertyContent);
 				
 				var isSingleColumn = false;

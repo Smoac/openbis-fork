@@ -381,6 +381,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var searchText = $('#search').val();
 		var searchRegexpText = ("*" + searchText + "*").replace(/\*/g, ".*");
 		var searchRegexp = new RegExp(searchRegexpText, "i");
+		var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
 		
 		var localReference = this;
 		selection.enter()
@@ -399,6 +400,30 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					tableFields = [sample.code];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
 						var tableFieldValue = sample.properties[sampleTypeProperties[i]];
+						
+						//
+						// Fix to show vocabulary labels instead of codes
+						//
+						var propertyType = localReference.profile.getPropertyTypeFrom(sampleType, sampleTypeProperties[i]);
+						if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							var vocabulary = null;
+							if(isNaN(propertyType.vocabulary)) {
+								vocabulary = localReference.profile.getVocabularyById(propertyType.vocabulary.id);
+							} else {
+								vocabulary = localReference.profile.getVocabularyById(propertyType.vocabulary);
+							}
+							
+							if(vocabulary) {
+								for(var j = 0; j < vocabulary.terms.length; j++) {
+									if(vocabulary.terms[j].code === tableFieldValue) {
+										tableFieldValue = vocabulary.terms[j].label;
+										break;
+									}
+								}
+							}
+						}
+						// End Fix
+						
 						if(!tableFieldValue && sampleTypeProperties[i].charAt(0) === '$') {
 							tableFieldValue = sample.properties[sampleTypeProperties[i].substr(1)];
 						}
