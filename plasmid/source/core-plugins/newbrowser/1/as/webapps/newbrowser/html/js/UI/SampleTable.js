@@ -469,9 +469,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		if (!this.isEmbedded && !this.isSearch) {
 			$("#paginationContainerTop").append("<span class='toolBox' id='toolBoxContainer'></span>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' href=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a>");
-			$("#toolBoxContainer").append("<a class='btn' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn' title='register new samples' href=\"javascript:mainController.sampleTable.registerSamples();\"><i class='icon-upload'></i>r</a>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' title='update existing samples'ref=\"javascript:mainController.sampleTable.updateSamples();\"><i class='icon-upload'></i>u</a>");
+			$("#toolBoxContainer").append("<a class='btn' title='create a new sample' href=\"javascript:mainController.sampleTable.createNewSample();\"><i class='icon-plus-sign'></i></a>");
 		}
 		$("#paginationContainerBottom").empty();
 		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
