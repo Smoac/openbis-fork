@@ -394,7 +394,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var tableFields = null;
 			
 				if(localReference.isSearch) {
-					tableFields = [sample.identifier.slice(11,50), sample.sampleTypeCode, sample.properties, sample.properties ];
+					tableFields = [sample.code, sample.sampleTypeCode, sample.properties, sample.properties ];
 				} else {
 					tableFields = [sample.code];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
@@ -402,7 +402,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 						if(!tableFieldValue && sampleTypeProperties[i].charAt(0) === '$') {
 							tableFieldValue = sample.properties[sampleTypeProperties[i].substr(1)];
 						}
+						if(tableFieldValue) {
+							tableFieldValue = Util.replaceURLWithHTMLLinks(tableFieldValue);
+						}
 						tableFields[tableFields.length] = Util.getEmptyIfNull(tableFieldValue);
+						
 					}
 				}
 				
@@ -436,9 +440,15 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 											if(profile.getHTMLTableFromXML) {
 												return profile.getHTMLTableFromXML(propertyValue);
 											} else {
+												if(propertyValue) {
+													propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
+												}
 												return propertyValue;
 											}
 										} else {
+											if(propertyValue) {
+												propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
+											}
 											return propertyValue;
 										}
 									}

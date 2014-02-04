@@ -286,6 +286,7 @@ function Inspector(serverFacade, containerId, profile) {
 				}
 				
 				if(propertyContent !== "") {
+					propertyContent = Util.replaceURLWithHTMLLinks(propertyContent);
 					inspector += "<tr>";
 						
 					if(isSingleColumn) {
