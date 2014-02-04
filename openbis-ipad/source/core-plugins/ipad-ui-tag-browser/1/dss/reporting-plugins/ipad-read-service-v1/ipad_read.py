@@ -205,9 +205,8 @@ def createDataSetDictionaries(dataSets, dictionaryType):
 	dataSetPropertyDefinitionsMap = {}
 	
 	propertiesDictionaryTypes = [DETAIL_DATA_SET]	
-	if dictionaryType in propertiesDictionaryTypes:
-		dataSetTypes = [dataSet.getDataSetType() for dataSet in dataSets]
-		dataSetPropertyDefinitionsMap = getPropertyDefinitionsMap(dataSetTypes, searchService.listPropertiesDefinitionsForDataSetType)
+	dataSetTypes = [dataSet.getDataSetType() for dataSet in dataSets]
+	dataSetPropertyDefinitionsMap = getPropertyDefinitionsMap(dataSetTypes, searchService.listPropertiesDefinitionsForDataSetType)
 	
 	dictionaries = []
 	
@@ -227,18 +226,17 @@ def createDataSetDictionaries(dataSets, dictionaryType):
 		refcon['CODE'] = dataSet.getDataSetCode()
 		dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 
-		if dictionaryType in propertiesDictionaryTypes:
-			properties = []
-			properties.append(getProperty("#TYPE", "Type", dataSet.getDataSetType()))
-			if dataSet.getExperiment():
-				properties.append(getProperty("#EXPERIMENT", "Experiment", dataSet.getExperiment().getExperimentIdentifier()))
-			if dataSet.getSample():
-				properties.append(getProperty("#SAMPLE", "Sample", dataSet.getSample().getSampleIdentifier()))
-			properties.append(getProperty("#FiLE_TYPE", "File Type", dataSet.getFileFormatType()))
-			propertyDefinitions = dataSetPropertyDefinitionsMap.get(dataSet.getDataSetType())
-			properties.extend(getProperties(dataSet, propertyDefinitions))
-			properties.append(getTimestampProperty())
-			dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
+		properties = []
+		properties.append(getProperty("#TYPE", "Type", dataSet.getDataSetType()))
+		if dataSet.getExperiment():
+			properties.append(getProperty("#EXPERIMENT", "Experiment", dataSet.getExperiment().getExperimentIdentifier()))
+		if dataSet.getSample():
+			properties.append(getProperty("#SAMPLE", "Sample", dataSet.getSample().getSampleIdentifier()))
+		properties.append(getProperty("#FiLE_TYPE", "File Type", dataSet.getFileFormatType()))
+		propertyDefinitions = dataSetPropertyDefinitionsMap.get(dataSet.getDataSetType())
+		properties.extend(getProperties(dataSet, propertyDefinitions))
+		properties.append(getTimestampProperty())
+		dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 			
 		dictionaries.append(dictionary)
 	
