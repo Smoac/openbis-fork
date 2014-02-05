@@ -55,6 +55,8 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
 
     static final String DOWNLOADS_PATH_KEY = "downloads-path";
 
+    static final String ABSOLUTE_FILE_PATH_KEY = "absolute-file-path";
+    
     static final String REUSE_FILE = "reuse-file";
 
     private final IOpenbisServiceFacadeFactory serviceFacadeFactory;
@@ -91,6 +93,7 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         settings.addString(DATA_SET_CODE_KEY, dataSetCode);
         settings.addString(FILE_PATH_KEY, filePath);
         settings.addString(DOWNLOADS_PATH_KEY, dowloadsPath);
+        settings.addString(ABSOLUTE_FILE_PATH_KEY, dowloadsPath + "/" + dataSetCode + "/" + filePath);
         settings.addBoolean(REUSE_FILE, reuseFile);
     }
 
@@ -170,11 +173,6 @@ public class DataSetFileImportNodeModel extends AbstractOpenBisNodeModel
         }
     }
     
-    protected void addFlowVariable(String name, String value)
-    {
-        pushFlowVariableString(name, value);
-    }
-
     private String createType()
     {
         return MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(filePath);

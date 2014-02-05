@@ -184,6 +184,8 @@ public class DataSetFileImportNodeDialog extends AbstractDescriptionBasedNodeDia
             throw new InvalidSettingsException("Location of downloads hasn't been specified.");
         }
         settings.addString(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, downloadsPath);
+        settings.addString(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY, 
+                downloadsPath + "/" + dataSetCode + "/" + filePath);
         settings.addBoolean(DataSetFileImportNodeModel.REUSE_FILE, reuseCheckBox.isSelected());
     }
 

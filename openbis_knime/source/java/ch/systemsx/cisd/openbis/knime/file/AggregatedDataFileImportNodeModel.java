@@ -56,6 +56,8 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableModel;
  */
 public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
 {
+    static final String FILE_PATH_FLOW_VARIABLE = "absolute-file-path";
+    
     private AggregatedDataImportDescription description;
     private ParameterBindings parameterBindings = new ParameterBindings();
     
@@ -99,6 +101,7 @@ public class AggregatedDataFileImportNodeModel extends AbstractOpenBisNodeModel
             String downloadUrl = getDataStore(facade).getDownloadUrl();
             File systemTempDir = getSystemTempDir();
             File file = download(facade.getSessionToken(), systemTempDir, fileName, downloadUrl);
+            addFlowVariable(FILE_PATH_FLOW_VARIABLE, file.getAbsolutePath());
             String type = createType(fileName);
             logger.info("Content MIME type: " + type);
             return new PortObject[]

@@ -194,6 +194,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
+        prepareSaveStringSetting(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY, 
+                new File(workingDirectory, DATA_SET_CODE + "/" + FILE_PATH).getAbsolutePath());
         context.checking(new Expectations()
             {
                 {
@@ -223,6 +225,8 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DATA_SET_CODE_KEY, DATA_SET_CODE);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.FILE_PATH_KEY, FILE_PATH);
         prepareLoadSaveStringSetting(DataSetFileImportNodeModel.DOWNLOADS_PATH_KEY, workingDirectory.getAbsolutePath());
+        prepareSaveStringSetting(DataSetFileImportNodeModel.ABSOLUTE_FILE_PATH_KEY, 
+                new File(workingDirectory, DATA_SET_CODE + "/" + FILE_PATH).getAbsolutePath());
         context.checking(new Expectations()
             {
                 {
@@ -367,6 +371,17 @@ public class DataSetFileImportNodeModelTest extends AbstractFileSystemTestCase
                     one(nodeSettingsRO).getString(key);
                     will(returnValue(value));
 
+                    one(nodeSettingsWO).addString(key, value);
+                }
+            });
+    }
+
+    private void prepareSaveStringSetting(final String key, final String value)
+            throws InvalidSettingsException
+    {
+        context.checking(new Expectations()
+            {
+                {
                     one(nodeSettingsWO).addString(key, value);
                 }
             });

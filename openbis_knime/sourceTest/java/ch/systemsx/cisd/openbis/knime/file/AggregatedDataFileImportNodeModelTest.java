@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -57,6 +59,7 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
 
     private static final class MockAggregatedDataFileImportNodeModel extends AggregatedDataFileImportNodeModel
     {
+        private final Map<String, String> flowVariables = new TreeMap<String, String>();
         private final IQueryApiFacade facade;
 
         private final File sysTempDir;
@@ -78,6 +81,13 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
         {
             return facade;
         }
+        
+        @Override
+        protected void addFlowVariable(String name, String value)
+        {
+            flowVariables.put(name, value);
+        }
+        
     }
 
     private BufferedAppender logRecorder;
@@ -173,6 +183,8 @@ public class AggregatedDataFileImportNodeModelTest extends AbstractFileSystemTes
         assertEquals("hello world", FileUtilities.loadToString(new File(tempDir, "knime-openbis-session/report.txt")).trim());
         assertEquals("INFO  " + MockAggregatedDataFileImportNodeModel.class.getName()
                 + " - Content MIME type: text/plain", logRecorder.getLogContent());
+        assertEquals(new File(tempDir, "knime-openbis-session/report.txt").getAbsolutePath(), 
+                model.flowVariables.get(AggregatedDataFileImportNodeModel.FILE_PATH_FLOW_VARIABLE));
         context.assertIsSatisfied();
     }
 

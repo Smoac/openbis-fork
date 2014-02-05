@@ -140,5 +140,10 @@ public abstract class AbstractOpenBisNodeModel extends NodeModel
     {
         return peekFlowVariableString(variableName);
     }
+
+    protected void addFlowVariable(String name, String value)
+    {
+        pushFlowVariableString(name, value);
+    }
     
 }
