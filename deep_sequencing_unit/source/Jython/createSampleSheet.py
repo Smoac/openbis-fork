@@ -384,6 +384,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
   laneIndexDict = {}
   # the illlumina pipeline uses always one base less than the sequencer is sequencing
   DEMULTIPLEX_INDEX_LENGTH_PENALTY = -1
+  
 
   logger.debug (parentDict)
   logger.debug(samplesPerLaneDict)
@@ -485,7 +486,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
                    flowCellName + '.csv'
     writeSampleSheet(myoptions, logger, sampleSheetDict, sortedSampleSheetList,
                      fileName=myFileName)
-    return myFileName
+    return sampleSheetDict, myFileName
 
 def writeDemultiplexCommandList(logger, demultiplexCommandList,
                                 fileName):
@@ -678,7 +679,7 @@ def main ():
 #                         logger, myoptions)
 #      break
 
-  SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
+  sampleSheetDict, SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
                          logger, myoptions)
 #  for miseq in miseqList:
 #    if miseq in runFolderName:
