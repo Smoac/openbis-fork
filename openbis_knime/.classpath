@@ -9,6 +9,10 @@
 	<classpathentry kind="lib" path="/libraries/commons-lang/commons-lang.jar" sourcepath="/libraries/commons-lang/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/commons-io/commons-io.jar" sourcepath="/libraries/commons-io/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/log4j/log4j.jar" sourcepath="/libraries/log4j/src.zip"/>
+	<classpathentry kind="lib" path="/libraries/knime/knime-core-util.jar"/>
+	<classpathentry kind="lib" path="/libraries/knime/knime-base.jar"/>
+	<classpathentry kind="lib" path="/libraries/knime/knime-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/knime/knime-core-data-uritype.jar"/>
 	<classpathentry kind="lib" path="/libraries/testng/testng-jdk15.jar" sourcepath="/libraries/testng/src.zip"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-library.jar"/>
