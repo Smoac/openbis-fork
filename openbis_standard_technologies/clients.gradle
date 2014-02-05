@@ -1,4 +1,5 @@
 configurations.create('webStartJars')
+configurations.create('appbundler')
 dependencies {
     webStartJars 'cisd:cisd-base:+',
                  'cisd:cisd-args4j:+',
@@ -27,6 +28,8 @@ dependencies {
                  'springframework:spring-web:+',
                  'marathon:marathon-spring-util:+',
                  'aopalliance:aopalliance:+'
+                 
+	appbundler 'oracle:appbundler:+'
 }
 
 jarsToBeSignedFolder = "${buildDir}/jars_to_be_signed"
@@ -150,4 +153,40 @@ task dssClientZip(type: Zip, dependsOn: signWebStartJars) {
         fileMode 0755
     }
 }
+
+task dssUploadGuiStandalone << {
+	logger.error("dssUploadGuiStandalone JAVA.HOME: "+System.properties.'java.home')
+	ant.taskdef(name: 'bundle', classname: 'com.oracle.appbundler.AppBundlerTask', classpath: configurations.appbundler.asPath)
+    ant.bundle(outputdirectory: "${buildDir}/distributions", 
+    			name: 'DataSetUploader', 
+    			displayname: 'Data Set Uploader', 
+    			identifier: 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient', 
+    			mainclassname: 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient') {
+   		
+   		runtime(dir: System.properties.'java.home')
+    	
+    	classpath(dir: "${signedJarsFolder}") {
+        	include(name: "cglib-nodep.jar")
+        	include(name: "cisd-args4j.jar")
+        	include(name: "cisd-base.jar")
+        	include(name: "commons-codec.jar")
+        	include(name: "commons-httpclient.jar")
+        	include(name: "commons-io.jar")
+        	include(name: "commons-lang.jar")
+        	include(name: "commons-logging.jar")
+        	include(name: "dom4j-1.6.1.jar")
+        	include(name: "dss_upload_gui.jar")
+        	include(name: "geronimo-stax-api_1.0_spec-1.0.jar")
+        	include(name: "jython.jar")
+        	include(name: "log4j.jar")
+        	include(name: "poi-ooxml-schemas.jar")
+        	include(name: "poi-ooxml.jar")
+        	include(name: "poi.jar")
+        	include(name: "spring.jar")
+        	include(name: "stream-supporting-httpinvoker.jar")
+    	}
+    }	
+}
+
+dssUploadGuiStandalone.dependsOn signWebStartJars
 
