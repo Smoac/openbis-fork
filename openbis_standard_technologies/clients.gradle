@@ -163,8 +163,6 @@ task dssUploadGuiStandalone << {
     			identifier: 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient', 
     			mainclassname: 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient') {
    		
-   		runtime(dir: System.properties.'java.home')
-    	
     	classpath(dir: "${signedJarsFolder}") {
         	include(name: "cglib-nodep.jar")
         	include(name: "cisd-args4j.jar")
