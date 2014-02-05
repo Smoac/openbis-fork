@@ -2,15 +2,15 @@
 <feature
       id="ch.systemsx.cisd.openbis.knime.feature"
       label="openBIS Knime Nodes"
-      version="13.6.0.qualifier"
-      provider-name="CISD ETH Zürich">
+      version="13.6.1.qualifier"
+      provider-name="ID Scientific IT Services ETH Zürich">
 
    <description url="https://wiki-bsse.ethz.ch/display/openBISDoc1304/openBIS+KNIME+Nodes">
       KNIME Nodes to access openBIS
    </description>
 
    <copyright>
-      Copyright 2013 ETH Zuerich, CISD
+      Copyright 2013-2014 ETH Zuerich, CISD
    </copyright>
 
    <license url="http://www.apache.org/licenses/LICENSE-2.0">
@@ -34,7 +34,6 @@ and limitations under the License.
       <import plugin="org.knime.workbench.repository"/>
       <import plugin="org.knime.base"/>
       <import plugin="org.knime.core.data.uritype"/>
-      <import feature="de.openms.feature"/>
    </requires>
 
    <plugin
