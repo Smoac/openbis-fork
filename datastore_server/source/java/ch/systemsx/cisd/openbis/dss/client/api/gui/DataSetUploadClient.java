@@ -111,7 +111,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
         // setLookAndFeelToNative();
         setLookAndFeelToMetal();
         
-        if(args.length != 3) { //Login Screen
+        if(args.length == 0) { //Login Screen
         	launchLogin();
         } else { //Command line login
         	launchUploader(args);
