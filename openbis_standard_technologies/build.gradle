@@ -357,4 +357,4 @@ task clientsAndApis(type: Zip, dependsOn: [dssClientZip, queryApiZip, proteomics
 build.dependsOn zip
 build.dependsOn zipDss
 build.dependsOn clientsAndApis
-build.dependsOn dssUploadGuiStandalone
+build.dependsOn dssUploadGuiStandaloneZip

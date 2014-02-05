@@ -157,7 +157,7 @@ task dssClientZip(type: Zip, dependsOn: signWebStartJars) {
 task dssUploadGuiStandalone << {
 	logger.error("dssUploadGuiStandalone JAVA.HOME: "+System.properties.'java.home')
 	ant.taskdef(name: 'bundle', classname: 'com.oracle.appbundler.AppBundlerTask', classpath: configurations.appbundler.asPath)
-    ant.bundle(outputdirectory: "${buildDir}/distributions", 
+    ant.bundle(outputdirectory: "${buildDir}", 
     			name: 'DataSetUploader', 
     			displayname: 'Data Set Uploader', 
     			identifier: 'ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient', 
@@ -185,6 +185,14 @@ task dssUploadGuiStandalone << {
     	}
     }	
 }
-
 dssUploadGuiStandalone.dependsOn signWebStartJars
+
+task dssUploadGuiStandaloneZip(type: Zip, dependsOn: dssUploadGuiStandalone) {
+    baseName 'dss_upload_gui_standalone'
+
+    from ("${buildDir}/DataSetUploader.app") {
+        into 'DataSetUploader.app'
+    }
+}
+
 
