@@ -36,43 +36,46 @@ function MainMenu(mainController, containerId, menuStructure) {
 		
 		$("#"+this.containerId).empty();
 		
-		var $mainMenuContainer = $("<div>", {
-			class: "mainMenuContainer"
-		});
+		var $mainMenuContainerWrapper = $("<div>", { style: "float:left; margin-right:10px;" });
+		var $mainMenuContainer = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+		$mainMenuContainerWrapper.append($mainMenuContainer);
+		
+		var $mainMenuContainerWrapperSub = $("<div>", { style: "float:left" });
 		
 		for (var k = 0; k < this.menuStructure.length; k++) {
 			var groupOfMenuItems = this.menuStructure[k];
-		
-			var $mainMenuIconContainer = $("<div>", { class: "mainMenuIconContainer"})
-				.append($("<h2>").append(groupOfMenuItems.displayName))
-				.append($("<hr>"));
-				
-			for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
-				var menuItem = groupOfMenuItems.menuItems[i];
-				
-				//this is necessary to avoid using the same menuItem reference in all clicks
-				var onClick = function(menuItem) {
-					return function() {
-						localReference.mainController[menuItem.href](menuItem.hrefArgs);
+			
+			var onHoverEvent = function(groupOfMenuItems) {
+				return function() {
+					var $mainMenuContainerSub = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+					for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
+						var menuItem = groupOfMenuItems.menuItems[i];
+						
+						//this is necessary to avoid using the same menuItem reference in all clicks
+						var onClick = function(menuItem) {
+							return function() {
+								localReference.mainController[menuItem.href](menuItem.hrefArgs);
+							}
+						}
+						
+						var $subMenuOption = $("<li>", {click: onClick(menuItem)})
+						.append($("<a>").append(menuItem.displayName));
+						
+						$mainMenuContainerSub.append($subMenuOption);
 					}
+					$mainMenuContainerWrapperSub.empty();
+					$mainMenuContainerWrapperSub.append($mainMenuContainerSub);
 				}
-				
-				var $mainMenuIconLink = $("<a>", {
-					href: "javascript:void(0)",
-					click: onClick(menuItem)
-				}).append($("<img>", { src: menuItem.image }));
-					
-				var $mainMenuIcon = $("<span>", { class: "mainMenuIcon" })
-					.append($mainMenuIconLink)
-					.append($("<p>").append(menuItem.displayName));
-				
-				$mainMenuIconContainer.append($mainMenuIcon);
 			}
+			
+			var $mainMenuIconContainer = $("<li>", { mouseenter: onHoverEvent(groupOfMenuItems)})
+				.append($("<a>").append(groupOfMenuItems.displayName + "<i class='icon-chevron-right'></i>"));
 			
 			$mainMenuContainer.append($mainMenuIconContainer);
 		}
 			
-		$("#"+this.containerId).append($mainMenuContainer);
+		$("#"+this.containerId).append($mainMenuContainerWrapper);
+		$("#"+this.containerId).append($mainMenuContainerWrapperSub);
 	}
 }
 

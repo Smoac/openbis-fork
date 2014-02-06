@@ -409,3 +409,7 @@ table.downloads {
 	margin: 0px;
 	padding: 0px;
 }
+
+.icon-chevron-right {
+	float:right;
+}
