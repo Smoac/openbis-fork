@@ -121,7 +121,7 @@ public class DataSetUploadClient extends AbstractSwingGUI
     }
     
     private static void launchLogin() {
-    	// Retrieve the user preference node for the package com.mycompany
+    	// Retrieve the user preferences for the login form
     	final Preferences prefs = Preferences.userNodeForPackage(DataSetUploadClientLoginForm.class);
 
     	// Preference key name
