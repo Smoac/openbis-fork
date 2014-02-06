@@ -27,6 +27,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.prefs.Preferences;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -120,6 +121,19 @@ public class DataSetUploadClient extends AbstractSwingGUI
     }
     
     private static void launchLogin() {
+    	// Retrieve the user preference node for the package com.mycompany
+    	final Preferences prefs = Preferences.userNodeForPackage(DataSetUploadClientLoginForm.class);
+
+    	// Preference key name
+    	final String PREF_NAME_SERVER = "PREF_NAME_SERVER";
+    	final String PREF_NAME_USER = "PREF_NAME_USER";
+    	final String PREF_NAME_PASS = "PREF_NAME_PASS";
+    	
+    	//Get the value of the preference
+    	String serverValue = prefs.get(PREF_NAME_SERVER, null);
+    	String userValue = prefs.get(PREF_NAME_USER, null);
+    	String passValue = prefs.get(PREF_NAME_PASS, null);
+    	
     	final DataSetUploadClientLoginForm loginForm = new DataSetUploadClientLoginForm();
     	loginForm.getLoginButton().addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -133,6 +147,11 @@ public class DataSetUploadClient extends AbstractSwingGUI
                 	DssCommunicationState commState = new DssCommunicationState(args); //Try to login
                 	launchUploader(commState); //If login succeed, create the uploader view
                 	loginForm.setVisible(false);
+                	//Save correct preferences
+                	prefs.put(PREF_NAME_SERVER, serverURL);
+                	prefs.put(PREF_NAME_USER, userName);
+                	prefs.put(PREF_NAME_PASS, password);
+                	prefs.flush();
                 } catch(Exception ex) {
                 	final JFrame frame = new JFrame(TITLE);
                     String message = ex.getMessage();
@@ -146,7 +165,14 @@ public class DataSetUploadClient extends AbstractSwingGUI
             }
         });
     	
+    	if(serverValue != null) {
+    		loginForm.getServerURLField().setText(serverValue);
+            loginForm.getUserNameField().setText(userValue);
+            loginForm.getPasswordField().setText(passValue);
+    	}
+        
     	loginForm.setVisible(true);
+    	
     }
     
     private static void launchUploader(DssCommunicationState commState) throws UserFailureException, EnvironmentFailureException
