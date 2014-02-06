@@ -90,7 +90,7 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
         passwordLabel.setText("Password:");
 
         passwordField.setFont(passwordField.getFont());
-        passwordField.setText("jPasswordField1");
+        passwordField.setText("");
 
         titleLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 70)); // NOI18N
         titleLabel1.setText("openBIS");
