@@ -579,7 +579,13 @@ class OpenbisController(_Controller):
         """
         self.drop(dataName, dropBoxName)
         self.waitUntilDataSetRegistrationFinished(numberOfDataSets = numberOfDataSets, timeOutInMinutes = timeOutInMinutes)
-        
+    
+    def dataFile(self, dataName):
+        """
+        Returns the path to the given test data
+        """
+        return "%s/%s/%s" % (TEST_DATA, self.testName, dataName)
+    
     def drop(self, dataName, dropBoxName):
         """
         Drops the specified data into the specified drop box. The data is either a folder or a ZIP file
