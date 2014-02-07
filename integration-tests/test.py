@@ -14,7 +14,7 @@ from systemtest.util import printAndFlush, renderDuration
 startTime = time.time() 
 numberOfTestCases = 0
 numberOfFailedTestCases = 0
-for f in sorted(os.listdir(os.path.dirname(__file__))):
+for f in sorted(os.listdir(os.path.dirname(os.path.abspath(__file__)))):
     splittedFileName = f.rsplit('.', 1)
     if len(splittedFileName) > 1:
         moduleName = splittedFileName[0]

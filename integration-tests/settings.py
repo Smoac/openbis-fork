@@ -28,7 +28,7 @@ if len(sys.argv) > 1:
         print "Unknown option: %s. Use option '-h' to see usage." % firstArgument
         exit(1)
 
-dirname = os.path.dirname(cmd)
+dirname = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("%s/source" % dirname)
 sys.path.append("%s/sourceTest" % dirname)
 
