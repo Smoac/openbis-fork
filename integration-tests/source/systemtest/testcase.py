@@ -488,6 +488,12 @@ class OpenbisController(_Controller):
         self.testCase.assertEquals("Number of data sets in data store %s" % self.getDataStoreServerCode(), 
                                    expectedNumberOfDataSets, count)
     
+    def storeDirectory(self):
+        """
+        Return the path to the data/store directory
+        """
+        return "data/store"
+    
     def getDataSets(self):
         """
         Returns all data sets as a list (ordered by data set ids) of instances of class DataSet.
