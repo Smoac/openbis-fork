@@ -22,11 +22,12 @@
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {List<GroupOfMenuItems>} menuStructure The menu structure.
  */
-function MainMenu(mainController, containerId, menuStructure) {
+function MainMenu(mainController, containerId, menuStructure, mainMenuContentExtra) {
 	this.mainController = mainController;
 	this.containerId = containerId;
 	this.menuStructure = menuStructure;
-	
+	this.mainMenuContentExtra = mainMenuContentExtra;
+
 	this.init = function() {
 		this.repaint();
 	}
@@ -76,6 +77,9 @@ function MainMenu(mainController, containerId, menuStructure) {
 			
 		$("#"+this.containerId).append($mainMenuContainerWrapper);
 		$("#"+this.containerId).append($mainMenuContainerWrapperSub);
+		var $mainMenuExtra = $("<div>", { id: "mainMenuExtra", style: "clear:both;" });
+		$mainMenuExtra.append(this.mainMenuContentExtra);
+		$("#"+this.containerId).append($mainMenuExtra);
 	}
 }
 

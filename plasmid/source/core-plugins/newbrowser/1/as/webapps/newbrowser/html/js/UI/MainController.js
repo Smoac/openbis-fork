@@ -128,7 +128,7 @@ function MainController(profile) {
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Main menu
-		var mainMenu = new MainMenu(this, "mainContainer", this.profile.menuStructure);
+		var mainMenu = new MainMenu(this, "mainContainer", this.profile.menuStructure, this.profile.mainMenuContentExtra());
 		mainMenu.init();
 		
 		history.pushState(null, "", ""); //History Push State

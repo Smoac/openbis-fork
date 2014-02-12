@@ -112,6 +112,16 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		/*
+		 * Used by Main Menu
+		 */
+		
+		this.mainMenuContentExtra = function() {
+			return "";
+		}
+
+
+
+		/*
 		 * Used by Inspector
 		 */
 		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
@@ -1072,7 +1082,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 			"OTHERS" : {
 				"TYPE" : "OTHERS",
 				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
+				"LIST" : [""] 
 			}
 		};
 	
@@ -1144,153 +1154,14 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 				return null;
 			}
 		}
+
+		/*
+		 * Used by Main Menu
+		 */
 		
-		this.getHTMLTableFromXML = function(xmlDocument) {
-			var table_head = null;
-			var table_body = "";
-			var dom;
-	
-			if (window.DOMParser) {
-			  parser = new DOMParser();
-			  dom = parser.parseFromString(xmlDocument,"text/xml");
-			} else {// Internet Explorer
-			  dom = new ActiveXObject("Microsoft.XMLDOM");
-			  dom.async = false;
-			  dom.loadXML(xmlDocument); 
-			} 
-	
-			var html = null;
-			var root = dom.childNodes[0];
-			var children = root.childNodes;
-			for(var i = 0; i < children.length; i++) {
-				var child = children[i];
-				if (child.localName != null) {
-					var keys = child.attributes;
-					if (table_head == null) {
-						table_head = "<tr>";
-						var key = null;
-						for (var j = 0; j < keys.length; j++) {
-							key = keys[j];
-							if(key.localName != "permId") {
-								table_head += "<th style='text-align:left; width:" + (100/(keys.length-1)) + "%;'>"+ key.localName + "</th>";
-							}
-						}
-						table_head += "</tr>";
-					}
-					table_body += "<tr>";
-					for (var j = 0; j < keys.length; j++) {
-						key = keys[j];
-						if(key.localName != "permId") {
-							if(key.localName == "date") {
-								table_body += "<td style='text-align:left; width:" + (100/(keys.length-1)) + "%;'>" + key.value + "</td>";
-							} else {
-								table_body += "<td style='text-align:left; width:" + (100/(keys.length-1)) + "%;'>" + key.value + "</td>";
-							}
-						}
-					}
-					table_body += "</tr>";
-				}
-			}
-			html = "<table style='font-family:helvetica; font-size:90%; width: 100%;'><thead>" + table_head + "</thead><tbody>"+ table_body + "</tbody></table>";
-			return html;
-		}
-	
-		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
-		
-			if(propertyContent.indexOf("<root>") != -1) {
-				return {
-					"isSingleColumn" : true,
-					"content" : this.getHTMLTableFromXML(propertyContent)
-				};
-			} else {
-				if(propertyContent === "<root/>\n") { //To clean empty XMLs and don't show them.
-					propertyContent = "";
-				}
-				return {
-					"isSingleColumn" : false,
-					"content" : propertyContent
-				};
-			}
-		}
-	
-		this.searchSorter = function(searchResults) {
-		
-			var getChars = function(code) {
-				var theChars = code.replace(/[0-9]/g, '')
-				return theChars;
-			}
-		
-			var getNums = function(code) {
-				var thenum = code.replace( /^\D+/g, '');
-				if(thenum.length > 0) {
-					return parseInt(thenum);
-				} else {
-					return 0;
-				}
-			}
-		
-			var customSort = function(sampleA, sampleB){
-				var aCode = getChars(sampleA.code);
-				var bCode = getChars(sampleB.code);
-			
-				var returnValue = null;
-				if(aCode < bCode) {
-					returnValue = 1;
-				} else if(aCode > bCode) {
-					returnValue = -1;
-				} else {
-					var aNum = getNums(sampleA.code);
-					var bNum = getNums(sampleB.code);
-					returnValue = bNum - aNum;
-				}
-				return -1 * returnValue;
-			}
-		
-			var sortedResults = searchResults.sort(customSort);
-		
-			return sortedResults;
-		}
-	
-		this.inspectorContentExtra = function(extraContainerId, sample) {
-			// When requesting information about the sample, we don't need parents and children, so send a copy of the saple without that information.
-			var sampleToSend = $.extend({}, sample);
-			delete sampleToSend.parents;
-			delete sampleToSend.children; 
-		
-			var localReference = this;
-			this.serverFacade.listDataSetsForSample(sampleToSend, true, function(datasets) {
-				for(var i = 0; i < datasets.result.length; i++) {
-					var dataset = datasets.result[i];
-					if(dataset.dataSetTypeCode === "SEQ_FILE") {
-						var listFilesForDataSetWithDataset = function(dataset) {
-							localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
-								for(var i = 0; i < files.result.length; i++) {
-										var isDirectory = files.result[i].isDirectory;
-										var pathInDataSet = files.result[i].pathInDataSet;
-										if (/\.svg$/.test(pathInDataSet) && !isDirectory) {
-											var downloadUrl = localReference.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + pathInDataSet + "?sessionID=" + localReference.serverFacade.getSession();
-											d3.xml(downloadUrl, "image/svg+xml", 
-												function(xml) {
-													var importedNode = document.importNode(xml.documentElement, true);
-													d3.select(importedNode)
-														.attr("width", 400 - 20)
-														.attr("height", 400 - 20)
-														.attr("viewBox", "200 200 650 650");
-													var inspectorNode = d3.select("#"+extraContainerId).node();
-													if(inspectorNode) { //Sometimes the user hides the sticker very clicky and the node doesn't exist anymore
-														inspectorNode.appendChild(importedNode);
-													}
-												});
-										}
-								}
-							});
-						}
-						listFilesForDataSetWithDataset(dataset);
-					}
-				}
-			}
-			);
-			return "";
+		this.mainMenuContentExtra = function() {
+			var content = "<center><h5><i class='icon-info-sign'></i> Please log in into your google account on the brower to see your laboratory calendar.</h5></center><br /><iframe src='https://www.google.com/calendar/embed?src=kcm620topcrg5677ikbn5epg0s%40group.calendar.google.com&ctz=Europe/Zurich' margin-left = '20' style='border: 50' width='800' height='600' frameborder='0' scrolling='no'></iframe>";
+			return content;
 		}
 	}
 });
