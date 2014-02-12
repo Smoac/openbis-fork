@@ -1,10 +1,16 @@
 #!/usr/bin/python
+#
+# Requirement:
+#   The command "ssh locahost" completes successfully without requiring any user input (e.g. password input)
+#   This can be achieved by adding your own public key to .ssh/authorized_keys
 import settings
 import systemtest.testcase
 import time
 import filecmp
 import os
 import shutil
+
+import systemtest.util as util
 
 ARCHIVE_DIR="/tmp/integration-tests/archiving/rsync-archive"
 
@@ -13,7 +19,6 @@ class TestCase(systemtest.testcase.TestCase):
     
     def execute(self):
         self.installOpenbis()
-        self.installDatamover()
         
         # Step 1 - Expect new data set to be archived
         
@@ -60,7 +65,7 @@ class TestCase(systemtest.testcase.TestCase):
         return archived
     
     def assert_last_dataset_content_in_database(self, openbisController, status, archived):
-        print("==== assert correct last dataset content in database with pattern %s, %s ====" % (status, archived))
+        util.printAndFlush("==== assert correct last dataset content in database with pattern %s, %s ====" % (status, archived))
     
         queryResult = openbisController.queryDatabase("openbis", 
             "select d.code, ed.status, ed.present_in_archive from data as d left join external_data as ed on ed.data_id = d.id where d.id = (select max(id) from data)")
@@ -74,7 +79,7 @@ class TestCase(systemtest.testcase.TestCase):
         return self.find_matching_file_in_directory_tree(ARCHIVE_DIR, "ARCHIVE_DATASET")
     
     def assert_the_same_content(self, message, path1, path2):
-        dc = filecmp.dircmp(path1,path2)
+        dc = filecmp.dircmp(path1,path2,ignore=['.svn'])
         if dc.left_only or  dc.right_only or dc.diff_files or dc.funny_files:
             dc.report_full_closure()
             self.fail(message)
@@ -88,13 +93,14 @@ class TestCase(systemtest.testcase.TestCase):
         self.unset_presentInArchiveFlag_DB(openbisController)
     
     def damage_archive(self, archived_data_set_dir):
-        print "Inserting invalid content in the archived dataset copy..."
+        util.printAndFlush("Inserting invalid content in the archived dataset copy...")
         path_in_archive = os.path.join(archived_data_set_dir, "archive-me.txt")
         with open(path_in_archive, "a") as f:
             f.write("INVALID CONTENT AT THE END OF ARCHIVE")
-        print "updated %s" % path_in_archive
+        util.printAndFlush("updated %s" % path_in_archive)
     
     def reconfigure_archiver(self, openbisController):
+        util.printAndFlush("Reconfiguring archiver to remove datasets from store ....")
         archiver_core_plugin_properties = "openbis/1/dss/maintenance-tasks/auto-archiver/plugin.properties"
         
         src = os.path.join(openbisController.dataFile("core-plugins"), archiver_core_plugin_properties)
