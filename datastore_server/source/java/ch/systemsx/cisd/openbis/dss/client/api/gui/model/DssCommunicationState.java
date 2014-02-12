@@ -30,7 +30,7 @@ public class DssCommunicationState
 
     private final boolean logoutOnClose;
 
-    private static final long CONNECTION_TIMEOUT_MILLIS = 15 * DateUtils.MILLIS_PER_SECOND;
+    private static final long CONNECTION_TIMEOUT_MILLIS = 60 * DateUtils.MILLIS_PER_SECOND;
 
     /**
      * Create a new instance of the DssCommunicationState based info in the arguments. Throws an
