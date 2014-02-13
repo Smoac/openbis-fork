@@ -15,11 +15,6 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -31,9 +26,6 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
 	//Default Serial Version ID
 	private static final long serialVersionUID = 1L;
-
-	//Clipboard management
-	final Clipboard clipboard =  Toolkit.getDefaultToolkit().getSystemClipboard(); 
 	
 	// Variables declaration                    
     private javax.swing.JButton loginButton;
@@ -93,21 +85,21 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
         serverURLField.setFont(serverURLField.getFont());
         serverURLField.setText("http://localhost:8888");
-        serverURLField.addKeyListener(new CopyPasteFromClipboard(serverURLField, clipboard));
+        serverURLField.addKeyListener(new CopyPasteFromClipboard(serverURLField));
         
         userNameLabel.setFont(userNameLabel.getFont());
         userNameLabel.setText("User Name:");
 
         userNameField.setFont(userNameField.getFont());
         userNameField.setText("yourUser");
-        userNameField.addKeyListener(new CopyPasteFromClipboard(userNameField, clipboard));
+        userNameField.addKeyListener(new CopyPasteFromClipboard(userNameField));
         
         passwordLabel.setFont(passwordLabel.getFont());
         passwordLabel.setText("Password:");
 
         passwordField.setFont(passwordField.getFont());
         passwordField.setText("");
-        passwordField.addKeyListener(new CopyPasteFromClipboard(passwordField, clipboard));
+        passwordField.addKeyListener(new CopyPasteFromClipboard(passwordField));
         
         titleLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 70)); // NOI18N
         titleLabel1.setText("openBIS");
@@ -174,15 +166,12 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
     private class CopyPasteFromClipboard implements KeyListener {
     	
     	private final javax.swing.JTextField textField;
-    	private final Clipboard clipboard;
-    	
     	boolean controlPress = false;
     	boolean vPress = false;
     	boolean cPress = false;
     	
-    	public CopyPasteFromClipboard(javax.swing.JTextField textField, Clipboard clipboard) {
+    	public CopyPasteFromClipboard(javax.swing.JTextField textField) {
     		this.textField = textField;
-    		this.clipboard = clipboard;
     	}
     	
     	@Override
@@ -198,25 +187,12 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
     	
 		@Override
 		public void keyReleased(KeyEvent keyRelease) {
-			if(controlPress && vPress) {
-				try {
-					Transferable clipData = clipboard.getContents(clipboard);
-					String fromClipboard = (String)(clipData.getTransferData(DataFlavor.stringFlavor));
-					textField.setText(fromClipboard);
-				} catch(Exception ex) {
-					
-				}
-			}
 			
 			if(controlPress && cPress) {
-				try {
-					String toClipboard = textField.getSelectedText();
-					StringSelection toClipboardData = new StringSelection(toClipboard);  
-					clipboard.setContents(toClipboardData, toClipboardData);
-				} catch(Exception ex) {
-					
-				}
-			}
+				textField.copy();
+			} else if(controlPress && vPress) {
+				textField.paste();
+			} 
 			
 			if(keyRelease.getKeyCode() == KeyEvent.VK_CONTROL || keyRelease.getKeyCode() == KeyEvent.VK_META) {
     			controlPress = false;
