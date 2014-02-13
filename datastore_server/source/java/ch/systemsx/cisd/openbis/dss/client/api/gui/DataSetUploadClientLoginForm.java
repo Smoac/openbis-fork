@@ -15,12 +15,26 @@
  */
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 /**
  *
  * @author Juan Fuentes
  */
 public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
+	//Default Serial Version ID
+	private static final long serialVersionUID = 1L;
+
+	//Clipboard management
+	final Clipboard clipboard =  Toolkit.getDefaultToolkit().getSystemClipboard(); 
+	
 	// Variables declaration                    
     private javax.swing.JButton loginButton;
     private javax.swing.JPasswordField passwordField;
@@ -54,7 +68,7 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
     public DataSetUploadClientLoginForm() {
         initComponents();
     }
-                       
+    
     private void initComponents() {
 
         loginButton = new javax.swing.JButton();
@@ -79,19 +93,22 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
         serverURLField.setFont(serverURLField.getFont());
         serverURLField.setText("http://localhost:8888");
-
+        serverURLField.addKeyListener(new CopyPasteFromClipboard(serverURLField, clipboard));
+        
         userNameLabel.setFont(userNameLabel.getFont());
         userNameLabel.setText("User Name:");
 
         userNameField.setFont(userNameField.getFont());
         userNameField.setText("yourUser");
-
+        userNameField.addKeyListener(new CopyPasteFromClipboard(userNameField, clipboard));
+        
         passwordLabel.setFont(passwordLabel.getFont());
         passwordLabel.setText("Password:");
 
         passwordField.setFont(passwordField.getFont());
         passwordField.setText("");
-
+        passwordField.addKeyListener(new CopyPasteFromClipboard(passwordField, clipboard));
+        
         titleLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 70)); // NOI18N
         titleLabel1.setText("openBIS");
 
@@ -153,5 +170,66 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
         pack();
     }
-                 
+    
+    private class CopyPasteFromClipboard implements KeyListener {
+    	
+    	private final javax.swing.JTextField textField;
+    	private final Clipboard clipboard;
+    	
+    	boolean controlPress = false;
+    	boolean vPress = false;
+    	boolean cPress = false;
+    	
+    	public CopyPasteFromClipboard(javax.swing.JTextField textField, Clipboard clipboard) {
+    		this.textField = textField;
+    		this.clipboard = clipboard;
+    	}
+    	
+    	@Override
+		public void keyPressed(KeyEvent keyPressed) {
+    		if(keyPressed.getKeyCode() == KeyEvent.VK_CONTROL || keyPressed.getKeyCode() == KeyEvent.VK_META) {
+    			controlPress = true;
+    		} else if(keyPressed.getKeyCode() == KeyEvent.VK_V) {
+    			vPress = true;
+    		} else if(keyPressed.getKeyCode() == KeyEvent.VK_C) {
+    			cPress = true;
+    		}
+		}
+    	
+		@Override
+		public void keyReleased(KeyEvent keyRelease) {
+			if(controlPress && vPress) {
+				try {
+					Transferable clipData = clipboard.getContents(clipboard);
+					String fromClipboard = (String)(clipData.getTransferData(DataFlavor.stringFlavor));
+					textField.setText(fromClipboard);
+				} catch(Exception ex) {
+					
+				}
+			}
+			
+			if(controlPress && cPress) {
+				try {
+					String toClipboard = textField.getSelectedText();
+					StringSelection toClipboardData = new StringSelection(toClipboard);  
+					clipboard.setContents(toClipboardData, toClipboardData);
+				} catch(Exception ex) {
+					
+				}
+			}
+			
+			if(keyRelease.getKeyCode() == KeyEvent.VK_CONTROL || keyRelease.getKeyCode() == KeyEvent.VK_META) {
+    			controlPress = false;
+    		} else if(keyRelease.getKeyCode() == KeyEvent.VK_V) {
+    			vPress = false;
+    		} else if(keyRelease.getKeyCode() == KeyEvent.VK_C) {
+    			cPress = false;
+    		}
+		}
+		
+		@Override
+		public void keyTyped(KeyEvent arg0) {
+		}
+    	
+    }
 }
