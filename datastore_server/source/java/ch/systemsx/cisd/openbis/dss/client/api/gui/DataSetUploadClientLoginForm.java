@@ -16,7 +16,11 @@
 package ch.systemsx.cisd.openbis.dss.client.api.gui;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+
+import javax.swing.InputMap;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 /**
  *
@@ -58,7 +62,15 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
      * Creates new form LoginForm
      */
     public DataSetUploadClientLoginForm() {
-        initComponents();
+    	String os = System.getProperty("os.name");
+    	if (os.startsWith("Mac")) {
+    		InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
+        	im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
+        	im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
+        	im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);
+    	}
+    	
+    	initComponents();
     }
     
     private void initComponents() {
@@ -85,21 +97,18 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
         serverURLField.setFont(serverURLField.getFont());
         serverURLField.setText("http://localhost:8888");
-        serverURLField.addKeyListener(new CopyPasteFromClipboard(serverURLField));
         
         userNameLabel.setFont(userNameLabel.getFont());
         userNameLabel.setText("User Name:");
 
         userNameField.setFont(userNameField.getFont());
         userNameField.setText("yourUser");
-        userNameField.addKeyListener(new CopyPasteFromClipboard(userNameField));
         
         passwordLabel.setFont(passwordLabel.getFont());
         passwordLabel.setText("Password:");
 
         passwordField.setFont(passwordField.getFont());
         passwordField.setText("");
-        passwordField.addKeyListener(new CopyPasteFromClipboard(passwordField));
         
         titleLabel1.setFont(new java.awt.Font("Lucida Grande", 0, 70)); // NOI18N
         titleLabel1.setText("openBIS");
@@ -162,50 +171,5 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
 
         pack();
     }
-    
-    private class CopyPasteFromClipboard implements KeyListener {
-    	
-    	private final javax.swing.JTextField textField;
-    	boolean isActionPressed = false;
-    	boolean isPastePressed = false;
-    	boolean isCopyPressed = false;
-    	
-    	public CopyPasteFromClipboard(javax.swing.JTextField textField) {
-    		this.textField = textField;
-    	}
-    	
-    	@Override
-		public void keyPressed(KeyEvent keyPressed) {
-    		if(keyPressed.getKeyCode() == KeyEvent.VK_CONTROL || keyPressed.getKeyCode() == KeyEvent.VK_META) {
-    			isActionPressed = true;
-    		} else if(keyPressed.getKeyCode() == KeyEvent.VK_V) {
-    			isPastePressed = true;
-    		} else if(keyPressed.getKeyCode() == KeyEvent.VK_C) {
-    			isCopyPressed = true;
-    		}
-		}
-    	
-		@Override
-		public void keyReleased(KeyEvent keyRelease) {
-			
-			if(isActionPressed && isCopyPressed) {
-				textField.copy();
-			} else if(isActionPressed && isPastePressed) {
-				textField.paste();
-			} 
-			
-			if(keyRelease.getKeyCode() == KeyEvent.VK_CONTROL || keyRelease.getKeyCode() == KeyEvent.VK_META) {
-    			isActionPressed = false;
-    		} else if(keyRelease.getKeyCode() == KeyEvent.VK_V) {
-    			isPastePressed = false;
-    		} else if(keyRelease.getKeyCode() == KeyEvent.VK_C) {
-    			isCopyPressed = false;
-    		}
-		}
-		
-		@Override
-		public void keyTyped(KeyEvent arg0) {
-		}
-    	
-    }
+
 }
