@@ -166,9 +166,9 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
     private class CopyPasteFromClipboard implements KeyListener {
     	
     	private final javax.swing.JTextField textField;
-    	boolean controlPress = false;
-    	boolean vPress = false;
-    	boolean cPress = false;
+    	boolean isActionPressed = false;
+    	boolean isPastePressed = false;
+    	boolean isCopyPressed = false;
     	
     	public CopyPasteFromClipboard(javax.swing.JTextField textField) {
     		this.textField = textField;
@@ -177,29 +177,29 @@ public class DataSetUploadClientLoginForm extends javax.swing.JFrame {
     	@Override
 		public void keyPressed(KeyEvent keyPressed) {
     		if(keyPressed.getKeyCode() == KeyEvent.VK_CONTROL || keyPressed.getKeyCode() == KeyEvent.VK_META) {
-    			controlPress = true;
+    			isActionPressed = true;
     		} else if(keyPressed.getKeyCode() == KeyEvent.VK_V) {
-    			vPress = true;
+    			isPastePressed = true;
     		} else if(keyPressed.getKeyCode() == KeyEvent.VK_C) {
-    			cPress = true;
+    			isCopyPressed = true;
     		}
 		}
     	
 		@Override
 		public void keyReleased(KeyEvent keyRelease) {
 			
-			if(controlPress && cPress) {
+			if(isActionPressed && isCopyPressed) {
 				textField.copy();
-			} else if(controlPress && vPress) {
+			} else if(isActionPressed && isPastePressed) {
 				textField.paste();
 			} 
 			
 			if(keyRelease.getKeyCode() == KeyEvent.VK_CONTROL || keyRelease.getKeyCode() == KeyEvent.VK_META) {
-    			controlPress = false;
+    			isActionPressed = false;
     		} else if(keyRelease.getKeyCode() == KeyEvent.VK_V) {
-    			vPress = false;
+    			isPastePressed = false;
     		} else if(keyRelease.getKeyCode() == KeyEvent.VK_C) {
-    			cPress = false;
+    			isCopyPressed = false;
     		}
 		}
 		
