@@ -15,13 +15,16 @@
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="cifex.client.jarfiles"
-	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcprov.jar bcpg.jar" />
+	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcprov.jar bcpg.jar log4j.jar" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
 
 	<property name="jar.file.name" value="${ant.project.name}.jar" />
 	<property name="jar.file" value="${dist}/${jar.file.name}" />
+	
+	<property name="jar.file.name.gui" value="${ant.project.name}_GUI.jar" />
+	<property name="jar.file.gui" value="${dist}/${jar.file.name.gui}" />
 
 	<property name="webapp.file.name" value="${ant.project.name}.war" />
 	<property name="webapp.file" value="${dist}/${webapp.file.name}" />
@@ -181,6 +184,7 @@
 			</manifest>
 			<fileset dir="${classes}">
 				<include name="**/*.class" />
+				<include name="**/*.png" />
 				<!-- Exclude 'service.properties' and 'log.xml' file. -->
 				<exclude name="service.properties" />
 				<exclude name="log.xml" />
@@ -193,6 +197,26 @@
 			            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
 		</jar>
 
+		<recursive-jar destfile="${jar.file.gui}">
+					<manifest>
+						<attribute name="Main-Class" value="ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain" />
+						<attribute name="Class-Path" value="${cifex.client.jarfiles}" />
+					</manifest>
+					<fileset dir="${classes}">
+						<include name="**/*.class" />
+						<include name="**/*.png" />
+						<!-- Exclude 'service.properties' and 'log.xml' file. -->
+						<exclude name="service.properties" />
+						<exclude name="log.xml" />
+						<include name="**/*.properties" />
+						<include name="${build.info.filename}" />
+					</fileset>
+		</recursive-jar>
+		<jar update="true" destfile="${jar.file.gui}">
+					<zipfileset src="${gwt.lib}/gwt-user.jar"
+					            includes="com/google/gwt/user/client/rpc/IsSerializable.class, com/google/gwt/user/client/rpc/SerializableException.class" />
+		</jar>
+		
 		<delete dir="${targets.www}" />
 		<mkdir dir="${targets.www}" />
 		<delete dir="${jars.to.be.signed.dir}" />
@@ -200,6 +224,10 @@
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${dist}" />
 			<param name="jar" value="${jar.file.name}" />
+		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${dist}" />
+			<param name="jar" value="${jar.file.name.gui}" />
 		</antcall>
 		<antcall target="copy-and-sign-jar">
 			<param name="dir" value="${lib}/cisd-base" />
@@ -261,6 +289,10 @@
 			<param name="dir" value="${lib}/spring/third-party" />
 			<param name="jar" value="stream-supporting-httpinvoker.jar" />
 		</antcall>
+		<antcall target="copy-and-sign-jar">
+			<param name="dir" value="${lib}/log4j" />
+			<param name="jar" value="log4j.jar" />
+		</antcall>
 		<antcall target="copy-jar">
 			<param name="dir" value="${lib}/bouncycastle" />
 			<param name="jar" value="bcprov.jar" />
@@ -287,7 +319,29 @@
 		<zip destfile="${jars.to.be.signed.zip}"
 		     basedir="${targets}"
 		     includes="${jars.to.be.signed}/**" />
-    <delete dir="${jars.to.be.signed.dir}" failonerror="true" />
+    
+		
+		<!-- Create Standalone CIFEX UI Jar -->
+		<delete dir="${dist}/bundle/"/>
+		<mkdir dir="${dist}/bundle/"/>
+			
+		<unjar dest="${dist}/bundle/">
+			<patternset>
+				<exclude name="**/META-INF/"/>
+			</patternset>
+			<fileset dir="${jars.to.be.signed.dir}" includes="*.jar"/>
+		</unjar>
+	
+		<jar destfile="${dist}/CIFEX App.jar" basedir="${dist}/bundle/">
+			<manifest>
+				<attribute name="Main-Class" value="ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain"/>
+			</manifest>
+		</jar>
+		
+		<delete dir="${dist}/bundle/"/>
+		<!-- -->
+		
+		<delete dir="${jars.to.be.signed.dir}" failonerror="true" />
 	</target>
 
 	<target name="copy-and-sign-jar">
@@ -401,6 +455,7 @@
 		</war>
 		<!-- Does some cleaning. -->
 		<delete file="${jar.file}" failonerror="true" />
+		<delete file="${jar.file.gui}" failonerror="true" />
 		<delete dir="${webapp.dist}" failonerror="true" />
 	</target>
 
