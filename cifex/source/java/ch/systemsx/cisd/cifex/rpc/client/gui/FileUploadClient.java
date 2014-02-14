@@ -136,7 +136,12 @@ public class FileUploadClient extends AbstractSwingGUI
 
     FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
-        // save and create local state
+        this(commState, timeProvider, true);
+    }
+    
+    FileUploadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider, final boolean isShownByDefault)
+    {
+    	// save and create local state
         super(commState);
 
         this.passphraseGenerator = new PasswordGenerator();
@@ -145,7 +150,7 @@ public class FileUploadClient extends AbstractSwingGUI
         workingDirectory = PersistenceStore.getWorkingDirectory();
 
         tableModel = new UploadTableModel(uploader, timeProvider);
-        createGUI();
+        createGUI(isShownByDefault);
 
         addProgressListener();
     }
@@ -253,7 +258,7 @@ public class FileUploadClient extends AbstractSwingGUI
         getWindowFrame().setVisible(true);
     }
 
-    private void createGUI()
+    private void createGUI(boolean isShownByDefault)
     {
         // To add borders, don't put the GUI panel directly in the window, instead embed it in a
         // panel.
@@ -283,8 +288,12 @@ public class FileUploadClient extends AbstractSwingGUI
 
         window.pack();
         window.setLocationByPlatform(true);
-        window.setVisible(true);
-
+        
+        if(isShownByDefault) {
+        	window.setVisible(true);
+        } else {
+        	window.setVisible(false);
+        }
     }
 
     private JPanel createGUIPanel()

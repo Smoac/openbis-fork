@@ -122,13 +122,18 @@ public class FileDownloadClient extends AbstractSwingGUI
 
     FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider)
     {
+    	this(commState, timeProvider, true);
+    }
+    
+    FileDownloadClient(final CIFEXCommunicationState commState, final ITimeProvider timeProvider, final boolean isShownByDefault)
+    {
         // save and create local state
         super(commState);
         downloader = cifex.createDownloader(this.sessionId);
 
         tableModel = new FileDownloadClientModel(this, getWindowFrame(), timeProvider);
 
-        createGUI();
+        createGUI(isShownByDefault);
         addProgressListener();
     }
 
@@ -165,7 +170,7 @@ public class FileDownloadClient extends AbstractSwingGUI
             };
     }
 
-    private void createGUI()
+    private void createGUI(boolean isShownByDefault)
     {
         JLabel spacer;
         final JFrame window = getWindowFrame();
@@ -191,7 +196,12 @@ public class FileDownloadClient extends AbstractSwingGUI
         window.add(spacer, BorderLayout.SOUTH);
         window.pack();
         window.setLocationByPlatform(true);
-        window.setVisible(true);
+        
+        if(isShownByDefault) {
+        	window.setVisible(true);
+        } else {
+        	window.setVisible(false);
+        }
     }
 
     private JComponent createFileListComponent()
