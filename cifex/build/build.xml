@@ -15,7 +15,7 @@
 	<property name="cifex.server.resource" value="../${ant.project.name}/${server-resource}" />
 
 	<property name="cifex.client.jarfiles"
-	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcprov.jar bcpg.jar log4j.jar" />
+	          value="cifex.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcprov.jar bcpg.jar log4j.jar bcprov.jar bcpg.jar" />
 
 	<property name="webapp.dist" value="${dist}/webapp" />
 	<property name="webapp.dist.web-inf" value="${webapp.dist}/WEB-INF" />
@@ -293,11 +293,11 @@
 			<param name="dir" value="${lib}/log4j" />
 			<param name="jar" value="log4j.jar" />
 		</antcall>
-		<antcall target="copy-jar">
+		<antcall target="copy-to-sign-jar">
 			<param name="dir" value="${lib}/bouncycastle" />
 			<param name="jar" value="bcprov.jar" />
 		</antcall>
-		<antcall target="copy-jar">
+		<antcall target="copy-to-sign-jar">
 			<param name="dir" value="${lib}/bouncycastle" />
 			<param name="jar" value="bcpg.jar" />
 		</antcall>
@@ -329,21 +329,39 @@
 			<patternset>
 				<exclude name="**/META-INF/"/>
 			</patternset>
-			<fileset dir="${jars.to.be.signed.dir}" includes="*.jar"/>
+			
+			<fileset dir="${jars.to.be.signed.dir}" casesensitive="yes">
+			  <include name="*.jar"/>
+			  <exclude name="bcpg.jar"/>
+			  <exclude name="bcprov.jar"/>
+			</fileset>
+				
 		</unjar>
-	
-		<jar destfile="${dist}/CIFEX App.jar" basedir="${dist}/bundle/">
+		
+		<mkdir dir="${dist}/app/"/>
+		<copy file="${lib}/bouncycastle/bcprov.jar" todir="${dist}/app/" />
+		<copy file="${lib}/bouncycastle/bcpg.jar" todir="${dist}/app/" />
+		<jar destfile="${dist}/app/CIFEX App.jar" basedir="${dist}/bundle/">
 			<manifest>
 				<attribute name="Main-Class" value="ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain"/>
+				<attribute name="Class-Path" value="bcprov.jar bcpg.jar" />
 			</manifest>
 		</jar>
 		
+		<zip destfile="${dist}/CIFEXApp.zip" basedir="${dist}/app/" includes="*.jar" />
+		
+		<delete dir="${dist}/app/"/>
 		<delete dir="${dist}/bundle/"/>
 		<!-- -->
 		
 		<delete dir="${jars.to.be.signed.dir}" failonerror="true" />
 	</target>
 
+	<target name="copy-to-sign-jar">
+			<copy file="${dir}/${jar}" todir="${targets.www}" />
+			<copy file="${dir}/${jar}" todir="${jars.to.be.signed.dir}" />
+	</target>
+	
 	<target name="copy-and-sign-jar">
 		<copy file="${dir}/${jar}" todir="${targets.www}" />
 		<copy file="${dir}/${jar}" todir="${jars.to.be.signed.dir}" />
