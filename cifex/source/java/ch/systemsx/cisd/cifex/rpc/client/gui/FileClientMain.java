@@ -52,7 +52,8 @@ public class FileClientMain {
     	final FileClientLoginForm loginForm = new FileClientLoginForm();
     	loginForm.getLoginButton().addActionListener(new java.awt.event.ActionListener() 
     	{
-            public void actionPerformed(java.awt.event.ActionEvent evt) 
+            @Override
+			public void actionPerformed(java.awt.event.ActionEvent evt) 
             {
             	//Collect login information
                 String serverURL = loginForm.getServerURLField().getText();
