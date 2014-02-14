@@ -17,20 +17,16 @@
 package ch.systemsx.cisd.cifex.client.application.ui;
 
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.CREATE_USER_COMMENT_LABEL;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LAUNCH_JWS_APPLICATION_TITLE;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_BROWSER_PANEL_TITLE;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_DUPLICATES_MSG;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_DUPLICATES_MSGBOX_TITLE;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_FILE_FIELD_LABEL;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_LAUNCH_WEBSTART_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_PANEL_TITLE;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RECIPIENT_FIELD_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RECIPIENT_FIELD_TOOLTIP;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_RESET_BUTTON_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_SUBMIT_BUTTON_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_VALIDATE_USERS_BUTTON_LABEL;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_WEBSTART_PANEL_TITLE;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.UPLOAD_FILES_WEBSTART_PROS_INFO;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.msg;
 
 import java.util.ArrayList;
@@ -39,17 +35,13 @@ import java.util.List;
 import java.util.Set;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -60,7 +52,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -79,7 +70,6 @@ import ch.systemsx.cisd.cifex.client.application.UserUtils;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.utils.CifexValidator;
 import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.UserInfoDTO;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
@@ -105,7 +95,7 @@ public final class FileUploadWidget extends LayoutContainer
 
     private final FormPanel formPanel;
 
-    private final ContentPanel uploaderPanel;
+    //private final ContentPanel uploaderPanel;
 
     private final List<FileUploadField> uploadFields;
 
@@ -134,12 +124,8 @@ public final class FileUploadWidget extends LayoutContainer
 
         createForm();
 
-        uploaderPanel = new ContentPanel();
-        initializeUploaderPanel();
-
         // Add top-level widgets to the container
         add(formPanel, new TableData("66%", ""));
-        add(uploaderPanel, new TableData("34%", ""));
 
         if (SUBSCRIBE_TO_WINDOW_CHANGES)
             setMonitorWindowResize(true);
@@ -168,35 +154,6 @@ public final class FileUploadWidget extends LayoutContainer
         formPanel.setMethod(Method.POST);
         formPanel.setEncoding(Encoding.MULTIPART);
         formPanel.setHeight(335);
-    }
-
-    private void initializeUploaderPanel()
-    {
-        uploaderPanel.setHeading(msg(UPLOAD_FILES_WEBSTART_PANEL_TITLE));
-        uploaderPanel.setHeaderVisible(true);
-        uploaderPanel.setBodyBorder(false);
-        uploaderPanel.setBorders(true);
-        uploaderPanel.setHeight(335);
-
-        final String webStartTitle = msg(LAUNCH_JWS_APPLICATION_TITLE);
-        final String servletName = ServletPathConstants.FILE2GB_UPLOAD_SERVLET_NAME;
-        final String buttonTitle = msg(UPLOAD_FILES_LAUNCH_WEBSTART_LABEL);
-        final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    WindowUtils.openNewDependentWindow(servletName);
-                }
-            });
-        launchButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getUploaderIcon()));
-        launchButton.setTitle(webStartTitle);
-        launchButton.setHeight(30);
-        launchButton.setIconAlign(IconAlign.LEFT);
-
-        uploaderPanel.add(launchButton, new FlowData(new Margins(20)));
-        uploaderPanel.add(new Html(msg(UPLOAD_FILES_WEBSTART_PROS_INFO)), new FlowData(new Margins(
-                0, 0, 0, 10)));
     }
 
     private final void createForm()

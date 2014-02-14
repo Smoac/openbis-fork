@@ -6,8 +6,6 @@ var message_dict = {
   
   UNKNOWN_LABEL: 'unknown',
   
-  LAUNCH_JWS_APPLICATION_TITLE: 'Launches external Java Web Start application.',
-  
   //
   // Grid
   //
@@ -255,15 +253,6 @@ var message_dict = {
   
   UPLOAD_FILES_BROWSER_PANEL_TITLE: 'Upload Files via Browser (for files < 2GB &mdash; for larger files use the CIFEX Uploader)',
   
-  UPLOAD_FILES_WEBSTART_PANEL_TITLE: 'Upload Files with CIFEX Uploader',
-  
-  UPLOAD_FILES_LAUNCH_WEBSTART_LABEL: 'Launch CIFEX Uploader',
-  
-  UPLOAD_FILES_WEBSTART_PROS_INFO: '<b>Advantages</b> of CIFEX Uploader over web interface include:\
-    <li>support for uploading files larger than 2GB,\
-    <li>resuming interrupted uploads,\
-    <li>support for encryption.',
-  
   UPLOAD_FILES_PERMANENT_USER_INFO: '<b>Notes:</b><br/><i>Limits:</i> You are using {1} of your <b>{0}</b>; \
     you are sharing {3} file(s) and may share up to <b>{2}</b> files.<br/>\
     <i>Recipients</i>: Temporary accounts will automatically be created.<br/>\
@@ -307,15 +296,6 @@ var message_dict = {
   //
   
   DOWNLOAD_FILES_PANEL_TITLE: 'Available Files',
-  
-  DOWNLOAD_FILES_WEBSTART_PANEL_TITLE: 'Download Files with CIFEX Downloader',
-  
-  DOWNLOAD_FILES_LAUNCH_WEBSTART_LABEL: 'Launch CIFEX Downloader',
-  
-  DOWNLOAD_FILES_WEBSTART_PROS_INFO: '<b>Advantages</b> of CIFEX Downloader over web interface include:\
-    <li>support for downloading files larger than 2GB,\
-    <li>resume function for interrupted downloads,\
-    <li>support for decryption.',
   
   DOWNLOAD_FILES_LOADING_MSG: 'Loading Files Available for Download...',
   

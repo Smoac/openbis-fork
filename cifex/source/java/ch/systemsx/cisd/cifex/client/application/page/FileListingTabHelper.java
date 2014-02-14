@@ -17,12 +17,8 @@
 package ch.systemsx.cisd.cifex.client.application.page;
 
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_EMPTY_MSG;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_LAUNCH_WEBSTART_LABEL;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_LOADING_MSG;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_PANEL_TITLE;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_WEBSTART_PANEL_TITLE;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.DOWNLOAD_FILES_WEBSTART_PROS_INFO;
-import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LAUNCH_JWS_APPLICATION_TITLE;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHARED_EMPTY_MSG;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHARED_LOADING_MSG;
 import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.LIST_FILES_SHARED_TITLE;
@@ -31,33 +27,22 @@ import static ch.systemsx.cisd.cifex.client.application.utils.MessageDictionary.
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.Style.IconAlign;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.FileCommentGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.FileDownloadGridCellListener;
 import ch.systemsx.cisd.cifex.client.application.IQuotaInformationUpdater;
-import ch.systemsx.cisd.cifex.client.application.ServletPathConstants;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
 import ch.systemsx.cisd.cifex.client.application.grid.AbstractFilterField;
 import ch.systemsx.cisd.cifex.client.application.grid.GridWidget;
 import ch.systemsx.cisd.cifex.client.application.model.AbstractFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.DownloadFileGridModel;
 import ch.systemsx.cisd.cifex.client.application.model.OwnedFileGridModel;
-import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
-import ch.systemsx.cisd.cifex.client.application.utils.WindowUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.cifex.shared.basic.dto.FileInfoDTO;
 import ch.systemsx.cisd.cifex.shared.basic.dto.OwnerFileInfoDTO;
@@ -124,8 +109,6 @@ class FileListingTabHelper
         AbstractMainPageTabController.addTitleRow(contentPanel, msg(DOWNLOAD_FILES_PANEL_TITLE));
         AbstractMainPageTabController.addWidgetRow(contentPanel, gridWidget.getWidget());
 
-        addWebStartDownloadClientLink(contentPanel);
-
         context.getCifexService().listDownloadFiles(
                 new AbstractAsyncCallback<List<FileInfoDTO>>(context)
                     {
@@ -143,33 +126,6 @@ class FileListingTabHelper
                             super.onFailure(caught);
                         }
                     });
-    }
-
-    private static void addWebStartDownloadClientLink(final ContentPanel verticalPanel)
-    {
-        AbstractMainPageTabController.addTitleRow(verticalPanel,
-                msg(DOWNLOAD_FILES_WEBSTART_PANEL_TITLE));
-
-        String webStartTitle = msg(LAUNCH_JWS_APPLICATION_TITLE);
-        final String servletName = ServletPathConstants.FILE2GB_DOWNLOAD_SERVLET_NAME;
-        final String buttonTitle = msg(DOWNLOAD_FILES_LAUNCH_WEBSTART_LABEL);
-        final Button launchButton = new Button(buttonTitle, new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    WindowUtils.openNewDependentWindow(servletName);
-                }
-            });
-        launchButton.setIcon(AbstractImagePrototype.create(ImageUtils.ICONS.getDownloaderIcon()));
-        launchButton.setTitle(webStartTitle);
-        launchButton.setHeight(30);
-        launchButton.setIconAlign(IconAlign.LEFT);
-
-        verticalPanel.add(launchButton, new RowData(-1, -1, new Margins(20, 20, 20,
-                20 + AbstractMainPageTabController.LEFT_MARGIN)));
-        verticalPanel.add(new Html(msg(DOWNLOAD_FILES_WEBSTART_PROS_INFO)), new RowData(-1, -1,
-                new Margins(0, 10, 10, 10 + AbstractMainPageTabController.LEFT_MARGIN)));
     }
 
     static void createListOwnedFilesGrid(final ViewContext context,

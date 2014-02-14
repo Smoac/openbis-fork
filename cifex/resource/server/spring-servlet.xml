@@ -14,9 +14,6 @@
                 dummy=url-servlet-forwarding-controller
                 file-download=url-servlet-forwarding-controller
                 file-upload=url-servlet-forwarding-controller
-                file2GB-upload.jnlp=url-servlet-forwarding-controller
-                file2GB-download.jnlp=url-servlet-forwarding-controller
-                bouncycastle.jnlp=url-servlet-forwarding-controller
                 rpc-service=rpc-service-exporter
             </value>
         </property>
