@@ -87,14 +87,12 @@ def createExperimentDictionaries(experiments, dictionaryType):
 	experimentPropertyDefinitionsMap = {}
 	
 	relationsDictionaryTypes = [ROOT_EXPERIMENT]
-	if dictionaryType in relationsDictionaryTypes:
-		experimentSamplesMap = getExperimentSamplesMap(experimentIdentifiers)
-		experimentDataSetsMap = getExperimentDataSetsMap(experimentIdentifiers)
+	experimentSamplesMap = getExperimentSamplesMap(experimentIdentifiers)
+	experimentDataSetsMap = getExperimentDataSetsMap(experimentIdentifiers)
 	
 	propertiesDictionaryTypes = [DETAIL_EXPERIMENT]
-	if dictionaryType in propertiesDictionaryTypes:
-		experimentTypes = [experiment.getExperimentType() for experiment in experiments]
-		experimentPropertyDefinitionsMap = getPropertyDefinitionsMap(experimentTypes, searchService.listPropertiesDefinitionsForExperimentType)
+	experimentTypes = [experiment.getExperimentType() for experiment in experiments]
+	experimentPropertyDefinitionsMap = getPropertyDefinitionsMap(experimentTypes, searchService.listPropertiesDefinitionsForExperimentType)
 	
 	dictionaries = []
 	
@@ -112,24 +110,23 @@ def createExperimentDictionaries(experiments, dictionaryType):
 		refcon['ENTITY_TYPE'] =  'EXPERIMENT'
 		# there is no way to get an experiment by a permanent id
 		refcon['IDENTIFIER'] = experiment.getExperimentIdentifier()
+		refcon['DICTIONARY_TYPE'] = dictionaryType
 		dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 		
-		if dictionaryType in relationsDictionaryTypes:
-			experimentSamples = experimentSamplesMap.get(experiment.getExperimentIdentifier(), [])
-			experimentDataSets = experimentDataSetsMap.get(experiment.getExperimentIdentifier(), [])
-			children = []
-			children.extend([ getSampleIPadId(experimentSample, DRILL_EXPERIMENT_SAMPLE) for experimentSample in experimentSamples ])
-			children.extend([ getDataSetIPadId(experimentDataSet, DRILL_EXPERIMENT_DATA_SET) for experimentDataSet in experimentDataSets ])
-			dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
+		experimentSamples = experimentSamplesMap.get(experiment.getExperimentIdentifier(), [])
+		experimentDataSets = experimentDataSetsMap.get(experiment.getExperimentIdentifier(), [])
+		children = []
+		children.extend([ getSampleIPadId(experimentSample, DRILL_EXPERIMENT_SAMPLE) for experimentSample in experimentSamples ])
+		children.extend([ getDataSetIPadId(experimentDataSet, DRILL_EXPERIMENT_DATA_SET) for experimentDataSet in experimentDataSets ])
+		dictionary['CHILDREN'] = IpadServiceUtilities.jsonEncodedValue(children)
 
-		if dictionaryType in propertiesDictionaryTypes:
-			properties = []
-			properties.append(getProperty("#TYPE", "Type", experiment.getExperimentType()))
-			properties.append(getProperty("#PERM_ID", "Perm ID", experiment.getPermId()))
-			propertyDefinitions = experimentPropertyDefinitionsMap.get(experiment.getExperimentType())			
-			properties.extend(getProperties(experiment, propertyDefinitions))
-			properties.append(getTimestampProperty())
-			dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
+		properties = []
+		properties.append(getProperty("#TYPE", "Type", experiment.getExperimentType()))
+		properties.append(getProperty("#PERM_ID", "Perm ID", experiment.getPermId()))
+		propertyDefinitions = experimentPropertyDefinitionsMap.get(experiment.getExperimentType())			
+		properties.extend(getProperties(experiment, propertyDefinitions))
+		properties.append(getTimestampProperty())
+		dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 			
 		dictionaries.append(dictionary)
 	
@@ -224,6 +221,7 @@ def createDataSetDictionaries(dataSets, dictionaryType):
 		refcon = {}
 		refcon['ENTITY_TYPE'] =  'DATA_SET'
 		refcon['CODE'] = dataSet.getDataSetCode()
+		refcon['DICTIONARY_TYPE'] = dictionaryType
 		dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 
 		properties = []
@@ -249,9 +247,8 @@ def createMaterialDictionaries(materials, dictionaryType):
 	materialPropertyDefinitionsMap = {}
 	
 	propertiesDictionaryTypes = [DETAIL_MATERIAL]	
-	if dictionaryType in propertiesDictionaryTypes:
-		materialTypes = [material.getMaterialType() for material in materials]
-		materialPropertyDefinitionsMap = getPropertyDefinitionsMap(materialTypes, searchService.listPropertiesDefinitionsForMaterialType)
+	materialTypes = [material.getMaterialType() for material in materials]
+	materialPropertyDefinitionsMap = getPropertyDefinitionsMap(materialTypes, searchService.listPropertiesDefinitionsForMaterialType)
 	
 	dictionaries = []
 	
@@ -270,15 +267,15 @@ def createMaterialDictionaries(materials, dictionaryType):
 		refcon['ENTITY_TYPE'] =  'MATERIAL'
 		refcon['CODE'] = material.getCode()
 		refcon['TYPE_CODE'] = material.getMaterialType();
+		refcon['DICTIONARY_TYPE'] = dictionaryType		
 		dictionary['REFCON'] = IpadServiceUtilities.jsonEncodedValue(refcon)
 
-		if dictionaryType in propertiesDictionaryTypes:
-			properties = []
-			properties.append(getProperty("#TYPE", "Type", material.getMaterialType()))
-			propertyDefinitions = materialPropertyDefinitionsMap.get(material.getMaterialType())
-			properties.extend(getProperties(material, propertyDefinitions))
-			properties.append(getTimestampProperty())
-			dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
+		properties = []
+		properties.append(getProperty("#TYPE", "Type", material.getMaterialType()))
+		propertyDefinitions = materialPropertyDefinitionsMap.get(material.getMaterialType())
+		properties.extend(getProperties(material, propertyDefinitions))
+		properties.append(getTimestampProperty())
+		dictionary['PROPERTIES'] = IpadServiceUtilities.jsonEncodedValue(properties)
 			
 		dictionaries.append(dictionary)
 	
