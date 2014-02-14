@@ -816,6 +816,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesWithoutMainCriteriaAndWithoutSubcriteria()
+    {
+        SearchCriteria criteria = new SearchCriteria();
+        List<Sample> samples = generalInformationService.searchForSamples(sessionToken, criteria);
+        assertEquals(700, samples.size());
+    }
+
+    @Test
     public void testSearchForSamplesByParentPermId()
     {
 
@@ -831,10 +839,22 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
-    public void testSearchForSamplesWithNoCriteria()
+    public void testSearchForSamplesByParentPermIdAndChildPermId()
     {
+
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "200811050927630-1003"));
+
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "200811050929940-1017"));
+
         SearchCriteria criteria = new SearchCriteria();
-        generalInformationService.searchForSamples(sessionToken, criteria);
+        criteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
+        criteria.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(childCriteria));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, criteria);
+        assertEntities("[/CISD/DP1-A]", samples);
     }
 
     @Test
@@ -1322,6 +1342,14 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForDataSetsWithoutMainCriteriaAndWithoutSubcriteria()
+    {
+        SearchCriteria criteria = new SearchCriteria();
+        List<DataSet> dataSets = generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertEquals(30, dataSets.size());
+    }
+
+    @Test
     public void testSearchForDataSetsByParentCode()
     {
         SearchCriteria parentCriteria = new SearchCriteria();
@@ -1333,6 +1361,24 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<DataSet> dataSets =
                 generalInformationService.searchForDataSets(sessionToken, criteria);
         assertDataSets("[20081105092259000-8, 20081105092259000-9]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByParentCodeAndChildCode()
+    {
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20081105092159333-3"));
+
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20081105092259900-0"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(parentCriteria));
+        criteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(childCriteria));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertDataSets("[20081105092259000-9]", dataSets);
     }
 
     @Test

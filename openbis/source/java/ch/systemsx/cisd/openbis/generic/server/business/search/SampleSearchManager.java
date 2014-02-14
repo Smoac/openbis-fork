@@ -113,35 +113,34 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         groupSampleSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        List<Long> mainSampleIds = null;
+        boolean hasMainCriteria = false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty();
+        boolean hasParentCriteria = false == parentCriteria.isEmpty();
+        boolean hasChildCriteria = false == childCriteria.isEmpty();
 
-        // there are some criteria for the main samples
-        if (false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty())
+        Collection<Long> sampleIds = null;
+
+        if (hasMainCriteria || (hasMainCriteria == false && hasParentCriteria == false && hasChildCriteria == false))
         {
-            mainSampleIds = findSampleIds(userId, criteria, otherSubCriterias);
-            if (mainSampleIds == null)
+            sampleIds = findSampleIds(userId, criteria, otherSubCriterias);
+            if (sampleIds == null)
             {
-                mainSampleIds = Collections.emptyList();
+                sampleIds = Collections.emptyList();
             }
         }
 
-        Collection<Long> filteredSampleIds = mainSampleIds;
-        if (false == parentCriteria.isEmpty())
+        if (hasParentCriteria)
         {
-            filteredSampleIds =
-                    filterSearchResultsBySubcriteria(userId, filteredSampleIds, parentCriteria,
-                            PARENT_RELATIONSHIP_HANDLER);
+            sampleIds = filterSearchResultsBySubcriteria(userId, sampleIds, parentCriteria,
+                    PARENT_RELATIONSHIP_HANDLER);
         }
 
-        if (false == childCriteria.isEmpty())
+        if (hasChildCriteria)
         {
-            filteredSampleIds =
-                    filterSearchResultsBySubcriteria(userId, filteredSampleIds, childCriteria,
-                            CHILDREN_RELATIONSHIP_HANDLER);
+            sampleIds = filterSearchResultsBySubcriteria(userId, sampleIds, childCriteria,
+                    CHILDREN_RELATIONSHIP_HANDLER);
         }
 
-        Collection<Long> sampleIDs = restrictResultSetIfNecessary(filteredSampleIds);
-        return sampleIDs;
+        return restrictResultSetIfNecessary(sampleIds);
     }
 
     private void groupSampleSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,

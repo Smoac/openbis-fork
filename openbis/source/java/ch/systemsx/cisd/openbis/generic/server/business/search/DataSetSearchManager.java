@@ -100,7 +100,6 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     public List<AbstractExternalData> searchForDataSets(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
-
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
         List<DetailedSearchSubCriteria> otherSubCriterias =
@@ -108,10 +107,13 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         groupDataSetSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        List<Long> dataSetIds = null;
+        boolean hasMainCriteria = false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty();
+        boolean hasParentCriteria = false == parentCriteria.isEmpty();
+        boolean hasChildCriteria = false == childCriteria.isEmpty();
 
-        // there are some criteria for the main data sets
-        if (false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty())
+        Collection<Long> dataSetIds = null;
+
+        if (hasMainCriteria || (hasMainCriteria == false && hasParentCriteria == false && hasChildCriteria == false))
         {
             dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
             if (dataSetIds == null)
@@ -120,23 +122,19 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
             }
         }
 
-        Collection<Long> filteredDataSetIds = dataSetIds;
-
-        if (false == parentCriteria.isEmpty())
+        if (hasParentCriteria)
         {
-            filteredDataSetIds =
-                    filterSearchResultsBySubcriteria(userId, dataSetIds, parentCriteria,
-                            PARENT_RELATIONSHIP_HANDLER);
+            dataSetIds = filterSearchResultsBySubcriteria(userId, dataSetIds, parentCriteria,
+                    PARENT_RELATIONSHIP_HANDLER);
         }
 
-        if (false == childCriteria.isEmpty())
+        if (hasChildCriteria)
         {
-            filteredDataSetIds =
-                    filterSearchResultsBySubcriteria(userId, dataSetIds, childCriteria,
-                            CHILDREN_RELATIONSHIP_HANDLER);
+            dataSetIds = filterSearchResultsBySubcriteria(userId, dataSetIds, childCriteria,
+                    CHILDREN_RELATIONSHIP_HANDLER);
         }
 
-        return lister.listByDatasetIds(restrictResultSetIfNecessary(filteredDataSetIds));
+        return lister.listByDatasetIds(restrictResultSetIfNecessary(dataSetIds));
     }
 
     private List<Long> findDataSetIds(String userId, DetailedSearchCriteria criteria,
