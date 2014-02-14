@@ -51,12 +51,19 @@ public class AbstractSearchManager<T>
 
     protected Collection<Long> restrictResultSetIfNecessary(Collection<Long> ids)
     {
-        int maxSize = searchDAO.getResultSetSizeLimit();
-        if (ids.size() <= maxSize)
+        if (ids == null)
         {
-            return ids;
+            return new ArrayList<Long>();
+        } else
+        {
+            int maxSize = searchDAO.getResultSetSizeLimit();
+
+            if (ids.size() <= maxSize)
+            {
+                return ids;
+            }
+            return new ArrayList<Long>(ids).subList(0, maxSize);
         }
-        return new ArrayList<Long>(ids).subList(0, maxSize);
     }
 
     protected DetailedSearchAssociationCriteria findAssociatedEntities(String userId,

@@ -831,6 +831,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesWithNoCriteria()
+    {
+        SearchCriteria criteria = new SearchCriteria();
+        generalInformationService.searchForSamples(sessionToken, criteria);
+    }
+
+    @Test
     public void testSearchForSamplesByParentPermIdAndExperimentCode()
     {
         SearchCriteria parentCriteria = new SearchCriteria();
