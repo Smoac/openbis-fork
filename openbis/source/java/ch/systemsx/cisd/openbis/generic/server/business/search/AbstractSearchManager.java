@@ -100,16 +100,31 @@ public class AbstractSearchManager<T>
                 relationshipHandler.findRelatedIdsByCriteria(userId, criteria,
                         Collections.<DetailedSearchSubCriteria> emptyList());
 
-        if (idsToFilter.size() > relatedIds.size())
+        if (idsToFilter == null)
         {
             Map<Long, Set<Long>> relatedIdsToIds =
                     relationshipHandler.listRelatedIdsToIds(relatedIds);
-            return intersection(idsToFilter, relatedIdsToIds.values());
+            Set<Long> result = new HashSet<Long>();
+
+            for (Set<Long> relatedIdsIds : relatedIdsToIds.values())
+            {
+                result.addAll(relatedIdsIds);
+            }
+
+            return result;
         } else
         {
-            Map<Long, Set<Long>> idsToRelatedIds =
-                    relationshipHandler.listIdsToRelatedIds(idsToFilter);
-            return filteIdsByRelationship(idsToFilter, relatedIds, idsToRelatedIds);
+            if (idsToFilter.size() > relatedIds.size())
+            {
+                Map<Long, Set<Long>> relatedIdsToIds =
+                        relationshipHandler.listRelatedIdsToIds(relatedIds);
+                return intersection(idsToFilter, relatedIdsToIds.values());
+            } else
+            {
+                Map<Long, Set<Long>> idsToRelatedIds =
+                        relationshipHandler.listIdsToRelatedIds(idsToFilter);
+                return filteIdsByRelationship(idsToFilter, relatedIds, idsToRelatedIds);
+            }
         }
     }
 
@@ -129,8 +144,8 @@ public class AbstractSearchManager<T>
     }
 
     /**
-     * Filters search results by a relationship. This comes handy when filtering search results
-     * based on a subcriteria which operates on a different entity than the encapsulating criteria.
+     * Filters search results by a relationship. This comes handy when filtering search results based on a subcriteria which operates on a different
+     * entity than the encapsulating criteria.
      * 
      * @param idsToFilter the ids to be filtered.
      * @param relatedIds ids matching a subcriteria

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -33,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
@@ -107,7 +108,18 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         groupDataSetSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        List<Long> dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
+        List<Long> dataSetIds = null;
+
+        // there are some criteria for the main data sets
+        if (false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty())
+        {
+            dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
+            if (dataSetIds == null)
+            {
+                dataSetIds = Collections.emptyList();
+            }
+        }
+
         Collection<Long> filteredDataSetIds = dataSetIds;
 
         if (false == parentCriteria.isEmpty())

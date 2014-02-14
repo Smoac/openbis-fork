@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,7 +113,17 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         groupSampleSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        final List<Long> mainSampleIds = findSampleIds(userId, criteria, otherSubCriterias);
+        List<Long> mainSampleIds = null;
+
+        // there are some criteria for the main samples
+        if (false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty())
+        {
+            mainSampleIds = findSampleIds(userId, criteria, otherSubCriterias);
+            if (mainSampleIds == null)
+            {
+                mainSampleIds = Collections.emptyList();
+            }
+        }
 
         Collection<Long> filteredSampleIds = mainSampleIds;
         if (false == parentCriteria.isEmpty())

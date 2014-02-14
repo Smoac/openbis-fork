@@ -816,6 +816,68 @@ public class GeneralInformationServiceTest extends SystemTestCase
     }
 
     @Test
+    public void testSearchForSamplesByParentPermId()
+    {
+
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "200811050945092-976"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, criteria);
+        assertEntities("[/CISD/3VCP5, /CISD/3VCP6, /CISD/3VCP7, /CISD/3VCP8]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByParentPermIdAndExperimentCode()
+    {
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "200811050945092-976"));
+
+        SearchCriteria experimentCriteria = new SearchCriteria();
+        experimentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "EXP11"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
+        criteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(experimentCriteria));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, criteria);
+        assertEntities("[/CISD/3VCP6]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByChildPermId()
+    {
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "200811050946559-980"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(childCriteria));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, criteria);
+        assertEntities("[/CISD/3V-125, /CISD/CL-3V:A02]", samples);
+    }
+
+    @Test
+    public void testSearchForSamplesByChildPermIdAndSampleCode()
+    {
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.PERM_ID, "200811050946559-980"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(childCriteria));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "3V-*"));
+
+        List<Sample> samples =
+                generalInformationService.searchForSamples(sessionToken, criteria);
+        assertEntities("[/CISD/3V-125]", samples);
+    }
+
+    @Test
     public void testListSamplesForExperiment()
     {
         List<Sample> samples =
@@ -1250,6 +1312,64 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals(
                 "[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}], DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,{COMMENT=non-virtual comment}]]",
                 dataSets.toString());
+    }
+
+    @Test
+    public void testSearchForDataSetsByParentCode()
+    {
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20081105092159333-3"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(parentCriteria));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertDataSets("[20081105092259000-8, 20081105092259000-9]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByParentCodeAndDataSetCode()
+    {
+        SearchCriteria parentCriteria = new SearchCriteria();
+        parentCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20081105092159333-3"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(parentCriteria));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*-9"));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertDataSets("[20081105092259000-9]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByChildCode()
+    {
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20081105092259000-9"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(childCriteria));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertDataSets("[20081105092159111-1, 20081105092159222-2, 20081105092159333-3]", dataSets);
+    }
+
+    @Test
+    public void testSearchForDataSetsByChildCodeAndDataSetCode()
+    {
+        SearchCriteria childCriteria = new SearchCriteria();
+        childCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "20081105092259000-9"));
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(childCriteria));
+        criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "*-2"));
+
+        List<DataSet> dataSets =
+                generalInformationService.searchForDataSets(sessionToken, criteria);
+        assertDataSets("[20081105092159222-2]", dataSets);
     }
 
     @Test
