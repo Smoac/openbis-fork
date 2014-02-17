@@ -36,6 +36,10 @@
 	<property name="cifex.cli.zip" value="${dist}/cifex_cli.zip" />
 	<property name="usermanual.pdf" value="${original.dist.server}/CIFEX-User_Manual.pdf" />
 
+	<taskdef name="bundleapp"
+			classname="com.oracle.appbundler.AppBundlerTask"   
+			classpath="${lib}/appbundler/appbundler_JDK6.jar" />
+	
 	<!-- 
 	// Cleans distribution directory.
 	-->
@@ -319,7 +323,6 @@
 		<zip destfile="${jars.to.be.signed.zip}"
 		     basedir="${targets}"
 		     includes="${jars.to.be.signed}/**" />
-    
 		
 		<!-- Create Standalone CIFEX UI Jar -->
 		<delete dir="${dist}/bundle/"/>
@@ -350,6 +353,19 @@
 		
 		<zip destfile="${dist}/CIFEXApp.zip" basedir="${dist}/app/" includes="*.jar" />
 		
+		<bundleapp outputdirectory="${dist}"
+				  	            name="CIFEXAppMac"
+				  	            displayname="CIFEXAppMac"
+				  	            identifier="ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain"
+				  	            mainclassname="ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain">
+				  				<classpath file="${dist}/app/*.jar" />
+		</bundleapp>
+		
+		<zip destfile="${dist}/CIFEXAppMac.app.zip" level="9">
+		    <zipfileset filemode="755" dir="${dist}/" includes="CIFEXAppMac.app/**/*" />
+		</zip>
+		
+		<delete dir="${dist}/CIFEXAppMac.app/"/>
 		<delete dir="${dist}/app/"/>
 		<delete dir="${dist}/bundle/"/>
 		<!-- -->
@@ -401,6 +417,9 @@
 			<fileset dir="${webapp.dist}" />
 			<!-- The command line client -->
 			<file file="${cifex.cli.zip}" />
+			<!-- The Standalone App -->
+			<file file="${dist}/CIFEXApp.zip" />
+			<file file="${dist}/CIFEXAppMac.app.zip" />
 			<!-- Add 'applicationContext.xml' and related files. -->
 			<classes dir="../common/${sources}">
 				<include name="**/*.xml" />
