@@ -155,7 +155,6 @@ task dssClientZip(type: Zip, dependsOn: signWebStartJars) {
 }
 
 task dssUploadGuiStandalone << {
-	logger.error("dssUploadGuiStandalone JAVA.HOME: "+System.properties.'java.home')
 	ant.taskdef(name: 'bundle', classname: 'com.oracle.appbundler.AppBundlerTask', classpath: configurations.appbundler.asPath)
     ant.bundle(outputdirectory: "${buildDir}", 
     			name: 'DataSetUploader', 
@@ -186,6 +185,35 @@ task dssUploadGuiStandalone << {
     }	
 }
 dssUploadGuiStandalone.dependsOn signWebStartJars
+
+
+task dssUploadGuiStandaloneJar(type: Jar, dependsOn: dssUploadGuiStandalone) {
+	baseName 'dss_upload_gui_standalone'
+	from ({ fileTree("${signedJarsFolder}").matching {
+        	include "cglib-nodep.jar"
+        	include "cisd-args4j.jar"
+        	include "cisd-base.jar"
+        	include "commons-codec.jar"
+        	include "commons-httpclient.jar"
+        	include "commons-io.jar"
+        	include "commons-lang.jar"
+        	include "commons-logging.jar"
+        	include "dom4j-1.6.1.jar"
+        	include "dss_upload_gui.jar"
+        	include "geronimo-stax-api_1.0_spec-1.0.jar"
+        	include "jython.jar"
+        	include "log4j.jar"
+        	include "poi-ooxml-schemas.jar"
+        	include "poi-ooxml.jar"
+        	include "poi.jar"
+        	include "spring.jar"
+        	include "stream-supporting-httpinvoker.jar"
+	}.collect { zipTree(it).matching {exclude "META-INF/**"}}})
+
+    manifest {
+        attributes("Main-Class": "ch.systemsx.cisd.openbis.dss.client.api.gui.DataSetUploadClient")
+    }	
+}
 
 task dssUploadGuiStandaloneZip(type: Zip, dependsOn: dssUploadGuiStandalone) {
     baseName 'dss_upload_gui_standalone'

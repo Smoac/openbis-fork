@@ -358,3 +358,4 @@ build.dependsOn zip
 build.dependsOn zipDss
 build.dependsOn clientsAndApis
 build.dependsOn dssUploadGuiStandaloneZip
+build.dependsOn dssUploadGuiStandaloneJar
