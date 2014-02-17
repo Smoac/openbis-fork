@@ -135,6 +135,13 @@ $.extend(DefaultProfile.prototype, {
 			return "";
 		}
 	
+		/*
+		 * Used by DataSet Uploader
+		 */
+		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
+			return null;
+		}
+		
 		//
 		// Utility methods used to navigate the configuration easily
 		//
@@ -483,6 +490,16 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 				return "/YEAST_LAB/YEAST/LAB_BENCH_YEASTS";
 			} else if(type === "POMBE") {
 				return "/YEAST_LAB/YEAST/LAB_BENCH_POMBE";
+			} else {
+				return null;
+			}
+		}
+		
+		this.getDataSetTypeForFileName = function(allDatasetFiles, fileName) {
+			if(fileName.endsWith("gb") || fileName.endsWith("fasta") || fileName.endsWith("xdna") || fileName.endsWith("fa")) {
+				return "SEQ_FILE";
+			} else if(fileName.endsWith("ab1")) {
+				return "RAW_DATA";
 			} else {
 				return null;
 			}

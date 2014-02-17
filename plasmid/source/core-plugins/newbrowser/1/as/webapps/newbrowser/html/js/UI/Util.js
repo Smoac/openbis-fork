@@ -169,4 +169,8 @@ var Util = new function() {
 	    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 	    return text.replace(exp,"<a href='$1' target='_blank'>$1</a>"); 
 	}
-} 
+}
+
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};

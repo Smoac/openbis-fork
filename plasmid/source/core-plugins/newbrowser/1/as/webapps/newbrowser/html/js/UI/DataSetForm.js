@@ -105,6 +105,12 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		var onComplete = function(data) {
 			localInstance.files.push(data.name);
 			localInstance._updateFileOptions();
+			var dataSetType = localInstance.profile.getDataSetTypeForFileName(localInstance.files, data.name);
+			if(dataSetType != null) {
+				$("#DATASET_TYPE").val(dataSetType);
+				$("#DATASET_TYPE").prop('disabled', true);
+				localInstance._repaintMetadata($('#DATASET_TYPE').val())
+			}
 		}
 		this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete);
 		
