@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 import ch.systemsx.cisd.cifex.client.application.page.MainPage;
@@ -74,6 +75,7 @@ final class LoginPage extends VerticalPanel
         add(getBannersPage());
         add(northPanel);
         add(loginPanel);
+        add(new InlineHTML("You can also try the new CIFEX App for <a href='/CIFEXMacApp.app.zip'>Mac</a> and <a href='/CIFEXApp.zip'>others OS supporting Java</a> or the <a href='/cifex_cli.zip'>CIFEX command line client</a>."));
         add(footerPanel);
         this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
     }
