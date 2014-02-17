@@ -93,6 +93,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifie
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 
+
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+
 /**
  * A client side facade of openBIS and Datastore Server API.
  * 
@@ -234,6 +237,26 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         generalInformationChangingService, localDss);
 
         return RetryProxyFactory.createProxy(facade);
+    }
+
+    /**
+     * Searchs for Material given a search criteria. This functions
+     * purpose is mainly to expose this functionality to ScreeningML.
+     */
+    @Override
+    public List<Material> searchForMaterials(SearchCriteria searchCriteria)
+    {
+        return this.generalInformationService.searchForMaterials(this.sessionToken, searchCriteria);
+    }
+
+    /**
+     * Searchs for Samples given a search criteria. This functions
+     * purpose is mainly to expose this functionality to ScreeningML.
+     */
+    @Override
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria)
+    {
+        return this.generalInformationService.searchForSamples(this.sessionToken, searchCriteria);
     }
 
     private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
@@ -565,6 +588,22 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     {
         checkASMinimalMinorVersion("listPlateWells", PlateIdentifier.class);
         return openbisScreeningServer.listPlateWells(sessionToken, plateIdentifier);
+    }
+
+    @Override
+    public Map<String, String> getPlateProperties(PlateIdentifier plateIdentifier)
+    {
+        Sample plateSample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
+        Map<String, String> properties = plateSample.getProperties();
+        return properties;
+    }
+
+    @Override
+    public void updatePlateProperties(PlateIdentifier plateIdentifier, Map<String, String> properties)
+    {
+        Sample plateSample = openbisScreeningServer.getPlateSample(sessionToken, plateIdentifier);
+        generalInformationChangingService.updateSampleProperties(sessionToken, plateSample.getId(),
+                properties);
     }
 
     @Override

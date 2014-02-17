@@ -235,6 +235,15 @@ public class StackedAuthenticationService implements IAuthenticationService
         }
         return principals;
     }
+    
+    public boolean allServicesSupportListingByUserId() {
+    	boolean result = true;
+    	for (IAuthenticationService service : delegates)
+        {
+    		result = result && service.supportsListingByUserId();
+        }
+    	return result;
+    }
 
     @Override
     public boolean supportsListingByEmail()

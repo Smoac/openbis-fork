@@ -43,10 +43,13 @@ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IOpenbisServiceFacadeFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.OpenbisServiceFacadeFactory;
-import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.OpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.FileInfoDssDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetMetadataDTO;
 import ch.systemsx.cisd.openbis.generic.client.cli.Login;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.AndDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.PropertiesBasedDataSetFilter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.filter.TypeBasedDataSetFilter;
@@ -568,6 +571,105 @@ public class OpenBISScreeningML
     }
 
     /**
+     * List all material of a given type.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % List all SIRNA material
+     * sirna = OpenBISScreeningML.listMaterials('SIRNA')
+     * % All material codes
+     * sirna(:,1,1)
+     * % All material ids
+     * sirna(:,2,1)
+     * % Properties of first material
+     * metadata(1,3,:)
+     * </pre>
+     * 
+     * @param materialType Material type as string.
+     * @return For each data set: <code>{{material code}, {material id}, { {key1, value1}, {key2, value2} ... } }</code>
+     */
+
+    public static Object[][][] listMaterials(String materialType)
+    {
+        checkLoggedIn();
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, materialType));
+
+        List<Material> materialList = openbis.searchForMaterials(searchCriteria);
+
+        if (materialList.size() < 1)
+        {
+            return new Object[0][0][0];
+        }
+
+        Object[][][] result = new Object[materialList.size()][][];
+
+        for (int materialIdx = 0; materialIdx < materialList.size(); materialIdx++)
+        {
+            Material material = materialList.get(materialIdx);
+            result[materialIdx] = new Object[3][];
+            result[materialIdx][0] = new Object[]
+            { material.getMaterialCode() };
+            result[materialIdx][1] = new Object[]
+            { material.getId() };
+            result[materialIdx][2] = listProperties(material.getProperties());
+        }
+        return result;
+    }
+
+    /**
+     * Returns the properties of specified plate.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Get properties for plate P005 in space SPACE
+     * properties = OpenBISScreeningML.getPlateProperties('/SPACE/P005')
+     * % Get property type code of first property
+     * properties(1,1)
+     * % Get property value of first property
+     * properties(1,2)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code
+     * @return A two dimensional array where the first column contains the property codes and the second column the corresponding property values.
+     */
+    public static Object[][] getPlateProperties(String augmentedPlateCode)
+    {
+        checkLoggedIn();
+        String[] plateArray = { augmentedPlateCode };
+        List<PlateMetadata> metadataList = openbis.getPlateMetadataList(toPlates(plateArray));
+        if (metadataList.size() < 1)
+        {
+            throw new RuntimeException("No metadata for that code found.");
+        }
+        return listProperties(metadataList.get(0).getProperties());
+    }
+
+    /**
+     * Updates properties of specified plate.
+     * <p>
+     * Matlab example:
+     * 
+     * <pre>
+     * % Updates properties DESCRIPTION and NUMBER for plate P005 in space SPACE
+     * properties = {'DESCRIPTION' 'hello example'; 'NUMBER' 3.14}
+     * OpenBISScreeningML.updatePlateProperties('/SPACE/P005', properties)
+     * </pre>
+     * 
+     * @param augmentedPlateCode The augmented plate code
+     * @param properties A two dimensional array where the first column contains the property codes and the second column the corresponding property
+     *            values.
+     */
+    public static void updatePlateProperties(String augmentedPlateCode, Object[][] properties)
+    {
+        checkLoggedIn();
+        PlateIdentifier plateIdentifier = PlateIdentifier.createFromAugmentedCode(augmentedPlateCode);
+        openbis.updatePlateProperties(plateIdentifier, createMap(properties));
+    }
+
+    /**
      * Returns the properties of specified well for specified plate.
      * <p>
      * Matlab example:
@@ -1068,7 +1170,8 @@ public class OpenBISScreeningML
     {
         checkLoggedIn();
         File file = new File(temporarySessionDir + "/" + dataSetCode, pathInDataSet);
-        if (file.exists() && file.isFile() && file.length() > 0) {
+        if (file.exists() && file.isFile() && file.length() > 0)
+        {
             return file.toString();
         }
         IDataSetDss dataSet = openbis.getDataSet(dataSetCode);

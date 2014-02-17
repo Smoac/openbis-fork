@@ -167,6 +167,7 @@ public class AbstractRequestHandler implements IRequestHandler
      * metadata as well. This format has not yet been specified.</li>
      * <li>PROPERTIES : Properties (metadata) that should be displayed for this entity. Transmitted as JSON.</li>
      * <li>ROOT_LEVEL : True if the entity should be shown on the root level.</li>
+     * <li>DELETED : True if the entity has been deleted.</li>
      * </ul>
      * <p>
      * The relevant headers are determined by the request.

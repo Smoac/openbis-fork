@@ -59,6 +59,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellRefe
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+
 /**
  * The service facade for the openBIS public remote API for screening and imaging.
  * 
@@ -82,6 +86,20 @@ public interface IScreeningOpenbisServiceFacade
      * freeing the memory.
      */
     public void clearWellImageCache();
+
+
+    /**
+     * Exposes material search functionaliy (used for ScreeningML)
+     */
+    @Retry
+    public List<Material> searchForMaterials(SearchCriteria searchCriteria);
+
+    /**
+     * Exposes material search functionaliy (used for ScreeningML)
+     */
+    @Retry
+    public List<Sample> searchForSamples(SearchCriteria searchCriteria);
+
 
     /**
      * Return the list of all visible plates assigned to any experiment, along with their
@@ -209,6 +227,17 @@ public interface IScreeningOpenbisServiceFacade
      */
     @Retry
     public List<WellIdentifier> listPlateWells(PlateIdentifier plateIdentifier);
+
+    /**
+     * Returns all properties of specified plate as a map.
+     */
+    @Retry
+    public Map<String, String> getPlateProperties(PlateIdentifier plateIdentifier);
+
+    /**
+     * Updates properties of specified plate.
+     */
+    public void updatePlateProperties(PlateIdentifier plateIdentifier, Map<String, String> properties);
 
     /**
      * Returns all properties of specified well as a map.
