@@ -34,17 +34,25 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		
 		//Fill graph
 		var NODES = {};
-		function addSampleNodes(sample) {
+		function addSampleNodes(sample, permId) {
 			if(!NODES[sample.permId]) {
-				g.addNode(sample.permId,    { label: sample.sampleTypeCode + ":" + sample.code });
+				var sampleLink = "<a href=\"javascript:mainController.showViewSamplePageFromPermId('" + sample.permId + "');\">" + sample.code + "</a>";
+				
+				if(sample.permId === permId) {
+					g.addNode(sample.permId, { label: "<div style='padding:10px; background-color:lightgreen;'>" + sample.sampleTypeCode + ":" + sampleLink + "</div>"});
+				} else {
+					g.addNode(sample.permId, { label: "<div style='padding:10px;'>" + sample.sampleTypeCode + ":" + sampleLink + "</div>"});
+				}
+				
+				
 				NODES[sample.permId] = true;
 			}
 			
 			if(sample.parents) {
-				sample.parents.forEach(addSampleNodes);
+				sample.parents.forEach(addSampleNodes, permId);
 			}
 			if(sample.children) {
-				sample.children.forEach(addSampleNodes);
+				sample.children.forEach(addSampleNodes, permId);
 			}
 		}
 		
@@ -71,7 +79,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			}
 		}
 		
-		addSampleNodes(this.sample);
+		addSampleNodes(this.sample, this.sample.permId);
 		addSampleEdges(this.sample);
 		
 		// Render the directed graph

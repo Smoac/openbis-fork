@@ -238,19 +238,23 @@ function MainController(profile) {
 		});
 	}
 
-	this.showViewSamplePage = function(sample) {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('view-sample-'+sample.permId, "showViewSamplePage", sample, 'View '+sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
-		//Show Form
+	this.showViewSamplePageFromPermId = function(permId) {
 		var localInstance = this;
-		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
+		this.serverFacade.searchWithUniqueId(permId, function(data) {
+			//Update menu
+			var breadCrumbPage = new BreadCrumbPage('view-sample-'+data[0].permId, "showViewSamplePage", data[0], 'View '+data[0].code);
+			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+			
+			//Show Form
 			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
 			localInstance.sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, data[0]);
 			localInstance.sampleForm.init();
 			history.pushState(null, "", ""); //History Push State
 		});
+	}
+	
+	this.showViewSamplePage = function(sample) {
+		this.showViewSamplePageFromPermId(sample.permId);
 	}
 	
 	this.showCreateDataSetPage = function(sample) {
