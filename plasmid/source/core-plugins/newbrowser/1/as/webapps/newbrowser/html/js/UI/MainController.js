@@ -47,7 +47,9 @@ function MainController(profile) {
 	this.navigationBar = null; //Top Bar
 	this.sampleTable = null; //Table that holds the samples
 	this.sampleForm = null; //Form to Create a new Sample
+	this.sampleHierarchy = null;
 	this.datasetForm = null;
+	
 	
 	//
 	// Validates and enters the app
@@ -190,6 +192,20 @@ function MainController(profile) {
 		setTimeout(possibleSearch, 800);
 	}
 
+	this.showSampleHierarchyPage = function(sample) {
+		//Update menu		
+		var breadCrumbPage = new BreadCrumbPage('sample-hierarchy-'+sample.permId, "showSampleHierarchyPage", sample, 'Hierarchy '+sample.identifier);
+		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+		
+		//Show View
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
+			localInstance.sampleHierarchy = new SampleHierarchi(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
+			localInstance.sampleHierarchy.init();
+			history.pushState(null, "", ""); //History Push State
+		});
+	}
+	
 	this.showCreateSamplePage = function(sampleTypeCode) {
 		//Update menu
 		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;

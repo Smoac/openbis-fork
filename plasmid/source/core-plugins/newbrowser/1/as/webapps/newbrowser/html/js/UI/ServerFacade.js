@@ -206,42 +206,46 @@ function ServerFacade(openbisServer) {
 		//
 		// Fix Result List
 		//
-		var finalSamples = [];
-		
-		for(var i = 0; i < result.length; i++) {
-			var sampleOrId = result[i];
-			if (isNaN(sampleOrId))
+		function fixSamples(result)
+		{
+			for(var i = 0; i < result.length; i++)
 			{
-				sampleOrId = samplesById[sampleOrId["@id"]];
-			} else
-			{
-				sampleOrId = samplesById[sampleOrId]; 
-			}
-			
-			//Fill Parents - Only 1 Level without recursion
-			if(sampleOrId.parents) {
-				for(var j = 0; j < sampleOrId.parents.length; j++) {
-					var parentOrId = sampleOrId.parents[j];
-					if(!isNaN(parentOrId)) { //If is an Id get the reference
-						sampleOrId.parents[j] = samplesById[parentOrId];
+				var sampleOrId = result[i];
+				if (isNaN(sampleOrId))
+				{
+					sampleOrId = samplesById[sampleOrId["@id"]];
+				} else
+				{
+					sampleOrId = samplesById[sampleOrId]; 
+				}
+				
+				//Fill Parents
+				if(sampleOrId.parents) {
+					for(var j = 0; j < sampleOrId.parents.length; j++) {
+						var parentOrId = sampleOrId.parents[j];
+						if(!isNaN(parentOrId)) { //If is an Id get the reference
+							sampleOrId.parents[j] = samplesById[parentOrId];
+						}
+						fixSamples(sampleOrId.parents);
+					}
+				}
+				
+				//Fill Children
+				if(sampleOrId.children) {
+					for(var j = 0; j < sampleOrId.children.length; j++) {
+						var childOrId = sampleOrId.children[j];
+						if(!isNaN(childOrId)) { //If is an Id get the reference
+							sampleOrId.children[j] = samplesById[childOrId];
+						}
+						fixSamples(sampleOrId.children);
 					}
 				}
 			}
-			
-			//Fill Children - Only 1 Level without recursion
-			if(sampleOrId.children) {
-				for(var j = 0; j < sampleOrId.children.length; j++) {
-					var childOrId = sampleOrId.children[j];
-					if(!isNaN(childOrId)) { //If is an Id get the reference
-						sampleOrId.children[j] = samplesById[childOrId];
-					}
-				}
-			}
-			
-			finalSamples.push(sampleOrId);
 		}
-	
-		return finalSamples;
+		
+		fixSamples(result);
+		
+		return result;
 	}
 	
 	this.searchWithUniqueId = function(sampleIdentifier, callbackFunction)

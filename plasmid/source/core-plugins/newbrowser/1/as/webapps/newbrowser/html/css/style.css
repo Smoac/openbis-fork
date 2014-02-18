@@ -413,3 +413,26 @@ table.downloads {
 .icon-chevron-right {
 	float:right;
 }
+
+/*
+ * Hierarchy View
+ */
+ svg {
+    overflow: hidden;
+}
+
+.node rect {
+    stroke: #333;
+    stroke-width: 1.5px;
+    fill: #fff;
+}
+
+.edgeLabel rect {
+    fill: #fff;
+}
+
+.edgePath {
+    stroke: #333;
+    stroke-width: 1.5px;
+    fill: none;
+}
