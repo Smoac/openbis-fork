@@ -294,7 +294,7 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
@@ -340,7 +340,7 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}

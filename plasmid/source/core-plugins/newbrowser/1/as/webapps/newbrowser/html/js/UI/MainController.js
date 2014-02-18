@@ -170,7 +170,7 @@ function MainController(profile) {
 				localReference.navigationBar.updateMenu(null);
 				
 				//Update Main Container
-				localReference.sampleTable = new SampleTable(this.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
+				localReference.sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
 				$("#search").addClass("search-query-searching");
 				localReference.serverFacade.searchWithText(event.target.value, function(data) {
 					if(localSearchId === localReference.lastSearchId) {
@@ -213,11 +213,13 @@ function MainController(profile) {
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
-		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
-		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, sample);
-		this.sampleForm.init();
-		
-		history.pushState(null, "", ""); //History Push State
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
+			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
+			localInstance.sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0]);
+			localInstance.sampleForm.init();
+			history.pushState(null, "", ""); //History Push State
+		});
 	}
 
 	this.showViewSamplePage = function(sample) {
@@ -226,11 +228,13 @@ function MainController(profile) {
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
-		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
-		this.sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
-		this.sampleForm.init();
-		
-		history.pushState(null, "", ""); //History Push State
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
+			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
+			localInstance.sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, data[0]);
+			localInstance.sampleForm.init();
+			history.pushState(null, "", ""); //History Push State
+		});
 	}
 	
 	this.showCreateDataSetPage = function(sample) {

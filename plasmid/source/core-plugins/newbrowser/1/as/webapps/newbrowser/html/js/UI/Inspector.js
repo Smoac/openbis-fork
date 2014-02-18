@@ -164,14 +164,13 @@ function Inspector(serverFacade, containerId, profile) {
 		$(newWindow.document.body).html(pageToPrint);
 	}
 	
-	this.showSampleOnInspector = function(sampleTypeCode, sampleCode) {
+	this.showSampleOnInspector = function(samplePermId) {
 		var localReference = this;
 		
-		//Clean glow effect in case was used already with that div
-		var divID = sampleTypeCode + "_" + sampleCode + "_INSPECTOR";
-		$("#"+divID).removeClass("glow");
-		
-		this.serverFacade.searchWithType(sampleTypeCode, sampleCode, function(data) {
+		this.serverFacade.searchWithUniqueId(samplePermId, function(data) {
+			//Clean glow effect in case was used already with that div
+			var divID = data[0].sampleTypeCode + "_" + data[0].code + "_INSPECTOR";
+			$("#"+divID).removeClass("glow");
 			
 			var isAdded = localReference.addInspectSampleIfNotFound(data[0]);
 			if(isAdded) {
@@ -184,8 +183,13 @@ function Inspector(serverFacade, containerId, profile) {
 			var moveTo = moveTo = objDiv.offsetTop-50;
 			$('html,body').animate({scrollTop:  moveTo}, 200, "swing");
 			
-			//Make it Glow
-			$("#"+divID).addClass("glow");
+			
+			var glow = function() {
+				//Make it Glow
+				$("#"+divID).addClass("glow");
+			}
+			
+			setTimeout(glow, 300);
 		});
 	}
 	
@@ -217,7 +221,7 @@ function Inspector(serverFacade, containerId, profile) {
 			for(var i = 0; i < parents.length; i++) {
 				var parent = parents[i];
 				if(withLinks) {
-					allParentCodesAsText += "<a href=\"javascript:mainController.inspector.showSampleOnInspector('" + parent.sampleTypeCode + "','" + parent.code + "');\">" + parent.code + "</a> ";
+					allParentCodesAsText += "<a href=\"javascript:mainController.inspector.showSampleOnInspector('" + parent.permId + "');\">" + parent.code + "</a> ";
 				} else {
 					allParentCodesAsText += parent.code + " ";
 				}
