@@ -200,7 +200,7 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
-			localInstance.sampleHierarchy = new SampleHierarchi(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
+			localInstance.sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
 			localInstance.sampleHierarchy.init();
 			history.pushState(null, "", ""); //History Push State
 		});

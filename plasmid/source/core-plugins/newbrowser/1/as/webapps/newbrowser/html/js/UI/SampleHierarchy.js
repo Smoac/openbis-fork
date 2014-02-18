@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function SampleHierarchi(serverFacade, inspector, containerId, profile, sample) {
+function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) {
 	this.serverFacade = serverFacade;
 	this.inspector = inspector;
 	this.containerId = containerId;
@@ -36,7 +36,7 @@ function SampleHierarchi(serverFacade, inspector, containerId, profile, sample) 
 		var NODES = {};
 		function addSampleNodes(sample) {
 			if(!NODES[sample.permId]) {
-				g.addNode(sample.permId,    { label: sample.identifier });
+				g.addNode(sample.permId,    { label: sample.sampleTypeCode + ":" + sample.code });
 				NODES[sample.permId] = true;
 			}
 			
@@ -61,9 +61,9 @@ function SampleHierarchi(serverFacade, inspector, containerId, profile, sample) 
 			}
 			if(sample.children) {
 				for(var i=0; i < sample.children.length; i++) {
-					if(!EDGES[sample.permId + " -> " + sample.children[i].permId]) {
-						g.addEdge(null, sample.permId, sample.children[i].permId);
-						EDGES[sample.permId + " -> " + sample.children[i].permId] = true;
+					if(!EDGES[sample.children[i].permId + " -> " + sample.permId]) {
+						g.addEdge(null, sample.children[i].permId, sample.permId);
+						EDGES[sample.children[i].permId + " -> " + sample.permId] = true;
 					}
 				}
 				
