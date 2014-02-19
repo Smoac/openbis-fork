@@ -139,7 +139,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.append(' Parents: ')
 			.append($filtersFormSliderParents)
 			.append("<span style='padding-right:15px;'></span>")
-			.append(' Types: ')
+			.append(' Type Labels: ')
 			.append($filtersFormSampleTypes);
 //			.append('<span style='padding-right:15px;'></span>')
 //			.append($submitButton);
@@ -170,6 +170,9 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 	this._filterSampleAndUpdate = function() {
 		var newSample = jQuery.extend(true, {}, this.sample);
 		
+		//
+		// Used to remove the type label when rendering
+		//
 		var selectedSampleTypes = $('#sampleTypesSelector').val();
 		if(selectedSampleTypes === null) {
 			selectedSampleTypes = [];
@@ -185,28 +188,24 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		
 		var selectedSampleTypesFilter = function(sample, selectedSampleTypes) {
 			if(sample.parents) {
-				var newParentsArray = [];
 				for(var i = 0; i < sample.parents.length; i++) {
-					if(inArray(sample.parents[i].sampleTypeCode, selectedSampleTypes)) {
-						newParentsArray.push(sample.parents[i]);
-						selectedSampleTypesFilter(sample.parents[i], selectedSampleTypes);
-					}
+					sample.parents[i].showLabel = inArray(sample.parents[i].sampleTypeCode, selectedSampleTypes);
+					selectedSampleTypesFilter(sample.parents[i], selectedSampleTypes);
 				}
-				sample.parents = newParentsArray;
+				
 			}
 			if(sample.children) {
-				var newChildrenArray = [];
 				for(var i = 0; i < sample.children.length; i++) {
-					if(inArray(sample.children[i].sampleTypeCode, selectedSampleTypes)) {
-						newChildrenArray.push(sample.children[i]);
-						selectedSampleTypesFilter(sample.children[i], selectedSampleTypes);
-					}
+					sample.children[i].showLabel = inArray(sample.children[i].sampleTypeCode, selectedSampleTypes);
+					selectedSampleTypesFilter(sample.children[i], selectedSampleTypes);
 				}
-				sample.children = newChildrenArray;
 			}
 		}
 		selectedSampleTypesFilter(newSample, selectedSampleTypes);
 		
+		//
+		// Used to cut the tree
+		//
 		var parentsLimit =  ($('#parentsLimit').length > 0)?$('#parentsLimit').data('slider').getValue():0;
 		var parentsLimitFilter = function(sample, depthLimit) {
 			if(sample.parents) {
@@ -221,6 +220,9 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		}
 		parentsLimitFilter(newSample, parentsLimit);
 		
+		//
+		// Used to cut the tree
+		//
 		var childrenLimit = ($('#childrenLimit').length > 0)?$('#childrenLimit').data('slider').getValue():0;
 		var childrenLimitFilter = function(sample, depthLimit) {
 			if(sample.children) {
@@ -252,9 +254,11 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				var sampleLink = "<a href=\"javascript:mainController.showViewSamplePageFromPermId('" + sample.permId + "');\">" + sample.code + "</a>";
 				
 				if(sample.permId === permId) {
-					g.addNode(sample.permId, { label: "<div style='padding:10px; background-color:lightgreen;'>" + sample.sampleTypeCode + ':' + sampleLink + "</div>"});
-				} else {
+					g.addNode(sample.permId, { label: "<div style='padding:10px; background-color:lightgreen; -webkit-border-radius: 90px; -moz-border-radius: 90px; border-radius: 90px;'>" + sample.sampleTypeCode + ':' + sampleLink + "</div>"});
+				} else if(sample.showLabel){
 					g.addNode(sample.permId, { label: "<div style='padding:10px;'>" + sample.sampleTypeCode + ':' + sampleLink + "</div>"});
+				} else if(!sample.showLabel){
+					g.addNode(sample.permId, { label: "<div style='padding:10px;'>" + sampleLink + "</div>"});
 				}
 				
 				
@@ -308,8 +312,8 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		renderer.transition(transition);
 		var layout = renderer.run(g, svg.select('g'));
 		transition(d3.select('svg'))
-			.attr('width', layout.graph().width + 40)
-			.attr('height', layout.graph().height + 40)
+			.attr('width', $(document).width() - 30)
+			.attr('height', $(document).height() - 120)
 			
 		d3.select('svg')
 		.call(d3.behavior.zoom().on('zoom', function() {
