@@ -198,7 +198,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				var newChildrenArray = [];
 				for(var i = 0; i < sample.children.length; i++) {
 					if(inArray(sample.children[i].sampleTypeCode, selectedSampleTypes)) {
-						newParentsArray.push(sample.parents[i]);
+						newChildrenArray.push(sample.children[i]);
 						selectedSampleTypesFilter(sample.children[i], selectedSampleTypes);
 					}
 				}
