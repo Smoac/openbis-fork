@@ -1,2 +1,2 @@
 includeFlat 'common', 'openbis_api', 'openbis-common', 'authentication', 'dbmigration', 'openbis', 
-    'datastore_server', 'screening'
+    'datastore_server', 'screening', 'openbis_standard_technologies'
