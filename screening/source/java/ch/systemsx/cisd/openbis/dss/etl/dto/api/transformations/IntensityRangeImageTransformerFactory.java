@@ -72,7 +72,7 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
-                        if (channels.size() != 1)
+                        if (channels.size() <= 1)
                         {
                             return image;
                         } else
