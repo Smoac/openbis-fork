@@ -226,8 +226,8 @@ function ServerFacade(openbisServer) {
 						if(!isNaN(parentOrId)) { //If is an Id get the reference
 							sampleOrId.parents[j] = samplesById[parentOrId];
 						}
-						fixSamples(sampleOrId.parents);
 					}
+					fixSamples(sampleOrId.parents);
 				}
 				
 				//Fill Children
@@ -237,8 +237,8 @@ function ServerFacade(openbisServer) {
 						if(!isNaN(childOrId)) { //If is an Id get the reference
 							sampleOrId.children[j] = samplesById[childOrId];
 						}
-						fixSamples(sampleOrId.children);
 					}
+					fixSamples(sampleOrId.children);
 				}
 			}
 		}

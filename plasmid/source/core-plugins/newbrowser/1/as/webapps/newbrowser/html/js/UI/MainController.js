@@ -194,7 +194,7 @@ function MainController(profile) {
 
 	this.showSampleHierarchyPage = function(sample) {
 		//Update menu		
-		var breadCrumbPage = new BreadCrumbPage('sample-hierarchy-'+sample.permId, "showSampleHierarchyPage", sample, 'Hierarchy '+sample.identifier);
+		var breadCrumbPage = new BreadCrumbPage('sample-hierarchy-'+sample.permId, "showSampleHierarchyPage", sample, 'Hierarchy '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show View
