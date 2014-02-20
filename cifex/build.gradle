@@ -5,6 +5,9 @@ evaluationDependsOn(':dbmigration')
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 configurations.create('gwt')
+configurations.create('zipping')
+
+def jettyVersion = '8.1.8'
 
 dependencies {
     compile project(':common'),
@@ -18,6 +21,8 @@ dependencies {
         'springframework:spring-test:+'
         
     testCompile project(path: ':common', configuration: 'tests')
+
+	zipping "eclipse:jetty-distribution:${jettyVersion}@zip"
     
    	gwt 'reveregroup:gwt-image-loader:1.1.4',
         'google:gwt-dev:+',
@@ -75,7 +80,39 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 task createWar(type: War) {
 	classpath configurations.runtime.getAsFileTree().plus(files(jar.archivePath))
 	
-	from 'source/java/cd/systemxx/cisd/cifex/public'
+	webXml = file('resource/server/web.xml')
+	
+	webInf {
+	from "${compileGwt.buildDir}/WEB-INF",
+        file('resource/server/spring-servlet.xml'),
+        project(':common').file('resource/server/web-common.xml')
+    }
+    
+	
+    from('source/java') {
+		into ("WEB-INF/classes")
+		include '*.xml'
+    }
+
+    from('source/java/ch/systemsx/cisd/cifex') {
+		into ("WEB-INF/classes/ch/systemsx/cisd/cifex")
+		include '*.xml'
+    }
+    
+    from ('../common/source/java/ch/systemsx/cisd/common/shared/') {
+    	into ("WEB-INF/classes/ch/systemsx/cisd/common/shared/")
+    	include 'CISD-basic.gwt.xml'
+    }
+
+    from ('../common/source/java') {
+    	into ("WEB-INF/classes")
+    	include 'genericCommonContext.xml'
+    }
+
+	from ('source') {
+		into ("WEB-INF/classes")
+		include "sql/**/*.sql"
+	}
 	
 	from "${compileGwt.buildDir}/ch.systemsx.cisd.cifex.Cifex"
 	
@@ -83,19 +120,41 @@ task createWar(type: War) {
 createWar.dependsOn compileGwt
 createWar.dependsOn jar
 
-task mainZip(type: Zip) {
+
+task createJettyVersionFile {
+    ext.versionFile = new File(buildDir, 'jetty-version.txt')
+    outputs.file versionFile
+    doLast {
+        versionFile.text = "${jettyVersion}"
+    }
+}
+
+task mainZip(type: Zip, dependsOn: createJettyVersionFile) {
     baseName 'cifex'
+
+    from createJettyVersionFile
 
     from('dist/server')
     from('dist/etc')
-    from('etc')
+
+    from('etc') {
+    	exclude 'dev.keystore'
+    	exclude 'log.xml'
+    }
     from('source/java/ch/systemsx/cisd/cifex/public') {
 		include '*.*'
+		exclude 'index.html'
+		exclude 'tools.html'
     }
     
     from (createWar.archivePath) {
 		rename 'cifex.*war', 'cifex.war'
 	}
+	
+	from (configurations.zipping.files) {
+		rename 'jetty-distribution(.*).zip', 'jetty.zip'
+	}
+	into 'cifex'
 }
 mainZip.dependsOn createWar
 
