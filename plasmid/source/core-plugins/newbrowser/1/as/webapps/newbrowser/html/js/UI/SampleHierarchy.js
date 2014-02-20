@@ -139,13 +139,14 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.append(' Parents: ')
 			.append($filtersFormSliderParents)
 			.append("<span style='padding-right:15px;'></span>")
-			.append(' Type Labels: ')
+			.append(' Show Types: ')
 			.append($filtersFormSampleTypes);
 //			.append('<span style='padding-right:15px;'></span>')
 //			.append($submitButton);
 		
 		$('#'+this.containerId).append($filtersForm);
 		$('#'+this.containerId).append($('<div>', { 'id' : 'graphContainer' }));
+		$('#graphContainer').append("<svg><g transform='translate(20,20)'/></svg>");
 		
 		$('#childrenLimit').slider();
 		$('#childrenLimit').slider().on('slideStop', function(event){
@@ -240,43 +241,84 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		this._repaintGraph(newSample);
 	}
 	
+	this._updateDisplayabilityFor = function(hide, permId) {
+		var searchAndUpdateDisplayability = function(hide, permId, sample) {
+			if(sample.permId === permId) {
+				sample.hideGraphConnections = hide;
+			} else {
+				if(sample.parents) {
+					for(var i = 0; i < sample.parents.length; i++) {
+						searchAndUpdateDisplayability(hide, permId, sample.parents[i]);
+					}
+				}
+				
+				if(sample.children) {
+					for(var i = 0; i < sample.children.length; i++) {
+						searchAndUpdateDisplayability(hide, permId, sample.children[i]);
+					}
+				}
+			}
+		}
+		
+		searchAndUpdateDisplayability(hide, permId, this.sample);
+		this._filterSampleAndUpdate();
+	}
+	
 	this._repaintGraph = function(sample) {
-		$('#graphContainer').empty();
-		$('#graphContainer').append("<svg><g transform='translate(20,20)'/></svg>");
+		//$('#graphContainer').empty();
+		//$('#graphContainer').append("<svg><g transform='translate(20,20)'/></svg>");
 		
 		// Create a new directed graph
 		var g = new dagreD3.Digraph();
 		
 		//Fill graph
 		var NODES = {};
-		function addSampleNodes(sample, permId) {
+		function addSampleNodes(sample, rootPermId) {
 			if(!NODES[sample.permId]) {
-				var sampleLink = "<a href=\"javascript:mainController.showViewSamplePageFromPermId('" + sample.permId + "');\">" + sample.code + "</a>";
+				var $nodeContent = $('<div>');
+				$nodeContent.css({
+					'white-space' :'nowrap',
+					'padding' : '10px',
+					'background-color' : (sample.permId === rootPermId)?'lightgreen':'transparent',
+					'border-radius' : '90px'
+				});
 				
-				if(sample.permId === permId) {
-					g.addNode(sample.permId, { label: "<div style='padding:10px; background-color:lightgreen; -webkit-border-radius: 90px; -moz-border-radius: 90px; border-radius: 90px;'>" + sample.sampleTypeCode + ':' + sampleLink + "</div>"});
-				} else if(sample.showLabel){
-					g.addNode(sample.permId, { label: "<div style='padding:10px;'>" + sample.sampleTypeCode + ':' + sampleLink + "</div>"});
-				} else if(!sample.showLabel){
-					g.addNode(sample.permId, { label: "<div style='padding:10px;'>" + sampleLink + "</div>"});
+				var $hideLink = $('<a>', {
+					'href' : "javascript:mainController.sampleHierarchy._updateDisplayabilityFor(" + ((sample.hideGraphConnections)?false:true) + ",'" + sample.permId + "');"
+				}).append(
+					$('<i>', { 
+						'class' : (sample.hideGraphConnections)?'icon-eye-close':'icon-eye-open',
+						'style' : 'cursor:pointer',
+					}));
+				
+				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.showViewSamplePageFromPermId('" + sample.permId + "')"}).html(sample.code);
+				
+				if(sample.showLabel || (sample.permId === rootPermId)) {
+					$nodeContent
+						.append($hideLink)
+						.append(sample.sampleTypeCode + ':')
+						.append($sampleLink);
+				} else {
+					$nodeContent.append('----');
 				}
 				
+				g.addNode(sample.permId, { label: $nodeContent[0].outerHTML});
 				
 				NODES[sample.permId] = true;
 			}
 			
-			if(sample.parents) {
-				sample.parents.forEach(addSampleNodes, permId);
+			if(sample.parents && !sample.hideGraphConnections) {
+				sample.parents.forEach(addSampleNodes, rootPermId);
 			}
-			if(sample.children) {
-				sample.children.forEach(addSampleNodes, permId);
+			if(sample.children && !sample.hideGraphConnections) {
+				sample.children.forEach(addSampleNodes, rootPermId);
 			}
 		}
 		
 		var EDGES = {};
 		
 		function addSampleEdges(sample) {
-			if(sample.parents) {
+			if(sample.parents && !sample.hideGraphConnections) {
 				for(var i=0; i < sample.parents.length; i++) {
 					if(!EDGES[sample.parents[i].permId + ' -> ' + sample.permId]) {
 						g.addEdge(null, sample.parents[i].permId, sample.permId);
@@ -285,7 +327,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				}
 				sample.parents.forEach(addSampleEdges);
 			}
-			if(sample.children) {
+			if(sample.children && !sample.hideGraphConnections) {
 				for(var i=0; i < sample.children.length; i++) {
 					if(!EDGES[sample.permId + ' -> ' + sample.children[i].permId]) {
 						g.addEdge(null, sample.permId, sample.children[i].permId);

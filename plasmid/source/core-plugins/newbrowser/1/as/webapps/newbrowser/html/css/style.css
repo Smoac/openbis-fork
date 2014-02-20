@@ -423,8 +423,11 @@ table.downloads {
 }
 
 .node rect {
+    /*
     stroke: #333;
     stroke-width: 1.5px;
+    */
+    opacity: 0;
     fill: #fff;
 }
 
