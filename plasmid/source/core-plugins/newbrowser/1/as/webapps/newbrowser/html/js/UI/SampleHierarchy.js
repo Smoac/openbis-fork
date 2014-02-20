@@ -126,9 +126,6 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		for (var sampleType in sampleTypes) {
 			$filtersFormSampleTypes.append($('<option>', { 'value' : sampleType , 'selected' : ''}).html(sampleType));
 		}
-			
-		
-//		var $submitButton = $('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : 'Filter'});
 		
 		$filtersForm
 			.append('<b>Filters</b>')
@@ -141,8 +138,6 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.append("<span style='padding-right:15px;'></span>")
 			.append(' Show Types: ')
 			.append($filtersFormSampleTypes);
-//			.append('<span style='padding-right:15px;'></span>')
-//			.append($submitButton);
 		
 		$('#'+this.containerId).append($filtersForm);
 		$('#'+this.containerId).append($('<div>', { 'id' : 'graphContainer' }));
@@ -265,10 +260,6 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 	}
 	
 	this._repaintGraph = function(sample) {
-		//$('#graphContainer').empty();
-		//$('#graphContainer').append("<svg><g transform='translate(20,20)'/></svg>");
-		
-		// Create a new directed graph
 		var g = new dagreD3.Digraph();
 		
 		//Fill graph
@@ -299,7 +290,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 						.append(sample.sampleTypeCode + ':')
 						.append($sampleLink);
 				} else {
-					$nodeContent.append('----');
+					$nodeContent.append('---');
 				}
 				
 				g.addNode(sample.permId, { label: $nodeContent[0].outerHTML});
@@ -352,7 +343,12 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		}
 		
 		renderer.transition(transition);
-		var layout = renderer.run(g, svg.select('g'));
+		
+		var layout = dagreD3.layout()
+							.nodeSep(20)
+							.rankDir("TB");
+		
+		var layout = renderer.layout(layout).run(g, svg.select('g'));
 		transition(d3.select('svg'))
 			.attr('width', $(document).width() - 30)
 			.attr('height', $(document).height() - 120)
