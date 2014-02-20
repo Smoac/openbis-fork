@@ -169,19 +169,6 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             });
         addButton(addButton);
 
-        Button batchUpdateButton = new Button(
-                viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_BUTTON));
-        batchUpdateButton
-                .addSelectionListener(new SelectionListener<ButtonEvent>()
-                    {
-                        @Override
-                        public void componentSelected(ButtonEvent ce)
-                        {
-                            createUpdateTermsDialog().show();
-                        }
-                    });
-        addButton(batchUpdateButton);
-
         Button editButton = createSelectedItemButton(
                 viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
                 new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>>()
@@ -214,8 +201,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         if (getWebClientConfiguration().getAllowAddingUnofficialTerms())
         {
             Button makeOfficialButton = new Button(
-                    viewContext
-                            .getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON),
+                    viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON),
                     new SelectionListener<ButtonEvent>()
                         {
                             @Override
@@ -226,6 +212,19 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                         });
             addButton(makeOfficialButton);
         }
+
+        Button batchUpdateButton = new Button(
+                viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_BUTTON));
+        batchUpdateButton
+                .addSelectionListener(new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            createUpdateTermsDialog().show();
+                        }
+                    });
+        addButton(batchUpdateButton);
 
         if (vocabulary.isManagedInternally())
         {
