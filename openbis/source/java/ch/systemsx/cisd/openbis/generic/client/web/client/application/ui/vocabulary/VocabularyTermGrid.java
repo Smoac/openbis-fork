@@ -22,27 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Text;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.extjs.gxt.ui.client.widget.form.TextArea;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
-
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
@@ -83,6 +62,27 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermGridIDs;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermReplacement;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTermWithStats;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.Text;
+import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
+
 /**
  * Grid displaying vocabularies.
  * 
@@ -100,7 +100,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     private static final int LABEL_WIDTH_IN_REPLACEMENT_DIALOG = 200;
 
     // browser consists of the grid and the paging toolbar
-    private static final String BROWSER_ID = GenericConstants.ID_PREFIX + "vocabulary-term-browser";
+    private static final String BROWSER_ID = GenericConstants.ID_PREFIX
+            + "vocabulary-term-browser";
 
     private final class RefreshCallback extends AbstractAsyncCallback<Void>
     {
@@ -121,12 +122,15 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     private final Vocabulary vocabulary;
 
     public static IDisposableComponent create(
-            final IViewContext<ICommonClientServiceAsync> viewContext, Vocabulary vocabulary)
+            final IViewContext<ICommonClientServiceAsync> viewContext,
+            Vocabulary vocabulary)
     {
-        return new VocabularyTermGrid(viewContext, vocabulary).asDisposableWithoutToolbar();
+        return new VocabularyTermGrid(viewContext, vocabulary)
+                .asDisposableWithoutToolbar();
     }
 
-    private VocabularyTermGrid(IViewContext<ICommonClientServiceAsync> viewContext,
+    private VocabularyTermGrid(
+            IViewContext<ICommonClientServiceAsync> viewContext,
             Vocabulary vocabulary)
     {
         super(viewContext, createBrowserId(vocabulary), true,
@@ -140,8 +144,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     @Override
     protected ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> createColumnsDefinition()
     {
-        ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> definitions =
-                super.createColumnsDefinition();
+        ColumnDefsAndConfigs<TableModelRowWithObject<VocabularyTermWithStats>> definitions = super
+                .createColumnsDefinition();
         definitions.setGridCellRendererFor(VocabularyTermGridIDs.URL,
                 LinkRenderer.createExternalLinkRenderer());
         definitions.setGridCellRendererFor(CommonGridIDs.DESCRIPTION,
@@ -153,7 +157,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     {
         addEntityOperationsLabel();
 
-        Button addButton = new Button(viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
+        Button addButton = new Button(
+                viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_BUTTON));
         addButton.addSelectionListener(new SelectionListener<ButtonEvent>()
             {
                 @Override
@@ -164,67 +169,68 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             });
         addButton(addButton);
 
-        Button batchUpdateButton =
-                new Button(viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_BUTTON));
-        batchUpdateButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public void componentSelected(ButtonEvent ce)
-                {
-                    createUpdateTermsDialog().show();
-                }
-            });
+        Button batchUpdateButton = new Button(
+                viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_BUTTON));
+        batchUpdateButton
+                .addSelectionListener(new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            createUpdateTermsDialog().show();
+                        }
+                    });
         addButton(batchUpdateButton);
 
-        Button editButton =
-                createSelectedItemButton(
-                        viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
-                        new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>>()
-                            {
+        Button editButton = createSelectedItemButton(
+                viewContext.getMessage(Dict.EDIT_VOCABULARY_TERM_BUTTON),
+                new ISelectedEntityInvoker<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>>()
+                    {
 
-                                @Override
-                                public void invoke(
-                                        BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> selectedItem,
-                                        boolean keyPressed)
-                                {
-                                    final VocabularyTermWithStats term =
-                                            selectedItem.getBaseObject().getObjectOrNull();
-                                    createEditDialog(term.getTerm()).show();
-                                }
-                            });
+                        @Override
+                        public void invoke(
+                                BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> selectedItem,
+                                boolean keyPressed)
+                        {
+                            final VocabularyTermWithStats term = selectedItem
+                                    .getBaseObject().getObjectOrNull();
+                            createEditDialog(term.getTerm()).show();
+                        }
+                    });
         addButton(editButton);
 
-        Button deleteButton =
-                createSelectedItemsButton(
-                        viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON),
-                        new SelectionListener<ButtonEvent>()
-                            {
-                                @Override
-                                public void componentSelected(ButtonEvent ce)
-                                {
-                                    deleteTerms();
-                                }
-                            });
+        Button deleteButton = createSelectedItemsButton(
+                viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_BUTTON),
+                new SelectionListener<ButtonEvent>()
+                    {
+                        @Override
+                        public void componentSelected(ButtonEvent ce)
+                        {
+                            deleteTerms();
+                        }
+                    });
         addButton(deleteButton);
 
         if (getWebClientConfiguration().getAllowAddingUnofficialTerms())
         {
-            Button makeOfficialButton =
-                    new Button(viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON),
-                            new SelectionListener<ButtonEvent>()
-                                {
-                                    @Override
-                                    public void componentSelected(ButtonEvent ce)
-                                    {
-                                        makeOfficial();
-                                    }
-                                });
+            Button makeOfficialButton = new Button(
+                    viewContext
+                            .getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON),
+                    new SelectionListener<ButtonEvent>()
+                        {
+                            @Override
+                            public void componentSelected(ButtonEvent ce)
+                            {
+                                makeOfficial();
+                            }
+                        });
             addButton(makeOfficialButton);
         }
 
         if (vocabulary.isManagedInternally())
         {
-            String tooltip = viewContext.getMessage(Dict.TOOLTIP_VOCABULARY_MANAGED_INTERNALLY);
+            String tooltip = viewContext
+                    .getMessage(Dict.TOOLTIP_VOCABULARY_MANAGED_INTERNALLY);
             disableButton(addButton, tooltip);
             disableButton(batchUpdateButton, tooltip);
             disableButton(editButton, tooltip);
@@ -242,9 +248,11 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         final String code = term.getCode();
         final String description = term.getDescription();
         final String label = term.getLabel();
-        final String title = viewContext.getMessage(Dict.EDIT_TITLE, "Vocabulary Term", code);
+        final String title = viewContext.getMessage(Dict.EDIT_TITLE,
+                "Vocabulary Term", code);
 
-        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+        return new AbstractRegistrationDialog(viewContext, title,
+                postRegistrationCallback)
             {
                 private final DescriptionField descriptionField;
 
@@ -259,15 +267,18 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 
                     boolean mandatory = false;
 
-                    labelField = createTextField(viewContext.getMessage(Dict.LABEL), mandatory);
+                    labelField = createTextField(
+                            viewContext.getMessage(Dict.LABEL), mandatory);
                     FieldUtil.setValueWithUnescaping(labelField, label);
                     labelField.setMaxLength(GenericConstants.COLUMN_LABEL);
                     addField(labelField);
 
-                    descriptionField = createDescriptionField(viewContext, mandatory);
+                    descriptionField = createDescriptionField(viewContext,
+                            mandatory);
                     FieldUtil.setValueWithUnescaping(descriptionField, description);
                     addField(descriptionField);
-                    // if vocabulary term cannot be choosen from list there is no need to edit order
+                    // if vocabulary term cannot be choosen from list there is no
+                    // need to edit order
                     if (vocabulary.isChosenFromList())
                     {
                         termSelectionWidget = createTermSelectionWidget();
@@ -288,7 +299,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                         term.setOrdinal(extractPreviousTermOrdinal() + 1);
                     }
 
-                    viewContext.getService().updateVocabularyTerm(term, registrationCallback);
+                    viewContext.getService().updateVocabularyTerm(term,
+                            registrationCallback);
                 }
 
                 private VocabularyTermSelectionWidget createTermSelectionWidget()
@@ -306,9 +318,9 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                         previousTermCodeOrNull = currentTermCode;
                     }
                     boolean mandatory = false;
-                    VocabularyTermSelectionWidget result =
-                            new VocabularyTermSelectionWidget(getId() + "_edit_pos",
-                                    "Position after", mandatory, allTerms, previousTermCodeOrNull);
+                    VocabularyTermSelectionWidget result = new VocabularyTermSelectionWidget(
+                            getId() + "_edit_pos", "Position after", mandatory,
+                            allTerms, previousTermCodeOrNull);
                     result.setEmptyText("empty value == beginning");
                     return result;
                 }
@@ -320,8 +332,10 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 {
                     // - 0 if nothing is selected (move to the beginning),
                     // - (otherwise) selected term's ordinal
-                    VocabularyTermModel selectedItem = termSelectionWidget.getValue();
-                    return selectedItem != null ? selectedItem.getTerm().getOrdinal() : 0;
+                    VocabularyTermModel selectedItem = termSelectionWidget
+                            .getValue();
+                    return selectedItem != null ? selectedItem.getTerm()
+                            .getOrdinal() : 0;
                 }
             };
     }
@@ -347,7 +361,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             DefaultResultSetConfig<String, TableModelRowWithObject<VocabularyTermWithStats>> resultSetConfig,
             AbstractAsyncCallback<TypedTableResultSet<VocabularyTermWithStats>> callback)
     {
-        viewContext.getService().listVocabularyTerms(vocabulary, resultSetConfig, callback);
+        viewContext.getService().listVocabularyTerms(vocabulary,
+                resultSetConfig, callback);
     }
 
     @Override
@@ -355,7 +370,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             TableExportCriteria<TableModelRowWithObject<VocabularyTermWithStats>> exportCriteria,
             AbstractAsyncCallback<String> callback)
     {
-        viewContext.getService().prepareExportVocabularyTerms(exportCriteria, callback);
+        viewContext.getService().prepareExportVocabularyTerms(exportCriteria,
+                callback);
     }
 
     @Override
@@ -366,10 +382,11 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 
     private Window createUpdateTermsDialog()
     {
-        final String title =
-                viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_TITLE, vocabulary.getCode());
+        final String title = viewContext.getMessage(
+                Dict.UPDATE_VOCABULARY_TERMS_TITLE, vocabulary.getCode());
 
-        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+        return new AbstractRegistrationDialog(viewContext, title,
+                postRegistrationCallback)
             {
 
                 public static final String ID = GenericConstants.ID_PREFIX
@@ -388,19 +405,21 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     form.setMethod(Method.POST);
                     form.add(AbstractRegistrationForm.createHiddenField(
                             AbstractRegistrationForm.SESSION_KEYS_NUMBER, "1"));
-                    form.add(AbstractRegistrationForm.createHiddenSessionField(termsSessionKey, 0));
+                    form.add(AbstractRegistrationForm.createHiddenSessionField(
+                            termsSessionKey, 0));
 
                     insert(createMessageField(), 0);
                     addField(createImportFileField());
 
-                    form.addListener(Events.Submit, new FormPanelListener(new InfoBox(viewContext))
+                    form.addListener(Events.Submit, new FormPanelListener(
+                            new InfoBox(viewContext))
                         {
                             @Override
                             protected void onSuccessfullUpload()
                             {
 
-                                viewContext.getService().updateVocabularyTerms(termsSessionKey,
-                                        TechId.create(vocabulary),
+                                viewContext.getService().updateVocabularyTerms(
+                                        termsSessionKey, TechId.create(vocabulary),
                                         new AbstractAsyncCallback<Void>(viewContext)
                                             {
 
@@ -420,17 +439,19 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                         });
 
                     saveButton.removeAllListeners();
-                    saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-                        {
-                            @Override
-                            public final void componentSelected(final ButtonEvent ce)
-                            {
-                                if (form.isValid())
+                    saveButton
+                            .addSelectionListener(new SelectionListener<ButtonEvent>()
                                 {
-                                    form.submit();
-                                }
-                            }
-                        });
+                                    @Override
+                                    public final void componentSelected(
+                                            final ButtonEvent ce)
+                                    {
+                                        if (form.isValid())
+                                        {
+                                            form.submit();
+                                        }
+                                    }
+                                });
 
                     DialogWithOnlineHelpUtils.addHelpButton(viewContext, this,
                             createHelpPageIdentifier());
@@ -438,8 +459,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 
                 private FileUploadField createImportFileField()
                 {
-                    BasicFileFieldManager fileManager =
-                            new BasicFileFieldManager(termsSessionKey, 1, "File");
+                    BasicFileFieldManager fileManager = new BasicFileFieldManager(
+                            termsSessionKey, 1, "File");
                     fileManager.setMandatory();
                     return fileManager.getFields().get(0);
                 }
@@ -448,13 +469,13 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 {
                     final LabelField messageField = new LabelField();
                     messageField.setStyleAttribute("margin-left", "5px");
-                    final String fileFormat =
-                            viewContext.getMessage(Dict.VOCABULARY_TERMS_FILE_FORMAT);
-                    final String exportMsg =
-                            viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_MESSAGE_2);
-                    final String msgText =
-                            viewContext.getMessage(Dict.UPDATE_VOCABULARY_TERMS_MESSAGE,
-                                    fileFormat, exportMsg);
+                    final String fileFormat = viewContext
+                            .getMessage(Dict.VOCABULARY_TERMS_FILE_FORMAT);
+                    final String exportMsg = viewContext
+                            .getMessage(Dict.UPDATE_VOCABULARY_TERMS_MESSAGE_2);
+                    final String msgText = viewContext.getMessage(
+                            Dict.UPDATE_VOCABULARY_TERMS_MESSAGE, fileFormat,
+                            exportMsg);
                     messageField.setText(msgText);
                     return messageField;
                 }
@@ -467,7 +488,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 
                 private HelpPageIdentifier createHelpPageIdentifier()
                 {
-                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.TERM,
+                    return new HelpPageIdentifier(
+                            HelpPageIdentifier.HelpPageDomain.TERM,
                             HelpPageIdentifier.HelpPageAction.BATCH_UPDATE);
                 }
 
@@ -476,24 +498,34 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
 
     private Window createAddNewTermsDialog()
     {
-        final String title = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
+        final String title = viewContext
+                .getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
 
-        return new AbstractRegistrationDialog(viewContext, title, postRegistrationCallback)
+        return new AbstractRegistrationDialog(viewContext, title,
+                postRegistrationCallback)
             {
                 private final VocabularyTermSelectionWidget termSelectionWidget;
 
                 private final TextArea newTermCodesArea;
 
-                {
+                private final TextArea newTermsLabelsArea;
 
+                private final TextArea newTermDescriptionsArea;
+
+                {
                     form.setLabelWidth(LABEL_WIDTH);
                     form.setFieldWidth(FIELD_WIDTH);
                     this.setWidth(LABEL_WIDTH + FIELD_WIDTH + 50);
 
                     newTermCodesArea = createNewTermCodesArea();
                     addField(newTermCodesArea);
+                    newTermsLabelsArea = createNewTermLabelArea();
+                    addField(newTermsLabelsArea);
+                    newTermDescriptionsArea = createNewTermDescriptionArea();
+                    addField(newTermDescriptionsArea);
 
-                    // if vocabulary term cannot be choosen from list there is no need to edit order
+                    // if vocabulary term cannot be choosen from list there is no
+                    // need to edit order
                     if (vocabulary.isChosenFromList())
                     {
                         termSelectionWidget = createTermSelectionWidget();
@@ -511,9 +543,34 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     List<VocabularyTerm> newVocabularyTermCodes = extractNewVocabularyTermCodes();
+                    String[] labels = extractNewVocabularyTermLabels();
+                    if (labels.length != 0 && newVocabularyTermCodes.size() != labels.length)
+                    {
+                        MessageBox.alert("Error", "You need to have the same number of codes and labels.", null);
+                    } else
+                    {
+                        for (int i = 0; i < labels.length; i++)
+                        {
+                            newVocabularyTermCodes.get(i).setLabel(labels[i]);
+                        }
+                    }
+                    String[] descriptions = extractNewVocabularyTermDescriptions();
+                    if (descriptions.length != 0 && newVocabularyTermCodes.size() != descriptions.length)
+                    {
+                        MessageBox.alert("Error", "You need to have the same number of codes and descriptions.", null);
+                    } else
+                    {
+                        for (int i = 0; i < descriptions.length; i++)
+                        {
+                            newVocabularyTermCodes.get(i).setDescription(descriptions[i]);
+                        }
+                    }
+
                     Long previousTermOrdinal = extractPreviousTermOrdinal();
-                    viewContext.getService().addVocabularyTerms(TechId.create(vocabulary),
-                            newVocabularyTermCodes, previousTermOrdinal, registrationCallback);
+
+                    viewContext.getService().addVocabularyTerms(
+                            TechId.create(vocabulary), newVocabularyTermCodes,
+                            previousTermOrdinal, registrationCallback);
                 }
 
                 private TextArea createNewTermCodesArea()
@@ -525,24 +582,63 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     return result;
                 }
 
+                private TextArea createNewTermDescriptionArea()
+                {
+                    final TextArea result = new TextArea();
+                    result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERMS_DESCRIPTION));
+                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_DESCRIPTION_EMPTY));
+                    return result;
+                }
+
+                private TextArea createNewTermLabelArea()
+                {
+                    final TextArea result = new TextArea();
+                    result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERMS_LABEL));
+                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_LABEL_EMPTY));
+                    return result;
+                }
+
                 private VocabularyTermSelectionWidget createTermSelectionWidget()
                 {
                     // by default - append
                     final List<VocabularyTerm> allTerms = getTerms();
-                    final String lastTermCodeOrNull =
-                            (allTerms.size() > 0) ? allTerms.get(allTerms.size() - 1).getCode()
-                                    : null;
+                    final String lastTermCodeOrNull = (allTerms.size() > 0) ? allTerms.get(allTerms.size() - 1).getCode() : null;
                     boolean mandatory = false;
                     VocabularyTermSelectionWidget result =
-                            new VocabularyTermSelectionWidget(getId() + "_add_pos",
-                                    "Position after", mandatory, allTerms, lastTermCodeOrNull);
+                            new VocabularyTermSelectionWidget(getId() + "_add_pos", "Position after", mandatory, allTerms, lastTermCodeOrNull);
                     result.setEmptyText("empty value == beginning");
                     return result;
                 }
 
                 private List<VocabularyTerm> extractNewVocabularyTermCodes()
                 {
-                    return VocabularyTermValidator.getTerms(newTermCodesArea.getValue());
+                    return VocabularyTermValidator.getTerms(newTermCodesArea
+                            .getValue());
+                }
+
+                private String[] extractNewVocabularyTermLabels()
+                {
+                    String value = newTermsLabelsArea.getValue();
+                    if (value != null)
+                    {
+                        return value.split(",");
+                    } else
+                    {
+                        return new String[] {};
+                    }
+
+                }
+
+                private String[] extractNewVocabularyTermDescriptions()
+                {
+                    String value = newTermDescriptionsArea.getValue();
+                    if (value != null)
+                    {
+                        return value.split(",");
+                    } else
+                    {
+                        return new String[] {};
+                    }
                 }
 
                 /**
@@ -552,21 +648,25 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 {
                     if (termSelectionWidget == null)
                     {
-                        // last terms position (append) if vocabulary will not be chosen from list
+                        // last terms position (append) if vocabulary will not be
+                        // chosen from list
                         final List<VocabularyTerm> allTerms = getTerms();
-                        return (allTerms.size() > 0) ? allTerms.get(allTerms.size() - 1)
-                                .getOrdinal() : 0L;
+                        return (allTerms.size() > 0) ? allTerms.get(
+                                allTerms.size() - 1).getOrdinal() : 0L;
                     } else
                     {
                         // 0 if nothing was selected to enable prepend
-                        VocabularyTermModel selectedItem = termSelectionWidget.getValue();
-                        return selectedItem != null ? selectedItem.getTerm().getOrdinal() : 0L;
+                        VocabularyTermModel selectedItem = termSelectionWidget
+                                .getValue();
+                        return selectedItem != null ? selectedItem.getTerm()
+                                .getOrdinal() : 0L;
                     }
                 }
 
                 private HelpPageIdentifier createHelpPageIdentifier()
                 {
-                    return new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.TERM,
+                    return new HelpPageIdentifier(
+                            HelpPageIdentifier.HelpPageDomain.TERM,
                             HelpPageIdentifier.HelpPageAction.REGISTER);
                 }
             };
@@ -581,27 +681,27 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     @Override
     public DatabaseModificationKind[] getRelevantModifications()
     {
-        // refresh when any high level entity or property assignment is modified/created/deleted
-        return new DatabaseModificationKind[]
-            { DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.edit(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
-                    DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.MATERIAL),
-                    DatabaseModificationKind.edit(ObjectKind.MATERIAL),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
-                    DatabaseModificationKind.edit(ObjectKind.SAMPLE),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    // (unofficial) terms may also be created outside of the grid
-                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
+        // refresh when any high level entity or property assignment is
+        // modified/created/deleted
+        return new DatabaseModificationKind[] {
+                DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
+                DatabaseModificationKind.edit(ObjectKind.DATA_SET),
+                DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
+                DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                DatabaseModificationKind.createOrDelete(ObjectKind.MATERIAL),
+                DatabaseModificationKind.edit(ObjectKind.MATERIAL),
+                DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                // (unofficial) terms may also be created outside of the grid
+                DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM) };
     }
 
     private void deleteTerms()
     {
-        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms =
-                getSelectedItems();
+        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms = getSelectedItems();
         if (terms.isEmpty())
         {
             return;
@@ -609,16 +709,17 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         if (terms.size() == getTerms().size())
         {
             MessageBox.alert(viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_TITLE),
-                    viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_MESSAGE), null);
+                    viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_INVALID_MESSAGE),
+                    null);
             return;
         }
         Set<String> selectedTerms = new HashSet<String>();
         List<VocabularyTerm> termsToBeDeleted = new ArrayList<VocabularyTerm>();
-        List<VocabularyTermReplacement> termsToBeReplaced =
-                new ArrayList<VocabularyTermReplacement>();
+        List<VocabularyTermReplacement> termsToBeReplaced = new ArrayList<VocabularyTermReplacement>();
         for (BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>> model : terms)
         {
-            VocabularyTerm term = model.getBaseObject().getObjectOrNull().getTerm();
+            VocabularyTerm term = model.getBaseObject().getObjectOrNull()
+                    .getTerm();
             selectedTerms.add(term.getCode());
             if (model.getBaseObject().getObjectOrNull().getTotalUsageCounter() > 0)
             {
@@ -644,17 +745,13 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             String message;
             if (size == 1)
             {
-                message =
-                        viewContext
-                                .getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS_SINGULAR);
+                message = viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS_SINGULAR);
             } else
             {
-                message =
-                        viewContext.getMessage(
-                                Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS,
-                                size);
+                message = viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS, size);
             }
-            ConfirmationDialog confirmationDialog = new ConfirmationDialog(title, message)
+            ConfirmationDialog confirmationDialog = new ConfirmationDialog(
+                    title, message)
                 {
                     @Override
                     protected void onYes()
@@ -673,14 +770,14 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     termsForReplacement.add(term);
                 }
             }
-            askForReplacements(termsToBeDeleted, termsToBeReplaced, termsForReplacement);
+            askForReplacements(termsToBeDeleted, termsToBeReplaced,
+                    termsForReplacement);
         }
     }
 
     private void makeOfficial()
     {
-        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms =
-                getSelectedItems();
+        List<BaseEntityModel<TableModelRowWithObject<VocabularyTermWithStats>>> terms = getSelectedItems();
         if (terms.isEmpty())
         {
             return;
@@ -695,29 +792,25 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             termsToBeOfficial.add(term);
         }
 
-        String title =
-                viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_TITLE);
+        String title = viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_TITLE);
         int size = termsToBeOfficial.size();
         String message;
         if (size == 1)
         {
-            message =
-                    viewContext
-                            .getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_SINGULAR);
+            message = viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_SINGULAR);
         } else
         {
-            message =
-                    viewContext.getMessage(
-                            Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE, size);
+            message = viewContext.getMessage(Dict.MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE, size);
         }
-        ConfirmationDialog confirmationDialog = new ConfirmationDialog(title, message)
+        ConfirmationDialog confirmationDialog = new ConfirmationDialog(title,
+                message)
             {
                 @Override
                 protected void onYes()
                 {
                     RefreshCallback callback = new RefreshCallback(viewContext);
-                    viewContext.getService().makeVocabularyTermsOfficial(TechId.create(vocabulary),
-                            termsToBeOfficial, callback);
+                    viewContext.getService().makeVocabularyTermsOfficial(
+                            TechId.create(vocabulary), termsToBeOfficial, callback);
 
                 }
             };
@@ -735,14 +828,18 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         return terms;
     }
 
-    private void askForReplacements(final List<VocabularyTerm> termsToBeDeleted,
+    private void askForReplacements(
+            final List<VocabularyTerm> termsToBeDeleted,
             final List<VocabularyTermReplacement> termsToBeReplaced,
             List<VocabularyTerm> termsForReplacement)
     {
         VerticalPanel panel = new VerticalPanel();
         int totalNumber = termsToBeDeleted.size() + termsToBeReplaced.size();
-        panel.add(new Text(viewContext.getMessage(
-                Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS, totalNumber)));
+        panel.add(new Text(
+                viewContext
+                        .getMessage(
+                                Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_FOR_REPLACEMENTS,
+                                totalNumber)));
         final FormPanel formPanel = new FormPanel();
         formPanel.setLabelWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG);
         formPanel.setFieldWidth(FIELD_WIDTH_IN_REPLACEMENT_DIALOG);
@@ -750,28 +847,34 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
         formPanel.setHeaderVisible(false);
         formPanel.setBodyBorder(false);
         panel.add(formPanel);
-        String title = viewContext.getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE);
-        String okButtonLable = viewContext.getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
-        final SimpleDialog dialog = new SimpleDialog(panel, title, okButtonLable, viewContext);
+        String title = viewContext
+                .getMessage(Dict.DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE);
+        String okButtonLable = viewContext
+                .getMessage(Dict.ADD_VOCABULARY_TERMS_OK_BUTTON);
+        final SimpleDialog dialog = new SimpleDialog(panel, title,
+                okButtonLable, viewContext);
         dialog.setScrollMode(Scroll.AUTOY);
-        dialog.setWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG + FIELD_WIDTH_IN_REPLACEMENT_DIALOG + 50);
+        dialog.setWidth(LABEL_WIDTH_IN_REPLACEMENT_DIALOG
+                + FIELD_WIDTH_IN_REPLACEMENT_DIALOG + 50);
         dialog.setEnableOfAcceptButton(false);
         for (final VocabularyTermReplacement termToBeReplaced : termsToBeReplaced)
         {
             String term = termToBeReplaced.getTerm().getCode();
-            // TODO 2009-06-26, IA: do we really want to load almost all the terms from large
+            // TODO 2009-06-26, IA: do we really want to load almost all the
+            // terms from large
             // vocabulary to the drop down list?
-            final VocabularyTermSelectionWidget s =
-                    new VocabularyTermSelectionWidget(getId() + term, term, true,
-                            termsForReplacement, null);
+            final VocabularyTermSelectionWidget s = new VocabularyTermSelectionWidget(
+                    getId() + term, term, true, termsForReplacement, null);
             s.addSelectionChangedListener(new SelectionChangedListener<VocabularyTermModel>()
                 {
                     @Override
-                    public void selectionChanged(SelectionChangedEvent<VocabularyTermModel> se)
+                    public void selectionChanged(
+                            SelectionChangedEvent<VocabularyTermModel> se)
                     {
                         VocabularyTermModel selectedItem = se.getSelectedItem();
-                        termToBeReplaced.setReplacementCode(selectedItem == null ? null
-                                : selectedItem.getTerm().getCode());
+                        termToBeReplaced
+                                .setReplacementCode(selectedItem == null ? null
+                                        : selectedItem.getTerm().getCode());
                         dialog.setEnableOfAcceptButton(formPanel.isValid());
                     }
                 });
@@ -787,8 +890,9 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 }
 
             });
-        DialogWithOnlineHelpUtils.addHelpButton(viewContext, dialog, new HelpPageIdentifier(
-                HelpPageIdentifier.HelpPageDomain.TERM, HelpPageIdentifier.HelpPageAction.DELETE));
+        DialogWithOnlineHelpUtils.addHelpButton(viewContext, dialog,
+                new HelpPageIdentifier(HelpPageIdentifier.HelpPageDomain.TERM,
+                        HelpPageIdentifier.HelpPageAction.DELETE));
         dialog.show();
     }
 
@@ -796,8 +900,9 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             List<VocabularyTermReplacement> termsToBeReplaced)
     {
         RefreshCallback callback = new RefreshCallback(viewContext);
-        viewContext.getService().deleteVocabularyTerms(TechId.create(vocabulary), termsToBeDeleted,
-                termsToBeReplaced, callback);
+        viewContext.getService().deleteVocabularyTerms(
+                TechId.create(vocabulary), termsToBeDeleted, termsToBeReplaced,
+                callback);
 
     }
 }

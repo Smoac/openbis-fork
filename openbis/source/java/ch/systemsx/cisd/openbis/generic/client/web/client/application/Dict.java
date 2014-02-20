@@ -91,11 +91,9 @@ public abstract class Dict
 
     public static final String CHOOSE_METAPROJECT = "choose_metaproject";
 
-    public static final String CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_TITLE =
-            "create_not_existing_metaprojects_confirmation_title";
+    public static final String CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_TITLE = "create_not_existing_metaprojects_confirmation_title";
 
-    public static final String CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_MSG =
-            "create_not_existing_metaprojects_confirmation_msg";
+    public static final String CREATE_NOT_EXISTING_METAPROJECTS_CONFIRMATION_MSG = "create_not_existing_metaprojects_confirmation_msg";
 
     //
     // Form
@@ -103,30 +101,23 @@ public abstract class Dict
 
     public static final String UNSAVED_FORM_CHANGES_INFO = "unsaved_form_changes_info";
 
-    public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_TITLE =
-            "save_unchanged_form_confirmation_title";
+    public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_TITLE = "save_unchanged_form_confirmation_title";
 
-    public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_MSG =
-            "save_unchanged_form_confirmation_msg";
+    public static final String SAVE_UNCHANGED_FORM_CONFIRMATION_MSG = "save_unchanged_form_confirmation_msg";
 
-    public static final String RESET_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE =
-            "reset_unsaved_form_changes_confirmation_title";
+    public static final String RESET_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE = "reset_unsaved_form_changes_confirmation_title";
 
-    public static final String REVERT_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE =
-            "revert_unsaved_form_changes_confirmation_title";
+    public static final String REVERT_UNSAVED_FORM_CHANGES_CONFIRMATION_TITLE = "revert_unsaved_form_changes_confirmation_title";
 
-    public static final String LOSE_UNSAVED_FORM_CHANGES_CONFIRMATION_MSG =
-            "lose_unsaved_form_changes_confirmation_msg";
+    public static final String LOSE_UNSAVED_FORM_CHANGES_CONFIRMATION_MSG = "lose_unsaved_form_changes_confirmation_msg";
 
     //
     // Table Modifications
     //
 
-    public static final String CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_TITLE =
-            "confirm_save_table_modifications_dialog_title";
+    public static final String CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_TITLE = "confirm_save_table_modifications_dialog_title";
 
-    public static final String CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_MESSAGE =
-            "confirm_save_table_modifications_dialog_message";
+    public static final String CONFIRM_SAVE_TABLE_MODIFICATIONS_DIALOG_MESSAGE = "confirm_save_table_modifications_dialog_message";
 
     public static final String TABLE_MODIFICATIONS = "table_modifications";
 
@@ -170,8 +161,7 @@ public abstract class Dict
 
     public static final String TOOLTIP_CONFIG_DISABLED = "tooltip_config_disabled";
 
-    public static final String TOOLTIP_VOCABULARY_MANAGED_INTERNALLY =
-            "tooltip_vocabulary_managed_internally";
+    public static final String TOOLTIP_VOCABULARY_MANAGED_INTERNALLY = "tooltip_vocabulary_managed_internally";
 
     public static final String TOOLTIP_VIEW_DATASET = "tooltip_view_dataset";
 
@@ -273,8 +263,7 @@ public abstract class Dict
 
     public static final String IDENTIFIER = "identifier";
 
-    public static final String SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER =
-            "sample_properties_panel_sample_identifier";
+    public static final String SAMPLE_PROPERTIES_PANEL_SAMPLE_IDENTIFIER = "sample_properties_panel_sample_identifier";
 
     public static final String NO_MATCH = "no_match";
 
@@ -334,16 +323,13 @@ public abstract class Dict
 
     public static final String PROJECT_SELECTOR_TOOLTIP = "project_selector_tooltip";
 
-    public static final String PROJECT_SELECTOR_DESCRIPTION_NOT_AVAILABLE =
-            "project_selector_description_not_available";
+    public static final String PROJECT_SELECTOR_DESCRIPTION_NOT_AVAILABLE = "project_selector_description_not_available";
 
     public static final String PROJECT_SELECTOR_CODE_COLUMN = "project_selector_code_column";
 
-    public static final String PROJECT_SELECTOR_DETAILS_LINK_LABEL =
-            "project_selector_details_link_label";
+    public static final String PROJECT_SELECTOR_DETAILS_LINK_LABEL = "project_selector_details_link_label";
 
-    public static final String PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP =
-            "project_selector_details_link_tooltip";
+    public static final String PROJECT_SELECTOR_DETAILS_LINK_TOOLTIP = "project_selector_details_link_tooltip";
 
     //
     // Dataset Browser
@@ -353,17 +339,14 @@ public abstract class Dict
 
     public static final String NO_DATASETS_SELECTED = "no_datasets_selected";
 
-    public static final String DATASETS_FROM_DIFFERENT_STORES_SELECTED =
-            "datasets_from_different_stores_selected";
+    public static final String DATASETS_FROM_DIFFERENT_STORES_SELECTED = "datasets_from_different_stores_selected";
 
-    public static final String PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE =
-            "perform_computation_on_all_datasets_msg_template";
+    public static final String PERFORM_COMPUTATION_ON_ALL_DATASETS_MSG_TEMPLATE = "perform_computation_on_all_datasets_msg_template";
 
     public static final String PERFORM_COMPUTATION_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
             "perform_computation_on_selected_or_all_datasets_msg_template";
 
-    public static final String PERFORM_ARCHIVING_ON_ALL_DATASETS_MSG_TEMPLATE =
-            "perform_archiving_on_all_datasets_msg_template";
+    public static final String PERFORM_ARCHIVING_ON_ALL_DATASETS_MSG_TEMPLATE = "perform_archiving_on_all_datasets_msg_template";
 
     public static final String PERFORM_ARCHIVING_ON_SELECTED_OR_ALL_DATASETS_MSG_TEMPLATE =
             "perform_archiving_on_selected_or_all_datasets_msg_template";
@@ -478,11 +461,9 @@ public abstract class Dict
 
     public static final String MISSING_VOCABULARY_TERMS = "missing_vocabulary_terms";
 
-    public static final String VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS =
-            "vocabulary_show_available_terms_in_choosers";
+    public static final String VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS = "vocabulary_show_available_terms_in_choosers";
 
-    public static final String CONFIRM_VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS_MSG =
-            "confirm_vocabulary_show_available_terms_in_chooosers_msg";
+    public static final String CONFIRM_VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS_MSG = "confirm_vocabulary_show_available_terms_in_chooosers_msg";
 
     public static final String MANDATORY = "mandatory";
 
@@ -516,17 +497,13 @@ public abstract class Dict
 
     public static final String UNASSIGN_BUTTON_LABEL = "unassign_button_label";
 
-    public static final String UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE =
-            "unassignment_confirmation_dialog_title";
+    public static final String UNASSIGNMENT_CONFIRMATION_DIALOG_TITLE = "unassignment_confirmation_dialog_title";
 
-    public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITHOUT_PROPERTIES =
-            "unassignment_confirmation_template_without_properties";
+    public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITHOUT_PROPERTIES = "unassignment_confirmation_template_without_properties";
 
-    public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES =
-            "unassignment_confirmation_template_with_properties";
+    public static final String UNASSIGNMENT_CONFIRMATION_TEMPLATE_WITH_PROPERTIES = "unassignment_confirmation_template_with_properties";
 
-    public static final String EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE =
-            "edit_property_type_assignment_title";
+    public static final String EDIT_PROPERTY_TYPE_ASSIGNMENT_TITLE = "edit_property_type_assignment_title";
 
     //
     // Entity Property History Browser
@@ -576,8 +553,7 @@ public abstract class Dict
 
     public static final String DELETE_CONFIRMATION_MESSAGE = "delete_confirmation_message";
 
-    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE =
-            "delete_confirmation_message_with_reason_template";
+    public static final String DELETE_CONFIRMATION_MESSAGE_WITH_REASON_TEMPLATE = "delete_confirmation_message_with_reason_template";
 
     public static final String DELETING_PERMANENTLY = "deleting_permanently";
 
@@ -589,21 +565,17 @@ public abstract class Dict
 
     public static final String DELETING_FORCE_DISALLOWED_TYPES = "deleting_force_disallowed_types";
 
-    public static final String DELETING_FORCE_DISALLOWED_TYPES_TOOLTIP =
-            "deleting_force_disallowed_types_tooltip";
+    public static final String DELETING_FORCE_DISALLOWED_TYPES_TOOLTIP = "deleting_force_disallowed_types_tooltip";
 
     public static final String DELETING = "deleting";
 
-    public static final String DELETE_PERMANENTLY_PROGRESS_MESSAGE =
-            "delete_permanently_progress_message";
+    public static final String DELETE_PERMANENTLY_PROGRESS_MESSAGE = "delete_permanently_progress_message";
 
     public static final String DELETE_PROGRESS_MESSAGE = "delete_progress_message";
 
-    public static final String CANNOT_MODIFY_DELETED_ENTITY_TITLE =
-            "cannot_modify_deleted_entity_title";
+    public static final String CANNOT_MODIFY_DELETED_ENTITY_TITLE = "cannot_modify_deleted_entity_title";
 
-    public static final String CANNOT_MODIFY_DELETED_ENTITY_MSG =
-            "cannot_modify_deleted_entity_msg";
+    public static final String CANNOT_MODIFY_DELETED_ENTITY_MSG = "cannot_modify_deleted_entity_msg";
 
     public static final String DELETION_BROWSER = "deletion_browser";
 
@@ -619,22 +591,17 @@ public abstract class Dict
 
     public static final String BUTTON_DELETE_PERMANENTLY = "button_delete_permanently";
 
-    public static final String REVERT_DELETIONS_CONFIRMATION_TITLE =
-            "revert_deletions_confirmation_title";
+    public static final String REVERT_DELETIONS_CONFIRMATION_TITLE = "revert_deletions_confirmation_title";
 
-    public static final String REVERT_DELETIONS_CONFIRMATION_MSG =
-            "revert_deletions_confirmation_msg";
+    public static final String REVERT_DELETIONS_CONFIRMATION_MSG = "revert_deletions_confirmation_msg";
 
     public static final String REVERT_DELETIONS_PROGRESS = "revert_deletions_progress";
 
-    public static final String REVERT_ENTITY_DELETION_CONFIRMATION_MSG =
-            "revert_entity_deletion_confirmation_msg";
+    public static final String REVERT_ENTITY_DELETION_CONFIRMATION_MSG = "revert_entity_deletion_confirmation_msg";
 
-    public static final String PERMANENT_DELETIONS_CONFIRMATION_TITLE =
-            "permanent_deletions_confirmation_title";
+    public static final String PERMANENT_DELETIONS_CONFIRMATION_TITLE = "permanent_deletions_confirmation_title";
 
-    public static final String PERMANENT_DELETIONS_CONFIRMATION_MSG =
-            "permanent_deletions_confirmation_msg";
+    public static final String PERMANENT_DELETIONS_CONFIRMATION_MSG = "permanent_deletions_confirmation_msg";
 
     public static final String PREMANENT_DELETIONS_PROGRESS = "permanent_deletions_progress";
 
@@ -688,8 +655,7 @@ public abstract class Dict
 
     public static final String DATA_SET_TYPE = "data_set_type";
 
-    public static final String EXTERNAL_DATA_EXPERIMENT_IDENTIFIER =
-            "external_data_experiment_identifier";
+    public static final String EXTERNAL_DATA_EXPERIMENT_IDENTIFIER = "external_data_experiment_identifier";
 
     public static final String EXTERNAL_DATA_SAMPLE_IDENTIFIER = "external_data_sample_identifier";
 
@@ -721,17 +687,13 @@ public abstract class Dict
 
     public static final String CONFIRM_DATASET_UPLOAD_MSG = "confirm_dataset_upload_msg";
 
-    public static final String CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD =
-            "confirm_dataset_upload_file_name_field";
+    public static final String CONFIRM_DATASET_UPLOAD_FILE_NAME_FIELD = "confirm_dataset_upload_file_name_field";
 
-    public static final String CONFIRM_DATASET_UPLOAD_COMMENT_FIELD =
-            "confirm_dataset_upload_comment_field";
+    public static final String CONFIRM_DATASET_UPLOAD_COMMENT_FIELD = "confirm_dataset_upload_comment_field";
 
-    public static final String CONFIRM_DATASET_UPLOAD_USER_FIELD =
-            "confirm_dataset_upload_user_field";
+    public static final String CONFIRM_DATASET_UPLOAD_USER_FIELD = "confirm_dataset_upload_user_field";
 
-    public static final String CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD =
-            "confirm_dataset_upload_password_field";
+    public static final String CONFIRM_DATASET_UPLOAD_PASSWORD_FIELD = "confirm_dataset_upload_password_field";
 
     public static final String DATASET_NOT_AVAILABLE_MSG = "dataset_not_available_msg";
 
@@ -741,8 +703,7 @@ public abstract class Dict
 
     public static final String LINKED_DATA_SET_LINK = "linked_data_set_link";
 
-    public static final String LINKED_DATA_SET_LINK_NOT_AVAILABLE_MSG =
-            "linked_data_set_link_not_available";
+    public static final String LINKED_DATA_SET_LINK_NOT_AVAILABLE_MSG = "linked_data_set_link_not_available";
 
     //
     // Sample Registration
@@ -880,6 +841,14 @@ public abstract class Dict
 
     public static final String TERMS = "terms";
 
+    public static final String VOCABULARY_TERMS_DESCRIPTION = "descriptions";
+
+    public static final String VOCABULARY_TERMS_DESCRIPTION_EMPTY = "vocabulary_terms_description_empty";
+
+    public static final String VOCABULARY_TERMS_LABEL = "labels";
+
+    public static final String VOCABULARY_TERMS_LABEL_EMPTY = "vocabulary_terms_label_empty";
+
     public static final String VOCABULARY_TERMS_BROWSER = "VOCABULARY_TERMS_BROWSER";
 
     public static final String TERM_FOR_SAMPLES_USAGE = "TERM_FOR_SAMPLES_USAGE";
@@ -904,22 +873,17 @@ public abstract class Dict
 
     public static final String UPDATE_VOCABULARY_TERMS_MESSAGE = "update_vocabulary_terms_message";
 
-    public static final String UPDATE_VOCABULARY_TERMS_MESSAGE_2 =
-            "update_vocabulary_terms_message_2";
+    public static final String UPDATE_VOCABULARY_TERMS_MESSAGE_2 = "update_vocabulary_terms_message_2";
 
-    public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE =
-            "vocabulary_terms_validation_message";
+    public static final String VOCABULARY_TERMS_VALIDATION_MESSAGE = "vocabulary_terms_validation_message";
 
     public static final String DELETE_VOCABULARY_TERMS_BUTTON = "delete_vocabulary_terms_button";
 
-    public static final String DELETE_VOCABULARY_TERMS_INVALID_TITLE =
-            "delete_vocabulary_terms_invalid_title";
+    public static final String DELETE_VOCABULARY_TERMS_INVALID_TITLE = "delete_vocabulary_terms_invalid_title";
 
-    public static final String DELETE_VOCABULARY_TERMS_INVALID_MESSAGE =
-            "delete_vocabulary_terms_invalid_message";
+    public static final String DELETE_VOCABULARY_TERMS_INVALID_MESSAGE = "delete_vocabulary_terms_invalid_message";
 
-    public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE =
-            "delete_vocabulary_terms_confirmation_title";
+    public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_TITLE = "delete_vocabulary_terms_confirmation_title";
 
     public static final String DELETE_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_NO_REPLACEMENTS_SINGULAR =
             "delete_vocabulary_terms_confirmation_message_no_replacements_singular";
@@ -932,17 +896,14 @@ public abstract class Dict
 
     public static final String EDIT_VOCABULARY_TERM_BUTTON = "edit_vocabulary_term_button";
 
-    public static final String MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON =
-            "make_official_vocabulary_term_button";
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERM_BUTTON = "make_official_vocabulary_term_button";
 
-    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_TITLE =
-            "make_official_vocabulary_terms_confirmation_title";
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_TITLE = "make_official_vocabulary_terms_confirmation_title";
 
     public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE_SINGULAR =
             "make_official_vocabulary_terms_confirmation_message_singular";
 
-    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE =
-            "make_official_vocabulary_terms_confirmation_message";
+    public static final String MAKE_OFFICIAL_VOCABULARY_TERMS_CONFIRMATION_MESSAGE = "make_official_vocabulary_terms_confirmation_message";
 
     //
     // Space Browser
@@ -991,11 +952,9 @@ public abstract class Dict
 
     public static final String METAPROJECT_TREE_INFO_LINK = "metaproject_tree_info_link";
 
-    public static final String METAPROJECT_TREE_DESCRIPTION_NOT_AVAILABLE =
-            "metaproject_tree_description_not_available";
+    public static final String METAPROJECT_TREE_DESCRIPTION_NOT_AVAILABLE = "metaproject_tree_description_not_available";
 
-    public static final String METAPROJECT_TREE_METAPROJECT_TOOLTIP =
-            "metaproject_tree_metaproject_tooltip";
+    public static final String METAPROJECT_TREE_METAPROJECT_TOOLTIP = "metaproject_tree_metaproject_tooltip";
 
     //
     // Metaproject Browser
@@ -1004,18 +963,15 @@ public abstract class Dict
 
     public static final String METAPROJECT_BROWSER_TREE_TITLE = "metaproject_browser_tree_title";
 
-    public static final String METAPROJECT_BROWSER_TREE_TOOLTIP =
-            "metaproject_browser_tree_tooltip";
+    public static final String METAPROJECT_BROWSER_TREE_TOOLTIP = "metaproject_browser_tree_tooltip";
 
-    public static final String METAPROJECT_BROWSER_ENTITIES_TITLE =
-            "metaproject_browser_entities_title";
+    public static final String METAPROJECT_BROWSER_ENTITIES_TITLE = "metaproject_browser_entities_title";
 
     //
     // Metaproject Entities
     //
 
-    public static final String METAPROJECT_ENTITIES_EXPERIMENTS =
-            "metaproject_entities_experiments";
+    public static final String METAPROJECT_ENTITIES_EXPERIMENTS = "metaproject_entities_experiments";
 
     public static final String METAPROJECT_ENTITIES_SAMPLES = "metaproject_entities_samples";
 
@@ -1107,11 +1063,9 @@ public abstract class Dict
 
     public static final String TOO_MANY_VISIBLE_COLUMNS_MSG = "TOO_MANY_VISIBLE_COLUMNS_MSG";
 
-    public static final String VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG =
-            "VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG";
+    public static final String VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG = "VISIBLE_COLUMNS_LIMIT_EXCEEDED_MSG";
 
-    public static final String VISIBLE_COLUMNS_LIMIT_REACHED_MSG =
-            "VISIBLE_COLUMNS_LIMIT_REACHED_MSG";
+    public static final String VISIBLE_COLUMNS_LIMIT_REACHED_MSG = "VISIBLE_COLUMNS_LIMIT_REACHED_MSG";
 
     //
     // User Settings Dialog
@@ -1119,20 +1073,17 @@ public abstract class Dict
 
     public static final String HOME_GROUP_LABEL = "home_group_label";
 
-    public static final String CHANGE_USER_SETTINGS_DIALOG_TITLE =
-            "change_user_settings_dialog_title";
+    public static final String CHANGE_USER_SETTINGS_DIALOG_TITLE = "change_user_settings_dialog_title";
 
     public static final String ABOUT_BOX_DIALOG_TITLE = "about_box_dialog_title";
 
     public static final String USE_WILDCARD_SEARCH_MODE_LABEL = "use_wildcard_search_mode_label";
 
-    public static final String USE_WILDCARD_SEARCH_MODE_TOOLTIP =
-            "use_wildcard_search_mode_tooltip";
+    public static final String USE_WILDCARD_SEARCH_MODE_TOOLTIP = "use_wildcard_search_mode_tooltip";
 
     public static final String RESET_USER_SETTINGS_BUTTON = "reset_user_settings_button";
 
-    public static final String RESET_USER_SETTINGS_CONFIRMATION_MSG =
-            "reset_user_settings_confirmation_msg";
+    public static final String RESET_USER_SETTINGS_CONFIRMATION_MSG = "reset_user_settings_confirmation_msg";
 
     public static final String REAL_NUMBER_FORMATING_FIELDS = "real_number_formating_fields";
 
@@ -1192,8 +1143,7 @@ public abstract class Dict
 
     public static final String ENTITY_TYPE_ASSIGNMENTS = "entity_type_assignments";
 
-    public static final String COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST =
-            "combo_box_expected_value_from_the_list";
+    public static final String COMBO_BOX_EXPECTED_VALUE_FROM_THE_LIST = "combo_box_expected_value_from_the_list";
 
     public static final String DETAILS_TITLE = "details_title";
 
@@ -1245,8 +1195,7 @@ public abstract class Dict
 
     public static final String ADD_ATTACHMENT = "add_attachment";
 
-    public static final String EXPERIMENT_SAMPLES_SELCTION_TITLE =
-            "experiment_samples_selction_title";
+    public static final String EXPERIMENT_SAMPLES_SELCTION_TITLE = "experiment_samples_selction_title";
 
     public static final String DATA_SET_UPLOAD = "data_set_upload";
 
@@ -1256,14 +1205,11 @@ public abstract class Dict
 
     public static final String SHOW_RELATED_DATASETS_DIALOG_TITLE = "show_related_datasets";
 
-    public static final String SHOW_RELATED_DATASETS_DIALOG_MESSAGE =
-            "show_related_datasets_message";
+    public static final String SHOW_RELATED_DATASETS_DIALOG_MESSAGE = "show_related_datasets_message";
 
-    public static final String SHOW_RELATED_DATASETS_DIALOG_RADIO_LABEL =
-            "show_related_datasets_radio_label";
+    public static final String SHOW_RELATED_DATASETS_DIALOG_RADIO_LABEL = "show_related_datasets_radio_label";
 
-    public static final String MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE =
-            "message_no_external_upload_service";
+    public static final String MESSAGE_NO_EXTERNAL_UPLOAD_SERVICE = "message_no_external_upload_service";
 
     public static final String DATA_STORE = "data_store";
 
@@ -1273,8 +1219,7 @@ public abstract class Dict
 
     public static final String EDIT_PERSONS = "edit_persons";
 
-    public static final String ADD_PERSON_TO_AUTHORIZATION_GROUP_TITLE =
-            "add_person_to_authorization_group_title";
+    public static final String ADD_PERSON_TO_AUTHORIZATION_GROUP_TITLE = "add_person_to_authorization_group_title";
 
     public static final String PERSONS_IDS_LABEL = "persons_ids_label";
 
@@ -1294,11 +1239,9 @@ public abstract class Dict
     public static final String REMOVE_PERSONS_FROM_AUTHORIZATION_GROUP_CONFIRMATION_MESSAGE =
             "remove_persons_from_authorization_group_confirmation_message";
 
-    public static final String DEACTIVATE_PERSONS_CONFIRMATION_TITLE =
-            "deactivate_persons_confirmation_title";
+    public static final String DEACTIVATE_PERSONS_CONFIRMATION_TITLE = "deactivate_persons_confirmation_title";
 
-    public static final String DEACTIVATE_PERSONS_CONFIRMATION_MESSAGE =
-            "deactivate_persons_confirmation_message";
+    public static final String DEACTIVATE_PERSONS_CONFIRMATION_MESSAGE = "deactivate_persons_confirmation_message";
 
     public static final String ALL_RADIO = "all_radio";
 
@@ -1376,8 +1319,7 @@ public abstract class Dict
 
     public static final String MORE_RESULTS_FOUND_TITLE = "more_results_found_title";
 
-    public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE =
-            "add_unofficial_vocabulary_term_dialog_title";
+    public static final String ADD_UNOFFICIAL_VOCABULARY_TERM_DIALOG_TITLE = "add_unofficial_vocabulary_term_dialog_title";
 
     public static final String CUSTOM_IMPORT = "custom_import";
 
@@ -1415,8 +1357,7 @@ public abstract class Dict
 
     // Active users
 
-    public static final String ACTIVE_USERS_EMAIL_SENT_CONFIRMATION =
-            "active_users_email_sent_confirmation";
+    public static final String ACTIVE_USERS_EMAIL_SENT_CONFIRMATION = "active_users_email_sent_confirmation";
 
     public static final String ACTIVE_USERS_DIALOG = "active_users_dialog";
 
