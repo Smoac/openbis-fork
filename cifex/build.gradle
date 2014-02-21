@@ -8,6 +8,7 @@ configurations.create('gwt')
 configurations.create('zipping')
 configurations.create('cliJars')
 configurations.create('partialLibs')
+configurations.create('appbundler')
 
 def jettyVersion = '8.1.8'
 
@@ -51,7 +52,8 @@ dependencies {
             'marathon:marathon-spring-util:+'
             
 	partialLibs 'google:gwt-user:2.4'
-            
+	
+	appbundler 'oracle:appbundler:+'            
 }
 
 sourceSets { 
@@ -212,6 +214,77 @@ task cliZip(type: Zip, dependsOn: signCliJars) {
 	}	
 }
 
+task standaloneJar(type: Jar, dependsOn: signCliJars) {
+	archiveName 'CIFEX App.jar'
+	from ({ fileTree("${signedFolder}").matching {
+        	include "authentication.jar"
+        	include "dbmigration.jar"
+        	include "common.jar"
+        	include "cifex.jar"
+        	include "cisd-base.jar"
+        	include "cisd-args4j.jar"
+        	include "commons-lang.jar"
+        	include "commons-io.jar"
+        	include "commons-logging.jar"
+        	include "commons-codec.jar"
+        	include "commons-httpclient.jar"
+        	include "spring-core.jar"
+        	include "spring-web.jar"
+        	include "spring-context.jar"
+        	include "spring-beans.jar"
+        	include "spring-aop.jar"
+        	include "aopalliance.jar"
+        	include "log4j.jar"
+        	include "stream-supporting-httpinvoker.jar"
+	}.collect { zipTree(it).matching {exclude "META-INF/**"}}})
+
+	from ('source/java') {
+		include "**/*.png"
+	}
+
+    manifest {
+        attributes("Main-Class": "ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain")
+        attributes("Class-Path": "bcprov.jar bcpg.jar")
+    }	
+}
+
+task standaloneApp << {
+	ant.taskdef(name: 'bundle', classname: 'com.oracle.appbundler.AppBundlerTask', classpath: configurations.appbundler.asPath)
+    ant.bundle(outputdirectory: "${buildDir}", 
+    			name: 'CIFEXAppMac', 
+    			displayname: 'CIFEXAppMac', 
+    			identifier: 'ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain', 
+    			mainclassname: 'ch.systemsx.cisd.cifex.rpc.client.gui.FileClientMain') {
+   		
+    	classpath(dir: "${signedFolder}") {
+        	include(name: "bcpg.jar")
+        	include(name: "bcprov.jar")
+    	}
+    	
+    	classpath(dir: "${buildDir}/libs") {
+    		include(name: "CIFEX App.jar")
+    	}
+    }    	
+}
+standaloneApp.dependsOn standaloneJar
+
+task standaloneJarZip(type: Zip, dependsOn: standaloneJar) {
+    archiveName 'CIFEXApp.zip'
+	from standaloneJar.archivePath
+	from ("${signedFolder}") {
+		include "bcpg.jar"
+		include "bcprov.jar"
+	}
+}
+
+task standaloneAppZip(type: Zip, dependsOn: standaloneApp) {
+    archiveName 'CIFEXAppMac.app.zip'
+
+    from ("${buildDir}/CIFEXAppMac.app") {
+        into 'CIFEXAppMac.app'
+    }
+}
+
 
 task mainZip(type: Zip, dependsOn: createJettyVersionFile) {
     baseName 'cifex'
@@ -220,6 +293,8 @@ task mainZip(type: Zip, dependsOn: createJettyVersionFile) {
     from cliZip
     from('dist/server')
     from('dist/etc')
+    from standaloneAppZip 
+    from standaloneJarZip 
 
     from('etc') {
     	exclude 'dev.keystore'
@@ -242,5 +317,7 @@ task mainZip(type: Zip, dependsOn: createJettyVersionFile) {
 }
 mainZip.dependsOn createWar
 mainZip.dependsOn cliZip
+mainZip.dependsOn standaloneAppZip
+mainZip.dependsOn standaloneJarZip
 
 build.dependsOn mainZip
