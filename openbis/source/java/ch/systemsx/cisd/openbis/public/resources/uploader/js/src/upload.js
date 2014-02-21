@@ -28,7 +28,11 @@ function Uploader() {
         //file_list_clear_button: "#filelist-clear-button",
         oncomplete: function(file) { },
         chunk_size: 100*1024,
-        smart_mode: window.File && window.FileReader && window.XMLHttpRequest
+        smart_mode: window.File && window.FileReader && window.XMLHttpRequest,
+        main_title_container : "#session-workspace-uploader-main-title",
+        uploads_title_container : "#session-workspace-uploader-uploads-title",
+        main_title : "<h2>Session workspace upload</h2>",
+        uploads_title : "<h2>Uploads</h2>"
     };
 
     var _this = this;
@@ -410,6 +414,10 @@ function Uploader() {
             //$(settings.file_list_clear_button).click(clearFileList);
             $("#filedrop-hint").append("<br/>Upload starts immediately after the file selection.");
             
+            //Setting titles
+            $(_this.settings.main_title_container).append(_this.settings.main_title);
+            $(_this.settings.uploads_title_container).append(_this.settings.uploads_title);
+
             return _this;
         }
 }

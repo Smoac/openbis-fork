@@ -1447,15 +1447,15 @@ openbis.prototype.getDownloadUrlForFileForDataSetWithTimeout = function(dataSetC
  * Creates a session workspace file uploader inside the specified uploaderContainer element and for the default data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer, oncomplete){
-	return this.createSessionWorkspaceUploaderForDataStore(uploaderContainer, null, oncomplete);
+openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer, oncomplete, uploaderSettings){
+	return this.createSessionWorkspaceUploaderForDataStore(uploaderContainer, null, oncomplete, uploaderSettings);
 }
 
 /**
  * Creates a session workspace file uploader inside the specified uploaderContainer element and for the specified data store.
  * @method
  */
-openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploaderContainer, dataStoreCodeOrNull, oncomplete){
+openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploaderContainer, dataStoreCodeOrNull, oncomplete, uploaderSettings){
 	var uploaderSupported = window.File && window.FileReader && window.XMLHttpRequest;
 
 	if(!uploaderSupported){
@@ -1474,15 +1474,20 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 	var uploader = new Uploader();
 	this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
 		$(uploaderContainer).load(uploaderDirectoryLocation + "/index.html", function(){
-			uploader.init({
-			       smart_mode: true,
-			       chunk_size: 1000*1024,
-			       file_upload_url: dataStoreUrl + "/session_workspace_file_upload",
-			       form_upload_url: dataStoreUrl + "/session_workspace_form_upload",
-			       file_download_url: dataStoreUrl + "/session_workspace_file_download",
-			       oncomplete: oncomplete,
-			       sessionID: $this.getSession()
-			});
+			var finalSettings = {
+				       smart_mode: true,
+				       chunk_size: 1000*1024,
+				       file_upload_url: dataStoreUrl + "/session_workspace_file_upload",
+				       form_upload_url: dataStoreUrl + "/session_workspace_form_upload",
+				       file_download_url: dataStoreUrl + "/session_workspace_file_download",
+				       oncomplete: oncomplete,
+				       sessionID: $this.getSession()
+			};
+			
+			for(var key in uploaderSettings) {
+				finalSettings[key] = uploaderSettings[key];
+			}
+			uploader.init(finalSettings);
 		});
 	});
 	return uploader;
