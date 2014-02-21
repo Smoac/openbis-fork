@@ -6,6 +6,8 @@ apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 configurations.create('gwt')
 configurations.create('zipping')
+configurations.create('cliJars')
+configurations.create('partialLibs')
 
 def jettyVersion = '8.1.8'
 
@@ -28,6 +30,28 @@ dependencies {
         'google:gwt-dev:+',
         'sencha:gxt:+',
         'google:gwt-user:+'
+        
+	cliJars 'aopalliance:aopalliance:+',
+			'bouncycastle:bcpg:+',
+			'bouncycastle:bcprov:+',
+			'cisd:cisd-args4j:+',
+			'cisd:cisd-base:+',
+            'apache:commons-codec:+',
+            'apache:commons-io:+',
+            'apache:commons-httpclient:+',
+            'apache:commons-lang:+',
+            'apache:commons-logging:+',
+			'jline:jline:+',
+			'apache:log4j:+',
+            'springframework:spring-aop:+',
+            'springframework:spring-beans:+',
+            'springframework:spring-context:+',
+            'springframework:spring-core:+',
+            'springframework:spring-web:+',
+            'marathon:marathon-spring-util:+'
+            
+	partialLibs 'google:gwt-user:2.4'
+            
 }
 
 sourceSets { 
@@ -38,6 +62,12 @@ sourceSets {
     }
 }
 
+jar {
+	from zipTree(configurations.partialLibs.files.iterator().next()).matching {
+			include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+			include '**/com/google/gwt/user/client/rpc/SerializableException.class'
+	}
+}
 
 task compileGwt (dependsOn: classes, type: JavaExec) {
 
@@ -129,11 +159,65 @@ task createJettyVersionFile {
     }
 }
 
+toBeSignedFolder = "${buildDir}/to-be-signed-jars"
+signedFolder = "${buildDir}/signed-jars"
+
+task copyJarsForSigning(type: Copy, dependsOn: jar) {
+    from configurations.cliJars.files
+    from (jar.archivePath)
+    from (project(':common').jar.archivePath)
+    from (project(':authentication').jar.archivePath)
+    from (project(':dbmigration').jar.archivePath)
+
+    into toBeSignedFolder
+
+    rename '(.+)-[0-9[r]]+.*\\.jar', '$1.jar'
+    rename 'marathon-spring-util.*jar', 'stream-supporting-httpinvoker.jar'
+    rename 'cifex-SNAPSHOT.jar', 'cifex.jar'
+    rename 'authentication-SNAPSHOT.jar', 'authentication.jar'
+    rename 'dbmigration-SNAPSHOT.jar', 'dbmigration.jar'
+    rename 'common-SNAPSHOT.jar', 'common.jar'
+
+}
+
+keystoreFile = 'etc/dev.keystore'
+task signCliJars(type: Copy, dependsOn: [copyJarsForSigning]) {
+    from toBeSignedFolder
+    into signedFolder
+    inputs.file keystoreFile
+    doLast {
+        file(signedFolder).listFiles().each { file ->
+            if (file.name == 'cifex.jar') {
+                ant.jar(destfile: file, update: true) {
+                    delegate.manifest {
+                        attribute(name: 'Main-Class', value: 'ch.systemsx.cisd.cifex.rpc.client.cli.CIFEXClient')
+                        attribute(name: 'Class-Path', value: 'authentication.jar dbmigration.jar common.jar cisd-base.jar cisd-args4j.jar jline.jar commons-lang.jar commons-io.jar commons-logging.jar commons-codec.jar commons-httpclient.jar spring-core.jar spring-web.jar spring-context.jar spring-beans.jar spring-aop.jar aopalliance.jar stream-supporting-httpinvoker.jar bcpg.jar log4j.jar bcprov.jar')                        
+                    }
+                }
+            }
+            ant.signjar(jar: file, keystore: keystoreFile,
+                        alias: 'cifex', storepass: 'cifextest', keypass:'cifex1')
+        }
+    }
+}
+
+
+task cliZip(type: Zip, dependsOn: signCliJars) {
+	archiveName 'cifex_cli.zip'
+	from ('dist/client') {
+		into 'cifex'
+	}
+	from (signedFolder) {
+		into 'cifex/lib'
+	}	
+}
+
+
 task mainZip(type: Zip, dependsOn: createJettyVersionFile) {
     baseName 'cifex'
 
     from createJettyVersionFile
-
+    from cliZip
     from('dist/server')
     from('dist/etc')
 
@@ -157,5 +241,6 @@ task mainZip(type: Zip, dependsOn: createJettyVersionFile) {
 	into 'cifex'
 }
 mainZip.dependsOn createWar
+mainZip.dependsOn cliZip
 
 build.dependsOn mainZip
