@@ -59,7 +59,11 @@ public class FileClientMain {
                 String serverURL = loginForm.getServerURLField().getText();
                 String userName = loginForm.getUserNameField().getText();
                 String password = new String(loginForm.getPasswordField().getPassword());
-                String[] args = {serverURL, userName, password};
+                String cifexRPCService = "cifex/rpc-service";
+                if(!serverURL.endsWith("/")) {
+                    cifexRPCService = "/" + cifexRPCService;
+                }
+                String[] args = {serverURL + cifexRPCService, userName, password};
                 
                 try 
                 {

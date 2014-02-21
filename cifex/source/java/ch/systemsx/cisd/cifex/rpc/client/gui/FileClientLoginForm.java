@@ -90,7 +90,7 @@ public class FileClientLoginForm extends javax.swing.JFrame {
         loginButton.setText("Login");
 
         serverURLLabel.setFont(serverURLLabel.getFont());
-        serverURLLabel.setText("openBIS Server URL:");
+        serverURLLabel.setText("CIFEX Server URL:    ");
 
         serverURLField.setFont(serverURLField.getFont());
         serverURLField.setText("http://localhost:8888");
