@@ -1448,7 +1448,7 @@ openbis.prototype.getDownloadUrlForFileForDataSetWithTimeout = function(dataSetC
  * @method
  */
 openbis.prototype.createSessionWorkspaceUploader = function(uploaderContainer, oncomplete){
-	this.createSessionWorkspaceUploaderForDataStore(uploaderContainer, null, oncomplete);
+	return this.createSessionWorkspaceUploaderForDataStore(uploaderContainer, null, oncomplete);
 }
 
 /**
@@ -1464,16 +1464,17 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 	}
 	
 	var $this = this;
+	
+	// figure out what is the location of the openbis.js script and assume that uploader resources are served by the same server
+	var openbisScriptLocation = $('script[src*=openbis\\.js]').attr('src');
+	var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/openbis\.js/g, 'uploader');
+	
+	$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="' + uploaderDirectoryLocation + '/css/src/upload.css" />');
+	$('head').append('<script charset="utf-8" type="text/javascript" src="' + uploaderDirectoryLocation + '/js/src/upload.js" />');
+	var uploader = new Uploader();
 	this._internal.getDataStoreUrlForDataStoreCode(dataStoreCodeOrNull, function(dataStoreUrl){
-		// figure out what is the location of the openbis.js script and assume that uploader resources are served by the same server
-		var openbisScriptLocation = $('script[src*=openbis\\.js]').attr('src');
-		var uploaderDirectoryLocation = jsFileLocation = openbisScriptLocation.replace(/js\/openbis\.js/g, 'uploader');
-		
-		$('head').append('<link rel="stylesheet" media="screen" type="text/css" href="' + uploaderDirectoryLocation + '/css/src/upload.css" />');
-		$('head').append('<script charset="utf-8" type="text/javascript" src="' + uploaderDirectoryLocation + '/js/src/upload.js" />');
-		
 		$(uploaderContainer).load(uploaderDirectoryLocation + "/index.html", function(){
-			Uploader.init({
+			uploader.init({
 			       smart_mode: true,
 			       chunk_size: 1000*1024,
 			       file_upload_url: dataStoreUrl + "/session_workspace_file_upload",
@@ -1484,6 +1485,7 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 			});
 		});
 	});
+	return uploader;
 }
 
 /**
