@@ -112,9 +112,11 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				localInstance._repaintMetadata($('#DATASET_TYPE').val())
 			}
 		}
-		this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete);
 		
-		var something = 0;
+		var uploader = this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
+			main_title : $('<legend>').text('Files Uploader'),
+			uploads_title : $('<legend>').text('File list')
+		});
 	}
 	
 	this._updateFileOptions = function() {
