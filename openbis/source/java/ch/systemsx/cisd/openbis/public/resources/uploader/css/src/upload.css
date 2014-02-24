@@ -282,3 +282,12 @@ button:hover {
     left: 0;
     z-index: -100;
 }
+.delete-button {
+	cursor:pointer;
+	opacity: 0.5;
+	font-size: 20px;
+}
+.delete-button:hover {
+	opacity: 1;
+	font-weight:bold;
+}

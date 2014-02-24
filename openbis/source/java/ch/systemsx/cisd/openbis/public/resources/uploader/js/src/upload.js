@@ -259,7 +259,7 @@ var Uploader = new function () {
         ++current_upload_id;
         $(settings.file_list)
             .append("<li class=\"upload\" id=\"upload-" + id + "\">" +
-            		"<span id='delete-" + id + "' style='font-size: 20px;'>X</span> " +
+            		"<span id='delete-" + id + "' class='delete-button'>X</span> " +
                     "<span id=\"progress-" + id + "\" class=\"progressbar-container\">" +
                     "<span id=\"progressbar-" + id + "\" class=\"progressbar\"></span>" + 
                     "</span>" +
