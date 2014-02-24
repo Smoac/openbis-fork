@@ -385,7 +385,6 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
   # the illlumina pipeline uses always one base less than the sequencer is sequencing
   DEMULTIPLEX_INDEX_LENGTH_PENALTY = -1
   
-
   logger.debug (parentDict)
   logger.debug(samplesPerLaneDict)
 
@@ -422,8 +421,8 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
     if len(index) == 0:
       # more than one samples in an non-indexed lane 
       if samplesPerLaneDict[lane] > 1:
-        # if it is not a PhiX
-        if (parentDict[key]['NCBI_ORGANISM_TAXONOMY'] == '10847'):
+        # if it is not a PhiX  and not a Pool Sample
+        if (parentDict[key]['NCBI_ORGANISM_TAXONOMY'] != '10847') and parentDict[key]['BARCODE_COMPLEXITY_CHECKER'] != 'OK':
           # then just use this sample and skip the others if there are more
           samplesPerLaneDict[lane] = 0
           index = ' '
@@ -666,6 +665,8 @@ def main ():
     flowCellName = flowCellName.split('_')[3][1:]
 
   flowCellDict = convertSampleToDict(foundFlowCell)
+  
+  logger.debug(flowCellDict)
 
   hiseqList = configMap['hiSeqNames'].split()
   miseqList = configMap['miSeqNames'].split()
@@ -681,6 +682,7 @@ def main ():
 
   sampleSheetDict, SampleSheetFile = createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
                          logger, myoptions)
+  logger.debug(sampleSheetDict)
 #  for miseq in miseqList:
 #    if miseq in runFolderName:
 #      logger.info('Detected MiSeq run.')
