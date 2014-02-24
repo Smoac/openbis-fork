@@ -15,8 +15,9 @@ Copyright 2012 Oliver Lau, Heise Zeitschriften Verlag
    limitations under the License.
 */
 
-function Uploader() {
-    this.defaults = {
+
+var Uploader = new function () {
+    var defaults = {
         upload_dir: "/uploaded",
         file_upload_url: "/uploader2/upload.php",
         form_upload_url: "/uploader2/form-upload.php",
@@ -35,35 +36,39 @@ function Uploader() {
         uploads_title : "<h2>Uploads</h2>"
     };
 
-    var _this = this;
-    this.current_upload_id = 0;
-    this.current_form_id = 0;
-    this.progress = {};
-//    var form = {};
-    this.settings = this.defaults;
 
-    this.reset = function() {
-    	_this.current_upload_id = 0;
-    	_this.current_form_id = 0;
-    	_this.progress = {};
-        $(_this.settings.file_list).removeClass("visible");
+    var current_upload_id = 0;
+    var current_form_id = 0;
+    var progress = {};
+    var form = {};
+    var settings = defaults;
+
+
+    function reset() {
+        current_upload_id = 0;
+        current_form_id = 0;
+        progress = {};
+        $(settings.file_list).removeClass("visible");
         //$(settings.file_list_clear_button).css("display", "none");
         setTimeout(function() {
-            $(_this.settings.file_list).empty();
+            $(settings.file_list).empty();
         }, 256);
     }
 
-    this.async_exec = function(f, ms) {
+
+    function async_exec(f, ms) {
         ms = ms || 100;
         setTimeout(f, ms);
     }
 
+
     this.uploadsInProgress = function() {
-        return Object.keys(_this.progress).length > 0;
+        return Object.keys(progress).length > 0;
     }
 
+
 //    function clearFileList() {
-//        if (uploadsInProgress()) {
+//        if (this.uploadsInProgress()) {
 //            $(".ready").addClass("fadeOut");
 //            $(".bad").addClass("fadeOut");
 //            $(".aborted").addClass("fadeOut");
@@ -78,7 +83,8 @@ function Uploader() {
 //        }
 //    }
 
-    this.styleSize = function(n) {
+
+    function styleSize(n) {
         var prefixes = [ "KB", "MB", "GB" ];
         var prefix = "bytes";
         while (n > 10240 && prefixes.length > 0) {
@@ -88,7 +94,8 @@ function Uploader() {
         return Math.round(n) + "&nbsp;" + prefix;
     }
 
-    this.makeChunk = function(file, startByte, endByte) {
+
+    function makeChunk(file, startByte, endByte) {
         var blob = undefined;
         if (file.slice)
             blob = file.slice(startByte, endByte);
@@ -99,98 +106,103 @@ function Uploader() {
         return blob;
     }
 
-    this.resumeUpload = function(id) {
-    	_this.progress[id].pause = false;
-    	_this.progress[id].abort = false;
+
+    function resumeUpload(id) {
+        progress[id].pause = false;
+        progress[id].abort = false;
         $("#play-button-" + id).remove();
         $("#pause-button").clone().attr("id", "pause-button-" + id)
             .appendTo("#action-bar-" + id)
             .click(function() {
-                _this.pauseUpload(id);
+                pauseUpload(id);
             });
-        var startByte = _this.progress[id].bytesSent;
-        var endByte = startByte + this.settings.chunk_size;
-        if (endByte > _this.progress[id].file.size)
-            endByte = _this.progress[id].file.size;
-        var blob = _this.makeChunk(_this.progress[id].file, startByte, endByte);
-        _this.uploadChunk(_this.progress[id].file, blob, id, startByte, endByte);
+        var startByte = progress[id].bytesSent;
+        var endByte = startByte + settings.chunk_size;
+        if (endByte > progress[id].file.size)
+            endByte = progress[id].file.size;
+        var blob = makeChunk(progress[id].file, startByte, endByte);
+        uploadChunk(progress[id].file, blob, id, startByte, endByte);
     }
 
-    this.abortUpload = function(id) {
-    	_this.progress[id].abort = true;
-        _this.progress[id].xhr.abort();
+
+    function abortUpload(id) {
+        progress[id].abort = true;
+        progress[id].xhr.abort();
     }
 
-    this.deleteFile = function(id) {
+
+    function deleteFile(id) {
         $.ajax("delete-file.php", {
             async: true,
             data: {
                 id: id,
-                filename: _this.progress[id].file.name
+                filename: progress[id].file.name
             }
         }).done(function(data) {
             $("#upload-" + id).addClass("deleted");
         });
     }
     
-    this.pauseUpload = function(id) {
-        _this.progress[id].pause = true;
+
+    function pauseUpload(id) {
+        progress[id].pause = true;
         $("#pause-button-" + id).remove();
         $("#play-button").clone().attr("id", "play-button-" + id)
             .appendTo("#action-bar-" + id)
             .click(function() {
-                _this.resumeUpload(id);
+                resumeUpload(id);
             });
     }
     
-    this.uploadChunk = function(file, blob, id, startByte, endByte) {
-        if (typeof _this.progress[id] === "undefined" || _this.progress[id].abort || _this.progress[id].pause)
+
+    function uploadChunk(file, blob, id, startByte, endByte) {
+        if (typeof progress[id] === "undefined" || progress[id].abort || progress[id].pause)
             return;
         var reader = new FileReader;
         reader.onload = function(e) {
             if (e.target.readyState == FileReader.DONE) {
-                if (typeof _this.progress[id] === "undefined")
+                if (typeof progress[id] === "undefined")
                     return;
                 var xhr = new XMLHttpRequest;
-                _this.progress[id].xhr = xhr;
+                progress[id].xhr = xhr;
                 // pkupczyk: added sessionID
-                xhr.open("POST", _this.settings.file_upload_url +
+                xhr.open("POST", settings.file_upload_url +
                          "?filename=" + file.name +
                          "&id=" + id +
                          "&startByte=" + startByte +
                          "&endByte=" + endByte + 
-                         "&sessionID=" + _this.settings.sessionID,
+                         "&sessionID=" + settings.sessionID,
                          true);
                 xhr.onload = function(e) {
                     var d = JSON.parse(xhr.responseText);
-                    if (typeof _this.progress[d.id] === "undefined")
+                    if (typeof progress[d.id] === "undefined")
                         return;
                     if (d.status === "ok") {
-                        _this.progress[d.id].bytesSent += d.endByte - d.startByte;
-                        var secs = 1e-3 * (Date.now() - _this.progress[d.id].startTime);
-                        if (_this.progress[d.id].bytesSent < file.size) {
-                            var percentage = 100 * _this.progress[d.id].bytesSent / file.size;
+                        progress[d.id].bytesSent += d.endByte - d.startByte;
+                        var secs = 1e-3 * (Date.now() - progress[d.id].startTime);
+                        if (progress[d.id].bytesSent < file.size) {
+                            var percentage = 100 * progress[d.id].bytesSent / file.size;
                             $("#progressbar-" + d.id).css("width", percentage + "%");
-                            $("#speed-" + d.id).html(_this.styleSize(_this.progress[d.id].bytesSent / secs) + "/s");
+                            $("#speed-" + d.id).html(styleSize(progress[d.id].bytesSent / secs) + "/s");
                             startByte = endByte;
-                            endByte += _this.settings.chunk_size;
+                            endByte += settings.chunk_size;
                             if (endByte > file.size)
                                 endByte = file.size;
-                            var blob = _this.makeChunk(file, startByte, endByte);
-                            _this.uploadChunk(file, blob, id, startByte, endByte);
+                            var blob = makeChunk(file, startByte, endByte);
+                            uploadChunk(file, blob, id, startByte, endByte);
                         }
                         else {
                             $("#progressbar-" + d.id).addClass("ready");
                             $("#progressbar-" + d.id).css("width", "100%");
                             $("#upload-" + d.id).addClass("ready");
-                            $("#speed-" + d.id).html(_this.styleSize(file.size / secs) + "/s");
+                            $("#speed-" + d.id).html(styleSize(file.size / secs) + "/s");
                             // pkupczyk: changed download url
                             $("#filename-" + d.id).replaceWith("<a target=\"_blank\" " +
-                                                               "href=\"" + _this.settings.file_download_url + "?sessionID=" + _this.settings.sessionID + "&filePath=" +
+                                                               "href=\"" + settings.file_download_url + "?sessionID=" + settings.sessionID + "&filePath=" +
                                                                d.filename + "\">" + d.filename + "</a>"); 
                             $("#action-bar-" + d.id).remove();
-                            delete _this.progress[d.id];
-                            _this.settings.oncomplete(file);
+                            delete progress[d.id];
+                            settings.oncomplete(file);
                         }
                     }
                     else {
@@ -198,22 +210,22 @@ function Uploader() {
                         $("#upload-" + d.id).addClass("bad");
                         $("#speed-" + d.id).replaceWith("<strong>" + d.message + "</strong>");
                         $("#action-bar-" + d.id).remove();
-                        delete _this.progress[d.id];
+                        delete progress[d.id];
                     }
                 };
                 xhr.onabort = function(e) {
                     $("#progressbar-" + id).addClass("aborted");
                     $("#upload-" + id).addClass("aborted");
                     $("#action-bar-" + id).remove();
-                    _this.deleteFile(id);
-                    delete _this.progress[id];
+                    deleteFile(id);
+                    delete progress[id];
                 };
                 xhr.onerror = function(e) {
                     $("#progressbar-" + id).addClass("bad");
                     $("#upload-" + id).addClass("bad");
                     $("#action-bar-" + id).remove();
-                    _this.deleteFile(id);
-                    delete _this.progress[id];
+                    deleteFile(id);
+                    delete progress[id];
                 };
                 xhr.send(e.target.result);
             }
@@ -240,32 +252,33 @@ function Uploader() {
         reader.readAsArrayBuffer(blob);
     }
 
-    this.upload = function(file) {
-        var id = _this.current_upload_id;
-        ++_this.current_upload_id;
-        $(_this.settings.file_list)
+
+    function upload(file) {
+        var id = current_upload_id;
+        ++current_upload_id;
+        $(settings.file_list)
             .append("<li class=\"upload\" id=\"upload-" + id + "\">" +
                     "<span id=\"progress-" + id + "\" class=\"progressbar-container\">" +
                     "<span id=\"progressbar-" + id + "\" class=\"progressbar\"></span>" + 
                     "</span>" +
                     "<span id=\"action-bar-" + id + "\"></span> " +
                     "<span id=\"filename-" + id + "\">" + file.name + "</span>" +
-                    " (" + _this.styleSize(file.size) + ", " +
+                    " (" + styleSize(file.size) + ", " +
                     "<span id=\"speed-" + id + "\">? KB/s</span>)" +
                     "</li>");
         $("#upload-" + id).addClass("starting");
-        if (_this.settings.smart_mode) {
+        if (settings.smart_mode) {
             $("#stop-button").clone().attr("id", "stop-button-" + id)
                 .appendTo("#action-bar-" + id)
                 .click(function() {
-                    _this.abortUpload(id);
+                    abortUpload(id);
                 });
             $("#pause-button").clone().attr("id", "pause-button-" + id)
                 .appendTo("#action-bar-" + id)
                 .click(function() {
-                    _this.pauseUpload(id);
+                    pauseUpload(id);
                 });
-            _this.progress[id] = {
+            progress[id] = {
                 file: file,
                 startTime: Date.now(),
                 bytesSent: 0,
@@ -274,31 +287,33 @@ function Uploader() {
                 xhr: null
             };
             // 1. Chunk will be uploaded, further chunks will be uploaded via onload-Handler
-            var lastByte = (file.size < this.settings.chunk_size)? file.size : this.settings.chunk_size;
-            var blob = _this.makeChunk(file, 0, lastByte);
-            _this.uploadChunk(file, blob, id, 0, lastByte);
+            var lastByte = (file.size < settings.chunk_size)? file.size : settings.chunk_size;
+            var blob = makeChunk(file, 0, lastByte);
+            uploadChunk(file, blob, id, 0, lastByte);
         }
         else {
             $("#progressbar-" + id).css("width", "100%");
         }
     }
 
-    this.uploadFiles = function(files) {
-        $(_this.settings.file_list).addClass("visible");
+
+    function uploadFiles(files) {
+        $(settings.file_list).addClass("visible");
         //$(settings.file_list_clear_button).css("display", "inline");
         if (typeof files === "object" && files.length > 0) {
-            $.each(files, function() { _this.upload(this); });
+            $.each(files, function() { upload(this); });
         }
     }
 
-    this.generateUploadForm = function() {
-        var id = ++_this.current_form_id;
+
+    function generateUploadForm() {
+        var id = ++current_form_id;
         $("#iframe-container")
         	// pkupczyk: added sessionID
             .append("<iframe id=\"iframe-" + id + "\"" +
                     " name=\"iframe-" + id + "\"" +
                     "></iframe>" +
-                    "<form action=\"" + this.settings.form_upload_url + "?sessionID=" + this.settings.sessionID + "\"" +
+                    "<form action=\"" + settings.form_upload_url + "?sessionID=" + settings.sessionID + "\"" +
                     " target=\"iframe-" + id + "\"" +
                     " id=\"form-" + id + "\"" +
                     " enctype=\"multipart/form-data\"" +
@@ -309,15 +324,15 @@ function Uploader() {
         $("#fileinput-" + id)
             .bind("change", function(event) {
                 var files = event.target.files;
-                _this.uploadFiles(files);
-                if (!_this.settings.smart_mode) {
-                    _this.generateUploadForm();
+                uploadFiles(files);
+                if (!settings.smart_mode) {
+                    generateUploadForm();
                     event.target.form.submit();
                 }
                 event.preventDefault();
                 return false;
             })
-        $(_this.settings.file_input_button)
+        $(settings.file_input_button)
             .unbind("click")
             .bind("click", function() {
                 $("#fileinput-" + id).trigger("click");
@@ -332,7 +347,7 @@ function Uploader() {
             }
         });
     }
-    
+
     this.init = function(opts) {
             // Checks whether the browser can show SVG, if not PNGs are used
             var svgSupported = (function() {
@@ -364,60 +379,58 @@ function Uploader() {
             */
             
             // Settings might be overwritten by init() parameters
-            _this.settings = $.extend({}, _this.settings, opts);
-            _this.settings.smart_mode = _this.settings.smart_mode && _this.defaults.smart_mode;
+            settings = $.extend({}, settings, opts);
+            settings.smart_mode = settings.smart_mode && defaults.smart_mode;
             
             // pkupczyk: we do not provide listing of uploaded files yet
             //$("h2 > a").attr("href", settings.upload_dir);
             
-            if (_this.settings.smart_mode) {
+            if (settings.smart_mode) {
                 $("#filedrop-hint").html("Drag and drop the files to upload here or click 'Select files to upload' button.");
-                $(_this.settings.file_input)
+                $(settings.file_input)
                     .bind("change", function(event) {
-                        _this.uploadFiles(event.target.files);
+                        uploadFiles(event.target.files);
                     });
-                $(_this.settings.file_input_button)
+                $(settings.file_input_button)
                     .click(function() {
-                        $(_this.settings.file_input).trigger("click");
+                        $(settings.file_input).trigger("click");
                     });
-                $(_this.settings.drop_area).bind(
+                $(settings.drop_area).bind(
                     {
                         dragover: function(event) {
                             var e = event.originalEvent;
                             e.stopPropagation();
                             e.preventDefault();
                             e.dataTransfer.dropEffect = "copy";
-                            $(_this.settings.drop_area).addClass("over");
+                            $(settings.drop_area).addClass("over");
                         }
                         ,
                         dragleave: function(event) {
                             var e = event.originalEvent;
                             e.stopPropagation();
                             e.preventDefault();
-                            $(_this.settings.drop_area).removeClass("over");
+                            $(settings.drop_area).removeClass("over");
                         }
                         ,
                         drop: function(event) {
                             var e = event.originalEvent;
                             e.stopPropagation();
                             e.preventDefault();
-                            $(_this.settings.drop_area).removeClass("over");
-                            _this.uploadFiles(e.dataTransfer.files);
+                            $(settings.drop_area).removeClass("over");
+                            uploadFiles(e.dataTransfer.files);
                         }
                     }
                 );
             }
             else { // fallback mode
                 $("#filedrop-hint").html("Click 'Select files to upload' button.");
-                _this.generateUploadForm();
+                generateUploadForm();
             }
             //$(settings.file_list_clear_button).click(clearFileList);
             $("#filedrop-hint").append("<br/>Upload starts immediately after the file selection.");
-            
-            //Setting titles
-            $(_this.settings.main_title_container).append(_this.settings.main_title);
-            $(_this.settings.uploads_title_container).append(_this.settings.uploads_title);
 
-            return _this;
+            //Setting titles
+            $(settings.main_title_container).append(settings.main_title);
+            $(settings.uploads_title_container).append(settings.uploads_title);
         }
 }

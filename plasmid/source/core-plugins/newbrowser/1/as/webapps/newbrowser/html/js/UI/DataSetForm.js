@@ -113,7 +113,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			}
 		}
 		
-		var uploader = this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
+		this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
 			main_title : $('<legend>').text('Files Uploader'),
 			uploads_title : $('<legend>').text('File list')
 		});
@@ -335,10 +335,9 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			return;
 		}
 		
-		var uploadingFiles = $("#filelist").children();
-		if(uploadingFiles.length > this.files.length) {
+		if(Uploader.uploadsInProgress()) {
 			Util.blockUI();
-			Util.showError("Only " + this.files.length + " from " + uploadingFiles.length + " files have finish. Please wait the upload to finish.", function() { Util.unblockUI(); });
+			Util.showError("Please wait the upload to finish.", function() { Util.unblockUI(); });
 			return;
 		}
 		
