@@ -28,6 +28,7 @@ var Uploader = new function () {
         file_input_button: "#fileinput-button",
         //file_list_clear_button: "#filelist-clear-button",
         oncomplete: function(file) { },
+        ondelete: function(file) {},
         chunk_size: 100*1024,
         smart_mode: window.File && window.FileReader && window.XMLHttpRequest,
         main_title_container : "#session-workspace-uploader-main-title",
@@ -258,6 +259,7 @@ var Uploader = new function () {
         ++current_upload_id;
         $(settings.file_list)
             .append("<li class=\"upload\" id=\"upload-" + id + "\">" +
+            		"<span id='delete-" + id + "' style='font-size: 20px;'>X</span> " +
                     "<span id=\"progress-" + id + "\" class=\"progressbar-container\">" +
                     "<span id=\"progressbar-" + id + "\" class=\"progressbar\"></span>" + 
                     "</span>" +
@@ -266,6 +268,12 @@ var Uploader = new function () {
                     " (" + styleSize(file.size) + ", " +
                     "<span id=\"speed-" + id + "\">? KB/s</span>)" +
                     "</li>");
+        $("#delete-"+id).click(function() {
+        	var fileData = file;
+        	$( "#upload-"+id).remove();
+        	settings.ondelete(fileData);
+        });
+        
         $("#upload-" + id).addClass("starting");
         if (settings.smart_mode) {
             $("#stop-button").clone().attr("id", "stop-button-" + id)

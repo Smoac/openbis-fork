@@ -113,9 +113,19 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			}
 		}
 		
+		var onDelete = function(data) {
+			for(var i=0; localInstance.files.length; i++) {
+				if(localInstance.files[i] === data.name) {
+					localInstance.files.splice(i, 1);
+					break;
+				}
+			}
+		}
+		
 		this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
 			main_title : $('<legend>').text('Files Uploader'),
-			uploads_title : $('<legend>').text('File list')
+			uploads_title : $('<legend>').text('File list'),
+			ondelete:onDelete
 		});
 	}
 	

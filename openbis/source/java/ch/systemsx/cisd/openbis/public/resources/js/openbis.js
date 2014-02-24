@@ -1483,9 +1483,12 @@ openbis.prototype.createSessionWorkspaceUploaderForDataStore = function(uploader
 				       sessionID: $this.getSession()
 			};
 			
-			for(var key in uploaderSettings) {
-				finalSettings[key] = uploaderSettings[key];
+			if(uploaderSettings) {
+				for(var key in uploaderSettings) {
+					finalSettings[key] = uploaderSettings[key];
+				}
 			}
+			
 			Uploader.init(finalSettings);
 		});
 	});
