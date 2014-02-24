@@ -285,7 +285,7 @@ button:hover {
 .delete-button {
 	cursor:pointer;
 	opacity: 0.5;
-	font-size: 20px;
+	font-size: 21px;
 }
 .delete-button:hover {
 	opacity: 1;
