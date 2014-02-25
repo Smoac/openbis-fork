@@ -438,7 +438,34 @@ public class IntensityRescaling
      */
     public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels)
     {
-        return rescaleIntensityLevelTo8Bits(new GrayscalePixels(image), levels);
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+        final BufferedImage rescaledImage =
+                new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        WritableRaster rescaledRaster = rescaledImage.getRaster();
+
+        final float dynamicRange = 255f / (levels.maxLevel - levels.minLevel);
+
+        for (int y = 0; y < height; ++y)
+        {
+            for (int x = 0; x < width; ++x)
+            {
+                for (Channel channel : Channel.values())
+                {
+                    int originalIntensity = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
+
+                    // cut all intensities above the white point
+                    int intensity = Math.min(levels.maxLevel, originalIntensity);
+                    // cut all intensities below the black point and move the origin to 0
+                    intensity = Math.max(0, intensity - levels.minLevel);
+                    // normalize to [0, 1] and rescale to 8 bits
+                    intensity = (int) (0.5 + (intensity * dynamicRange));
+
+                    rescaledRaster.setSample(x, y, channel.getBand(), intensity);
+                }
+            }
+        }
+        return rescaledImage;
     }
 
     public static BufferedImage rescaleIntensityLevelTo8Bits(BufferedImage image, Levels levels,
