@@ -56,7 +56,10 @@ public class PlateDimensionParser
      */
     public static PlateDimension tryToGetPlateDimension(final IEntityProperty[] properties)
     {
-        assert properties != null : "Unspecified properties";
+        if (properties == null)
+        {
+            return null;
+        }
         IEntityProperty plateGeometryProperty =
                 EntityHelper.tryFindProperty(properties, PLATE_GEOMETRY_PROPERTY_NAME);
         if (plateGeometryProperty == null)

@@ -385,8 +385,8 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         if (result.isOK() == false)
         {
             throw new IOException(String.format(
-                    "Error calling 'convert' for image '%s'. Exit value: %d, I/O status: %s",
-                    imageFilePath, result.getExitValue(), result.getProcessIOResult().getStatus()));
+                    "Error calling 'convert' with parameters %s for image '%s'. Exit value: %d, I/O status: %s",
+                    params, imageFilePath, result.getExitValue(), result.getProcessIOResult().getStatus()));
         } else
         {
             if ((imageDataSetStructure.getChannelColorComponents() != null && imageDataSetStructure
