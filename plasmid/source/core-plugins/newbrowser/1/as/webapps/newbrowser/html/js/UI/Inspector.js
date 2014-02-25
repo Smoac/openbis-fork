@@ -232,7 +232,7 @@ function Inspector(serverFacade, containerId, profile) {
 		return allParentCodesAsText;
 	}
 	
-	this.getInspectorTable = function(entity, showClose, withColors, withLinks) {
+	this.getInspectorTable = function(entity, showClose, withColors, withLinks, optionalTitle, isCondensed) {
 		var defaultColor = null;
 		
 		if(!withColors) {
@@ -243,7 +243,15 @@ function Inspector(serverFacade, containerId, profile) {
 
 		var inspector = "";
 			var divID = entity.sampleTypeCode + "_" + entity.code + "_INSPECTOR";
-			inspector += "<div id='"+divID+"' class='inspector' style='background-color:" + defaultColor + ";' >";
+			
+			var inspectorClass = null;
+			if(isCondensed) {
+				inspectorClass = 'inspectorCondensed';
+			} else {
+				inspectorClass = 'inspector';
+			}
+			
+			inspector += "<div id='"+divID+"' class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
 			
 			if(showClose) {
 				var removeButton = "<span class='btn inspectorToolbar btn-inverse' style='float:left; margin: 2px' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='icon-remove icon-white'></i></span>";
@@ -255,20 +263,21 @@ function Inspector(serverFacade, containerId, profile) {
 				inspector += toogleButton;
 			}
 			
-			inspector += "<strong>" + entity.code + "</strong>";
+			if(optionalTitle) {
+				inspector += optionalTitle;
+			} else {
+				inspector += "<strong>" + entity.code + "</strong>";
+			}
 			
-
 			
 			if(withLinks) {
 				var printButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px;' onclick='mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='icon-print'></i></span>";
 				inspector += printButton;
-				var viewButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px' onclick='mainController.inspector.showViewSamplePage(\""+entity.permId+"\")'><i class='icon-edit'></i></span>";
+				var viewButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px' onclick='mainController.inspector.showViewSamplePage(\""+entity.permId+"\")'><i class='icon-eye-open'></i></span>";
 				inspector += viewButton;
 			}
 			
-			
-			
-			inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table'>"
+			inspector += "<table id='" + entity.permId +"_TOOGLE' class='properties table table-condensed'>"
 			
 			//Show Properties following the order given on openBIS
 			var sampleTypePropertiesCode =  this.profile.getAllPropertiCodesForTypeCode(entity.sampleTypeCode);

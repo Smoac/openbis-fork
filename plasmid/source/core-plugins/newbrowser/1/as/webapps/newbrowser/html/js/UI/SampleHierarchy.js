@@ -20,7 +20,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sample = sample;
-
+	
 	this.init = function() {
 		this.repaint();
 	}
@@ -161,8 +161,6 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		this._filterSampleAndUpdate();
 	}
 	
-	
-	
 	this._filterSampleAndUpdate = function() {
 		var newSample = jQuery.extend(true, {}, this.sample);
 		
@@ -236,6 +234,29 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		this._repaintGraph(newSample);
 	}
 	
+	this._updateDataFor = function(show, permId) {
+		var searchAndUpdateData = function(show, permId, sample) {
+			if(sample.permId === permId) {
+				sample.showDataOnGraph = show;
+			} else {
+				if(sample.parents) {
+					for(var i = 0; i < sample.parents.length; i++) {
+						searchAndUpdateData(show, permId, sample.parents[i]);
+					}
+				}
+				
+				if(sample.children) {
+					for(var i = 0; i < sample.children.length; i++) {
+						searchAndUpdateData(show, permId, sample.children[i]);
+					}
+				}
+			}
+		}
+		
+		searchAndUpdateData(show, permId, this.sample);
+		this._filterSampleAndUpdate();
+	}
+	
 	this._updateDisplayabilityFor = function(hide, permId) {
 		var searchAndUpdateDisplayability = function(hide, permId, sample) {
 			if(sample.permId === permId) {
@@ -264,6 +285,8 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		
 		//Fill graph
 		var NODES = {};
+		
+		var _this = this;
 		function addSampleNodes(sample, rootPermId) {
 			if(!NODES[sample.permId]) {
 				var $nodeContent = $('<div>');
@@ -282,13 +305,36 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 						'style' : 'cursor:pointer',
 					}));
 				
+				var $dataLink = $('<a>', {
+					'href' : "javascript:mainController.sampleHierarchy._updateDataFor(" + ((sample.showDataOnGraph)?false:true) + ",'" + sample.permId + "');"
+				}).append(
+					$('<i>', {
+						'class' : (sample.showDataOnGraph)?'icon-minus-sign':'icon-plus-sign',
+						'style' : 'cursor:pointer',
+					}));
+				
 				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.showViewSamplePageFromPermId('" + sample.permId + "')"}).html(sample.code);
+				
+				
 				
 				if(sample.showLabel || (sample.permId === rootPermId)) {
 					$nodeContent
 						.append($hideLink)
+						.append($dataLink)
 						.append(sample.sampleTypeCode + ':')
 						.append($sampleLink);
+				
+				if(sample.showDataOnGraph) {
+					var optionalInspectorTitle = $nodeContent[0].outerHTML;
+					var $inspector = _this.inspector.getInspectorTable(sample, false, true, false, optionalInspectorTitle, true);
+					
+					$nodeContent.empty();
+					$nodeContent.css({
+						'background-color' : 'transparent'
+					});
+					$nodeContent.append($inspector);
+				}
+					
 				} else {
 					$nodeContent.append('---');
 				}
@@ -352,7 +398,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		transition(d3.select('svg'))
 			.attr('width', $(document).width() - 30)
 			.attr('height', $(document).height() - 120)
-			
+		
 		d3.select('svg')
 		.call(d3.behavior.zoom().on('zoom', function() {
 			var ev = d3.event;
