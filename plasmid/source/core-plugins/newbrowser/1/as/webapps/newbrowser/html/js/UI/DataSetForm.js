@@ -120,6 +120,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 					break;
 				}
 			}
+			localInstance._updateFileOptions();
 		}
 		
 		this.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
