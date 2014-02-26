@@ -82,7 +82,7 @@ public class PngWritingHelper
             for (int col = 0; col < cols; ++col)
             {
                 WritableRaster raster = image.getRaster();
-                short[] value = (short[]) raster.getDataElements(row, col, null);
+                short[] value = (short[]) raster.getDataElements(col, row, null);
                 // TODO The values converted by the color model seem to be byte swapped. We
                 // currently just put the value in the green channel until we figure out how to
                 // handle these images.
