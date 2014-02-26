@@ -542,27 +542,17 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
                     List<VocabularyTerm> newVocabularyTermCodes = extractNewVocabularyTermCodes();
+
                     String[] labels = extractNewVocabularyTermLabels();
-                    if (labels.length != 0 && newVocabularyTermCodes.size() != labels.length)
+                    for (int i = 0; i < labels.length; i++)
                     {
-                        MessageBox.alert("Error", "You need to have the same number of codes and labels.", null);
-                    } else
-                    {
-                        for (int i = 0; i < labels.length; i++)
-                        {
-                            newVocabularyTermCodes.get(i).setLabel(labels[i]);
-                        }
+                        newVocabularyTermCodes.get(i).setLabel(labels[i]);
                     }
+
                     String[] descriptions = extractNewVocabularyTermDescriptions();
-                    if (descriptions.length != 0 && newVocabularyTermCodes.size() != descriptions.length)
+                    for (int i = 0; i < descriptions.length; i++)
                     {
-                        MessageBox.alert("Error", "You need to have the same number of codes and descriptions.", null);
-                    } else
-                    {
-                        for (int i = 0; i < descriptions.length; i++)
-                        {
-                            newVocabularyTermCodes.get(i).setDescription(descriptions[i]);
-                        }
+                        newVocabularyTermCodes.get(i).setDescription(descriptions[i]);
                     }
 
                     Long previousTermOrdinal = extractPreviousTermOrdinal();
@@ -586,6 +576,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     final TextArea result = new TextArea();
                     result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERMS_DESCRIPTION));
                     result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_DESCRIPTION_EMPTY));
+                    result.setValidator(new LabelAndDescriptionTermsValidator(newTermCodesArea,
+                            "You need to have the same number of codes and descriptions."));
                     return result;
                 }
 
@@ -594,6 +586,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     final TextArea result = new TextArea();
                     result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERMS_LABEL));
                     result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_LABEL_EMPTY));
+                    result.setValidator(new LabelAndDescriptionTermsValidator(newTermCodesArea,
+                            "You need to have the same number of codes and labels."));
                     return result;
                 }
 
