@@ -269,9 +269,13 @@ var Uploader = new function () {
                     "<span id=\"speed-" + id + "\">? KB/s</span>)" +
                     "</li>");
         $("#delete-"+id).click(function() {
-        	var fileData = file;
-        	$( "#upload-"+id).remove();
-        	settings.ondelete(fileData);
+        	if(!progress[id]) {
+        		var fileData = file;
+            	$( "#upload-"+id).remove();
+            	settings.ondelete(fileData);
+        	} else {
+        		alert("The upload is in progress, please wait.");
+        	}
         });
         
         $("#upload-" + id).addClass("starting");
