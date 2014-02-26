@@ -75,7 +75,7 @@ final class LoginPage extends VerticalPanel
         add(getBannersPage());
         add(northPanel);
         add(loginPanel);
-        add(new InlineHTML("Or you use CIFEX from the desktop via the CIFEX App for <a href='/CIFEXMacApp.app.zip'>Mac</a> and <a href='/CIFEXApp.zip'>others OS supporting Java</a> or the <a href='/cifex_cli.zip'>CIFEX command line client</a>."));
+        add(new InlineHTML("Or you use CIFEX from the desktop via the CIFEX App for <a href='/CIFEXAppMac.app.zip'>Mac</a> and <a href='/CIFEXApp.zip'>others OS supporting Java</a> or the <a href='/cifex_cli.zip'>CIFEX command line client</a>."));
         add(footerPanel);
         this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
     }
