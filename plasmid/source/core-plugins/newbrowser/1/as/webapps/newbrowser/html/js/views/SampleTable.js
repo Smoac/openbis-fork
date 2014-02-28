@@ -67,7 +67,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	}
 	
 	this.createNewSample = function() {
-		mainController.showCreateSamplePage(this.sampleTypeCode); //TO-DO : Fix global access
+		mainController.changeView("showCreateSamplePage", this.sampleTypeCode); //TO-DO : Fix global access
 	}
 	
 	this.registerSamples = function() {
@@ -382,7 +382,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			}
 		} else {
 			onClickFunction = function(sample) {
-				mainController.showSampleHierarchyPage(sample); //TO-DO : Fix Global Access
+				mainController.changeView("showSampleHierarchyPage", sample.permId); //TO-DO : Fix Global Access
 			}
 		}
 	
@@ -452,8 +452,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.currentView.openEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\"><i class='icon-eye-open'></i></a>";
-					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.currentView.openEditWindowForSample('"+sample.code+"', '"+sample.permId+"');\"><i class='icon-edit'></i></a>";
+					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.changeView('showViewSamplePageFromPermId','"+sample.permId+"');\"><i class='icon-edit'></i></a>";
+					tableFields[tableFields.length] = "";
 				} else {
 					tableFields[tableFields.length] = "";
 					tableFields[tableFields.length] = "";
@@ -575,28 +575,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		//Repaint first page
 		this._filteredSamples = filteredSamplesHolder;
 		this._reloadWithSamplesAndPagination(0);
-	}
-	
-	this.openViewWindowForSample = function(code, permId) {
-		var sample = null;
-		for(var i = 0; i < this._samplesToPaint.length; i++) {
-			if (this._samplesToPaint[i].permId === permId) {
-				sample = this._samplesToPaint[i];
-				break;
-			}
-		}
-		mainController.showViewSamplePage(sample); //TO-DO : Fix Global Access
-	}
-	
-	this.openEditWindowForSample = function(code, permId) {
-		var sample = null;
-		for(var i = 0; i < this._samplesToPaint.length; i++) {
-			if (this._samplesToPaint[i].permId === permId) {
-				sample = this._samplesToPaint[i];
-				break;
-			}
-		}
-		mainController.showEditSamplePage(sample); //TO-DO : Fix Global Access
 	}
 	
 	this.reloadWithSamples = function(returnedSamples) {

@@ -109,15 +109,6 @@ function Inspector(serverFacade, containerId, profile) {
 		this.repaint();
 	}
 	
-	this.showViewSamplePage = function(entityPermId) {
-		for(var i = 0; i < this.inspectedSamples.length; i++) {
-			if(this.inspectedSamples[i].permId === entityPermId) {
-				mainController.showViewSamplePage(this.inspectedSamples[i]);
-				break;
-			}
-		}
-	}
-	
 	this.printInspector = function(entityPermId) {
 		var newWindow = window.open(null,"print " + entityPermId);
 		
@@ -273,7 +264,7 @@ function Inspector(serverFacade, containerId, profile) {
 			if(withLinks) {
 				var printButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px;' onclick='mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='icon-print'></i></span>";
 				inspector += printButton;
-				var viewButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px' onclick='mainController.inspector.showViewSamplePage(\""+entity.permId+"\")'><i class='icon-eye-open'></i></span>";
+				var viewButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px' onclick='mainController.changeView(\"showViewSamplePageFromPermId\",\""+entity.permId+"\")'><i class='icon-edit'></i></span>";
 				inspector += viewButton;
 			}
 			

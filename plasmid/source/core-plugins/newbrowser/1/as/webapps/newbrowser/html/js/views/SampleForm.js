@@ -49,6 +49,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.sample = sample;
 	this.storage = null;
 	this.dataSetViewer = null;
+	this.isDirty = false;
+	
+	this.isDirty = function() {
+		return this.isDirty;
+	}
 	
 	this.init = function() {
 			Util.blockUI();
@@ -303,7 +308,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.getEditButton = function() {
-		return "<a id='editButton' class='btn'><i class='icon-edit'></i></a>";
+		return "<a id='editButton' class='btn'><i class='icon-edit'></i> Enable Editing</a>";
 	}
 	
 	this.enableEditButtonEvent = function() {
@@ -312,7 +317,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			//localReference.mode = SampleFormMode.EDIT;
 			//localReference.init();
 			mainController.navigationBar.updateBreadCrumbToMinusOne();
-			mainController.showEditSamplePage(sample);
+			mainController.changeView('showEditSamplePage',sample);
 		});
 	}
 	

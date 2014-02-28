@@ -55,7 +55,7 @@ function MainMenu(mainController, containerId, menuStructure, mainMenuContentExt
 						//this is necessary to avoid using the same menuItem reference in all clicks
 						var onClick = function(menuItem) {
 							return function() {
-								localReference.mainController[menuItem.href](menuItem.hrefArgs);
+								localReference.mainController.changeView(menuItem.href, menuItem.hrefArgs);
 							}
 						}
 						

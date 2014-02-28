@@ -54,7 +54,7 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 				}
 				for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
 					var menuItem = groupOfMenuItems.menuItems[i];
-					menu += "<li><a href='javascript:mainController.navigationBar.updateBreadCrumbToSecondLevelForQuickMenu(); mainController." + menuItem.href+ "(\"" + menuItem.hrefArgs + "\");'>" + menuItem.displayName + "</a></li>";
+					menu += "<li><a href='javascript:mainController.changeView(\"" + menuItem.href+ "\", \"" + menuItem.hrefArgs + "\");'>" + menuItem.displayName + "</a></li>";
 				}
 			}
 			menu += "</ul>";
@@ -79,9 +79,9 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 			menu += "<div class='pull-right'>";
 			menu += "<ul class='nav'>";
 			//Pin Button
-			menu += "<li><a id='pin-button' href='javascript:mainController.showInspectors()'><img src='./img/pin-icon.png' style='width:16px; height:16px;' /><span id='num-pins'>" + this.mainController.inspector.inspectedSamples.length + "</span></a></li>";
+			menu += "<li><a id='pin-button' href='javascript:mainController.changeView(\"showInspectors\",null)'><img src='./img/pin-icon.png' style='width:16px; height:16px;' /><span id='num-pins'>" + this.mainController.inspector.inspectedSamples.length + "</span></a></li>";
 			//Search
-			menu += "<li><form class='navbar-search' onsubmit='return false;'><input id='search' type='text' onkeyup='mainController.showSearchPage(event);' class='search-query' placeholder='Search'></form></li>";
+			menu += "<li><form class='navbar-search' onsubmit='return false;'><input id='search' type='text' onkeyup='mainController.changeView(\"showSearchPage\", event);' class='search-query' placeholder='Search'></form></li>";
 			//Logout
 			menu += "<li><a id='logout-button' href=''><img src='./img/logout-icon.png' style='width:16px; height:16px;' /></a></li>";
 			menu += "</ul>";
@@ -118,7 +118,7 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 		this.activeMenuId = newActiveId;
 	}
 	
-	this.updateBreadCrumbToSecondLevelForQuickMenu = function() { //Used by the quick menu
+	this.updateBreadCrumbToSecondLevel = function() { //Used by the quick menu
 		 this.breadcrumb.length = 1;
 	}
 	
@@ -129,7 +129,8 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 	this.executeBreadCrumb = function(breadCrumbIndex) {
 		var href = this.breadcrumb[breadCrumbIndex].href;
 		var hrefArgs = this.breadcrumb[breadCrumbIndex].hrefArgs;
-		this.mainController[href](hrefArgs);
+		//this.mainController[href](hrefArgs);
+		this.mainController.changeView(href, hrefArgs);
 	}
 	
 	this.updateBreadCrumbPage = function(breadCrumbPage) {

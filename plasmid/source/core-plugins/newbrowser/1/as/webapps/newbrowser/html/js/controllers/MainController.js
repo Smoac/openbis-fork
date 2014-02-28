@@ -90,7 +90,7 @@ function MainController(profile) {
 				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.menuStructure);
 				localReference.navigationBar.repaint();
 			
-				localReference.showMainMenu();
+				localReference.changeView("showMainMenu", null);
 				Util.unblockUI();
 			
 				//Get datastores for automatic DSS configuration, the first one will be used
@@ -111,10 +111,67 @@ function MainController(profile) {
 	}
 	
 	//
-	// Functions that trigger view Changes
+	// Main View Changer - Everything on the application rely on this method to alter the views
 	//
+	this.changeView = function(newViewChange, arg) {
+		
+		//
+		// Dirty forms management, to avoid loosing changes.
+		//
+		var discardChanges = null;
+		if( this.currentView && 
+			this.currentView.isDirty && 
+			this.currentView.isDirty()) {
+			//Ask the user if wants to leave the view in case is dirty
+			discardChanges = window.confirm("Leaving this window will discard any changes, are you sure?");
+		}
+		
+		if(discardChanges != null && !discardChanges) {
+			return;
+		}
+		//
+		//
+		//
+		
+		switch (newViewChange) {
+			case "showInspectors":
+				this._showInspectors();
+				break;
+			case "showMainMenu":
+				this._showMainMenu();
+				break;
+			case "showSearchPage":
+				this._showSearchPage(arg);
+				break;
+			case "showSamplesPage":
+				this.navigationBar.updateBreadCrumbToSecondLevel();
+				this._showSamplesPage(arg);
+				break;
+			case "showSampleHierarchyPage":
+				this._showSampleHierarchyPage(arg);
+				break;
+			case "showCreateSamplePage":
+				this._showCreateSamplePage(arg);
+				break;
+			case "showEditSamplePage":
+				this._showEditSamplePage(arg);
+				break;
+			case "showViewSamplePageFromPermId":
+				this._showViewSamplePageFromPermId(arg);
+				break;
+			case "showCreateDataSetPage":
+				this._showCreateDataSetPage(arg);
+				break;
+			default:
+				window.alert("The system tried to create a non existing view");
+				break;
+		}
+	}
 	
-	this.showInspectors = function() {
+	//
+	// Functions that trigger view changes, should only be called from the main controller changeView method
+	//
+	this._showInspectors = function() {
 		//Update menu
 		this.navigationBar.updateMenu(null);
 		
@@ -124,7 +181,7 @@ function MainController(profile) {
 		history.pushState(null, "", ""); //History Push State
 	}
 	
-	this.showMainMenu = function() {
+	this._showMainMenu = function() {
 		//Update menu
 		var breadCrumbPage = new BreadCrumbPage('main-menu', 'showMainMenu', null, 'Main Menu');
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
@@ -137,7 +194,7 @@ function MainController(profile) {
 		history.pushState(null, "", ""); //History Push State
 	}
 	
-	this.showSamplesPage = function(sampleTypeCode) {
+	this._showSamplesPage = function(sampleTypeCode) {
 		//Update menu
 		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
 		var sampleTypeDisplayName = sampleType.description;
@@ -156,9 +213,85 @@ function MainController(profile) {
 		history.pushState(null, "", ""); //History Push State
 	}
 
+	this._showSampleHierarchyPage = function(permId) {
+		
+		//Show View
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(permId, function(data) {
+			var breadCrumbPage = new BreadCrumbPage('sample-hierarchy-'+data[0].permId, "showSampleHierarchyPage", data[0].permId, 'Hierarchy '+data[0].code);
+			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+			
+			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
+			sampleHierarchy.init();
+			localInstance.currentView = sampleHierarchy;
+			history.pushState(null, "", ""); //History Push State
+		});
+	}
+	
+	this._showCreateSamplePage = function(sampleTypeCode) {
+		//Update menu
+		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
+		if(sampleTypeDisplayName === null) {
+			sampleTypeDisplayName = sampleTypeCode;
+		}
+		var breadCrumbPage = new BreadCrumbPage('new-sample-'+sampleTypeCode, "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
+		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+		
+		//Show Form
+		var isELNExperiment = this.profile.isELNExperiment(sampleTypeCode);
+		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
+		sampleForm.init();
+		this.currentView = sampleForm;
+		history.pushState(null, "", ""); //History Push State
+	}
+
+	this._showEditSamplePage = function(sample) {
+		//Update menu
+		var breadCrumbPage = new BreadCrumbPage('edit-sample-'+sample.permId, "showEditSamplePage", sample, 'Update '+sample.code);
+		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+		
+		//Show Form
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
+			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
+			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0]);
+			sampleForm.init();
+			localInstance.currentView = sampleForm;
+			history.pushState(null, "", ""); //History Push State
+		});
+	}
+
+	this._showViewSamplePageFromPermId = function(permId) {
+		var localInstance = this;
+		this.serverFacade.searchWithUniqueId(permId, function(data) {
+			//Update menu
+			var breadCrumbPage = new BreadCrumbPage('view-sample-'+data[0].permId, "showViewSamplePageFromPermId", data[0].permId, 'View '+data[0].code);
+			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+			
+			//Show Form
+			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
+			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, data[0]);
+			sampleForm.init();
+			localInstance.currentView = sampleForm;
+			history.pushState(null, "", ""); //History Push State
+		});
+	}
+	
+	this._showCreateDataSetPage = function(sample) {
+		//Update menu
+		var breadCrumbPage = new BreadCrumbPage('new-dataset-'+sample.permId, "showCreateDataSetPage", sample, 'Create Data Set for '+sample.code);
+		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+		
+		//Show Form
+		var datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
+		datasetForm.init();
+		this.currentView = datasetForm;
+		history.pushState(null, "", ""); //History Push State
+	}
+	
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
 	
-	this.showSearchPage = function(event) {
+	this._showSearchPage = function(event) {
 		//Only search with at least 3 characters
 		if(event.target.value.length < 3) {
 			return;
@@ -193,85 +326,5 @@ function MainController(profile) {
 		}
 		
 		setTimeout(possibleSearch, 800);
-	}
-
-	this.showSampleHierarchyPage = function(sample) {
-		//Update menu		
-		var breadCrumbPage = new BreadCrumbPage('sample-hierarchy-'+sample.permId, "showSampleHierarchyPage", sample, 'Hierarchy '+sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
-		//Show View
-		var localInstance = this;
-		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
-			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
-			sampleHierarchy.init();
-			localInstance.currentView = sampleHierarchy;
-			history.pushState(null, "", ""); //History Push State
-		});
-	}
-	
-	this.showCreateSamplePage = function(sampleTypeCode) {
-		//Update menu
-		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
-		if(sampleTypeDisplayName === null) {
-			sampleTypeDisplayName = sampleTypeCode;
-		}
-		var breadCrumbPage = new BreadCrumbPage('new-sample-'+sampleTypeCode, "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
-		//Show Form
-		var isELNExperiment = this.profile.isELNExperiment(sampleTypeCode);
-		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
-		sampleForm.init();
-		this.currentView = sampleForm;
-		history.pushState(null, "", ""); //History Push State
-	}
-
-	this.showEditSamplePage = function(sample) {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('edit-sample-'+sample.permId, "showEditSamplePage", sample, 'Update '+sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
-		//Show Form
-		var localInstance = this;
-		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
-			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
-			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0]);
-			sampleForm.init();
-			localInstance.currentView = sampleForm;
-			history.pushState(null, "", ""); //History Push State
-		});
-	}
-
-	this.showViewSamplePageFromPermId = function(permId) {
-		var localInstance = this;
-		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			//Update menu
-			var breadCrumbPage = new BreadCrumbPage('view-sample-'+data[0].permId, "showViewSamplePage", data[0], 'View '+data[0].code);
-			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-			
-			//Show Form
-			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
-			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, data[0]);
-			sampleForm.init();
-			localInstance.currentView = sampleForm;
-			history.pushState(null, "", ""); //History Push State
-		});
-	}
-	
-	this.showViewSamplePage = function(sample) {
-		this.showViewSamplePageFromPermId(sample.permId);
-	}
-	
-	this.showCreateDataSetPage = function(sample) {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('new-dataset-'+sample.permId, "showCreateDataSetPage", sample, 'Create Data Set for '+sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
-		//Show Form
-		var datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
-		datasetForm.init();
-		this.currentView = datasetForm;
-		history.pushState(null, "", ""); //History Push State
 	}
 }

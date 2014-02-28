@@ -313,7 +313,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 						'style' : 'cursor:pointer',
 					}));
 				
-				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.showViewSamplePageFromPermId('" + sample.permId + "')"}).html(sample.code);
+				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.changeView('showViewSamplePageFromPermId', '" + sample.permId + "')"}).html(sample.code);
 				
 				
 				

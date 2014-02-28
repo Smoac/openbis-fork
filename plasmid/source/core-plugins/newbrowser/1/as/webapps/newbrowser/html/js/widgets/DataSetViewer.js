@@ -103,7 +103,7 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		
 		var localSample = this.sample;
 		$uploadButton.click(function() { 
-			mainController.showCreateDataSetPage(localSample);
+			mainController.changeView('showCreateDataSetPage',localSample); //TO-DO Fix Global Access
 		} );
 		
 		//Title
