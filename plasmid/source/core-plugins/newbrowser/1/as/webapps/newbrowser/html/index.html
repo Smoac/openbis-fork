@@ -4,19 +4,22 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 	<title>ELN Browser</title>
-	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap.css" />
-	<link type="text/css" rel="stylesheet" href="./bootstrap/css/bootstrap-responsive.css" />
-	<link type="text/css" rel="stylesheet" href="./css/style.css" />
-	<link type="text/css" rel="stylesheet" href="./css/bootstrap-datetimepicker.min.css" />
-	<link type="text/css" rel="stylesheet" href="./css/bootstrap-slider.css" />
-	<link type="text/css" rel="stylesheet" href="./css/bootstrap-multiselect.css" />
-	<link type="text/css" rel="stylesheet" href="./css/jNotify.jquery.css" />
 	
-	<!-- For debugging with GWT	 -->
+	<!-- Third party Stylesheets -->
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap/css/bootstrap-responsive.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-slider/css/bootstrap-slider.css" />
+	<link type="text/css" rel="stylesheet" href="./lib/jquery-jnotify/css/jNotify.jquery.css" />
+	
+	<!-- ELN UI Stylesheets -->
+	<link type="text/css" rel="stylesheet" href="./css/style.css" />
+	
+	<!-- For debugging with GWT	-->
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/jquery.js"></script>
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/openbis-login.js"></script>
-	
 	
 	<!-- For production ussage	
 	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
@@ -24,42 +27,46 @@
 	<script type="text/javascript" src="/openbis/resources/js/openbis-login.js"></script>
 	-->
 	
-	<!-- Third party -->
-	<script type="text/javascript" src="./js/d3.v3.min.js"></script>
-	<script type="text/javascript" src="./js/dagre-d3.min.js"></script>
-	<script type="text/javascript" src="./js/infra.js"></script>
-	<script type="text/javascript" src="./js/jquery.blockUI.js"></script>
-	<script type="text/javascript" src="./js/jquery.history.js"></script>
-	<script type="text/javascript" src="./js/jNotify.jquery.min.js"></script>
-	<script type="text/javascript" src="./bootstrap/js/bootstrap.js"></script>
-	<script type="text/javascript" src="./js/bootstrap-datetimepicker.min.js"></script>
-	<script type="text/javascript" src="./js/bootstrap-filestyle.min.js"></script>
-	<script type="text/javascript" src="./js/bootstrap-slider.js"></script>
-	<script type="text/javascript" src="./js/bootstrap-multiselect.js"></script>
-	<script type="text/javascript" src="./js/blockScroll.js"></script>
-	<script type="text/javascript" src="./js/naturalSort.js"></script>
+	<!-- Third party libraries -->
+	<script type="text/javascript" src="./lib/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap-slider/js/bootstrap-slider.js"></script>
+	<script type="text/javascript" src="./lib/bootstrap-filestyle/js/bootstrap-filestyle.min.js"></script>
+	<script type="text/javascript" src="./lib/jquery-jnotify/js/jNotify.jquery.min.js"></script>
+	<script type="text/javascript" src="./lib/jquery-blockui/js/jquery.blockUI.js"></script>
+	<script type="text/javascript" src="./lib/jquery-history/js/bundled/html5/jquery.history.js"></script>
+	<script type="text/javascript" src="./lib/d3/js/d3.min.js"></script>
+	<script type="text/javascript" src="./lib/d3-dagre/js/dagre-d3.min.js"></script>
+	<script type="text/javascript" src="./lib/naturalsort/js/naturalSort.js"></script>
+	<script type="text/javascript" src="./lib/mozilla/js/infra.js"></script>
 	
 	<!-- ELN UI -->
-	<script type="text/javascript" src="./js/UI/Profile.js"></script>
-	<script type="text/javascript" src="./js/UI/Util.js"></script>
-	<script type="text/javascript" src="./js/UI/MainController.js"></script>
-	<script type="text/javascript" src="./js/UI/MainMenu.js"></script>
-	<script type="text/javascript" src="./js/UI/SampleLinksTable.js"></script>
-	<script type="text/javascript" src="./js/UI/NavigationBar.js"></script>
-	<script type="text/javascript" src="./js/UI/Inspector.js"></script>
-	<script type="text/javascript" src="./js/UI/ServerFacade.js"></script>
-	<script type="text/javascript" src="./js/UI/SampleTable.js"></script>
-	<script type="text/javascript" src="./js/UI/SampleForm.js"></script>
-	<script type="text/javascript" src="./js/UI/DataSetForm.js"></script>
-	<script type="text/javascript" src="./js/UI/Storage.js"></script>
-	<script type="text/javascript" src="./js/UI/DataSetViewer.js"></script>
-	<script type="text/javascript" src="./js/UI/SampleHierarchy.js"></script>
+	<script type="text/javascript" src="./js/controllers/MainController.js"></script>
+	
+	<script type="text/javascript" src="./js/config/Profile.js"></script>
+	
+	<script type="text/javascript" src="./js/api/ServerFacade.js"></script>
+	
+	<script type="text/javascript" src="./js/util/Util.js"></script>
+	<script type="text/javascript" src="./js/util/BlockScrollUtil.js"></script>
+	
+	<script type="text/javascript" src="./js/views/DataSetForm.js"></script>
+	<script type="text/javascript" src="./js/views/Inspector.js"></script>
+	<script type="text/javascript" src="./js/views/MainMenu.js"></script>
+	<script type="text/javascript" src="./js/views/SampleForm.js"></script>
+	<script type="text/javascript" src="./js/views/SampleHierarchy.js"></script>
+	<script type="text/javascript" src="./js/views/SampleTable.js"></script>
+	
+	<script type="text/javascript" src="./js/widgets/DataSetViewer.js"></script>
+	<script type="text/javascript" src="./js/widgets/NavigationBar.js"></script>
+	<script type="text/javascript" src="./js/widgets/SampleLinksTable.js"></script>
+	<script type="text/javascript" src="./js/widgets/Storage.js"></script>
 	
 	<script type="text/javascript">
 	//
 	// Configurations Available (enable one)
 	//
-	//var profile = new DefaultProfile();
 	//var profile = new ExampleProfile();
 	var profile = new YeastLabProfile();
 	
@@ -104,7 +111,7 @@
 </head>
 <body class="bodyLogin">
 	<div id="login-form-div" class="loginForm">
-			<img class="loginLogo" src="./images/openBIS_Logo.png" alt="openBIS" />
+			<img class="loginLogo" src="./img/openBIS_Logo.png" alt="openBIS" />
 			<h1>Lab Notebook</h1>
 			
 			<form id="login-form" action="javascript:">
@@ -123,7 +130,7 @@
 			
 			<center>
 				<div style="margin-bottom: 5px;">Compatible With:</div>
-				<img src="./images/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-firefox.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-ie10.png" style="width: 43px; height:43px;" /><img src="./images/browser-icon-tablet.png" style="height:43px;" />
+				<img src="./img/browser-icon-chrome.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-safari.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-firefox.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-ie10.png" style="width: 43px; height:43px;" /><img src="./img/browser-icon-tablet.png" style="height:43px;" />
 			</center>
 	</div>
 	
