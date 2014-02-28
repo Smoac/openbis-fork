@@ -26,6 +26,11 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	this.mode = mode;
 	this.dataSetTypes = null;
 	this.files = [];
+	this.isFormDirty = false;
+	
+	this.isDirty = function() {
+		return this.isFormDirty;
+	}
 	
 	this.init = function() {
 		var localInstance = this;
@@ -131,6 +136,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	}
 	
 	this._updateFileOptions = function() {
+		var localInstance = this;
 		$wrapper = $("#fileOptionsContainer"); //Clean existing
 		$wrapper.empty();
 		
@@ -142,11 +148,16 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		}
 		
 		if(this.files.length > 1) {
+			var $textField = this._getInputField('text', 'folderName', 'Folder Name', null, true);
+			$textField.change(function(event) {
+				localInstance.isFormDirty = true;
+			});
+			
 			var $folderName = $('<fieldset>')
 			.append($('<div>', { class : "control-group"})
 					.append($('<label>', {class : 'control-label'}).text('Folder Name:'))
 					.append($('<div>', {class: 'controls'})
-						.append(this._getInputField('text', 'folderName', 'Folder Name', null, true))
+						.append($textField)
 						.append(' (Required)'))
 			);
 			$wrapper.append($folderName);
@@ -164,14 +175,19 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				);
 				$wrapper.append($fileFieldSetIsDirectory);
 				
-				var localInstance = this;
 				$("#isZipDirectoryUpload").change(function() {
+					localInstance.isFormDirty = true;
 					if($("#isZipDirectoryUpload"+":checked").val() === "on") {
+						var $textField = localInstance._getInputField('text', 'folderName', 'Folder Name', null, true);
+						$textField.change(function(event) {
+							localInstance.isFormDirty = true;
+						});
+						
 						var $folderName = $('<fieldset>', { "id" : "folderNameContainer"})
 						.append($('<div>', { class : "control-group"})
 								.append($('<label>', {class : 'control-label'}).text('Folder Name:'))
 								.append($('<div>', {class: 'controls'})
-									.append(localInstance._getInputField('text', 'folderName', 'Folder Name', null, true))
+									.append($textField)
 									.append(' (Required)'))
 						);
 						$("#fileOptionsContainer").append($folderName);
@@ -196,6 +212,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	}
 	
 	this._repaintMetadata = function(dataSetType) {
+		var localInstance = this;
 		$("#metadataContainer").empty();
 		var $wrapper = $("<div>");
 		
@@ -224,6 +241,10 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				$fieldset.append($controlGroup);
 				
 				var $component = this.getFieldForPropertyType(propertyType);
+				$component.change(function(event) {
+					localInstance.isFormDirty = true;
+				});
+				
 				$controls.append($component);
 				if(propertyType.mandatory) {
 					$controls.append(' (Required)')
@@ -423,6 +444,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 					Util.showError(errorMessage, function() {Util.unblockUI();});
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					var callbackOk = function() {
+						localInstance.isFormDirty = false;
 						Util.unblockUI();
 						mainController.navigationBar.backButton(null);
 					}

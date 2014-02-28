@@ -49,10 +49,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.sample = sample;
 	this.storage = null;
 	this.dataSetViewer = null;
-	this.isDirty = false;
+	this.isFormDirty = false;
 	
 	this.isDirty = function() {
-		return this.isDirty;
+		return this.isFormDirty;
 	}
 	
 	this.init = function() {
