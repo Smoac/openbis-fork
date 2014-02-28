@@ -17,6 +17,7 @@
 package ch.ethz.bsse.cisd.dsu.tracking.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,7 @@ import ch.ethz.bsse.cisd.dsu.tracking.email.EmailWithSummary;
 import ch.ethz.bsse.cisd.dsu.tracking.email.IEntityTrackingEmailGenerator;
 import ch.ethz.bsse.cisd.dsu.tracking.utils.LogUtils;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
-import ch.systemsx.cisd.common.mail.From;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.openbis.generic.shared.ITrackingServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  */
 public class TrackingBO
 {
+    private static final List<String> SEQUENCING_SAMPLE_TYPES = Arrays.asList("ILLUMINA_SEQUENCING", "ILLUMINA_SEQUENCING_NEUROSTEMX");
+
     private static final String EXTERNAL_SAMPLE_NAME = "EXTERNAL_SAMPLE_NAME";
 
     private static final String LIBRARY_SAMPLE_TYPE = "LIBRARY";
@@ -168,11 +171,15 @@ public class TrackingBO
     {
         String subject = email.getSubject();
         String content = email.getContent();
-        String replyToOrNull = email.getReplyToOrNull();
-        From fromOrNull = email.getFromOrNull();
-        String[] recipients = email.getRecipients();
+        EMailAddress replyToOrNull = email.getReplyToOrNull();
+        EMailAddress fromOrNull = email.getFromOrNull();
+        EMailAddress[] recipients = email.getRecipients();
 
-        mailClient.sendMessage(subject, content, replyToOrNull, fromOrNull, recipients);
+        mailClient.sendEmailMessage(subject, content, replyToOrNull, fromOrNull, recipients);
+
+        // sendEmailMessage(String subject, String content, EMailAddress replyToOrNull,
+        // EMailAddress fromOrNull, EMailAddress... recipients)
+
     }
 
     private static void appendLine(StringBuilder sb, String msg)
@@ -214,8 +221,16 @@ public class TrackingBO
             Set<Long> alreadyTrackedSampleIds, ITrackingServer trackingServer, IGeneralInformationService gis,
             SessionContextDTO session)
     {
-        return listSamples(SampleType, propertyTypeCode, propertyValue, alreadyTrackedSampleIds,
-                trackingServer, gis, session);
+        List<Sample> completeList = new ArrayList<Sample>();
+
+        for (String sampleType : SEQUENCING_SAMPLE_TYPES)
+        {
+            completeList.addAll(listSamples(SampleType, propertyTypeCode, propertyValue, alreadyTrackedSampleIds,
+                    trackingServer, gis, session));
+
+        }
+        return completeList;
+
     }
 
     private static List<Sample> listSamples(String sampleType, String propertyTypeCode,

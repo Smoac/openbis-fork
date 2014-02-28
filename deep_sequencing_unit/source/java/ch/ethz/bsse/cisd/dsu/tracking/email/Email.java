@@ -16,12 +16,12 @@
 
 package ch.ethz.bsse.cisd.dsu.tracking.email;
 
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.mail.From;
 import ch.systemsx.cisd.common.mail.IMailClient;
 
 /**
- * Simple encapsulation of {@link IMailClient#sendMessage(String, String, String, From, String...)}
- * method parameters.
+ * Simple encapsulation of {@link IMailClient#sendMessage(String, String, String, From, String...)} method parameters.
  * 
  * @author Piotr Buczek
  */
@@ -31,14 +31,14 @@ public class Email
 
     private final String content;
 
-    private final String replyToOrNull;
+    private final EMailAddress replyToOrNull;
 
-    private final From fromOrNull;
+    private final EMailAddress fromOrNull;
 
-    private final String[] recipients;
+    private final EMailAddress[] recipients;
 
-    public Email(String subject, String content, String replyToOrNull, From fromOrNull,
-            String... recipients)
+    public Email(String subject, String content, EMailAddress replyToOrNull, EMailAddress fromOrNull,
+            EMailAddress... recipients)
     {
         super();
         this.subject = subject;
@@ -48,10 +48,10 @@ public class Email
         this.recipients = recipients;
     }
 
-    public Email(String subject, String content, String replyToOrNull, String fromOrNull,
-            String... recipients)
+    public Email(String subject, String content, EMailAddress replyToOrNull, String fromOrNull,
+            EMailAddress... recipients)
     {
-        this(subject, content, replyToOrNull, new From(fromOrNull), recipients);
+        this(subject, content, replyToOrNull, new EMailAddress(fromOrNull), recipients);
     }
 
     public String getSubject()
@@ -64,17 +64,17 @@ public class Email
         return content;
     }
 
-    public String getReplyToOrNull()
+    public EMailAddress getReplyToOrNull()
     {
         return replyToOrNull;
     }
 
-    public From getFromOrNull()
+    public EMailAddress getFromOrNull()
     {
         return fromOrNull;
     }
 
-    public String[] getRecipients()
+    public EMailAddress[] getRecipients()
     {
         return recipients;
     }

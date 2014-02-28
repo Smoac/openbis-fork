@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import ch.ethz.bsse.cisd.dsu.tracking.dto.TrackedEntities;
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.lang.StringEscapeUtils;
@@ -52,9 +53,9 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     private static final String AFFILIATION_NOTIFICATION_EMAIL_CONTACT_SUFFIX =
             "-affiliation-notification-email-contact";
 
-    private final String from;
+    private final EMailAddress from;
 
-    private final String replyTo;
+    private final EMailAddress replyTo;
 
     private final String subject;
 
@@ -62,8 +63,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
     public EntityTrackingEmailGenerator(Properties properties, String template)
     {
-        this.from = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_FROM);
-        this.replyTo = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO);
+        this.from = new EMailAddress(PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_FROM));
+        this.replyTo = new EMailAddress(PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_REPLY_TO));
         this.subject = PropertyUtils.getMandatoryProperty(properties, NOTIFICATION_EMAIL_SUBJECT);
         this.template = template;
 
@@ -116,8 +117,19 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
     private Email createEmail(EntityTrackingEmailData emailData)
     {
         String content = EmailContentGenerator.fillTemplateWithData(template, emailData);
-        String recipient = emailData.getRecipient();
-        return new Email(subject, content, replyTo, from, filterBlanks(recipient.split(",|;| ")));
+        EMailAddress recipients = emailData.getRecipient();
+
+        String[] mailStringArray = filterBlanks(recipients.tryGetEmailAddress().split(",|;| "));
+        EMailAddress[] recipientsArray = new EMailAddress[mailStringArray.length];
+
+        for (int i = 0; i < mailStringArray.length; ++i)
+        {
+            EMailAddress e = new EMailAddress(mailStringArray[i]);
+            recipientsArray[i] = e;
+        }
+
+        return new Email(subject, content, replyTo, from, recipientsArray);
+
     }
 
     private static String[] filterBlanks(String[] arr)
@@ -298,6 +310,7 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
 
             String Index1 = getIndex1(dataSet);
             String Index2 = getIndex2(dataSet);
+            String externalSampleName = externalSampleNameFromDataSet(dataSet);
             String Index = null;
 
             if (Index1 != null)
@@ -309,10 +322,10 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 Index = Index + "-" + Index2;
             }
 
-            if (Index != null)
+            if (Index != null && externalSampleName != null)
             {
                 appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString() +
-                        " Index: " + Index);
+                        " Index: " + Index + ", External Sample Name: " + externalSampleName);
             }
             else
             {
@@ -365,6 +378,25 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                     if (!Index.equals("NOINDEX"))
                     {
                         return Index;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static String externalSampleNameFromDataSet(AbstractExternalData dataSet)
+        {
+            List<IEntityProperty> properties = dataSet.getProperties();
+
+            String externalSampleName = null;
+            for (IEntityProperty p : properties)
+            {
+                if (p.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE))
+                {
+                    externalSampleName = p.getValue();
+                    if (!externalSampleName.equals(null))
+                    {
+                        return externalSampleName;
                     }
                 }
             }
@@ -425,11 +457,4 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
         }
 
     }
-
-    public static void findSampleWithExternalSampleName(Sample sequencingSample)
-    {
-        // TODO Auto-generated method stub
-
-    }
-
 }

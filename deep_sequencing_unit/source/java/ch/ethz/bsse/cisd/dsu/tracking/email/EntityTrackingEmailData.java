@@ -19,13 +19,13 @@ package ch.ethz.bsse.cisd.dsu.tracking.email;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
- * Structure containing all data about tracked entities that will be used in a single email to an
- * recipient. Its purpose is to group data that will be used to generate content of an email
- * containing merged information about all events that the recipient should be notified about.
+ * Structure containing all data about tracked entities that will be used in a single email to an recipient. Its purpose is to group data that will be
+ * used to generate content of an email containing merged information about all events that the recipient should be notified about.
  * 
  * @author Piotr Buczek
  */
@@ -37,15 +37,15 @@ public class EntityTrackingEmailData
 
     private final List<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>(0);
 
-    private final String recipient;
+    private final EMailAddress recipient;
 
     /** creates email data for given <var>recipient</var> */
-    public EntityTrackingEmailData(String recipient)
+    public EntityTrackingEmailData(EMailAddress recipient)
     {
         this.recipient = recipient;
     }
 
-    public String getRecipient()
+    public EMailAddress getRecipient()
     {
         return recipient;
     }
