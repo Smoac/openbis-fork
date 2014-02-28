@@ -73,10 +73,12 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		$dataSetTypeFieldSet.append($('<legend>').text('Type Info'));
 		
 		var $dataSetTypeDropDownObj = this._getDropDownForField('DATASET_TYPE', this.dataSetTypes);
+		
 		$dataSetTypeDropDownObj.change(function() { 
 			localInstance._repaintMetadata(
 					localInstance._getDataSetType($('#DATASET_TYPE').val())
 			);
+			localInstance.isFormDirty = true;
 		});
 		
 		var $dataSetTypeDropDown = $('<div>', { class : 'control-group'});

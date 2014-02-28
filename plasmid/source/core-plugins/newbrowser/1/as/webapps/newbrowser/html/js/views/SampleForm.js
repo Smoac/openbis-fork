@@ -537,6 +537,25 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		if (this.mode === SampleFormMode.VIEW) {
 			this.enableEditButtonEvent();
 		}
+		
+		//Events to take care of a dirty form
+		$("#sampleSpaceProject").change(function(event) {
+			localInstance.isFormDirty = true;
+		});
+		$("#sampleCode").change(function(event) {
+			localInstance.isFormDirty = true;
+		});
+		
+		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
+			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
+			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+				var propertyType = propertyTypeGroup.propertyTypes[j];
+				var $field = $("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.'));
+				$field.change(function(event) {
+					localInstance.isFormDirty = true;
+				});
+			}
+		}
 	}
 	
 	this.showSamplesWithoutPage = function(event) {
@@ -681,6 +700,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			
 			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);
+			this.isFormDirty = false;
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}
