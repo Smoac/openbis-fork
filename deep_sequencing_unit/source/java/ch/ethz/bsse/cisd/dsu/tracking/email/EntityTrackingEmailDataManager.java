@@ -28,7 +28,6 @@ import ch.systemsx.cisd.common.mail.EMailAddress;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**
  * Manager that groups data about tracked entities into {@link EntityTrackingEmailData} objects.
@@ -42,8 +41,6 @@ class EntityTrackingEmailDataManager
     private final static String CONTACT_PERSON_EMAIL = "CONTACT_PERSON_EMAIL";
 
     private final static String PRINCIPAL_INVESTIGATOR_EMAIL = "PRINCIPAL_INVESTIGATOR_EMAIL";
-
-    private final static String MASTER_SAMPLE_TYPE = "MASTER_SAMPLE";
 
     private static Map<String, String> recipientsByAffiliation;
 
@@ -125,7 +122,8 @@ class EntityTrackingEmailDataManager
     }
 
     /**
-     * Returns a set of emails of recipients that should get a tracking information about given <var>sequencingSample</var>.<br>
+     * Returns a set of emails of recipients that should get a tracking information about given
+     * <var>sequencingSample</var>.<br>
      */
     // NOTE: Set is needed because one recipient can occur in many roles for one sample
     private static Set<EMailAddress> getSequencingSampleTrackingRecipients(
@@ -140,91 +138,58 @@ class EntityTrackingEmailDataManager
         recipientPropertyTypeCodes.add(CONTACT_PERSON_EMAIL);
         recipientPropertyTypeCodes.add(PRINCIPAL_INVESTIGATOR_EMAIL);
 
-        SampleType masterSampleType = new SampleType();
-        masterSampleType.setCode(MASTER_SAMPLE_TYPE);
-
         for (Sample sequencingSample : sequencingSamples)
         {
-
-            findMasterSample(sequencingSample, recipients);
-
-        }
-        return recipients;
-    }
-
-    private static void findMasterSample(Sample s, Set<EMailAddress> recipients)
-    {
-        SampleType masterSampleType = new SampleType();
-        masterSampleType.setCode(MASTER_SAMPLE_TYPE);
-        // Recipients are taken from properties of the sequencing sample.
-        final Set<String> recipientPropertyTypeCodes = new HashSet<String>();
-        recipientPropertyTypeCodes.add(CONTACT_PERSON_EMAIL);
-        recipientPropertyTypeCodes.add(PRINCIPAL_INVESTIGATOR_EMAIL);
-
-        SampleType seqSampleSampleType = s.getSampleType();
-        if (seqSampleSampleType.equals(masterSampleType))
-        {
-            Set<EMailAddress> r = extractProperties(recipientPropertyTypeCodes, s);
-            recipients.addAll(r);
-        }
-        else
-        {
-            for (Sample parent : s.getParents())
+            for (IEntityProperty property : sequencingSample.getProperties())
             {
-                findMasterSample(parent, recipients);
-
-            }
-        }
-
-    }
-
-    private static Set<EMailAddress> extractProperties(final Set<String> recipientPropertyTypeCodes, Sample sequencingSample)
-    {
-        Set<EMailAddress> recipients = new HashSet<EMailAddress>();
-        for (IEntityProperty property : sequencingSample.getProperties())
-        {
-            final String propertyCode = property.getPropertyType().getCode();
-            EMailAddress propertyValue = new EMailAddress(property.tryGetAsString());
-            if (recipientPropertyTypeCodes.contains(propertyCode))
-            {
-                recipients.add(propertyValue);
-            } else
-            {
-                // add recipient for affiliation if his email was specified in properties
-                if (propertyCode.equals(AFFILIATION))
+                final String propertyCode = property.getPropertyType().getCode();
+                final String propertyValue = property.tryGetAsString();
+                if (recipientPropertyTypeCodes.contains(propertyCode))
                 {
-                    EMailAddress affiliationRecipientOrNull = new EMailAddress(
-                            recipientsByAffiliation.get(propertyValue));
-                    if (affiliationRecipientOrNull != null)
+                    EMailAddress myEmail = new EMailAddress(propertyValue);
+                    recipients.add(myEmail);
+                } else
+                {
+                    // add recipient for affiliation if his email was specified in properties
+                    if (propertyCode.equals(AFFILIATION))
                     {
-                        recipients.add(affiliationRecipientOrNull);
+                        String affiliationRecipientOrNull =
+                                recipientsByAffiliation.get(propertyValue);
+                        if (affiliationRecipientOrNull != null)
+                        {
+                            EMailAddress myEmail = new EMailAddress(affiliationRecipientOrNull);
+                            recipients.add(myEmail);
+                        }
                     }
                 }
             }
         }
+
         return recipients;
     }
 
     /**
-     * Returns a set of emails of recipients that should get a tracking information about given <var>flowLaneSample</var>.
+     * Returns a set of emails of recipients that should get a tracking information about given
+     * <var>flowLaneSample</var>.
      */
-    private static Set<EMailAddress> getSampleTrackingRecipients(Sample sample)
+    private static Set<EMailAddress> getFlowLaneSampleTrackingRecipients(Sample flowLaneSample)
     {
-        // Recipients are taken from properties of master sample
-        // that is a parent/grandparent of a library/raw sample
-        assert sample != null;
-        return getSequencingSampleTrackingRecipients(sample.getParents());
+        // Recipients are taken from properties of sequencing sample
+        // that is a parent of the flow lane sample.
+        assert flowLaneSample != null;
+        return getSequencingSampleTrackingRecipients(flowLaneSample.getParents());
     }
 
     /**
-     * Returns a set of emails of recipients that should get a tracking information about given <var>dataSet</var>.
+     * Returns a set of emails of recipients that should get a tracking information about given
+     * <var>dataSet</var>.
      */
     private static Set<EMailAddress> getDataSetTrackingRecipients(AbstractExternalData dataSet)
     {
-        // Recipients are taken from properties of master sample
-        // that is a parent/grandparent of a library/raw sample connected with the data set.
+        // Recipients are taken from properties of sequencing sample
+        // that is a parent of a flow lane sample connected directly with the data set.
         assert dataSet != null;
-        return getSampleTrackingRecipients(dataSet.getSample());
+        return getFlowLaneSampleTrackingRecipients(dataSet.getSample());
     }
 
 }
