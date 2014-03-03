@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IHibernateSearchDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetAttributeSearchFieldKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchAssociationCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
@@ -33,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriterion
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 
 /**
@@ -99,7 +100,6 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     public List<AbstractExternalData> searchForDataSets(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
-
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
         List<DetailedSearchSubCriteria> otherSubCriterias =
@@ -107,24 +107,34 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         groupDataSetSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        List<Long> dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
-        Collection<Long> filteredDataSetIds = dataSetIds;
+        boolean hasMainCriteria = false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty();
+        boolean hasParentCriteria = false == parentCriteria.isEmpty();
+        boolean hasChildCriteria = false == childCriteria.isEmpty();
 
-        if (false == parentCriteria.isEmpty())
+        Collection<Long> dataSetIds = null;
+
+        if (hasMainCriteria || (hasMainCriteria == false && hasParentCriteria == false && hasChildCriteria == false))
         {
-            filteredDataSetIds =
-                    filterSearchResultsBySubcriteria(userId, dataSetIds, parentCriteria,
-                            PARENT_RELATIONSHIP_HANDLER);
+            dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
+            if (dataSetIds == null)
+            {
+                dataSetIds = Collections.emptyList();
+            }
         }
 
-        if (false == childCriteria.isEmpty())
+        if (hasParentCriteria)
         {
-            filteredDataSetIds =
-                    filterSearchResultsBySubcriteria(userId, dataSetIds, childCriteria,
-                            CHILDREN_RELATIONSHIP_HANDLER);
+            dataSetIds = filterSearchResultsBySubcriteria(userId, dataSetIds, parentCriteria,
+                    PARENT_RELATIONSHIP_HANDLER);
         }
 
-        return lister.listByDatasetIds(restrictResultSetIfNecessary(filteredDataSetIds));
+        if (hasChildCriteria)
+        {
+            dataSetIds = filterSearchResultsBySubcriteria(userId, dataSetIds, childCriteria,
+                    CHILDREN_RELATIONSHIP_HANDLER);
+        }
+
+        return lister.listByDatasetIds(restrictResultSetIfNecessary(dataSetIds));
     }
 
     private List<Long> findDataSetIds(String userId, DetailedSearchCriteria criteria,

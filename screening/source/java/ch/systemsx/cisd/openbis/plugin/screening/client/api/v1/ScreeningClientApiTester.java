@@ -30,7 +30,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -126,6 +129,8 @@ public class ScreeningClientApiTester
         private IScreeningOpenbisServiceFacade facade;
 
         private JPanel content;
+
+        private JMenu callApiMenu;
         
         TesterFrame()
         {
@@ -142,7 +147,8 @@ public class ScreeningClientApiTester
             
             JMenuBar menuBar = new JMenuBar();
             setJMenuBar(menuBar);
-            JMenu callApiMenu = new JMenu("Call API");
+            callApiMenu = new JMenu("Call API");
+            callApiMenu.setEnabled(false);
             menuBar.add(callApiMenu);
             JMenuItem loadPlatesMenuItem = new JMenuItem("List Plates");
             loadPlatesMenuItem.addActionListener(new ActionListener()
@@ -235,6 +241,10 @@ public class ScreeningClientApiTester
                 }
                 JOptionPane.showMessageDialog(this, "Successfully connected to openBIS.");
             }
+            if (facade != null)
+            {
+                callApiMenu.setEnabled(true);
+            }
         }
         
         private void loadOverlays()
@@ -276,7 +286,7 @@ public class ScreeningClientApiTester
             List<Plate> plates = facade.listPlates();
             for (int i = 0, n = Math.min(10, plates.size()); i < n; i++)
             {
-                Plate plate = plates.get(i);
+                final Plate plate = plates.get(i);
                 final List<WellIdentifier> listPlateWells = facade.listPlateWells(plate);
                 JButton button = new JButton(plate.toString() + " " + listPlateWells.size() + " wells");
                 button.addActionListener(new ActionListener()
@@ -284,6 +294,14 @@ public class ScreeningClientApiTester
                         @Override
                         public void actionPerformed(ActionEvent e)
                         {
+                            Map<String, String> plateProperties = facade.getPlateProperties(plate);
+                            StringBuilder builder = new StringBuilder();
+                            for (Entry<String, String> property : plateProperties.entrySet())
+                            {
+                                builder.append('\n').append(property.getKey()).append(" = ").append(property.getValue());
+                            }
+                            JOptionPane.showMessageDialog(TesterFrame.this, "Plate "
+                                    + plate.getAugmentedCode() + " has these properties:" + builder);
                             if (listPlateWells.isEmpty())
                             {
                                 return;

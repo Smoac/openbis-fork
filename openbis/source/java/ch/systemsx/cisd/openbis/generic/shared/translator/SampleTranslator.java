@@ -209,14 +209,8 @@ public final class SampleTranslator
     private static void setProperties(final Sample result, final SamplePE samplePE,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
-        if (samplePE.isPropertiesInitialized())
-        {
-            result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
-                    new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
-        } else
-        {
-            result.setProperties(new ArrayList<IEntityProperty>());
-        }
+        result.setProperties(EntityPropertyTranslator.translate(samplePE.getProperties(),
+                new HashMap<PropertyTypePE, PropertyType>(), managedPropertyEvaluatorFactory));
     }
 
     public final static SampleParentWithDerived translate(

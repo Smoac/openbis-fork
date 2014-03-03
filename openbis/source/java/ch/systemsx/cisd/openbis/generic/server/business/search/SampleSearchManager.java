@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.search;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,25 +113,34 @@ public class SampleSearchManager extends AbstractSearchManager<ISampleLister>
         groupSampleSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
                 otherSubCriterias);
 
-        final List<Long> mainSampleIds = findSampleIds(userId, criteria, otherSubCriterias);
+        boolean hasMainCriteria = false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty();
+        boolean hasParentCriteria = false == parentCriteria.isEmpty();
+        boolean hasChildCriteria = false == childCriteria.isEmpty();
 
-        Collection<Long> filteredSampleIds = mainSampleIds;
-        if (false == parentCriteria.isEmpty())
+        Collection<Long> sampleIds = null;
+
+        if (hasMainCriteria || (hasMainCriteria == false && hasParentCriteria == false && hasChildCriteria == false))
         {
-            filteredSampleIds =
-                    filterSearchResultsBySubcriteria(userId, filteredSampleIds, parentCriteria,
-                            PARENT_RELATIONSHIP_HANDLER);
+            sampleIds = findSampleIds(userId, criteria, otherSubCriterias);
+            if (sampleIds == null)
+            {
+                sampleIds = Collections.emptyList();
+            }
         }
 
-        if (false == childCriteria.isEmpty())
+        if (hasParentCriteria)
         {
-            filteredSampleIds =
-                    filterSearchResultsBySubcriteria(userId, filteredSampleIds, childCriteria,
-                            CHILDREN_RELATIONSHIP_HANDLER);
+            sampleIds = filterSearchResultsBySubcriteria(userId, sampleIds, parentCriteria,
+                    PARENT_RELATIONSHIP_HANDLER);
         }
 
-        Collection<Long> sampleIDs = restrictResultSetIfNecessary(filteredSampleIds);
-        return sampleIDs;
+        if (hasChildCriteria)
+        {
+            sampleIds = filterSearchResultsBySubcriteria(userId, sampleIds, childCriteria,
+                    CHILDREN_RELATIONSHIP_HANDLER);
+        }
+
+        return restrictResultSetIfNecessary(sampleIds);
     }
 
     private void groupSampleSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,

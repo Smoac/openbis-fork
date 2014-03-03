@@ -27,12 +27,10 @@ import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 
 /**
- * Transformation performed by
- * {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)}.
+ * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)}.
  * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package or changing it in a backward incompatible way would make
- * all the saved transformations invalid.
+ * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+ * in a backward incompatible way would make all the saved transformations invalid.
  * 
  * @author Tomasz Pylak
  */
@@ -69,20 +67,17 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                 @Override
                 public BufferedImage transform(BufferedImage image)
                 {
+                    Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
                         if (channels.size() != 1)
                         {
-                            return image;
-                        } else
-                        {
-                            Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
-                                    channels.iterator().next());
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                         }
+                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                                channels.iterator().next());
                     }
-                    Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
             };

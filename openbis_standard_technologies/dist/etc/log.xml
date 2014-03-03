@@ -16,6 +16,10 @@
     <filter class="ch.systemsx.cisd.openbis.generic.server.LoggerNameFilter">
         <param name="LoggerName" value="ACCESS.LongRunningThreadLogger" />
     </filter>
+    <filter class="ch.systemsx.cisd.openbis.generic.server.LoggerNameFilter">
+        <param name="LoggerName" value="org.springframework.jdbc.support.SQLErrorCodesFactory" />
+    </filter>
+    
   </appender>
 
   <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
@@ -38,12 +42,12 @@
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n"/>
     </layout>
-  
+
     <!--filter class="org.apache.log4j.varia.LevelRangeFilter">
       <param name="LevelMin" value="ERROR"/>
       <param name="LevelMax" value="FATAL"/>
     </filter-->
-  
+
   </appender>
 
   <appender name="SERVICE_CALL" class="ch.systemsx.cisd.openbis.common.log.ServiceCallAppender">
@@ -58,6 +62,15 @@
 
   <appender name="LONG_RUNNING_THREAD" class="org.apache.log4j.DailyRollingFileAppender">
       <param name="File" value="log/datastore_server_long_running_threads.txt" />
+      <param name="DatePattern" value="'.'yyyy-MM-dd" />
+
+      <layout class="org.apache.log4j.PatternLayout">
+          <param name="ConversionPattern" value="%d %-5p [%t]%X{sessionInfo} %c - %m%n" />
+      </layout>
+  </appender>  
+
+  <appender name="SQL_ERROR_CODES_FACTORY_APPENDER" class="org.apache.log4j.DailyRollingFileAppender">
+      <param name="File" value="log/datastore_server_sql_error_codes_factory_log.txt" />
       <param name="DatePattern" value="'.'yyyy-MM-dd" />
 
       <layout class="org.apache.log4j.PatternLayout">
@@ -100,6 +113,11 @@
       <appender-ref ref="LONG_RUNNING_THREAD" />        
   </category>  
 
+  <category name="org.springframework.jdbc.support.SQLErrorCodesFactory">
+      <priority value="info" />
+      <appender-ref ref="SQL_ERROR_CODES_FACTORY_APPENDER" />
+  </category>  
+
   <root>
     <priority value="info" />
     <appender-ref ref="DEFAULT" />
@@ -109,7 +127,7 @@
     <!-- Print only messages of level warn or above from the BioFormats library -->
     <level value="warn"/> 
   </logger>
-  
+
   <logger name="loci.formats.FormatHandler">
     <!-- Print only messages of level error or above from the BioFormats library FormatHandler -->
     <level value="error"/> 
