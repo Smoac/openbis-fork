@@ -422,6 +422,11 @@ table.downloads {
     fill: none;
 }
 
+.svgButton:hover {
+	fill: #005580;
+	stroke: #005580;
+}
+
 /*
  * Storage Widget
  */
