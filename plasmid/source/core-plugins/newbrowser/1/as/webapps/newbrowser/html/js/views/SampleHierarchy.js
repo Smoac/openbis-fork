@@ -15,6 +15,7 @@
  */
 
 function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) {
+	this.nodeIdPrefix = "HIERARCHY_NODE_";
 	this.serverFacade = serverFacade;
 	this.inspector = inspector;
 	this.containerId = containerId;
@@ -279,6 +280,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		
 		searchAndUpdateData(show, permId, this.sample);
 		this._filterSampleAndUpdate();
+		this._glowNode(this.nodeIdPrefix + permId);
 	}
 	
 	this._updateDisplayabilityFor = function(hide, permId) {
@@ -302,6 +304,16 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		
 		searchAndUpdateDisplayability(hide, permId, this.sample);
 		this._filterSampleAndUpdate();
+		this._glowNode(this.nodeIdPrefix + permId);
+	}
+	
+	this._glowNode = function(nodeId) {
+		$("#"+nodeId).removeClass("glow");
+		var glow = function() {
+			//Make it Glow
+			$("#" + nodeId).addClass("glow");
+		}
+		setTimeout(glow, 500);
 	}
 	
 	this._repaintGraph = function(sample) {
@@ -313,10 +325,11 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		var _this = this;
 		function addSampleNodes(sample, rootPermId) {
 			if(!NODES[sample.permId]) {
-				var $nodeContent = $('<div>');
+				var $nodeContent = $('<div>', { 'id' : _this.nodeIdPrefix + sample.permId });
 				$nodeContent.css({
 					'white-space' :'nowrap',
 					'padding' : '10px',
+					'margin' : '10px',
 					'background-color' : (sample.permId === rootPermId)?'lightgreen':'transparent',
 					'border-radius' : '90px'
 				});
