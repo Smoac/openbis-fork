@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -48,8 +49,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public boolean hasDataSet(final SamplePE sample) throws DataAccessException;
 
     /**
-     * List the {@link DataPE} related to given <var>entities</var> of specified
-     * <var>entityKind</var>.
+     * List the {@link DataPE} related to given <var>entities</var> of specified <var>entityKind</var>.
      * 
      * @returns list of {@link DataPE}s that are related to given {@link IEntityInformationHolder}.
      */
@@ -64,8 +64,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<DataPE> listDataSets(final SamplePE sample) throws DataAccessException;
 
     /**
-     * List the {@link DataPE} for given <var>sample</var>. The datasets are fetched without the
-     * additional relationships or properties.
+     * List the {@link DataPE} for given <var>sample</var>. The datasets are fetched without the additional relationships or properties.
      * 
      * @returns list of {@link DataPE}s that are related to given {@link SamplePE}.
      */
@@ -119,6 +118,11 @@ public interface IDataDAO extends IGenericDAO<DataPE>
             boolean newPresentInArchive);
 
     /**
+     * Updates sizes of given data sets (map key: data set code, map value: data set size).
+     */
+    public void updateSizes(Map<String, Long> sizeMap);
+
+    /**
      * Persists the specified data set.
      */
     public void createDataSet(DataPE dataset, PersonPE modifier);
@@ -159,8 +163,7 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<TechId> listContainedDataSets(final Collection<TechId> containerIds);
 
     /**
-     * Returs ids of contained data sets, and of datasets contained in those datasets etc. Also
-     * includes the input ids.
+     * Returs ids of contained data sets, and of datasets contained in those datasets etc. Also includes the input ids.
      */
     public List<TechId> listContainedDataSetsRecursively(final Collection<TechId> containersIds);
 
@@ -171,17 +174,14 @@ public interface IDataDAO extends IGenericDAO<DataPE>
             throws DataAccessException;
 
     /**
-     * Confirms a storage for the specified data set. It confirms the storage even if the data set
-     * is in the trash.
+     * Confirms a storage for the specified data set. It confirms the storage even if the data set is in the trash.
      * 
-     * @return Returns true if the data sets exists and the storage confirmed value has been
-     *         changed.
+     * @return Returns true if the data sets exists and the storage confirmed value has been changed.
      */
     boolean confirmStorage(String dataSetCode);
 
     /**
-     * Checks whether a data set with the specified code exists. It takes into consideration also
-     * data sets that are in the trash.
+     * Checks whether a data set with the specified code exists. It takes into consideration also data sets that are in the trash.
      * 
      * @return Returns true if the data set exists.
      */

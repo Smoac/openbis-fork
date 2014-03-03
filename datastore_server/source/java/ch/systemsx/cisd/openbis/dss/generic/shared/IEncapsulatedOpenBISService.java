@@ -280,6 +280,18 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public List<SimpleDataSetInformationDTO> listOldestPhysicalDataSets(Date youngerThan,
             int chunkSize) throws UserFailureException;
 
+    /**
+     * Returns informations about physical data sets with unknown size that belong to the calling data store server.
+     */
+    @ManagedAuthentication
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize() throws UserFailureException;
+
+    /**
+     * Updates sizes of the specified physical data sets (map key: data set code, map value: data set size).
+     */
+    @ManagedAuthentication
+    public void updatePhysicalDataSetsSize(Map<String, Long> sizeMap) throws UserFailureException;
+
     /** @see IServiceForDataStoreServer#listDataSets(String, String, TrackingDataSetCriteria) */
     @ManagedAuthentication
     public List<AbstractExternalData> listNewerDataSets(TrackingDataSetCriteria criteria)

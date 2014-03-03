@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -413,6 +414,20 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
         logAccess(Level.DEBUG, sessionToken, "listFileDataSets",
                 "DATA_STORE(%s), YOUNGER_THAN(%s), LIMIT(%s)", dataStore, youngerThan, limit);
         return null;
+    }
+
+    @Override
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode)
+    {
+        logAccess(Level.DEBUG, sessionToken, "listPhysicalDataSetsWithUnknownSize", "DATA_STORE(%s)", dataStoreCode);
+        return null;
+    }
+
+    @Override
+    public void updatePhysicalDataSetsSize(String sessionToken, Map<String, Long> sizeMap)
+    {
+        logAccess(Level.DEBUG, sessionToken, "updatePhysicalDataSetsSize", "CODES(%s)",
+                sizeMap != null ? CollectionUtils.abbreviate(sizeMap.keySet(), 10) : Collections.emptySet());
     }
 
     @Override

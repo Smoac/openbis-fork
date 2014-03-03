@@ -39,17 +39,16 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
- * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from
- * the database.
+ * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from the database.
  * <p>
- * This interface is intended to be used only in this package. The <code>public</code> modifier is
- * needed for creating a dynamic proxy by the EOD SQL library.
+ * This interface is intended to be used only in this package. The <code>public</code> modifier is needed for creating a dynamic proxy by the EOD SQL
+ * library.
  * 
  * @author Tomasz Pylak
  */
 @Private
 @Friend(toClasses =
-    { DataStoreRecord.class })
+{ DataStoreRecord.class })
 public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
 {
     public static final int FETCH_SIZE = 1000;
@@ -100,7 +99,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the directly connected datasets for the given sample ids.
      */
     @Select(sql = SELECT_ALL + " WHERE data.samp_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasetsForSamples(LongSet sampleIds);
 
     /**
@@ -110,8 +109,8 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<DatasetRecord> getNewDataSets(long lastSeenDatasetId);
 
     /**
-     * Returns datasets that are newer than dataset with given id (<var>lastSeenDatasetId</var>) and
-     * are directly connected with samples of sample type with given <var>sampleTypeId</var>.
+     * Returns datasets that are newer than dataset with given id (<var>lastSeenDatasetId</var>) and are directly connected with samples of sample
+     * type with given <var>sampleTypeId</var>.
      */
     @Select(sql = SELECT_ALL
             + " WHERE data.id > ?{2} AND data.samp_id IN (SELECT id FROM samples s WHERE s.saty_id=?{1})", fetchSize = FETCH_SIZE)
@@ -119,8 +118,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             long lastSeenDatasetId);
 
     /**
-     * Returns datasets from store with given id that have status equal 'AVAILABLE' and were
-     * modified before given date.
+     * Returns datasets from store with given id that have status equal 'AVAILABLE' and were modified before given date.
      */
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
@@ -129,8 +127,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             Date lastModificationDate, boolean presentInArchive);
 
     /**
-     * Like {@link #getAvailableExtDatasRegisteredBefore(long, Date, boolean)} with additional
-     * condition for data set type id.
+     * Like {@link #getAvailableExtDatasRegisteredBefore(long, Date, boolean)} with additional condition for data set type id.
      */
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
             + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
@@ -150,15 +147,15 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns ids of datasets directly connected to samples with given ids.
      */
     @Select(sql = "select id from data where data.samp_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetIdsForSamples(LongSet sampleIds);
 
     @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
 
     @Select(sql = "select * from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids);
 
     /**
@@ -166,7 +163,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_ALL
             + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent = any(?{1}))", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getChildDatasetsForParents(LongSet parentDatasetIds);
 
     /**
@@ -219,11 +216,11 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the datasets for the given <var>entityIds</var>.
      */
     @Select(sql = SELECT_ALL + " where data.id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(LongSet entityIds);
 
     @Select(sql = SELECT_ALL + " where data.code = any(?{1})", parameterBindings =
-        { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRecord> getDatasets(String[] datasetCodes);
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
@@ -246,6 +243,11 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + " order by registration_timestamp", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreId(long dataStoreId, Date at);
 
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + " where data.dast_id = ?{1} and is_placeholder = false and size is null"
+            + " order by registration_timestamp", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreIdWithUnknownSize(long dataStoreID);
+
     // NOTE: we list ALL data sets (even those in trash) using data_all table here
     @Select(sql = "SELECT code, share_id FROM data_all LEFT OUTER JOIN external_data "
             + "ON data_all.id = external_data.data_id WHERE data_all.dast_id = ?{1}", fetchSize = FETCH_SIZE)
@@ -256,11 +258,11 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the children dataset ids of the specified datasets.
      */
     @Select(sql = "select data_id_child from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
 
     @Select(sql = "select id from data where ctnr_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getContainedDataSetIds(LongSet containerIDs);
 
     @Select(sql = "select code from data where ctnr_id = (select id from data where code = ?{1})", fetchSize = FETCH_SIZE)
@@ -280,13 +282,12 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      LEFT OUTER JOIN scripts sc ON etpt.script_id = sc.id"
             + "     WHERE pr.value is not null AND pr.ds_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds);
 
     /**
-     * Returns property values for specified type code of all datasets specified by
-     * <var>entityIds</var>.
+     * Returns property values for specified type code of all datasets specified by <var>entityIds</var>.
      * 
      * @param entityIds The set of sample ids to get the property values for.
      * @param propertyTypeCode type code f properties we want to fetch
@@ -296,13 +297,12 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      JOIN property_types pt ON etpt.prty_id=pt.id"
             + "     WHERE pr.value is not null AND pr.ds_id = any(?{1}) AND pt.code = ?{2}", parameterBindings =
-        { LongSetMapper.class, TypeMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class, TypeMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<GenericEntityPropertyRecord> getEntityPropertyGenericValues(
             LongSet entityIds, String propertyTypeCode);
 
     /**
-     * Returns all controlled vocabulary property values of all datasets specified by
-     * <var>entityIds</var>.
+     * Returns all controlled vocabulary property values of all datasets specified by <var>entityIds</var>.
      * 
      * @param entityIds The set of sample ids to get the property values for.
      */
@@ -311,7 +311,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      JOIN controlled_vocabulary_terms cvte ON pr.cvte_id=cvte.id"
             + "     WHERE pr.cvte_id is not null AND pr.ds_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<VocabularyTermRecord> getEntityPropertyVocabularyTermValues(
             LongSet entityIds);
 
@@ -325,7 +325,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "      JOIN data_set_type_property_types etpt ON pr.dstpt_id=etpt.id"
             + "      JOIN materials m ON pr.mate_prop_id=m.id "
             + "     WHERE pr.mate_prop_id is not null AND pr.ds_id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
 
@@ -342,7 +342,7 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + " m.private as is_private, m.creation_date as creation_date, ma.data_id as entity_id "
             + " from metaprojects m, metaproject_assignments ma, persons p "
             + " where ma.data_id = any(?{1}) and m.owner = ?{2} and m.id = ma.mepr_id and m.owner = p.id", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<MetaProjectWithEntityId> getMetaprojects(LongSet entityIds, Long userId);
 
 }

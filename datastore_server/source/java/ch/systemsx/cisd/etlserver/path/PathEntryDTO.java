@@ -212,7 +212,7 @@ public class PathEntryDTO
         this.fileName = fileName;
     }
 
-    public long getSizeInBytes()
+    public Long getSizeInBytes()
     {
         return sizeInBytes;
     }

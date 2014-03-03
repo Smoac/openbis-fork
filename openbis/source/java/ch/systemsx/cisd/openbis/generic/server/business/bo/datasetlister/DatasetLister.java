@@ -91,8 +91,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataStoreTranslator;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, DatasetRelationRecord.class, DataStoreRecord.class,
-            DatasetCodeWithShareIdRecord.class, IDatasetListingQuery.class })
+{ DatasetRecord.class, DatasetRelationRecord.class, DataStoreRecord.class,
+        DatasetCodeWithShareIdRecord.class, IDatasetListingQuery.class })
 public class DatasetLister extends AbstractLister implements IDatasetLister
 {
     public static final EnumSet<DataSetFetchOption> SUPPORTED_DATASET_FETCH_OPTIONS = EnumSet.of(
@@ -487,6 +487,16 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return orderByDate(enrichDatasets(
                 handleDegenerateRegistrationTimestamp(
                         query.getDatasetsByDataStoreId(dataStoreID, youngerThan, limit),
+                        dataStoreID), datasetFetchOptions));
+    }
+
+    @Override
+    public List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, EnumSet<DataSetFetchOption> datasetFetchOptions)
+    {
+        checkFetchOptions(datasetFetchOptions);
+        return orderByDate(enrichDatasets(
+                handleDegenerateRegistrationTimestamp(
+                        query.getDatasetsByDataStoreIdWithUnknownSize(dataStoreID),
                         dataStoreID), datasetFetchOptions));
     }
 

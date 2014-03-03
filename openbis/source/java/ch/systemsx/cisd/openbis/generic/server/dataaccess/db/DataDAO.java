@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -547,6 +548,35 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             operationLog.info(String.format("UPDATED: %s data set statuses to '%s'.",
                     dataSetCodes.size(), status));
         }
+    }
+
+    @Override
+    public void updateSizes(final Map<String, Long> sizeMap)
+    {
+        final HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.execute(new HibernateCallback()
+            {
+                @Override
+                public final Object doInHibernate(final Session session)
+                        throws HibernateException, SQLException
+                {
+                    for (Map.Entry<String, Long> sizeEntry : sizeMap.entrySet())
+                    {
+                        // data sets consisting out of empty folders have a size of 0,
+                        // but we want the size of a data set to be strictly positive
+                        long positiveSize = Math.max(1, sizeEntry.getValue());
+
+                        session.createQuery(
+                                "UPDATE " + EXTERNAL_DATA_TABLE_NAME
+                                        + " SET size = :size WHERE code = :code")
+                                .setParameter("size", positiveSize)
+                                .setParameter("code", sizeEntry.getKey())
+                                .executeUpdate();
+                    }
+                    return null;
+                }
+            });
+        hibernateTemplate.flush();
     }
 
     @Override

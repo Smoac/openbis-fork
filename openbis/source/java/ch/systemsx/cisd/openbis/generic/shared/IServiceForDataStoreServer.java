@@ -434,6 +434,19 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
             String dataStore, Date youngerThan, int limit) throws UserFailureException;
 
     /**
+     * Returns informations about physical data sets with unknown size that belong to the specified data store server.
+     */
+    @Transactional(readOnly = true)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode);
+
+    /**
+     * Updates sizes of the specified physical data sets (map key: data set code, map value: data set size).
+     */
+    @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updatePhysicalDataSetsSize(String sessionToken, Map<String, Long> sizeMap);
+
+    /**
      * List data sets deleted after specified date.
      */
     @Transactional(readOnly = true)

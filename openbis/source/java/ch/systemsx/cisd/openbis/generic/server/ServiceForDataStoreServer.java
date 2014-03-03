@@ -1291,6 +1291,27 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode)
+    {
+        final Session session = getSession(sessionToken);
+        final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
+        final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
+        final List<AbstractExternalData> dataSets =
+                datasetLister.listByDataStoreWithUnknownSize(dataStore.getId(),
+                        DATASET_FETCH_OPTIONS_FILE_DATASETS);
+        return SimpleDataSetHelper.filterAndTranslate(dataSets);
+    }
+
+    @Override
+    public void updatePhysicalDataSetsSize(String sessionToken, Map<String, Long> sizeMap)
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        final Session session = getSession(sessionToken);
+        final IDataBO dataBO = businessObjectFactory.createDataBO(session);
+        dataBO.updateSizes(sizeMap);
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<AbstractExternalData> listAvailableDataSets(String sessionToken,
             String dataStoreCode, ArchiverDataSetCriteria criteria)
