@@ -1291,6 +1291,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode)
     {
         final Session session = getSession(sessionToken);
@@ -1303,6 +1304,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public void updatePhysicalDataSetsSize(String sessionToken, Map<String, Long> sizeMap)
     {
         assert sessionToken != null : "Unspecified session token.";
