@@ -343,8 +343,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 	this._glowNode = function(nodeId) {
 		$("#"+nodeId).removeClass("glow");
 		var glow = function() {
-			//Make it Glow
-			$("#" + nodeId).addClass("glow");
+			$("#" + nodeId).addClass("glow"); //Make it Glow
 		}
 		setTimeout(glow, 500);
 	}
@@ -358,7 +357,8 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		var _this = this;
 		function addSampleNodes(sample, rootPermId) {
 			if(!NODES[sample.permId]) {
-				var $nodeContent = $('<div>', { 'id' : _this.nodeIdPrefix + sample.permId });
+				var nodeId =  _this.nodeIdPrefix + sample.permId;
+				var $nodeContent = $('<div>');
 				$nodeContent.css({
 					'white-space' :'nowrap',
 					'padding' : '10px',
@@ -418,6 +418,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 					$nodeContent.append('---');
 				}
 				
+				$nodeContent.attr('id', nodeId);
 				g.addNode(sample.permId, { label: $nodeContent[0].outerHTML});
 				
 				NODES[sample.permId] = true;
