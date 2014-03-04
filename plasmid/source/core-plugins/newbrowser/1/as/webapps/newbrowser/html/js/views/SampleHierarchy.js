@@ -437,11 +437,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.attr('width', $(document).width() - 30)
 			.attr('height', $(document).height() - 120)
 		
-		d3.select('#svgMapContainer')
-		.call(d3.behavior.zoom().on('zoom', function() {
-			var ev = d3.event;
-			svgG.attr('transform', 'translate(' + ev.translate + ') scale(' + ev.scale + ')');
-		})).on("dblclick.zoom", null);
+		d3.select('#svgMapContainer').call(zoomFunc);
 	}
 	
 	this._makeSVG = function(tag, attrs) {
@@ -452,33 +448,48 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
     }
 	
 	//
-	// Zoom and Pan controls
+	// Zoom and Pan API (Can be used externaly)
 	//
+	
     this.pan = function(dx, dy)
     {
-    	var svgTransform = d3.select('#svgMap').attr("transform");
-		
-		var svgTransformTranslate  = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec(svgTransform);
-		var translateX = parseFloat(svgTransformTranslate[1]) + dx;
-		var translateY = parseFloat(svgTransformTranslate[2]) + dy;
-		
-		var svgTransformScale  = /scale\(([^\s,)]+)/.exec(svgTransform);
-		var scaleRatio = parseFloat(svgTransformScale[1]);
-		
-		d3.select('#svgMap').attr('transform', 'translate(' + translateX + ',' + translateY + ') scale(' + scaleRatio + ')');
+		var newTranslate = [projection.translate[0] + dx, projection.translate[1] + dy];
+		zoomFunc.translate(newTranslate);
+		projection.translate = newTranslate;
+		d3.select('#svgMap').attr('transform', 'translate(' + newTranslate + ') scale(' + projection.scale + ')');
     }
     
 	this.zoom = function(scale)
 	{
-		var svgTransform = d3.select('#svgMap').attr("transform");
-		
-		var svgTransformTranslate  = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec(svgTransform);
-		var translateX = parseFloat(svgTransformTranslate[1]);
-		var translateY = parseFloat(svgTransformTranslate[2]);
-		
-		var svgTransformScale  = /scale\(([^\s,)]+)/.exec(svgTransform);
-		var scaleRatio = parseFloat(svgTransformScale[1]) * scale;
-		
-		d3.select('#svgMap').attr('transform', 'translate(' + translateX + ',' + translateY + ') scale(' + scaleRatio + ')');
+		var newScale = projection.scale * scale;
+		zoomFunc.scale(newScale);
+		projection.scale = newScale;
+		d3.select('#svgMap').attr('transform', 'translate(' + projection.translate + ') scale(' + newScale + ')');
     }
+	
+	//
+	// Zoom and Pan Internals (To keep in sync internal D3 projection of the translate and scale properties with the DOM ones)
+	//
+	var projection = {
+			scale : 1,
+			translate : [20, 20]
+	};
+	
+	var zoomFunc = d3.behavior.zoom()
+		.translate(projection.translate)
+		.scale(projection.scale)
+		.on("zoom", move);
+	
+	function move() {
+		  var t = d3.event.translate,
+		      s = d3.event.scale;
+		  
+		  zoomFunc.translate(t);
+		  zoomFunc.scale(s);
+		  
+		  projection.translate = t; 
+		  projection.scale = s;
+		  
+		  d3.select('#svgMap').attr('transform', 'translate(' + t + ') scale(' + s + ')');
+	}
 }
