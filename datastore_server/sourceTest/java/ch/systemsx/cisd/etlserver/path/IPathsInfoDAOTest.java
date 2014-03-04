@@ -16,78 +16,37 @@
 
 package ch.systemsx.cisd.etlserver.path;
 
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
+import java.util.Date;
+import java.util.List;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.SystemTestCase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
+
 /**
- * This is a minimal test for {@link IPathsInfoDAO} which ensures that the query annotations can be
- * parsed correctly.
- * 
- * @author Bernd Rinn
+ * @author pkupczyk
  */
-public class IPathsInfoDAOTest
+public class IPathsInfoDAOTest extends SystemTestCase
 {
-    
-    private final DataSource DUMMY_DATA_SOURCE = new DataSource()
-    {
-        @Override
-        public Connection getConnection() throws SQLException
-        {
-            return null;
-        }
 
-        @Override
-        public Connection getConnection(String username, String password) throws SQLException
-        {
-            return null;
-        }
-
-        @Override
-        public PrintWriter getLogWriter() throws SQLException
-        {
-            return null;
-        }
-
-        @Override
-        public void setLogWriter(PrintWriter out) throws SQLException
-        {
-        }
-
-        @Override
-        public void setLoginTimeout(int seconds) throws SQLException
-        {
-        }
-
-        @Override
-        public int getLoginTimeout() throws SQLException
-        {
-            return 0;
-        }
-        
-        @Override
-        public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException
-        {
-            return null;
-        }
-        
-        @Override
-        public boolean isWrapperFor(java.lang.Class<?> iface) throws java.sql.SQLException
-        {
-            return false;
-        }
-    };
-    
     @Test
-    public void testGetQuery()
+    public void testListDataSetsSize()
     {
-        QueryTool.getQuery(DUMMY_DATA_SOURCE, IPathsInfoDAO.class);
+        IPathsInfoDAO dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
+
+        long dataSetId = dao.createDataSet("DATA_SET_WITH_SIZE", "abc");
+        long rootDirectoryId = dao.createDataSetFile(dataSetId, null, "", "root", 123L, true, new Date());
+        dao.createDataSetFile(dataSetId, rootDirectoryId, "root", "file1.txt", 100L, false, new Date());
+        dao.createDataSetFile(dataSetId, rootDirectoryId, "root", "file2.txt", 23L, false, new Date());
+
+        List<PathEntryDTO> entries = dao.listDataSetsSize(new String[] { "DATA_SET_WITH_SIZE" });
+
+        Assert.assertEquals(1, entries.size());
+        Assert.assertEquals(Long.valueOf(123L), entries.get(0).getSizeInBytes());
     }
 
 }
