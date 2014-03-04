@@ -337,11 +337,11 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				var $hideLink = $('<a>', {
 					'href' : "javascript:mainController.currentView._updateDisplayabilityFor(" + ((sample.hideGraphConnections)?false:true) + ",'" + sample.permId + "');"
 				}).append(
-					$('<i>', { 
-						'class' : (sample.hideGraphConnections)?'icon-eye-close':'icon-eye-open',
-						'style' : 'cursor:pointer',
+					$('<img>', { 
+						'src' : (sample.hideGraphConnections)?'./img/eye-close-icon.png':'./img/eye-open-icon.png',
+						'style' : 'cursor:pointer; width:18px; height:18px;',
 					}));
-				
+
 				var $dataLink = $('<a>', {
 					'href' : "javascript:mainController.currentView._updateDataFor(" + ((sample.showDataOnGraph)?false:true) + ",'" + sample.permId + "');"
 				}).append(
