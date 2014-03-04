@@ -73,33 +73,38 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
         operationLog.info("Start filling.");
 
         List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSetsWithUnknownSize();
-        Set<String> codes = new HashSet<String>();
 
-        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        operationLog.info("Found " + (dataSets != null ? dataSets.size() : 0) + " dataset(s) with unknown size in openbis database.");
+
+        if (dataSets != null && false == dataSets.isEmpty())
         {
-            codes.add(dataSet.getDataSetCode());
-        }
+            Set<String> codes = new HashSet<String>();
 
-        operationLog.info("Found " + codes.size() + " dataset(s) with unknown size in openbis database.");
-
-        if (codes.size() > 0)
-        {
-            List<PathEntryDTO> pathInfoEntries = dao.listDataSetsSize(codes.toArray(new String[codes.size()]));
-            Map<String, Long> sizeMap = new HashMap<String, Long>();
-
-            for (PathEntryDTO pathInfoEntry : pathInfoEntries)
+            for (SimpleDataSetInformationDTO dataSet : dataSets)
             {
-                if (pathInfoEntry.getSizeInBytes() != null)
-                {
-                    sizeMap.put(pathInfoEntry.getDataSetCode(), pathInfoEntry.getSizeInBytes());
-                }
+                codes.add(dataSet.getDataSetCode());
             }
 
-            operationLog.info("Found sizes for " + sizeMap.size() + " dataset(s) in pathinfo database.");
+            List<PathEntryDTO> pathInfoEntries = dao.listDataSetsSize(codes.toArray(new String[codes.size()]));
 
-            service.updatePhysicalDataSetsSize(sizeMap);
+            if (pathInfoEntries != null && false == pathInfoEntries.isEmpty())
+            {
+                Map<String, Long> sizeMap = new HashMap<String, Long>();
 
+                for (PathEntryDTO pathInfoEntry : pathInfoEntries)
+                {
+                    if (pathInfoEntry.getSizeInBytes() != null)
+                    {
+                        sizeMap.put(pathInfoEntry.getDataSetCode(), pathInfoEntry.getSizeInBytes());
+                    }
+                }
+
+                operationLog.info("Found sizes for " + sizeMap.size() + " dataset(s) in pathinfo database.");
+
+                service.updatePhysicalDataSetsSize(sizeMap);
+            }
         }
+
         operationLog.info("Filling finished.");
     }
 

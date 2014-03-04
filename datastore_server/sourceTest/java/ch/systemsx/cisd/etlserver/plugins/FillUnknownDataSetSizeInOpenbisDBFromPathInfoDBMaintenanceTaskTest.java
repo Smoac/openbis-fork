@@ -19,11 +19,14 @@ package ch.systemsx.cisd.etlserver.plugins;
 import static ch.systemsx.cisd.common.test.ArrayContainsExactlyMatcher.containsExactly;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
@@ -37,27 +40,115 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 {
 
-    @Test
-    public void test()
-    {
-        Mockery context = new Mockery();
-        final IEncapsulatedOpenBISService service = context.mock(IEncapsulatedOpenBISService.class);
-        final IPathsInfoDAO dao = context.mock(IPathsInfoDAO.class);
+    private Mockery context;
 
-        final SimpleDataSetInformationDTO dataSet1 = new SimpleDataSetInformationDTO();
+    private IEncapsulatedOpenBISService service;
+
+    private IPathsInfoDAO dao;
+
+    private SimpleDataSetInformationDTO dataSet1;
+
+    private SimpleDataSetInformationDTO dataSet2;
+
+    private SimpleDataSetInformationDTO dataSet3;
+
+    private PathEntryDTO entry1;
+
+    private PathEntryDTO entry2;
+
+    @BeforeMethod
+    public void beforeMethod()
+    {
+        context = new Mockery();
+        service = context.mock(IEncapsulatedOpenBISService.class);
+        dao = context.mock(IPathsInfoDAO.class);
+
+        dataSet1 = new SimpleDataSetInformationDTO();
         dataSet1.setDataSetCode("DS_1");
-        final SimpleDataSetInformationDTO dataSet2 = new SimpleDataSetInformationDTO();
+        dataSet2 = new SimpleDataSetInformationDTO();
         dataSet2.setDataSetCode("DS_2");
-        final SimpleDataSetInformationDTO dataSet3 = new SimpleDataSetInformationDTO();
+        dataSet3 = new SimpleDataSetInformationDTO();
         dataSet3.setDataSetCode("DS_3");
 
-        final PathEntryDTO entry1 = new PathEntryDTO();
+        entry1 = new PathEntryDTO();
         entry1.setDataSetCode("DS_1");
         entry1.setSizeInBytes(123L);
 
-        final PathEntryDTO entry2 = new PathEntryDTO();
+        entry2 = new PathEntryDTO();
         entry2.setDataSetCode("DS_2");
+    }
 
+    @AfterMethod
+    public void afterMethod()
+    {
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testExecuteWhereListOfDataSetsWithUnknownSizeInOpenbisDBIsEmpty()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listPhysicalDataSetsWithUnknownSize();
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute();
+    }
+
+    @Test
+    public void testExecuteWhereListOfDataSetsWithUnknownSizeInOpenbisDBIsNull()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listPhysicalDataSetsWithUnknownSize();
+                    will(returnValue(null));
+                }
+            });
+
+        execute();
+    }
+
+    @Test
+    public void testExecuteWhereListOfDataSetSizesFoundInPathinfoDBIsEmpty()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listPhysicalDataSetsWithUnknownSize();
+                    will(returnValue(Arrays.asList(dataSet1)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute();
+    }
+
+    @Test
+    public void testExecuteWhereListOfDataSetSizesFoundInPathinfoDBIsNull()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).listPhysicalDataSetsWithUnknownSize();
+                    will(returnValue(Arrays.asList(dataSet1)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
+                    will(returnValue(null));
+                }
+            });
+
+        execute();
+    }
+
+    @Test
+    public void testExecute()
+    {
         context.checking(new Expectations()
             {
                 {
@@ -75,10 +166,13 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                 }
             });
 
+        execute();
+    }
+
+    private void execute()
+    {
         FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask task =
                 new FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(service, dao);
         task.execute();
-
-        context.assertIsSatisfied();
     }
 }
