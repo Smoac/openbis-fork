@@ -341,9 +341,21 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 	}
 	
 	this._glowNode = function(nodeId) {
+		var _this = this;
 		$("#"+nodeId).removeClass("glow");
 		var glow = function() {
 			$("#" + nodeId).addClass("glow"); //Make it Glow
+			
+			//TO-DO: Fix this hack
+			//In Webkit browsers is needed to force rendering moving DOM objects during the animation.
+			//On this case we move them 0 pixels during the animation during 3 seconds, every 100 millis
+			for(var i=0; i < 30; i++) {
+				var webKitFixAnimFix = function() {
+					_this.pan(0,0);
+				};
+				setTimeout(webKitFixAnimFix, 100*i);
+			}
+			//
 		}
 		setTimeout(glow, 500);
 	}
@@ -419,6 +431,11 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				}
 				
 				$nodeContent.attr('id', nodeId);
+				if(sample.showDataOnGraph) {
+					$nodeContent.css({
+						'padding' : '0px'
+					});
+				}
 				g.addNode(sample.permId, { label: $nodeContent[0].outerHTML});
 				
 				NODES[sample.permId] = true;
