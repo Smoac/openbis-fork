@@ -119,8 +119,6 @@ $.extend(DefaultProfile.prototype, {
 			return "";
 		}
 
-
-
 		/*
 		 * Used by Inspector
 		 */
@@ -234,6 +232,17 @@ $.extend(DefaultProfile.prototype, {
 				}
 			}
 			return null;
+		}
+		
+		this.getAllSampleTypes = function() {
+			var sampleTypes = [];
+			for(var i = 0; i < this.allTypes.length; i++) {
+				var sampleType = this.allTypes[i];
+				if($.inArray(sampleType.code, this.notShowTypes) === -1) {
+					sampleTypes.push(sampleType);
+				}
+			}
+			return sampleTypes;
 		}
 		
 		this.initVocabulariesForSampleTypes = function() {

@@ -257,7 +257,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.getLinksToParentsComponent = function() {
 		var component = "<fieldset>";
 				
-		component += "<legend>Connected Components</legend>";
+		component += "<legend>Parents</legend>";
 		if (this.mode !== SampleFormMode.VIEW) {
 			component += "<p><i class='icon-info-sign'></i> To connect a component, please select the type from the drop down menu and click on the row of the table.</p>";
 		}

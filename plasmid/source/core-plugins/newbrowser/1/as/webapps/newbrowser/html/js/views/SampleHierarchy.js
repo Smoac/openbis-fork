@@ -259,6 +259,39 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		this._repaintGraph(newSample);
 	}
 	
+	this._addChildFor = function(permId) {
+		var sampleTypes = this.profile.getAllSampleTypes();
+		
+		var component = "<select id='sampleTypeSelector' required>";
+		component += "<option disabled=\"disabled\" selected></option>";
+		for(var i = 0; i < sampleTypes.length; i++) {
+			var sampleType = sampleTypes[i];
+			var label = Util.getEmptyIfNull(sampleType.description);
+			if(label === "") {
+				label = sampleType.code;
+			}
+			
+			component += "<option value='" + sampleType.code + "'>" + label + "</option>";
+		}
+		component += "</select>";
+		
+		Util.blockUI("Select the type for the Child: <br><br>" + component + "<br> or <a class='btn' id='sampleTypeSelectorCancel'>Cancel</a>");
+		
+		$("#sampleTypeSelectorCancel").on("click", function(event) { 
+			Util.unblockUI();
+		});
+		
+		var _this = this;
+		$("#sampleTypeSelector").on("change", function(event) {
+			var sampleTypeCode = $("#sampleTypeSelector")[0].value;
+			mainController.changeView('showCreateSamplePage', sampleTypeCode);
+			_this.serverFacade.searchWithUniqueId(permId, function(data) {
+				var parentGroup = _this.profile.getGroupTypeCodeForTypeCode(data[0].sampleTypeCode);
+				mainController.currentView.sampleTypesLinksTables["sampleParents_" + parentGroup].addSample(data[0]);
+			});
+		});
+	}
+	
 	this._updateDataFor = function(show, permId) {
 		var searchAndUpdateData = function(show, permId, sample) {
 			if(sample.permId === permId) {
@@ -346,7 +379,15 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 					'href' : "javascript:mainController.currentView._updateDataFor(" + ((sample.showDataOnGraph)?false:true) + ",'" + sample.permId + "');"
 				}).append(
 					$('<i>', {
-						'class' : (sample.showDataOnGraph)?'icon-minus-sign':'icon-plus-sign',
+						'class' : (sample.showDataOnGraph)?'icon-chevron-up':'icon-chevron-down',
+						'style' : 'cursor:pointer',
+					}));
+				
+				var $addChildLink = $('<a>', {
+					'href' : "javascript:mainController.currentView._addChildFor('" + sample.permId + "');"
+				}).append(
+					$('<i>', {
+						'class' : 'icon-plus-sign',
 						'style' : 'cursor:pointer',
 					}));
 				
@@ -358,6 +399,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 					$nodeContent
 						.append($hideLink)
 						.append($dataLink)
+						.append($addChildLink)
 						.append(sample.sampleTypeCode + ':')
 						.append($sampleLink);
 				
