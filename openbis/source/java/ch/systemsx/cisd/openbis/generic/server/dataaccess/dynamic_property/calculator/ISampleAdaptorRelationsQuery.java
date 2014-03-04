@@ -24,7 +24,7 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TypeMapper;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 /**

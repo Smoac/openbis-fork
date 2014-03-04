@@ -23,7 +23,7 @@ import net.lemnik.eodsql.Select;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 

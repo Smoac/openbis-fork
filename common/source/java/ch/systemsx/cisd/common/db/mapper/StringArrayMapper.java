@@ -14,38 +14,34 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
-
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+package ch.systemsx.cisd.common.db.mapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Set;
 
 import net.lemnik.eodsql.TypeMapper;
 
 /**
- * A class for mapping <code>Set&lt;Long&gt;</code> to {@link java.sql.Array}.
+ * A class for mapping <code>String[]</code> to {@link java.sql.Array}.
  * 
- * @author Bernd Rinn
+ * @author Chandrasekhar Ramakrishnan
  */
-public class LongSetMapper implements TypeMapper<Set<Long>>
+public class StringArrayMapper implements TypeMapper<String[]>
 {
-
     @Override
-    public Set<Long> get(ResultSet results, int column) throws SQLException
+    public String[] get(ResultSet results, int column) throws SQLException
     {
-        return new LongOpenHashSet((long[]) results.getArray(column).getArray());
+        return (String[]) results.getArray(column).getArray();
     }
 
     @Override
-    public void set(PreparedStatement statement, int column, Set<Long> obj) throws SQLException
+    public void set(PreparedStatement statement, int column, String[] obj) throws SQLException
     {
         if (obj != null)
         {
-            statement.setArray(column, new SimpleSQLLongArray(obj));
+            statement.setArray(column, new SimpleSQLStringArray(obj));
         } else
         {
             statement.setNull(column, Types.ARRAY);
@@ -53,8 +49,9 @@ public class LongSetMapper implements TypeMapper<Set<Long>>
     }
 
     @Override
-    public void set(ResultSet results, int column, Set<Long> obj) throws SQLException
+    public void set(ResultSet results, int column, String[] obj) throws SQLException
     {
-        results.updateArray(column, new SimpleSQLLongArray(obj));
+        results.updateArray(column, new SimpleSQLStringArray(obj));
     }
+
 }

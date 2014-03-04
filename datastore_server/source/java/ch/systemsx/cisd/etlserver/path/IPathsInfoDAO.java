@@ -20,11 +20,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
+
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.Update;
-
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
  * Data Access Object for feeding and updating pathinfo database.

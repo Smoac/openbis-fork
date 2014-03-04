@@ -50,6 +50,16 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
     private IPathsInfoDAO dao;
 
+    public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask()
+    {
+    }
+
+    public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(IEncapsulatedOpenBISService service, IPathsInfoDAO dao)
+    {
+        this.service = service;
+        this.dao = dao;
+    }
+
     @Override
     public void setUp(String pluginName, Properties properties)
     {

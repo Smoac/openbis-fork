@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.common.db.mapper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,34 +24,34 @@ import java.sql.Types;
 import net.lemnik.eodsql.TypeMapper;
 
 /**
- * A class for mapping <code>byte[]</code> to {@link java.sql.Array}.
+ * A class for mapping <code>long[]</code> to {@link java.sql.Array}.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Bernd Rinn
  */
-public class ByteArrayMapper implements TypeMapper<byte[]>
+public class LongArrayMapper implements TypeMapper<long[]>
 {
     @Override
-    public byte[] get(ResultSet results, int column) throws SQLException
+    public long[] get(ResultSet results, int column) throws SQLException
     {
-        return results.getBytes(column);
+        return (long[]) results.getArray(column).getArray();
     }
 
     @Override
-    public void set(PreparedStatement statement, int column, byte[] obj) throws SQLException
+    public void set(PreparedStatement statement, int column, long[] obj) throws SQLException
     {
         if (obj != null)
         {
-            statement.setBytes(column, obj);
+            statement.setArray(column, new SimpleSQLLongArray(obj));
         } else
         {
-            statement.setNull(column, Types.BINARY);
+            statement.setNull(column, Types.ARRAY);
         }
     }
 
     @Override
-    public void set(ResultSet results, int column, byte[] obj) throws SQLException
+    public void set(ResultSet results, int column, long[] obj) throws SQLException
     {
-        results.updateBytes(column, obj);
+        results.updateArray(column, new SimpleSQLLongArray(obj));
     }
 
 }

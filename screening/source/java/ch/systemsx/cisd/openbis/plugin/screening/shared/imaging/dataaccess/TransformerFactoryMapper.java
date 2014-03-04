@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.SerializableObjectMapper;
+import ch.systemsx.cisd.common.db.mapper.SerializableObjectMapper;
 
 import net.lemnik.eodsql.TypeMapper;
 

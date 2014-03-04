@@ -20,7 +20,7 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 
 /**
  * @author pkupczyk

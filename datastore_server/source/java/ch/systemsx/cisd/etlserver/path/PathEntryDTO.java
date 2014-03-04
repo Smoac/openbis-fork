@@ -57,8 +57,7 @@ public class PathEntryDTO
     @ResultColumn("data_set_code")
     private String dataSetCode;
 
-    @SuppressWarnings("unused")
-    private PathEntryDTO()
+    public PathEntryDTO()
     {
     }
 

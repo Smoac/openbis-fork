@@ -29,14 +29,14 @@ import net.lemnik.eodsql.TypeMapper;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
  * A {@link TransactionQuery} interface for obtaining large sets of dataset-related entities from the database.
