@@ -498,7 +498,7 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
     private Window createAddNewTermsDialog()
     {
         final String title = viewContext
-                .getMessage(Dict.ADD_VOCABULARY_TERMS_TITLE);
+                .getMessage(Dict.ADD_VOCABULARY_TERM_TITLE);
 
         return new AbstractRegistrationDialog(viewContext, title,
                 postRegistrationCallback)
@@ -541,53 +541,40 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                 @Override
                 protected void register(AsyncCallback<Void> registrationCallback)
                 {
-                    List<VocabularyTerm> newVocabularyTermCodes = extractNewVocabularyTermCodes();
-
-                    String[] labels = extractNewVocabularyTermLabels();
-                    for (int i = 0; i < labels.length; i++)
-                    {
-                        newVocabularyTermCodes.get(i).setLabel(labels[i]);
-                    }
-
-                    String[] descriptions = extractNewVocabularyTermDescriptions();
-                    for (int i = 0; i < descriptions.length; i++)
-                    {
-                        newVocabularyTermCodes.get(i).setDescription(descriptions[i]);
-                    }
-
+                    VocabularyTerm newVocabularyTerm = VocabularyTermSingleCodeValidator.getTerm(newTermCodesArea.getValue());
+                    newVocabularyTerm.setLabel(newTermsLabelsArea.getValue());
+                    newVocabularyTerm.setDescription(newTermDescriptionsArea.getValue());
                     Long previousTermOrdinal = extractPreviousTermOrdinal();
 
+                    List<VocabularyTerm> newTerms = new ArrayList<VocabularyTerm>();
+                    newTerms.add(newVocabularyTerm);
                     viewContext.getService().addVocabularyTerms(
-                            TechId.create(vocabulary), newVocabularyTermCodes,
+                            TechId.create(vocabulary), newTerms,
                             previousTermOrdinal, registrationCallback);
                 }
 
                 private TextArea createNewTermCodesArea()
                 {
                     final TextArea result = new TextArea();
-                    result.setFieldLabel(viewContext.getMessage(Dict.TERMS));
-                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_EMPTY));
-                    result.setValidator(new VocabularyTermValidator(viewContext));
+                    result.setFieldLabel(viewContext.getMessage(Dict.TERM_CODE));
+                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERM_CODE_EMPTY));
+                    result.setValidator(new VocabularyTermSingleCodeValidator(viewContext));
                     return result;
                 }
 
                 private TextArea createNewTermDescriptionArea()
                 {
                     final TextArea result = new TextArea();
-                    result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERMS_DESCRIPTION));
-                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_DESCRIPTION_EMPTY));
-                    result.setValidator(new LabelAndDescriptionTermsValidator(newTermCodesArea,
-                            "You need to have the same number of codes and descriptions."));
+                    result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERM_DESCRIPTION));
+                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERM_DESCRIPTION_EMPTY));
                     return result;
                 }
 
                 private TextArea createNewTermLabelArea()
                 {
                     final TextArea result = new TextArea();
-                    result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERMS_LABEL));
-                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERMS_LABEL_EMPTY));
-                    result.setValidator(new LabelAndDescriptionTermsValidator(newTermCodesArea,
-                            "You need to have the same number of codes and labels."));
+                    result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERM_LABEL));
+                    result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERM_LABEL_EMPTY));
                     return result;
                 }
 
@@ -601,37 +588,6 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                             new VocabularyTermSelectionWidget(getId() + "_add_pos", "Position after", mandatory, allTerms, lastTermCodeOrNull);
                     result.setEmptyText("empty value == beginning");
                     return result;
-                }
-
-                private List<VocabularyTerm> extractNewVocabularyTermCodes()
-                {
-                    return VocabularyTermValidator.getTerms(newTermCodesArea
-                            .getValue());
-                }
-
-                private String[] extractNewVocabularyTermLabels()
-                {
-                    String value = newTermsLabelsArea.getValue();
-                    if (value != null)
-                    {
-                        return value.split(",");
-                    } else
-                    {
-                        return new String[] {};
-                    }
-
-                }
-
-                private String[] extractNewVocabularyTermDescriptions()
-                {
-                    String value = newTermDescriptionsArea.getValue();
-                    if (value != null)
-                    {
-                        return value.split(",");
-                    } else
-                    {
-                        return new String[] {};
-                    }
                 }
 
                 /**
