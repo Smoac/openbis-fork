@@ -17,6 +17,7 @@ dependencies {
 			'testng:testng:+',
 			'marathon:marathon-spring-util:+',
 			'lemnik:eodsql:+',
+			'unimi:fastutil:5.1.5',
 			'cisd:cisd-base:+',
 			'rinn:restrictions:+'
 					
