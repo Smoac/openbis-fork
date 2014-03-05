@@ -50,9 +50,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.storage = null;
 	this.dataSetViewer = null;
 	this.isFormDirty = false;
+	this.isFormLoaded = false;
 	
 	this.isDirty = function() {
 		return this.isFormDirty;
+	}
+	
+	this.isLoaded = function() {
+		return this.isFormLoaded;
 	}
 	
 	this.init = function() {
@@ -153,6 +158,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						
 				//Allow user input
 				Util.unblockUI();
+				localReference.isFormLoaded = true;
 			});
 	}
 	

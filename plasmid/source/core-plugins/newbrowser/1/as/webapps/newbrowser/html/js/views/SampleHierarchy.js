@@ -287,7 +287,20 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			mainController.changeView('showCreateSamplePage', sampleTypeCode);
 			_this.serverFacade.searchWithUniqueId(permId, function(data) {
 				var parentGroup = _this.profile.getGroupTypeCodeForTypeCode(data[0].sampleTypeCode);
-				mainController.currentView.sampleTypesLinksTables["sampleParents_" + parentGroup].addSample(data[0]);
+				
+				var setParent = function() {
+					mainController.currentView.sampleTypesLinksTables["sampleParents_" + parentGroup].addSample(data[0]);
+				}
+				
+				var repeatUntilSet = function() {
+					if(mainController.currentView.isLoaded()) {
+						setParent();
+					} else {
+						setTimeout(repeatUntilSet, 100);
+					}
+				}
+				
+				repeatUntilSet();
 			});
 		});
 	}
