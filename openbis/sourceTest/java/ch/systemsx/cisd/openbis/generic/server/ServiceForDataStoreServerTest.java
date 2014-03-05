@@ -41,12 +41,13 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
     public void testListPhysicalDataSetsWithUnknownSize()
     {
         String sessionToken = authenticateAs("test");
-        List<SimpleDataSetInformationDTO> dataSetsWithUnknownSize = etlService.listPhysicalDataSetsWithUnknownSize(sessionToken, "STANDARD");
+        List<SimpleDataSetInformationDTO> dataSetsWithUnknownSize = etlService.listPhysicalDataSetsWithUnknownSize(sessionToken, "STANDARD", 3);
 
         sortByCode(dataSetsWithUnknownSize);
-        Assert.assertEquals(20, dataSetsWithUnknownSize.size());
+        Assert.assertEquals(3, dataSetsWithUnknownSize.size());
         Assert.assertEquals("20081105092159188-3", dataSetsWithUnknownSize.get(0).getDataSetCode());
-        Assert.assertEquals("VALIDATIONS_PARENT-28", dataSetsWithUnknownSize.get(dataSetsWithUnknownSize.size() - 1).getDataSetCode());
+        Assert.assertEquals("20081105092259000-8", dataSetsWithUnknownSize.get(1).getDataSetCode());
+        Assert.assertEquals("20081105092259000-9", dataSetsWithUnknownSize.get(2).getDataSetCode());
     }
 
     @Test(dependsOnMethods = "testListPhysicalDataSetsWithUnknownSize")
@@ -59,7 +60,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
 
         etlService.updatePhysicalDataSetsSize(sessionToken, sizeMap);
 
-        List<SimpleDataSetInformationDTO> dataSetsWithUnknownSize = etlService.listPhysicalDataSetsWithUnknownSize(sessionToken, "STANDARD");
+        List<SimpleDataSetInformationDTO> dataSetsWithUnknownSize = etlService.listPhysicalDataSetsWithUnknownSize(sessionToken, "STANDARD", 100);
         List<AbstractExternalData> updatedDataSets = etlService.listDataSetsByCode(sessionToken, Arrays.asList("20081105092159188-3"));
 
         sortByCode(dataSetsWithUnknownSize);

@@ -30,6 +30,10 @@ import org.apache.log4j.Logger;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
+import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.etlserver.path.PathEntryDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
@@ -46,64 +50,103 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.class);
 
+    static final String CHUNK_SIZE_KEY = "data-set-chunk-size";
+
+    static final String TIME_LIMIT_KEY = "time-limit";
+
+    static final int DEFAULT_CHUNK_SIZE = 100;
+
+    static final int DEFAULT_TIME_LIMIT = 1000 * 60 * 60;
+
     private IEncapsulatedOpenBISService service;
 
     private IPathsInfoDAO dao;
 
+    private ITimeProvider timeProvider;
+
+    private int chunkSize;
+
+    private long timeLimit;
+
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask()
     {
+        service = ServiceProvider.getOpenBISService();
+        dao = createDAO();
+        timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
     }
 
-    public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(IEncapsulatedOpenBISService service, IPathsInfoDAO dao)
+    public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(IEncapsulatedOpenBISService service, IPathsInfoDAO dao,
+            ITimeProvider timeProvider)
     {
         this.service = service;
         this.dao = dao;
+        this.timeProvider = timeProvider;
     }
 
     @Override
     public void setUp(String pluginName, Properties properties)
     {
-        service = ServiceProvider.getOpenBISService();
-        dao = createDAO();
+        chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
+        timeLimit = DateTimeUtils.getDurationInMillis(properties, TIME_LIMIT_KEY, DEFAULT_TIME_LIMIT);
+        operationLog.info(pluginName + " initialized with chunk size = " + chunkSize + ", time limit = " + DateTimeUtils.renderDuration(timeLimit));
     }
 
+    @SuppressWarnings("null")
     @Override
     public void execute()
     {
         operationLog.info("Start filling.");
 
-        List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSetsWithUnknownSize();
+        List<SimpleDataSetInformationDTO> dataSets = null;
 
-        operationLog.info("Found " + (dataSets != null ? dataSets.size() : 0) + " dataset(s) with unknown size in openbis database.");
+        long startTime = timeProvider.getTimeInMilliseconds();
+        boolean foundDataSets = false;
+        boolean reachedTimeLimit = false;
+        int chunkIndex = 1;
 
-        if (dataSets != null && false == dataSets.isEmpty())
+        do
         {
-            Set<String> codes = new HashSet<String>();
+            dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize);
+            foundDataSets = dataSets != null && false == dataSets.isEmpty();
 
-            for (SimpleDataSetInformationDTO dataSet : dataSets)
+            if (foundDataSets)
             {
-                codes.add(dataSet.getDataSetCode());
-            }
+                operationLog.info("Found " + dataSets.size() + " dataset(s) with unknown size in openbis database (chunk: " + chunkIndex + ").");
 
-            List<PathEntryDTO> pathInfoEntries = dao.listDataSetsSize(codes.toArray(new String[codes.size()]));
+                Set<String> codes = new HashSet<String>();
 
-            if (pathInfoEntries != null && false == pathInfoEntries.isEmpty())
-            {
-                Map<String, Long> sizeMap = new HashMap<String, Long>();
-
-                for (PathEntryDTO pathInfoEntry : pathInfoEntries)
+                for (SimpleDataSetInformationDTO dataSet : dataSets)
                 {
-                    if (pathInfoEntry.getSizeInBytes() != null)
-                    {
-                        sizeMap.put(pathInfoEntry.getDataSetCode(), pathInfoEntry.getSizeInBytes());
-                    }
+                    codes.add(dataSet.getDataSetCode());
                 }
 
-                operationLog.info("Found sizes for " + sizeMap.size() + " dataset(s) in pathinfo database.");
+                List<PathEntryDTO> pathInfoEntries = dao.listDataSetsSize(codes.toArray(new String[codes.size()]));
 
-                service.updatePhysicalDataSetsSize(sizeMap);
+                if (pathInfoEntries != null && false == pathInfoEntries.isEmpty())
+                {
+                    Map<String, Long> sizeMap = new HashMap<String, Long>();
+
+                    for (PathEntryDTO pathInfoEntry : pathInfoEntries)
+                    {
+                        if (pathInfoEntry.getSizeInBytes() != null)
+                        {
+                            sizeMap.put(pathInfoEntry.getDataSetCode(), pathInfoEntry.getSizeInBytes());
+                        }
+                    }
+
+                    operationLog.info("Found sizes for " + sizeMap.size() + " dataset(s) in pathinfo database (chunk: " + chunkIndex + ").");
+
+                    service.updatePhysicalDataSetsSize(sizeMap);
+                }
+            } else
+            {
+                operationLog.info("Did not find any datasets with unknown size in openbis database (chunk: " + chunkIndex + ").");
             }
-        }
+
+            reachedTimeLimit = timeProvider.getTimeInMilliseconds() > startTime + timeLimit;
+            chunkIndex++;
+
+        } while (foundDataSets && false == reachedTimeLimit);
 
         operationLog.info("Filling finished.");
     }

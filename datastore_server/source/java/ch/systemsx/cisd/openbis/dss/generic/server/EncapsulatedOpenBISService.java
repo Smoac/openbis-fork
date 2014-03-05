@@ -665,11 +665,11 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize() throws UserFailureException
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(int chunkSize) throws UserFailureException
     {
         List<SimpleDataSetInformationDTO> dataSets =
                 service.listPhysicalDataSetsWithUnknownSize(session.getSessionToken(),
-                        session.getDataStoreCode());
+                        session.getDataStoreCode(), chunkSize);
         return injectDefaultShareIdIfMissing(dataSets);
     }
 

@@ -491,13 +491,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, EnumSet<DataSetFetchOption> datasetFetchOptions)
+    public List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
-        return orderByDate(enrichDatasets(
-                handleDegenerateRegistrationTimestamp(
-                        query.getDatasetsByDataStoreIdWithUnknownSize(dataStoreID),
-                        dataStoreID), datasetFetchOptions));
+        return orderByDate(enrichDatasets(query.getDatasetsByDataStoreIdWithUnknownSize(dataStoreID, limit), datasetFetchOptions));
     }
 
     private Iterable<DatasetRecord> handleDegenerateRegistrationTimestamp(List<DatasetRecord> list,
