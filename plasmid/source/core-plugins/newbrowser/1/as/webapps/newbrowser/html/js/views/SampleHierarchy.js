@@ -491,13 +491,26 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 							.nodeSep(20)
 							.rankDir("TB");
 		
+		//VMG Map container max size on screen
+		var containerWidth = $(document).width() - 30;
+		var containerHeight = $(document).height() - 120;
+		
 		//Render Layout
 		renderer.layout(layout).run(g, svgG);
 		transition(d3.select('#svgMapContainer'))
-			.attr('width', $(document).width() - 30)
-			.attr('height', $(document).height() - 120)
+			.attr('width', containerWidth)
+			.attr('height', containerHeight);
 		
+		//Zoom Function
 		d3.select('#svgMapContainer').call(zoomFunc);
+		
+		//Center SVG image if is smaller than the max size of the container.
+		var realWidth = $('#svgMap')[0].getBoundingClientRect().width;
+		var realHeight = $('#svgMap')[0].getBoundingClientRect().height;
+		
+		if(containerWidth > realWidth && containerHeight > realHeight) {
+			this.pan(containerWidth/2 - realWidth/2 - 20, containerHeight/2 - realHeight/2 - 20);
+		}
 	}
 	
 	this._makeSVG = function(tag, attrs) {
