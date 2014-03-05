@@ -184,6 +184,16 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.append(rect1)
 			.append(rect2)
 			.append(rect3);
+		
+		//Centers SVG image if is smaller than the max size of the container.
+		var containerWidth = $(document).width() - 30;
+		var containerHeight = $(document).height() - 120;
+		var realWidth = $('#svgMap')[0].getBoundingClientRect().width;
+		var realHeight = $('#svgMap')[0].getBoundingClientRect().height;
+		
+		if(containerWidth > realWidth && containerHeight > realHeight) {
+			this.pan(containerWidth/2 - realWidth/2 - 20, containerHeight/2 - realHeight/2 - 20);
+		}
 	}
 	
 	this._filterSampleAndUpdate = function() {
@@ -516,14 +526,6 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		
 		//Zoom Function
 		d3.select('#svgMapContainer').call(zoomFunc);
-		
-		//Center SVG image if is smaller than the max size of the container.
-		var realWidth = $('#svgMap')[0].getBoundingClientRect().width;
-		var realHeight = $('#svgMap')[0].getBoundingClientRect().height;
-		
-		if(containerWidth > realWidth && containerHeight > realHeight) {
-			this.pan(containerWidth/2 - realWidth/2 - 20, containerHeight/2 - realHeight/2 - 20);
-		}
 	}
 	
 	this._makeSVG = function(tag, attrs) {
