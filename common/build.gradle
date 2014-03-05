@@ -16,6 +16,7 @@ dependencies {
 			'jmock:jmock:+',
 			'testng:testng:+',
 			'marathon:marathon-spring-util:+',
+			'lemnik:eodsql:+',
 			'cisd:cisd-base:+',
 			'rinn:restrictions:+'
 					
