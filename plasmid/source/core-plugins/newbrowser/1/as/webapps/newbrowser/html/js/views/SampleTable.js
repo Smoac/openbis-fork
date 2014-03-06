@@ -382,7 +382,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			}
 		} else {
 			onClickFunction = function(sample) {
-				mainController.changeView("showSampleHierarchyPage", sample.permId); //TO-DO : Fix Global Access
+				mainController.changeView("showViewSamplePageFromPermId", sample.permId); //TO-DO : Fix Global Access
 			}
 		}
 	
@@ -452,7 +452,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.changeView('showViewSamplePageFromPermId','"+sample.permId+"');\"><i class='icon-edit'></i></a>";
+					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:22px;' /></a>";
 					tableFields[tableFields.length] = "";
 				} else {
 					tableFields[tableFields.length] = "";
