@@ -428,7 +428,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "<div class='control-group'>";
 			component += "<label class='control-label' for='inputCode'>Code:</label>";
 			component += "<div class='controls'>";
-			component += "<input type='text' placeholder='Code' id='sampleCode' required> (Required)";
+			component += "<input type='text' placeholder='Code' id='sampleCode' pattern='[a-zA-Z0-9_\\-\\.]+' required> (Required) (Allowed characters are: letters, numbers, '-', '_', '.')";
 			component += "</div>";
 			component += "</div>";
 			
