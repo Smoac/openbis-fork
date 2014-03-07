@@ -168,7 +168,7 @@ var Uploader = new function () {
                 progress[id].xhr = xhr;
                 // pkupczyk: added sessionID
                 xhr.open("POST", settings.file_upload_url +
-                         "?filename=" + file.name +
+                         "?filename=" + encodeURIComponent(file.name) +
                          "&id=" + id +
                          "&startByte=" + startByte +
                          "&endByte=" + endByte + 
@@ -200,7 +200,7 @@ var Uploader = new function () {
                             // pkupczyk: changed download url
                             $("#filename-" + d.id).replaceWith("<a target=\"_blank\" " +
                                                                "href=\"" + settings.file_download_url + "?sessionID=" + settings.sessionID + "&filePath=" +
-                                                               d.filename + "\">" + d.filename + "</a>"); 
+                                                               encodeURIComponent(d.filename) + "\">" + d.filename + "</a>"); 
                             $("#action-bar-" + d.id).remove();
                             delete progress[d.id];
                             settings.oncomplete(file);

@@ -167,8 +167,7 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 									.append($("<td>").html(dataset.code))
 									.append($("<td>").html(dataset.dataSetTypeCode));
 				
-				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + datasetFiles[i].pathInDataSet + "?sessionID=" + this.serverFacade.getSession();
-					
+				var downloadUrl = datastoreDownloadURL + '/' + dataset.code + "/" + encodeURIComponent(datasetFiles[i].pathInDataSet) + "?sessionID=" + this.serverFacade.getSession();
 				if(datasetFiles[i].isDirectory) {
 					$tableRow.append($("<td>").html(datasetFiles[i].pathInDataSet));
 					$tableRow.append($("<td>"));
