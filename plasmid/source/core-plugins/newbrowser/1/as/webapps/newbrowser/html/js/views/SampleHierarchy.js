@@ -413,18 +413,18 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				var $dataLink = $('<a>', {
 					'href' : "javascript:mainController.currentView._updateDataFor(" + ((sample.showDataOnGraph)?false:true) + ",'" + sample.permId + "');"
 				}).append(
-					$('<i>', {
-						'class' : (sample.showDataOnGraph)?'icon-chevron-up':'icon-chevron-down',
-						'style' : 'cursor:pointer',
-					}));
+						$('<img>', { 
+							'src' : (sample.showDataOnGraph)?'./img/chevron-up-icon.png':'./img/chevron-down-icon.png',
+							'style' : 'cursor:pointer; width:13px; height:18px;',
+						}));
 				
 				var $addChildLink = $('<a>', {
 					'href' : "javascript:mainController.currentView._addChildFor('" + sample.permId + "');"
 				}).append(
-					$('<i>', {
-						'class' : 'icon-plus-sign',
-						'style' : 'cursor:pointer',
-					}));
+						$('<img>', { 
+							'src' : './img/plus-sign-icon.png',
+							'style' : 'cursor:pointer; width:13px; height:18px;',
+						}));
 				
 				var $sampleLink = $('<a>', { 'href' : "javascript:mainController.changeView('showViewSamplePageFromPermId', '" + sample.permId + "')"}).html(sample.code);
 				

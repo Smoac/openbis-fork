@@ -313,6 +313,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		return component;
 	}
 	
+	this.getHierarchyButton = function() {
+		return "<a class='btn' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+this.sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
+	}
+	
 	this.getEditButton = function() {
 		return "<a id='editButton' class='btn'><i class='icon-edit'></i> Enable Editing</a>";
 	}
@@ -320,8 +324,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.enableEditButtonEvent = function() {
 		var localReference = this;
 		$( "#editButton" ).click(function() {
-			//localReference.mode = SampleFormMode.EDIT;
-			//localReference.init();
 			mainController.navigationBar.updateBreadCrumbToMinusOne();
 			mainController.changeView('showEditSamplePage',sample);
 		});
@@ -364,21 +366,24 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			var message = null;
 			var pinButton = "";
 			var editButton = "";
+			var hierarchyButton = "";
 			
 			if (this.mode === SampleFormMode.CREATE) {
 				message = "Create";
 			} else if (this.mode === SampleFormMode.EDIT) {
 				message = "Update";
 				pinButton = this.getPINButton();
+				hierarchyButton = this.getHierarchyButton();
 				sampleTypeDisplayName = sample.code;
 			} else if (this.mode === SampleFormMode.VIEW) {
 				message = "View";
 				pinButton = this.getPINButton();
+				hierarchyButton = this.getHierarchyButton();
 				editButton = this.getEditButton();
 				sampleTypeDisplayName = sample.code;
 			}
 			
-			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + editButton + "</h2>";
+			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + hierarchyButton + " " + editButton + "</h2>";
 			
 			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='mainController.currentView.createSample();'>";
 			
@@ -428,7 +433,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "<div class='control-group'>";
 			component += "<label class='control-label' for='inputCode'>Code:</label>";
 			component += "<div class='controls'>";
-			component += "<input type='text' placeholder='Code' id='sampleCode' pattern='[a-zA-Z0-9_\\-\\.]+' required> (Required) (Allowed characters are: letters, numbers, '-', '_', '.')";
+			component += "<input type='text' placeholder='Code' id='sampleCode' pattern='[a-zA-Z0-9_\\-\\.]+' required> (Required)";
+			if(this.mode === SampleFormMode.CREATE) {
+				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
+			}
 			component += "</div>";
 			component += "</div>";
 			
@@ -702,7 +710,12 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			
 			var callbackOk = function() {
-				Util.unblockUI();
+				mainController.changeView('showSamplesPage', localReference.sampleTypeCode);
+//				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
+//				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
+//					mainController.navigationBar.updateBreadCrumbToMinusOne();
+//					mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
+//				});
 			}
 			
 			Util.showSuccess(sampleTypeDisplayName + " " + message, callbackOk);

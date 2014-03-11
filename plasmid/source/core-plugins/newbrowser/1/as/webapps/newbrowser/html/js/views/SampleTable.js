@@ -452,7 +452,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:22px;' /></a>";
+					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
 					tableFields[tableFields.length] = "";
 				} else {
 					tableFields[tableFields.length] = "";
