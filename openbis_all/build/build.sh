@@ -26,4 +26,4 @@ cd out/gradle
 ./gradlew :installation:build
 cd ../..
 mv out/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
-mv out/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.zip .
+mv out/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .

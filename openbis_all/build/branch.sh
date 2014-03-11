@@ -59,3 +59,57 @@ done
 
 svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "create branch $1";
 svn copy out/* svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "create branch $1";
+
+
+rm -rf out
+mkdir -p out
+
+svn checkout --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 out;
+
+GRADLE_PROJECTS="\
+gradle \
+authentication \
+common \
+datamover \
+datastore_server \
+dbmigration \
+deep_sequencing_unit \
+installation \
+js-test \
+openbis \
+openbis-common \
+openbis_standard_technologies \
+openbis_api \
+plasmid \
+rtd_phosphonetx \
+rtd_yeastx \
+rtd_cina \
+screening \
+ui-test\
+"
+
+for project in $GRADLE_PROJECTS; do
+	cd out/$project;
+	svn update gradlew gradle build.gradle settings.gradle javaproject.gradle repository.gradle gwtdev.gradle query-api.gradle proteomics-api.gradle screening-api.gradle admin-console.gradle clients.gradle;
+	cd ../..;
+done
+
+for project in $GRADLE_PROJECTS; do
+	cd out/$project;
+	./gradlew dependencyReport;
+	cat targets/gradle/reports/project/dependencies.txt|egrep ^.---|grep \>|sort|uniq|awk '{print $2 ":" $4}'|awk -F: '{print "s/" $1 ":" $2 ":" $3 "/" $1 ":" $2 ":" $4 "/g"}' > sed_commands;
+	
+	for file in build.gradle javaproject.gradle gwtdev.gradle query-api.gradle proteomics-api.gradle screening-api.gradle admin-console.gradle clients.gradle; do
+		if [ -s $file ]; then
+			sed -f sed_commands $file > $file.tmp;
+			mv $file.tmp $file;	
+		fi;
+	done
+	
+	rm sed_commands
+	cd ../..;
+done
+
+cd out
+svn commit -m "fixed dependencies of $1";
+cd ..
