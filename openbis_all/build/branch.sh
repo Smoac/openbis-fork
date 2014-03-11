@@ -50,7 +50,7 @@ screening \
 ui-test\
 "
 
+svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "parent folder";
 for project in $ALL_PROJECTS; do
-	svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "parent folder";
 	svn copy svn+ssh://svncisd.ethz.ch/repos/cisd/$project/trunk svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1/$project -m "create branch $1";
 done

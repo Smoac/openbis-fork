@@ -39,5 +39,5 @@ then
 	./branch.sh sprint/S${1}.x
 fi
 
-echo ./tag.sh sprint/S${1}.x S${1}.${HOT_FIX_NUMBER}
-echo ./build.sh sprint/S${1}.x/S${1}.${HOT_FIX_NUMBER}
+./tag.sh sprint/S${1}.x S${1}.${HOT_FIX_NUMBER}
+./build.sh sprint S${1}.x/S${1}.${HOT_FIX_NUMBER}
