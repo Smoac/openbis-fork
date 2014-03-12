@@ -324,7 +324,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.enableEditButtonEvent = function() {
 		var localReference = this;
 		$( "#editButton" ).click(function() {
-			mainController.navigationBar.updateBreadCrumbToMinusOne();
+			mainController.navigationBar.updateBreadCloseActual();
 			mainController.changeView('showEditSamplePage',sample);
 		});
 	}
@@ -713,7 +713,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				mainController.changeView('showSamplesPage', localReference.sampleTypeCode);
 //				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
 //				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
-//					mainController.navigationBar.updateBreadCrumbToMinusOne();
+//					mainController.navigationBar.updateBreadCloseActual();
 //					mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
 //				});
 			}

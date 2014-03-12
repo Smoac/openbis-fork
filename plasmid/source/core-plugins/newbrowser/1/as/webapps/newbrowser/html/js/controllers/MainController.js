@@ -144,7 +144,6 @@ function MainController(profile) {
 				this._showSearchPage(arg);
 				break;
 			case "showSamplesPage":
-				this.navigationBar.updateBreadCrumbToSecondLevel();
 				this._showSamplesPage(arg);
 				break;
 			case "showSampleHierarchyPage":
@@ -202,7 +201,7 @@ function MainController(profile) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
 
-		var breadCrumbPage = new BreadCrumbPage(sampleTypeCode+"-table", "showSamplesPage", sampleTypeCode, sampleTypeDisplayName);
+		var breadCrumbPage = new BreadCrumbPage("sample-table", "showSamplesPage", sampleTypeCode, sampleTypeDisplayName);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Sample Table
@@ -218,7 +217,7 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			var breadCrumbPage = new BreadCrumbPage('sample-hierarchy-'+data[0].permId, "showSampleHierarchyPage", data[0].permId, 'Hierarchy '+data[0].code);
+			var breadCrumbPage = new BreadCrumbPage('sample-hierarchy', "showSampleHierarchyPage", data[0].permId, 'Hierarchy '+data[0].code);
 			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 			
 			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
@@ -234,7 +233,7 @@ function MainController(profile) {
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
-		var breadCrumbPage = new BreadCrumbPage('new-sample-'+sampleTypeCode, "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
+		var breadCrumbPage = new BreadCrumbPage('new-sample', "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
@@ -247,7 +246,7 @@ function MainController(profile) {
 
 	this._showEditSamplePage = function(sample) {
 		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('edit-sample-'+sample.permId, "showEditSamplePage", sample, 'Update '+sample.code);
+		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePage", sample, 'Update '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
@@ -265,7 +264,7 @@ function MainController(profile) {
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
 			//Update menu
-			var breadCrumbPage = new BreadCrumbPage('view-sample-'+data[0].permId, "showViewSamplePageFromPermId", data[0].permId, 'View '+data[0].code);
+			var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePageFromPermId", data[0].permId, 'View '+data[0].code);
 			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 			
 			//Show Form
@@ -279,7 +278,7 @@ function MainController(profile) {
 	
 	this._showCreateDataSetPage = function(sample) {
 		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('new-dataset-'+sample.permId, "showCreateDataSetPage", sample, 'Create Data Set for '+sample.code);
+		var breadCrumbPage = new BreadCrumbPage('new-dataset', "showCreateDataSetPage", sample, 'Create Data Set for '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form

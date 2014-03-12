@@ -1208,9 +1208,9 @@ $.extend(BioATProfile.prototype, DefaultProfile.prototype, {
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
 		this.typeGroups = {
-			"SCREENING" : {
-				"TYPE" : "SCREENING",
-				"DISPLAY_NAME" : "Screening",
+			"PLATES" : {
+				"TYPE" : "PLATES",
+				"DISPLAY_NAME" : "Plates",
 				"LIST" : ["PLATE"]
 			},
 			"OTHERS" : {
