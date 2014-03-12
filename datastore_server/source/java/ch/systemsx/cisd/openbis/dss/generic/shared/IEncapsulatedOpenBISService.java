@@ -284,7 +284,8 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
      * Returns informations about physical data sets with unknown size that belong to the calling data store server.
      */
     @ManagedAuthentication
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(int chunkSize) throws UserFailureException;
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(int chunkSize, String dataSetCodeLowerLimit)
+            throws UserFailureException;
 
     /**
      * Updates sizes of the specified physical data sets (map key: data set code, map value: data set size).

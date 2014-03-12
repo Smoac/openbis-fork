@@ -491,10 +491,22 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
-    public List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, EnumSet<DataSetFetchOption> datasetFetchOptions)
+    public List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions)
     {
         checkFetchOptions(datasetFetchOptions);
-        return orderByDate(enrichDatasets(query.getDatasetsByDataStoreIdWithUnknownSize(dataStoreID, limit), datasetFetchOptions));
+
+        List<DatasetRecord> dataSets;
+
+        if (dataSetCodeLowerLimit == null)
+        {
+            dataSets = query.getDatasetsByDataStoreIdWithUnknownSize(dataStoreID, limit);
+        } else
+        {
+            dataSets = query.getDatasetsByDataStoreIdWithUnknownSize(dataStoreID, limit, dataSetCodeLowerLimit);
+        }
+
+        return orderByCode(enrichDatasets(dataSets, datasetFetchOptions));
     }
 
     private Iterable<DatasetRecord> handleDegenerateRegistrationTimestamp(List<DatasetRecord> list,
@@ -535,6 +547,19 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
                 public int compare(AbstractExternalData o1, AbstractExternalData o2)
                 {
                     return o1.getRegistrationDate().compareTo(o2.getRegistrationDate());
+                }
+            });
+        return list;
+    }
+
+    private List<AbstractExternalData> orderByCode(List<AbstractExternalData> list)
+    {
+        Collections.sort(list, new Comparator<AbstractExternalData>()
+            {
+                @Override
+                public int compare(AbstractExternalData o1, AbstractExternalData o2)
+                {
+                    return o1.getCode().compareTo(o2.getCode());
                 }
             });
         return list;

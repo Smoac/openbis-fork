@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +29,7 @@ import net.lemnik.eodsql.QueryTool;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -36,6 +39,7 @@ import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.etlserver.path.PathEntryDTO;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvider;
@@ -58,29 +62,39 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
     static final int DEFAULT_TIME_LIMIT = 1000 * 60 * 60;
 
+    static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
+
+    static final String LAST_SEEN_DATA_SET_FILE_DEFAULT = "fillUnknownDataSetSizeTaskLastSeen";
+
     private IEncapsulatedOpenBISService service;
 
     private IPathsInfoDAO dao;
 
     private ITimeProvider timeProvider;
 
+    private IConfigProvider configProvider;
+
     private int chunkSize;
 
     private long timeLimit;
+
+    private File lastSeenDataSetFile;
 
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask()
     {
         service = ServiceProvider.getOpenBISService();
         dao = createDAO();
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
+        configProvider = createConfigProvider();
     }
 
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(IEncapsulatedOpenBISService service, IPathsInfoDAO dao,
-            ITimeProvider timeProvider)
+            ITimeProvider timeProvider, IConfigProvider configProvider)
     {
         this.service = service;
         this.dao = dao;
         this.timeProvider = timeProvider;
+        this.configProvider = configProvider;
     }
 
     @Override
@@ -88,7 +102,21 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     {
         chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
         timeLimit = DateTimeUtils.getDurationInMillis(properties, TIME_LIMIT_KEY, DEFAULT_TIME_LIMIT);
-        operationLog.info(pluginName + " initialized with chunk size = " + chunkSize + ", time limit = " + DateTimeUtils.renderDuration(timeLimit));
+
+        String lastSeenDataSetFileProperty =
+                properties.getProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY);
+
+        if (lastSeenDataSetFileProperty == null)
+        {
+            lastSeenDataSetFile =
+                    new File(configProvider.getStoreRoot(), LAST_SEEN_DATA_SET_FILE_DEFAULT);
+        } else
+        {
+            lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
+        }
+
+        operationLog.info(pluginName + " initialized with chunk size = " + chunkSize + ", time limit = " + DateTimeUtils.renderDuration(timeLimit)
+                + ", last seen file = " + lastSeenDataSetFile.getAbsolutePath());
     }
 
     @SuppressWarnings("null")
@@ -106,7 +134,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
         do
         {
-            dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize);
+            dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize, getLastSeenDataSetCode());
             foundDataSets = dataSets != null && false == dataSets.isEmpty();
 
             if (foundDataSets)
@@ -138,6 +166,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
                     service.updatePhysicalDataSetsSize(sizeMap);
                 }
+
+                updateLastSeenDataSetCode(Collections.max(codes));
             } else
             {
                 operationLog.info("Did not find any datasets with unknown size in openbis database (chunk: " + chunkIndex + ").");
@@ -151,9 +181,30 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
         operationLog.info("Filling finished.");
     }
 
+    protected String getLastSeenDataSetCode()
+    {
+        if (lastSeenDataSetFile.exists())
+        {
+            return FileUtilities.loadToString(lastSeenDataSetFile).trim();
+        } else
+        {
+            return null;
+        }
+    }
+
+    protected void updateLastSeenDataSetCode(String dataSetCode)
+    {
+        FileUtilities.writeToFile(lastSeenDataSetFile, dataSetCode);
+    }
+
     private static IPathsInfoDAO createDAO()
     {
         return QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
+    }
+
+    private IConfigProvider createConfigProvider()
+    {
+        return ServiceProvider.getConfigProvider();
     }
 
 }

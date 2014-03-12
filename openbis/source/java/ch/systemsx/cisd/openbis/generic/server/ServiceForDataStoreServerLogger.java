@@ -417,9 +417,11 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize,
+            String dataSetCodeLowerLimit)
     {
-        logAccess(Level.DEBUG, sessionToken, "listPhysicalDataSetsWithUnknownSize", "DATA_STORE(%s) CHUNK_SIZE(%s)", dataStoreCode, chunkSize);
+        logAccess(Level.DEBUG, sessionToken, "listPhysicalDataSetsWithUnknownSize", "DATA_STORE(%s) CHUNK_SIZE(%s) DATA_SET_CODE_LOWER_LIMIT(%s)",
+                dataStoreCode, chunkSize, dataSetCodeLowerLimit);
         return null;
     }
 

@@ -128,7 +128,8 @@ public interface IDatasetLister
     /**
      * Lists physical datasets with unknown size of the specified data store.
      */
-    List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, EnumSet<DataSetFetchOption> datasetFetchOptions);
+    List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
      * Lists {@link DataSetShareId}s of all data sets (even those in trash) in specified data store.

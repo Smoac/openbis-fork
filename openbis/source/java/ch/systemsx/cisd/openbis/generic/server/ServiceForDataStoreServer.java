@@ -1292,13 +1292,14 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize)
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize,
+            String dataSetCodeLowerLimit)
     {
         final Session session = getSession(sessionToken);
         final DataStorePE dataStore = loadDataStore(session, dataStoreCode);
         final IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
         final List<AbstractExternalData> dataSets =
-                datasetLister.listByDataStoreWithUnknownSize(dataStore.getId(), chunkSize,
+                datasetLister.listByDataStoreWithUnknownSize(dataStore.getId(), chunkSize, dataSetCodeLowerLimit,
                         DATASET_FETCH_OPTIONS_FILE_DATASETS);
         return SimpleDataSetHelper.filterAndTranslate(dataSets);
     }

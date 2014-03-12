@@ -245,8 +245,13 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
 
     @Select(sql = SELECT_ALL_EXTERNAL_DATAS
             + " where data.dast_id = ?{1} and is_placeholder = false and size is null"
-            + " order by registration_timestamp limit ?{2}", fetchSize = FETCH_SIZE)
+            + " order by data.code limit ?{2}", fetchSize = FETCH_SIZE)
     public List<DatasetRecord> getDatasetsByDataStoreIdWithUnknownSize(long dataStoreID, int limit);
+
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + " where data.dast_id = ?{1} and is_placeholder = false and size is null and data.code > ?{3}"
+            + " order by data.code limit ?{2}", fetchSize = FETCH_SIZE)
+    public List<DatasetRecord> getDatasetsByDataStoreIdWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit);
 
     // NOTE: we list ALL data sets (even those in trash) using data_all table here
     @Select(sql = "SELECT code, share_id FROM data_all LEFT OUTER JOIN external_data "

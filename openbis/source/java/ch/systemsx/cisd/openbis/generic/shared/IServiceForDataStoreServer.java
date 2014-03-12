@@ -437,7 +437,8 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
      * Returns informations about physical data sets with unknown size that belong to the specified data store server.
      */
     @Transactional(readOnly = true)
-    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize);
+    public List<SimpleDataSetInformationDTO> listPhysicalDataSetsWithUnknownSize(String sessionToken, String dataStoreCode, int chunkSize,
+            String dataSetCodeLowerLimit);
 
     /**
      * Updates sizes of the specified physical data sets (map key: data set code, map value: data set size).
