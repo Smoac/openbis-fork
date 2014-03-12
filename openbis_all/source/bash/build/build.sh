@@ -13,17 +13,17 @@ then
 	usage
 fi
 
-rm -rf out
-mkdir -p out
-svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2 out;
+rm -rf tmp
+mkdir -p tmp
+svn checkout svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/tags/$1/$2 tmp;
 if [ $? -ne 0 ]
 then
 	exit
 fi
 
-cd out/gradle
+cd tmp/gradle
 ./gradlew :openbis_standard_technologies:clientsAndApis
 ./gradlew :installation:build
 cd ../..
-mv out/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
-mv out/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
+mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
+mv tmp/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .

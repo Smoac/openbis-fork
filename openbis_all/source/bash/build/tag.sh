@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ `dirname $0` != "." ]
-then
-	echo "Please run from the same directory than the script source file is in"
-	exit 1
-fi
 
 if [ $# -ne 2 ]
 then

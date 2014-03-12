@@ -7,5 +7,6 @@ cd ~openbis/bin
 wget -nv -r -l2 -A.{sh,txt} http://$SVN/
 mv $SVN/* .
 chmod 700 *.sh
+chmod 700 build/*.sh
 RM=`echo $SVN | cut -d / -f1`
 rm -rf $RM

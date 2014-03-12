@@ -1,4 +1,5 @@
 #!/bin/sh
+BIN_DIR=`dirname "$0"`
 
 usage()
 {
@@ -36,11 +37,11 @@ fi
 
 if [ ${HOT_FIX_NUMBER} -eq 0 ]
 then
-	./branch.sh sprint/S${1}.x
+	"$BIN_DIR/build/branch.sh" sprint/S${1}.x
 	if [ $? -ne 0 ];then exit 1; fi	
 fi
 
-./tag.sh sprint/S${1}.x S${1}.${HOT_FIX_NUMBER}
+"$BIN_DIR/build/tag.sh" sprint/S${1}.x S${1}.${HOT_FIX_NUMBER}
 if [ $? -ne 0 ];then exit 1; fi	
 
-./build.sh sprint S${1}.x/S${1}.${HOT_FIX_NUMBER}
+""$BIN_DIR/build/build.sh" sprint S${1}.x/S${1}.${HOT_FIX_NUMBER}

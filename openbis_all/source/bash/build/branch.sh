@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ `dirname $0` != "." ]
-then
-	echo "Please run from the same directory than the script source file is in"
-	exit 1
-fi
 
 if [ $# -ne 1 ]
 then
@@ -50,23 +45,23 @@ screening \
 ui-test\
 "
 
-rm -rf out
+rm -rf tmp
 
 svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "create branch $1";
-svn co svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 out
+svn co svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 tmp
 
 for project in $ALL_PROJECTS; do
-	svn copy svn+ssh://svncisd.ethz.ch/repos/cisd/$project/trunk out/$project
+	svn copy svn+ssh://svncisd.ethz.ch/repos/cisd/$project/trunk tmp/$project
 done
 
-cd out
+cd tmp
 svn commit -m "create branch $1"
 cd ..
 
-rm -rf out
-mkdir -p out
+rm -rf tmp
+mkdir -p tmp
 
-svn checkout --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 out;
+svn checkout --depth=immediates svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 tmp;
 
 GRADLE_PROJECTS="\
 gradle \
@@ -91,13 +86,13 @@ ui-test\
 "
 
 for project in $GRADLE_PROJECTS; do
-	cd out/$project;
+	cd tmp/$project;
 	svn update gradlew gradle build.gradle settings.gradle javaproject.gradle repository.gradle gwtdev.gradle query-api.gradle proteomics-api.gradle screening-api.gradle admin-console.gradle clients.gradle;
 	cd ../..;
 done
 
 for project in $GRADLE_PROJECTS; do
-	cd out/$project;
+	cd tmp/$project;
 	./gradlew dependencyReport;
 	cat targets/gradle/reports/project/dependencies.txt|egrep ^.---|grep \>|sort|uniq|awk '{print $2 ":" $4}'|awk -F: '{print "s/" $1 ":" $2 ":" $3 "/" $1 ":" $2 ":" $4 "/g"}' > sed_commands;
 	
@@ -112,6 +107,6 @@ for project in $GRADLE_PROJECTS; do
 	cd ../..;
 done
 
-cd out
+cd tmp
 svn commit -m "fixed dependencies of $1";
 cd ..
