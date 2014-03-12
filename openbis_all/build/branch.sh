@@ -51,15 +51,17 @@ ui-test\
 "
 
 rm -rf out
-mkdir out
+
+svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "create branch $1";
+svn co svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 out
 
 for project in $ALL_PROJECTS; do
 	svn copy svn+ssh://svncisd.ethz.ch/repos/cisd/$project/trunk out/$project
 done
 
-svn mkdir --parents svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "create branch $1";
-svn copy out/* svn+ssh://svncisd.ethz.ch/repos/cisd/openbis_all/branches/$1 -m "create branch $1";
-
+cd out
+svn commit -m "create branch $1"
+cd ..
 
 rm -rf out
 mkdir -p out
