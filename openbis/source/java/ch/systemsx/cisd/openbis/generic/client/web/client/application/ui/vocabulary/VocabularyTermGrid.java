@@ -558,8 +558,8 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     final TextField<String> result = new TextField<String>();
                     result.setFieldLabel(viewContext.getMessage(Dict.TERM_CODE));
                     result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERM_CODE_EMPTY));
-                    VocabularyTermSingleCodeValidator validator = new VocabularyTermSingleCodeValidator(viewContext);
-                    result.setValidator(validator);
+                    result.setValidator(new VocabularyTermSingleCodeValidator(viewContext));
+                    FieldUtil.setMandatoryFlag(result, true);
                     return result;
                 }
 
