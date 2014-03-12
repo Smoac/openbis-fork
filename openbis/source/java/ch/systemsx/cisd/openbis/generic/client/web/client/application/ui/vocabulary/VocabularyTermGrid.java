@@ -505,9 +505,9 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
             {
                 private final VocabularyTermSelectionWidget termSelectionWidget;
 
-                private final TextArea newTermCodesArea;
+                private final TextField<String> newTermCodesArea;
 
-                private final TextArea newTermsLabelsArea;
+                private final TextField<String> newTermsLabelsArea;
 
                 private final TextArea newTermDescriptionsArea;
 
@@ -553,12 +553,13 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                             previousTermOrdinal, registrationCallback);
                 }
 
-                private TextArea createNewTermCodesArea()
+                private TextField<String> createNewTermCodesArea()
                 {
-                    final TextArea result = new TextArea();
+                    final TextField<String> result = new TextField<String>();
                     result.setFieldLabel(viewContext.getMessage(Dict.TERM_CODE));
                     result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERM_CODE_EMPTY));
-                    result.setValidator(new VocabularyTermSingleCodeValidator(viewContext));
+                    VocabularyTermSingleCodeValidator validator = new VocabularyTermSingleCodeValidator(viewContext);
+                    result.setValidator(validator);
                     return result;
                 }
 
@@ -570,9 +571,9 @@ public class VocabularyTermGrid extends TypedTableGrid<VocabularyTermWithStats>
                     return result;
                 }
 
-                private TextArea createNewTermLabelArea()
+                private TextField<String> createNewTermLabelArea()
                 {
-                    final TextArea result = new TextArea();
+                    final TextField<String> result = new TextField<String>();
                     result.setFieldLabel(viewContext.getMessage(Dict.VOCABULARY_TERM_LABEL));
                     result.setEmptyText(viewContext.getMessage(Dict.VOCABULARY_TERM_LABEL_EMPTY));
                     return result;
