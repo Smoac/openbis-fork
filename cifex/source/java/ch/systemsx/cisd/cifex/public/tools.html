@@ -2,20 +2,37 @@
 <head>
 <title>CIFEX Documentation</title>
 <link rel="stylesheet" href="css/documentation.css" type="text/css" />
+<link rel="stylesheet" href="css/cifex.css" type="text/css" />
+<style type="text/css">
+.screenshot {
+	height: 300px;
+	margin:10px;
+	-webkit-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+	-moz-box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+	box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+</style>
 </head>
-<body>
-<p>We have made several tools available for interacting with CIFEX: a GUI Upload 
-application, a GUI Download appliation, and a command-line client.</p>
-<p>All of these applications have advantages over the web interface. For example, they allow resumption
-of incomplete uploads/download, and they perform more robust error-checking. The command-line client
-can be easily scripted and lends itself to repetitive tasks.</p>
-<p>
-All these programms may be downloaded here:
-<ul>
-	<li><a href="cifex_cli.zip">Command-line Client</a></li>
-	<li><a href="/cifex/file2GB-upload.jnlp">CIFEX Uploader</a></li>
-	<li><a href="/cifex/file2GB-download.jnlp">CIFEX Downloader</a></li>
-</ul>
-</p>
+<body class='box-gradient-silver' style="margin:20px;">
+<h1>Apps Download</h1>
+
+<p style='text-align:left;'>Advantages of the apps over the web interface:</p> 
+<p style='text-align:left;'>- Support for uploading files larger than 2GB.</p> 
+<p style='text-align:left;'>- Resuming interrupted uploads.</p> 
+<p style='text-align:left;'>- Support for encryption.</p> 
+
+
+<h2>Native Apps</h2>
+<center>
+<img src="./images/screenshot1.png" class="screenshot" /> <img src="./images/screenshot2.png" class="screenshot" /> <img src="./images/screenshot3.png" class="screenshot" />
+</center>
+<br /><br />
+<span class='downloadButton' style='width: 200px;'><a style='width: 200px;' href='/CIFEXAppMac.app.zip'>Mac OS X 1.7 or later</a></span>
+<br />
+<span class='downloadButton' style='width: 200px;'><a style='width: 200px;' href='/CIFEXApp.zip'>OS with Java</a></span> 
+
+<h2>Command Line App</h2>
+<span class='downloadButton' style='width: 200px;'><a style='width: 200px;' href='/cifex_cli.zip'>OS with Java</a></span> 
+
 </body>
 </html>

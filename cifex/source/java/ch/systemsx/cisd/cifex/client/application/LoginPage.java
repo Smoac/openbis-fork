@@ -18,20 +18,14 @@ package ch.systemsx.cisd.cifex.client.application;
 
 import java.util.Map;
 
-import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import ch.systemsx.cisd.cifex.client.application.page.MainPage;
 import ch.systemsx.cisd.cifex.client.application.ui.LoginPanelAutofill;
-import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.cifex.shared.basic.Constants;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
@@ -43,7 +37,7 @@ import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 final class LoginPage extends VerticalPanel
 {
     private static final int CELL_SPACING = 20;
-
+    
     private final ViewContext viewContext;
 
     LoginPage(final ViewContext viewContext)
@@ -58,24 +52,11 @@ final class LoginPage extends VerticalPanel
 
         // Encapsulate loginWidget in a dummy panel. Otherwise it will get the alignment of this
         // panel.
-        DockPanel loginPanel = new DockPanel();
-        final LoginPanelAutofill loginPanelAutofill = createLoginPanelAutofill();
-        loginPanel.add(loginPanelAutofill, DockPanel.CENTER);
-
-        Image cisdLogo = createImage();
-        Anchor logo =
-                new Anchor(cisdLogo.getElement().getString(), true, "http://www.cisd.ethz.ch/",
-                        "_blank");
-
         final FooterPanel footerPanel = new FooterPanel(viewContext);
-        final HTML welcomePanel = createWelcomePanel();
         final CellPanel northPanel = createNorthPanel();
-        northPanel.add(logo);
-        northPanel.add(welcomePanel);
         add(getBannersPage());
         add(northPanel);
-        add(loginPanel);
-        add(new InlineHTML("Or you use CIFEX from the desktop via the CIFEX App for <a href='/CIFEXAppMac.app.zip'>Mac</a> and <a href='/CIFEXApp.zip'>others OS supporting Java</a> or the <a href='/cifex_cli.zip'>CIFEX command line client</a>."));
+        add(createCentralPanel());
         add(footerPanel);
         this.setCellVerticalAlignment(footerPanel, HasVerticalAlignment.ALIGN_BOTTOM);
     }
@@ -92,26 +73,20 @@ final class LoginPage extends VerticalPanel
         return loginPanel;
     }
 
+    private final CellPanel createCentralPanel()
+    {
+        HorizontalPanel centralPanel = new HorizontalPanel();
+        final LoginPanelAutofill loginPanelAutofill = createLoginPanelAutofill();
+        loginPanelAutofill.setStyleName("");
+        centralPanel.add(loginPanelAutofill);
+        return centralPanel;
+    }
+    
     private final static CellPanel createNorthPanel()
     {
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.setSpacing(20);
         return horizontalPanel;
-    }
-
-    private final Image createImage()
-    {
-        final Image image = ImageUtils.getCIFEXLogoImage();
-        image.setTitle(MainPage.CISD_LOGO_TITLE);
-        image.setPixelSize(175, 107);
-        return image;
-    }
-
-    private final HTML createWelcomePanel()
-    {
-        final HTML html = new HTML("CISD File EXchanger");
-        html.setStyleName("cifex-welcome");
-        return html;
     }
 
     private HTML getBannersPage()

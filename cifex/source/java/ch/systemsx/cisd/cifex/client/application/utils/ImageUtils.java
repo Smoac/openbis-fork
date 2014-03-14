@@ -46,6 +46,11 @@ public final class ImageUtils
         return new Image(IMG_DIR + fileName);
     }
 
+    public final static Image getCIFEXSymbolImage()
+    {
+        return createImage("cifex_symbol.png");
+    }
+    
     public final static Image getCIFEXLogoImage()
     {
         return createImage("cifex.png");

@@ -29,7 +29,10 @@ import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
+import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
@@ -37,6 +40,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 
 import ch.systemsx.cisd.cifex.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.cifex.client.application.ViewContext;
+import ch.systemsx.cisd.cifex.client.application.page.MainPage;
+import ch.systemsx.cisd.cifex.client.application.utils.ImageUtils;
 import ch.systemsx.cisd.cifex.shared.basic.dto.CurrentUserInfoDTO;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
@@ -94,6 +99,12 @@ public class LoginPanelAutofill extends VerticalPanel
             formPanel = null;
             return;
         }
+        
+        final Image cisdLogo = ImageUtils.getCIFEXSymbolImage();
+        cisdLogo.setTitle(MainPage.CISD_LOGO_TITLE);
+        cisdLogo.setPixelSize((int)(165*1.7), (int)(113*1.7));
+        Anchor logo =  new Anchor(cisdLogo.getElement().getString(), true, "http://www.cisd.ethz.ch/", "_blank");
+        
         formPanel = FormPanel.wrap(formElement, true);
 
         formPanel.addSubmitHandler(new SubmitHandler()
@@ -124,14 +135,36 @@ public class LoginPanelAutofill extends VerticalPanel
                 }
             });
 
-        add(formPanel);
-
+        VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.setHorizontalAlign(HorizontalAlignment.CENTER);
+        verticalPanel.add(logo);
+        verticalPanel.add(new InlineHTML("<p style='margin:15px; font-family:\"Helvetica Neue\",sans-serif; font-size:25px; font-weight:300;'>Sign in to CIFEX</p>"));
+        verticalPanel.add(formPanel);
+        verticalPanel.setStyleName("box-gradient box-gradient-silver");
+        add(verticalPanel);
+        
+        add(new InlineHTML("<div style='padding:20px; font-family:\"Helvetica Neue\",sans-serif; font-size:16px; font-weight:300;'>Or:</div>"));
+        add(createDownloadsPanelLittle());
+        
         Text label = new Text(info(START_PAGE_WELCOME_NOTE));
         label.setStyleName("cifex-welcome-warning");
-
         add(label);
     }
 
+    private static InlineHTML createDownloadsPanelLittle() {
+        String style = "style='text-align:left; font-family:\"Helvetica Neue\",sans-serif; font-size:16px; font-weight:300;'";
+        
+        String  downloadPanelInlineHTML = "";
+        downloadPanelInlineHTML += "<div class='box-gradient box-gradient-silver' style='width: 330px;'>";
+        downloadPanelInlineHTML += "<div class='downloadButton' style='width: 200px; margin: 0 auto;'><a href='./tools.html'>App Download</a></div>";
+        downloadPanelInlineHTML += "<br />";
+        downloadPanelInlineHTML += "<p " + style + ">Advantages of the apps over the web interface:</p>";
+        downloadPanelInlineHTML += "<p " + style + ">- Support for uploading files larger than 2GB.</p>";
+        downloadPanelInlineHTML += "<p " + style + ">- Resuming interrupted uploads.</p>";
+        downloadPanelInlineHTML += "<p " + style + ">- Support for encryption.</p>";
+        downloadPanelInlineHTML += "</div>";
+        return new InlineHTML(downloadPanelInlineHTML);
+    }
     private final boolean isUserInputValid()
     {
         String username = getUsernameElement().getValue();
