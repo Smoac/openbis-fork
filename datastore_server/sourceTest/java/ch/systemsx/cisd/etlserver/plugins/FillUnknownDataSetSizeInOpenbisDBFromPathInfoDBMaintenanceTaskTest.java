@@ -17,7 +17,11 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import static ch.systemsx.cisd.common.test.ArrayContainsExactlyMatcher.containsExactly;
-import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.*;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.CHUNK_SIZE_DEFAULT;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.CHUNK_SIZE_PROPERTY;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.TIME_LIMIT_PROPERTY;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,14 +32,17 @@ import java.util.Properties;
 import org.apache.commons.collections.map.HashedMap;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
+import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
 import ch.systemsx.cisd.etlserver.path.PathEntryDTO;
+import ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.LastSeenDataSetFileContent;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -122,12 +129,12 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(0L));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, null);
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
                     will(returnValue(Collections.emptyList()));
                 }
             });
 
-        execute(null, null);
+        execute(null, null, null, null);
     }
 
     @Test
@@ -139,12 +146,12 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(0L));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, null);
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
                     will(returnValue(null));
                 }
             });
 
-        execute(null, null);
+        execute(null, null, null, null);
     }
 
     @Test
@@ -156,18 +163,18 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(0L));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, null);
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
                     will(returnValue(Arrays.asList(dataSet1)));
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(Collections.emptyList()));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, dataSet1.getDataSetCode());
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
                 }
             });
 
-        execute(null, null);
+        execute(null, null, null, null);
     }
 
     @Test
@@ -179,18 +186,18 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(0L));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, null);
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
                     will(returnValue(Arrays.asList(dataSet1)));
 
                     one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
                     will(returnValue(null));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, dataSet1.getDataSetCode());
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
                 }
             });
 
-        execute(null, null);
+        execute(null, null, null, null);
     }
 
     @Test
@@ -202,7 +209,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     allowing(timeProvider).getTimeInMilliseconds();
                     will(returnValue(0L));
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, null);
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
                     will(returnValue(Arrays.asList(dataSet1, dataSet2, dataSet3)));
 
                     one(dao).listDataSetsSize(
@@ -211,15 +218,16 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     will(returnValue(Arrays.asList(entry1, entry2)));
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
-                    sizeMap.put("DS_1", 123L);
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
                     one(service).updatePhysicalDataSetsSize(sizeMap);
 
-                    one(service).listPhysicalDataSetsWithUnknownSize(DEFAULT_CHUNK_SIZE, dataSet3.getDataSetCode());
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet3.getDataSetCode());
                     will(returnValue(Collections.emptyList()));
                 }
             });
 
-        execute(null, null);
+        execute(null, null, null, null);
     }
 
     @Test
@@ -241,7 +249,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     will(returnValue(Arrays.asList(entry1, entry2)));
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
-                    sizeMap.put("DS_1", 123L);
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
                     one(service).updatePhysicalDataSetsSize(sizeMap);
 
                     one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, dataSet2.getDataSetCode());
@@ -255,7 +264,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                 }
             });
 
-        execute(null, chunkSize);
+        execute(null, chunkSize, null, null);
     }
 
     @Test
@@ -270,6 +279,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     one(timeProvider).getTimeInMilliseconds();
                     will(returnValue(0L));
 
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
                     one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, null);
                     will(returnValue(Arrays.asList(dataSet1)));
 
@@ -277,7 +289,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                     will(returnValue(Arrays.asList(entry1)));
 
                     Map<String, Long> sizeMap = new HashedMap<String, Long>();
-                    sizeMap.put("DS_1", 123L);
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
                     one(service).updatePhysicalDataSetsSize(sizeMap);
 
                     one(timeProvider).getTimeInMilliseconds();
@@ -294,10 +307,109 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                 }
             });
 
-        execute(timeLimit, chunkSize);
+        execute(timeLimit, chunkSize, null, null);
     }
 
-    private void execute(Long timeLimit, Integer chunkSize)
+    @Test
+    public void testExecuteWithUpToDateLastSeenDataSetFile()
+    {
+        TestResources resources = new TestResources(getClass());
+
+        final long lastSeenCreationTime = System.currentTimeMillis();
+        final long dropLastSeenFileInterval = 100L;
+        final File lastSeenFile = resources.getResourceFile("upToDateLastSeenFile");
+
+        LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
+        lastSeenContent.setFileCreationTime(lastSeenCreationTime);
+        lastSeenContent.setLastSeenDataSetCode(dataSet1.getDataSetCode());
+        lastSeenContent.writeToFile(lastSeenFile);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(lastSeenCreationTime + dropLastSeenFileInterval / 2));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
+                    will(returnValue(Arrays.asList(dataSet2, dataSet3)));
+
+                    one(dao).listDataSetsSize(with(containsExactly(dataSet2.getDataSetCode(), dataSet3.getDataSetCode())));
+                    will(returnValue(Arrays.asList(entry2)));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet3.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute(null, null, lastSeenFile, dropLastSeenFileInterval);
+
+        lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
+        Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime));
+        Assert.assertEquals(lastSeenContent.getLastSeenDataSetCode(), dataSet3.getDataSetCode());
+    }
+
+    @Test
+    public void testExecuteWithOutOfDateLastSeenDataSetFile()
+    {
+        TestResources resources = new TestResources(getClass());
+
+        final long lastSeenCreationTime = System.currentTimeMillis();
+        final long dropLastSeenFileInterval = 100L;
+        final File lastSeenFile = resources.getResourceFile("outOfDateLastSeenFile");
+
+        LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
+        lastSeenContent.setFileCreationTime(lastSeenCreationTime);
+        lastSeenContent.setLastSeenDataSetCode(dataSet1.getDataSetCode());
+        lastSeenContent.writeToFile(lastSeenFile);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(lastSeenCreationTime + 2 * dropLastSeenFileInterval));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
+                    will(returnValue(Arrays.asList(dataSet1, dataSet2, dataSet3)));
+
+                    one(dao).listDataSetsSize(with(containsExactly(dataSet1.getDataSetCode(), dataSet2.getDataSetCode(), dataSet3.getDataSetCode())));
+                    will(returnValue(Arrays.asList(entry1, entry2)));
+
+                    Map<String, Long> sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet3.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute(null, null, lastSeenFile, dropLastSeenFileInterval);
+
+        lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
+        Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime + 2 * dropLastSeenFileInterval));
+        Assert.assertEquals(lastSeenContent.getLastSeenDataSetCode(), dataSet3.getDataSetCode());
+    }
+
+    @Test(expectedExceptions = { IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "Could not read the last seen data set file")
+    public void testExecuteWithIncorrectLastSeenDataSetFile()
+    {
+        TestResources resources = new TestResources(getClass());
+
+        final File lastSeenFile = resources.getResourceFile("incorrectLastSeenFile");
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+                }
+            });
+
+        execute(null, null, lastSeenFile, null);
+    }
+
+    private void execute(Long timeLimit, Integer chunkSize, File lastSeenFile, Long dropLastSeenFileInterval)
     {
         FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask task =
                 new FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(service, dao, timeProvider, configProvider);
@@ -306,11 +418,19 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
         if (timeLimit != null)
         {
-            properties.setProperty(TIME_LIMIT_KEY, timeLimit.toString() + " ms");
+            properties.setProperty(TIME_LIMIT_PROPERTY, timeLimit.toString() + " ms");
         }
         if (chunkSize != null)
         {
-            properties.setProperty(CHUNK_SIZE_KEY, chunkSize.toString());
+            properties.setProperty(CHUNK_SIZE_PROPERTY, chunkSize.toString());
+        }
+        if (lastSeenFile != null)
+        {
+            properties.setProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY, lastSeenFile.getAbsolutePath());
+        }
+        if (dropLastSeenFileInterval != null)
+        {
+            properties.setProperty(DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY, dropLastSeenFileInterval.toString() + " ms");
         }
 
         task.setUp("fill-unknown-sizes", properties);

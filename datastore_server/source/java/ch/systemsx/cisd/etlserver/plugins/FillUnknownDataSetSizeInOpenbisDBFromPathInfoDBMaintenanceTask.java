@@ -27,9 +27,11 @@ import java.util.Set;
 
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
@@ -54,17 +56,21 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.class);
 
-    static final String CHUNK_SIZE_KEY = "data-set-chunk-size";
+    static final String CHUNK_SIZE_PROPERTY = "data-set-chunk-size";
 
-    static final String TIME_LIMIT_KEY = "time-limit";
+    static final int CHUNK_SIZE_DEFAULT = 100;
 
-    static final int DEFAULT_CHUNK_SIZE = 100;
+    static final String TIME_LIMIT_PROPERTY = "time-limit";
 
-    static final int DEFAULT_TIME_LIMIT = 1000 * 60 * 60;
+    static final long TIME_LIMIT_DEFAULT = DateUtils.MILLIS_PER_HOUR;
 
     static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
 
     static final String LAST_SEEN_DATA_SET_FILE_DEFAULT = "fillUnknownDataSetSizeTaskLastSeen";
+
+    static final String DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY = "drop-last-seen-data-set-file-interval";
+
+    static final long DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_DEFAULT = DateUtils.MILLIS_PER_DAY * 7;
 
     private IEncapsulatedOpenBISService service;
 
@@ -79,6 +85,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     private long timeLimit;
 
     private File lastSeenDataSetFile;
+
+    private long dropLastSeenDataSetFileInterval;
 
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask()
     {
@@ -100,8 +108,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     @Override
     public void setUp(String pluginName, Properties properties)
     {
-        chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_KEY, DEFAULT_CHUNK_SIZE);
-        timeLimit = DateTimeUtils.getDurationInMillis(properties, TIME_LIMIT_KEY, DEFAULT_TIME_LIMIT);
+        chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE_PROPERTY, CHUNK_SIZE_DEFAULT);
+        timeLimit = DateTimeUtils.getDurationInMillis(properties, TIME_LIMIT_PROPERTY, TIME_LIMIT_DEFAULT);
 
         String lastSeenDataSetFileProperty =
                 properties.getProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY);
@@ -115,8 +123,19 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
             lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
         }
 
-        operationLog.info(pluginName + " initialized with chunk size = " + chunkSize + ", time limit = " + DateTimeUtils.renderDuration(timeLimit)
-                + ", last seen file = " + lastSeenDataSetFile.getAbsolutePath());
+        dropLastSeenDataSetFileInterval =
+                DateTimeUtils.getDurationInMillis(properties, DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY,
+                        DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_DEFAULT);
+
+        StringBuilder logBuilder = new StringBuilder();
+
+        logBuilder.append(pluginName + " initialized with\n");
+        logBuilder.append(CHUNK_SIZE_PROPERTY + ": " + chunkSize + "\n");
+        logBuilder.append(TIME_LIMIT_PROPERTY + ": " + DateTimeUtils.renderDuration(timeLimit) + "\n");
+        logBuilder.append(LAST_SEEN_DATA_SET_FILE_PROPERTY + ": " + lastSeenDataSetFile.getAbsolutePath() + "\n");
+        logBuilder.append(DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + ": " + DateTimeUtils.renderDuration(dropLastSeenDataSetFileInterval));
+
+        operationLog.info(logBuilder.toString());
     }
 
     @SuppressWarnings("null")
@@ -132,10 +151,16 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
         boolean reachedTimeLimit = false;
         int chunkIndex = 1;
 
+        prepareLastSeenDataSetFile();
+
         do
         {
-            dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize, getLastSeenDataSetCode());
+            LastSeenDataSetFileContent lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenDataSetFile);
+
+            dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize, lastSeenContent.getLastSeenDataSetCode());
             foundDataSets = dataSets != null && false == dataSets.isEmpty();
+
+            operationLog.info("Last seen data set code: " + lastSeenContent.getLastSeenDataSetCode() + " (chunk: " + chunkIndex + ").");
 
             if (foundDataSets)
             {
@@ -164,10 +189,17 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
                     operationLog.info("Found sizes for " + sizeMap.size() + " dataset(s) in pathinfo database (chunk: " + chunkIndex + ").");
 
-                    service.updatePhysicalDataSetsSize(sizeMap);
+                    if (false == sizeMap.isEmpty())
+                    {
+                        service.updatePhysicalDataSetsSize(sizeMap);
+                    }
                 }
 
-                updateLastSeenDataSetCode(Collections.max(codes));
+                LastSeenDataSetFileContent newLastSeenContent = new LastSeenDataSetFileContent();
+                newLastSeenContent.setFileCreationTime(lastSeenContent.getFileCreationTime());
+                newLastSeenContent.setLastSeenDataSetCode(Collections.max(codes));
+                newLastSeenContent.writeToFile(lastSeenDataSetFile);
+
             } else
             {
                 operationLog.info("Did not find any datasets with unknown size in openbis database (chunk: " + chunkIndex + ").");
@@ -181,20 +213,31 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
         operationLog.info("Filling finished.");
     }
 
-    protected String getLastSeenDataSetCode()
+    private void prepareLastSeenDataSetFile()
     {
-        if (lastSeenDataSetFile.exists())
-        {
-            return FileUtilities.loadToString(lastSeenDataSetFile).trim();
-        } else
-        {
-            return null;
-        }
-    }
+        LastSeenDataSetFileContent content = LastSeenDataSetFileContent.readFromFile(lastSeenDataSetFile);
 
-    protected void updateLastSeenDataSetCode(String dataSetCode)
-    {
-        FileUtilities.writeToFile(lastSeenDataSetFile, dataSetCode);
+        if (content == null)
+        {
+            content = new LastSeenDataSetFileContent();
+            content.setFileCreationTime(timeProvider.getTimeInMilliseconds());
+            content.writeToFile(lastSeenDataSetFile);
+
+            operationLog.info("Created last seen data set file.");
+
+        } else if (content.getFileCreationTime() == null
+                || timeProvider.getTimeInMilliseconds() > content.getFileCreationTime() + dropLastSeenDataSetFileInterval)
+        {
+            lastSeenDataSetFile.delete();
+
+            operationLog.info("Deleted last seen data set file because its age was unknown or its age was greater than "
+                    + DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY
+                    + " interval value.");
+
+            content = new LastSeenDataSetFileContent();
+            content.setFileCreationTime(timeProvider.getTimeInMilliseconds());
+            content.writeToFile(lastSeenDataSetFile);
+        }
     }
 
     private static IPathsInfoDAO createDAO()
@@ -205,6 +248,118 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     private IConfigProvider createConfigProvider()
     {
         return ServiceProvider.getConfigProvider();
+    }
+
+    public static class LastSeenDataSetFileContent
+    {
+        private static final String FILE_CREATION_TIME_PROPERTY = "file-creation-time";
+
+        private static final String LAST_SEEN_DATA_SET_CODE_PROPERTY = "last-seen-data-set-code";
+
+        private Long fileCreationTime;
+
+        private String lastSeenDataSetCode;
+
+        public void setFileCreationTime(Long fileCreationTime)
+        {
+            this.fileCreationTime = fileCreationTime;
+        }
+
+        public Long getFileCreationTime()
+        {
+            return fileCreationTime;
+        }
+
+        public void setLastSeenDataSetCode(String lastSeenDataSetCode)
+        {
+            this.lastSeenDataSetCode = lastSeenDataSetCode;
+        }
+
+        public String getLastSeenDataSetCode()
+        {
+            return lastSeenDataSetCode;
+        }
+
+        @SuppressWarnings("unchecked")
+        public static LastSeenDataSetFileContent readFromFile(File file)
+        {
+            if (file.exists())
+            {
+                Map<String, Object> map = null;
+
+                try
+                {
+                    map = new ObjectMapper().readValue(file, Map.class);
+                } catch (Exception e)
+                {
+                    throw new IllegalArgumentException("Could not read the last seen data set file", e);
+                }
+
+                LastSeenDataSetFileContent content = new LastSeenDataSetFileContent();
+                content.setFileCreationTime(readPropertyAsLong(map, FILE_CREATION_TIME_PROPERTY));
+                content.setLastSeenDataSetCode(readPropertyAsString(map, LAST_SEEN_DATA_SET_CODE_PROPERTY));
+                return content;
+
+            } else
+            {
+                return null;
+            }
+        }
+
+        private static Long readPropertyAsLong(Map<String, Object> propertyMap, String propertyName)
+        {
+            try
+            {
+                Object propertyValue = propertyMap.get(propertyName);
+
+                if (propertyValue == null)
+                {
+                    return null;
+                } else if (propertyValue instanceof String)
+                {
+                    return Long.parseLong((String) propertyValue);
+                } else if (propertyValue instanceof Number)
+                {
+                    return ((Number) propertyValue).longValue();
+                } else
+                {
+                    throw new IllegalArgumentException("Cannot convert value: " + propertyValue + " of type: " + propertyValue.getClass()
+                            + " to long.");
+                }
+            } catch (Exception e)
+            {
+                throw new IllegalArgumentException("Could not read " + propertyName + " property", e);
+            }
+        }
+
+        private static String readPropertyAsString(Map<String, Object> propertyMap, String propertyName)
+        {
+            Object value = propertyMap.get(propertyName);
+
+            try
+            {
+                return (String) value;
+            } catch (Exception e)
+            {
+                throw new IllegalArgumentException("Could not read " + propertyName + " property", e);
+            }
+        }
+
+        public void writeToFile(File file)
+        {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(FILE_CREATION_TIME_PROPERTY, getFileCreationTime());
+            map.put(LAST_SEEN_DATA_SET_CODE_PROPERTY, getLastSeenDataSetCode());
+
+            try
+            {
+                new ObjectMapper().writeValue(file, map);
+            } catch (Exception e)
+            {
+                throw new IllegalArgumentException("Could not write the last seen data set file", e);
+            }
+        }
+
     }
 
 }
