@@ -69,9 +69,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
     static final String LAST_SEEN_DATA_SET_FILE_DEFAULT = "fillUnknownDataSetSizeTaskLastSeen";
 
-    static final String DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY = "drop-last-seen-data-set-file-interval";
+    static final String DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY = "delete-last-seen-data-set-file-interval";
 
-    static final long DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_DEFAULT = DateUtils.MILLIS_PER_DAY * 7;
+    static final long DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_DEFAULT = DateUtils.MILLIS_PER_DAY * 7;
 
     private IEncapsulatedOpenBISService service;
 
@@ -87,7 +87,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
     private File lastSeenDataSetFile;
 
-    private long dropLastSeenDataSetFileInterval;
+    private long deleteLastSeenDataSetFileInterval;
 
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask()
     {
@@ -124,9 +124,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
             lastSeenDataSetFile = new File(lastSeenDataSetFileProperty);
         }
 
-        dropLastSeenDataSetFileInterval =
-                DateTimeUtils.getDurationInMillis(properties, DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY,
-                        DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_DEFAULT);
+        deleteLastSeenDataSetFileInterval =
+                DateTimeUtils.getDurationInMillis(properties, DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY,
+                        DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_DEFAULT);
 
         StringBuilder logBuilder = new StringBuilder();
 
@@ -134,8 +134,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
         logBuilder.append("\t" + CHUNK_SIZE_PROPERTY + ": " + chunkSize + "\n");
         logBuilder.append("\t" + TIME_LIMIT_PROPERTY + ": " + DateTimeUtils.renderDuration(timeLimit) + "\n");
         logBuilder.append("\t" + LAST_SEEN_DATA_SET_FILE_PROPERTY + ": " + lastSeenDataSetFile.getAbsolutePath() + "\n");
-        logBuilder.append("\t" + DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + ": "
-                + DateTimeUtils.renderDuration(dropLastSeenDataSetFileInterval));
+        logBuilder.append("\t" + DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + ": "
+                + DateTimeUtils.renderDuration(deleteLastSeenDataSetFileInterval));
 
         operationLog.info(logBuilder.toString());
     }
@@ -232,13 +232,13 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
             operationLog.info("Created last seen data set file.");
 
         } else if (content.getFileCreationTime() == null
-                || timeProvider.getTimeInMilliseconds() > content.getFileCreationTime() + dropLastSeenDataSetFileInterval)
+                || timeProvider.getTimeInMilliseconds() > content.getFileCreationTime() + deleteLastSeenDataSetFileInterval)
         {
             lastSeenDataSetFile.delete();
 
             operationLog.info("Deleted last seen data set file because its age was unknown or its age was greater than "
-                    + DateTimeUtils.renderDuration(dropLastSeenDataSetFileInterval) +
-                    " ('" + DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + "' property value).");
+                    + DateTimeUtils.renderDuration(deleteLastSeenDataSetFileInterval) +
+                    " ('" + DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + "' property value).");
 
             content = new LastSeenDataSetFileContent();
             content.setFileCreationTime(timeProvider.getTimeInMilliseconds());

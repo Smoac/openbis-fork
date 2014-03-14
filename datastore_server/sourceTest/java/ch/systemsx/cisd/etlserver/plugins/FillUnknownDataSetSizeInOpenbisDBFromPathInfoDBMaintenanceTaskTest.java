@@ -19,7 +19,7 @@ package ch.systemsx.cisd.etlserver.plugins;
 import static ch.systemsx.cisd.common.test.ArrayContainsExactlyMatcher.containsExactly;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.CHUNK_SIZE_DEFAULT;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.CHUNK_SIZE_PROPERTY;
-import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.TIME_LIMIT_PROPERTY;
 
@@ -381,7 +381,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         TestResources resources = new TestResources(getClass());
 
         final long lastSeenCreationTime = System.currentTimeMillis();
-        final long dropLastSeenFileInterval = 100L;
+        final long deleteLastSeenFileInterval = 100L;
         final File lastSeenFile = resources.getResourceFile("upToDateLastSeenFile");
 
         LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
@@ -393,7 +393,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             {
                 {
                     allowing(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(lastSeenCreationTime + dropLastSeenFileInterval / 2));
+                    will(returnValue(lastSeenCreationTime + deleteLastSeenFileInterval / 2));
 
                     one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
                     will(returnValue(Arrays.asList(dataSet2, dataSet3)));
@@ -406,7 +406,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                 }
             });
 
-        execute(null, null, lastSeenFile, dropLastSeenFileInterval);
+        execute(null, null, lastSeenFile, deleteLastSeenFileInterval);
 
         lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
         Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime));
@@ -421,7 +421,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         TestResources resources = new TestResources(getClass());
 
         final long lastSeenCreationTime = System.currentTimeMillis();
-        final long dropLastSeenFileInterval = 100L;
+        final long deleteLastSeenFileInterval = 100L;
         final File lastSeenFile = resources.getResourceFile("outOfDateLastSeenFile");
 
         LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
@@ -433,7 +433,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             {
                 {
                     allowing(timeProvider).getTimeInMilliseconds();
-                    will(returnValue(lastSeenCreationTime + 2 * dropLastSeenFileInterval));
+                    will(returnValue(lastSeenCreationTime + 2 * deleteLastSeenFileInterval));
 
                     one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
                     will(returnValue(Arrays.asList(dataSet1, dataSet2, dataSet3)));
@@ -451,10 +451,10 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
                 }
             });
 
-        execute(null, null, lastSeenFile, dropLastSeenFileInterval);
+        execute(null, null, lastSeenFile, deleteLastSeenFileInterval);
 
         lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
-        Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime + 2 * dropLastSeenFileInterval));
+        Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime + 2 * deleteLastSeenFileInterval));
         Assert.assertEquals(lastSeenContent.getLastSeenDataSetCode(), dataSet3.getDataSetCode());
 
         assertLogThatSomeDataSetsHaveNotBeenFixedYet();
@@ -508,7 +508,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         assertLogThatAllDataSetsHaveBeenFixed();
     }
 
-    private void execute(Long timeLimit, Integer chunkSize, File lastSeenFile, Long dropLastSeenFileInterval)
+    private void execute(Long timeLimit, Integer chunkSize, File lastSeenFile, Long deleteLastSeenFileInterval)
     {
         FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask task =
                 new FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(service, dao, timeProvider, configProvider);
@@ -527,9 +527,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         {
             properties.setProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY, lastSeenFile.getAbsolutePath());
         }
-        if (dropLastSeenFileInterval != null)
+        if (deleteLastSeenFileInterval != null)
         {
-            properties.setProperty(DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY, dropLastSeenFileInterval.toString() + " ms");
+            properties.setProperty(DELETE_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY, deleteLastSeenFileInterval.toString() + " ms");
         }
 
         task.setUp("fill-unknown-sizes", properties);
