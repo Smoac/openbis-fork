@@ -9,6 +9,8 @@ task wrapper(type: Wrapper) {
 }
 
 addSource = (sourceCompatibility == org.gradle.api.JavaVersion.VERSION_1_6)
+print "Current JVM is "+sourceCompatibility+", explicit ecj source compability: "+addSource
+
 sourceCompatibility='1.6'
 targetCompatibility='1.6'
 
