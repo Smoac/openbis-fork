@@ -19,17 +19,19 @@ package ch.systemsx.cisd.etlserver.plugins;
 import static ch.systemsx.cisd.common.test.ArrayContainsExactlyMatcher.containsExactly;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.CHUNK_SIZE_DEFAULT;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.CHUNK_SIZE_PROPERTY;
-import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.TIME_LIMIT_PROPERTY;
-import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
+import static ch.systemsx.cisd.etlserver.plugins.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask.TIME_LIMIT_PROPERTY;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.Assert;
@@ -38,6 +40,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogInitializer;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.TestResources;
 import ch.systemsx.cisd.etlserver.path.IPathsInfoDAO;
@@ -73,9 +78,14 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
     private PathEntryDTO entry2;
 
+    private BufferedAppender logRecorder;
+
     @BeforeMethod
     public void beforeMethod()
     {
+        LogInitializer.init();
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
+
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         dao = context.mock(IPathsInfoDAO.class);
@@ -115,8 +125,13 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     }
 
     @AfterMethod
-    public void afterMethod()
+    public void afterMethod(Method method)
     {
+        System.out.println("======= Log content for " + method.getName() + "():");
+        System.out.println(logRecorder.getLogContent());
+        System.out.println("=======");
+        logRecorder.reset();
+
         context.assertIsSatisfied();
     }
 
@@ -135,6 +150,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, null, null, null);
+
+        assertLogThatAllDataSetsHaveBeenFixed();
     }
 
     @Test
@@ -152,6 +169,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, null, null, null);
+
+        assertLogThatAllDataSetsHaveBeenFixed();
     }
 
     @Test
@@ -175,6 +194,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, null, null, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test
@@ -198,6 +219,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, null, null, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test
@@ -228,6 +251,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, null, null, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test
@@ -265,6 +290,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, chunkSize, null, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test
@@ -308,6 +335,44 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(timeLimit, chunkSize, null, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
+    }
+
+    @Test
+    public void testExecuteWhenAllDataSetsGetFixedButTimeLimitIsReached()
+    {
+        final long timeLimit = 10L;
+        final int chunkSize = 1;
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, null);
+                    will(returnValue(Arrays.asList(dataSet1)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
+                    will(returnValue(Arrays.asList(entry1)));
+
+                    Map<String, Long> sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(12L));
+                }
+            });
+
+        execute(timeLimit, chunkSize, null, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test
@@ -346,6 +411,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
         Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime));
         Assert.assertEquals(lastSeenContent.getLastSeenDataSetCode(), dataSet3.getDataSetCode());
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test
@@ -389,6 +456,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
         Assert.assertEquals(lastSeenContent.getFileCreationTime(), Long.valueOf(lastSeenCreationTime + 2 * dropLastSeenFileInterval));
         Assert.assertEquals(lastSeenContent.getLastSeenDataSetCode(), dataSet3.getDataSetCode());
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     @Test(expectedExceptions = { IllegalArgumentException.class }, expectedExceptionsMessageRegExp = "Could not read the last seen data set file")
@@ -407,6 +476,36 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
             });
 
         execute(null, null, lastSeenFile, null);
+    }
+
+    @Test
+    public void testExecuteWhenAllDataSetsGetFixed()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, null);
+                    will(returnValue(Arrays.asList(dataSet1)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
+                    will(returnValue(Arrays.asList(entry1)));
+
+                    Map<String, Long> sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute(null, null, null, null);
+
+        assertLogThatAllDataSetsHaveBeenFixed();
     }
 
     private void execute(Long timeLimit, Integer chunkSize, File lastSeenFile, Long dropLastSeenFileInterval)
@@ -440,6 +539,20 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     private File getStoreRoot()
     {
         return new File(System.getProperty("java.io.tmpdir") + File.separator + getClass().getName() + "Store");
+    }
+
+    private void assertLogThatAllDataSetsHaveBeenFixed()
+    {
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask - "
+                + "All data sets with unknown size in openbis database have been fixed. The maintenance task can be now disabled.",
+                logRecorder.getLogContent());
+    }
+
+    private void assertLogThatSomeDataSetsHaveNotBeenFixedYet()
+    {
+        AssertionUtil.assertContainsLines("INFO  OPERATION.FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask - "
+                + "Some data sets with unknown size in openbis database have not been fixed yet. Do not disable the maintenance task yet.",
+                logRecorder.getLogContent());
     }
 
 }

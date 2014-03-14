@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -91,9 +92,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask()
     {
         service = ServiceProvider.getOpenBISService();
-        dao = createDAO();
+        dao = QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
         timeProvider = SystemTimeProvider.SYSTEM_TIME_PROVIDER;
-        configProvider = createConfigProvider();
+        configProvider = ServiceProvider.getConfigProvider();
     }
 
     public FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask(IEncapsulatedOpenBISService service, IPathsInfoDAO dao,
@@ -129,86 +130,91 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
 
         StringBuilder logBuilder = new StringBuilder();
 
-        logBuilder.append(pluginName + " initialized with\n");
-        logBuilder.append(CHUNK_SIZE_PROPERTY + ": " + chunkSize + "\n");
-        logBuilder.append(TIME_LIMIT_PROPERTY + ": " + DateTimeUtils.renderDuration(timeLimit) + "\n");
-        logBuilder.append(LAST_SEEN_DATA_SET_FILE_PROPERTY + ": " + lastSeenDataSetFile.getAbsolutePath() + "\n");
-        logBuilder.append(DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + ": " + DateTimeUtils.renderDuration(dropLastSeenDataSetFileInterval));
+        logBuilder.append("Maintenance task '" + pluginName + "' was initialized with the following property values:\n");
+        logBuilder.append("\t" + CHUNK_SIZE_PROPERTY + ": " + chunkSize + "\n");
+        logBuilder.append("\t" + TIME_LIMIT_PROPERTY + ": " + DateTimeUtils.renderDuration(timeLimit) + "\n");
+        logBuilder.append("\t" + LAST_SEEN_DATA_SET_FILE_PROPERTY + ": " + lastSeenDataSetFile.getAbsolutePath() + "\n");
+        logBuilder.append("\t" + DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + ": "
+                + DateTimeUtils.renderDuration(dropLastSeenDataSetFileInterval));
 
         operationLog.info(logBuilder.toString());
     }
 
-    @SuppressWarnings("null")
     @Override
     public void execute()
     {
         operationLog.info("Start filling.");
 
         List<SimpleDataSetInformationDTO> dataSets = null;
+        boolean fixedAllDataSets = true;
 
         long startTime = timeProvider.getTimeInMilliseconds();
-        boolean foundDataSets = false;
         boolean reachedTimeLimit = false;
         int chunkIndex = 1;
 
         prepareLastSeenDataSetFile();
 
+        LastSeenDataSetFileContent initialLastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenDataSetFile);
+
         do
         {
-            LastSeenDataSetFileContent lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenDataSetFile);
+            LastSeenDataSetFileContent currentLastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenDataSetFile);
 
-            dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize, lastSeenContent.getLastSeenDataSetCode());
-            foundDataSets = dataSets != null && false == dataSets.isEmpty();
+            dataSets = findDataSetsWithUnknownSizeInOpenbisDB(currentLastSeenContent.getLastSeenDataSetCode());
 
-            operationLog.info("Last seen data set code: " + lastSeenContent.getLastSeenDataSetCode() + " (chunk: " + chunkIndex + ").");
+            logWithChunkInfo("Found " + dataSets.size() + " dataset(s) with unknown size in openbis database", chunkIndex,
+                    currentLastSeenContent.getLastSeenDataSetCode());
 
-            if (foundDataSets)
+            if (false == dataSets.isEmpty())
             {
-                operationLog.info("Found " + dataSets.size() + " dataset(s) with unknown size in openbis database (chunk: " + chunkIndex + ").");
-
                 Set<String> codes = new HashSet<String>();
+                Set<String> fixedCodes = new HashSet<String>();
 
                 for (SimpleDataSetInformationDTO dataSet : dataSets)
                 {
                     codes.add(dataSet.getDataSetCode());
                 }
 
-                List<PathEntryDTO> pathInfoEntries = dao.listDataSetsSize(codes.toArray(new String[codes.size()]));
+                Map<String, Long> sizeMap = findDataSetsSizeInPathInfoDB(codes);
 
-                if (pathInfoEntries != null && false == pathInfoEntries.isEmpty())
+                logWithChunkInfo("Found " + sizeMap.size() + " size(s) in pathinfo database", chunkIndex,
+                        currentLastSeenContent.getLastSeenDataSetCode());
+
+                if (false == sizeMap.isEmpty())
                 {
-                    Map<String, Long> sizeMap = new HashMap<String, Long>();
-
-                    for (PathEntryDTO pathInfoEntry : pathInfoEntries)
-                    {
-                        if (pathInfoEntry.getSizeInBytes() != null)
-                        {
-                            sizeMap.put(pathInfoEntry.getDataSetCode(), pathInfoEntry.getSizeInBytes());
-                        }
-                    }
-
-                    operationLog.info("Found sizes for " + sizeMap.size() + " dataset(s) in pathinfo database (chunk: " + chunkIndex + ").");
-
-                    if (false == sizeMap.isEmpty())
-                    {
-                        service.updatePhysicalDataSetsSize(sizeMap);
-                    }
+                    service.updatePhysicalDataSetsSize(sizeMap);
+                    fixedCodes.addAll(sizeMap.keySet());
                 }
 
+                fixedAllDataSets = fixedAllDataSets && codes.equals(fixedCodes);
+
                 LastSeenDataSetFileContent newLastSeenContent = new LastSeenDataSetFileContent();
-                newLastSeenContent.setFileCreationTime(lastSeenContent.getFileCreationTime());
+                newLastSeenContent.setFileCreationTime(currentLastSeenContent.getFileCreationTime());
                 newLastSeenContent.setLastSeenDataSetCode(Collections.max(codes));
                 newLastSeenContent.writeToFile(lastSeenDataSetFile);
-
-            } else
-            {
-                operationLog.info("Did not find any datasets with unknown size in openbis database (chunk: " + chunkIndex + ").");
             }
 
             reachedTimeLimit = timeProvider.getTimeInMilliseconds() > startTime + timeLimit;
+
+            if (reachedTimeLimit)
+            {
+                logWithChunkInfo("Reached time limit of " + DateTimeUtils.renderDuration(timeLimit) + ".", chunkIndex,
+                        currentLastSeenContent.getLastSeenDataSetCode());
+            }
+
             chunkIndex++;
 
-        } while (foundDataSets && false == reachedTimeLimit);
+        } while (false == dataSets.isEmpty() && false == reachedTimeLimit);
+
+        if (initialLastSeenContent.getLastSeenDataSetCode() == null && fixedAllDataSets && false == reachedTimeLimit)
+        {
+            operationLog
+                    .info("All data sets with unknown size in openbis database have been fixed. The maintenance task can be now disabled.");
+        } else
+        {
+            operationLog
+                    .info("Some data sets with unknown size in openbis database have not been fixed yet. Do not disable the maintenance task yet.");
+        }
 
         operationLog.info("Filling finished.");
     }
@@ -240,14 +246,41 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
         }
     }
 
-    private static IPathsInfoDAO createDAO()
+    private List<SimpleDataSetInformationDTO> findDataSetsWithUnknownSizeInOpenbisDB(String lastSeenDataSetCode)
     {
-        return QueryTool.getQuery(PathInfoDataSourceProvider.getDataSource(), IPathsInfoDAO.class);
+        List<SimpleDataSetInformationDTO> dataSets = service.listPhysicalDataSetsWithUnknownSize(chunkSize, lastSeenDataSetCode);
+
+        if (dataSets == null)
+        {
+            return Collections.emptyList();
+        } else
+        {
+            return dataSets;
+        }
     }
 
-    private IConfigProvider createConfigProvider()
+    private Map<String, Long> findDataSetsSizeInPathInfoDB(Collection<String> dataSetCodes)
     {
-        return ServiceProvider.getConfigProvider();
+        List<PathEntryDTO> entries = dao.listDataSetsSize(dataSetCodes.toArray(new String[dataSetCodes.size()]));
+        Map<String, Long> map = new HashMap<String, Long>();
+
+        if (entries != null && false == entries.isEmpty())
+        {
+            for (PathEntryDTO pathInfoEntry : entries)
+            {
+                if (pathInfoEntry.getSizeInBytes() != null)
+                {
+                    map.put(pathInfoEntry.getDataSetCode(), pathInfoEntry.getSizeInBytes());
+                }
+            }
+        }
+
+        return map;
+    }
+
+    private void logWithChunkInfo(String msg, int chunkIndex, String lastSeenDataSetCode)
+    {
+        operationLog.info(msg + " (chunkIndex: " + chunkIndex + ", lastSeenDataSetCode: " + lastSeenDataSetCode + ").");
     }
 
     public static class LastSeenDataSetFileContent
@@ -359,7 +392,6 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
                 throw new IllegalArgumentException("Could not write the last seen data set file", e);
             }
         }
-
     }
 
 }
