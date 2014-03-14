@@ -237,8 +237,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
             lastSeenDataSetFile.delete();
 
             operationLog.info("Deleted last seen data set file because its age was unknown or its age was greater than "
-                    + DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY
-                    + " interval value.");
+                    + DateTimeUtils.renderDuration(dropLastSeenDataSetFileInterval) +
+                    " ('" + DROP_LAST_SEEN_DATA_SET_FILE_INTERVAL_PROPERTY + "' property value).");
 
             content = new LastSeenDataSetFileContent();
             content.setFileCreationTime(timeProvider.getTimeInMilliseconds());
