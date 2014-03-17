@@ -230,6 +230,34 @@ h1, h2, legend {
 	margin: 10px;
 }
 
+/* Sorting */
+
+.interactive th:hover {
+    cursor: pointer;
+    background-color: #F5F5F5;
+}
+
+.current-sort {
+	margin-right: 20px;
+	background-color: lightblue;
+	background-size:14px 14px;
+	background-repeat:no-repeat;
+	background-position: right center;
+	border-right: 5px solid lightblue;
+}
+
+.interactive th.current-sort:hover {
+	background-color: lightblue;
+}
+
+.current-sort[sort-order = DS] {
+	background-image: url("../img/chevron-down-icon.png");
+}
+
+.current-sort[sort-order = AS] {
+	background-image: url("../img/chevron-up-icon.png");
+}
+
 /*
  * Sample Table - Inspector Previews
  */

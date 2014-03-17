@@ -205,7 +205,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
-		tableTemplate += "<tr class=\"sample-table-header\"><th sort-attribute='code'>Code</th>";
+		tableTemplate += "<tr class=\"sample-table-header interactive\"><th sort-attribute='code'>Code</th>";
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
 			tableTemplate += "<th sort-property='" + sampleTypeProperties[i] + "'>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
@@ -253,6 +253,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		}
 		
 		var sortingFunction = function(event) {
+			$(".sample-table-header th").removeClass("current-sort")
+			
 			var $th = $(this);
 			var sortProperty = $th.attr("sort-property");
 			var sortAttribute = $th.attr("sort-attribute");
@@ -272,6 +274,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			if(sortAttribute) {
 				sortByAttribute(sortAttribute,sortOrder === "AS");
 			}
+			
+			$th.addClass("current-sort");
 		}
 		
 		var $headers = $(".sample-table-header th").click(sortingFunction);
