@@ -44,12 +44,13 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this.inspector = inspector;
 	this.samplesWithRelationsCache = {};
 	
-	//Pagination related attributes
+	//
+	// Pagination related
+	//
 	this._filteredSamples = null;
 	this._samplesToPaint = null;
 	this._total = null;
 	this._start = null;
-	
 	if(isEmbedded) {
 		this._limit = 5;
 	} else {
@@ -57,144 +58,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	}
 	this._adjacentPages = 2;
 	
-	this.init = function() {
-		Util.blockUI();
-		var localReference = this;
-		this.serverFacade.searchWithType(this.sampleTypeCode, null, function(data) {
-			localReference.reloadWithSamples(data);
-			Util.unblockUI();
-		});
-	}
-	
-	this.createNewSample = function() {
-		mainController.changeView("showCreateSamplePage", this.sampleTypeCode); //TO-DO : Fix global access
-	}
-	
-	this.registerSamples = function() {
-		var localReference = this;
-		$("#fileToRegister").unbind('change');
-		$("#fileToRegister").change(function() {
-			Util.blockUI();
-			localReference.serverFacade.fileUpload("fileToRegister", function(result) {
-				//Code After the upload
-				localReference.serverFacade.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
-					function(infoData) {
-						var finalCallback = function(data) {
-							if(data.error) {
-								Util.showError(data.error.message, function() {Util.unblockUI();});
-							} else if(data.result) {
-								var extraMessage = "<br> It can take a couple of minutes to have them available.";
-								Util.showSuccess(data.result + extraMessage, function() {Util.unblockUI();});
-							} else {
-								Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
-							}
-						};
-						
-						if(infoData.result.identifiersPressent) {
-							localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
-						} else {
-							localReference.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
-								var spaces = [];
-								for(var i = 0; i < data.result.length; i++) {
-									spaces.push(data.result[i].code);
-								}
-								
-								var component = "<select id='sampleSpaceSelector' required>";
-								component += "<option disabled=\"disabled\" selected></option>";
-								for(var i = 0; i < spaces.length; i++) {
-									component += "<option value='"+spaces[i]+"'>"+spaces[i]+"</option>";
-								}
-								component += "</select>";
-								
-								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn' id='spaceSelectionCancel'>Cancel</a>");
-								
-								$("#sampleSpaceSelector").on("change", function(event) {
-									var space = $("#sampleSpaceSelector")[0].value;
-									Util.blockUI();
-									localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
-								});
-								
-								$("#spaceSelectionCancel").on("click", function(event) { 
-									Util.unblockUI();
-								});
-								
-							});
-						}
-					}
-				);
-			});
-		});
-		$("#fileToRegister").click();
-	}
-	
-	this.updateSamples = function() {
-		var localReference = this;
-		$("#fileToUpdate").unbind('change');
-		$("#fileToUpdate").change(function() {
-			Util.blockUI();
-			var finalCallback = function(data) {
-				if(data.error) {
-					Util.showError(data.error.message, function() {Util.unblockUI();});
-				} else if(data.result) {
-					Util.showSuccess(data.result, function() {Util.unblockUI();});
-				} else {
-					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
-				}
-			};
-			
-			localReference.serverFacade.fileUpload("fileToUpdate", function(result) {
-				//Code After the upload
-				localReference.serverFacade.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
-			});
-		});
-		$("#fileToUpdate").click();
-	}
-	
-	this.previewNoteForSample = function(sample, attachTo) {
-		var localInstance = this;
-		
-		document.getElementById(attachTo).onmouseover = function(event){
-			var content = localInstance.inspector.getInspectorTable(sample, false, true, false);
-			
-			$("#navbar").tooltip({
-				html: true,
-				placement: 'bottom',
-				title: content,
-				trigger: 'hover',
-				animation: false
-			});
-		
-			$("#navbar").tooltip('toggle');
-		};
-		
-		document.getElementById(attachTo).onmouseout = function() {
-			$("#navbar").tooltip('destroy');
-		}
-		
-		document.getElementById(attachTo).onclick = function() {
-			var isInspected = localInstance.inspector.toggleInspectSample(sample);
-			if(isInspected) {
-				$('#' + attachTo).addClass('inspectorClicked');
-			} else {
-				$('#' + attachTo).removeClass('inspectorClicked');
-			}
-		}
-	}
-	
-	this.previewNote = function(samplePermId, attachTo) {
-		var sample = this.samplesWithRelationsCache[samplePermId];
-		
-		if(!sample) {
-			var localInstance = this;
-			this.serverFacade.searchWithUniqueId(samplePermId, function(data) {
-				localInstance.samplesWithRelationsCache[samplePermId] = data[0];
-				localInstance.previewNoteForSample(data[0], attachTo);
-			});
-		} else {
-			this.previewNoteForSample(sample, attachTo);
-		}
-	}
-		
 	this._getPaginationComponent = function(total, start, limit, adjacentPages) {
 		//Check if there is elements
 		if(total === 0) {
@@ -275,6 +138,18 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		return $component;
 	}
 	
+	//
+	// Table Initialization
+	//
+	this.init = function() {
+		Util.blockUI();
+		var localReference = this;
+		this.serverFacade.searchWithType(this.sampleTypeCode, null, function(data) {
+			localReference.reloadWithSamples(data);
+			Util.unblockUI();
+		});
+	}
+	
 	this.isfirstPaint = true;
 	this.repaint = function() {
 		if(!this.isfirstPaint) {
@@ -330,9 +205,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
-		tableTemplate += "<tr class=\"sample-table-header\"><th>Code</th>";
+		tableTemplate += "<tr class=\"sample-table-header\"><th sort-attribute='code'>Code</th>";
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
-			tableTemplate += "<th>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
+			tableTemplate += "<th sort-property='" + sampleTypeProperties[i] + "'>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 		$("#tableContainer").append(tableTemplate);
@@ -347,6 +222,60 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#tableContainer").append("<div id='paginationContainerBottom' class='paginationBottom'></div>");
 		
 		this.repaintTable();
+		
+		// Sorting events
+		var sortByProperty = function(propertyCode, isAscendent) {
+			
+			var customSort = function(sampleA, sampleB){
+				var aField = sampleA.properties[propertyCode];
+				var bField = sampleB.properties[propertyCode];
+				var order = (isAscendent)?1:-1;
+				return order * naturalSort(aField, bField);
+			}
+			
+			localReference.samples = localReference.samples.sort(customSort);
+			localReference._filter(); //The filter moves the samples from this.samples to this._filteredSamples
+			//The _filter() calls localReference._reloadWithSamplesAndPagination(0);
+		}
+		
+		var sortByAttribute = function(attributeCode, isAscendent) {
+			
+			var customSort = function(sampleA, sampleB){
+				var aField = sampleA[attributeCode];
+				var bField = sampleB[attributeCode];
+				var order = (isAscendent)?1:-1;
+				return order * naturalSort(aField, bField);
+			}
+			
+			localReference.samples = localReference.samples.sort(customSort);
+			localReference._filter(); //The filter moves the samples from this.samples to this._filteredSamples
+			//The _filter() calls localReference._reloadWithSamplesAndPagination(0);
+		}
+		
+		var sortingFunction = function(event) {
+			var $th = $(this);
+			var sortProperty = $th.attr("sort-property");
+			var sortAttribute = $th.attr("sort-attribute");
+			
+			var sortOrder = $th.attr("sort-order");
+			if(!sortOrder || sortOrder ==="DS") {
+				sortOrder = "AS";
+			} else if(sortOrder === "AS") {
+				sortOrder = "DS"
+			}
+			$th.attr("sort-order", sortOrder);
+			
+			if(sortProperty) {
+				sortByProperty(sortProperty,sortOrder === "AS");
+			}
+			
+			if(sortAttribute) {
+				sortByAttribute(sortAttribute,sortOrder === "AS");
+			}
+		}
+		
+		var $headers = $(".sample-table-header th").click(sortingFunction);
+		
 	}
 	
 	this.repaintTable = function() {
@@ -523,6 +452,141 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 	}
 	
+	//
+	// Create/Import and other table features
+	//
+	this.createNewSample = function() {
+		mainController.changeView("showCreateSamplePage", this.sampleTypeCode); //TO-DO : Fix global access
+	}
+	
+	this.registerSamples = function() {
+		var localReference = this;
+		$("#fileToRegister").unbind('change');
+		$("#fileToRegister").change(function() {
+			Util.blockUI();
+			localReference.serverFacade.fileUpload("fileToRegister", function(result) {
+				//Code After the upload
+				localReference.serverFacade.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
+					function(infoData) {
+						var finalCallback = function(data) {
+							if(data.error) {
+								Util.showError(data.error.message, function() {Util.unblockUI();});
+							} else if(data.result) {
+								var extraMessage = "<br> It can take a couple of minutes to have them available.";
+								Util.showSuccess(data.result + extraMessage, function() {Util.unblockUI();});
+							} else {
+								Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
+							}
+						};
+						
+						if(infoData.result.identifiersPressent) {
+							localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
+						} else {
+							localReference.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+								var spaces = [];
+								for(var i = 0; i < data.result.length; i++) {
+									spaces.push(data.result[i].code);
+								}
+								
+								var component = "<select id='sampleSpaceSelector' required>";
+								component += "<option disabled=\"disabled\" selected></option>";
+								for(var i = 0; i < spaces.length; i++) {
+									component += "<option value='"+spaces[i]+"'>"+spaces[i]+"</option>";
+								}
+								component += "</select>";
+								
+								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn' id='spaceSelectionCancel'>Cancel</a>");
+								
+								$("#sampleSpaceSelector").on("change", function(event) {
+									var space = $("#sampleSpaceSelector")[0].value;
+									Util.blockUI();
+									localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
+								});
+								
+								$("#spaceSelectionCancel").on("click", function(event) { 
+									Util.unblockUI();
+								});
+								
+							});
+						}
+					}
+				);
+			});
+		});
+		$("#fileToRegister").click();
+	}
+	
+	this.updateSamples = function() {
+		var localReference = this;
+		$("#fileToUpdate").unbind('change');
+		$("#fileToUpdate").change(function() {
+			Util.blockUI();
+			var finalCallback = function(data) {
+				if(data.error) {
+					Util.showError(data.error.message, function() {Util.unblockUI();});
+				} else if(data.result) {
+					Util.showSuccess(data.result, function() {Util.unblockUI();});
+				} else {
+					Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
+				}
+			};
+			
+			localReference.serverFacade.fileUpload("fileToUpdate", function(result) {
+				//Code After the upload
+				localReference.serverFacade.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
+			});
+		});
+		$("#fileToUpdate").click();
+	}
+	
+	this.previewNoteForSample = function(sample, attachTo) {
+		var localInstance = this;
+		
+		document.getElementById(attachTo).onmouseover = function(event){
+			var content = localInstance.inspector.getInspectorTable(sample, false, true, false);
+			
+			$("#navbar").tooltip({
+				html: true,
+				placement: 'bottom',
+				title: content,
+				trigger: 'hover',
+				animation: false
+			});
+		
+			$("#navbar").tooltip('toggle');
+		};
+		
+		document.getElementById(attachTo).onmouseout = function() {
+			$("#navbar").tooltip('destroy');
+		}
+		
+		document.getElementById(attachTo).onclick = function() {
+			var isInspected = localInstance.inspector.toggleInspectSample(sample);
+			if(isInspected) {
+				$('#' + attachTo).addClass('inspectorClicked');
+			} else {
+				$('#' + attachTo).removeClass('inspectorClicked');
+			}
+		}
+	}
+	
+	this.previewNote = function(samplePermId, attachTo) {
+		var sample = this.samplesWithRelationsCache[samplePermId];
+		
+		if(!sample) {
+			var localInstance = this;
+			this.serverFacade.searchWithUniqueId(samplePermId, function(data) {
+				localInstance.samplesWithRelationsCache[samplePermId] = data[0];
+				localInstance.previewNoteForSample(data[0], attachTo);
+			});
+		} else {
+			this.previewNoteForSample(sample, attachTo);
+		}
+	}
+	
+	//
+	// Filter related
+	//
 	this._filter = function(filterResults) {
 		//Obtain filter tokens
 		var filterValue = $('#table-filter').val();
