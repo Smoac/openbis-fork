@@ -74,9 +74,13 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
     private SimpleDataSetInformationDTO dataSet3;
 
+    private SimpleDataSetInformationDTO dataSet4;
+
     private PathEntryDTO entry1;
 
     private PathEntryDTO entry2;
+
+    private PathEntryDTO entry4;
 
     private BufferedAppender logRecorder;
 
@@ -98,6 +102,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         dataSet2.setDataSetCode("DS_2");
         dataSet3 = new SimpleDataSetInformationDTO();
         dataSet3.setDataSetCode("DS_3");
+        dataSet4 = new SimpleDataSetInformationDTO();
+        dataSet4.setDataSetCode("DS_4");
 
         entry1 = new PathEntryDTO();
         entry1.setDataSetCode("DS_1");
@@ -105,6 +111,10 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
 
         entry2 = new PathEntryDTO();
         entry2.setDataSetCode("DS_2");
+
+        entry4 = new PathEntryDTO();
+        entry4.setDataSetCode("DS_4");
+        entry4.setSizeInBytes(234L);
 
         File storeRoot = getStoreRoot();
 
@@ -479,7 +489,7 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     }
 
     @Test
-    public void testExecuteWhenAllDataSetsGetFixed()
+    public void testExecuteWhenAllDataSetsGetFixedInOneChunk()
     {
         context.checking(new Expectations()
             {
@@ -506,6 +516,89 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
         execute(null, null, null, null);
 
         assertLogThatAllDataSetsHaveBeenFixed();
+    }
+
+    @Test
+    public void testExecuteWhenAllDataSetsGetFixedInMultipleChunks()
+    {
+        final int chunkSize = 1;
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, null);
+                    will(returnValue(Arrays.asList(dataSet1)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
+                    will(returnValue(Arrays.asList(entry1)));
+
+                    Map<String, Long> sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, dataSet1.getDataSetCode());
+                    will(returnValue(Arrays.asList(dataSet4)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet4.getDataSetCode() });
+                    will(returnValue(Arrays.asList(entry4)));
+
+                    sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet4.getDataSetCode(), entry4.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, dataSet4.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute(null, chunkSize, null, null);
+
+        assertLogThatAllDataSetsHaveBeenFixed();
+    }
+
+    @Test
+    public void testExecuteWhenAllDataSetsGetFixedStartingFromTheLastSeen()
+    {
+        TestResources resources = new TestResources(getClass());
+
+        final long lastSeenCreationTime = System.currentTimeMillis();
+        final File lastSeenFile = resources.getResourceFile("correctLastSeenFile");
+
+        LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
+        lastSeenContent.setFileCreationTime(lastSeenCreationTime);
+        lastSeenContent.setLastSeenDataSetCode(dataSet1.getDataSetCode());
+        lastSeenContent.writeToFile(lastSeenFile);
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet1.getDataSetCode());
+                    will(returnValue(Arrays.asList(dataSet4)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet4.getDataSetCode() });
+                    will(returnValue(Arrays.asList(entry4)));
+
+                    Map<String, Long> sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet4.getDataSetCode(), entry4.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(CHUNK_SIZE_DEFAULT, dataSet4.getDataSetCode());
+                    will(returnValue(Collections.emptyList()));
+                }
+            });
+
+        execute(null, null, lastSeenFile, null);
+
+        assertLogThatSomeDataSetsHaveNotBeenFixedYet();
     }
 
     private void execute(Long timeLimit, Integer chunkSize, File lastSeenFile, Long deleteLastSeenFileInterval)
