@@ -102,7 +102,7 @@ public class LoginPanelAutofill extends VerticalPanel
         
         final Image cisdLogo = ImageUtils.getCIFEXSymbolImage();
         cisdLogo.setTitle(MainPage.CISD_LOGO_TITLE);
-        cisdLogo.setPixelSize((int)(165*1.7), (int)(113*1.7));
+        cisdLogo.setPixelSize((int)(165*1.7), (int)(110*1.7));
         Anchor logo =  new Anchor(cisdLogo.getElement().getString(), true, "http://www.cisd.ethz.ch/", "_blank");
         
         formPanel = FormPanel.wrap(formElement, true);
