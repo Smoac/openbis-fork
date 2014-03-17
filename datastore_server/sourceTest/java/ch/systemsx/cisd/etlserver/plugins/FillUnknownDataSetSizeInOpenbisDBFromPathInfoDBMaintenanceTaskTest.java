@@ -305,6 +305,54 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     }
 
     @Test
+    public void testExecuteWithSomeChunkFailing()
+    {
+        final File lastSeenFile = new File(getStoreRoot(), "lastSeenWithSomeChunkFailing");
+        final int chunkSize = 1;
+
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(timeProvider).getTimeInMilliseconds();
+                    will(returnValue(0L));
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, null);
+                    will(returnValue(Arrays.asList(dataSet1)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet1.getDataSetCode() });
+                    will(returnValue(Arrays.asList(entry1)));
+
+                    Map<String, Long> sizeMap = new HashedMap<String, Long>();
+                    sizeMap.put(dataSet1.getDataSetCode(), entry1.getSizeInBytes());
+
+                    one(service).updatePhysicalDataSetsSize(sizeMap);
+
+                    one(service).listPhysicalDataSetsWithUnknownSize(chunkSize, dataSet1.getDataSetCode());
+                    will(returnValue(Arrays.asList(dataSet4)));
+
+                    one(dao).listDataSetsSize(new String[] { dataSet4.getDataSetCode() });
+                    will(throwException(new RuntimeException("Test exception")));
+                }
+            });
+
+        LastSeenDataSetFileContent lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
+        Assert.assertNull(lastSeenContent);
+
+        try
+        {
+            execute(null, chunkSize, lastSeenFile, null);
+            Assert.fail();
+        } catch (Exception e)
+        {
+            Assert.assertEquals(e.getClass(), RuntimeException.class);
+            Assert.assertEquals(e.getMessage(), "Test exception");
+        }
+
+        lastSeenContent = LastSeenDataSetFileContent.readFromFile(lastSeenFile);
+        Assert.assertEquals(lastSeenContent.getLastSeenDataSetCode(), dataSet1.getDataSetCode());
+    }
+
+    @Test
     public void testExecuteWithTimeLimit()
     {
         final long timeLimit = 10L;
@@ -388,11 +436,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     @Test
     public void testExecuteWithUpToDateLastSeenDataSetFile()
     {
-        TestResources resources = new TestResources(getClass());
-
         final long lastSeenCreationTime = System.currentTimeMillis();
         final long deleteLastSeenFileInterval = 100L;
-        final File lastSeenFile = resources.getResourceFile("upToDateLastSeenFile");
+        final File lastSeenFile = new File(getStoreRoot(), "upToDateLastSeenFile");
 
         LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
         lastSeenContent.setFileCreationTime(lastSeenCreationTime);
@@ -428,11 +474,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     @Test
     public void testExecuteWithOutOfDateLastSeenDataSetFile()
     {
-        TestResources resources = new TestResources(getClass());
-
         final long lastSeenCreationTime = System.currentTimeMillis();
         final long deleteLastSeenFileInterval = 100L;
-        final File lastSeenFile = resources.getResourceFile("outOfDateLastSeenFile");
+        final File lastSeenFile = new File(getStoreRoot(), "outOfDateLastSeenFile");
 
         LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
         lastSeenContent.setFileCreationTime(lastSeenCreationTime);
@@ -564,10 +608,8 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTaskTest
     @Test
     public void testExecuteWhenAllDataSetsGetFixedStartingFromTheLastSeen()
     {
-        TestResources resources = new TestResources(getClass());
-
         final long lastSeenCreationTime = System.currentTimeMillis();
-        final File lastSeenFile = resources.getResourceFile("correctLastSeenFile");
+        final File lastSeenFile = new File(getStoreRoot(), "correctLastSeenFile");
 
         LastSeenDataSetFileContent lastSeenContent = new LastSeenDataSetFileContent();
         lastSeenContent.setFileCreationTime(lastSeenCreationTime);

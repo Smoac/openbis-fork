@@ -177,7 +177,6 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
             if (false == dataSets.isEmpty())
             {
                 Set<String> codes = new HashSet<String>();
-                Set<String> fixedCodes = new HashSet<String>();
 
                 for (SimpleDataSetInformationDTO dataSet : dataSets)
                 {
@@ -192,10 +191,9 @@ public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask impl
                 if (false == sizeMap.isEmpty())
                 {
                     service.updatePhysicalDataSetsSize(sizeMap);
-                    fixedCodes.addAll(sizeMap.keySet());
                 }
 
-                fixedAllDataSets = fixedAllDataSets && codes.equals(fixedCodes);
+                fixedAllDataSets = fixedAllDataSets && codes.equals(sizeMap.keySet());
 
                 LastSeenDataSetFileContent newLastSeenContent = new LastSeenDataSetFileContent();
                 newLastSeenContent.setFileCreationTime(currentLastSeenContent.getFileCreationTime());
