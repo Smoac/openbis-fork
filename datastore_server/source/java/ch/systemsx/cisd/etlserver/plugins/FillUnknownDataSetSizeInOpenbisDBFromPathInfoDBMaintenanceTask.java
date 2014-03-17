@@ -49,6 +49,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PathInfoDataSourceProvi
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
+ * Queries openBIS database to find data sets without a size filled in, then queries the pathinfo DB to see if the size info is available there; if it
+ * is available, it fills in the size from the pathinfo information. If it is not available, it does nothing. Data sets from openBIS database are
+ * fetched in chunks (see data-set-chunk-size property). After each chunk the maintenance tasks checks whether a time limit has been reached (see
+ * time-limit property). If so, it stops processing. A code of the last processed data set is stored in a file (see last-seen-data-set-file property).
+ * The next run of the maintenance task will process data sets with a code greater than the one saved in the "last-seen-data-set-file". This file is
+ * deleted periodically (see delete-last-seen-data-set-file-interval) to handle a situation where codes of new data sets are lexicographically smaller
+ * than the codes of the old datasets. Deleting the file is also needed when pathinfo database entries are added after a data set has been already
+ * processed by the maintenance task.
+ * 
  * @author pkupczyk
  */
 public class FillUnknownDataSetSizeInOpenbisDBFromPathInfoDBMaintenanceTask implements IMaintenanceTask
