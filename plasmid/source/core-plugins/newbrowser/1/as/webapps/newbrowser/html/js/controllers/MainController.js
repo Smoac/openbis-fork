@@ -263,6 +263,9 @@ function MainController(profile) {
 	this._showViewSamplePageFromPermId = function(permId) {
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
+			if(!data[0]) {
+				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+			}
 			//Update menu
 			var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePageFromPermId", data[0].permId, 'View '+data[0].code);
 			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
