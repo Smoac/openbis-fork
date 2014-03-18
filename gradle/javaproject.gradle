@@ -10,10 +10,6 @@ configurations {
 }
 
 configurations {
-	sources
-}
-
-configurations {
 	ecj
 }
 
@@ -206,7 +202,7 @@ artifacts {
 }
 
 artifacts {
-    sources sourcesJar
+	archives sourcesJar
 }
 
 task compileDependencies(type: Copy) {
