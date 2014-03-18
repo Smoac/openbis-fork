@@ -132,11 +132,6 @@ test {
 }
 test.dependsOn checkRestrictions
 
-task sourceJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier "sources"
-}
-
 dependencies {
     ecj "eclipse:ecj:+"
 }
@@ -211,7 +206,7 @@ artifacts {
 }
 
 artifacts {
-    sources sourceJar
+    sources sourcesJar
 }
 
 task compileDependencies(type: Copy) {
