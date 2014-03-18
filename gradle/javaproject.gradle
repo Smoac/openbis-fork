@@ -6,9 +6,15 @@ evaluationDependsOnChildren()
 configurations {
     tests  { 
          extendsFrom testRuntime 
-     },
-     sources,
-     ecj
+     }
+}
+
+configurations {
+	sources
+}
+
+configurations {
+	ecj
 }
 
 configurations.all {
