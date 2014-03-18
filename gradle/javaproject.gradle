@@ -207,7 +207,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 artifacts {
-    tests testJar,
+    tests testJar
+}
+
+artifacts {
     sources sourceJar
 }
 
