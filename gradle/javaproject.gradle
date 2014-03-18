@@ -193,8 +193,18 @@ task testJar(type: Jar, dependsOn: testClasses) {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveName = "${project.archivesBaseName}-sources.jar"
+    classifier = 'sources'
     from sourceSets.main.allSource
+    
+    doLast {
+		tasks.sourceJarForEclipseLaunchConfigs.execute()
+    }
+}
+
+task sourceJarForEclipseLaunchConfigs(type: Copy) {
+	into sourcesJar.destinationDir
+	from sourcesJar.archivePath
+	rename '.*', 'sources.jar'
 }
 
 artifacts {
