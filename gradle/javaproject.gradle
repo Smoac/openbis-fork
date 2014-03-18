@@ -193,7 +193,7 @@ task testJar(type: Jar, dependsOn: testClasses) {
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveName = "${project.archivesBaseName}-sources"
+    archiveName = "${project.archivesBaseName}-sources.jar"
     from sourceSets.main.allSource
 }
 
