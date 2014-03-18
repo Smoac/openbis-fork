@@ -3,6 +3,18 @@ apply plugin: 'project-report'
 
 evaluationDependsOnChildren()
 
+configurations {
+    tests  { 
+         extendsFrom testRuntime 
+     },
+     sources,
+     ecj
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'hours'
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '1.8'
     distributionUrl = "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
@@ -119,10 +131,6 @@ task sourceJar(type: Jar) {
     classifier "sources"
 }
 
-configurations {
-    ecj 
-}
-
 dependencies {
     ecj "eclipse:ecj:+"
 }
@@ -165,10 +173,6 @@ processTestResources {
     fileMode=0666
 }
 
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'hours'
-}
-
 apply plugin: 'eclipse'
 
 eclipse {
@@ -191,14 +195,14 @@ task testJar(type: Jar, dependsOn: testClasses) {
     from sourceSets.test.output
 }
 
-configurations {
-    tests  { 
-         extendsFrom testRuntime 
-     } 
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
 }
 
 artifacts {
-    tests testJar
+    tests testJar,
+    sources sourceJar
 }
 
 task compileDependencies(type: Copy) {
