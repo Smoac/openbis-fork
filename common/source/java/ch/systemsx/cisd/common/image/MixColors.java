@@ -18,10 +18,15 @@ package ch.systemsx.cisd.common.image;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 
 /**
- * A class for calculating a mixed color from a set of pure colors of different relative
- * intensities.
+ * A class for calculating a mixed color from a set of pure colors of different relative intensities.
  * <p>
  * It uses an additive (physiological) color mixture, optionally weighted.
  * 
@@ -33,6 +38,8 @@ public class MixColors
     private static final int MAX_COMPONENT_VALUE = 255;
 
     private static final float MAX_COMPONENT_VALUE_FLOAT = MAX_COMPONENT_VALUE;
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MixColors.class);
 
     private static int getMaxComponent(int r, int g, int b)
     {
@@ -252,10 +259,9 @@ public class MixColors
      * Calculate a new image by mixing the given gray-scale </var>images</var>.
      * 
      * @param images The images to merge.
-     * @param quadratic If <code>true</code>, use a quadratic (weighted) additive color mixture,
-     *            otherwise use a linear (unweighted) additive color mixture.
-     * @param saturationEnhancementFactor If > 0, perform a saturation enhancement step with the
-     *            given factor.
+     * @param quadratic If <code>true</code>, use a quadratic (weighted) additive color mixture, otherwise use a linear (unweighted) additive color
+     *            mixture.
+     * @param saturationEnhancementFactor If > 0, perform a saturation enhancement step with the given factor.
      * @return Returns the mixed image.
      */
     public static BufferedImage mixImages(BufferedImage[] images, Color[] colors,
@@ -320,7 +326,17 @@ public class MixColors
         for (int i = 0; i < numberOfImages; ++i)
         {
             isGrayscale = isGrayscale && images[i].getColorModel().getNumColorComponents() == 1;
-            if (images[i].getColorModel().getComponentSize(0) != 8)
+            ColorModel colorModel = images[i].getColorModel();
+            int componentSize;
+            try
+            {
+                componentSize = colorModel.getComponentSize(0);
+            } catch (NullPointerException e)
+            {
+                operationLog.info("Could not determine the componentSize of an image. Potentially using non 8-bit image in merging");
+                continue;
+            }
+            if (componentSize != 8)
             {
                 throw new IllegalArgumentException("Only 8-bit images can be merged.");
             }

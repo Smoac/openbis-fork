@@ -459,6 +459,8 @@ public abstract class Dict
 
     public static final String VOCABULARY_TERMS_EMPTY = "vocabulary_terms_empty";
 
+    public static final String VOCABULARY_TERM_CODE_EMPTY = "vocabulary_term_code_empty";
+
     public static final String MISSING_VOCABULARY_TERMS = "missing_vocabulary_terms";
 
     public static final String VOCABULARY_SHOW_AVAILABLE_TERMS_IN_CHOOSERS = "vocabulary_show_available_terms_in_choosers";
@@ -841,13 +843,15 @@ public abstract class Dict
 
     public static final String TERMS = "terms";
 
-    public static final String VOCABULARY_TERMS_DESCRIPTION = "descriptions";
+    public static final String TERM_CODE = "term_code";
 
-    public static final String VOCABULARY_TERMS_DESCRIPTION_EMPTY = "vocabulary_terms_description_empty";
+    public static final String VOCABULARY_TERM_DESCRIPTION = "description";
 
-    public static final String VOCABULARY_TERMS_LABEL = "labels";
+    public static final String VOCABULARY_TERM_DESCRIPTION_EMPTY = "vocabulary_term_description_empty";
 
-    public static final String VOCABULARY_TERMS_LABEL_EMPTY = "vocabulary_terms_label_empty";
+    public static final String VOCABULARY_TERM_LABEL = "label";
+
+    public static final String VOCABULARY_TERM_LABEL_EMPTY = "vocabulary_term_label_empty";
 
     public static final String VOCABULARY_TERMS_BROWSER = "VOCABULARY_TERMS_BROWSER";
 
@@ -864,6 +868,8 @@ public abstract class Dict
     public static final String ADD_VOCABULARY_TERMS_BUTTON = "add_vocabulary_terms_button";
 
     public static final String ADD_VOCABULARY_TERMS_TITLE = "add_vocabulary_terms_title";
+
+    public static final String ADD_VOCABULARY_TERM_TITLE = "add_vocabulary_term_title";
 
     public static final String ADD_VOCABULARY_TERMS_OK_BUTTON = "add_vocabulary_terms_ok_button";
 
