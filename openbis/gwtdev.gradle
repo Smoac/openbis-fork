@@ -1,17 +1,35 @@
 
 configurations.create('gwt')
+configurations.gwt {
+    transitive = false
+}
 
 dependencies {
-    gwt 'reveregroup:gwt-image-loader:+','google:gwt-dev:+'
+    gwt 'reveregroup:gwt-image-loader:+',
+    	'google:gwt-dev:+',
+    	'google:gwt-user:+',
+    	'google:gwt-debug-panel:+',
+    	'sencha:gxt:+',
+    	'cisd:cisd-base:+',
+		'fasterxml:jackson-annotations:+',    	
+    	project(':common'),
+    	project(path:':common', configuration: 'archives'),
+    	project(path:':openbis_api'),
+    	project(path:':openbis_api', configuration: 'archives'),
+    	project(path:':openbis-common'),
+    	project(path:':openbis-common', configuration: 'archives'),
+    	project(path:':openbis', configuration: 'archives')
 }
 
 task deleteGWT(type: Delete) {
     delete '.gwt-cache', 'targets/www'
 }
 
-task prepareGWT(type:Copy, dependsOn: deleteGWT) {
+task prepareGWT(type:Copy, dependsOn: [deleteGWT, compileJava]) {
     from 'resource/server'
-    from file('../common/resource/server')
+    from files('../common/resource/server') {
+		exclude 'gwt.xml'
+    }
     from file('../openbis/resource/server/bis-common.xml')
     into 'targets/www/WEB-INF'
     
@@ -19,50 +37,36 @@ task prepareGWT(type:Copy, dependsOn: deleteGWT) {
         into 'lib'
         exclude 'cisd-cifex*'
     }
-    from (file('targets/gradle/classes/main')) {
-        into 'classes'
+    
+    from (sourceSets.main.output.plus
+    	 (project(':common').sourceSets.main.output).plus
+    	 (project(':openbis-common').sourceSets.main.output).plus
+    	 (project(':openbis_api').sourceSets.main.output)) {
+       		into 'classes'
+   	}
+   	
+   	doLast {
+        file("targets/www/WEB-INF/gwt.xml").createNewFile()
     }
 }
 
-def classpathGWT
-if (project.name.equals('openbis')) {
-    classpathGWT = [configurations.gwt,
-        project(':openbis_api').sourceSets.main.java.srcDirs,
-        project(':common').sourceSets.main.java.srcDirs,
-        sourceSets.main.java.srcDirs,
-        sourceSets.main.output.resourcesDir,
-        sourceSets.main.output.classesDir,
-        sourceSets.main.compileClasspath]
-} else
-{
-    classpathGWT = [configurations.gwt,
-        sourceSets.main.output.resourcesDir,
-        sourceSets.main.java.srcDirs,
-        project(':openbis_api').sourceSets.main.java.srcDirs,
-        project(':common').sourceSets.main.java.srcDirs,
-        project(':openbis').sourceSets.main.java.srcDirs,
-        project(':openbis').sourceSets.main.output.resourcesDir,
-        project(':openbis').sourceSets.main.output.classesDir,
-        project(':openbis').sourceSets.main.compileClasspath]
-}
-
-task compileGWT (type: JavaExec) {
+task compileGWTToTemp(type: JavaExec, dependsOn: prepareGWT) {
     inputs.source sourceSets.main.java.srcDirs
     inputs.dir sourceSets.main.output.resourcesDir
-    outputs.dir 'targets/www'
+    outputs.dir 'targets/www/gwt-temp'
 
     main = 'com.google.gwt.dev.Compiler'
     maxHeapSize = '1024m'
-    classpath { classpathGWT }
+    classpath { configurations.getByName('gwt') }
     args = [ '-war',
-             'targets/www',
+             'targets/www/gwt-temp',
              "${project.gwt_module}Safari",
              '-draftCompile',
              '-style', 'PRETTY',
-             '-logLevel', 'ERROR']
+             '-logLevel', 'INFO']
 }
 
-task compileAndCopyGWT (type: Copy, dependsOn: compileGWT) {
-    from "targets/www/${project.gwt_module}"
+task compileGWT(type: Copy, dependsOn: compileGWTToTemp) {
+    from "targets/www/gwt-temp/${project.gwt_module}"
     into "targets/www/${project.gwt_app_path}"
 }
