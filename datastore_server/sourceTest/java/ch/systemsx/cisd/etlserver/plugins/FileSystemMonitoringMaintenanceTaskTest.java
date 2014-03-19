@@ -65,6 +65,19 @@ public class FileSystemMonitoringMaintenanceTaskTest
     }
 
     @Test
+    public void testExecuteWithoutReadyToImportMarkerFile() throws IOException
+    {
+        File experimentDirectory = new File(monitoredDirectory1, "TEST-EXPERIMENT");
+
+        experimentDirectory.mkdirs();
+
+        execute();
+
+        assertDirectoryEmpty(experimentDirectory);
+        assertDirectoryEmpty(dropboxDirectory);
+    }
+
+    @Test
     public void testExecuteWithExistingMarkerFileForCorrectState() throws IOException
     {
         File experimentDirectory = new File(monitoredDirectory1, "TEST-EXPERIMENT");
@@ -133,7 +146,7 @@ public class FileSystemMonitoringMaintenanceTaskTest
     }
 
     @Test
-    public void testExecuteWithMultipleExperiments() throws IOException
+    public void testExecuteWithMultipleMonitoredDirectories() throws IOException
     {
         File experimentDirectory1 = new File(monitoredDirectory1, "TEST-EXPERIMENT-1");
         File experimentDirectory2 = new File(monitoredDirectory2, "TEST-EXPERIMENT-2");
