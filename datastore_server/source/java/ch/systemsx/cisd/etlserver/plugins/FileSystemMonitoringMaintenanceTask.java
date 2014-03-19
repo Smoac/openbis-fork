@@ -38,7 +38,7 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
 
     public static final String READY_TO_IMPORT_MARKER_FILE = "ready-to-import-marker-file";
 
-    public static final String IMPORTED_MARKER_FILE = "imported-marker-file";
+    public static final String IMPORT_STATE_MARKER_FILE_PREFIX = "import-state-marker-file-prefix";
 
     public static final String MONITORED_DIRECTORIES = "monitored-directories";
 
@@ -48,7 +48,7 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
 
     private String readyToImportMarkerFile;
 
-    private String alreadyImportedMarkerFile;
+    private String importStateMarkerFilePrefix;
 
     private Collection<MonitoredDirectory> monitoredDirectories;
 
@@ -56,7 +56,7 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
     public void setUp(String pluginName, Properties properties)
     {
         readyToImportMarkerFile = properties.getProperty(READY_TO_IMPORT_MARKER_FILE);
-        alreadyImportedMarkerFile = properties.getProperty(IMPORTED_MARKER_FILE);
+        importStateMarkerFilePrefix = properties.getProperty(IMPORT_STATE_MARKER_FILE_PREFIX);
         dropboxDirectory = properties.getProperty(DROPBOX_DIRECTORY);
         String directories = properties.getProperty(MONITORED_DIRECTORIES);
 
@@ -65,9 +65,9 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
             readyToImportMarkerFile = ".ready-to-import";
         }
 
-        if (alreadyImportedMarkerFile == null || alreadyImportedMarkerFile.length() == 0)
+        if (importStateMarkerFilePrefix == null || importStateMarkerFilePrefix.length() == 0)
         {
-            alreadyImportedMarkerFile = ".import-complete";
+            importStateMarkerFilePrefix = ".import-";
         }
 
         monitoredDirectories = new HashSet<MonitoredDirectory>();
@@ -78,7 +78,7 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
                 File monitoredDirectory = new File(fileName.trim());
                 try
                 {
-                    monitoredDirectories.add(new MonitoredDirectory(monitoredDirectory, readyToImportMarkerFile, alreadyImportedMarkerFile));
+                    monitoredDirectories.add(new MonitoredDirectory(monitoredDirectory, readyToImportMarkerFile, importStateMarkerFilePrefix));
                 } catch (RuntimeException e)
                 {
                     operationLog.error("Cannot monitor directory " + monitoredDirectory.getAbsolutePath() + ": " + e.getMessage());

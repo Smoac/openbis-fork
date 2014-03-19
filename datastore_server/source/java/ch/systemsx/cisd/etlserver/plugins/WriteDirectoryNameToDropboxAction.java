@@ -21,11 +21,19 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
+
 /**
  * @author anttil
  */
 public class WriteDirectoryNameToDropboxAction implements DirectoryAction
 {
+
+    private static final Logger operationLog =
+            LogFactory.getLogger(LogCategory.OPERATION, WriteDirectoryNameToDropboxAction.class);
 
     private final File dropboxDirectory;
 
@@ -38,14 +46,17 @@ public class WriteDirectoryNameToDropboxAction implements DirectoryAction
     @Override
     public void performOn(File subdir)
     {
+        File file = new File(dropboxDirectory.getAbsolutePath() + "/" + UUID.randomUUID().toString());
         PrintWriter out = null;
+
         try
         {
-            out = new PrintWriter(dropboxDirectory.getAbsolutePath() + "/" + UUID.randomUUID().toString());
+            out = new PrintWriter(file);
             out.print(subdir.getAbsolutePath());
+            operationLog.info("Written a directory path: " + subdir.getAbsolutePath() + " to a file: " + file.getAbsolutePath());
         } catch (FileNotFoundException ex)
         {
-            ex.printStackTrace();
+            operationLog.error("Could not write a directory path: " + subdir.getAbsolutePath() + " to a file: " + file.getAbsolutePath());
         } finally
         {
             if (out != null)
