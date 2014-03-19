@@ -44,6 +44,10 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
 
     public static final String DROPBOX_DIRECTORY = "dropbox-directory";
 
+    public static final String DEFAULT_READY_TO_IMPORT_MARKER_FILE = ".ready-to-import";
+
+    public static final String DEFAULT_IMPORT_STATE_MARKER_FILE_PREFIX = ".import-";
+
     private String dropboxDirectory;
 
     private String readyToImportMarkerFile;
@@ -62,12 +66,12 @@ public class FileSystemMonitoringMaintenanceTask implements IMaintenanceTask
 
         if (readyToImportMarkerFile == null || readyToImportMarkerFile.length() == 0)
         {
-            readyToImportMarkerFile = ".ready-to-import";
+            readyToImportMarkerFile = DEFAULT_READY_TO_IMPORT_MARKER_FILE;
         }
 
         if (importStateMarkerFilePrefix == null || importStateMarkerFilePrefix.length() == 0)
         {
-            importStateMarkerFilePrefix = ".import-";
+            importStateMarkerFilePrefix = DEFAULT_IMPORT_STATE_MARKER_FILE_PREFIX;
         }
 
         monitoredDirectories = new HashSet<MonitoredDirectory>();

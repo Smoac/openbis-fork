@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 
 /**
  * @author pkupczyk
@@ -64,11 +65,18 @@ public class ImportStateMarkerFile
 
     public static final File setMarkerFile(final String prefix, final File dir, final ImportState state, String content)
     {
-        File[] markerFiles = listMarkerFiles(prefix, dir);
+        File[] filesWithMatchingPrefix = dir.listFiles(new FileFilter()
+            {
+                @Override
+                public boolean accept(File file)
+                {
+                    return file.getName().startsWith(prefix);
+                }
+            });
 
-        for (File markerFile : markerFiles)
+        for (File fileWithMatchingPrefix : filesWithMatchingPrefix)
         {
-            markerFile.delete();
+            FileUtilities.delete(fileWithMatchingPrefix);
         }
 
         try
@@ -87,5 +95,4 @@ public class ImportStateMarkerFile
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
     }
-
 }
