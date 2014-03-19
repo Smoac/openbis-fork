@@ -516,6 +516,12 @@ public class DataSetRegistrationTransaction<T extends DataSetInformation> implem
     }
 
     @Override
+    public String copyFile(String src, IDataSet dst, String dstInDataset, boolean hardLink)
+    {
+        return getStateAsLiveState().copyFile(src, dst, dstInDataset, hardLink);
+    }
+
+    @Override
     public String createNewDirectory(IDataSet dst, String dirName)
     {
         return getStateAsLiveState().createNewDirectory(dst, dirName);

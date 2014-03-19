@@ -318,6 +318,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     }
 
     @Override
+    public String copyFile(String src, IDataSet dst, String dstInDataset, boolean hardLink)
+    {
+        return transaction.copyFile(src, dst, dstInDataset, hardLink);
+    }
+
+    @Override
     public String createNewDirectory(IDataSet dst, String dirName)
     {
         return transaction.createNewDirectory(dst, dirName);

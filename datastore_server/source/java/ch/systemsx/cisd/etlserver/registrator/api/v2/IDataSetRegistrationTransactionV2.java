@@ -289,7 +289,7 @@ public interface IDataSetRegistrationTransactionV2
     // or incoming directory if the data set is just one file
 
     /**
-     * Move a file from into the root of a data set.
+     * Move a file/folder from into the root of a data set.
      * 
      * @param src The path of the file to move.
      * @param dst The data set to add the file to.
@@ -298,7 +298,7 @@ public interface IDataSetRegistrationTransactionV2
     String moveFile(String src, IDataSet dst);
 
     /**
-     * Move a file to a specified location in a data set. Any necessary intermediate folders are automatically created.
+     * Move a file/folder to a specified location in a data set. Any necessary intermediate folders are automatically created.
      * 
      * @param src The path of the file to move.
      * @param dst The data set to add the file to.
@@ -306,13 +306,25 @@ public interface IDataSetRegistrationTransactionV2
      * @return The absolute path after the move.
      */
     String moveFile(String src, IDataSet dst, String dstInDataset);
+    
+    /**
+     * Copy a file/folder to a specified location in a data set. Any necessary intermediate folders are automatically created.
+     * 
+     * @param src The path of the file to copy.
+     * @param dst The data set to add the file to.
+     * @param dstInDataset The path of the file in the data set.
+     * @param hardLink If <code>true</code> hard-link copies of files will be made. 
+     *              Otherwise true second copies of the files will be created.
+     * @return The absolute path of the copied file/folder.
+     */
+    String copyFile(String src, IDataSet dst, String dstInDataset, boolean hardLink);
 
     /**
      * Create a new directory and return the path.
      * 
      * @param dst The data set to add the file to.
      * @param dirName The name of the new file to create. (Can be a simple file or directory.)
-     * @return The absolute path of the new file.
+     * @return The absolute path of the new directory.
      */
     String createNewDirectory(IDataSet dst, String dirName);
 
@@ -336,7 +348,7 @@ public interface IDataSetRegistrationTransactionV2
     String createNewFile(IDataSet dst, String dstInDataset, String fileName);
 
     /**
-     * Create a new hard link and return the path.
+     * Create a new symbolic link and return the path.
      * 
      * @param dst The data set to add the file to.
      * @param dstInDataset The path of the file in the data set
