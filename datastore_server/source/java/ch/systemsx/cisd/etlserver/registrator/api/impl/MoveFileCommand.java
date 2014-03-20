@@ -67,12 +67,12 @@ public class MoveFileCommand extends AbstractTransactionalCommand
         moveFile(src, dst);
     }
 
-    private File getDst()
+    protected File getDst()
     {
         return new File(dstParentDirAbsolutePath, dstFileName);
     }
 
-    private File getSrc()
+    protected File getSrc()
     {
         return new File(srcParentDirAbsolutePath, srcFileName);
     }
@@ -127,7 +127,12 @@ public class MoveFileCommand extends AbstractTransactionalCommand
     @Override
     public String toString()
     {
-        return "MoveFileCommand [srcParentDirAbsolutePath=" + srcParentDirAbsolutePath
+        return render("MoveFileCommand");
+    }
+
+    protected String render(String commandName)
+    {
+        return commandName + " [srcParentDirAbsolutePath=" + srcParentDirAbsolutePath
                 + ", srcFileName=" + srcFileName + ", dstParentDirAbsolutePath="
                 + dstParentDirAbsolutePath + ", dstFileName=" + dstFileName + "]";
     }

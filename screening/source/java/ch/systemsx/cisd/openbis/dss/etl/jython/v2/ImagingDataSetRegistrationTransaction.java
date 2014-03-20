@@ -86,9 +86,9 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
     private final IDataSetRegistrationDetailsFactory<DataSetInformation> imageContainerDatasetFactory;
 
-    private final String originalDirName;
-
     private final JythonPlateDatasetFactory factory;
+
+    private final ImagingDataSetRegistrationFileOperations fileOperations;
 
     @SuppressWarnings("unchecked")
     public ImagingDataSetRegistrationTransaction(File rollBackStackParentFolder,
@@ -106,7 +106,20 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         factory = (JythonPlateDatasetFactory) registrationDetailsFactory;
         this.imageDatasetFactory = factory.imageDatasetFactory;
         this.imageContainerDatasetFactory = factory.imageContainerDatasetFactory;
-        this.originalDirName = originalDirName;
+        fileOperations = new ImagingDataSetRegistrationFileOperations(new IDataSetRegistrationFileOperations()
+            {
+                @Override
+                public String moveFile(String source, IDataSet dataSet, String destinationInDataSet)
+                {
+                    return ImagingDataSetRegistrationTransaction.super.moveFile(source, dataSet, destinationInDataSet);
+                }
+                
+                @Override
+                public String copyFile(String source, IDataSet dataSet, String destinationInDataSet, boolean hardLink)
+                {
+                    return ImagingDataSetRegistrationTransaction.super.copyFile(source, dataSet, destinationInDataSet, hardLink);
+                }
+            }, originalDirName);
     }
 
     public JythonPlateDatasetFactory getFactory()
@@ -517,11 +530,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
     }
 
-    private File prependOriginalDirectory(String directoryPath)
-    {
-        return new File(originalDirName + File.separator + directoryPath);
-    }
-
     private void generateThumbnails(ImageDataSetStructure imageDataSetStructure,
             File incomingDirectory, IDataSet thumbnailDataset,
             ThumbnailsStorageFormat thumbnailsStorageFormatOrNull, ThumbnailsInfo thumbnailPaths,
@@ -718,91 +726,22 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
     }
 
-    /**
-     * If we are dealing with the image dataset container then the move operation is delegated to
-     * the original dataset. Otherwise a default implementation is used.
-     */
     @Override
     public String moveFile(String src, IDataSet dst)
     {
-        return moveFile(src, dst, new File(src).getName());
+        return fileOperations.moveFile(src, dst);
     }
 
-    /**
-     * If we are dealing with the image dataset container then the move operation is delegated to
-     * the original dataset. Otherwise a default implementation is used.
-     */
     @Override
     public String moveFile(String src, IDataSet dst, String dstInDataset)
     {
-        ImageContainerDataSet imageContainerDataset = tryAsImageContainerDataset(dst);
-
-        if (imageContainerDataset != null)
-        {
-            String destination = getDestinationInOriginal(dstInDataset);
-            DataSet<ImageDataSetInformation> originalDataset =
-                    imageContainerDataset.getOriginalDataset();
-            if (originalDataset == null)
-            {
-                throw new UserFailureException(
-                        "Cannot move the files because the original dataset is missing: " + src);
-            }
-
-            ImageDataSetInformation dataSetInformation =
-                    originalDataset.getRegistrationDetails().getDataSetInformation();
-
-            if (dataSetInformation.getDatasetRelativeImagesFolderPath() == null)
-            {
-                dataSetInformation.setDatasetRelativeImagesFolderPath(new File(destination));
-            }
-
-            return super.moveFile(src, originalDataset, destination);
-        }
-
-        FeatureVectorContainerDataSet featureContainer = tryAsFeatureVectorContainerDataset(dst);
-        if (featureContainer != null)
-        {
-            IDataSet originalDataSet = featureContainer.getOriginalDataset();
-
-            if (originalDataSet == null)
-            {
-                throw new UserFailureException(
-                        "Cannot move the files because the original dataset is missing: " + src);
-            }
-
-            return super.moveFile(src, originalDataSet, dstInDataset);
-        }
-
-        return super.moveFile(src, dst, dstInDataset);
+        return fileOperations.moveFile(src, dst, dstInDataset);
     }
 
-    private String getDestinationInOriginal(String dstInDataset)
+    @Override
+    public String copyFile(String src, IDataSet dst, String dstInDataset, boolean hardLink)
     {
-        String destination = dstInDataset;
-        if (destination.startsWith(originalDirName) == false)
-        {
-            destination = prependOriginalDirectory(destination).getPath();
-        }
-        return destination;
+        return fileOperations.copyFile(src, dst, dstInDataset, hardLink);
     }
 
-    private static FeatureVectorContainerDataSet tryAsFeatureVectorContainerDataset(IDataSet dataset)
-    {
-        if (dataset instanceof FeatureVectorContainerDataSet)
-        {
-            return (FeatureVectorContainerDataSet) dataset;
-        }
-        return null;
-    }
-
-    private static ImageContainerDataSet tryAsImageContainerDataset(IDataSet dataset)
-    {
-        if (dataset instanceof ImageContainerDataSet)
-        {
-            return (ImageContainerDataSet) dataset;
-        } else
-        {
-            return null;
-        }
-    }
 }

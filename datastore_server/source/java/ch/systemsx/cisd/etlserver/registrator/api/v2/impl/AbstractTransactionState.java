@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -34,9 +35,11 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.etlserver.DynamicTransactionQueryFactory;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.ITransactionalCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.CopyFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MkdirsCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.MoveFileCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.NewFileCommand;
+import ch.systemsx.cisd.etlserver.registrator.api.impl.NewLinkCommand;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.RollbackStack.IRollbackStackDelegate;
 import ch.systemsx.cisd.etlserver.registrator.api.impl.SecondaryTransactionFailure;
@@ -867,9 +870,43 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
         public String moveFile(String src, IDataSet dst, String dstInDataset)
         {
+            File srcFile = getAndCheckSourceFile(src);
+            File dstFile = getDestinationFile(dst, dstInDataset);
+
+            MoveFileCommand cmd =
+                    new MoveFileCommand(srcFile.getParentFile().getAbsolutePath(),
+                            srcFile.getName(), dstFile.getParentFile().getAbsolutePath(), dstFile.getName());
+            executeCommand(cmd);
+            return dstFile.getAbsolutePath();
+        }
+        
+        public String copyFile(String src, IDataSet dst, String dstInDataset, boolean hardLink)
+        {
+            File srcFile = getAndCheckSourceFile(src);
+            File dstFile = getDestinationFile(dst, dstInDataset);
+
+            ITransactionalCommand cmd =
+                    new CopyFileCommand(srcFile.getParentFile().getAbsolutePath(),
+                            srcFile.getName(), dstFile.getParentFile().getAbsolutePath(), dstFile.getName(), hardLink);
+            executeCommand(cmd);
+            return dstFile.getAbsolutePath();
+
+        }
+
+        private File getDestinationFile(IDataSet dst, String dstInDataset)
+        {
             @SuppressWarnings("unchecked")
             DataSet<T> dataSet = (DataSet<T>) dst;
+            File dataSetFolder = dataSet.getDataSetStagingFolder();
+            File dstFile = new File(dataSetFolder, dstInDataset);
 
+            // Make parent directories if necessary
+            mkdirsIfNeeded(dstFile.getParentFile());
+            return dstFile;
+        }
+
+        private File getAndCheckSourceFile(String src)
+        {
             // See if this is an absolute path
             File srcFile = new File(src);
             if (false == srcFile.exists())
@@ -884,21 +921,8 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                                     + "' were found."));
                 }
             }
-
-            File dataSetFolder = dataSet.getDataSetStagingFolder();
-            File dstFile = new File(dataSetFolder, dstInDataset);
-
             FileUtilities.checkInputFile(srcFile);
-
-            // Make parent directories if necessary
-            File dstFolder = dstFile.getParentFile();
-            mkdirsIfNeeded(dstFolder);
-
-            MoveFileCommand cmd =
-                    new MoveFileCommand(srcFile.getParentFile().getAbsolutePath(),
-                            srcFile.getName(), dstFolder.getAbsolutePath(), dstFile.getName());
-            executeCommand(cmd);
-            return dstFile.getAbsolutePath();
+            return srcFile;
         }
 
         /**
@@ -947,6 +971,19 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             NewFileCommand cmd = new NewFileCommand(dstFile.getAbsolutePath());
             executeCommand(cmd);
             return dstFile.getAbsolutePath();
+        }
+
+        public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
+        {
+            @SuppressWarnings("unchecked")
+            DataSet<T> dataSet = (DataSet<T>) dst;
+            File dataSetFolder = dataSet.getDataSetStagingFolder();
+            File dstFolder = new File(dataSetFolder, dstInDataset);
+            File link = new File(dstFolder, linkName);
+
+            NewLinkCommand cmd = new NewLinkCommand(link.getAbsolutePath(), linkTarget);
+            executeCommand(cmd);
+            return link.getAbsolutePath();
         }
 
         public DynamicTransactionQuery getDatabaseQuery(String dataSourceName)

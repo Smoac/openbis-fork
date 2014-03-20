@@ -268,6 +268,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     }
 
     @Override
+    public String copyFile(String src, IDataSet dst, String dstInDataset, boolean hardLink)
+    {
+        return transaction.copyFile(src, dst, dstInDataset, hardLink);
+    }
+
+    @Override
     public String createNewDirectory(IDataSet dst, String dirName)
     {
         return transaction.createNewDirectory(dst, dirName);
@@ -399,6 +405,12 @@ public class DataSetRegistrationTransactionV2Delegate implements IDataSetRegistr
     public List<IAttachmentImmutable> listAttachments(ISampleImmutable sample)
     {
         return transaction.listAttachments(sample);
+    }
+
+    @Override
+    public String createNewLink(IDataSet dst, String dstInDataset, String linkName, String linkTarget)
+    {
+        return transaction.createNewLink(dst, dstInDataset, linkName, linkTarget);
     }
 
 }
