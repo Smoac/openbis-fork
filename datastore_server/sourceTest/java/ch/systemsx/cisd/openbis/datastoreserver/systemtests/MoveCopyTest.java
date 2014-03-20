@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +107,17 @@ public class MoveCopyTest extends SystemTestCase
         }
         if (file.isDirectory())
         {
-            for (File child : file.listFiles())
+            File[] files = file.listFiles();
+            Arrays.sort(files, new Comparator<File>()
+                {
+
+                    @Override
+                    public int compare(File f1, File f2)
+                    {
+                        return f1.getPath().compareTo(f2.getPath());
+                    }
+                });
+            for (File child : files)
             {
                 render(builder, dataSet, child, inodeMap);
             }
