@@ -46,5 +46,6 @@
 	<classpathentry kind="lib" path="/libraries/jmock/hamcrest/hamcrest-integration.jar"/>
 	<classpathentry kind="lib" path="/libraries/eodsql/eodsql.jar" sourcepath="/libraries/eodsql/eodsql_src.zip"/>
 	<classpathentry kind="lib" path="/libraries/fastutil/fastutil.jar" sourcepath="/libraries/fastutil/fastutil-src.zip"/>
+	<classpathentry kind="lib" path="/libraries/commons-compress/commons-compress.jar" sourcepath="/libraries/commons-compress/commons-compress-src.zip"/>
 	<classpathentry kind="output" path="targets/classes"/>
 </classpath>
