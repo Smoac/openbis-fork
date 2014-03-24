@@ -94,4 +94,22 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
     }
+    
+    @Override
+    protected DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
+            final ArchiverTaskContext context, boolean removeFromDataStore)
+    {
+        (new Exception()).printStackTrace();
+        GroupedDatasets groupedDataSets = groupByArchiveDifferencies(datasets, context);
+        DatasetProcessingStatuses statuses = doArchive(groupedDataSets.getDifferentInArchive(), context);
+
+        deletePermanentlyFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
+// It's a demo, don't delete
+//        if (removeFromDataStore)
+//        {
+//            removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
+//        }
+        statuses.addResult(groupedDataSets.getUpToDateInArchive(), Status.OK, Operation.ARCHIVE);
+        return statuses;
+    }
 }

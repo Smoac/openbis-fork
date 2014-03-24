@@ -203,7 +203,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
      * this method does not handle any exceptions coming from the archiver implementation, hence it
      * is 'unsafe'.
      */
-    private DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
+    protected DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)
     {
         GroupedDatasets groupedDataSets = groupByArchiveDifferencies(datasets, context);
@@ -218,7 +218,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return statuses;
     }
 
-    private GroupedDatasets groupByArchiveDifferencies(List<DatasetDescription> datasets,
+    protected GroupedDatasets groupByArchiveDifferencies(List<DatasetDescription> datasets,
             ArchiverTaskContext context)
     {
         List<DatasetDescription> upToDateInArchive = new ArrayList<DatasetDescription>();
@@ -236,7 +236,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return new GroupedDatasets(upToDateInArchive, differentInArchive);
     }
 
-    private List<DatasetDescription> getDataSetsFailedToBeArchived(
+    protected List<DatasetDescription> getDataSetsFailedToBeArchived(
             List<DatasetDescription> datasets, DatasetProcessingStatuses statuses)
     {
         Set<String> dataSetsFailedToArchive = new HashSet<String>(statuses.getFailedDatasetCodes());
@@ -251,7 +251,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return failedDataSets;
     }
 
-    private List<DatasetDescription> getArchivedDataSets(List<DatasetDescription> datasets,
+    protected List<DatasetDescription> getArchivedDataSets(List<DatasetDescription> datasets,
             DatasetProcessingStatuses statuses)
     {
         Set<String> dataSetsFailedToArchive = new HashSet<String>(statuses.getFailedDatasetCodes());
