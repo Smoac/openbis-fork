@@ -1086,6 +1086,7 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 });
 
 
+
 //BODENMILLER LAB PROFILE
 function BodenmillerLabProfile(serverFacade) {
 	this.init(serverFacade);
@@ -1105,6 +1106,16 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 				"DISPLAY_NAME" : "Antibodies",
 				"LIST" : ["PROTEIN", "CLONE", "LOT", "CONJUGATED_CLONE"]
 			},
+			"CHEMICALS" : {
+				"TYPE" : "CHEMICALS",
+				"DISPLAY_NAME" : "Chemicals",
+				"LIST" : ["CHEMICALS"]
+			},
+			"CELL_LINES" : {
+				"TYPE" : "CELL_LINES",
+				"DISPLAY_NAME" : "Cell Lines",
+				"LIST" : ["CELL_LINES"]
+			},			
 			"OTHERS" : {
 				"TYPE" : "OTHERS",
 				"DISPLAY_NAME" : "Others",
@@ -1162,6 +1173,10 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 				return "BODENMILLER_LAB";
 			} else if(type === "LOT") {
 				return "BODENMILLER_LAB";
+			} else if(type === "CHEMICALS") {
+				return "BODENMILLER_LAB";
+			} else if(type === "CELL_LINES") {
+				return "BODENMILLER_LAB";
 			} else {
 				return null;
 			}
@@ -1176,6 +1191,10 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 				return "/BODENMILLER_LAB/ANTIBODIES/ANTIBODIES";
 			} else if(type === "LOT") {
 				return "/BODENMILLER_LAB/ANTIBODIES/ANTIBODIES";
+			} else if(type === "CHEMICALS") {
+				return "/BODENMILLER_LAB/CHEMICALS/CHEMICALS";
+			} else if(type === "CELL_LINES") {
+				return "/BODENMILLER_LAB/CELL_LINES/CELL_LINES";
 			} else {
 				return null;
 			}
@@ -1208,9 +1227,9 @@ $.extend(BioATProfile.prototype, DefaultProfile.prototype, {
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
 		this.typeGroups = {
-			"PLATES" : {
-				"TYPE" : "PLATES",
-				"DISPLAY_NAME" : "Plates",
+			"SCREENING" : {
+				"TYPE" : "SCREENING",
+				"DISPLAY_NAME" : "Screening",
 				"LIST" : ["PLATE"]
 			},
 			"OTHERS" : {
