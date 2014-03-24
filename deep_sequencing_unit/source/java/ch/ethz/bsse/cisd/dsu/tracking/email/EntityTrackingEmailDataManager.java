@@ -41,6 +41,8 @@ class EntityTrackingEmailDataManager
     private final static String CONTACT_PERSON_EMAIL = "CONTACT_PERSON_EMAIL";
 
     private final static String PRINCIPAL_INVESTIGATOR_EMAIL = "PRINCIPAL_INVESTIGATOR_EMAIL";
+    
+    private final static String CONTACT_DATA_MANAGER_EMAIL = "CONTACT_DATA_MANAGER_EMAIL";
 
     private static Map<String, String> recipientsByAffiliation;
 
@@ -137,6 +139,7 @@ class EntityTrackingEmailDataManager
         final Set<String> recipientPropertyTypeCodes = new HashSet<String>();
         recipientPropertyTypeCodes.add(CONTACT_PERSON_EMAIL);
         recipientPropertyTypeCodes.add(PRINCIPAL_INVESTIGATOR_EMAIL);
+        recipientPropertyTypeCodes.add(CONTACT_DATA_MANAGER_EMAIL);
 
         for (Sample sequencingSample : sequencingSamples)
         {
