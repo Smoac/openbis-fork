@@ -67,6 +67,10 @@ public class FileClientMain {
                 
                 try 
                 {
+                    //Check password
+                    if(password.isEmpty()) {
+                        throw new Exception("Password can't be empty.");
+                    }
                 	// Try To Login
                 	CIFEXCommunicationState commState = new CIFEXCommunicationState(args);
                 	// Display Main View
