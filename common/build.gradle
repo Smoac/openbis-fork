@@ -19,7 +19,8 @@ dependencies {
 			'lemnik:eodsql:+',
 			'unimi:fastutil:5.1.5',
 			'cisd:cisd-base:+',
-			'rinn:restrictions:+'
+			'rinn:restrictions:+',
+			'apache:commons-compress:+'
 					
 	testCompile 'fjelmer:classycle:+',
 				'hamcrest:hamcrest-integration:+',
