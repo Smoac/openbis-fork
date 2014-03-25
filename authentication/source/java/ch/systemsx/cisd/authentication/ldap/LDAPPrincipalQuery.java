@@ -193,6 +193,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     public boolean authenticateUser(String userId, String password)
     {
+        if(password != null && password.isEmpty()) {
+            return false;
+        }
         final Principal principal = tryGetAndAuthenticatePrincipal(userId, password);
         return (principal == null) ? false : principal.isAuthenticated();
     }
@@ -214,6 +217,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     public Principal tryGetAndAuthenticatePrincipalByEmail(String email, String passwordOrNull)
     {
+        if(passwordOrNull != null && passwordOrNull.isEmpty()) {
+            return null;
+        }
         final Principal principal = tryGetPrincipalByEmail(email);
         if (principal == null)
         {
