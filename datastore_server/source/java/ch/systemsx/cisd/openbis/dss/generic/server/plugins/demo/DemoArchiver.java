@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class DemoArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
-
+    
     private final static Set<String/* data set code */> archiveContents = new HashSet<String>();
 
     public DemoArchiver(Properties properties, File storeRoot)
@@ -49,7 +49,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context) throws UserFailureException
     {
-        System.out.println("DemoArchiver - Archived: " + datasets);
+        operationLog.info("DemoArchiver - Archived: " + datasets);
         archiveContents.addAll(DatasetDescription.extractCodes(datasets));
         return createStatuses(Status.OK, datasets, Operation.ARCHIVE);
     }
@@ -58,7 +58,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context) throws UserFailureException
     {
-        System.out.println("DemoArchiver - Unarchived: " + datasets);
+        operationLog.info("DemoArchiver - Unarchived: " + datasets);
         return createStatuses(Status.OK, datasets, Operation.UNARCHIVE);
     }
 
@@ -86,7 +86,7 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
             datasetCodes.add(datasetLocation.getDataSetCode());
         }
         archiveContents.addAll(datasetCodes);
-        System.out.println("DemoArchiver - deleteFromArchive: " + datasetCodes);
+        operationLog.info("DemoArchiver - deleteFromArchive: " + datasetCodes);
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (String dataset : datasetCodes)
         {
@@ -94,22 +94,11 @@ public class DemoArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
     }
-    
-    @Override
-    protected DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
-            final ArchiverTaskContext context, boolean removeFromDataStore)
-    {
-        (new Exception()).printStackTrace();
-        GroupedDatasets groupedDataSets = groupByArchiveDifferencies(datasets, context);
-        DatasetProcessingStatuses statuses = doArchive(groupedDataSets.getDifferentInArchive(), context);
 
-        deletePermanentlyFromArchive(getDataSetsFailedToBeArchived(datasets, statuses));
-// It's a demo, don't delete
-//        if (removeFromDataStore)
-//        {
-//            removeFromDataStore(getArchivedDataSets(datasets, statuses), context);
-//        }
-        statuses.addResult(groupedDataSets.getUpToDateInArchive(), Status.OK, Operation.ARCHIVE);
-        return statuses;
+    @Override
+    protected void removeFromDataStore(List<DatasetDescription> datasets, ArchiverTaskContext context)
+    {
+        operationLog.info("DemoArchiver - removeFromDataStore supressed: " + datasets);
     }
+    
 }
