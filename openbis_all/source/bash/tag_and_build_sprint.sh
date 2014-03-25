@@ -44,4 +44,4 @@ fi
 "$BIN_DIR/build/tag.sh" sprint/S${1}.x S${1}.${HOT_FIX_NUMBER}
 if [ $? -ne 0 ];then exit 1; fi	
 
-"$BIN_DIR/build/build.sh" sprint S${1}.x/S${1}.${HOT_FIX_NUMBER}
+"$BIN_DIR/build/build.sh" sprint/S${1}.x S${1}.${HOT_FIX_NUMBER}
