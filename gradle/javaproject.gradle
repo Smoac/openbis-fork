@@ -192,7 +192,13 @@ task testJar(type: Jar, dependsOn: testClasses) {
     from sourceSets.test.output
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+jar {
+    doLast {
+		tasks.sourcesJar.execute()
+    }
+}
+
+task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
     

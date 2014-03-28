@@ -14,7 +14,7 @@ function move_to_file_server {
   OPENBIS_PATH=~openbis/fileserver/sprint_builds/openBIS
   SPRINT_DIR=$OPENBIS_PATH/$TODAY-$FULL_VER
   mkdir -p $SPRINT_DIR
-  mv *$FULL_VER*.{zip,gz,jar} $SPRINT_DIR/
+  mv *$FULL_VER*.{zip,gz} $SPRINT_DIR/
   chmod g+w -R $SPRINT_DIR
 }
 
@@ -41,6 +41,7 @@ cd tmp/gradle
 cd ../..
 mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
 mv tmp/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
+cp -r tmp/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$FULL_VER
 
 move_to_file_server
 
