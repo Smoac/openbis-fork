@@ -193,9 +193,6 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     public boolean authenticateUser(String userId, String password)
     {
-        if(password != null && password.isEmpty()) {
-            return false;
-        }
         final Principal principal = tryGetAndAuthenticatePrincipal(userId, password);
         return (principal == null) ? false : principal.isAuthenticated();
     }
@@ -217,9 +214,6 @@ public final class LDAPPrincipalQuery implements ISelfTestable
 
     public Principal tryGetAndAuthenticatePrincipalByEmail(String email, String passwordOrNull)
     {
-        if(passwordOrNull != null && passwordOrNull.isEmpty()) {
-            return null;
-        }
         final Principal principal = tryGetPrincipalByEmail(email);
         if (principal == null)
         {
@@ -396,6 +390,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         if (threadContext != null)
         {
             return threadContext;
+        }
+        if(password != null && password.isEmpty()) {
+            throw new RuntimeException("Try to login user '" + dn +"' with empty password.");
         }
         final Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);
