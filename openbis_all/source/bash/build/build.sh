@@ -35,6 +35,7 @@ then
 fi
 
 cd tmp/gradle
+./gradlew :openbis_standard_technologies:generateJavadoc
 ./gradlew :openbis_standard_technologies:clientsAndApis
 ./gradlew :installation:build
 cd ../..
