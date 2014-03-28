@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,19 @@ import java.io.File;
 import java.util.Properties;
 
 /**
- * Archiver which distributes and zips data sets to be archived on archive destinations specified by the space to which the data set belongs. In
- * addition all meta data of the data set its related experiment and sample are store in a tab-separated value file inside the zipped data set.
+ * Archiver which distributes and tars data sets to be archived on archive destinations specified by the space to which the data set belongs. In
+ * addition all meta data of the data set, its related experiment and sample are stored in a tab-separated value file inside the tarred data set.
  * 
- * @author Franz-Josef Elmer
+ * @author pkupczyk
  */
-public class ZipArchiver extends RsyncArchiver
+public class TarArchiver extends RsyncArchiver
 {
 
     private static final long serialVersionUID = 1L;
 
-    public ZipArchiver(Properties properties, File storeRoot)
+    public TarArchiver(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, new DistributedPackagingDataSetFileOperationsManager(properties, new ZipPackageManager(properties)));
+        super(properties, storeRoot, new DistributedPackagingDataSetFileOperationsManager(properties, new TarPackageManager()));
     }
 
 }

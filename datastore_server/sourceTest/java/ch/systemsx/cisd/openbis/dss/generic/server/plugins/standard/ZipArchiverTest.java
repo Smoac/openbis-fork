@@ -169,7 +169,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
     public void testArchivingWithShardingWithoutCompressingToDefaultArchive()
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
-        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.COMPRESS_KEY, "false");
+        properties.setProperty(ZipPackageManager.COMPRESS_KEY, "false");
         ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
         PhysicalDataSet ds1 =
@@ -336,7 +336,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
                 + "INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Obtained the list of all datasets in all shares in ? s.\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile + "' to '"
+                + "Data set 'ds1' retrieved from archive '" + archivedDataSetFile + "' to '"
                 + ds1InStore + "'.", logContent);
         assertEquals("[]", processingStatus.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.isFile());
@@ -373,7 +373,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.MAPPING_FILE_KEY, mappingFile.getPath());
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.CREATE_ARCHIVES_KEY, "true");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
-        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.COMPRESS_KEY, "false");
+        properties.setProperty(ZipPackageManager.COMPRESS_KEY, "false");
         properties.setProperty(SHARE_FINDER_KEY + ".class", ShareFinder.class.getName());
         ZipArchiver archiver = createArchiver();
         Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
@@ -424,7 +424,7 @@ public class ZipArchiverTest extends AbstractArchiverTestCase
                 + "INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets has been requested: [Dataset 'ds1']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Obtained the list of all datasets in all shares in ? s.\n"
                 + "INFO  OPERATION.DistributedPackagingDataSetFileOperationsManager - "
-                + "Data set 'ds1' unzipped from archive '" + archivedDataSetFile + "' to '"
+                + "Data set 'ds1' retrieved from archive '" + archivedDataSetFile + "' to '"
                 + ds1InStore + "'.", logContent);
         assertEquals("[]", processingStatus.getErrorStatuses().toString());
         assertEquals(true, archivedDataSetFile.isFile());
