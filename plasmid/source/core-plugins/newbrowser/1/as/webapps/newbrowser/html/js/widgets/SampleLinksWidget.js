@@ -35,7 +35,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.samplesToEdit = (samplesToEdit)?samplesToEdit:new Array(); //Only used to populate the widget
 	this.samples = {};
 	
-	this._lastTableId = null;
+	this._lastUsedId = null;
 	this._lastIndex = 0;
 	
 	this._addAny = function(id, tableId, sampleId) {
@@ -66,17 +66,21 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
 			
 			if(sampleType !== null) {
-				if(_this._lastTableId) {
-					$('#'+_this._lastTableId).empty();
+				if(_this._lastUsedId) {
+					$('#'+_this._lastUsedId + "-table").empty();
+					$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 				}
 				var onClick = function(sample) {
-					$('#'+_this._lastTableId).empty();
+					$('#'+_this._lastUsedId + "-table").empty();
+					$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 					_this.removeSample(sampleId);
 					_this.addSample(sample);
+					$("#" + id).css({"background-color" : "#FFFFFF" });
 				}
+				$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
 				var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
 				sampleTable.init();
-				_this._lastTableId = tableId;
+				_this._lastUsedId = id;
 				Util.unblockUI();
 			}
 		});
@@ -88,9 +92,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var sampleId = id + "-sample";
 		var labelId = id + "-label";
 		var $component = $("<div>", {"id" : id , "class" : "control-group", "sample-type-code" : sampleTypeHint["TYPE"]} );
-			var $label = $("<label>", { "class" : "control-label", "id" : labelId}).text(sampleTypeHint["LABEL"] + ":");
-			
-			var $controls = $("<div>", { "class" : "controls"});
+		$component.css({"border-radius" : "10px", "padding" : "10px"});
+		var $label = $("<label>", { "class" : "control-label", "id" : labelId}).text(sampleTypeHint["LABEL"] + ":");	
+		var $controls = $("<div>", { "class" : "controls"});
 			
 			var $textField = $("<a>", {"class" : "btn", "type" : "button", "id" : sampleId, "disabled" : ""});
 			$textField.css({
@@ -121,17 +125,21 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
 				
 				if(sampleType !== null) {
-					if(_this._lastTableId) {
-						$('#'+_this._lastTableId).empty();
+					if(_this._lastUsedId) {
+						$('#'+_this._lastUsedId + "-table").empty();
+						$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 					}
 					var onClick = function(sample) {
-						$('#'+_this._lastTableId).empty();
+						$('#'+_this._lastUsedId + "-table").empty();
+						$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 						_this.removeSample(sampleId);
 						_this.addSample(sample);
+						$("#" + id).css({"background-color" : "#FFFFFF" });
 					}
+					$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
 					var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
 					sampleTable.init();
-					_this._lastTableId = tableId;
+					_this._lastUsedId = id;
 				} else {
 					_this._addAny(id, tableId, sampleId);
 				}
@@ -294,6 +302,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			$input.empty();
 			$input.append(meaningfulInfo);
+		} else {
+			Util.showError("Item Already selected, choose another.");
 		}
 	}
 
