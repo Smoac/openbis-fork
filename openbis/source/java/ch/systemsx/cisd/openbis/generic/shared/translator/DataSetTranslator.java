@@ -74,6 +74,7 @@ public class DataSetTranslator
 
         description.setDataStoreCode(data.getDataStore().getCode());
         description.setRegistrationTimestamp(data.getRegistrationDate());
+        description.setOrderInContainer(data.getOrderInContainer());
 
         PhysicalDataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)
@@ -235,6 +236,11 @@ public class DataSetTranslator
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(dataPE.isDerived());
+        Integer orderInContainer = dataPE.getOrderInContainer();
+        if (orderInContainer != null)
+        {
+            externalData.setOrderInContainer(orderInContainer);
+        }
         externalData.setContainer(tryToTranslateContainer(dataPE.getContainer(), baseIndexURL,
                 managedPropertyEvaluatorFactory));
         final Collection<AbstractExternalData> parents = new HashSet<AbstractExternalData>();
@@ -302,6 +308,7 @@ public class DataSetTranslator
     {
         PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setSize(externalDataPE.getSize());
+        dataSet.setOrderInContainer(externalDataPE.getOrderInContainer());
         dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         dataSet.setStatus(externalDataPE.getStatus());
         dataSet.setPresentInArchive(externalDataPE.isPresentInArchive());
@@ -379,8 +386,7 @@ public class DataSetTranslator
     }
 
     /**
-     * Creates an <var>externalData</var> from <var>dataPE</vra> an fills it with all data needed by
-     * {@link IEntityInformationHolder}.
+     * Creates an <var>externalData</var> from <var>dataPE</vra> an fills it with all data needed by {@link IEntityInformationHolder}.
      */
     public static AbstractExternalData translateBasicProperties(DataPE dataPE)
     {
@@ -422,6 +428,7 @@ public class DataSetTranslator
 
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(dataSet.getCode());
+        description.setOrderInContainer(dataSet.getOrderInContainer());
         description.setRegistrationTimestamp(dataSet.getRegistrationDate());
         if (dataSet.isExternalData())
         {

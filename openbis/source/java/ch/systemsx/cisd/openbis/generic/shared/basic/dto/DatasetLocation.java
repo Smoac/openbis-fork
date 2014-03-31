@@ -37,6 +37,8 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
 
     private String dataStoreUrl;
 
+    private Integer orderInContainer;
+
     public DatasetLocation()
     {
     }
@@ -44,10 +46,28 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
     public DatasetLocation(String datasetCode, String dataSetLocation, String dataStoreCode,
             String dataStoreUrl)
     {
+        this(datasetCode, dataSetLocation, dataStoreCode, dataStoreUrl, null);
+    }
+
+    public DatasetLocation(String datasetCode, String dataSetLocation, String dataStoreCode,
+            String dataStoreUrl, Integer orderInContainer)
+    {
         this.datasetCode = datasetCode;
         this.dataSetLocation = dataSetLocation;
         this.dataStoreCode = dataStoreCode;
         this.dataStoreUrl = dataStoreUrl;
+        this.orderInContainer = orderInContainer;
+    }
+
+    @Override
+    public Integer getOrderInContainer()
+    {
+        return orderInContainer;
+    }
+
+    public void setOrderInContainer(Integer orderInContainer)
+    {
+        this.orderInContainer = orderInContainer;
     }
 
     @Override

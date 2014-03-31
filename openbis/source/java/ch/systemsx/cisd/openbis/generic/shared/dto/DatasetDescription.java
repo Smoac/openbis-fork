@@ -40,6 +40,8 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private String dataSetLocation;
 
+    private Integer orderInContainer;
+
     private Date registrationTimestamp;
 
     private Long dataSetSize;
@@ -307,6 +309,17 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     public void setDataStoreUrl(String dataStoreUrl)
     {
         this.dataStoreUrl = dataStoreUrl;
+    }
+
+    @Override
+    public Integer getOrderInContainer()
+    {
+        return orderInContainer;
+    }
+
+    public void setOrderInContainer(Integer orderInContainer)
+    {
+        this.orderInContainer = orderInContainer;
     }
 
 }

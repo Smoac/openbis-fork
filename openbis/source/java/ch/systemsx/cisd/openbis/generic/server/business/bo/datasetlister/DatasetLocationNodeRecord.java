@@ -28,6 +28,8 @@ public class DatasetLocationNodeRecord
 
     public Long ctnr_id;
 
+    public Integer ctnr_order;
+
     public String location;
 
     public String data_store_code;

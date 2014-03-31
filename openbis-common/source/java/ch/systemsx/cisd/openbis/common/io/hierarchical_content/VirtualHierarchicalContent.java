@@ -439,9 +439,10 @@ class VirtualHierarchicalContent implements IHierarchicalContent
         public List<IHierarchicalContentNode> getChildNodes() throws UnsupportedOperationException
         {
             IVirtualNodeListMerger listMerger = nodeMergerFactory.createNodeListMerger();
-            for (IHierarchicalContentNode node : nodes)
+            // Returns the nodes in the order they have been added
+            for (int i = nodes.size() - 1; i >= 0; i--)
             {
-                listMerger.addNodes(node.getChildNodes());
+                listMerger.addNodes(nodes.get(i).getChildNodes());
             }
             return listMerger.createMergedNodeList();
         }

@@ -30,4 +30,6 @@ public interface IDatasetLocation
     String getDataStoreUrl();
 
     String getDataStoreCode();
+
+    Integer getOrderInContainer();
 }

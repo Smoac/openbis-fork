@@ -139,11 +139,11 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         final File dataSetRootFile3 = new File("DS_FILE_3");
 
         final DatasetLocation dataSet1Location =
-                new DatasetLocation(dataSet1Code, "LOCATION_1", "STANDARD", null);
+                new DatasetLocation(dataSet1Code, "LOCATION_1", "STANDARD", null, 3);
         final DatasetLocation dataSet2Location =
-                new DatasetLocation(dataSet2Code, "LOCATION_2", "STANDARD", null);
+                new DatasetLocation(dataSet2Code, "LOCATION_2", "STANDARD", null, 1);
         final DatasetLocation dataSet3Location =
-                new DatasetLocation(dataSet3Code, "LOCATION_3", "STANDARD", null);
+                new DatasetLocation(dataSet3Code, "LOCATION_3", "STANDARD", null, 2);
 
         final DatasetLocationNode dataSet1 = new DatasetLocationNode(dataSet1Location);
         final DatasetLocationNode dataSet2 = new DatasetLocationNode(dataSet2Location);
@@ -177,8 +177,8 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     one(directoryProvider).getDataSetDirectory(dataSet3.getLocation());
                     will(returnValue(dataSetRootFile3));
 
-                    IHierarchicalContent content1 = new DummyHierarchicalContent();
-                    IHierarchicalContent content2 = new DummyHierarchicalContent();
+                    IHierarchicalContent content1 = new DummyHierarchicalContent("content 1");
+                    IHierarchicalContent content2 = new DummyHierarchicalContent("content 2");
                     one(hierarchicalContentFactory).asHierarchicalContent(
                             with(same(dataSetRootFile1)), with(actionMatcher));
                     will(returnValue(content1));
@@ -195,7 +195,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     one(shareIdManager).releaseLock(dataSet3Code);
 
                     one(hierarchicalContentFactory).asVirtualHierarchicalContent(
-                            Arrays.asList(content1, content2)); // no content for dataSet3
+                            Arrays.asList(content2, content1)); // no content for dataSet3
                 }
             });
 
@@ -207,14 +207,14 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).releaseLock(dataSet1Code);
+                    one(shareIdManager).releaseLock(dataSet2Code);
                 }
             });
         actionMatcher.getRecordedObjects().get(0).execute();
         context.checking(new Expectations()
             {
                 {
-                    one(shareIdManager).releaseLock(dataSet2Code);
+                    one(shareIdManager).releaseLock(dataSet3Code);
                 }
             });
         actionMatcher.getRecordedObjects().get(1).execute();
@@ -287,6 +287,12 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     return null;
                 }
 
+                @Override
+                public Integer getOrderInContainer()
+                {
+                    return null;
+                }
+
             };
 
         final File dataRootFile = new File("DS_FILE");
@@ -339,6 +345,12 @@ public class HierarchicalContentProviderTest extends AssertJUnit
 
     private static class DummyHierarchicalContent implements IHierarchicalContent
     {
+        private String name;
+
+        DummyHierarchicalContent(String name)
+        {
+            this.name = name;
+        }
 
         @Override
         public IHierarchicalContentNode getRootNode()
@@ -375,8 +387,14 @@ public class HierarchicalContentProviderTest extends AssertJUnit
         @Override
         public void close()
         {
-
         }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+        
 
     }
 
