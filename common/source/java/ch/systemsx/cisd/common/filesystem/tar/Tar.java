@@ -16,17 +16,20 @@
 
 package ch.systemsx.cisd.common.filesystem.tar;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.io.IOUtils;
 
 import ch.systemsx.cisd.base.unix.FileLinkType;
 import ch.systemsx.cisd.base.unix.Unix;
@@ -34,8 +37,7 @@ import ch.systemsx.cisd.base.unix.Unix.Stat;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
- * Simple interface to the Apache commons tar classes for archiving directories, files and memory
- * objects into tar files.
+ * Simple interface to the Apache commons tar classes for archiving directories, files and memory objects into tar files.
  * 
  * @author Bernd Rinn
  */
@@ -71,8 +73,7 @@ public class Tar implements Closeable
      * Add a file or directory to the tar file.
      * 
      * @param file The file or directory to add to the tar file.
-     * @param stripFromName The number of characters to strip from the start of each name when
-     *            creating the archive entry names from the file paths.
+     * @param stripFromName The number of characters to strip from the start of each name when creating the archive entry names from the file paths.
      */
     public void add(final File file, final int stripFromName)
             throws IOException
@@ -84,6 +85,17 @@ public class Tar implements Closeable
         {
             addFile(stripFromName, file);
         }
+    }
+
+    public void add(String name) throws IOException
+    {
+        final TarArchiveEntry entry = new TarArchiveEntry(name);
+        if (Unix.isOperational())
+        {
+            entry.setUserId(Unix.getUid());
+            entry.setGroupId(Unix.getGid());
+        }
+        add(entry, (InputStream) null);
     }
 
     /**
@@ -103,7 +115,7 @@ public class Tar implements Closeable
         }
         add(entry, data);
     }
-    
+
     /**
      * Add a memory object to the tar file.
      * 
@@ -114,6 +126,18 @@ public class Tar implements Closeable
             throws IOException
     {
         entry.setSize(data.length);
+        add(entry, new ByteArrayInputStream(data));
+    }
+
+    /**
+     * Add a stream content to the tar file.
+     * 
+     * @param entry The metadata of the archive entry.
+     * @param input The stream to write to the archive.
+     */
+    public void add(TarArchiveEntry entry, InputStream input)
+            throws IOException
+    {
         if (StringUtils.isBlank(entry.getUserName()))
         {
             String username = tryGetUserName(entry.getUserId());
@@ -133,7 +157,10 @@ public class Tar implements Closeable
             entry.setGroupName(groupname);
         }
         out.putArchiveEntry(entry);
-        out.write(data);
+        if (input != null)
+        {
+            IOUtils.copyLarge(input, out);
+        }
         out.closeArchiveEntry();
     }
 

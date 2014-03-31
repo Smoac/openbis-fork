@@ -17,11 +17,23 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.tar.Untar;
+import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
+import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -31,39 +43,91 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 public class TarPackageManager implements IPackageManager
 {
 
+    private transient IHierarchicalContentProvider contentProvider;
+
+    private transient IDataSetDirectoryProvider directoryProvider;
+
     @Override
     public String getName(IDatasetLocation dataSetLocation)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return dataSetLocation.getDataSetCode() + ".tar";
     }
 
     @Override
     public void create(File packageFile, AbstractExternalData dataSet)
     {
-        // TODO Auto-generated method stub
+        TarDataSetPackager packager = null;
 
+        try
+        {
+            DataSetExistenceChecker existenceChecker =
+                    new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
+            packager = new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker);
+            packager.addDataSetTo("", dataSet);
+        } finally
+        {
+            if (packager != null)
+            {
+                packager.close();
+            }
+        }
     }
 
     @Override
     public List<VerificationError> verify(File packageFile)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public Status extract(File packageFile, File toDirectory)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Untar untar = null;
+        try
+        {
+            untar = new Untar(packageFile);
+            untar.extract(toDirectory);
+            return Status.OK;
+        } catch (Exception ex)
+        {
+            return Status.createError(ex.toString());
+        } finally
+        {
+            if (untar != null)
+            {
+                try
+                {
+                    untar.close();
+                } catch (IOException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
+        }
     }
 
     @Override
     public IHierarchicalContent asHierarchialContent(File packageFile)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new TarBasedHierarchicalContent(packageFile);
+    }
+
+    private IHierarchicalContentProvider getContentProvider()
+    {
+        if (contentProvider == null)
+        {
+            contentProvider = ServiceProvider.getHierarchicalContentProvider();
+        }
+        return contentProvider;
+    }
+
+    private IDataSetDirectoryProvider getDirectoryProvider()
+    {
+        if (directoryProvider == null)
+        {
+            directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
+        }
+        return directoryProvider;
     }
 
 }
