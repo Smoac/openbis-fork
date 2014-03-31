@@ -86,24 +86,28 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var _this = this;
 		var tableId = id + "-table";
 		var sampleId = id + "-sample";
+		var labelId = id + "-label";
 		var $component = $("<div>", {"id" : id , "class" : "control-group", "sample-type-code" : sampleTypeHint["TYPE"]} );
-			var $label = $("<label>", { "class" : "control-label"}).text(sampleTypeHint["LABEL"] + ":");
+			var $label = $("<label>", { "class" : "control-label", "id" : labelId}).text(sampleTypeHint["LABEL"] + ":");
 			
 			var $controls = $("<div>", { "class" : "controls"});
 			
-			var $textField = $("<input>", {"type" : "text", "id" : sampleId, "disabled" : ""});
+			var $textField = $("<a>", {"class" : "btn", "type" : "button", "id" : sampleId, "disabled" : ""});
 			$textField.css({
-				"width" : "650px"
+				"max-width" : "90%",
+				"text-align" : "left"
 			});
 			if(sampleTypeHint["REQUIRED"]) {
 				$textField.attr("required", "");
 			}
 			$controls.append($textField);
 			$controls.append(" ");
-			var $buttonSelect = $("<input>", {"class" : "btn", "type" : "button", "value" : "Select"});
+			var $buttonSelect = $("<a>", {"class" : "btn" });
+			$buttonSelect.append("Select");
 			$controls.append($buttonSelect);
 			$controls.append(" ");
-			var $buttonDelete = $("<input>", {"class" : "btn", "type" : "button", "value" : "Delete"});
+			var $buttonDelete = $("<a>", {"class" : "btn" });
+			$buttonDelete.append("Delete");
 			$controls.append($buttonDelete);
 			
 			if(this.isDisabled) {
@@ -150,6 +154,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	
 	this._getPlus = function() {
 		var id = this.containerId + "-plus-button";
+		var tableId = id + "-table";
 		var $component = $("<div>", { "id" : id, "class" : "control-group"} );
 		var $controls = $("<div>", { "class" : "controls"});
 		
@@ -164,11 +169,12 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var _this = this;
 		
 		var onClick = function(elem) {
-			_this.addOneSlot();
+			_this._addAny(id, tableId, null);
 		};
 		
 		$buttonPlus.click(onClick);
-		$component.append($controls);	
+		$component.append($controls);
+		$component.append($("<div>", { "id" : tableId}));
 		return $component;
 	}
 	
@@ -233,6 +239,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			
 			//Check for a non predefined slot that is free
+			var labelId = null;
 			if(!freePredefinedSampleId) {
 				for(var i = 0; i < this._lastIndex; i++) {
 					var predefinedSampleId = this.containerId + "-" + i + "-sample";
@@ -240,6 +247,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						var containerId = this.containerId + "-" + i;
 						var freePredefinedTypeCodeAux = $("#" + containerId).attr("sample-type-code");
 						if("null" === freePredefinedTypeCodeAux) {
+							labelId = this.containerId + "-" + i + "-label";
 							freePredefinedSampleId = predefinedSampleId;
 							break;
 						}
@@ -250,6 +258,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			//Create a new slot if nothing is found
 			if(!freePredefinedSampleId) { //Create a new slot if not found
 				var sampleId = this.containerId + "-" + this._lastIndex + "-sample";
+				labelId = this.containerId + "-" + this._lastIndex + "-label";
 				freePredefinedSampleId = sampleId;
 				this.addOneSlot();
 			}
@@ -264,8 +273,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			var propertiesToShowDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(sampleToAdd.sampleTypeCode, propertiesToShow);
 			
-			var meaningfulInfo = {};
-				meaningfulInfo["CODE"] = sampleToAdd.code;
+			var meaningfulInfo = "<b>Code: </b>" + sampleToAdd.code + " ";
 			
 			var max3Length = (propertiesToShow.length > 3)?3:propertiesToShow.length;
 			for(var j = 0; j < max3Length; j++) {
@@ -275,15 +283,23 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				}
 				var propertyToShowDisplayName = propertiesToShowDisplayNames[j];
 				
-				meaningfulInfo[propertyToShowDisplayName] = Util.getEmptyIfNull(propertyToShow);
+				meaningfulInfo += "<b>" + propertyToShowDisplayName + ": </b>" + Util.getEmptyIfNull(propertyToShow) + " ";
 			}
-			$("#" +freePredefinedSampleId).val(JSON.stringify(meaningfulInfo));
+			var $input = $("#" +freePredefinedSampleId);
+			if(labelId) {
+				$("#"+labelId).text(sampleToAdd.sampleTypeCode +":");
+			}
+			if(meaningfulInfo.length > 200) {
+				meaningfulInfo = meaningfulInfo.substring(0, 200) + "...";
+			}
+			$input.empty();
+			$input.append(meaningfulInfo);
 		}
 	}
 
 	this.removeSample = function(sampleId) {
 		if(this.samples[sampleId]) {
-			$('#'+sampleId).val("");
+			$('#'+sampleId).empty();
 			this.samples[sampleId] = null;
 		}
 	}
