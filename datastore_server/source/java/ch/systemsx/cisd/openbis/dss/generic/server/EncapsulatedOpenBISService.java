@@ -879,6 +879,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public void notifyDatasetAccess(String dataSetCode)
+    {
+        service.notifyDatasetAccess(session.getSessionToken(), dataSetCode);
+    }
+
+    @Override
     public List<AbstractExternalData> listDataSetsForPostRegistration()
     {
         return service.listDataSetsForPostRegistration(session.getSessionToken(),

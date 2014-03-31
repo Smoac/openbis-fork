@@ -480,6 +480,12 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public void markSuccessfulPostRegistration(String dataSetCode);
 
     /**
+     * {@link IServiceForDataStoreServer#notifyDatasetAccess(String, String)}
+     */
+    @ManagedAuthentication
+    public void notifyDatasetAccess(String dataSetCode);
+
+    /**
      * {@link IServiceForDataStoreServer#listDataSetsForPostRegistration(String, String)}
      */
     @ManagedAuthentication
