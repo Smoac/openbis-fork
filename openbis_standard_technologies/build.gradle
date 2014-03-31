@@ -374,10 +374,10 @@ task generateJavadoc(type: Javadoc) {
 	source = configurations.javadoc_sources.collect { zipTree(it).matching {
 		include "**/ch/systemsx/cisd/**/api/**/*.java"
 		include "**/ch/systemsx/cisd/base/**/*.java"		
-		include "**/source/java/OpenBISScreeningML.java"
-		include "**/source/java/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
-		include "**/source/java/ch/systemsx/cisd/**/etlserver/registrator/*.java"
-		include "**/source/java/ch/systemsx/cisd/common/mail/*.java"
+		include "**/OpenBISScreeningML.java"
+		include "**/ch/systemsx/cisd/**/etlserver/TopLevelDataSetRegistratorGlobalState.java"
+		include "**/ch/systemsx/cisd/**/etlserver/registrator/*.java"
+		include "**/ch/systemsx/cisd/common/mail/*.java"
 	}}
 	classpath = configurations.javadoc_compilation
 	maxMemory = "1024m"
