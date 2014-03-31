@@ -46,6 +46,4 @@ task zip(type: Zip) {
 zip.dependsOn jar
 build.dependsOn zip
 
-project.ext.gwt_module = 'ch.systemsx.cisd.openbis.plugin.proteomics.OpenBIS'
-project.ext.gwt_app_path = 'openbis-test-proteomics'
-apply from: '../openbis/gwtdev.gradle'
+apply from: 'gwtdev.gradle'
