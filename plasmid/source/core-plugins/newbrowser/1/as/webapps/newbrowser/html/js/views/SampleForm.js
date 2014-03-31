@@ -44,7 +44,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.projects = [];
 	this.projectsObj = [];
 	this.spaces = [];
-	this.sampleTypesLinksTables = {};
+	this.sampleLinksParents = null;
 	this.mode = mode;
 	this.sample = sample;
 	this.storage = null;
@@ -134,14 +134,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 									$("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val(value);
 								}
 							}
-						}
-					
-						//Populate Links
-						for (var i = 0; i < sample.parents.length; i++) {
-							var parent = sample.parents[i];
-							var parentGroup = localReference.profile.getGroupTypeCodeForTypeCode(parent.sampleTypeCode);
-							var linkTableId = "sampleParents_" + parentGroup;
-							localReference.sampleTypesLinksTables[linkTableId].addSample(parent);
 						}
 				}
 				
@@ -258,59 +250,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "<script type='text/javascript'> $(function() { $('#datetimepicker_" + id + "').datetimepicker({ language: 'en' });  }); </script>";
 			
 			return component;
-	}
-	
-	this.getLinksToParentsComponent = function() {
-		var component = "<fieldset>";
-				
-		component += "<legend>Parents</legend>";
-		if (this.mode !== SampleFormMode.VIEW) {
-			component += "<p><i class='icon-info-sign'></i> To connect a component, please select the type from the drop down menu and click on the row of the table.</p>";
-		}
-		this.sampleTypesLinksTables = {};
-		
-		for(typeGroupCode in this.profile.typeGroups) {
-			var id = "sampleParents_" + typeGroupCode;
-			var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
-			
-			component += "<div class='control-group'>";
-			component += "<label class='control-label'>" + sampleGroupTypeDisplayName + ":</label>";
-			component += "<div class='controls'>";
-			component += "<div id='"+id+"'></div>";
-			component += "</div>";
-			component += "</div>";
-			
-			var disableLinksTables = this.mode === SampleFormMode.VIEW;
-			this.sampleTypesLinksTables[id] = new SampleLinksTable(id, this.profile, disableLinksTables);
-		}
-		
-		if (this.mode !== SampleFormMode.VIEW) {
-			//Print one drop down for each group
-			component += "<center>";
-		
-			for(typeGroupCode in this.profile.typeGroups) {
-				var sampleGroupTypeDisplayName = this.profile.typeGroups[typeGroupCode]["DISPLAY_NAME"];
-			
-				component += "<select onchange='mainController.currentView.showSamplesWithoutPage(event)'>";
-				component += "<option value=''> -- "+sampleGroupTypeDisplayName+" --</a></option>";
-				for(var i = 0; i < this.profile.typeGroups[typeGroupCode]["LIST"].length; i++) {
-					var sampleType = this.profile.getTypeForTypeCode(this.profile.typeGroups[typeGroupCode]["LIST"][i]);
-					if(sampleType) { //Fix a glitch that can happen if a type exist into a group  but not at the server.
-						component += "<option value='"+sampleType.code+"'>"+sampleType.description+"</a></option>";
-					}
-				}
-				component += "</select> ";
-			}
-			
-			component += "</center>";
-			
-			component += "<div id='sampleSearchContainer'></div>";
-			component += "<br>";
-		}
-		
-		component += "</fieldset>";
-		
-		return component;
 	}
 	
 	this.getHierarchyButton = function() {
@@ -446,7 +385,18 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			//
 			// LINKS TO PARENTS
 			//
-			component += this.getLinksToParentsComponent();
+			var requiredParents = [];
+			var sampleTypeDefinitionsExtension = this.profile.sampleTypeDefinitionsExtension[this.sampleTypeCode];
+			if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"]) {
+				requiredParents = sampleTypeDefinitionsExtension["SAMPLE_PARENTS_HINT"];
+			}
+			
+			var sampleParentsWidgetId = "sampleParentsWidgetId";
+			component += "<div id='" + sampleParentsWidgetId + "'></div>";
+			var isDisabled = this.mode === SampleFormMode.VIEW;
+			
+			var sampleParentsLinks = (this.sample)?this.sample.parents:null;
+			this.sampleLinksParents = new SampleLinksWidget(sampleParentsWidgetId, this.profile, this.serverFacade, "Parents", requiredParents, isDisabled, sampleParentsLinks);
 			
 			//
 			// SAMPLE TYPE FIELDS
@@ -534,6 +484,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		//Add form to layout
 		$("#"+this.containerId).append(component);
 		this.storage.repaint();
+		this.sampleLinksParents.repaint();
 		
 		//Enable Events
 		$("#sampleCode").change(
@@ -582,10 +533,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 	}
 	
-	this.addLinkedSample = function(group, sample) {
-		this.sampleTypesLinksTables["sampleParents_"+group].addSample(sample);
-	}
-	
 	this.createSample = function() {
 		Util.blockUI();
 		
@@ -611,11 +558,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		//Parent Links
 		var sampleParentsFinal = new Array();
-		
-		for(sampleGroupCode in this.profile.typeGroups) {
-			var samplesIdentifiers = this.sampleTypesLinksTables["sampleParents_"+sampleGroupCode].getSamplesIdentifiers();
-			sampleParentsFinal = sampleParentsFinal.concat(samplesIdentifiers);
-		}
+		sampleParentsFinal = this.sampleLinksParents.getSamplesIdentifiers();
 		
 		//Identification Info
 		var sampleCode = $("#sampleCode")[0].value;

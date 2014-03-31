@@ -25,19 +25,19 @@
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  * @param {string} sampleTypeCode The code of the sample type to be displayed on the table.
  * @param {boolean} inspectEnabled Enables the button that allows to pin samples.
- * @param {boolean} enableAdd Enables the event that allows to add samples, this is hardwired thinking that a proper SampleLinksTable exists with certain id.
+ * @param {boolean} enableAddFunction Enables the event that allows to add samples, the function will be called with the clicked sample as argument
  * @param {boolean} isSearch Enables search related behaviour that checks in what field was matched.
  * @param {boolean} isEmbedded When enabled the sample table will be inside a box of limited height with his own scroll.
  * @param {Inspector} inspector Used to add selected samples to show them as notes.
  */
-function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspectEnabled, enableEdit, enableAdd, isSearch, isEmbedded, inspector) {
+function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspectEnabled, enableEdit, enableAddFunction, isSearch, isEmbedded, inspector) {
 	this.serverFacade = serverFacade;
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
 	this.inspectEnabled = inspectEnabled;
 	this.enableEdit = enableEdit;
-	this.enableAdd = enableAdd;
+	this.enableAddFunction = enableAddFunction;
 	this.isSearch = isSearch;
 	this.samples = new Array();
 	this.isEmbedded = isEmbedded;
@@ -305,13 +305,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var selection = d3.select("#vis").select("#sample-data-holder").selectAll("tr.sample-table-data").data(this._samplesToPaint);
 	
 		//Code under enter is run if there is no HTML element for a data element
-	
 		var onClickFunction = null;
-		
-		if(this.enableAdd) {
+		var _this = this;
+		if(this.enableAddFunction) {
 			onClickFunction = function(sample) {
-				var sampleTypeGroup = localReference.profile.getGroupTypeCodeForTypeCode(sample.sampleTypeCode);
-				mainController.currentView.addLinkedSample(sampleTypeGroup, sample); //TO-DO : Fix Global Access
+				_this.enableAddFunction(sample);
 			}
 		} else {
 			onClickFunction = function(sample) {

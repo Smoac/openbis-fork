@@ -34,7 +34,8 @@ $.extend(DefaultProfile.prototype, {
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 		this.menuStructure = [];
-		
+		this.sampleTypeDefinitionsExtension = {
+		}
 		this.searchType = {
 			"TYPE" : "SEARCH",
 			"DISPLAY_NAME" : "Search",
@@ -373,7 +374,25 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 				"LIST" : [] 
 			}
 		};
-	
+		/*
+		this.sampleTypeDefinitionsExtension = {
+				"SYSTEM_EXPERIMENT" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Protocol for the experiment",
+														"TYPE": "GENERAL_PROTOCOL",
+														"REQUIRED" : true
+													}
+													,
+													{
+														"LABEL" : "Yeast to burn",
+														"TYPE": "YEAST",
+														"REQUIRED" : false
+													}
+												],
+				}
+		}
+		*/
 		this.typePropertiesForTable = {
 			"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
 			"GENERAL_PROTOCOL" : ["NAME", "FOR_WHAT", "PROTOCOL_TYPE"],

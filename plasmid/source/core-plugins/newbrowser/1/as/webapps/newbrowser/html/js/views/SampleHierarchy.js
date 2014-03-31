@@ -299,7 +299,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				var parentGroup = _this.profile.getGroupTypeCodeForTypeCode(data[0].sampleTypeCode);
 				
 				var setParent = function() {
-					mainController.currentView.sampleTypesLinksTables["sampleParents_" + parentGroup].addSample(data[0]);
+					mainController.currentView.sampleLinksParents.addSample(data[0]);
 				}
 				
 				var repeatUntilSet = function() {
