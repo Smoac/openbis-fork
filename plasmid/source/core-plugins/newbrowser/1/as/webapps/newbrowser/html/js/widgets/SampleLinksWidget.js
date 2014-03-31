@@ -71,6 +71,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				}
 				var onClick = function(sample) {
 					$('#'+_this._lastTableId).empty();
+					_this.removeSample(sampleId);
 					_this.addSample(sample);
 				}
 				var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
@@ -91,6 +92,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			var $controls = $("<div>", { "class" : "controls"});
 			
 			var $textField = $("<input>", {"type" : "text", "id" : sampleId, "disabled" : ""});
+			$textField.css({
+				"width" : "650px"
+			});
 			if(sampleTypeHint["REQUIRED"]) {
 				$textField.attr("required", "");
 			}
@@ -118,6 +122,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					}
 					var onClick = function(sample) {
 						$('#'+_this._lastTableId).empty();
+						_this.removeSample(sampleId);
 						_this.addSample(sample);
 					}
 					var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
@@ -183,8 +188,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		$('#'+this.containerId).append($component);
 		
 		//Add sample links to edit
-		for(var i = 0; i < samplesToEdit.length; i++) {
-			this.addSample(samplesToEdit[i]);
+		for(var i = 0; i < this.samplesToEdit.length; i++) {
+			this.addSample(this.samplesToEdit[i]);
 		}
 	}
 	
@@ -222,18 +227,22 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					var freePredefinedTypeCodeAux = $("#" + containerId).attr("sample-type-code");
 					if(sampleToAdd.sampleTypeCode === freePredefinedTypeCodeAux) {
 						freePredefinedSampleId = predefinedSampleId;
+						break;
 					}
 				}
 			}
 			
 			//Check for a non predefined slot that is free
-			for(var i = 0; i < this._lastIndex; i++) {
-				var predefinedSampleId = this.containerId + "-" + i + "-sample";
-				if(!this.samples[predefinedSampleId]) {
-					var containerId = this.containerId + "-" + i;
-					var freePredefinedTypeCodeAux = $("#" + containerId).attr("sample-type-code");
-					if("null" === freePredefinedTypeCodeAux) {
-						freePredefinedSampleId = predefinedSampleId;
+			if(!freePredefinedSampleId) {
+				for(var i = 0; i < this._lastIndex; i++) {
+					var predefinedSampleId = this.containerId + "-" + i + "-sample";
+					if(!this.samples[predefinedSampleId]) {
+						var containerId = this.containerId + "-" + i;
+						var freePredefinedTypeCodeAux = $("#" + containerId).attr("sample-type-code");
+						if("null" === freePredefinedTypeCodeAux) {
+							freePredefinedSampleId = predefinedSampleId;
+							break;
+						}
 					}
 				}
 			}
@@ -245,9 +254,30 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				this.addOneSlot();
 			}
 			
-			//Finaly, add the sample
+			//Finally, add the sample
 			this.samples[freePredefinedSampleId] = sampleToAdd;
-			$("#" +freePredefinedSampleId).val(sampleToAdd.identifier);
+			
+			//Show meaningful information
+			var propertiesToShow = this.profile.typePropertiesForTable[sampleToAdd.sampleTypeCode];
+			if(propertiesToShow === null || propertiesToShow === undefined) {
+				propertiesToShow = this.profile.getAllPropertiCodesForTypeCode(sampleToAdd.sampleTypeCode);
+			}
+			var propertiesToShowDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(sampleToAdd.sampleTypeCode, propertiesToShow);
+			
+			var meaningfulInfo = {};
+				meaningfulInfo["CODE"] = sampleToAdd.code;
+			
+			var max3Length = (propertiesToShow.length > 3)?3:propertiesToShow.length;
+			for(var j = 0; j < max3Length; j++) {
+				var propertyToShow = sampleToAdd.properties[propertiesToShow[j]];
+				if(!propertyToShow && propertiesToShow[j].charAt(0) === '$') {
+					propertyToShow = sampleToPrint.properties[propertiesToShow[j].substr(1)];
+				}
+				var propertyToShowDisplayName = propertiesToShowDisplayNames[j];
+				
+				meaningfulInfo[propertyToShowDisplayName] = Util.getEmptyIfNull(propertyToShow);
+			}
+			$("#" +freePredefinedSampleId).val(JSON.stringify(meaningfulInfo));
 		}
 	}
 
