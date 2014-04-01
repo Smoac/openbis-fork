@@ -70,17 +70,14 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					$('#'+_this._lastUsedId + "-table").empty();
 					$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 				}
-				var onClick = function(sample) {
-					$('#'+_this._lastUsedId + "-table").empty();
-					$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
-					_this.removeSample(sampleId);
-					_this.addSample(sample);
-					$("#" + id).css({"background-color" : "#FFFFFF" });
-				}
-				$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
-				var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
-				sampleTable.init();
-				_this._lastUsedId = id;
+				
+				var typeToAdd = {
+						"LABEL" : sampleTypeCode,
+						"TYPE": sampleTypeCode,
+						"MIN_COUNT" : 0
+				};
+				
+				_this.addOneSlot(typeToAdd);
 				Util.unblockUI();
 			}
 		});
@@ -90,67 +87,77 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var _this = this;
 		var tableId = id + "-table";
 		var sampleId = id + "-sample";
-		var labelId = id + "-label";
-		var $component = $("<div>", {"id" : id , "class" : "control-group", "sample-type-code" : sampleTypeHint["TYPE"]} );
+		var $component = $("<div>", {"id" : id , "class" : "control-group", "sample-type-code" : sampleTypeHint["TYPE"], "sample-min-count" : sampleTypeHint["MIN_COUNT"] } );
 		$component.css({"border-radius" : "10px", "padding" : "10px"});
-		var $label = $("<label>", { "class" : "control-label", "id" : labelId}).text(sampleTypeHint["LABEL"] + ":");	
+		
+		var requiredText = "";
+		if(sampleTypeHint["MIN_COUNT"] > 0) {
+			requiredText = " (Required at least " + sampleTypeHint["MIN_COUNT"] + ")";
+		}
+		
+		var labelText = sampleTypeHint["LABEL"] + requiredText + ":";
+		if(sampleTypeHint["LABEL"] === null) {
+			labelText = "";
+		}
+		var $label = $("<label>", { "class" : "control-label" }).text(labelText);	
 		var $controls = $("<div>", { "class" : "controls"});
 			
-			var $textField = $("<a>", {"class" : "btn", "type" : "button", "id" : sampleId, "disabled" : ""});
-			$textField.css({
+			var $buttonTextField = $("<a>", {"class" : "btn", "type" : "button", "id" : sampleId});
+			$buttonTextField.css({
 				"max-width" : "90%",
 				"text-align" : "left"
 			});
-			if(sampleTypeHint["REQUIRED"]) {
-				$textField.attr("required", "");
-			}
-			$controls.append($textField);
+			
+			$buttonTextField.append("Select");
+			$controls.append($buttonTextField);
 			$controls.append(" ");
-			var $buttonSelect = $("<a>", {"class" : "btn" });
-			$buttonSelect.append("Select");
-			$controls.append($buttonSelect);
+			
+			var $buttonPlusOne = $("<a>", {"class" : "btn" });
+			$buttonPlusOne.append($("<i>", { "class" : "icon-plus-sign"}));
+			$controls.append($buttonPlusOne);
 			$controls.append(" ");
+			
 			var $buttonDelete = $("<a>", {"class" : "btn" });
-			$buttonDelete.append("Delete");
+			$buttonDelete.append($("<i>", { "class" : "icon-minus-sign"}));
 			$controls.append($buttonDelete);
 			
 			if(this.isDisabled) {
-				$buttonSelect.attr("disabled", "");
+				$buttonTextField.attr("disabled", "");
+				$buttonPlusOne.attr("disabled", "");
 				$buttonDelete.attr("disabled", "");
-			}
-			
-			$buttonSelect.click(function(elem) {
-				var $buttonClicked = $(elem);
-				var sampleTypeCode = sampleTypeHint["TYPE"];
-				var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
+			} else {
+				$buttonTextField.click(function(elem) {
+					var $buttonClicked = $(elem);
+					var sampleTypeCode = sampleTypeHint["TYPE"];
+					var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
+					
+					if(sampleType !== null) {
+						if(_this._lastUsedId) {
+							$('#'+_this._lastUsedId + "-table").empty();
+							$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
+						}
+						var onClick = function(sample) {
+							$('#'+_this._lastUsedId + "-table").empty();
+							$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
+							_this.removeSample(sampleId);
+							_this.addSample(sample);
+							$("#" + id).css({"background-color" : "#FFFFFF" });
+						}
+						$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
+						var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
+						sampleTable.init();
+						_this._lastUsedId = id;
+					} else {
+						_this._addAny(id, tableId, sampleId);
+					}
+				});
 				
-				if(sampleType !== null) {
-					if(_this._lastUsedId) {
-						$('#'+_this._lastUsedId + "-table").empty();
-						$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
-					}
-					var onClick = function(sample) {
-						$('#'+_this._lastUsedId + "-table").empty();
-						$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
-						_this.removeSample(sampleId);
-						_this.addSample(sample);
-						$("#" + id).css({"background-color" : "#FFFFFF" });
-					}
-					$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
-					var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
-					sampleTable.init();
-					_this._lastUsedId = id;
-				} else {
-					_this._addAny(id, tableId, sampleId);
-				}
-			});
-			
-			$buttonDelete.click(function(elem) {
-				_this.removeSample(sampleId);
-			});
-			
-			if(sampleTypeHint["REQUIRED"]) {
-				$controls.append(" (Required)");
+				$buttonPlusOne.click(function(elem) {
+					_this.addOneSlot(sampleTypeHint);
+				});
+				$buttonDelete.click(function(elem) {
+					_this.removeSample(sampleId);
+				});
 			}
 			
 			$component.append($label);
@@ -172,15 +179,14 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 		if(this.isDisabled) {
 			$buttonPlus.attr("disabled", "");
+		} else {
+			var _this = this;
+			var onClick = function(elem) {
+				_this._addAny(id, tableId, null);
+			};
+			$buttonPlus.click(onClick);
 		}
 		
-		var _this = this;
-		
-		var onClick = function(elem) {
-			_this._addAny(id, tableId, null);
-		};
-		
-		$buttonPlus.click(onClick);
 		$component.append($controls);
 		$component.append($("<div>", { "id" : tableId}));
 		return $component;
@@ -189,17 +195,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.repaint = function() {
 		$('#'+this.containerId).empty();
 		
+		//Create Component
 		var $component = $("<fieldset>");
 		$component.append($("<legend>").text(this.title))
-		
-		for(var i = 0; i < this.sampleTypeHints.length; i++) {
-			$component.append(this._getButton(this.containerId + "-" + this._lastIndex, sampleTypeHints[i]));
-			this._lastIndex++;
-		}
-		
 		$component.append(this._getPlus());
-		
 		$('#'+this.containerId).append($component);
+		
+		//Add predefined slots
+		for(var i = 0; i < this.sampleTypeHints.length; i++) {
+			this.addOneSlot(sampleTypeHints[i]);
+		}
 		
 		//Add sample links to edit
 		for(var i = 0; i < this.samplesToEdit.length; i++) {
@@ -207,19 +212,32 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		}
 	}
 	
-	this.addOneSlot = function() {
-		var id = this.containerId + "-plus-button";
-		var addAny = {
-				"LABEL" : "... ",
-				"TYPE": "null",
-				"REQUIRED" : false
-		};
+	this.addOneSlot = function(sampleTypeHint) {
 		
-		var $plusButton = $("#" + id);
-		$plusButton.remove();
-		$("#" + this.containerId).append(this._getButton(this.containerId + "-" + this._lastIndex, addAny));
+		//Find latest slot from that type
+		var containerId = null;
+		for(var i = 0; i < this._lastIndex; i++) {
+			var containerIdAux = this.containerId + "-" + i;
+			var freePredefinedTypeCodeAux = $("#" + containerIdAux).attr("sample-type-code");
+			if(sampleTypeHint["TYPE"] === freePredefinedTypeCodeAux) {
+				containerId = containerIdAux;
+			}
+		}
+		
+		//If the slot exists, empty label
+		if(containerId) {
+			sampleTypeHint["LABEL"] = null;
+		}
+		
+		//Create the new slot
+		var $newSlot = this._getButton(this.containerId + "-" + this._lastIndex, sampleTypeHint);
 		this._lastIndex++;
-		$("#" + this.containerId).append(this._getPlus());
+		
+		if(containerId) { //Insert after that slot
+			$("#" + containerId).after($newSlot);
+		} else { //Insert before plus
+			$("#" + this.containerId + "-plus-button").before($newSlot);
+		}
 	}
 	
 	this.addSample = function(sampleToAdd) {
@@ -247,7 +265,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			
 			//Check for a non predefined slot that is free
-			var labelId = null;
 			if(!freePredefinedSampleId) {
 				for(var i = 0; i < this._lastIndex; i++) {
 					var predefinedSampleId = this.containerId + "-" + i + "-sample";
@@ -255,7 +272,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						var containerId = this.containerId + "-" + i;
 						var freePredefinedTypeCodeAux = $("#" + containerId).attr("sample-type-code");
 						if("null" === freePredefinedTypeCodeAux) {
-							labelId = this.containerId + "-" + i + "-label";
 							freePredefinedSampleId = predefinedSampleId;
 							break;
 						}
@@ -266,9 +282,14 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			//Create a new slot if nothing is found
 			if(!freePredefinedSampleId) { //Create a new slot if not found
 				var sampleId = this.containerId + "-" + this._lastIndex + "-sample";
-				labelId = this.containerId + "-" + this._lastIndex + "-label";
 				freePredefinedSampleId = sampleId;
-				this.addOneSlot();
+				
+				var typeToAdd = {
+					"LABEL" : sampleToAdd.sampleTypeCode,
+					"TYPE": sampleToAdd.sampleTypeCode,
+					"MIN_COUNT" : 0
+				};
+				this.addOneSlot(typeToAdd);
 			}
 			
 			//Finally, add the sample
@@ -294,9 +315,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				meaningfulInfo += "<b>" + propertyToShowDisplayName + ": </b>" + Util.getEmptyIfNull(propertyToShow) + " ";
 			}
 			var $input = $("#" +freePredefinedSampleId);
-			if(labelId) {
-				$("#"+labelId).text(sampleToAdd.sampleTypeCode +":");
-			}
 			if(meaningfulInfo.length > 200) {
 				meaningfulInfo = meaningfulInfo.substring(0, 200) + "...";
 			}
@@ -310,6 +328,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.removeSample = function(sampleId) {
 		if(this.samples[sampleId]) {
 			$('#'+sampleId).empty();
+			$('#'+sampleId).append("Select");
 			this.samples[sampleId] = null;
 		}
 	}
