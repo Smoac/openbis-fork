@@ -374,25 +374,27 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 				"LIST" : [] 
 			}
 		};
-		/*
+		
+		/* New Sample definition tests
 		this.sampleTypeDefinitionsExtension = {
 				"SYSTEM_EXPERIMENT" : {
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
-														"LABEL" : "Protocol for the experiment",
+														"LABEL" : "Protocol",
 														"TYPE": "GENERAL_PROTOCOL",
-														"REQUIRED" : true
+														"MIN_COUNT" : 1
 													}
 													,
 													{
-														"LABEL" : "Yeast to burn",
+														"LABEL" : "Yeast",
 														"TYPE": "YEAST",
-														"REQUIRED" : false
+														"MIN_COUNT" : 0
 													}
 												],
 				}
 		}
 		*/
+		
 		this.typePropertiesForTable = {
 			"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
 			"GENERAL_PROTOCOL" : ["NAME", "FOR_WHAT", "PROTOCOL_TYPE"],

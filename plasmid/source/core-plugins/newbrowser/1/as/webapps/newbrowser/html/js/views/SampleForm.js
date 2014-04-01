@@ -45,6 +45,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.projectsObj = [];
 	this.spaces = [];
 	this.sampleLinksParents = null;
+	this.sampleLinksChildren = null;
 	this.mode = mode;
 	this.sample = sample;
 	this.storage = null;
@@ -399,6 +400,19 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			this.sampleLinksParents = new SampleLinksWidget(sampleParentsWidgetId, this.profile, this.serverFacade, "Parents", requiredParents, isDisabled, sampleParentsLinks);
 			
 			//
+			// LINKS TO CHILDREN
+			//
+			var requiredChildren = [];
+			if(sampleTypeDefinitionsExtension && sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"]) {
+				requiredChildren = sampleTypeDefinitionsExtension["SAMPLE_CHILDREN_HINT"];
+			}
+			
+			var sampleChildrenWidgetId = "sampleChildrenWidgetId";
+			component += "<div id='" + sampleChildrenWidgetId + "'></div>";
+			
+			var sampleChildrenLinks = (this.sample)?this.sample.children:null;
+			this.sampleLinksChildren = new SampleLinksWidget(sampleChildrenWidgetId, this.profile, this.serverFacade, "Children", requiredChildren, isDisabled, sampleChildrenLinks);
+			//
 			// SAMPLE TYPE FIELDS
 			//
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
@@ -485,6 +499,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		$("#"+this.containerId).append(component);
 		this.storage.repaint();
 		this.sampleLinksParents.repaint();
+		this.sampleLinksChildren.repaint();
 		
 		//Enable Events
 		$("#sampleCode").change(
@@ -557,8 +572,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 		
 		//Parent Links
-		var sampleParentsFinal = new Array();
-		sampleParentsFinal = this.sampleLinksParents.getSamplesIdentifiers();
+		var sampleParentsFinal = this.sampleLinksParents.getSamplesIdentifiers();
+		var sampleChildrenFinal = this.sampleLinksChildren.getSamplesIdentifiers();
 		
 		//Identification Info
 		var sampleCode = $("#sampleCode")[0].value;
@@ -603,6 +618,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				"sampleProperties" : properties,
 				//Parent links
 				"sampleParents": sampleParentsFinal,
+				//Children links
+				"sampleChildren": sampleChildrenFinal,
 				//Experiment parameters
 				"sampleExperimentProject": sampleProject,
 				"sampleExperimentType": (isELNExperiment)?this.sampleTypeCode:"ELN_FOLDER",

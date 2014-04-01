@@ -1,5 +1,5 @@
 #
-# Copyright 2013 ETH Zuerich, CISD
+# Copyright 2014 ETH Zuerich, Scientific IT Services
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ def process(tr, parameters, tableBuilder):
 	
 	isOk = False;
 	if method == "insertSample":
-		isOk = insertSample(tr, parameters, tableBuilder);
+		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
-		isOk = insertSample(tr, parameters, tableBuilder);
+		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 
@@ -104,7 +104,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	#Return from the call
 	return True;
 	
-def insertSample(tr, parameters, tableBuilder):
+def insertUpdateSample(tr, parameters, tableBuilder):
 	
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
@@ -115,6 +115,7 @@ def insertSample(tr, parameters, tableBuilder):
 	
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
+	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
 	
 	#Used to create the experiment if doesn't exist already
 	sampleExperimentCode = parameters.get("sampleExperimentCode"); #String
@@ -171,6 +172,13 @@ def insertSample(tr, parameters, tableBuilder):
 	#Add sample parents
 	if sampleParents != None:
 		sample.setParentSampleIdentifiers(sampleParents);
+	
+	#Add sample children
+	for sampleChildIdentifier in sampleChildren:
+		child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
+		childParents = child.getParentSampleIdentifiers();
+		childParents.add(sampleIdentifier);
+		child.setParentSampleIdentifiers(childParents);
 	
 	#Return from the call
 	return True;
