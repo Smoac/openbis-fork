@@ -225,6 +225,7 @@ public class DatasetDownloadServletTest
         prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
+        prepareDatasetAccessed();
         prepareLocking();
         prepareForCreatingHTML(writer);
 
@@ -387,6 +388,7 @@ public class DatasetDownloadServletTest
         prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
+        prepareDatasetAccessed();
         prepareLocking();
         context.checking(new Expectations()
             {
@@ -423,6 +425,7 @@ public class DatasetDownloadServletTest
         prepareParseRequestURL();
         prepareCheckSession();
         prepareCheckDatasetAccess();
+        prepareDatasetAccessed();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
 
@@ -469,6 +472,7 @@ public class DatasetDownloadServletTest
         prepareCheckSession();
         final AbstractExternalData externalData = createDataSet();
         prepareCheckDatasetAccess();
+        prepareDatasetAccessed();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -763,6 +767,16 @@ public class DatasetDownloadServletTest
                 {
                     one(shareIdManager).lock(EXAMPLE_DATA_SET_CODE);
                     one(shareIdManager).releaseLock(EXAMPLE_DATA_SET_CODE);
+                }
+            });
+    }
+
+    private void prepareDatasetAccessed()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbisService).notifyDatasetAccess(EXAMPLE_DATA_SET_CODE);
                 }
             });
     }

@@ -324,12 +324,12 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     protected final void ensureDatasetAccessible(String dataSetCode, HttpSession session,
             String sessionIdOrNull)
     {
-        applicationContext.getDataSetService().notifyDatasetAccess(dataSetCode);
-
         if (isDatasetAccessible(dataSetCode, sessionIdOrNull, session) == false)
         {
             throw new UserFailureException("Data set '" + dataSetCode + "' is not accessible.");
         }
+
+        applicationContext.getDataSetService().notifyDatasetAccess(dataSetCode);
     }
 
     private boolean isDatasetAccessible(String dataSetCode, String sessionIdOrNull,
