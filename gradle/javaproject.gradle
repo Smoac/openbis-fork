@@ -203,7 +203,7 @@ task sourceJarForEclipseLaunchConfigs(type: Copy, dependsOn: sourcesJar) {
 	rename '.*', 'sources.jar'
 }
 
-jar.dependsOn sourceJarForEclipseLaunchConfigs
+compileJava.dependsOn sourceJarForEclipseLaunchConfigs
 
 artifacts {
     tests testJar
