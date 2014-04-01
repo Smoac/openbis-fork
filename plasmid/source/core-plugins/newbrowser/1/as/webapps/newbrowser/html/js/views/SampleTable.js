@@ -230,6 +230,35 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var aField = sampleA.properties[propertyCode];
 				var bField = sampleB.properties[propertyCode];
 				var order = (isAscendent)?1:-1;
+				
+				//
+				// Fix to use vocabulary labels instead of codes
+				//
+				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+				var propertyType = localReference.profile.getPropertyTypeFrom(sampleType, propertyCode);
+				
+				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
+					var vocabulary = null;
+					if(isNaN(propertyType.vocabulary)) {
+						vocabulary = localReference.profile.getVocabularyById(propertyType.vocabulary.id);
+					} else {
+						vocabulary = localReference.profile.getVocabularyById(propertyType.vocabulary);
+					}
+					
+					if(vocabulary) {
+						for(var k = 0; k < vocabulary.terms.length; k++) {
+							if(vocabulary.terms[k].code === aField) {
+								aField = vocabulary.terms[k].label;
+							}
+							
+							if(vocabulary.terms[k].code === bField) {
+								bField = vocabulary.terms[k].label;
+							}
+						}
+					}
+				}
+				// End Fix
+				
 				return order * naturalSort(aField, bField);
 			}
 			
@@ -369,7 +398,14 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 						if(tableFieldValue) {
 							tableFieldValue = Util.replaceURLWithHTMLLinks(tableFieldValue);
 						}
-						tableFields[tableFields.length] = Util.getEmptyIfNull(tableFieldValue);
+						
+						tableFieldValue = Util.getEmptyIfNull(tableFieldValue);
+						
+						//Cut long fields
+						if(tableFieldValue.length > 50) {
+							tableFieldValue = tableFieldValue.substring(0, 50) + " ...";
+						}
+						tableFields[tableFields.length] = tableFieldValue;
 						
 					}
 				}
@@ -590,6 +626,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	// Filter related
 	//
 	this._filter = function(filterResults) {
+		
 		//Obtain filter tokens
 		var filterValue = $('#table-filter').val();
 		var filterValueTokensAux = filterValue.toLowerCase().split(" ");
@@ -617,6 +654,31 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					for(var z = 0, lenZ = sampleTypeProperties.length; z < lenZ; ++z) {
 						var propertyCode = sampleTypeProperties[z];
 						var propertyValue = this.samples[i].properties[propertyCode];
+						
+						//
+						// Fix to use vocabulary labels instead of codes
+						//
+						var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+						var propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode);
+						
+						if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
+							var vocabulary = null;
+							if(isNaN(propertyType.vocabulary)) {
+								vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
+							} else {
+								vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
+							}
+							
+							if(vocabulary) {
+								for(var k = 0; k < vocabulary.terms.length; k++) {
+									if(vocabulary.terms[k].code === propertyValue) {
+										propertyValue = vocabulary.terms[k].label;
+										break;
+									}
+								}
+							}
+						}
+						// End Fix
 						
 						if(propertyValue) {
 							filterValueTokensPassed[j] = propertyValue.toLowerCase().indexOf(filterValueTokens[j]) !== -1;
