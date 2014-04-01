@@ -192,26 +192,18 @@ task testJar(type: Jar, dependsOn: testClasses) {
     from sourceSets.test.output
 }
 
-jar {
-    doLast {
-		tasks.sourcesJar.execute()
-    }
-}
-
 task sourcesJar(type: Jar) {
     classifier = 'sources'
     from sourceSets.main.allSource
-    
-    doLast {
-		tasks.sourceJarForEclipseLaunchConfigs.execute()
-    }
 }
 
-task sourceJarForEclipseLaunchConfigs(type: Copy) {
+task sourceJarForEclipseLaunchConfigs(type: Copy, dependsOn: sourcesJar) {
 	into sourcesJar.destinationDir
 	from sourcesJar.archivePath
 	rename '.*', 'sources.jar'
 }
+
+jar.dependsOn sourceJarForEclipseLaunchConfigs
 
 artifacts {
     tests testJar
