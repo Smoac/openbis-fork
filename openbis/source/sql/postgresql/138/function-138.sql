@@ -972,32 +972,40 @@ CREATE OR REPLACE RULE data_set_relationships_insert AS
          data_id_parent, 
          data_id_child,
          pers_id_author,
-			   registration_timestamp,
-			   modification_timestamp
+         relationship_id,
+         ordinal,
+         registration_timestamp,
+         modification_timestamp
        ) VALUES (
          NEW.data_id_parent, 
          NEW.data_id_child,
          NEW.pers_id_author,
-			   NEW.registration_timestamp,
-			   NEW.modification_timestamp
+         NEW.relationship_id,
+         NEW.ordinal
+         NEW.registration_timestamp,
+         NEW.modification_timestamp
        );
 
 CREATE OR REPLACE RULE data_set_relationships_update AS
     ON UPDATE TO data_set_relationships DO INSTEAD 
        UPDATE data_set_relationships_all
           SET 
-			      data_id_parent = NEW.data_id_parent, 
-			      data_id_child = NEW.data_id_child, 
-			      del_id = NEW.del_id,
-			      pers_id_author = NEW.pers_id_author,
-			      registration_timestamp = NEW.registration_timestamp,
-			      modification_timestamp = NEW.modification_timestamp
-          WHERE data_id_parent = NEW.data_id_parent and data_id_child = NEW.data_id_child;
+            data_id_parent = NEW.data_id_parent, 
+            data_id_child = NEW.data_id_child, 
+            del_id = NEW.del_id,
+            relationship_id = NEW.relationship_id,
+            ordinal = NEW.ordinal,
+            pers_id_author = NEW.pers_id_author,
+            registration_timestamp = NEW.registration_timestamp,
+            modification_timestamp = NEW.modification_timestamp
+          WHERE data_id_parent = NEW.data_id_parent and data_id_child = NEW.data_id_child 
+                and relationship_id = NEW.relationship_id;
           
 CREATE OR REPLACE RULE data_set_relationships_delete AS
     ON DELETE TO data_set_relationships DO INSTEAD
        DELETE FROM data_set_relationships_all
-              WHERE data_id_parent = OLD.data_id_parent and data_id_child = OLD.data_id_child;
+              WHERE data_id_parent = OLD.data_id_parent and data_id_child = OLD.data_id_child
+                    and relationship_id = OLD.relationship_id;
 
 CREATE OR REPLACE RULE sample_relationships_insert AS
     ON INSERT TO sample_relationships DO INSTEAD 
