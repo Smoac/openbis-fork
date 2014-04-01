@@ -572,8 +572,47 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 		
 		//Parent Links
+		if(!this.sampleLinksParents.isValid()) {
+			Util.showError("Missing Parents.");
+			return;
+		}
 		var sampleParentsFinal = this.sampleLinksParents.getSamplesIdentifiers();
+		
+		if(!this.sampleLinksParents.isValid()) {
+			Util.showError("Missing Children.");
+			return;
+		}
 		var sampleChildrenFinal = this.sampleLinksChildren.getSamplesIdentifiers();
+		var sampleChildrenRemovedFinal = this.sampleLinksChildren.getSamplesRemovedIdentifiers();
+		
+		
+		var intersect_safe = function(a, b)
+		{
+		  var ai=0, bi=0;
+		  var result = new Array();
+
+		  while( ai < a.length && bi < b.length )
+		  {
+		     if      (a[ai] < b[bi] ){ ai++; }
+		     else if (a[ai] > b[bi] ){ bi++; }
+		     else /* they're equal */
+		     {
+		       result.push(a[ai]);
+		       ai++;
+		       bi++;
+		     }
+		  }
+
+		  return result;
+		}
+		
+		sampleParentsFinal.sort();
+		sampleChildrenFinal.sort();
+		var intersection = intersect_safe(sampleParentsFinal, sampleChildrenFinal);
+		if(intersection.length > 0) {
+			Util.showError("The same entity can't be a parent and a child, please check: " + intersection);
+			return;
+		}
 		
 		//Identification Info
 		var sampleCode = $("#sampleCode")[0].value;
@@ -620,6 +659,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				"sampleParents": sampleParentsFinal,
 				//Children links
 				"sampleChildren": sampleChildrenFinal,
+				"sampleChildrenRemoved": sampleChildrenRemovedFinal,
 				//Experiment parameters
 				"sampleExperimentProject": sampleProject,
 				"sampleExperimentType": (isELNExperiment)?this.sampleTypeCode:"ELN_FOLDER",

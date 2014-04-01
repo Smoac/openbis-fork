@@ -116,6 +116,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
+	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
 	
 	#Used to create the experiment if doesn't exist already
 	sampleExperimentCode = parameters.get("sampleExperimentCode"); #String
@@ -180,5 +181,12 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		childParents.add(sampleIdentifier);
 		child.setParentSampleIdentifiers(childParents);
 	
+	#Remove sample children
+	for sampleChildIdentifier in sampleChildrenRemoved:
+		child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
+		childParents = child.getParentSampleIdentifiers();
+		childParents.remove(sampleIdentifier);
+		child.setParentSampleIdentifiers(childParents);
+		
 	#Return from the call
 	return True;

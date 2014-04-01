@@ -34,6 +34,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.isDisabled = isDisabled;
 	this.samplesToEdit = (samplesToEdit)?samplesToEdit:new Array(); //Only used to populate the widget
 	this.samples = {};
+	this.samplesRemoved = {};
 	
 	this._lastUsedId = null;
 	this._lastIndex = 0;
@@ -329,6 +330,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		if(this.samples[sampleId]) {
 			$('#'+sampleId).empty();
 			$('#'+sampleId).append("Select");
+			this.samplesRemoved[sampleId] = this.samples[sampleId];
 			this.samples[sampleId] = null;
 		}
 	}
@@ -342,5 +344,36 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 		}
 		return sampleIdentifiers;
+	}
+	
+	this.getSamplesRemovedIdentifiers = function() {
+		var sampleIdentifiers = new Array();
+		for(sampleObjKey in this.samplesRemoved) {
+			var sampleObj = this.samplesRemoved[sampleObjKey];
+			if(sampleObj !== null) {
+				sampleIdentifiers.push(sampleObj.identifier);
+			}
+		}
+		return sampleIdentifiers;
+	}
+	
+	this.isValid = function() {
+		var isValid = true;
+		for(sampleTypeHintKey in this.sampleTypeHints) {
+			var sampleTypeHint = this.sampleTypeHints[sampleTypeHintKey];
+			var minCount = sampleTypeHint["MIN_COUNT"];
+			var found = 0;
+			for(sampleKey in this.samples) {
+				var sample = this.samples[sampleKey];
+				if(sample && sample.sampleTypeCode === sampleTypeHint["TYPE"]) {
+					found++;
+				}
+			}
+			
+			if(found < minCount) {
+				isValid = false;
+			}
+		}
+		return isValid;
 	}
 }
