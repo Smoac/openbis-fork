@@ -308,7 +308,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			for(var j = 0; j < max3Length; j++) {
 				var propertyToShow = sampleToAdd.properties[propertiesToShow[j]];
 				if(!propertyToShow && propertiesToShow[j].charAt(0) === '$') {
-					propertyToShow = sampleToPrint.properties[propertiesToShow[j].substr(1)];
+					propertyToShow = sampleToAdd.properties[propertiesToShow[j].substr(1)];
 				}
 				var propertyToShowDisplayName = propertiesToShowDisplayNames[j];
 				
