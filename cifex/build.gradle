@@ -321,3 +321,5 @@ mainZip.dependsOn standaloneAppZip
 mainZip.dependsOn standaloneJarZip
 
 build.dependsOn mainZip
+
+apply from: 'gwtdev.gradle'
