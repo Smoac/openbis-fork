@@ -187,4 +187,8 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      */
     boolean exists(String dataSetCode);
 
+    /**
+     * Update the access time of the given data set
+     */
+    boolean updateAccessTimestamp(String dataSetCode);
 }

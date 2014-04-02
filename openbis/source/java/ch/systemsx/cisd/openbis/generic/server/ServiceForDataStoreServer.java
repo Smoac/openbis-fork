@@ -2695,7 +2695,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     public void notifyDatasetAccess(String sessionToken, String dataSetCode)
     {
         checkSession(sessionToken);
-        operationLog.info("Accessing dataset " + dataSetCode);
+
+        daoFactory.getDataDAO().updateAccessTimestamp(dataSetCode);
     }
 
     @Override

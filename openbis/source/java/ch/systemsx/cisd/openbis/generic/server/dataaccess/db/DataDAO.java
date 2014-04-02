@@ -99,6 +99,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     private static final String EXTERNAL_DATA_TABLE_NAME = EXTERNAL_DATA_ENTITY_CLASS
             .getSimpleName();
 
+    private Boolean isAccessTimestampColumnDefined;
+
     DataDAO(final PersistencyResources persistencyResources,
             final DatabaseInstancePE databaseInstance)
     {
@@ -1342,6 +1344,47 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                                 + "and data_id in (select id from data_all where code = :code)");
         query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
         return query.executeUpdate() > 0;
+    }
+
+    private boolean isAccessTimestampEnabled()
+    {
+        if (isAccessTimestampColumnDefined == null)
+        {
+            isAccessTimestampColumnDefined = isAccessTimestampColumnDefined();
+            if (isAccessTimestampColumnDefined)
+            {
+                operationLog.info("Access timestamp column for data sets is enabled");
+            }
+            else
+            {
+                operationLog.info("Access timestamp column for data sets is not enabled");
+            }
+        }
+        return isAccessTimestampColumnDefined;
+    }
+
+    private boolean isAccessTimestampColumnDefined()
+    {
+        SQLQuery query =
+                getSession().createSQLQuery(
+                        "SELECT column_name FROM information_schema.columns WHERE table_name='data_all' and column_name='"
+                                + ColumnNames.ACCESS_TIMESTAMP + "'");
+        return query.list().size() > 0;
+    }
+
+    @Override
+    public boolean updateAccessTimestamp(String dataSetCode)
+    {
+        if (isAccessTimestampEnabled())
+        {
+            SQLQuery query =
+                    getSession().createSQLQuery(
+                            "update data_all set " + ColumnNames.ACCESS_TIMESTAMP + " = current_timestamp "
+                                    + "where code = :code");
+            query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
+            return query.executeUpdate() > 0;
+        }
+        return false;
     }
 
     @Override
