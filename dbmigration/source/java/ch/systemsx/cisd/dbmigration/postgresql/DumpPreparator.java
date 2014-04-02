@@ -214,6 +214,9 @@ public class DumpPreparator
                 if (COPY_PATTERN.matcher(line).matches())
                 {
                     return COPY_LINE.processLine(line, manager);
+                } else if (line.startsWith("ALTER "))
+                {
+                    return FIX.processLine(line, manager);
                 }
                 manager.addSchemaLine(line);
                 return this;
@@ -241,19 +244,7 @@ public class DumpPreparator
             @Override
             State processLine(String line, UploadFileManager manager)
             {
-                return manager.addTableLine(line) ? COPY : this;
-            }
-        },
-        COPY
-        {
-            @Override
-            State processLine(String line, UploadFileManager manager)
-            {
-                if (COPY_PATTERN.matcher(line).matches())
-                {
-                    return COPY_LINE.processLine(line, manager);
-                }
-                return FIX.processLine(line, manager);
+                return manager.addTableLine(line) ? SCHEMA : this;
             }
         },
         FIX
