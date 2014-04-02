@@ -1346,7 +1346,8 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return query.executeUpdate() > 0;
     }
 
-    private boolean isAccessTimestampEnabled()
+    @Override
+    public boolean isAccessTimestampEnabled()
     {
         if (isAccessTimestampColumnDefined == null)
         {

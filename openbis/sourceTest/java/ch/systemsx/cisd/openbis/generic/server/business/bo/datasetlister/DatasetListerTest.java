@@ -26,9 +26,11 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,6 +44,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityListingQueryTest;
@@ -49,6 +52,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -84,7 +88,7 @@ public class DatasetListerTest extends AbstractDAOTest
                 DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
-        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, "url", null);
+        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, daoFactory.getDataDAO(), "url", null);
         exampleSample =
                 DatasetListingQueryTest.getSample("CISD", "CP-TEST-1",
                         datasetListerDAO.getDatabaseInstanceId(), daoFactory);
@@ -253,6 +257,22 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("no comment", dataSets.get(0).getProperties().get(0).tryGetOriginalValue());
         assertEquals(1, dataSets.get(0).getProperties().size());
         assertEquals(2, dataSets.size());
+    }
+
+    @Test
+    public void testListByArchiverCriteria()
+    {
+        ArchiverDataSetCriteria criteria = new ArchiverDataSetCriteria(numberOfDaysSince2012(), null, false);
+        List<AbstractExternalData> result = lister.listByArchiverCriteria("STANDARD", criteria);
+
+        AssertionUtil.assertSize(result, 4);
+    }
+
+    protected int numberOfDaysSince2012()
+    {
+        Calendar c = Calendar.getInstance();
+        c.set(2012, 1, 1);
+        return (int) ((new Date().getTime() - c.getTime().getTime()) / 1000 / 60 / 60 / 24);
     }
 
     @Test

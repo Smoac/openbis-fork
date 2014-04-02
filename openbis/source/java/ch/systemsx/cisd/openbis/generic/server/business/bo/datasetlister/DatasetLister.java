@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Abstrac
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
@@ -130,6 +131,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     private final SecondaryEntityDAO referencedEntityDAO;
 
+    private final IDataDAO dataDAO;
+
     //
     // Working data structures
     //
@@ -150,24 +153,25 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
+        IDataDAO dataDAO = daoFactory.getDataDAO();
 
-        return create(dao, referencedEntityDAO, baseIndexURL, userId);
+        return create(dao, referencedEntityDAO, dataDAO, baseIndexURL, userId);
     }
 
-    static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO,
+    static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO, IDataDAO dataDAO,
             String baseIndexURL, Long userId)
     {
         IDatasetListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                propertiesEnricher, referencedEntityDAO, baseIndexURL, userId);
+                propertiesEnricher, referencedEntityDAO, dataDAO, baseIndexURL, userId);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
-            SecondaryEntityDAO referencedEntityDAO, String baseIndexURL, Long userId)
+            SecondaryEntityDAO referencedEntityDAO, IDataDAO dataDAO, String baseIndexURL, Long userId)
     {
         super(referencedEntityDAO);
         assert databaseInstance != null;
@@ -178,6 +182,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         this.query = query;
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
+        this.dataDAO = dataDAO;
         this.baseIndexURL = baseIndexURL;
         this.userId = userId;
     }
@@ -612,22 +617,38 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         loadSmallConnectedTables();
         final Long dataStoreId = extractDataStoreId(dataStoreCode);
-        final Date lastRegistrationDate = extractLastRegistrationDate(criteria);
+        final Date lastAccessDate = extractLastAccessDate(criteria);
         final String dataSetTypeCodeOrNull = criteria.tryGetDataSetTypeCode();
         final boolean presentInArchive = criteria.isPresentInArchive();
-        if (dataSetTypeCodeOrNull == null)
+
+        if (dataDAO.isAccessTimestampEnabled())
         {
-            return enrichDatasets(query.getAvailableExtDatasRegisteredBefore(dataStoreId,
-                    lastRegistrationDate, presentInArchive));
+            if (dataSetTypeCodeOrNull == null)
+            {
+                return enrichDatasets(query.getAvailableExtDatasAccessedBefore(dataStoreId,
+                        lastAccessDate, presentInArchive));
+            } else
+            {
+                Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
+                return enrichDatasets(query.getAvailableExtDatasAccessedBeforeWithDataSetType(
+                        dataStoreId, lastAccessDate, presentInArchive, dataSetTypeId));
+            }
         } else
         {
-            Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
-            return enrichDatasets(query.getAvailableExtDatasRegisteredBeforeWithDataSetType(
-                    dataStoreId, lastRegistrationDate, presentInArchive, dataSetTypeId));
+            if (dataSetTypeCodeOrNull == null)
+            {
+                return enrichDatasets(query.getAvailableExtDatasRegisteredBefore(dataStoreId,
+                        lastAccessDate, presentInArchive));
+            } else
+            {
+                Long dataSetTypeId = extractDataSetTypeId(dataSetTypeCodeOrNull);
+                return enrichDatasets(query.getAvailableExtDatasRegisteredBeforeWithDataSetType(
+                        dataStoreId, lastAccessDate, presentInArchive, dataSetTypeId));
+            }
         }
     }
 
-    private Date extractLastRegistrationDate(ArchiverDataSetCriteria criteria)
+    private Date extractLastAccessDate(ArchiverDataSetCriteria criteria)
     {
         return DateUtils.addDays(new Date(), -criteria.getOlderThan());
     }
