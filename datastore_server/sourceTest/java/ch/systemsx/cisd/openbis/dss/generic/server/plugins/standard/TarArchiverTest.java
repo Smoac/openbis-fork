@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
+@Test
 public class TarArchiverTest extends AbstractPackageArchiverTest
 {
 
@@ -60,12 +61,6 @@ public class TarArchiverTest extends AbstractPackageArchiverTest
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
-    }
-
-    @Test
-    public void test()
-    {
-
     }
 
     @Override

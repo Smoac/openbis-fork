@@ -22,6 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
+import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -32,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
+@Test
 public class ZipArchiverTest extends AbstractPackageArchiverTest
 {
 
