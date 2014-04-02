@@ -328,8 +328,6 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
         {
             throw new UserFailureException("Data set '" + dataSetCode + "' is not accessible.");
         }
-
-        applicationContext.getDataSetService().notifyDatasetAccess(dataSetCode);
     }
 
     private boolean isDatasetAccessible(String dataSetCode, String sessionIdOrNull,

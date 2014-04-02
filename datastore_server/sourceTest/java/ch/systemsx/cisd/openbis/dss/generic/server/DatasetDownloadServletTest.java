@@ -225,7 +225,6 @@ public class DatasetDownloadServletTest
         prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, "");
-        prepareDatasetAccessed();
         prepareLocking();
         prepareForCreatingHTML(writer);
 
@@ -388,7 +387,6 @@ public class DatasetDownloadServletTest
         prepareCheckSession();
         prepareForObtainingDataSetFromServer(externalData);
         prepareForGettingDataSetFromSession(externalData, ESCAPED_EXAMPLE_DATA_SET_SUB_FOLDER_NAME);
-        prepareDatasetAccessed();
         prepareLocking();
         context.checking(new Expectations()
             {
@@ -425,7 +423,6 @@ public class DatasetDownloadServletTest
         prepareParseRequestURL();
         prepareCheckSession();
         prepareCheckDatasetAccess();
-        prepareDatasetAccessed();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
 
@@ -472,7 +469,6 @@ public class DatasetDownloadServletTest
         prepareCheckSession();
         final AbstractExternalData externalData = createDataSet();
         prepareCheckDatasetAccess();
-        prepareDatasetAccessed();
         prepareForObtainingDataSetFromServer(externalData);
         prepareLocking();
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -717,6 +713,10 @@ public class DatasetDownloadServletTest
     {
         prepareCreateSession();
         prepareTryGetDatasetLocation(externalData);
+        if (externalData != null)
+        {
+            prepareDatasetAccessed();
+        }
     }
 
     private void prepareCreateSession()
