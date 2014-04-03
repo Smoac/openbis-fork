@@ -1,5 +1,4 @@
 if (System.getProperty("openbis.development-build") != null) {
-	print "DEVELOPMENT BUILD\n"
 	configurations.create('gwtdev')
 	configurations.gwtdev {
 	    transitive = false

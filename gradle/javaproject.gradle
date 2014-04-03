@@ -232,3 +232,13 @@ task testRuntimeDependencies(type: Copy) {
     into "$buildDir/output/testRuntime-dependencies"
     from configurations.testRuntime
 }
+
+task checkDependencies(dependsOn: classes) << {
+	ant.taskdef(name: 'dependencychecker', classname: 'classycle.ant.DependencyCheckingTask', classpath: configurations.testRuntime.asPath)
+    ant.dependencychecker(
+    			definitionFile: 'resource/dependency-structure.ddf', 
+    			failOnUnwantedDependencies: 'true',
+    			mergeInnerClasses: 'true') {
+    	fileset(dir: "${buildDir}", includes: "**/*.class")
+	}
+}
