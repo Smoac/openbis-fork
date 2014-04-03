@@ -49,7 +49,7 @@ import ch.systemsx.cisd.dbmigration.TableDefinition;
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { IDatabaseDumper.class, Parameters.class })
+{ IDatabaseDumper.class, Parameters.class })
 public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
 {
     private static final String UUID1 = "DBE9F7D0-66F5-40EB-A5CC-A9D6DCDE454";
@@ -83,6 +83,7 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
                     + "1\tDESCRIPTION\t1\t1\n" + "2\tAGE\t2\t1\n" + "\\.\n"
                     + "COPY property_values (id, value, prty_id) FROM stdin;\n" + "1\thello\t1\n"
                     + "2\t42\t2\n" + "3\tworld\t1\n" + "\\.\n" + "\n"
+                    + "ALTER TABLE ONLY data_all\n"
                     + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
 
     private static final String EXAMPLE_WITH_CYCLCIC_ROTATED_COLUMNS =
@@ -110,6 +111,7 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
                     + "1\tDESCRIPTION\t1\t1\n" + "2\tAGE\t2\t1\n" + "\\.\n"
                     + "COPY property_values (prty_id, id, value) FROM stdin;\n" + "1\t1\thello\n"
                     + "2\t2\t42\n" + "1\t3\tworld\n" + "\\.\n" + "\n"
+                    + "ALTER TABLE ONLY data_all\n"
                     + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
 
     private static final String EXAMPLE_WITH_MISSING_DATABASE_VERSION_LOG =
@@ -127,6 +129,7 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
                     + "\n"
                     + "COPY database_instances (id, code, uuid, is_original_source, registration_timestamp) FROM stdin;\n"
                     + "1\tCISD\t%sC\tt\t2008-08-13 10:06:08.49+02\n" + "\\.\n" + "\n"
+                    + "ALTER TABLE ONLY data_all\n"
                     + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
 
     private static final String EXAMPLE_WITH_MISSING_DATABASE_INSTANCES =
@@ -142,7 +145,9 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
                     + "COPY database_version_logs (db_version, module_name, run_status) FROM stdin;\n"
                     + "011\tsource/sql/postgresql/010/schema-010.sql\tSUCCESS 2007-11-22 08:46:04.25\n"
                     + "010\tsource/sql/postgresql/010/data-010.sql\tSUCCESS 2007-11-22 08:46:04.53\n"
-                    + "\\.\n" + "\n" + "\n" + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
+                    + "\\.\n" + "\n" + "\n"
+                    + "ALTER TABLE ONLY data_all\n"
+                    + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
 
     private static final String EXAMPLE_WITH_MISSING_DATABASE_INSTANCES2 =
             "SET client_encoding = 'UTF8';\n"
@@ -157,7 +162,9 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
                     + "COPY database_version_logs (db_version, module_name, run_status) FROM stdin;\n"
                     + "012\tsource/sql/postgresql/010/schema-010.sql\tSUCCESS 2007-11-22 08:46:04.25\n"
                     + "010\tsource/sql/postgresql/010/data-010.sql\tSUCCESS 2007-11-22 08:46:04.53\n"
-                    + "\\.\n" + "\n" + "\n" + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
+                    + "\\.\n" + "\n" + "\n"
+                    + "ALTER TABLE ONLY data_all\n"
+                    + "    ADD CONSTRAINT data_pk PRIMARY KEY (id);\n";
 
     private static final DatabaseDefinition EXAMPLE_META_DATA = createDatabaseDefinition();
 
@@ -442,7 +449,7 @@ public class DatabaseInstanceImporterTest extends AbstractFileSystemTestCase
         checkTabFile(files[4], "property_values", "1\thello\t1", "2\t42\t2", "3\tworld\t1",
                 "4\thello\t3", "5\t42\t4", "6\tworld\t3");
         assertEquals("finish-011.sql", files[5].getName());
-        checkFileContent(files[5], "    ADD CONSTRAINT data_pk PRIMARY KEY (id);", "");
+        checkFileContent(files[5], "ALTER TABLE ONLY data_all", "    ADD CONSTRAINT data_pk PRIMARY KEY (id);", "");
         assertEquals("schema-011.sql", files[6].getName());
         checkFileContent(files[6], "SET standard_conforming_strings = off;", "");
 
