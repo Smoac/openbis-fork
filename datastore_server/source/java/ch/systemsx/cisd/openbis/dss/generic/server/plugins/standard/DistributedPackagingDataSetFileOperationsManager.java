@@ -29,12 +29,14 @@ import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.FilteredHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiveFolders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
@@ -57,6 +59,10 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     static final String DEFAULT_DESTINATION_KEY = "default-archive-folder";
 
+    static final String DEFAULT_SMALL_DATA_SETS_DESTINATION_KEY = "default-small-data-sets-archive-folder";
+
+    static final String SMALL_DATA_SETS_SIZE_LIMIT_KEY = "small-data-sets-size-limit";
+
     static final String WITH_SHARDING_KEY = "with-sharding";
 
     static final String IGNORE_EXISTING_KEY = "ignore-existing";
@@ -75,6 +81,10 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     private boolean ignoreExisting;
 
     private File defaultFolder;
+
+    private File defaultSmallDataSetsFolder;
+
+    private Long smallDataSetsSizeLimit;
 
     private boolean withSharding;
 
@@ -105,12 +115,31 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         ignoreExisting = PropertyUtils.getBoolean(properties,
                 IGNORE_EXISTING_KEY, false);
         withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
+
         defaultFolder = new File(PropertyUtils.getMandatoryProperty(properties, DEFAULT_DESTINATION_KEY));
         if (defaultFolder.isDirectory() == false)
         {
             throw new ConfigurationFailureException("Default archive folder '" + defaultFolder.getPath()
                     + "' doesn't exist or is not a folder.");
         }
+
+        String aDefaultSmallDataSetsFolder = PropertyUtils.getProperty(properties, DEFAULT_SMALL_DATA_SETS_DESTINATION_KEY);
+        if (false == StringUtils.isBlank(aDefaultSmallDataSetsFolder))
+        {
+            defaultSmallDataSetsFolder = new File(aDefaultSmallDataSetsFolder);
+            if (defaultSmallDataSetsFolder.isDirectory() == false)
+            {
+                throw new ConfigurationFailureException("Default small data sets archive folder '" + defaultSmallDataSetsFolder.getPath()
+                        + "' doesn't exist or is not a folder.");
+            }
+        }
+
+        long aSmallDataSetsSizeLimit = PropertyUtils.getLong(properties, SMALL_DATA_SETS_SIZE_LIMIT_KEY, -1);
+        if (aSmallDataSetsSizeLimit > 0)
+        {
+            smallDataSetsSizeLimit = aSmallDataSetsSizeLimit * 1024;
+        }
+
         mappingFilePathOrNull = properties.getProperty(MAPPING_FILE_KEY);
         createArchives = PropertyUtils.getBoolean(properties, CREATE_ARCHIVES_KEY, false);
         getArchiveFolderMapping(); // Loads and validates mapping file
@@ -189,10 +218,22 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     private File tryFindArchiveFile(IDatasetLocation datasetLocation)
     {
         File archiveFile = getArchiveFile(defaultFolder, datasetLocation, false);
+
         if (archiveFile.isFile())
         {
             return archiveFile;
         }
+
+        if (defaultSmallDataSetsFolder != null)
+        {
+            archiveFile = getArchiveFile(defaultSmallDataSetsFolder, datasetLocation, false);
+
+            if (archiveFile.isFile())
+            {
+                return archiveFile;
+            }
+        }
+
         Collection<File> folders = getArchiveFolderMapping().getAllFolders();
         for (File folder : folders)
         {
@@ -296,7 +337,19 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private File getArchiveFile(DatasetDescription datasetDescription)
     {
-        File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, defaultFolder);
+        File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, null);
+
+        // there is no mapping, lets use default archive folders
+        if (folder == null)
+        {
+            File[] folders = new File[] {
+                    defaultFolder,
+                    defaultSmallDataSetsFolder
+            };
+            ArchiveFolders archiveFolders = ArchiveFolders.create(folders, createArchives, smallDataSetsSizeLimit);
+            folder = archiveFolders.getFolder(datasetDescription);
+        }
+
         return getArchiveFile(folder, datasetDescription, true);
     }
 
@@ -347,7 +400,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     {
         if (archiveFolderMapping == null)
         {
-            archiveFolderMapping = new IdentifierAttributeMappingManager(mappingFilePathOrNull, createArchives);
+            archiveFolderMapping = new IdentifierAttributeMappingManager(mappingFilePathOrNull, createArchives, smallDataSetsSizeLimit);
         }
         return archiveFolderMapping;
     }

@@ -59,9 +59,13 @@ public class IdentifierAttributeMappingManager
 
     private long mappingFileLastModified;
 
-    public IdentifierAttributeMappingManager(String mappingFilePathOrNull, boolean createArchives)
+    private Long smallDataSetsSizeLimit;
+
+    public IdentifierAttributeMappingManager(String mappingFilePathOrNull, boolean createArchives, Long smallDataSetsSizeLimit)
     {
         this.createArchives = createArchives;
+        this.smallDataSetsSizeLimit = smallDataSetsSizeLimit;
+
         if (StringUtils.isBlank(mappingFilePathOrNull))
         {
             mappingFileOrNull = null;
@@ -125,7 +129,7 @@ public class IdentifierAttributeMappingManager
                     shareID = null;
                 }
                 List<String> shareIds = getShareIds(identifier, row);
-                ArchiveFolders archiveFolders = ArchiveFolders.create(row[2], createArchives);
+                ArchiveFolders archiveFolders = getArchiveFolders(identifier, row);
                 attributesMap.put(identifier, new Attributes(shareIds, archiveFolders));
             }
             operationLog.info("Mapping file '" + mappingFile + "' successfully loaded.");
@@ -151,6 +155,18 @@ public class IdentifierAttributeMappingManager
             }
         }
         return true;
+    }
+
+    private ArchiveFolders getArchiveFolders(String identifier, String[] row)
+    {
+        if (StringUtils.isBlank(row[2]))
+        {
+            return null;
+        } else
+        {
+            String[] folderPaths = row[2].split(";");
+            return ArchiveFolders.create(folderPaths, createArchives, smallDataSetsSizeLimit);
+        }
     }
 
     private List<String> getShareIds(String identifier, String[] row)

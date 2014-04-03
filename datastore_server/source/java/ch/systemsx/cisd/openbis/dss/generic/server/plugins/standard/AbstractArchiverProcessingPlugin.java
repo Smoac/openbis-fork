@@ -104,37 +104,32 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     }
 
     /**
-     * NOTE: this method is not allowed to throw exception as this will leave data sets in the
-     * openBIS database with an inconsistent status.
+     * NOTE: this method is not allowed to throw exception as this will leave data sets in the openBIS database with an inconsistent status.
      */
     abstract protected DatasetProcessingStatuses doArchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context);
 
     /**
-     * NOTE: this method is not allowed to throw exception as this will leave data sets in the
-     * openBIS database with an inconsistent status. Implementations of this method should invoke
-     * <code>context.getUnarchivingPreparation().prepareForUnarchiving()</code> for each data set
-     * before doing the actual unarchiving.
+     * NOTE: this method is not allowed to throw exception as this will leave data sets in the openBIS database with an inconsistent status.
+     * Implementations of this method should invoke <code>context.getUnarchivingPreparation().prepareForUnarchiving()</code> for each data set before
+     * doing the actual unarchiving.
      */
     abstract protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets,
             ArchiverTaskContext context);
 
     /**
-     * deletes data sets from archive. At the time when this method is invoked the data sets do not
-     * exist in the openBIS database.
+     * deletes data sets from archive. At the time when this method is invoked the data sets do not exist in the openBIS database.
      */
     abstract protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets);
 
     /**
-     * @return <code>true</code> if the dataset is present and synchronized with the archive,
-     *         <code>false</code> otherwise.
+     * @return <code>true</code> if the dataset is present and synchronized with the archive, <code>false</code> otherwise.
      */
     abstract protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset,
             ArchiverTaskContext context);
 
     /**
-     * @return <code>true</code> if the dataset is present in the archive, <code>false</code>
-     *         otherwise.
+     * @return <code>true</code> if the dataset is present in the archive, <code>false</code> otherwise.
      */
     abstract protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset);
 
@@ -167,6 +162,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
                 String dataSetLocation = dataset.getDataSetLocation();
                 long size = FileUtils.sizeOfDirectory(new File(shareFolder, dataSetLocation));
                 getService().updateShareIdAndSize(dataSetCode, shareId, size);
+                dataset.setDataSetSize(size);
             }
         }
     }
@@ -200,8 +196,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     }
 
     /**
-     * this method does not handle any exceptions coming from the archiver implementation, hence it
-     * is 'unsafe'.
+     * this method does not handle any exceptions coming from the archiver implementation, hence it is 'unsafe'.
      */
     private DatasetProcessingStatuses unsafeArchive(List<DatasetDescription> datasets,
             final ArchiverTaskContext context, boolean removeFromDataStore)

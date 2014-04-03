@@ -242,6 +242,71 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
     }
 
     @Test
+    public void testArchivingBigDataSetWithMappingFile()
+    {
+        testArchivingWithMappingFile(true);
+    }
+
+    @Test
+    public void testArchivingSmallDataSetWithMappingFile()
+    {
+        testArchivingWithMappingFile(false);
+    }
+
+    private void testArchivingWithMappingFile(boolean isBigDataSet)
+    {
+        File mappingFile = new File(workingDirectory, "mapping.tsv");
+        File archiveForBig = new File(archives, "archive-for-big");
+        File archiveForSmall = new File(archives, "archive-for-small");
+        FileUtilities.writeToFile(mappingFile, "Space\tLive Share\tArchive Folder\n/S\t1\t" + archiveForBig + ";" + archiveForSmall + "\n");
+        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.MAPPING_FILE_KEY, mappingFile.getPath());
+        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.CREATE_ARCHIVES_KEY, "true");
+        properties.setProperty(DistributedPackagingDataSetFileOperationsManager.SMALL_DATA_SETS_SIZE_LIMIT_KEY, isBigDataSet ? "100" : "1000");
+        IArchiverPlugin archiver = createArchiver();
+        Experiment experiment = new ExperimentBuilder().identifier("/S/P/E1").type("MY-E").getExperiment();
+        Sample sample = new SampleBuilder("/S/S1").type("MY-S").property("ANSWER", "42").getSample();
+        PhysicalDataSet ds1 =
+                new DataSetBuilder().code(DATA_SET_CODE).type("MY-TYPE").location(LOCATION)
+                        .store(new DataStoreBuilder(DATA_STORE_CODE).getStore()).fileFormat("ABC")
+                        .experiment(experiment).sample(sample).getDataSet();
+        DatasetDescription dsd1 = DataSetTranslator.translateToDescription(ds1);
+        prepareGetStoreRoot();
+        prepareGetShareId();
+        prepareUpdateShareIdAndSize(537669);
+        prepareGetDataSetDirectory(dsd1);
+        prepareTryGetDataSet(ds1);
+        prepareTryGetExperiment(experiment);
+        prepareTryGetSample(sample);
+        prepareLockAndReleaseDataSet(ds1.getCode());
+        prepareGetDataSetDirectory("");
+        prepareGetDataSetDirectory(LOCATION);
+        prepareAsContent(ds1.getCode(), ds1InStore);
+        prepareAsContent(ds1.getCode(), ds1InStore);
+        prepareUpdateStatus(DataSetArchivingStatus.AVAILABLE, true);
+
+        ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
+
+        File archivedDataSetFile = null;
+
+        if (isBigDataSet)
+        {
+            archivedDataSetFile = new File(archiveForBig, ds1.getDataSetCode() + getPackageExtension());
+        } else
+        {
+            archivedDataSetFile = new File(archiveForSmall, ds1.getDataSetCode() + getPackageExtension());
+        }
+
+        List<Status> errorStatuses = processingStatus.getErrorStatuses();
+        assertEquals("[]", errorStatuses.toString());
+        assertEquals(true, archivedDataSetFile.isFile());
+        assertPackageFileContent("Hello world!", archivedDataSetFile, "original/my-data/subfolder/hello.txt", true);
+        assertPackageFileContent("Nothing to read!", archivedDataSetFile, "original/my-data/read-me.txt", true);
+        assertPackageFileContent(HDF5_ARCHIVE, archivedDataSetFile, "original/my-data/subfolder/my-archive.h5", true);
+        File[] unzippedFiles = ZipBasedHierarchicalContentTest.getUnzippedFiles();
+        assertEquals("[]", Arrays.asList(unzippedFiles).toString());
+    }
+
+    @Test
     public void testUnarchivingFromDefaultArchiveNoShardingWithCompression()
     {
         properties.setProperty(SHARE_FINDER_KEY + ".class", ShareFinder.class.getName());
@@ -319,8 +384,6 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
         assertEquals(true, emptyFolder.exists());
         assertEquals(true, emptyFolder.isDirectory());
     }
-
-   
 
     @Test
     public void testArchivingTwiceWithIgnoreExistingSetToFalse()
@@ -622,7 +685,7 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
                 + "/" + ds1.getDataSetCode());
         assertEquals(true, markerFile.exists());
     }
-    
+
     public void testArchivingWithShardingWithoutCompressingToDefaultArchive()
     {
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.WITH_SHARDING_KEY, "true");
@@ -850,6 +913,17 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
                 {
                     allowing(shareIdManager).getShareId(DATA_SET_CODE);
                     will(returnValue(SHARE_ID));
+                }
+            });
+    }
+
+    protected void prepareGetStoreRoot()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(configProvider).getStoreRoot();
+                    will(returnValue(store));
                 }
             });
     }

@@ -22,25 +22,34 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
-abstract class ArchiveFolders
+public abstract class ArchiveFolders
 {
 
     public abstract File getFolder(DatasetDescription dataSetDescription);
 
     public abstract Collection<File> getAllFolders();
 
-    public static ArchiveFolders create(String foldersConfig, boolean createFolders)
+    public static ArchiveFolders create(File[] folders, boolean createFolders, Long smallDataSetsSizeLimit)
     {
-        if (StringUtils.isBlank(foldersConfig))
+        String[] folderPaths = new String[folders.length];
+        for (int i = 0; i < folders.length; i++)
         {
-            return null;
+            File folder = folders[i];
+            if (folder != null)
+            {
+                folderPaths[i] = folder.getPath();
+            }
         }
+        return create(folderPaths, createFolders, smallDataSetsSizeLimit);
+    }
 
-        String[] folderPaths = foldersConfig.split(";");
+    public static ArchiveFolders create(String[] folderPaths, boolean createFolders, Long smallDataSetsSizeLimit)
+    {
         List<String> notBlankPaths = new ArrayList<String>();
 
         for (String folderPath : folderPaths)
@@ -59,7 +68,7 @@ abstract class ArchiveFolders
             return new CommonArchiveFolder(notBlankPaths.get(0), createFolders);
         } else if (notBlankPaths.size() == 2)
         {
-            return new SizeDependentArchiveFolders(notBlankPaths.get(0), notBlankPaths.get(1), createFolders);
+            return new SizeDependentArchiveFolders(notBlankPaths.get(0), notBlankPaths.get(1), createFolders, smallDataSetsSizeLimit);
         } else
         {
             throw new IllegalArgumentException(
@@ -130,17 +139,39 @@ abstract class ArchiveFolders
 
         private File smallDataSetsFolder;
 
-        private SizeDependentArchiveFolders(String bigDataSetsFolderPath, String smallDataSetsFolderPath, boolean createFolders)
+        private Long smallDataSetsSizeLimit;
+
+        private IEncapsulatedOpenBISService service;
+
+        private IShareIdManager shareIdManager;
+
+        private IConfigProvider configProvider;
+
+        private SizeDependentArchiveFolders(String bigDataSetsFolderPath, String smallDataSetsFolderPath, boolean createFolders,
+                Long smallDataSetsSizeLimit)
         {
+            if (smallDataSetsSizeLimit == null)
+            {
+                throw new IllegalArgumentException("Small data set size limit cannot be null");
+            }
             this.bigDataSetsFolder = prepareFolder(bigDataSetsFolderPath, createFolders);
             this.smallDataSetsFolder = prepareFolder(smallDataSetsFolderPath, createFolders);
+            this.smallDataSetsSizeLimit = smallDataSetsSizeLimit;
         }
 
         @Override
         public File getFolder(DatasetDescription dataSetDescription)
         {
-            // TODO read the limit from properties
-            if (dataSetDescription.getDataSetSize() > 1000)
+            if (dataSetDescription.getDataSetSize() == null)
+            {
+                String shareId = getShareIdManager().getShareId(dataSetDescription.getDataSetCode());
+                File shareFolder = new File(getConfigProvider().getStoreRoot(), shareId);
+                long size = FileUtils.sizeOfDirectory(new File(shareFolder, dataSetDescription.getDataSetLocation()));
+                getService().updateShareIdAndSize(dataSetDescription.getDataSetCode(), shareId, size);
+                dataSetDescription.setDataSetSize(size);
+            }
+
+            if (dataSetDescription.getDataSetSize() > smallDataSetsSizeLimit)
             {
                 return bigDataSetsFolder;
             } else
@@ -153,6 +184,33 @@ abstract class ArchiveFolders
         public Collection<File> getAllFolders()
         {
             return Arrays.asList(bigDataSetsFolder, smallDataSetsFolder);
+        }
+
+        private IConfigProvider getConfigProvider()
+        {
+            if (configProvider == null)
+            {
+                configProvider = ServiceProvider.getConfigProvider();
+            }
+            return configProvider;
+        }
+
+        private IShareIdManager getShareIdManager()
+        {
+            if (shareIdManager == null)
+            {
+                shareIdManager = ServiceProvider.getShareIdManager();
+            }
+            return shareIdManager;
+        }
+
+        private IEncapsulatedOpenBISService getService()
+        {
+            if (service == null)
+            {
+                service = ServiceProvider.getOpenBISService();
+            }
+            return service;
         }
 
     }
