@@ -56,7 +56,7 @@ public abstract class ArchiveFolders
         {
             if (false == StringUtils.isBlank(folderPath))
             {
-                notBlankPaths.add(folderPath);
+                notBlankPaths.add(folderPath.trim());
             }
         }
 
