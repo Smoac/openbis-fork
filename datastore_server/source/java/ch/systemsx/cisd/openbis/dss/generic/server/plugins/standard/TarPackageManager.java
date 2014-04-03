@@ -24,11 +24,13 @@ import java.util.Properties;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
+import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
@@ -87,6 +89,13 @@ public class TarPackageManager implements IPackageManager
         {
             untar = new Untar(packageFile);
             untar.extract(toDirectory);
+
+            File metadataFile = new File(toDirectory, AbstractDataSetPackager.META_DATA_FILE_NAME);
+            if (metadataFile.exists() && metadataFile.isFile())
+            {
+                FileUtilities.delete(metadataFile);
+            }
+
             return Status.OK;
         } catch (Exception ex)
         {
