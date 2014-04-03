@@ -164,7 +164,7 @@ public class IdentifierAttributeMappingManager
             return null;
         } else
         {
-            String[] folderPaths = row[2].split(";");
+            String[] folderPaths = row[2].split(",");
             return ArchiveFolders.create(folderPaths, createArchives, smallDataSetsSizeLimit);
         }
     }

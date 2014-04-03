@@ -118,7 +118,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         File mappingFile = new File(workingDirectory, "mapping.txt");
         FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
                 + "/S2\t4\t" + as3 + "\n"
-                + "/S1/P1\t2\t" + as1 + ";" + as2);
+                + "/S1/P1\t2\t" + as1 + ", " + as2);
         IdentifierAttributeMappingManager mappingManager = new IdentifierAttributeMappingManager(mappingFile.getPath(), true, 1000L);
 
         List<File> folders = new ArrayList<File>(mappingManager.getAllFolders());
@@ -167,7 +167,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         File mappingFile = new File(workingDirectory, "mapping.txt");
         FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
                 + "/S2\t4\t" + as3 + "\n"
-                + "/S1/P1\t2\t" + as1 + ";" + as2);
+                + "/S1/P1\t2\t" + as1 + ", " + as2);
         new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
     }
 
@@ -177,7 +177,7 @@ public class IdentifierAttributeMappingManagerTest extends AbstractFileSystemTes
         File mappingFile = new File(workingDirectory, "mapping.txt");
         FileUtilities.writeToFile(mappingFile, "Identifier\tShare ID\tArchive Folder\n"
                 + "/S2\t4\t" + as3 + "\n"
-                + "/S1/P1\t2\t" + as1 + ";" + as2 + ";" + as3);
+                + "/S1/P1\t2\t" + as1 + "," + as2 + ", " + as3);
         new IdentifierAttributeMappingManager(mappingFile.getPath(), true, null);
     }
 

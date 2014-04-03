@@ -346,7 +346,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                     defaultFolder,
                     defaultSmallDataSetsFolder
             };
-            ArchiveFolders archiveFolders = ArchiveFolders.create(folders, createArchives, smallDataSetsSizeLimit);
+            ArchiveFolders archiveFolders = ArchiveFolders.create(folders, false, smallDataSetsSizeLimit);
             folder = archiveFolders.getFolder(datasetDescription);
         }
 
