@@ -1272,3 +1272,88 @@ $.extend(BioATProfile.prototype, DefaultProfile.prototype, {
 		};
 }
 });
+$.extend(TestProfile.prototype, DefaultProfile.prototype, {
+	init: function(serverFacade){
+		DefaultProfile.prototype.init.call(this, serverFacade);
+		
+		//Put on this list all experiment types, ELN experiments need to have both an experiment type and a sample type with the same CODE.
+		this.ELNExperiments = ["PLASMID_EXPRESSION", "WESTERN_BLOTTING"];
+
+		//Black list, put on this list all types that you don´t want to appear on the menu and the ELN experiments.
+		this.notShowTypes = ["SYSTEM_EXPERIMENT", "PLASMID_EXPRESSION", "WESTERN_BLOTTING"];
+	
+		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
+		this.typeGroups = {
+			"INVENTORY" : {
+				"TYPE" : "INVENTORY",
+				"DISPLAY_NAME" : "Inventory",
+				"LIST" : ["CELL_LINE", "ANTIBODIES", "INHIBITORS", "PLASMIDS"]
+			},"PROTOCOLS" : {
+				"TYPE" : "PROTOCOLS",
+				"DISPLAY_NAME" : "Protocols",
+				"LIST" : ["PROTOCOL"]
+			},
+			"OTHERS" : {
+				"TYPE" : "OTHERS",
+				"DISPLAY_NAME" : "Others",
+				"LIST" : [] 
+			}
+		};
+
+
+		/* New Sample definition tests*/
+		this.sampleTypeDefinitionsExtension = {
+				"PLASMID_EXPRESSION" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Protocol",
+														"TYPE": "PROTOCOL",
+														"MIN_COUNT" : 1
+													}
+													,
+													{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMIDS",
+														"MIN_COUNT" : 1
+													}
+													,
+													{
+														"LABEL" : "Inhibitor",
+														"TYPE": "INHIBITORS",
+														"MIN_COUNT" : 1
+													}
+													,
+													{
+														"LABEL" : "Cell Line",
+														"TYPE": "CELL_LINE",
+														"MIN_COUNT" : 1
+													}
+												],
+				}
+		}
+		
+		this.sampleTypeDefinitionsExtension = {
+				"WESTERN_BLOTTING" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Antibodies",
+														"TYPE": "ANTIBODIES",
+														"MIN_COUNT" : 1
+													}
+												],
+				}
+		}
+		
+		
+		//The properties you want to appear on the tables, if you don´t specify the list, all of them will appear by default.
+		this.typePropertiesForTable = {};
+		
+		//The colors for the notes, if you don´t specify the color, light yellow will be used by default.
+		this.colorForInspectors = {};
+		
+		//The configuration for the visual storages.
+		this.storagesConfiguration = {
+			"isEnabled" : false
+		};
+}
+});
