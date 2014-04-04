@@ -228,7 +228,14 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			
 			var customSort = function(sampleA, sampleB){
 				var aField = sampleA.properties[propertyCode];
+				if(!aField) {
+					aField = sampleA.properties[propertyCode.replace('$','')];
+				}
+				
 				var bField = sampleB.properties[propertyCode];
+				if(!bField) {
+					bField = sampleB.properties[propertyCode.replace('$','')];
+				}
 				var order = (isAscendent)?1:-1;
 				
 				//
@@ -236,6 +243,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				//
 				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
 				var propertyType = localReference.profile.getPropertyTypeFrom(sampleType, propertyCode);
+				if(!propertyType) {
+					propertyType = localReference.profile.getPropertyTypeFrom(sampleType, propertyCode.replace('$',''));
+				}
 				
 				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 					var vocabulary = null;
@@ -368,11 +378,17 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					tableFields = [sample.code];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
 						var tableFieldValue = sample.properties[sampleTypeProperties[i]];
-						
+						if(!tableFieldValue) {
+							tableFieldValue = sample.properties[sampleTypeProperties[i].replace('$','')];
+						}
 						//
 						// Fix to show vocabulary labels instead of codes
 						//
 						var propertyType = localReference.profile.getPropertyTypeFrom(sampleType, sampleTypeProperties[i]);
+						if(!propertyType) {
+							propertyType = localReference.profile.getPropertyTypeFrom(sampleType, sampleTypeProperties[i].replace('$',''));
+						}
+						
 						if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 							var vocabulary = null;
 							if(isNaN(propertyType.vocabulary)) {
@@ -654,12 +670,17 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					for(var z = 0, lenZ = sampleTypeProperties.length; z < lenZ; ++z) {
 						var propertyCode = sampleTypeProperties[z];
 						var propertyValue = this.samples[i].properties[propertyCode];
-						
+						if(!propertyValue) {
+							propertyValue = this.samples[i].properties[propertyCode.replace('$','')];
+						}
 						//
 						// Fix to use vocabulary labels instead of codes
 						//
 						var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
 						var propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode);
+						if(!propertyType) {
+							propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode.replace('$',''));
+						}
 						
 						if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 							var vocabulary = null;
