@@ -114,6 +114,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private Date modificationDate;
 
+    private Date accessDate;
+
     private int version;
 
     private String dataProducerCode;
@@ -527,6 +529,20 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
+    }
+
+    @OptimisticLock(excluded = true)
+    @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false)
+    @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @DateBridge(resolution = Resolution.SECOND)
+    public Date getAccessDate()
+    {
+        return accessDate;
+    }
+
+    public void setAccessDate(Date versionDate)
+    {
+        this.accessDate = versionDate;
     }
 
     public void setId(final Long id)

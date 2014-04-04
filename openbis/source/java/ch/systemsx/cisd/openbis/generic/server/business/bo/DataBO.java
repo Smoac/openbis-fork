@@ -525,6 +525,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             data.setPlaceholder(false);
             data.setId(HibernateUtils.getId(placeholder));
             data.setRegistrationDate(new Date());
+            data.setAccessDate(new Date());
             RelationshipUtils.updateModificationDateAndModifier(data, findPerson());
 
             dataDAO.updateDataSet(data, findPerson());
