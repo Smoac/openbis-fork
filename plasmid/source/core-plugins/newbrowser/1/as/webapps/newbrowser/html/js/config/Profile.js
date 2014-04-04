@@ -1272,6 +1272,11 @@ $.extend(BioATProfile.prototype, DefaultProfile.prototype, {
 		};
 }
 });
+
+function TestProfile(serverFacade) {
+	this.init(serverFacade);
+}
+
 $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
