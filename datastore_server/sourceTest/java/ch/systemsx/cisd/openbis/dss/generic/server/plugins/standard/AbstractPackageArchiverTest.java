@@ -258,7 +258,7 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
         File mappingFile = new File(workingDirectory, "mapping.tsv");
         File archiveForBig = new File(archives, "archive-for-big");
         File archiveForSmall = new File(archives, "archive-for-small");
-        FileUtilities.writeToFile(mappingFile, "Space\tLive Share\tArchive Folder\n/S\t1\t" + archiveForBig + ";" + archiveForSmall + "\n");
+        FileUtilities.writeToFile(mappingFile, "Space\tLive Share\tArchive Folder\n/S\t1\t" + archiveForBig + "," + archiveForSmall + "\n");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.MAPPING_FILE_KEY, mappingFile.getPath());
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.CREATE_ARCHIVES_KEY, "true");
         properties.setProperty(DistributedPackagingDataSetFileOperationsManager.SMALL_DATA_SETS_SIZE_LIMIT_KEY, isBigDataSet ? "100" : "1000");
