@@ -362,6 +362,15 @@ CREATE INDEX space_pers_registered_by_fk_i ON spaces USING btree (pers_id_regist
 CREATE INDEX stpt_pers_fk_i ON sample_type_property_types USING btree (pers_id_registerer);
 CREATE INDEX stpt_prty_fk_i ON sample_type_property_types USING btree (prty_id);
 CREATE INDEX stpt_saty_fk_i ON sample_type_property_types USING btree (saty_id);
+CREATE RULE data_all AS
+    ON DELETE TO data DO INSTEAD  DELETE FROM data_all
+  WHERE ((data_all.id)::bigint = (old.id)::bigint);
+CREATE RULE data_deleted_delete AS
+    ON DELETE TO data_deleted DO INSTEAD  DELETE FROM data_all
+  WHERE ((data_all.id)::bigint = (old.id)::bigint);
+CREATE RULE data_deleted_update AS
+    ON UPDATE TO data_deleted DO INSTEAD  UPDATE data_all SET del_id = new.del_id, orig_del = new.orig_del, modification_timestamp = new.modification_timestamp, version = new.version
+  WHERE ((data_all.id)::bigint = (new.id)::bigint);
 CREATE RULE data_insert AS
     ON INSERT TO data DO INSTEAD  INSERT INTO data_all (id, code, del_id, orig_del, expe_id, dast_id, data_producer_code, dsty_id, is_derived, is_placeholder, is_valid, modification_timestamp, access_timestamp, pers_id_registerer, pers_id_modifier, production_timestamp, registration_timestamp, samp_id, version)
   VALUES (new.id, new.code, new.del_id, new.orig_del, new.expe_id, new.dast_id, new.data_producer_code, new.dsty_id, new.is_derived, new.is_placeholder, new.is_valid, new.modification_timestamp, new.access_timestamp, new.pers_id_registerer, new.pers_id_modifier, new.production_timestamp, new.registration_timestamp, new.samp_id, new.version);

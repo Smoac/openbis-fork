@@ -196,6 +196,25 @@ CREATE OR REPLACE RULE data_update AS
               version = NEW.version
        WHERE id = NEW.id;
       
+CREATE OR REPLACE RULE data_all AS
+    ON DELETE TO data DO INSTEAD
+       DELETE FROM data_all
+              WHERE id = OLD.id;
+              
+CREATE OR REPLACE RULE data_deleted_update AS
+    ON UPDATE TO data_deleted DO INSTEAD 
+       UPDATE data_all
+          SET del_id = NEW.del_id,
+              orig_del = NEW.orig_del,
+              modification_timestamp = NEW.modification_timestamp,
+              version = NEW.version
+          WHERE id = NEW.id;
+     
+CREATE OR REPLACE RULE data_deleted_delete AS
+    ON DELETE TO data_deleted DO INSTEAD
+       DELETE FROM data_all
+              WHERE id = OLD.id;               
+              
 --
 -- Add column ORDINAL to DATA_SET_RELATIONSHIPS_HISTORY
 --
