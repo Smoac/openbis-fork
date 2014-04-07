@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -161,7 +162,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     public void loadDataByTechId(TechId datasetId)
     {
         String[] connections =
-            { PROPERTY_TYPES, DATA_SET_TYPE };
+        { PROPERTY_TYPES, DATA_SET_TYPE };
         data = getDataDAO().tryGetByTechId(datasetId, connections);
         if (data == null)
         {
@@ -767,6 +768,12 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             boolean newPresentInArchive)
     {
         getDataDAO().updateDataSetStatuses(dataSetCodes, newStatus, newPresentInArchive);
+    }
+
+    @Override
+    public void updateSizes(Map<String, Long> sizeMap)
+    {
+        getDataDAO().updateSizes(sizeMap);
     }
 
     @Override

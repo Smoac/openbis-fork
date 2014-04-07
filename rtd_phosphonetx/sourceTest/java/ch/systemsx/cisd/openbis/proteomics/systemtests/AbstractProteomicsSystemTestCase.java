@@ -28,8 +28,6 @@ import ch.systemsx.cisd.openbis.plugin.proteomics.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.api.v1.IProteomicsDataService;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractProteomicsSystemTestCase extends SystemTestCase
@@ -53,7 +51,7 @@ public abstract class AbstractProteomicsSystemTestCase extends SystemTestCase
     protected String registerPerson(String userID)
     {
         ICommonServerForInternalUse commonServer = getCommonServer();
-        String systemSessionToken = commonServer .tryToAuthenticateAsSystem().getSessionToken();
+        String systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
         commonServer.registerPerson(systemSessionToken, userID);
         return userID;
     }
@@ -97,12 +95,6 @@ public abstract class AbstractProteomicsSystemTestCase extends SystemTestCase
     protected IPhosphoNetXServer getServer()
     {
         return getBean(ResourceNames.PROTEOMICS_PLUGIN_SERVER);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T getBean(String beanId)
-    {
-        return (T) applicationContext.getBean(beanId);
     }
 
 }

@@ -26,8 +26,8 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -42,15 +42,15 @@ public interface IDatasetLister
 {
     /**
      * @return datasets connected to the experiment with the specified id
-     * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
-     *            all descendants in dataset parent-child relationship hierarchy
+     * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also all descendants in dataset parent-child
+     *            relationship hierarchy
      */
     List<AbstractExternalData> listByExperimentTechId(TechId experimentId, boolean showOnlyDirectlyConnected);
 
     /**
      * @return datasets connected to the sample with the specified id
-     * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also
-     *            all descendants in dataset parent-child relationship hierarchy
+     * @param showOnlyDirectlyConnected whether to return only directly connected datasets, or also all descendants in dataset parent-child
+     *            relationship hierarchy
      */
     List<AbstractExternalData> listBySampleTechId(TechId sampleId, boolean showOnlyDirectlyConnected);
 
@@ -67,21 +67,20 @@ public interface IDatasetLister
     List<AbstractExternalData> listByMetaprojectId(Long metaprojectId);
 
     /**
-     * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are
-     * IDs from the argument. A value of the map contains at least one element.
+     * Returns a map with all parent data set IDs of specified data set IDs. The keys of the map are IDs from the argument. A value of the map
+     * contains at least one element.
      */
     Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs);
 
     /**
-     * Returns a map with all child data set IDs of specified data set IDs. The keys of the map are
-     * IDs from the argument. A value of the map contains at least one element.
+     * Returns a map with all child data set IDs of specified data set IDs. The keys of the map are IDs from the argument. A value of the map contains
+     * at least one element.
      */
     Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs);
 
     /**
-     * Returns a map with all data sets of specified samples. The sample arguments are the key into
-     * the returned map. The returned data sets contains all derived data sets (children, grand
-     * children, etc.).
+     * Returns a map with all data sets of specified samples. The sample arguments are the key into the returned map. The returned data sets contains
+     * all derived data sets (children, grand children, etc.).
      */
     Map<Sample, List<AbstractExternalData>> listAllDataSetsFor(List<Sample> samples);
 
@@ -92,8 +91,7 @@ public interface IDatasetLister
 
     /**
      * @param datasetCodes Codes of datasets.
-     * @param datasetFetchOptions The options of what datasets to fetch.
-     *            Lists all data sets with specified codes.
+     * @param datasetFetchOptions The options of what datasets to fetch. Lists all data sets with specified codes.
      */
     List<AbstractExternalData> listByDatasetCode(Collection<String> datasetCodes,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
@@ -120,12 +118,17 @@ public interface IDatasetLister
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**
-     * Lists the oldest <var>limit</var> physical datasets younger than <var>youngerThan</var> of
-     * the specified data store.
+     * Lists the oldest <var>limit</var> physical datasets younger than <var>youngerThan</var> of the specified data store.
      * 
      * @param datasetFetchOptions The options of what datasets to fetch.
      */
     public List<AbstractExternalData> listByDataStore(long dataStoreID, Date youngerThan, int limit,
+            EnumSet<DataSetFetchOption> datasetFetchOptions);
+
+    /**
+     * Lists physical datasets with unknown size of the specified data store.
+     */
+    List<AbstractExternalData> listByDataStoreWithUnknownSize(long dataStoreID, int limit, String dataSetCodeLowerLimit,
             EnumSet<DataSetFetchOption> datasetFetchOptions);
 
     /**

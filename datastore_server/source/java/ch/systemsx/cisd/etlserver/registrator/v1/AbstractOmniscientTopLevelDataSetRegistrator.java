@@ -225,13 +225,8 @@ public abstract class AbstractOmniscientTopLevelDataSetRegistrator<T extends Dat
                             FileUtilities.deleteRecursively(incoming.getRealIncomingFile());
                 }
 
-                // If the parent of the hardlink copy file, which we generated, is empty, delete it
-                // too
-                File hardlinkCopyParent = incoming.getLogicalIncomingFile().getParentFile();
-                if (hardlinkCopyParent.list().length < 1)
-                {
-                    hardlinkCopyParent.delete();
-                }
+                // Clean up step: Delete pre-staging folder
+                FileUtilities.deleteRecursively(incoming.getLogicalIncomingFile().getParentFile());
             } else
             {
                 // Registration failed -- remove the copy, leaving the original.

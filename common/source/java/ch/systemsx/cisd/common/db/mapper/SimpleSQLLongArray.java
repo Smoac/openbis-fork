@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
+package ch.systemsx.cisd.common.db.mapper;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 

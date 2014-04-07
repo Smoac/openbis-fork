@@ -25,8 +25,8 @@ import net.lemnik.eodsql.TypeMapper;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
+import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 
 /**
  * Screening specific queries on openbis database.

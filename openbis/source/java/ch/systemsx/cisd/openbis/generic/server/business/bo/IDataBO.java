@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
@@ -38,37 +39,32 @@ public interface IDataBO extends IEntityBusinessObject
 {
 
     /**
-     * Returns a data set found by the given id or null if it does not exist. Does not change the
-     * state of this object, especially the result of {@link #getData()}.
+     * Returns a data set found by the given id or null if it does not exist. Does not change the state of this object, especially the result of
+     * {@link #getData()}.
      */
     DataPE tryFindByDataSetId(final IDataSetId dataSetId);
 
     /**
-     * Returns the data item which has been created by
-     * {@link #define(NewExternalData, SamplePE, SourceType)} or null.
+     * Returns the data item which has been created by {@link #define(NewExternalData, SamplePE, SourceType)} or null.
      */
     public DataPE tryGetData();
 
     /**
-     * Returns the data item which has been created by
-     * {@link #define(NewExternalData, SamplePE, SourceType)}.
+     * Returns the data item which has been created by {@link #define(NewExternalData, SamplePE, SourceType)}.
      */
     public DataPE getData();
 
     /**
      * Defines a new external data item directly connected to a sample.
      * <p>
-     * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the
-     * new external data item in the Data Access Layer.
+     * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the new external data item in the Data Access Layer.
      */
     public void define(NewExternalData data, SamplePE sample, SourceType sourceType);
 
     /**
-     * Defines a new external data item not directly connected to a sample but with mandatory
-     * connection with an experiment.
+     * Defines a new external data item not directly connected to a sample but with mandatory connection with an experiment.
      * <p>
-     * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the
-     * new external data item in the Data Access Layer.
+     * After invocation of this method {@link IExperimentBO#save()} should be invoked to store the new external data item in the Data Access Layer.
      */
     public void define(NewExternalData data, ExperimentPE experiment, SourceType sourceType);
 
@@ -86,18 +82,22 @@ public interface IDataBO extends IEntityBusinessObject
             boolean newPresentInArchive) throws UserFailureException;
 
     /**
-     * Set the status for the loaded data set to the given new status value if the current status
-     * equals an expected value.
+     * Updates sizes of given data sets (map key: data set code, map value: data set size).
      * 
-     * @return true if the update is successful, false if the current status is different than
-     *         <code>oldStatus</code>.
+     * @throws UserFailureException if a data set does not exist or size couldn't be set.
+     */
+    public void updateSizes(Map<String, Long> sizeMap);
+
+    /**
+     * Set the status for the loaded data set to the given new status value if the current status equals an expected value.
+     * 
+     * @return true if the update is successful, false if the current status is different than <code>oldStatus</code>.
      */
     public boolean compareAndSetDataSetStatus(DataSetArchivingStatus oldStatus,
             DataSetArchivingStatus newStatus, boolean newPresentInArchive);
 
     /**
-     * Adds chosen properties to given data set. If given property has been already defined, the
-     * value is not updated.
+     * Adds chosen properties to given data set. If given property has been already defined, the value is not updated.
      */
     public void addPropertiesToDataSet(String dataSetCode, List<NewProperty> properties);
 

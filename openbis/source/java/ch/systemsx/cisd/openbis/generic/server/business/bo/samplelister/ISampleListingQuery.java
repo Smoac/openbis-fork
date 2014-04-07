@@ -32,14 +32,14 @@ import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
 
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.GenericEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IPropertyListingQuery;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntityPropertyRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.ExperimentProjectSpaceCodeRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 
 /**

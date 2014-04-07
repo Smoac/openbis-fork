@@ -57,8 +57,7 @@ public class PathEntryDTO
     @ResultColumn("data_set_code")
     private String dataSetCode;
 
-    @SuppressWarnings("unused")
-    private PathEntryDTO()
+    public PathEntryDTO()
     {
     }
 
@@ -212,7 +211,7 @@ public class PathEntryDTO
         this.fileName = fileName;
     }
 
-    public long getSizeInBytes()
+    public Long getSizeInBytes()
     {
         return sizeInBytes;
     }

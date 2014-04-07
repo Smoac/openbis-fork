@@ -22,7 +22,7 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataSet;
 import net.lemnik.eodsql.Select;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.IdentifiedProtein;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.IndistinguishableProtein;
 import ch.systemsx.cisd.openbis.plugin.proteomics.shared.dto.PeptideWithModification;

@@ -24,10 +24,10 @@ import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TypeMapper;
 
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.EntityMetaprojectRelationRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaprojectRecord;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.PropertyRecord;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongSetMapper;
 
 /**
  * @author Franz-Josef Elmer

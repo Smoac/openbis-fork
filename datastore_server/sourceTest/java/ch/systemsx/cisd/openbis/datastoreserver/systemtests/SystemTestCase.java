@@ -382,4 +382,10 @@ public abstract class SystemTestCase extends AssertJUnit
         return logAppender;
     }
 
+    @SuppressWarnings("unchecked")
+    protected static <T> T getBean(String beanName)
+    {
+        return (T) applicationContext.getBean(beanName);
+    }
+
 }

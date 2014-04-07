@@ -23,7 +23,7 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.Update;
 
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ByteArrayMapper;
+import ch.systemsx.cisd.common.db.mapper.ByteArrayMapper;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAcquiredImageDTO;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ImgAnalysisDatasetDTO;

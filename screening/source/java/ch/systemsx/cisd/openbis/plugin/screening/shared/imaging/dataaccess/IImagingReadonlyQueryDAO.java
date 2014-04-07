@@ -21,9 +21,9 @@ import java.util.List;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 
+import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
+import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.hcs.Location;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.LongArrayMapper;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.StringArrayMapper;
 
 /**
  * Operations on imaging database which are read-only.<br>
