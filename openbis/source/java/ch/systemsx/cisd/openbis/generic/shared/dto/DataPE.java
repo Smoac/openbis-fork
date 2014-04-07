@@ -531,8 +531,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.modificationDate = versionDate;
     }
 
-    @OptimisticLock(excluded = true)
-    @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false)
+    @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
+    @Generated(GenerationTime.ALWAYS)
     @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
     @DateBridge(resolution = Resolution.SECOND)
     public Date getAccessDate()
