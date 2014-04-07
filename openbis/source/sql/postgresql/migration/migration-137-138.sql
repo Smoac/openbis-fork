@@ -7,7 +7,7 @@
 DO $$ 
     BEGIN
         BEGIN
-            ALTER TABLE data_all ADD COLUMN access_timestamp time_stamp default current_timestamp;
+            ALTER TABLE data_all ADD COLUMN access_timestamp TIME_STAMP_DFL NOT NULL DEFAULT CURRENT_TIMESTAMP;
             CREATE INDEX DATA_ACCT_I ON DATA_ALL (ACCESS_TIMESTAMP);
         EXCEPTION
             WHEN duplicate_column THEN RAISE NOTICE 'column access_timestamp already exists in data_all.';
