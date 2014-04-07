@@ -23,7 +23,7 @@ then
 	${DIR}/gradle/build_openbis.sh $@
 elif [ "$1" == "cifex" ]
 then
-	echo "building cifex"
+	${DIR}/gradle/build_cifex.sh $@
 else
 	echo "Unknown product $1"
 fi

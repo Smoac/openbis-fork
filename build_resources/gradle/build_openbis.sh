@@ -7,7 +7,6 @@ VERSION=$3
 PROJECTS="\
 gradle \
 authentication \
-build_resources \
 common \
 datamover \
 datastore_server \
