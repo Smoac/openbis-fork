@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -489,7 +488,7 @@ public final class DataDAOTest extends AbstractDAOTest
     }
 
     @Test
-    public final void testDeleteContainerWithComponentsPreserved()
+    public final void testDeleteContainer()
     {
         final IDataDAO dataDAO = daoFactory.getDataDAO();
         DataPE containerDataSet = findData(CONTAINER_CODE);
@@ -506,19 +505,6 @@ public final class DataDAOTest extends AbstractDAOTest
 
         DataPE reloadedContainer = dataDAO.tryToFindDataSetByCode(CONTAINER_CODE);
         assertEquals(null, reloadedContainer);
-
-        DataPE preservedComponent = findData(COMPONENT_CODE);
-        System.out.println("COMPONENT:" + System.identityHashCode(componentDataSet) + "==" + System.identityHashCode(preservedComponent));
-        assertEquals(null, preservedComponent.getContainer());
-
-        Set<DataSetRelationshipPE> childRelationships = containerDataSet.getChildRelationships();
-        System.out.println(childRelationships);
-        Set<DataSetRelationshipPE> parentRelationships = preservedComponent.getParentRelationships();
-        for (DataSetRelationshipPE relationshipPE : parentRelationships)
-        {
-            System.out.println("RELATION SHIP:" + relationshipPE.getParentDataSet() + " " + relationshipPE.getChildDataSet());
-        }
-        assertEquals(0, parentRelationships.size());
     }
 
     public final void testDeleteParentPreservesChildren()
