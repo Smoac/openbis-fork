@@ -35,8 +35,8 @@ then
 fi
 
 cd tmp/gradle
-./gradlew :openbis_standard_technologies:clientsAndApis
-./gradlew :installation:build
+./gradlew :openbis_standard_technologies:clientsAndApis -x test
+./gradlew :installation:build -x test
 ./gradlew :openbis_standard_technologies:generateJavadoc
 cd ../..
 mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .

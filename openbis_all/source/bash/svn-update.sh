@@ -4,6 +4,7 @@
 
 SVN=svncisd.ethz.ch/repos/cisd/openbis_all/trunk/source/bash
 cd ~openbis/bin
+rm -r build
 wget -nv -r -l2 -A.{sh,txt} http://$SVN/
 mv $SVN/* .
 chmod 700 *.sh
