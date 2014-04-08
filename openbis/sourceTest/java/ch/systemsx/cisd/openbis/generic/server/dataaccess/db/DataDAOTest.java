@@ -503,7 +503,6 @@ public final class DataDAOTest extends AbstractDAOTest
         assertEquals(2, relationships.size());
 
         dataDAO.delete(containerDataSet);
-        this.sessionFactory.getCurrentSession().getTransaction().commit();
 
         DataPE reloadedContainer = dataDAO.tryToFindDataSetByCode(CONTAINER_CODE);
         assertEquals(null, reloadedContainer);
