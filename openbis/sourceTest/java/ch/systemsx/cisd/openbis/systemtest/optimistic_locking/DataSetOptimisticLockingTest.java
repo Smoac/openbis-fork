@@ -591,8 +591,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         Set<String> expectedCodes = new HashSet<String>(Arrays.asList("DS-1", "DS-2"));
         String code = loadedContainedDataSet.tryGetContainer().getCode();
         assertEquals(code + " not in " + expectedCodes, true, expectedCodes.contains(code));
-        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
-                loadedContainerDataSet1, "test");
+        assertEquals("system", loadedContainerDataSet1.getModifier().getUserId());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
                 loadedContainerDataSet2, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
@@ -639,8 +638,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         Set<String> expectedCodes = new HashSet<String>(Arrays.asList("DS-1", "DS-2"));
         String code = loadedContainedDataSet.tryGetContainer().getCode();
         assertEquals(code + " not in " + expectedCodes, true, expectedCodes.contains(code));
-        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
-                loadedContainerDataSet1, "test");
+        assertEquals("system", loadedContainerDataSet1.getModifier().getUserId());
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
                 loadedContainerDataSet2, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
