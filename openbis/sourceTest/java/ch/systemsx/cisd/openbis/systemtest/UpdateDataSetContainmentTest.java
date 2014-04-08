@@ -22,8 +22,8 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -156,7 +156,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void dataSetCannotContainItself() throws Exception
     {
         AbstractExternalData dataset = create(aDataSet().inSample(sample));
@@ -165,7 +165,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void subcomponentsAreNotAllowed() throws Exception
     {
         AbstractExternalData component = create(aDataSet().inSample(sample));
@@ -180,7 +180,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test(expectedExceptions =
-        { UserFailureException.class })
+    { UserFailureException.class })
     public void containerCannotBeInDifferentSpaceThanComponent() throws Exception
     {
         Space containerSpace = create(aSpace());
@@ -204,7 +204,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     public void addingContainerToDataSetIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        AbstractExternalData container = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample).asContainer());
         AbstractExternalData component = create(aDataSet().inSample(sample));
         String user =
                 create(aSession().withSpaceRole(spaceRole, sample.getSpace())
@@ -216,11 +216,11 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingContainerToDataSetNotIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
-        AbstractExternalData container = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(aDataSet().inSample(sample).asContainer());
         AbstractExternalData component = create(aDataSet().inSample(sample));
         String user =
                 create(aSession().withSpaceRole(spaceRole, sample.getSpace())
@@ -249,7 +249,7 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingContainerFromDataSetNotIsAllowedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
