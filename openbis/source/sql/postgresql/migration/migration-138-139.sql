@@ -30,6 +30,12 @@ nextval('RELATIONSHIP_TYPE_ID_SEQ'),
 (select id from database_instances where is_original_source = 'T')
 );
 
+-- 
+-- Rename CONTAINED to COMPONENT in data_set_relationships_history
+--
+
+update data_set_relationships_history set relation_type = 'COMPONENT' where relation_type = 'CONTAINED';
+
 --
 -- Extending data set relationships table with column for type and order
 --
