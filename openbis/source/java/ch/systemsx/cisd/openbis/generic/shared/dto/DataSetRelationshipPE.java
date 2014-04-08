@@ -78,11 +78,6 @@ public class DataSetRelationshipPE implements Serializable
     {
     }
 
-    public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet, PersonPE author)
-    {
-        this(parentDataSet, childDataSet, null, null, author);
-    }
-
     public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet, RelationshipTypePE relationshipType,
             Integer ordinal, PersonPE author)
     {

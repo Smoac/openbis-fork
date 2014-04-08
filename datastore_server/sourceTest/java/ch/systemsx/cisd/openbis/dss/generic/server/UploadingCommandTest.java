@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -72,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
@@ -317,7 +319,9 @@ public class UploadingCommandTest extends AssertJUnit
     {
         DataPE data = new DataPE();
         data.setCode(code);
-        return new DataSetRelationshipPE(data, child, null);
+        RelationshipTypePE relationshipTypePE = new RelationshipTypePE();
+        relationshipTypePE.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        return new DataSetRelationshipPE(data, child, relationshipTypePE, null, null);
     }
 
     private ExperimentPE createExperiment()
