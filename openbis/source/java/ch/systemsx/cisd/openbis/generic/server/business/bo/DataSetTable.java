@@ -1109,12 +1109,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         {
             updateFileFormatType(dataSet, dataSetUpdates.getFileFormatTypeCode());
         }
-        if (dataSet.getContainer() != null)
-        {
-            // space could be changed by change of experiment
-            checkSameSpace(dataSet.getContainer(), dataSet);
-        }
-
         checkSameSpace(dataSet, dataSet.getContainedDataSets()); // even if components were not
                                                                  // changed
 

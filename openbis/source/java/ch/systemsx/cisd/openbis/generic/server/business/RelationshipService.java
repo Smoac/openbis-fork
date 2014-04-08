@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.business;
 import javax.annotation.Resource;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.DAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -47,11 +47,13 @@ public class RelationshipService implements IRelationshipService
     private static final String ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND =
             "DataSet '%s' did not have parent '%s'";
 
+    private static final String ERR_DATASET_CONTAINER_RELATIONSHIP_NOT_FOUND =
+            "DataSet '%s' did not have container '%s'";
+
     private DAOFactory daoFactory;
 
     /**
-     * Reference to this instance of service, but as a spring bean, so that we can call methods of
-     * this service and run the additional authorization.
+     * Reference to this instance of service, but as a spring bean, so that we can call methods of this service and run the additional authorization.
      */
     @Resource(name = "relationship-service")
     private IRelationshipService service;
@@ -203,24 +205,35 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void addParentToDataSet(IAuthSession session, DataPE data, DataPE parent)
     {
+        assignGenericParentChild(session, data, parent, getParentChildRelationshipType(), null);
+    }
+
+    private void assignGenericParentChild(IAuthSession session, DataPE child, DataPE parent, RelationshipTypePE type, Integer ordinalOrNull)
+    {
         PersonPE actor = session.tryGetPerson();
-        DataSetRelationshipPE relationship = new DataSetRelationshipPE(parent, data, actor);
-        data.addParentRelationship(relationship);
+        DataSetRelationshipPE relationship = new DataSetRelationshipPE(parent, child, type, ordinalOrNull, actor);
+        child.addParentRelationship(relationship);
         if (parent.isChildrenRelationshipsInitialized())
         {
             parent.addChildRelationship(relationship);
         }
-        RelationshipUtils.updateModificationDateAndModifier(data, session);
+        RelationshipUtils.updateModificationDateAndModifier(child, session);
         RelationshipUtils.updateModificationDateAndModifier(parent, session);
     }
 
     @Override
     public void removeParentFromDataSet(IAuthSession session, DataPE data, DataPE parent)
     {
+        releaseRelationship(session, BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP, data, parent,
+                ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND);
+    }
+
+    private void releaseRelationship(IAuthSession session, String relationshipTypeCode, DataPE child, DataPE parent, String errorTemplate)
+    {
         DataSetRelationshipPE remove = null;
-        for (DataSetRelationshipPE r : data.getParentRelationships())
+        for (DataSetRelationshipPE r : child.getParentRelationships())
         {
-            if (r.getParentDataSet().equals(parent))
+            if (r.getParentDataSet().equals(parent) && r.getRelationshipType().getCode().equals(relationshipTypeCode))
             {
                 remove = r;
                 break;
@@ -229,43 +242,47 @@ public class RelationshipService implements IRelationshipService
 
         if (remove != null)
         {
-            data.removeParentRelationship(remove);
+            child.removeParentRelationship(remove);
         } else
         {
-            throw UserFailureException.fromTemplate(ERR_DATASET_PARENT_RELATIONSHIP_NOT_FOUND,
-                    data.getCode(), parent.getCode());
+            throw UserFailureException.fromTemplate(errorTemplate,
+                    child.getCode(), parent.getCode());
         }
-        RelationshipUtils.updateModificationDateAndModifier(data, session);
+        RelationshipUtils.updateModificationDateAndModifier(child, session);
         RelationshipUtils.updateModificationDateAndModifier(parent, session);
     }
 
     @Override
     public void assignDataSetToContainer(IAuthSession session, DataPE data, DataPE container)
     {
-        PersonPE modifier = session.tryGetPerson();
-        DataPE oldContainer = data.getContainer();
-        if (oldContainer != null)
+        String componentSpace = data.getSpace().getCode();
+        String containerSpace = container.getSpace().getCode();
+        if (componentSpace.equals(containerSpace) == false)
         {
-            oldContainer.removeComponent(data);
-            RelationshipUtils.updateModificationDateAndModifier(oldContainer, session);
+            throw new UserFailureException("Space '" + containerSpace + "' of the data set container '"
+                    + container.getCode() + "' has to be the space '" + componentSpace
+                    + "' of the data set component '" + data.getCode() + "'.");
         }
-        container.addComponent(data, modifier);
-        RelationshipUtils.updateModificationDateAndModifier(container, session);
-        RelationshipUtils.updateModificationDateAndModifier(data, session);
+        int ordinal = RelationshipUtils.getContainerComponentRelationships(container.getChildRelationships()).size();
+        RelationshipTypePE relationshipType = RelationshipUtils.getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO());
+        assignGenericParentChild(session, data, container, relationshipType, ordinal);
     }
 
     @Override
     public void removeDataSetFromContainer(IAuthSession session, DataPE data)
     {
-        DataPE container = data.getContainer();
-        container.removeComponent(data);
-        RelationshipUtils.updateModificationDateAndModifier(container, session);
-        RelationshipUtils.updateModificationDateAndModifier(data, session);
+        releaseRelationship(session, BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP, data,
+                data.getContainer(), ERR_DATASET_CONTAINER_RELATIONSHIP_NOT_FOUND);
     }
 
     public void setDaoFactory(DAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
+    }
+
+    private RelationshipTypePE getParentChildRelationshipType()
+    {
+        return RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO());
     }
 
 }

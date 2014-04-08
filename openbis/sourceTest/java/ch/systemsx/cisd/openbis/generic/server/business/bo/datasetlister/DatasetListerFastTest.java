@@ -36,14 +36,17 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.IEntityPropertiesEnricher;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocationNode;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 
 /**
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { IDatasetListingQuery.class })
+{ IDatasetListingQuery.class })
 public class DatasetListerFastTest extends AssertJUnit
 {
     private static final String DSS_URL = "dss-url";
@@ -56,6 +59,8 @@ public class DatasetListerFastTest extends AssertJUnit
 
     private DatasetLister datasetLister;
 
+    private IRelationshipTypeDAO relationshipTypeDAO;
+
     @BeforeMethod
     public void setUp()
     {
@@ -63,9 +68,10 @@ public class DatasetListerFastTest extends AssertJUnit
         query = context.mock(IDatasetListingQuery.class);
         IEntityPropertiesEnricher propertiesEnricher =
                 context.mock(IEntityPropertiesEnricher.class);
+        relationshipTypeDAO = context.mock(IRelationshipTypeDAO.class);
         datasetLister =
                 new DatasetLister(42L, new DatabaseInstance(), query, propertiesEnricher, null, null,
-                        null, null);
+                        relationshipTypeDAO, null, null);
     }
 
     @AfterMethod
@@ -87,7 +93,12 @@ public class DatasetListerFastTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(query).listLocationsByDatasetCode("ds-1");
+                    one(relationshipTypeDAO).tryFindRelationshipTypeByCode(
+                            BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+                    RelationshipTypePE type = new RelationshipTypePE();
+                    type.setId(137L);
+                    will(returnValue(type));
+                    one(query).listLocationsByDatasetCode("ds-1", 137L);
                     will(returnValue(new WrappingDataIterator<DatasetLocationNodeRecord>(Arrays
                             .<DatasetLocationNodeRecord> asList(
                                     location(2L, "ds-c1", "a/b/c/1", 1L),
@@ -129,7 +140,7 @@ public class DatasetListerFastTest extends AssertJUnit
         record.data_store_code = DSS_CODE;
         record.data_store_url = DSS_URL;
         record.location = location;
-        record.ctnr_id = containerID;
+        record.container_id = containerID;
         return record;
     }
 

@@ -30,6 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 
 /**
@@ -38,9 +39,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, IDatasetListingQuery.class })
+{ DatasetRecord.class, IDatasetListingQuery.class })
 @Test(groups =
-    { "db", "dataset" })
+{ "db", "dataset" })
 public class DatasetSetListingQueryTest extends AbstractDAOTest
 {
 
@@ -73,7 +74,8 @@ public class DatasetSetListingQueryTest extends AbstractDAOTest
     public void testDatasetChildren()
     {
         int datasetId = 4;
-        DataIterator<Long> children = query.getDatasetChildrenIds(createSet(datasetId));
+        Long relationshipTypeId = RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO()).getId();
+        DataIterator<Long> children = query.getDatasetChildrenIds(createSet(datasetId), relationshipTypeId);
         AssertJUnit.assertFalse(children.hasNext());
     }
 }

@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.Seconda
 import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.common.MetaProjectWithEntityId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
@@ -149,29 +152,33 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private final Long2ObjectMap<ExternalDataManagementSystem> externalDataManagementSystems =
             new Long2ObjectOpenHashMap<ExternalDataManagementSystem>();
 
+    private IRelationshipTypeDAO relationshipTypeDAO;
+
     public static IDatasetLister create(IDAOFactory daoFactory, String baseIndexURL, Long userId)
     {
         DatasetListerDAO dao = DatasetListerDAO.create(daoFactory);
         SecondaryEntityDAO referencedEntityDAO = SecondaryEntityDAO.create(daoFactory);
         IDataDAO dataDAO = daoFactory.getDataDAO();
+        IRelationshipTypeDAO relationshipTypeDAO = daoFactory.getRelationshipTypeDAO();
 
-        return create(dao, referencedEntityDAO, dataDAO, baseIndexURL, userId);
+        return create(dao, referencedEntityDAO, dataDAO, relationshipTypeDAO, baseIndexURL, userId);
     }
 
     static IDatasetLister create(DatasetListerDAO dao, SecondaryEntityDAO referencedEntityDAO, IDataDAO dataDAO,
-            String baseIndexURL, Long userId)
+            IRelationshipTypeDAO relationshipTypeDAO, String baseIndexURL, Long userId)
     {
         IDatasetListingQuery query = dao.getQuery();
         EntityPropertiesEnricher propertiesEnricher =
                 new EntityPropertiesEnricher(query, dao.getPropertySetQuery());
         return new DatasetLister(dao.getDatabaseInstanceId(), dao.getDatabaseInstance(), query,
-                propertiesEnricher, referencedEntityDAO, dataDAO, baseIndexURL, userId);
+                propertiesEnricher, referencedEntityDAO, dataDAO, relationshipTypeDAO, baseIndexURL, userId);
     }
 
     // For unit tests
     DatasetLister(final long databaseInstanceId, final DatabaseInstance databaseInstance,
             final IDatasetListingQuery query, IEntityPropertiesEnricher propertiesEnricher,
-            SecondaryEntityDAO referencedEntityDAO, IDataDAO dataDAO, String baseIndexURL, Long userId)
+            SecondaryEntityDAO referencedEntityDAO, IDataDAO dataDAO, IRelationshipTypeDAO relationshipTypeDAO,
+            String baseIndexURL, Long userId)
     {
         super(referencedEntityDAO);
         assert databaseInstance != null;
@@ -183,6 +190,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         this.propertiesEnricher = propertiesEnricher;
         this.referencedEntityDAO = referencedEntityDAO;
         this.dataDAO = dataDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.baseIndexURL = baseIndexURL;
         this.userId = userId;
     }
@@ -215,7 +223,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             LongSet nextLayer;
             while (currentLayer.isEmpty() == false)
             {
-                nextLayer = new LongOpenHashSet(query.getDatasetChildrenIds(currentLayer));
+                Long relationshipTypeId = getParentChildRelationshipTypeId();
+                nextLayer = new LongOpenHashSet(query.getDatasetChildrenIds(currentLayer, relationshipTypeId));
                 results.addAll(currentLayer);
                 nextLayer.removeAll(results); // don't go twice through the same dataset
                 currentLayer = nextLayer;
@@ -273,7 +282,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         {
             ids.add(id);
         }
-        DataIterator<DatasetRelationRecord> relationships = query.listParentDataSetIds(ids);
+        DataIterator<DatasetRelationRecord> relationships = query.listParentDataSetIds(ids, getParentChildRelationshipTypeId());
         Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
         for (DatasetRelationRecord relationship : relationships)
         {
@@ -296,7 +305,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         {
             ids.add(id);
         }
-        DataIterator<DatasetRelationRecord> relationships = query.listChildrenDataSetIds(ids);
+        DataIterator<DatasetRelationRecord> relationships = query.listChildrenDataSetIds(ids, getParentChildRelationshipTypeId());
         Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
         for (DatasetRelationRecord relationship : relationships)
         {
@@ -394,21 +403,22 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     @Override
     public List<AbstractExternalData> listByChildTechId(TechId childDatasetId)
     {
-        return enrichDatasets(query.getParentDatasetsForChild(childDatasetId.getId()));
+        return enrichDatasets(query.getParentsOf(new LongOpenHashSet(Arrays.asList(childDatasetId.getId())),
+                getParentChildRelationshipTypeId()));
     }
 
     @Override
     public List<AbstractExternalData> listByContainerTechId(TechId containerDatasetId)
     {
-        return enrichDatasets(query.getContainedDatasetsForContainer(containerDatasetId.getId()));
+        return enrichDatasets(query.getChildrenOf(new LongOpenHashSet(Arrays.asList(containerDatasetId.getId())),
+                getContainerComponentRelationshipTypeId()));
     }
 
     @Override
     public List<AbstractExternalData> listByParentTechIds(Collection<Long> parentDatasetIds)
     {
-        DataIterator<DatasetRecord> childrenDataSets =
-                query.getChildDatasetsForParents(new LongOpenHashSet(parentDatasetIds));
-        return enrichDatasets(childrenDataSets);
+        return enrichDatasets(query.getChildrenOf(new LongOpenHashSet(parentDatasetIds),
+                getParentChildRelationshipTypeId()));
     }
 
     @Override
@@ -1014,7 +1024,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             return;
         }
 
-        List<Long> containedDataSetIDs = asList(query.getContainedDataSetIds(containerIDs));
+        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
+        List<Long> containedDataSetIDs = asList(query.getDatasetChildrenIds(containerIDs, relationshipTypeId));
         LongSet notYetLoadedChilren = new LongOpenHashSet();
 
         for (Long containedDataSetID : containedDataSetIDs)
@@ -1058,8 +1069,10 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     {
         Long2ObjectMap<AbstractExternalData> datasets =
                 new Long2ObjectOpenHashMap<AbstractExternalData>();
+        LongSet ids = new LongOpenHashSet();
         for (DatasetRecord record : records)
         {
+            ids.add(record.id);
             DataSetType dsType = dataSetTypes.get(record.dsty_id);
             AbstractExternalData dataSetOrNull = null;
             if (record.is_placeholder)
@@ -1080,6 +1093,19 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             {
                 enrichWithDeletion(dataSetOrNull, record);
                 datasets.put(record.id, dataSetOrNull);
+            }
+        }
+        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
+        DataIterator<DatasetRelationRecord> relRecords = query.listParentDataSetIds(ids, relationshipTypeId);
+        for (DatasetRelationRecord datasetRelationRecord : relRecords)
+        {
+            AbstractExternalData dataSet = datasets.get(datasetRelationRecord.data_id_child);
+            if (dataSet != null)
+            {
+                ContainerDataSet container = new ContainerDataSet();
+                container.setId(datasetRelationRecord.data_id_parent);
+                dataSet.setContainer(container);
+                dataSet.setOrderInContainer(datasetRelationRecord.ordinal);
             }
         }
         return datasets;
@@ -1149,20 +1175,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setDataProducerCode(record.data_producer_code);
         dataSet.setDataStore(dataStores.get(record.dast_id));
         dataSet.setDerived(record.is_derived);
-        dataSet.setOrderInContainer(record.ctnr_order);
         dataSet.setProductionDate(record.production_timestamp);
         dataSet.setRegistrationDate(record.registration_timestamp);
         dataSet.setRegistrator(getOrCreateActor(record.pers_id_registerer));
         dataSet.setModificationDate(record.modification_timestamp);
         dataSet.setModifier(getOrCreateActor(record.pers_id_modifier));
         dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
-
-        if (record.ctnr_id != null)
-        {
-            ContainerDataSet container = new ContainerDataSet();
-            container.setId(record.ctnr_id);
-            dataSet.setContainer(container);
-        }
 
         if (record.samp_id != null)
         {
@@ -1302,7 +1320,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             location.setDataSetLocation(record.location);
             location.setDataStoreCode(record.data_store_code);
             location.setDataStoreUrl(record.data_store_url);
-            location.setOrderInContainer(record.ctnr_order);
+            location.setOrderInContainer(record.ordinal);
 
             DatasetLocationNode node = new DatasetLocationNode(location);
             if (datasetCode.equals(record.code))
@@ -1325,7 +1343,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         {
             Long id = entry.getKey();
             DatasetLocationNode node = entry.getValue();
-            Long containerId = records.tryGet(id).ctnr_id;
+            Long containerId = records.tryGet(id).container_id;
             if (containerId != null)
             {
                 DatasetLocationNode containerNode = nodeMap.get(containerId);
@@ -1339,8 +1357,9 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     private TableMap<Long, DatasetLocationNodeRecord> loadRawLocationData(String datasetCode)
     {
+        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
         DataIterator<DatasetLocationNodeRecord> queryResult =
-                query.listLocationsByDatasetCode(datasetCode);
+                query.listLocationsByDatasetCode(datasetCode, relationshipTypeId);
         TableMap<Long, DatasetLocationNodeRecord> records =
                 new TableMap<Long, DatasetLocationNodeRecord>(queryResult,
                         new IKeyExtractor<Long, DatasetLocationNodeRecord>()
@@ -1355,11 +1374,22 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return records;
     }
 
+    private Long getParentChildRelationshipTypeId()
+    {
+        return RelationshipUtils.getParentChildRelationshipType(relationshipTypeDAO).getId();
+    }
+
+    private Long getContainerComponentRelationshipTypeId()
+    {
+        return RelationshipUtils.getContainerComponentRelationshipType(relationshipTypeDAO).getId();
+    }
+
     @Override
     public List<String> listContainedCodes(String datasetCode)
     {
         List<String> result = new LinkedList<String>();
-        DataIterator<String> queryResult = query.getContainedDataSetCodes(datasetCode);
+        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
+        DataIterator<String> queryResult = query.getContainedDataSetCodes(datasetCode, relationshipTypeId);
         for (String containedCode : queryResult)
         {
             result.add(containedCode);

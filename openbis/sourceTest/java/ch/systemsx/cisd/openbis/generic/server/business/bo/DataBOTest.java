@@ -33,9 +33,12 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -46,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LocatorType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SourceType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetPropertyPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
@@ -62,6 +66,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewLinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -423,12 +428,16 @@ public class DataBOTest extends AbstractBOTest
         DataStorePE dataStore = new DataStorePE();
         prepareDefineData(dataSetType, dataStore);
         final DataPE component = new DataPE();
+        component.setCode(COMPONENT_CODE);
         component.setExperiment(createExperiment("EXP2")); // different experiment, same space
+        final RecordingMatcher<DataPE> containerMatcher = new RecordingMatcher<DataPE>();
         context.checking(new Expectations()
             {
                 {
                     one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
                     will(returnValue(component));
+
+                    one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(component), with(containerMatcher));
                 }
             });
 
@@ -438,12 +447,11 @@ public class DataBOTest extends AbstractBOTest
         dataBO.setContainedDataSets(experimentPE, newData);
         DataPE loadedData = dataBO.getData();
 
+        assertSame(loadedData, containerMatcher.recordedObject());
         assertSame(experimentPE, loadedData.getExperiment());
         assertEquals(null, loadedData.tryGetSample());
         assertSame(true, loadedData.isMeasured());
         assertSame(dataStore, loadedData.getDataStore());
-        assertEquals(1, loadedData.getContainedDataSets().size());
-        assertSame(component, loadedData.getContainedDataSets().iterator().next());
         context.assertIsSatisfied();
     }
 
@@ -460,6 +468,7 @@ public class DataBOTest extends AbstractBOTest
         component.setDataSetType(dataSetTypeUnknown);
         component.setExperiment(experiment);
         component.setPlaceholder(true);
+        final RecordingMatcher<DataPE> containerMatcher = new RecordingMatcher<DataPE>();
         context.checking(new Expectations()
             {
                 {
@@ -470,6 +479,8 @@ public class DataBOTest extends AbstractBOTest
                     will(returnValue(dataSetTypeUnknown));
 
                     one(dataDAO).createDataSet(component, EXAMPLE_PERSON);
+
+                    one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(component), with(containerMatcher));
                 }
             });
 
@@ -483,8 +494,7 @@ public class DataBOTest extends AbstractBOTest
         assertEquals(null, data.tryGetSample());
         assertSame(true, data.isMeasured());
         assertSame(dataStore, data.getDataStore());
-        assertEquals(1, data.getContainedDataSets().size());
-        assertEquals(component, data.getContainedDataSets().iterator().next());
+        assertSame(data, containerMatcher.recordedObject());
         context.assertIsSatisfied();
     }
 
@@ -517,13 +527,18 @@ public class DataBOTest extends AbstractBOTest
         }
 
         // existing data set from different space
+
+        final RecordingMatcher<DataPE> conatinerMatcher = new RecordingMatcher<DataPE>();
         context.checking(new Expectations()
             {
                 {
                     one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
                     will(returnValue(data));
+
+                    one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(data), with(conatinerMatcher));
                 }
             });
+        // assertEquals(newData.getCode(), conatinerMatcher.recordedObject().getCode());
         try
         {
             dataBO.setContainedDataSets(experiment1, newData);
@@ -573,7 +588,7 @@ public class DataBOTest extends AbstractBOTest
     public void testUpdateStatuses()
     {
         final List<String> codes = Arrays.asList(new String[]
-            { "CODE-1", "CODE-2" });
+        { "CODE-1", "CODE-2" });
         context.checking(new Expectations()
             {
                 {
@@ -629,7 +644,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
-            { dataSet.getCode() };
+        { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, experiment);
 
@@ -657,7 +672,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] parentCodes =
-            { PARENT_CODE };
+        { PARENT_CODE };
         dataSetUpdatesDTO.setModifiedParentDatasetCodesOrNull(parentCodes);
         prepareForUpdate(dataSet, experiment);
         context.checking(new Expectations()
@@ -693,7 +708,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
-            { COMPONENT_CODE };
+        { COMPONENT_CODE };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
         prepareForUpdate(dataSet, experiment);
         context.checking(new Expectations()
@@ -730,7 +745,7 @@ public class DataBOTest extends AbstractBOTest
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(dataSet, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
-            { dataSet.getCode() };
+        { dataSet.getCode() };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
         prepareForUpdate(dataSet, experiment);
 
@@ -758,12 +773,24 @@ public class DataBOTest extends AbstractBOTest
         container1.getDataSetType().setDataSetKind(DataSetKind.CONTAINER.name());
         final DataPE container2 = createDataSet("container-2", null, experiment);
         container2.getDataSetType().setDataSetKind(DataSetKind.CONTAINER.name());
-        container2.addComponent(container1, EXAMPLE_PERSON);
+        final RelationshipTypePE relationshipTypePE = new RelationshipTypePE();
+        relationshipTypePE.setCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+        context.checking(new Expectations()
+            {
+                {
+                    one(relationshipTypeDAO).tryFindRelationshipTypeByCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+                    will(returnValue(relationshipTypePE));
+                }
+            });
+        RelationshipTypePE containerComponentRelationshipType = RelationshipUtils
+                .getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO());
+        container2.addChildRelationship(new DataSetRelationshipPE(container2, container1,
+                containerComponentRelationshipType, 1, EXAMPLE_PERSON));
 
         DataSetUpdatesDTO dataSetUpdatesDTO =
                 createDataSetUpdates(container1, null, EXPERIMENT_IDENTIFIER);
         String[] componentCodes =
-            { container2.getCode() };
+        { container2.getCode() };
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
 
         prepareForUpdate(container1, experiment);

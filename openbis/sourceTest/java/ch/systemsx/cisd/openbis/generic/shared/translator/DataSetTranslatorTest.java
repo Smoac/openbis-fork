@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
@@ -46,6 +47,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -274,7 +276,9 @@ public class DataSetTranslatorTest extends AssertJUnit
         DataPE parent = new DataPE();
         parent.setCode(parentCode);
         parent.setDataStore(createStore());
-        return new DataSetRelationshipPE(parent, child, new PersonPE());
+        RelationshipTypePE relationshipType = new RelationshipTypePE();
+        relationshipType.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+        return new DataSetRelationshipPE(parent, child, relationshipType, null, new PersonPE());
     }
 
     private DataStorePE createStore()

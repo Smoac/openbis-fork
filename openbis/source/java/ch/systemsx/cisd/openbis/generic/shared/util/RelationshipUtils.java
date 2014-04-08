@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
+package ch.systemsx.cisd.openbis.generic.shared.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateBean;
@@ -32,6 +37,43 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
  */
 public class RelationshipUtils
 {
+    public static boolean isParentChildRelationship(DataSetRelationshipPE relationship)
+    {
+        return isRelationshipOfType(relationship, BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+    }
+
+    public static boolean isContainerComponentRelationship(DataSetRelationshipPE relationship)
+    {
+        return isRelationshipOfType(relationship, BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+    }
+
+    private static boolean isRelationshipOfType(DataSetRelationshipPE relationship, String code)
+    {
+        return relationship.getRelationshipType().getCode().equals(code);
+    }
+
+    public static List<DataSetRelationshipPE> getParentChildRelationships(Collection<DataSetRelationshipPE> relationships)
+    {
+        return filterRelationships(relationships, BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
+    }
+
+    public static List<DataSetRelationshipPE> getContainerComponentRelationships(Collection<DataSetRelationshipPE> relationships)
+    {
+        return filterRelationships(relationships, BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+    }
+
+    private static List<DataSetRelationshipPE> filterRelationships(Collection<DataSetRelationshipPE> relationships, String code)
+    {
+        List<DataSetRelationshipPE> result = new ArrayList<DataSetRelationshipPE>();
+        for (DataSetRelationshipPE relationship : relationships)
+        {
+            if (relationship.getRelationshipType().getCode().equals(code))
+            {
+                result.add(relationship);
+            }
+        }
+        return result;
+    }
 
     public static void setSampleForDataSet(DataPE dataSet, SamplePE sample, IAuthSession session)
     {

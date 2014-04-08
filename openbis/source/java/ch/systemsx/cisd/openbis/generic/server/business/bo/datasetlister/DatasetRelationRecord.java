@@ -29,4 +29,6 @@ public class DatasetRelationRecord
     public long data_id_parent;
 
     public long data_id_child;
+
+    public Integer ordinal;
 }

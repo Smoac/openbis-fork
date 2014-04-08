@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,7 +54,9 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -101,10 +102,13 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     private Boolean isAccessTimestampColumnDefined;
 
+    private IRelationshipTypeDAO relationshipTypeDAO;
+
     DataDAO(final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance)
+            final DatabaseInstancePE databaseInstance, IRelationshipTypeDAO relationshipTypeDAO)
     {
         super(persistencyResources, databaseInstance, ENTITY_CLASS);
+        this.relationshipTypeDAO = relationshipTypeDAO;
     }
 
     //
@@ -135,7 +139,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 String.format("from %s e " + "left join fetch e.experimentInternal "
                         + "left join fetch e.sampleInternal "
                         + "left join fetch e.dataSetParentRelationships "
-                        + "left join fetch e.containedDataSets "
                         + "left join fetch e.dataSetProperties "
                         + "where e.%sInternal.id IN (:ids)", TABLE_NAME, entityName);
 
@@ -705,9 +708,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         lockEntity(data.getExperiment());
         lockEntity(data.tryGetSample());
-        lockEntity(data.getContainer());
-        lockEntities(data.getParents());
-        lockEntities(data.getChildren());
+        lockEntities(data.getLinkedDataSets());
     }
 
     @Override
@@ -764,31 +765,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
-    public void delete(DataPE entity) throws DataAccessException
-    {
-        assert entity != null : "entity unspecified";
-
-        // FIXME: Pawel Glyzewski shouldn't be deleted by cascade?
-        // Remove children & components and flush changes before deletion.
-        // Otherwise constraint violation exception will be thrown.
-        // List<DataPE> children = new ArrayList<DataPE>(entity.getChildren());
-        // for (DataPE child : children)
-        // {
-        // child.removeParent(entity);
-        // }
-        if (entity.isContainer())
-        {
-            List<DataPE> components = new ArrayList<DataPE>(entity.getContainedDataSets());
-            for (DataPE component : components)
-            {
-                entity.removeComponent(component);
-            }
-        }
-        flush();
-        super.delete(entity);
-    }
-
-    @Override
     public void delete(final List<TechId> dataIds, final PersonPE registrator, final String reason)
             throws DataAccessException
     {
@@ -810,12 +786,11 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final String sqlDeleteExternalData = createDeleteExternalDataSQL();
         final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL();
         final String sqlDeleteParentConnections = createDeleteParentConnectionsSQL();
-        final String sqlDeleteComponentConnections = createDeleteComponentConnectionsSQL();
 
         executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason,
                 sqlSelectPermIds, sqlSelectLocations, sqlDeleteProperties, sqlDeleteDataSets,
                 sqlInsertEvent, sqlDeleteExternalData, sqlDeleteChildrenConnections,
-                sqlDeleteParentConnections, sqlDeleteComponentConnections);
+                sqlDeleteParentConnections);
     }
 
     protected void executePermanentDeleteOfDataSets(final EntityType entityType,
@@ -865,12 +840,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     {
         return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE
                 + " WHERE data_id_child " + SQLBuilder.inEntityIds();
-    }
-
-    private static String createDeleteComponentConnectionsSQL()
-    {
-        return "UPDATE " + TableNames.DATA_ALL_TABLE + " SET ctnr_id = NULL WHERE ctnr_id "
-                + SQLBuilder.inEntityIds();
     }
 
     // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO
@@ -1079,8 +1048,19 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
+    public Set<TechId> findParentIds(final Collection<TechId> dataSetIds, final long relationshipTypeId)
+    {
+        return findRelatedIds("data_id_parent", "data_id_child", dataSetIds, relationshipTypeId);
+    }
+
+    @Override
+    public Set<TechId> findChildrenIds(Collection<TechId> dataSetIds, long relationshipTypeId)
+    {
+        return findRelatedIds("data_id_child", "data_id_parent", dataSetIds, relationshipTypeId);
+    }
+
     @SuppressWarnings("unchecked")
-    public Set<TechId> findParentIds(final Collection<TechId> dataSetIds)
+    private Set<TechId> findRelatedIds(String side1, String side2, final Collection<TechId> dataSetIds, final long relationshipTypeId)
     {
         // Native SQL query is used to be able to query on 'many-to-many association table -
         // - 'data_set_relationships' without join with 'data' table involved in this association.
@@ -1088,7 +1068,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         // BigIntegers and so a transformation is needed.
 
         final String query =
-                "select data_id_parent from data_set_relationships where data_id_child in (:ids)";
+                "select " + side1 + " from data_set_relationships where " + side2 + " in (:ids) and relationship_id = :type";
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
                     {
@@ -1103,6 +1083,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                             // we could remove this transformation if we choose to pass Long values
                             final List<Long> longIds = TechId.asLongs(dataSetIds);
                             return session.createSQLQuery(query).setParameterList("ids", longIds)
+                                    .setParameter("type", relationshipTypeId)
                                     .list();
                         }
                     });
@@ -1260,74 +1241,18 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
-    public List<TechId> listContainedDataSets(Collection<TechId> containerIds)
-    {
-
-        final List<Long> longIds = TechId.asLongs(containerIds);
-        final List<Long> totalResults = new ArrayList<Long>();
-
-        BatchOperationExecutor.executeInBatches(new IBatchOperation<Long>()
-            {
-
-                @Override
-                public void execute(List<Long> batchIds)
-                {
-                    List<Long> result =
-                            DAOUtils.listByCollection(getHibernateTemplate(),
-                                    new IDetachedCriteriaFactory()
-                                        {
-                                            @Override
-                                            public DetachedCriteria createCriteria()
-                                            {
-                                                final DetachedCriteria criteria =
-                                                        DetachedCriteria.forClass(DataPE.class);
-                                                criteria.setProjection(Projections.id());
-                                                return criteria;
-                                            }
-                                        }, "containerInternal.id", batchIds);
-                    totalResults.addAll(result);
-                }
-
-                @Override
-                public List<Long> getAllEntities()
-                {
-                    return longIds;
-                }
-
-                @Override
-                public String getEntityName()
-                {
-                    return "dataSet";
-                }
-
-                @Override
-                public String getOperationName()
-                {
-                    return "listContainedDataSets";
-                }
-            }, MAX_BATCH_SIZE);
-
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.info(String.format("found %s data sets for given containers",
-                    totalResults.size()));
-        }
-
-        return transformNumbers2TechIdList(totalResults);
-    }
-
-    @Override
     public List<TechId> listContainedDataSetsRecursively(Collection<TechId> containersIds)
     {
-        LinkedHashSet<TechId> allIds = new LinkedHashSet<TechId>();
+        Set<TechId> allIds = new LinkedHashSet<TechId>();
         // cascade deletion of contained datasets
-        List<TechId> containedDataSetIds = new LinkedList<TechId>();
+        Set<TechId> containedDataSetIds = new LinkedHashSet<TechId>();
 
         containedDataSetIds.addAll(containersIds);
 
         while (allIds.addAll(containedDataSetIds))
         {
-            containedDataSetIds = listContainedDataSets(containedDataSetIds);
+            Long relationshipTypeId = RelationshipUtils.getContainerComponentRelationshipType(relationshipTypeDAO).getId();
+            containedDataSetIds = findChildrenIds(containedDataSetIds, relationshipTypeId);
         }
 
         return new ArrayList<TechId>(allIds);

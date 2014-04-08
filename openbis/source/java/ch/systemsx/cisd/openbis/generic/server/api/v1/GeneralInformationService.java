@@ -103,6 +103,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
@@ -889,6 +890,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                     DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
                             MetaprojectTranslator.translate(metaprojects),
                             managedPropertyEvaluatorFactory);
+            if (ds instanceof ContainerDataSet)
+            {
+                ContainerDataSet cds = (ContainerDataSet) ds;
+                cds.getContainedDataSets().clear();
+            }
             result.add(Translator.translate(ds, connections));
         }
         return result;

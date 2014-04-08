@@ -170,34 +170,47 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getDatasetIdsForSamples(LongSet sampleIds);
 
-    @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1})", parameterBindings =
+    @Select(sql = "select * from data_set_relationships where data_id_child = any(?{1}) and relationship_id = ?{2}", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids);
+    public DataIterator<DatasetRelationRecord> listParentDataSetIds(LongSet ids, long relationShipTypeId);
 
-    @Select(sql = "select * from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
+    @Select(sql = "select * from data_set_relationships where data_id_parent = any(?{1}) and relationship_id = ?{2}", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids);
+    public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids, long relationShipTypeId);
 
     /**
      * Returns all datasets that are children of any specified dataset id.
      */
-    @Select(sql = SELECT_ALL
-            + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent = any(?{1}))", parameterBindings =
-    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getChildDatasetsForParents(LongSet parentDatasetIds);
+    // @Select(sql = SELECT_ALL
+    // + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent = any(?{1}))", parameterBindings =
+    // { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    // public DataIterator<DatasetRecord> getChildDatasetsForParents(LongSet parentDatasetIds);
 
     /**
      * Returns the datasets that are parents of a dataset with given id.
      */
-    @Select(sql = SELECT_ALL
-            + " WHERE data.id IN (SELECT data_id_parent FROM data_set_relationships r WHERE r.data_id_child=?{1})", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getParentDatasetsForChild(long childDatasetId);
+    // @Select(sql = SELECT_ALL
+    // + " WHERE data.id IN (SELECT data_id_parent FROM data_set_relationships r WHERE r.data_id_child=?{1})", fetchSize = FETCH_SIZE)
+    // public DataIterator<DatasetRecord> getParentDatasetsForChild(long childDatasetId);
 
     /**
      * Returns the datasets that are contained in a dataset with given id.
      */
-    @Select(sql = SELECT_ALL + " WHERE data.ctnr_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getContainedDatasetsForContainer(long containerDatasetId);
+    // @Select(sql = SELECT_ALL
+    // +
+    // " WHERE id in (select data_id_child from data_set_relationships where relationship_id in (select id from relationship_types wheredata.ctnr_id=?{1}",
+    // fetchSize = FETCH_SIZE)
+    // public DataIterator<DatasetRecord> getContainedDatasetsForContainer(long containerDatasetId);
+
+    @Select(sql = SELECT_ALL + " where id in (select data_id_child from data_set_relationships "
+            + "where data_id_parent = any(?{1}) and relationship_id = ?{2})", parameterBindings =
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getChildrenOf(LongSet ids, Long relationshipTypeId);
+
+    @Select(sql = SELECT_ALL + " where id in (select data_id_parent from data_set_relationships "
+            + "where data_id_child = any(?{1}) and relationship_id = ?{2})", parameterBindings =
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getParentsOf(LongSet ids, Long relationshipTypeId);
 
     /**
      * Returns the datasets for the given <var>datasetId</var>.
@@ -280,18 +293,18 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             long dataStoreId);
 
     /**
-     * Returns the children dataset ids of the specified datasets.
+     * Returns the children/component dataset ids of the specified datasets.
      */
-    @Select(sql = "select data_id_child from data_set_relationships where data_id_parent = any(?{1})", parameterBindings =
+    @Select(sql = "select data_id_child from data_set_relationships "
+            + "where data_id_parent = any(?{1}) and relationship_id = ?{2}", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId);
+    public DataIterator<Long> getDatasetChildrenIds(LongSet sampleId, long relationshipTypeId);
 
-    @Select(sql = "select id from data where ctnr_id = any(?{1})", parameterBindings =
-    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<Long> getContainedDataSetIds(LongSet containerIDs);
-
-    @Select(sql = "select code from data where ctnr_id = (select id from data where code = ?{1})", fetchSize = FETCH_SIZE)
-    public DataIterator<String> getContainedDataSetCodes(String dataSetCode);
+    @Select(sql = "select comp.code from data as comp "
+            + "join data_set_relationships as r on r.data_id_child = comp.id "
+            + "join data as cont on r.data_id_parent = cont.id "
+            + "where cont.code = ?{1} and relationship_id = ?{2}", fetchSize = FETCH_SIZE)
+    public DataIterator<String> getContainedDataSetCodes(String dataSetCode, long relationshipTypeId);
 
     //
     // Entity Properties
@@ -354,14 +367,20 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<MaterialEntityPropertyRecord> getEntityPropertyMaterialValues(
             LongSet entityIds);
 
-    @Select(sql = "WITH RECURSIVE connected_data(id, code, ctnr_id, ctnr_order, dast_id, location) AS ("
-            + "    SELECT d.id, d.code, d.ctnr_id, d.ctnr_order, d.dast_id, ed.location FROM data AS d LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id WHERE d.code = ?{1}"
-            + "  UNION ALL"
-            + "    SELECT d.id, d.code, d.ctnr_id, d.ctnr_order, d.dast_id, ed.location"
-            + "    FROM connected_data AS cd INNER JOIN data AS d ON cd.id = d.ctnr_id LEFT OUTER JOIN external_data AS ed ON d.id = ed.data_id"
-            + ")"
-            + "SELECT c.id, c.code, c.ctnr_id, c.ctnr_order, c.location, d.code as data_store_code, d.remote_url as data_store_url FROM connected_data c JOIN data_stores d ON c.dast_id = d.id")
-    public DataIterator<DatasetLocationNodeRecord> listLocationsByDatasetCode(String datasetCode);
+    @Select(sql = "with recursive connected_data(id,code,container_id,ordinal,dast_id,location) as ("
+            + "  select distinct d.id,d.code,nullif(r.data_id_parent,d.id),nullif(r.ordinal,r.ordinal),d.dast_id,ed.location"
+            + "  from data as d left outer join external_data as ed on ed.data_id = d.id "
+            + "  left outer join data_set_relationships as r on r.data_id_parent=d.id"
+            + "  where d.code = ?{1}"
+            + "  union all"
+            + "    select distinct d.id,d.code,r.data_id_parent,r.ordinal,d.dast_id,ed.location"
+            + "    from connected_data as cd inner join data_set_relationships as r on r.data_id_parent=cd.id"
+            + "    inner join data as d on r.data_id_child=d.id left outer join external_data as ed on ed.data_id = d.id"
+            + "    where r.relationship_id = ?{2}"
+            + ") " +
+            "select cd.id,cd.code,cd.container_id,cd.ordinal,cd.location,d.code as data_store_code, d.remote_url as data_store_url "
+            + "from connected_data as cd join data_stores as d on cd.dast_id = d.id", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetLocationNodeRecord> listLocationsByDatasetCode(String datasetCode, long relationshipTypeId);
 
     @Select(sql = "select m.id as id, m.name as name, m.description as description, p.user_id as owner_name, "
             + " m.private as is_private, m.creation_date as creation_date, ma.data_id as entity_id "

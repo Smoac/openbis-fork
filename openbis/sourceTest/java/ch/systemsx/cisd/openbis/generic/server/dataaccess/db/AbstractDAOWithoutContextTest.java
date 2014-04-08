@@ -77,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
  * @author Christian Ribeaud
  */
 @Friend(toClasses =
-    { AbstractDAO.class })
+{ AbstractDAO.class })
 public abstract class AbstractDAOWithoutContextTest extends
         AbstractTransactionalTestNGSpringContextTests
 {

@@ -31,7 +31,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -76,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -290,11 +290,10 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
                 final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
                 if (containedDataSetCodes != null)
                 {
-                    PersonPE modifier = findPerson();
                     for (String containedCode : containedDataSetCodes)
                     {
                         final DataPE contained = getOrCreateData(containedCode, experiment);
-                        data.addComponent(contained, modifier);
+                        relationshipService.assignDataSetToContainer(session, contained, data);
                         checkSameSpace(data, contained);
                     }
                 }
@@ -613,11 +612,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         updateFileFormatType(data, updates.getFileFormatTypeCode());
         updateProperties(data.getEntityType(), updates.getProperties(), data, data);
 
-        if (data.getContainer() != null)
-        {
-            // space could be changed by change of experiment
-            checkSameSpace(data.getContainer(), data);
-        }
         if (data.getContainedDataSets() != null)
         {
             // even if components were not changed

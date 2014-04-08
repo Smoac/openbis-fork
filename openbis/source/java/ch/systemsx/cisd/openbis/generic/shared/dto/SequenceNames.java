@@ -34,6 +34,8 @@ public final class SequenceNames
 
     public static final String DATA_SET_RELATIONSHIP_SEQUENCE = "DATA_SET_RELATIONSHIP_ID_SEQ";
 
+    public static final String DATA_SET_RELATIONSHIPS_HISTORY_SEQUENCE = "DATA_SET_RELATIONSHIPS_HISTORY_ID_SEQ";
+
     public static final String DATA_SET_TYPE_SEQUENCE = "DATA_SET_TYPE_ID_SEQ";
 
     public static final String DATA_STORE_SEQUENCE = "DATA_STORE_ID_SEQ";

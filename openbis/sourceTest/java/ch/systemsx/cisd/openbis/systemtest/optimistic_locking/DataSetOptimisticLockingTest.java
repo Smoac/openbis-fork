@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -30,13 +31,13 @@ import ch.systemsx.cisd.openbis.generic.server.util.TimeIntervalChecker;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.PropertyBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -242,7 +243,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, dataSet).create();
         dataSetUpdates.setMetaprojectsOrNull(new String[]
-            { "TEST_METAPROJECTS" });
+        { "TEST_METAPROJECTS" });
         String sessionToken = logIntoCommonClientService().getSessionID();
 
         etlService.updateDataSet(sessionToken, dataSetUpdates);
@@ -469,7 +470,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         dataSetBatchUpdates.setDatasetId(new TechId(child));
         dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
         dataSetBatchUpdates.setModifiedParentDatasetCodesOrNull(new String[]
-            { dataSet2.getCode() });
+        { dataSet2.getCode() });
         DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
         updateDetails.setParentsUpdateRequested(true);
         dataSetBatchUpdates.setDetails(updateDetails);
@@ -506,7 +507,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         DataSetUpdatesDTO dataSetUpdates =
                 new DataSetUpdateBuilder(commonServer, genericServer, child).create();
         dataSetUpdates.setModifiedParentDatasetCodesOrNull(new String[]
-            { dataSet2.getCode() });
+        { dataSet2.getCode() });
         String sessionToken = logIntoCommonClientService().getSessionID();
         TimeIntervalChecker timeIntervalChecker = new TimeIntervalChecker();
 
@@ -583,11 +584,13 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         ContainerDataSet loadedContainerDataSet2 =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
         AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
-        assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
+        assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
                 .toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
                 .toString());
-        assertEquals("DS-2", loadedContainedDataSet.tryGetContainer().getCode());
+        Set<String> expectedCodes = new HashSet<String>(Arrays.asList("DS-1", "DS-2"));
+        String code = loadedContainedDataSet.tryGetContainer().getCode();
+        assertEquals(code + " not in " + expectedCodes, true, expectedCodes.contains(code));
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
                 loadedContainerDataSet1, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
@@ -629,11 +632,13 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         ContainerDataSet loadedContainerDataSet2 =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
         AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
-        assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
+        assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
                 .toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
                 .toString());
-        assertEquals("DS-2", loadedContainedDataSet.tryGetContainer().getCode());
+        Set<String> expectedCodes = new HashSet<String>(Arrays.asList("DS-1", "DS-2"));
+        String code = loadedContainedDataSet.tryGetContainer().getCode();
+        assertEquals(code + " not in " + expectedCodes, true, expectedCodes.contains(code));
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
                 loadedContainerDataSet1, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
@@ -663,7 +668,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         dataSetBatchUpdates.setDatasetId(new TechId(loadedContainerDataSet));
         dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
         dataSetBatchUpdates.setModifiedContainedDatasetCodesOrNull(new String[]
-            { dataSet2.getCode() });
+        { dataSet2.getCode() });
         DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
         updateDetails.setContainerUpdateRequested(true);
         dataSetBatchUpdates.setDetails(updateDetails);
@@ -709,7 +714,7 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         dataSetBatchUpdates.setProperties(Arrays.<IEntityProperty> asList());
         dataSetBatchUpdates.setExperimentIdentifierOrNull(new ExperimentIdentifier(experiment));
         dataSetBatchUpdates.setModifiedContainedDatasetCodesOrNull(new String[]
-            { dataSet2.getCode() });
+        { dataSet2.getCode() });
         DataSetBatchUpdateDetails updateDetails = new DataSetBatchUpdateDetails();
         updateDetails.setContainerUpdateRequested(true);
         dataSetBatchUpdates.setDetails(updateDetails);

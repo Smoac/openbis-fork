@@ -1100,10 +1100,19 @@ public class GeneralInformationServiceTest extends SystemTestCase
         assertEquals("[20081105092259900-0, 20081105092259900-1]", childrenCodes.toString());
         DataSet dataSet = dataSets.get(9);
         assertTrue(dataSet.isContainerDataSet());
+        List<DataSet> containedDataSets = dataSet.getContainedDataSets();
+        Collections.sort(containedDataSets, new Comparator<DataSet>()
+            {
+                @Override
+                public int compare(DataSet d1, DataSet d2)
+                {
+                    return d1.getCode().compareTo(d2.getCode());
+                }
+            });
         assertEquals("[DataSet[20110509092359990-11,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
                 + "{COMMENT=non-virtual comment},[]], "
                 + "DataSet[20110509092359990-12,/CISD/DEFAULT/EXP-REUSE,<null>,HCS_IMAGE,"
-                + "{COMMENT=non-virtual comment},[]]]", dataSet.getContainedDataSets().toString());
+                + "{COMMENT=non-virtual comment},[]]]", containedDataSets.toString());
         assertEquals(
                 "DataSet[20110509092359990-10,/CISD/DEFAULT/EXP-REUSE,<null>,CONTAINER_TYPE,{},[]]",
                 dataSet.toString());

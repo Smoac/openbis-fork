@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister;
 
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +32,8 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.DataSetInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
@@ -55,13 +60,16 @@ public class DataSetLister implements IDataSetLister
 
     private IDataSetListingQuery query;
 
+    private IRelationshipTypeDAO relationshipTypeDAO;
+
     public DataSetLister(IAuthorizationDAOFactory daoFactory, PersonPE person)
     {
-        this(QueryTool.getManagedQuery(IDataSetListingQuery.class), person);
+        this(QueryTool.getManagedQuery(IDataSetListingQuery.class), daoFactory, person);
     }
 
-    public DataSetLister(IDataSetListingQuery query, PersonPE person)
+    public DataSetLister(IDataSetListingQuery query, IAuthorizationDAOFactory daoFactory, PersonPE person)
     {
+        relationshipTypeDAO = daoFactory.getRelationshipTypeDAO();
         if (query == null)
         {
             throw new IllegalArgumentException("Query was null");
@@ -101,6 +109,7 @@ public class DataSetLister implements IDataSetLister
         // create data set initializers
         List<DataSetInitializer> dataSetInitializers =
                 createDataSetInitializers(dataSetRecords, dataSetCodesArray);
+        injectContainerStubs(dataSetInitializers);
 
         // fill in parents
         if (dataSetFetchOptions.isSupersetOf(DataSetFetchOption.PARENTS))
@@ -116,6 +125,41 @@ public class DataSetLister implements IDataSetLister
 
         // create data sets
         return createDataSets(dataSetInitializers, dataSetFetchOptions);
+    }
+
+    private void injectContainerStubs(List<DataSetInitializer> dataSetInitializers)
+    {
+        LongSet ids = new LongOpenHashSet();
+        for (DataSetInitializer dataSetInitializer : dataSetInitializers)
+        {
+            ids.add(dataSetInitializer.getId());
+        }
+        Map<Long, List<DataSetRecord>> containersByComponents = new HashMap<Long, List<DataSetRecord>>();
+        List<DataSetRecord> dataSetsWithContainer =
+                query.getContainers(ids, RelationshipUtils.getContainerComponentRelationshipType(relationshipTypeDAO).getId());
+        for (DataSetRecord dataSetRecord : dataSetsWithContainer)
+        {
+            List<DataSetRecord> containers = containersByComponents.get(dataSetRecord.ds_id);
+            if (containers == null)
+            {
+                containers = new ArrayList<DataSetRecord>();
+                containersByComponents.put(dataSetRecord.ds_id, containers);
+            }
+            containers.add(dataSetRecord);
+        }
+        for (DataSetInitializer dataSetInitializer : dataSetInitializers)
+        {
+            List<DataSetRecord> containers = containersByComponents.get(dataSetInitializer.getId());
+            if (containers != null)
+            {
+                DataSetRecord container = containers.get(0);
+                DataSetInitializer containerInitializer = new DataSetInitializer();
+                containerInitializer.setStub(true);
+                containerInitializer.setId(container.ctnr_id);
+                containerInitializer.setCode(container.ctnr_code);
+                dataSetInitializer.setContainerOrNull(new DataSet(containerInitializer));
+            }
+        }
     }
 
     private List<DataSet> createDataSets(List<DataSetInitializer> dataSetInitializers,
@@ -209,14 +253,6 @@ public class DataSetLister implements IDataSetLister
             edms.setDatabaseInstance(db);
             edms.setOpenBIS(dataSet.edms_is_openbis);
             initializer.setExternalDataManagementSystem(edms);
-        }
-        if (dataSet.ctnr_id != null)
-        {
-            final DataSetInitializer containerInitializer = new DataSetInitializer();
-            containerInitializer.setStub(true);
-            containerInitializer.setId(dataSet.ctnr_id);
-            containerInitializer.setCode(dataSet.ctnr_code);
-            initializer.setContainerOrNull(new DataSet(containerInitializer));
         }
         initializer.setRegistrationDetails(createDataSetRegistrationDetails(dataSet));
         initializer.setExperimentIdentifier(experimentIdentifier.toString());

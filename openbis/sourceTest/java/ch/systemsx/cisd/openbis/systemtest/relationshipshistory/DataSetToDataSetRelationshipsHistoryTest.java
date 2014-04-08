@@ -39,6 +39,12 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
 
         logIntoCommonClientService();
 
+        List<DataSetRelationshipsHistory> dataSetHistory =
+                getDataSetRelationshipsHistory(containedId.getId());
+        int containedHistoryInitialSize = dataSetHistory.size();
+        dataSetHistory = getDataSetRelationshipsHistory(containerId.getId());
+        int containerHistoryInitialSize = dataSetHistory.size();
+
         AbstractExternalData container = genericClientService.getDataSetInfo(containerId);
         AbstractExternalData contained = genericClientService.getDataSetInfo(containedId);
 
@@ -53,11 +59,11 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
 
         genericClientService.updateDataSet(updates);
 
-        List<DataSetRelationshipsHistory> dataSetHistory =
+        dataSetHistory =
                 getDataSetRelationshipsHistory(containedId.getId());
-        assertEquals(0, dataSetHistory.size());
+        assertEquals(containedHistoryInitialSize, dataSetHistory.size());
         dataSetHistory = getDataSetRelationshipsHistory(containerId.getId());
-        assertEquals(0, dataSetHistory.size());
+        assertEquals(containerHistoryInitialSize, dataSetHistory.size());
 
         container = genericClientService.getDataSetInfo(containerId);
 
@@ -69,21 +75,21 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         updates.setExperimentIdentifierOrNull(container.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(container.getSampleIdentifier());
         updates.setModifiedContainedDatasetCodesOrNull(new String[]
-            { contained.getCode() });
+        { contained.getCode() });
 
         genericClientService.updateDataSet(updates);
 
         dataSetHistory = getDataSetRelationshipsHistory(containedId.getId());
-        assertEquals(1, dataSetHistory.size());
-        assertEquals("[mainDataId=" + containedId.getId() + "; relationType=CONTAINED; dataId="
+        assertEquals(containedHistoryInitialSize + 1, dataSetHistory.size());
+        assertEquals("[mainDataId=" + containedId.getId() + "; relationType=COMPONENT; dataId="
                 + containerId.getId() + "; entityPermId=" + container.getPermId()
-                + "; authorId=2; valid=true]", dataSetHistory.iterator().next().toString());
+                + "; authorId=2; valid=true]", dataSetHistory.get(dataSetHistory.size() - 1).toString());
 
         dataSetHistory = getDataSetRelationshipsHistory(containerId.getId());
-        assertEquals(1, dataSetHistory.size());
+        assertEquals(containerHistoryInitialSize + 1, dataSetHistory.size());
         assertEquals("[mainDataId=" + containerId.getId() + "; relationType=CONTAINER; dataId="
                 + containedId.getId() + "; entityPermId=" + contained.getPermId()
-                + "; authorId=2; valid=true]", dataSetHistory.iterator().next().toString());
+                + "; authorId=2; valid=true]", dataSetHistory.get(dataSetHistory.size() - 1).toString());
 
         container = genericClientService.getDataSetInfo(containerId);
 
@@ -99,16 +105,16 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         genericClientService.updateDataSet(updates);
 
         dataSetHistory = getDataSetRelationshipsHistory(containedId.getId());
-        assertEquals(1, dataSetHistory.size());
-        assertEquals("[mainDataId=" + containedId.getId() + "; relationType=CONTAINED; dataId="
+        assertEquals(containedHistoryInitialSize + 1, dataSetHistory.size());
+        assertEquals("[mainDataId=" + containedId.getId() + "; relationType=COMPONENT; dataId="
                 + containerId.getId() + "; entityPermId=" + container.getPermId()
-                + "; authorId=2; valid=false]", dataSetHistory.iterator().next().toString());
+                + "; authorId=2; valid=false]", dataSetHistory.get(dataSetHistory.size() - 1).toString());
 
         dataSetHistory = getDataSetRelationshipsHistory(containerId.getId());
-        assertEquals(1, dataSetHistory.size());
+        assertEquals(containerHistoryInitialSize + 1, dataSetHistory.size());
         assertEquals("[mainDataId=" + containerId.getId() + "; relationType=CONTAINER; dataId="
                 + containedId.getId() + "; entityPermId=" + contained.getPermId()
-                + "; authorId=2; valid=false]", dataSetHistory.iterator().next().toString());
+                + "; authorId=2; valid=false]", dataSetHistory.get(dataSetHistory.size() - 1).toString());
     }
 
     @Test
@@ -153,7 +159,7 @@ public class DataSetToDataSetRelationshipsHistoryTest extends AbstractRelationsh
         updates.setExperimentIdentifierOrNull(child.getExperiment().getIdentifier());
         updates.setSampleIdentifierOrNull(child.getSampleIdentifier());
         updates.setModifiedParentDatasetCodesOrNull(new String[]
-            { parent1.getCode(), parent2.getCode() });
+        { parent1.getCode(), parent2.getCode() });
 
         genericClientService.updateDataSet(updates);
 

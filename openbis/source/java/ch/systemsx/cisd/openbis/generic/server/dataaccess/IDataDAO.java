@@ -138,11 +138,22 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public List<DataPE> listExternalData(final DataStorePE dataStore);
 
     /**
-     * @return Unique set of ids of parents of data sets specified by ids.
-     *         <p>
-     *         NOTE: does not check if specified ids are proper data set ids.
+     * Returns unique set of ids of parents/container of data sets specified by ids.
+     * <p>
+     * NOTE: does not check if specified ids are proper data set ids.
+     * 
+     * @param relationshipTypeId The type of relation (parent-child or container-component)
      */
-    public Set<TechId> findParentIds(Collection<TechId> dataSetIds);
+    public Set<TechId> findParentIds(Collection<TechId> dataSetIds, long relationshipTypeId);
+
+    /**
+     * Returns unique set of ids of children/components of data sets specified by ids.
+     * <p>
+     * NOTE: does not check if specified ids are proper data set ids.
+     * 
+     * @param relationshipTypeId The type of relation (parent-child or container-component)
+     */
+    public Set<TechId> findChildrenIds(Collection<TechId> dataSetIds, long relationshipTypeId);
 
     public List<DataPE> listByCode(Set<String> values);
 
@@ -158,9 +169,6 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     /** Returns ids of data sets connected with experiments specified by given ids. */
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
-
-    /** Returns ids of contained data sets for a given collection of containers. */
-    public List<TechId> listContainedDataSets(final Collection<TechId> containerIds);
 
     /**
      * Returs ids of contained data sets, and of datasets contained in those datasets etc. Also includes the input ids.

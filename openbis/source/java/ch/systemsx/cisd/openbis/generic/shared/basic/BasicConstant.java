@@ -66,8 +66,7 @@ public class BasicConstant
     public static final String DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PART = "$term$";
 
     /**
-     * Pattern for deprecated template part of Vocabulary URL that that is replaced with vocabulary
-     * term code.
+     * Pattern for deprecated template part of Vocabulary URL that that is replaced with vocabulary term code.
      */
     public static final String DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PATTERN =
             DEPRECATED_VOCABULARY_URL_TEMPLATE_TERM_PART.replaceAll("\\$", "\\\\\\$");
@@ -78,18 +77,16 @@ public class BasicConstant
     public static final String EXTERNAL_DMS_URL_TEMPLATE_CODE_PART = "${code}";
 
     /**
-     * Pattern for template part of an external DMS URL that is replaced with an external data set
-     * code.
+     * Pattern for template part of an external DMS URL that is replaced with an external data set code.
      */
     public static final String EXTERNAL_DMS_URL_TEMPLATE_CODE_PATTERN =
             EXTERNAL_DMS_URL_TEMPLATE_CODE_PART.replaceAll("\\$", "\\\\\\$")
                     .replaceAll("\\{", "\\\\{").replaceAll("\\}", "\\\\}");
 
     /**
-     * Canonical date format pattern used to save dates in DB. Holds date, time and time zone
-     * information. It is less readable then the one used in GUI (
-     * {@link BasicConstant#RENDERED_CANONICAL_DATE_FORMAT_PATTERN}), but both layers cannot share
-     * the more readable one (GWT fails to parse date created with that pattern on the server side).
+     * Canonical date format pattern used to save dates in DB. Holds date, time and time zone information. It is less readable then the one used in
+     * GUI ( {@link BasicConstant#RENDERED_CANONICAL_DATE_FORMAT_PATTERN}), but both layers cannot share the more readable one (GWT fails to parse
+     * date created with that pattern on the server side).
      */
     public static final String CANONICAL_DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss Z";
 
@@ -125,6 +122,11 @@ public class BasicConstant
 
     public static final String PARENT_CHILD_INTERNAL_RELATIONSHIP = INTERNAL_NAMESPACE_PREFIX
             + PARENT_CHILD_DB_RELATIONSHIP;
+
+    public static final String CONTAINER_COMPONENT_RELATIONSHIP = "CONTAINER_COMPONENT";
+
+    public static final String CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP = INTERNAL_NAMESPACE_PREFIX
+            + CONTAINER_COMPONENT_RELATIONSHIP;
 
     public static final String SERVER_URL_PARAMETER = "server-url";
 

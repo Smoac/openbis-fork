@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -57,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -236,13 +238,13 @@ public class DataSetTranslator
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(dataPE.isDerived());
-        Integer orderInContainer = dataPE.getOrderInContainer();
-        if (orderInContainer != null)
+        DataSetRelationshipPE relationship = getContainerRelationshipOrNull(dataPE);
+        if (relationship != null)
         {
-            externalData.setOrderInContainer(orderInContainer);
+            externalData.setOrderInContainer(relationship.getOrdinal());
+            externalData.setContainer(tryToTranslateContainer(relationship.getParentDataSet(), baseIndexURL,
+                    managedPropertyEvaluatorFactory));
         }
-        externalData.setContainer(tryToTranslateContainer(dataPE.getContainer(), baseIndexURL,
-                managedPropertyEvaluatorFactory));
         final Collection<AbstractExternalData> parents = new HashSet<AbstractExternalData>();
         externalData.setParents(parents);
         for (DataPE parentPE : dataPE.getParents())
@@ -270,6 +272,17 @@ public class DataSetTranslator
         }
         externalData.setDeletion(DeletionTranslator.translate(dataPE.getDeletion()));
         return externalData;
+    }
+
+    private static DataSetRelationshipPE getContainerRelationshipOrNull(DataPE dataPE)
+    {
+        List<DataSetRelationshipPE> containerComponentRelationships =
+                RelationshipUtils.getContainerComponentRelationships(dataPE.getParentRelationships());
+        if (containerComponentRelationships.isEmpty() == false)
+        {
+            return containerComponentRelationships.get(0);
+        }
+        return null;
     }
 
     private static ContainerDataSet tryToTranslateContainer(DataPE containerOrNull,
@@ -308,7 +321,12 @@ public class DataSetTranslator
     {
         PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setSize(externalDataPE.getSize());
-        dataSet.setOrderInContainer(externalDataPE.getOrderInContainer());
+
+        DataSetRelationshipPE relationship = getContainerRelationshipOrNull(externalDataPE);
+        if (relationship != null)
+        {
+            dataSet.setOrderInContainer(relationship.getOrdinal());
+        }
         dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         dataSet.setStatus(externalDataPE.getStatus());
         dataSet.setPresentInArchive(externalDataPE.isPresentInArchive());
@@ -428,7 +446,12 @@ public class DataSetTranslator
 
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(dataSet.getCode());
-        description.setOrderInContainer(dataSet.getOrderInContainer());
+        DataSetRelationshipPE relationship = getContainerRelationshipOrNull(dataSet);
+        if (relationship != null)
+        {
+            description.setOrderInContainer(relationship.getOrdinal());
+        }
+
         description.setRegistrationTimestamp(dataSet.getRegistrationDate());
         if (dataSet.isExternalData())
         {

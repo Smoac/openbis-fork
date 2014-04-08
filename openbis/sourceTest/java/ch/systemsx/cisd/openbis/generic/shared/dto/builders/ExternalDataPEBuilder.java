@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
@@ -30,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -108,8 +110,10 @@ public class ExternalDataPEBuilder
 
     public ExternalDataPEBuilder parent(DataPE parentDataSet)
     {
+        RelationshipTypePE relationshipType = new RelationshipTypePE();
+        relationshipType.setCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
         DataSetRelationshipPE relationship =
-                new DataSetRelationshipPE(parentDataSet, dataSet, new PersonPE());
+                new DataSetRelationshipPE(parentDataSet, dataSet, relationshipType, null, new PersonPE());
         dataSet.addParentRelationship(relationship);
         parentDataSet.addChildRelationship(relationship);
         return this;

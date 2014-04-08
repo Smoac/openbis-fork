@@ -41,10 +41,6 @@ public class DatasetRecord extends CodeRecord
 
     public boolean is_derived;
 
-    public Integer ctnr_order;
-
-    public Long ctnr_id;
-
     public Long del_id;
 
     // ---- from external_data table

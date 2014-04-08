@@ -23,11 +23,14 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
@@ -38,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
@@ -53,6 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LinkDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
@@ -67,9 +73,36 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "externalData" })
+{ "db", "externalData" })
 public final class DataDAOTest extends AbstractDAOTest
 {
+    private static final Comparator<DataSetRelationshipPE> RELATIONSHIP_COMPARATOR =
+            new Comparator<DataSetRelationshipPE>()
+                {
+                    @Override
+                    public int compare(DataSetRelationshipPE r1, DataSetRelationshipPE r2)
+                    {
+                        int o1 = getOrdinal(r1);
+                        int o2 = getOrdinal(r2);
+                        if (o1 != o2)
+                        {
+                            return o1 - o2;
+                        }
+                        return getDataSetCodes(r1) - getDataSetCodes(r2);
+                    }
+
+                    private int getOrdinal(DataSetRelationshipPE relationship)
+                    {
+                        Integer ordinal = relationship.getOrdinal();
+                        return ordinal == null ? 0 : ordinal;
+                    }
+
+                    private int getDataSetCodes(DataSetRelationshipPE relationship)
+                    {
+                        return (int) (relationship.getParentDataSet().getId() * 10000
+                        + relationship.getChildDataSet().getId());
+                    }
+                };
 
     private static final int SPEED_HINT = Constants.DEFAULT_SPEED_HINT / 4;
 
@@ -204,20 +237,28 @@ public final class DataDAOTest extends AbstractDAOTest
         String c2DataSetCode = daoFactory.getPermIdDAO().createPermId();
         SamplePE sample = pickASample();
         DataPE component1 = createExternalData(c1DataSetCode, sample);
-        component1.setOrderInContainer(1);
+        RelationshipTypePE relationshipType = RelationshipUtils.getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO());
+        PersonPE person = getTestPerson();
+        DataSetRelationshipPE relationship1 = new DataSetRelationshipPE(virtualData, component1, relationshipType, 11, person);
+        component1.addParentRelationship(relationship1);
+        virtualData.addChildRelationship(relationship1);
         DataPE component2 = createExternalData(c2DataSetCode, sample);
-        component1.setOrderInContainer(2);
-        virtualData.addComponent(component1, getTestPerson());
-        virtualData.addComponent(component2, getTestPerson());
-        dataDAO.createDataSet(virtualData, getTestPerson());
+        DataSetRelationshipPE relationship2 = new DataSetRelationshipPE(virtualData, component2, relationshipType, 12, person);
+        component2.addParentRelationship(relationship2);
+        virtualData.addChildRelationship(relationship2);
+        dataDAO.createDataSet(virtualData, person);
 
         DataPE vDataSet = dataDAO.tryToFindDataSetByCode(vDataSetCode);
         assertDataEqual(virtualData, vDataSet);
-        assertEquals(2, virtualData.getContainedDataSets().size());
-        DataPE vc1 = virtualData.getContainedDataSets().get(0);
-        assertDataEqual(component1, vc1);
-        DataPE vc2 = virtualData.getContainedDataSets().get(1);
-        assertDataEqual(component2, vc2);
+        List<DataSetRelationshipPE> childRelationships = new ArrayList<DataSetRelationshipPE>(vDataSet.getChildRelationships());
+        Collections.sort(childRelationships, RELATIONSHIP_COMPARATOR);
+        assertEquals(11, childRelationships.get(0).getOrdinal().intValue());
+        assertDataEqual(virtualData, childRelationships.get(0).getParentDataSet());
+        assertDataEqual(component1, childRelationships.get(0).getChildDataSet());
+        assertEquals(12, childRelationships.get(1).getOrdinal().intValue());
+        assertDataEqual(virtualData, childRelationships.get(1).getParentDataSet());
+        assertDataEqual(component2, childRelationships.get(1).getChildDataSet());
+        assertEquals(2, childRelationships.size());
 
         DataPE vDataSetFull = dataDAO.tryToFindFullDataSetByCode(vDataSetCode, true, false);
         assertDataEqual(virtualData, vDataSetFull);
@@ -401,7 +442,8 @@ public final class DataDAOTest extends AbstractDAOTest
         assertFalse(dataSetConnectedWithParent.getParents().isEmpty());
         final DataPE anotherDataSet = findData("20081105092159111-1");
         dataSetConnectedWithParent.addParentRelationship(new DataSetRelationshipPE(anotherDataSet,
-                dataSetConnectedWithParent, getTestPerson()));
+                dataSetConnectedWithParent, getParentChildRelationshipType(),
+                null, getTestPerson()));
         dataDAO.updateDataSet(dataSetConnectedWithParent, getTestPerson());
 
         DataPE dataSet = dataDAO.tryToFindDataSetByCode(CHILD_CODE);
@@ -452,16 +494,32 @@ public final class DataDAOTest extends AbstractDAOTest
         final IDataDAO dataDAO = daoFactory.getDataDAO();
         DataPE containerDataSet = findData(CONTAINER_CODE);
         DataPE componentDataSet = findData(COMPONENT_CODE);
-
-        assertEquals(containerDataSet.getId(), componentDataSet.getContainer().getId());
+        assertEquals(containerDataSet.getId(), componentDataSet.getParentRelationships().iterator().next()
+                .getParentDataSet().getId());
+        List<DataSetRelationshipPE> relationships = new ArrayList<DataSetRelationshipPE>(containerDataSet.getChildRelationships());
+        Collections.sort(relationships, RELATIONSHIP_COMPARATOR);
+        assertEquals(containerDataSet.getId(), relationships.get(0).getParentDataSet().getId());
+        assertEquals(containerDataSet.getId(), relationships.get(1).getParentDataSet().getId());
+        assertEquals(2, relationships.size());
 
         dataDAO.delete(containerDataSet);
+        this.sessionFactory.getCurrentSession().getTransaction().commit();
 
         DataPE reloadedContainer = dataDAO.tryToFindDataSetByCode(CONTAINER_CODE);
-        assertNull(reloadedContainer);
+        assertEquals(null, reloadedContainer);
 
         DataPE preservedComponent = findData(COMPONENT_CODE);
-        assertNull(preservedComponent.getContainer());
+        System.out.println("COMPONENT:" + System.identityHashCode(componentDataSet) + "==" + System.identityHashCode(preservedComponent));
+        assertEquals(null, preservedComponent.getContainer());
+
+        Set<DataSetRelationshipPE> childRelationships = containerDataSet.getChildRelationships();
+        System.out.println(childRelationships);
+        Set<DataSetRelationshipPE> parentRelationships = preservedComponent.getParentRelationships();
+        for (DataSetRelationshipPE relationshipPE : parentRelationships)
+        {
+            System.out.println("RELATION SHIP:" + relationshipPE.getParentDataSet() + " " + relationshipPE.getChildDataSet());
+        }
+        assertEquals(0, parentRelationships.size());
     }
 
     public final void testDeleteParentPreservesChildren()
@@ -567,7 +625,8 @@ public final class DataDAOTest extends AbstractDAOTest
         final SamplePE sample = pickASample();
         DataPE parentData = findData(PARENT_CODE);
         DataPE data = createExternalData(dataSetCode, sample);
-        data.addParentRelationship(new DataSetRelationshipPE(parentData, data, getTestPerson()));
+        data.addParentRelationship(new DataSetRelationshipPE(parentData, data,
+                getParentChildRelationshipType(), null, getTestPerson()));
         dataDAO.createDataSet(data, getTestPerson());
     }
 
@@ -581,7 +640,8 @@ public final class DataDAOTest extends AbstractDAOTest
         assertNotNull(dataSetConnectedWithSample.tryGetSample());
         final DataPE anotherDataSet = findData("20081105092159111-1");
         dataSetConnectedWithSample.addParentRelationship(new DataSetRelationshipPE(anotherDataSet,
-                dataSetConnectedWithSample, getTestPerson()));
+                dataSetConnectedWithSample, getParentChildRelationshipType(),
+                null, getTestPerson()));
         dataDAO.updateDataSet(dataSetConnectedWithSample, getTestPerson());
     }
 
@@ -615,6 +675,11 @@ public final class DataDAOTest extends AbstractDAOTest
         HashSet<String> keys = new HashSet<String>();
         List<DataPE> result = daoFactory.getDataDAO().listByCode(keys);
         AssertJUnit.assertTrue(result.isEmpty());
+    }
+
+    private RelationshipTypePE getParentChildRelationshipType()
+    {
+        return RelationshipUtils.getParentChildRelationshipType(daoFactory.getRelationshipTypeDAO());
     }
 
 }

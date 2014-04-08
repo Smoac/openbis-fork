@@ -28,7 +28,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
@@ -68,6 +67,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.ICodeSequenceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
@@ -85,6 +85,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IModifierAndModificationDateB
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -546,6 +547,16 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public IMetaprojectDAO getMetaprojectDAO()
     {
         return daoFactory.getMetaprojectDAO();
+    }
+
+    protected RelationshipTypePE getParentChildRelationshipType()
+    {
+        return RelationshipUtils.getParentChildRelationshipType(getRelationshipTypeDAO());
+    }
+
+    protected RelationshipTypePE getContainerComponentRelationshipType()
+    {
+        return RelationshipUtils.getContainerComponentRelationshipType(getRelationshipTypeDAO());
     }
 
     protected void updateProperties(EntityTypePE entityType, List<IEntityProperty> properties,

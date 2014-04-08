@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +51,6 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.OptimisticLock;
-import org.hibernate.annotations.OrderBy;
 import org.hibernate.search.annotations.DateBridge;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -63,14 +63,15 @@ import org.hibernate.validator.constraints.Length;
 
 import ch.systemsx.cisd.common.collection.UnmodifiableSetDecorator;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
- * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to
- * know about one DATA.
+ * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to know about one DATA.
  * <p>
  * This class is the <i>Java Object</i> representation of the corresponding data in the database.
  * </p>
@@ -120,10 +121,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
 
     private String dataProducerCode;
 
-    private DataPE container = null;
-
-    private List<DataPE> containedDataSets = new ArrayList<DataPE>();
-
     private Set<MetaprojectAssignmentPE> metaprojectAssignments =
             new HashSet<MetaprojectAssignmentPE>();
 
@@ -136,15 +133,10 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     private DeletionPE deletion;
 
     /**
-     * If not null than this object has been originally trashed. (As oposed to the entities which
-     * were trashed as being dependent on other trashed entity)
+     * If not null than this object has been originally trashed. (As oposed to the entities which were trashed as being dependent on other trashed
+     * entity)
      */
     private Integer originalDeletion;
-
-    /**
-     * the index of this {@link DataPE} within its virtual parent; null if there is virtual parent
-     */
-    private Integer orderInContainer;
 
     private DataStorePE dataStore;
 
@@ -232,6 +224,27 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         }
     }
 
+    @Transient
+    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
+    private Long getContainerId()
+    {
+        DataPE container = getContainer();
+        return container != null ? container.getId() : null;
+    }
+
+    @Transient
+    public DataPE getContainer()
+    {
+        for (DataSetRelationshipPE relationship : getParentRelationships())
+        {
+            if (RelationshipUtils.isContainerComponentRelationship(relationship))
+            {
+                return relationship.getParentDataSet();
+            }
+        }
+        return null;
+    }
+
     public void addParentRelationship(final DataSetRelationshipPE relationship)
     {
         relationship.setChildDataSet(this);
@@ -253,8 +266,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         final List<DataPE> parents = new ArrayList<DataPE>();
         for (DataSetRelationshipPE r : relationships)
         {
-            assert r.getChildDataSet().equals(this);
-            parents.add(r.getParentDataSet());
+            if (isParentChildRelationship(r))
+            {
+                assert r.getChildDataSet().equals(this);
+                parents.add(r.getParentDataSet());
+            }
         }
         return parents;
     }
@@ -266,10 +282,28 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         final List<DataPE> children = new ArrayList<DataPE>();
         for (DataSetRelationshipPE r : relationships)
         {
-            assert r.getParentDataSet().equals(this);
-            children.add(r.getChildDataSet());
+            if (isParentChildRelationship(r))
+            {
+                assert r.getParentDataSet().equals(this);
+                children.add(r.getChildDataSet());
+            }
         }
         return children;
+    }
+
+    @Transient
+    public Collection<DataPE> getLinkedDataSets()
+    {
+        Set<DataPE> set = new HashSet<DataPE>();
+        for (DataSetRelationshipPE relationship : getParentRelationships())
+        {
+            set.add(relationship.getParentDataSet());
+        }
+        for (DataSetRelationshipPE relationship : getChildRelationships())
+        {
+            set.add(relationship.getChildDataSet());
+        }
+        return set;
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -345,8 +379,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     /**
-     * Returns <code>true</code> if this data set is data set is derived from a sample (otherwise it
-     * is measured from a sample).
+     * Returns <code>true</code> if this data set is data set is derived from a sample (otherwise it is measured from a sample).
      */
     @Column(name = ColumnNames.IS_DERIVED)
     public boolean isDerived()
@@ -355,28 +388,25 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     /**
-     * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it
-     * is measured from a sample).
+     * Set to <code>true</code> if this data set is data set is derived from a sample (otherwise it is measured from a sample).
      */
     public void setDerived(boolean isDerived)
     {
         this.isDerived = isDerived;
     }
 
-    @Column(name = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
-    public Integer getOrderInContainer()
+    private boolean isContainerComponentRelationship(DataSetRelationshipPE relationship)
     {
-        return orderInContainer;
+        return relationship.getRelationshipType().getCode().equals(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
     }
 
-    public void setOrderInContainer(Integer orderInContainer)
+    private boolean isParentChildRelationship(DataSetRelationshipPE relationship)
     {
-        this.orderInContainer = orderInContainer;
+        return relationship.getRelationshipType().getCode().equals(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
     }
 
     /**
-     * Returns <code>true</code> if this data set is data set is measured from a sample (otherwise
-     * it is derived from a sample).
+     * Returns <code>true</code> if this data set is data set is measured from a sample (otherwise it is derived from a sample).
      */
     @Transient
     public boolean isMeasured()
@@ -460,8 +490,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     /**
-     * Returns the date when the measurement / calculation that produced this external data set has
-     * been performed.
+     * Returns the date when the measurement / calculation that produced this external data set has been performed.
      * <p>
      * This may not be known in which case this method will return <code>null</code>.
      */
@@ -472,8 +501,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     /**
-     * Sets the date when the measurement / calculation that produced this external data set has
-     * been performed.
+     * Sets the date when the measurement / calculation that produced this external data set has been performed.
      */
     public void setProductionDate(final Date productionDate)
     {
@@ -481,8 +509,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     /**
-     * Returns the code identifying the data source (i.e. measurement device or software pipeline)
-     * that produced this external data set.
+     * Returns the code identifying the data source (i.e. measurement device or software pipeline) that produced this external data set.
      * <p>
      * This may not be known in which case this method will return <code>null</code>.
      * </p>
@@ -495,8 +522,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     /**
-     * Sets the code identifying the data source (i.e. measurement device or software pipeline) that
-     * produced this external data set.
+     * Sets the code identifying the data source (i.e. measurement device or software pipeline) that produced this external data set.
      */
     public void setDataProducerCode(final String dataProducerCode)
     {
@@ -559,68 +585,20 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Transient
-    public DataPE getContainer()
-    {
-        return getContainerInternal();
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = DataPE.class)
-    @JoinColumn(name = ColumnNames.DATA_CONTAINER_COLUMN, updatable = true)
-    private DataPE getContainerInternal()
-    {
-        return container;
-    }
-
-    private void setContainerInternal(final DataPE container)
-    {
-        this.container = container;
-    }
-
-    // used only by Hibernate Search
-    @SuppressWarnings("unused")
-    @Transient
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
-    private Long getContainerId()
-    {
-        Long result = null;
-        if (getContainer() != null)
-        {
-            result = HibernateUtils.getId(getContainerInternal());
-            assert result != null;
-        }
-        return result;
-    }
-
-    public void addComponent(final DataPE component, final PersonPE modifierPerson)
-    {
-        assert component != null;
-        this.containedDataSets.add(component);
-        component.setContainerInternal(this);
-        component.setModifier(modifierPerson);
-        component.setOrderInContainer(containedDataSets.size());
-    }
-
-    public void removeComponent(final DataPE component)
-    {
-        assert component != null;
-        this.containedDataSets.remove(component);
-        component.setContainerInternal(null);
-        component.setOrderInContainer(null);
-    }
-
-    @OptimisticLock(excluded = true)
-    @OneToMany(mappedBy = "containerInternal", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @OrderBy(clause = ColumnNames.DATA_CONTAINER_ORDER_COLUMN)
     public List<DataPE> getContainedDataSets()
     {
-        return containedDataSets;
-    }
-
-    // for Hibernate
-    @SuppressWarnings("unused")
-    private void setContainedDataSets(List<DataPE> containedDataSets)
-    {
-        this.containedDataSets = containedDataSets;
+        List<DataPE> dataSets = new ArrayList<DataPE>();
+        if (childRelationships != null)
+        {
+            for (DataSetRelationshipPE relationship : childRelationships)
+            {
+                if (isContainerComponentRelationship(relationship))
+                {
+                    dataSets.add(relationship.getChildDataSet());
+                }
+            }
+        }
+        return dataSets;
     }
 
     //
@@ -653,15 +631,11 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         if (experiment != null)
         {
             experiment.addDataSet(this);
-
-            if (containedDataSets != null)
+            for (DataPE contained : getContainedDataSets())
             {
-                for (DataPE contained : containedDataSets)
+                if (false == contained.equals(this))
                 {
-                    if (false == contained.equals(this))
-                    {
-                        contained.setExperiment(experiment);
-                    }
+                    contained.setExperiment(experiment);
                 }
             }
         }

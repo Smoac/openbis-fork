@@ -32,6 +32,8 @@ public final class TableNames
 
     public static final String DATA_SET_RELATIONSHIPS_ALL_TABLE = "data_set_relationships_all";
 
+    public static final String DATA_SET_RELATIONSHIPS_HISTORY_TABLE = "data_set_relationships_history";
+
     public static final String DATA_SET_RELATIONSHIPS_VIEW = "data_set_relationships";
 
     public static final String DATA_SET_TYPES_TABLE = "data_set_types";

@@ -119,7 +119,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.DatabaseContex
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister.IMaterialLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
@@ -264,6 +263,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
@@ -344,6 +344,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTermTranslat
 import ch.systemsx.cisd.openbis.generic.shared.translator.VocabularyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 public final class CommonServer extends AbstractCommonServer<ICommonServerForInternalUse> implements
         ICommonServerForInternalUse
@@ -2182,10 +2183,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             }
             updateModificationDateAndModifierOfDataSets(dataSet.getChildren(), session);
             updateModificationDateAndModifierOfDataSets(dataSet.getParents(), session);
-            DataPE container = dataSet.getContainer();
-            if (container != null)
+            Set<DataSetRelationshipPE> relationships = dataSet.getParentRelationships();
+            for (DataSetRelationshipPE relationship : RelationshipUtils.getContainerComponentRelationships(relationships))
             {
-                RelationshipUtils.updateModificationDateAndModifier(container, session);
+                RelationshipUtils.updateModificationDateAndModifier(relationship.getParentDataSet(), session);
             }
         }
     }

@@ -27,7 +27,6 @@ import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.IServiceConversationClientManagerLocal;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
@@ -45,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * @author Franz-Josef Elmer
@@ -216,7 +216,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
         // get old parents
         List<DataPE> oldParents = new ArrayList<DataPE>();
-        for (DataSetRelationshipPE oldParentRelation : child.getParentRelationships())
+        for (DataSetRelationshipPE oldParentRelation : RelationshipUtils.getParentChildRelationships(child.getParentRelationships()))
         {
             oldParents.add(oldParentRelation.getParentDataSet());
         }
@@ -271,8 +271,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     }
 
     /**
-     * Throws {@link UserFailureException} if adding specified parents to this data set will create
-     * a cycle in data set relationships.
+     * Throws {@link UserFailureException} if adding specified parents to this data set will create a cycle in data set relationships.
      */
     protected void validateParentsRelationshipGraph(DataPE data, Collection<DataPE> parentsToAdd)
     {
@@ -322,13 +321,13 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     private Set<TechId> findParentIds(Set<TechId> dataSetIds)
     {
-        return getDataDAO().findParentIds(dataSetIds);
+        return getDataDAO().findParentIds(dataSetIds, getParentChildRelationshipType().getId());
     }
 
     protected Set<DataPE> findDataSetsByCodes(Collection<String> codes)
     {
         final IDataDAO dao = getDataDAO();
-        final Set<DataPE> dataSets = new HashSet<DataPE>();
+        final Set<DataPE> dataSets = new LinkedHashSet<DataPE>();
         final List<String> missingDataSetCodes = new ArrayList<String>();
         for (String code : codes)
         {
@@ -356,10 +355,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     {
         if (containerCode == null)
         {
-            if (data.getContainer() != null)
-            {
-                relationshipService.removeDataSetFromContainer(session, data);
-            }
+            relationshipService.removeDataSetFromContainer(session, data);
         } else
         {
             DataPE container = getDataDAO().tryToFindDataSetByCode(containerCode);
@@ -389,10 +385,10 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
                             + container.getCode()
                             + "' cannot contain itself as a component neither directly nor via subordinate components.");
         }
-
-        if (container.getContainer() != null)
+        Set<DataSetRelationshipPE> parentRelationships = container.getParentRelationships();
+        for (DataSetRelationshipPE relationship : RelationshipUtils.getContainerComponentRelationships(parentRelationships))
         {
-            validateContainerContainedRelationshipGraph(container.getContainer(), contained);
+            validateContainerContainedRelationshipGraph(relationship.getParentDataSet(), contained);
         }
     }
 

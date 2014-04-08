@@ -48,10 +48,6 @@ public final class ColumnNames
 
     public static final String DATA_PARENT_COLUMN = "data_id_parent";
 
-    public static final String DATA_CONTAINER_COLUMN = "ctnr_id";
-
-    public static final String DATA_CONTAINER_ORDER_COLUMN = "ctnr_order";
-
     public static final String DATA_PRODUCER_CODE_COLUMN = "data_producer_code";
 
     public static final String DATA_SET_TYPE_COLUMN = "dsty_id";

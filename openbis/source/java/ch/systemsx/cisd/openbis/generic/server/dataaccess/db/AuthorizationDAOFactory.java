@@ -104,14 +104,14 @@ public class AuthorizationDAOFactory implements IAuthorizationDAOFactory
         personDAO = new PersonDAO(sessionFactory, homeDatabaseInstance);
         groupDAO = new SpaceDAO(sessionFactory, homeDatabaseInstance);
         roleAssignmentDAO = new RoleAssignmentDAO(sessionFactory, homeDatabaseInstance);
-        dataDAO = new DataDAO(persistencyResources, homeDatabaseInstance);
+        relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, homeDatabaseInstance);
+        dataDAO = new DataDAO(persistencyResources, homeDatabaseInstance, relationshipTypeDAO);
         experimentDAO = new ExperimentDAO(persistencyResources, homeDatabaseInstance);
         projectDAO = new ProjectDAO(sessionFactory, homeDatabaseInstance);
         sampleDAO = new SampleDAO(persistencyResources, homeDatabaseInstance);
         gridCustomFilterDAO = new GridCustomFilterDAO(sessionFactory, homeDatabaseInstance);
         gridCustomColumnDAO = new GridCustomColumnDAO(sessionFactory, homeDatabaseInstance);
         queryDAO = new QueryDAO(sessionFactory, homeDatabaseInstance);
-        relationshipTypeDAO = new RelationshipTypeDAO(sessionFactory, homeDatabaseInstance);
         deletionDAO = new DeletionDAO(sessionFactory, homeDatabaseInstance, persistencyResources);
         metaprojectDAO = new MetaprojectDAO(sessionFactory, homeDatabaseInstance);
     }

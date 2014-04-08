@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.server;
 
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -121,11 +124,8 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
     public void testChangingContainerToDataSetThatIsContainerShouldBeAllowed()
     {
         DataPE dataset = findData(TEST_EXPERIMENT_CONTAINED_DATA_SET_CODE);
-
-        Assert.assertNull(dataset.getContainer());
-
+        assertEquals(0, RelationshipUtils.getContainerComponentRelationships(dataset.getParentRelationships()).size());
         DataPE newContainer = findData(REUSE_EXPERIMENT_CONTAINER_DATA_SET_CODE);
-
         NewDataSet newDataset = new NewDataSet();
         newDataset.setCode(dataset.getCode());
         newDataset.setContainerIdentifierOrNull(newContainer.getIdentifier());
@@ -135,19 +135,17 @@ public class GenericServerDatabaseTest extends AbstractDAOTest
 
         update(dataset, newDataset, updateDetails);
 
-        Assert.assertEquals(REUSE_EXPERIMENT_CONTAINER_DATA_SET_CODE, dataset.getContainer()
-                .getPermId());
+        assertEquals(REUSE_EXPERIMENT_CONTAINER_DATA_SET_CODE,
+                RelationshipUtils.getContainerComponentRelationships(dataset.getParentRelationships())
+                        .get(0).getParentDataSet().getCode());
     }
 
     @Test(expectedExceptions = UserFailureException.class)
     public void testChangingContainerToDataSetThatIsNotContainerShouldNotBeAllowed()
     {
         DataPE dataset = findData(REUSE_EXPERIMENT_CONTAINER_DATA_SET_CODE);
-
-        Assert.assertNull(dataset.getContainer());
-
+        assertEquals(0, RelationshipUtils.getContainerComponentRelationships(dataset.getParentRelationships()).size());
         DataPE newContainer = findData(REUSE_EXPERIMENT_CONTAINED_DATA_SET_CODE);
-
         NewDataSet newDataset = new NewDataSet();
         newDataset.setCode(dataset.getCode());
         newDataset.setContainerIdentifierOrNull(newContainer.getIdentifier());

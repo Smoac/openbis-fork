@@ -16,11 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.datasetlister;
 
+import it.unimi.dsi.fastutil.longs.LongSet;
+
 import java.util.List;
 
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
 
+import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 
 /**
@@ -28,6 +31,7 @@ import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
  */
 public interface IDataSetListingQuery extends BaseQuery
 {
+    public static final int FETCH_SIZE = 1000;
 
     public static final String RELATIONS_SQL =
             "select dp.code as dp_code, dc.code as dc_code from data_set_relationships r inner join data dp on r.data_id_parent = dp.id inner join data dc on r.data_id_child = dc.id";
@@ -36,7 +40,6 @@ public interface IDataSetListingQuery extends BaseQuery
             + " ds.id as ds_id, ds.code as ds_code, ds.registration_timestamp as ds_registration_timestamp,"
             + " ds.modification_timestamp as ds_modification_timestamp,"
             + " dt.code as dt_code, dt.data_set_kind as dt_data_set_kind,"
-            + " ctnr.id as ctnr_id, ctnr.code as ctnr_code,"
             + " ex.code as ex_code, "
             + " ed.storage_confirmation as ed_sc,"
             + " sa.code as sa_code, sa.dbin_id as sa_dbin_id, sac.code as sac_code,"
@@ -53,34 +56,40 @@ public interface IDataSetListingQuery extends BaseQuery
             + " left outer join samples sa on ds.samp_id = sa.id"
             + " left outer join persons pe on ds.pers_id_registerer = pe.id"
             + " left outer join persons mod on ds.pers_id_modifier = mod.id"
-            + " left outer join data ctnr on ds.ctnr_id = ctnr.id"
             + " inner join projects pre on ex.proj_id = pre.id"
             + " inner join spaces spe on pre.space_id = spe.id"
             + " inner join database_instances die on spe.dbin_id = die.id"
             + " left outer join spaces sps on sa.space_id = sps.id"
             + " left outer join samples sac on sa.samp_id_part_of = sac.id"
             + " where ds.code = any(?{1})", parameterBindings =
-        { StringArrayMapper.class })
+    { StringArrayMapper.class })
     public List<DataSetRecord> getDataSetMetaData(String[] dataSetCodes);
 
+    @Select(sql = "select r.data_id_child as ds_id, cont.id as ctnr_id, cont.code as ctnr_code "
+            + "from data as cont join data_set_relationships as r on r.data_id_parent = cont.id "
+            + "where r.data_id_child = any(?{1}) and relationship_id = ?{2}",
+            parameterBindings =
+            { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<DataSetRecord> getContainers(LongSet ids, long relationShipTypeId);
+
     @Select(sql = RELATIONS_SQL + " where dc.code = any(?{1})", parameterBindings =
-        { StringArrayMapper.class })
+    { StringArrayMapper.class })
     public List<DataSetRelationRecord> getDataSetParentsCodes(String[] dataSetCodes);
 
     @Select(sql = RELATIONS_SQL + " where dp.code = any(?{1})", parameterBindings =
-        { StringArrayMapper.class })
+    { StringArrayMapper.class })
     public List<DataSetRelationRecord> getDataSetChildrenCodes(String[] dataSetCodes);
 
     @Select(sql = " select ds.download_url as url, array_agg(d.code::text) as data_set_codes"
             + " from data d left join data_stores ds on ds.id = d.dast_id"
             + " where d.code = any(?{1}) group by ds.download_url", parameterBindings =
-        { StringArrayMapper.class })
+    { StringArrayMapper.class })
     public List<DataSetDownloadRecord> getDownloadURLs(String[] dataSetCodes);
 
     @Select(sql = " select ds.remote_url as url, array_agg(d.code::text) as data_set_codes"
             + " from data d left join data_stores ds on ds.id = d.dast_id"
             + " where d.code = any(?{1}) group by ds.remote_url", parameterBindings =
-        { StringArrayMapper.class })
+    { StringArrayMapper.class })
     public List<DataSetDownloadRecord> getRemoteURLs(String[] dataSetCodes);
 
 }

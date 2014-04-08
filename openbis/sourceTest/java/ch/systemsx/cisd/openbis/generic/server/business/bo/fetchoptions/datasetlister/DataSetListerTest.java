@@ -58,7 +58,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementS
  * @author Piotr Kupczyk
  */
 @Test(groups =
-    { "db", "dataset" })
+{ "db", "dataset" })
 public class DataSetListerTest extends AbstractDAOTest
 {
 
@@ -81,7 +81,7 @@ public class DataSetListerTest extends AbstractDAOTest
     {
         sessionToken = service.tryToAuthenticateForAllServices("test", "password");
         query = EntityListingTestUtils.createQuery(daoFactory, IDataSetListingQueryDynamic.class);
-        lister = new DataSetLister(query, getTestPerson());
+        lister = new DataSetLister(query, daoFactory, getTestPerson());
     }
 
     @Test

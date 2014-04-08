@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator;
 
+import java.util.List;
+
 import org.apache.lucene.search.Query;
 import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
@@ -26,10 +28,12 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calcu
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IExperimentAdaptor;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.ISampleAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * {@link IEntityAdaptor} implementation for {@link ExternalDataPE}.
@@ -120,16 +124,15 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public IDataAdaptor container()
     {
-        DataPE container = externalDataPE.getContainer();
-        if (container != null)
-        {
-            IDataAdaptor adaptor = EntityAdaptorFactory.create(container, evaluator, session);
-            getResources().add(adaptor);
-            return adaptor;
-        } else
+        List<DataSetRelationshipPE> relationships = RelationshipUtils.getContainerComponentRelationships(
+                externalDataPE.getParentRelationships());
+        if (relationships.isEmpty())
         {
             return null;
         }
+        IDataAdaptor adaptor = EntityAdaptorFactory.create(relationships.get(0).getParentDataSet(), evaluator, session);
+        getResources().add(adaptor);
+        return adaptor;
     }
 
     @Override

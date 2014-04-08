@@ -55,10 +55,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { DatasetRecord.class, ExperimentProjectSpaceCodeRecord.class, IDatasetListingQuery.class,
-            DatasetListerDAO.class })
+{ DatasetRecord.class, ExperimentProjectSpaceCodeRecord.class, IDatasetListingQuery.class,
+        DatasetListerDAO.class })
 @Test(groups =
-    { "db", "dataset" })
+{ "db", "dataset" })
 public class DatasetListingQueryTest extends AbstractDAOTest
 {
 
@@ -195,7 +195,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     public void testParentDatasetsForChild()
     {
         long datasetId = 9;
-        List<DatasetRecord> parents = asList(query.getParentDatasetsForChild(datasetId));
+        List<DatasetRecord> parents = asList(query.getParentsOf(new LongOpenHashSet(Arrays.asList(datasetId)), 1L));
         assertEquals(3, parents.size()); // the data set has 4 parents but 1 is deleted
     }
 
@@ -203,8 +203,8 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     public void testChildDatasetsForParent()
     {
         LongSet datasetIds = new LongOpenHashSet(new long[]
-            { 9 });
-        List<DatasetRecord> children = asList(query.getChildDatasetsForParents(datasetIds));
+        { 9 });
+        List<DatasetRecord> children = asList(query.getChildrenOf(new LongOpenHashSet(datasetIds), 1L));
         assertEquals(2, children.size());
     }
 

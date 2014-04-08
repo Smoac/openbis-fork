@@ -30,7 +30,6 @@ import java.util.Stack;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IEntityOperationChecker;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.util.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleOwner;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.util.SampleUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -46,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
@@ -62,18 +60,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
+import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
- * An <i>abstract</i> {@link AbstractSampleIdentifierBusinessObject} extension for <i>Business
- * Object</i> which has to do with {@link SamplePE}.
+ * An <i>abstract</i> {@link AbstractSampleIdentifierBusinessObject} extension for <i>Business Object</i> which has to do with {@link SamplePE}.
  * 
  * @author Christian Ribeaud
  */
 abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusinessObject
 {
     /**
-     * Whether this object works with only new samples (that is: not yet saved into the database)
-     * right now.
+     * Whether this object works with only new samples (that is: not yet saved into the database) right now.
      */
     protected boolean onlyNewSamples = true;
 
@@ -295,8 +292,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     /**
-     * depth-first search through all parents of parent candidate in search of a childPE. If it's
-     * found - the exception is being thrown
+     * depth-first search through all parents of parent candidate in search of a childPE. If it's found - the exception is being thrown
      */
 
     private void checkIfCanBeParent(final SamplePE childPE, final SamplePE parentCandidate)
@@ -357,22 +353,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             relationshipService.addParentToSample(session, child, newParent);
         }
 
-    }
-
-    protected RelationshipTypePE tryFindParentChildRelationshipType()
-    {
-        return tryFindRelationshipTypeByCode(BasicConstant.PARENT_CHILD_INTERNAL_RELATIONSHIP);
-    }
-
-    protected RelationshipTypePE tryFindRelationshipTypeByCode(String code)
-    {
-        RelationshipTypePE result = getRelationshipTypeDAO().tryFindRelationshipTypeByCode(code);
-        if (result == null)
-        {
-            throw UserFailureException.fromTemplate(
-                    "'%s' relationship definition could not be found.", code);
-        }
-        return result;
     }
 
     private SamplePE tryGetValidParentSample(final String parentIdentifierOrNull,
@@ -628,8 +608,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
     }
 
     /**
-     * Throws {@link UserFailureException} if adding specified parents to this data set will create
-     * a cycle in data set relationships.
+     * Throws {@link UserFailureException} if adding specified parents to this data set will create a cycle in data set relationships.
      */
     protected void validateRelationshipGraph(Collection<SamplePE> parents, TechId relationship,
             SamplePE sample)

@@ -45,7 +45,7 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.DATA_SET_RELATIONSHIPS_VIEW, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.DATA_PARENT_COLUMN, ColumnNames.DATA_CHILD_COLUMN }))
+{ ColumnNames.DATA_PARENT_COLUMN, ColumnNames.DATA_CHILD_COLUMN, ColumnNames.RELATIONSHIP_COLUMN }))
 @IdClass(DataSetRelationshipId.class)
 public class DataSetRelationshipPE implements Serializable
 {
@@ -60,6 +60,10 @@ public class DataSetRelationshipPE implements Serializable
     private Date registrationDate;
 
     private Date modificationDate;
+
+    private RelationshipTypePE relationshipType;
+
+    private Integer ordinal;
 
     /**
      * Deletion information.
@@ -76,8 +80,16 @@ public class DataSetRelationshipPE implements Serializable
 
     public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet, PersonPE author)
     {
+        this(parentDataSet, childDataSet, null, null, author);
+    }
+
+    public DataSetRelationshipPE(DataPE parentDataSet, DataPE childDataSet, RelationshipTypePE relationshipType,
+            Integer ordinal, PersonPE author)
+    {
         this.parentDataSet = parentDataSet;
         this.childDataSet = childDataSet;
+        this.relationshipType = relationshipType;
+        this.ordinal = ordinal;
         this.author = author;
     }
 
@@ -158,4 +170,29 @@ public class DataSetRelationshipPE implements Serializable
     {
         this.deletion = deletion;
     }
+
+    @NotNull(message = ValidationMessages.RELATIONSHIP_NOT_NULL_MESSAGE)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = ColumnNames.RELATIONSHIP_COLUMN)
+    public RelationshipTypePE getRelationshipType()
+    {
+        return relationshipType;
+    }
+
+    public void setRelationshipType(RelationshipTypePE relationship)
+    {
+        this.relationshipType = relationship;
+    }
+
+    @Column(name = ColumnNames.ORDINAL_COLUMN)
+    public Integer getOrdinal()
+    {
+        return ordinal;
+    }
+
+    public void setOrdinal(Integer ordinal)
+    {
+        this.ordinal = ordinal;
+    }
+
 }

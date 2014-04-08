@@ -74,6 +74,8 @@ public final class SequenceNameMapper extends StandardSequenceNameMapper
         map.put(TableNames.DATA_STORE_SERVICES_TABLE, SequenceNames.DATA_STORE_SERVICE_SEQUENCE);
         map.put(TableNames.METAPROJECT_ASSIGNMENTS_ALL_TABLE,
                 SequenceNames.METAPROJECT_ASSIGNMENTS_SEQUENCE);
+        map.put(TableNames.DATA_SET_RELATIONSHIPS_HISTORY_TABLE,
+                SequenceNames.DATA_SET_RELATIONSHIPS_HISTORY_SEQUENCE);
         // legacy code to make migration tests from db version 018 work
         map.put("sample_component_materials", "SCMA_ID_SEQ");
         return Collections.unmodifiableMap(map);

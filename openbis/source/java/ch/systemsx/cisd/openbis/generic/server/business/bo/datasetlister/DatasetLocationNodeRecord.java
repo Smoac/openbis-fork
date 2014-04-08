@@ -26,9 +26,9 @@ public class DatasetLocationNodeRecord
 
     public String code;
 
-    public Long ctnr_id;
+    public Long container_id;
 
-    public Integer ctnr_order;
+    public Integer ordinal;
 
     public String location;
 
