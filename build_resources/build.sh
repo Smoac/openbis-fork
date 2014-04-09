@@ -1,36 +1,33 @@
-#! /bin/sh
+#!/bin/sh
+usage()
+{
+  echo ""
+  echo "Usage: ./build.sh <openbis/cifex/apis> [trunk/sprint] [sprint version]"
+  echo ""
+  echo "Example: ./build.sh cifex" - will build cifex installer from trunk
+  echo "Example: ./build.sh apis sprint" - will build openBIS clients and APIs package from latest released sprint.
+  echo "Example: ./build.sh openbis sprint S178" - will build the openBIS installer from latest revision of sprint S178.
+  echo "Example: ./build.sh apis sprint S178.1" - will build openBIS clients and APIs package from revision 1 of sprint S178. 
+  echo ""
+  echo "NOTE: This script can be used to build openBIS starting from S178. Earlier versions need to be built with ./build_ant.sh"
+  exit 1
+}
 
-if [ $# -eq 0 ]; then
-    echo "Usage is $0 [--revision <revision>] <project name> [<version>]"
-    exit 1
+if [ $# -lt 1 ]
+then
+	usage
 fi
 
-repository=svn+ssh://svncisd.ethz.ch/repos
-if [ "$1" = "--revision" ]; then
-	shift
-	revision="$1"
-	shift
+DIR=`dirname $0`
+
+if [ "$1" == "openbis" ] || [ "$1" == "apis" ]
+then
+	${DIR}/gradle/build_openbis.sh $@
+elif [ "$1" == "cifex" ]
+then
+	${DIR}/gradle/build_cifex.sh $@
 else
-	revision="HEAD"
+	echo "Unknown product $1"
 fi
 
-name=$1
-version=trunk
-if [ $# -gt 1 ]; then
-    version=$2
-fi
-
-dir=`dirname $0`
-cdir=`pwd`
-build_dir=$cdir/tmp
-
-rm -rf $build_dir
-mkdir $build_dir
-ant -lib $dir/lib/ecj.jar -f $dir/ant/build.xml \
-		-DrepositoryRoot=$repository \
-    -Dname=$name \
-    -Drevision=$revision \
-    -Dversion=$version \
-    -Ddir=$build_dir \
-    -Dresult.dir=$cdir \
-    build
+exit 0

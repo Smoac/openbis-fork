@@ -20,6 +20,7 @@ installation \
 integration-tests \
 js-test \
 openbis \
+openbis_all \
 openbis_api \
 openbis_mobile \
 openbis_standard_technologies \
