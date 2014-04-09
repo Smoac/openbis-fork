@@ -19,11 +19,11 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -589,7 +589,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Transient
     public List<DataPE> getContainedDataSets()
     {
-        Map<Integer, DataPE> containedWithOrdinal = new HashMap<Integer, DataPE>(); // Auxiliar structure to sort later
+        SortedMap<Integer, DataPE> sortedContained = new TreeMap<Integer, DataPE>();
 
         // Obtaining the contained relationships, they can come in any order
         if (childRelationships != null)
@@ -598,19 +598,12 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
             {
                 if (isContainerComponentRelationship(relationship))
                 {
-                    containedWithOrdinal.put(relationship.getOrdinal(), relationship.getChildDataSet());
+                    sortedContained.put(relationship.getOrdinal(), relationship.getChildDataSet());
                 }
             }
         }
 
-        // Sorting them one time, the ordinals always start with 0.
-        ArrayList<DataPE> orderedContained = new ArrayList<DataPE>();
-        for (int i = 0; i < containedWithOrdinal.size(); i++)
-        {
-            orderedContained.add(containedWithOrdinal.get(i));
-        }
-
-        return orderedContained;
+        return new ArrayList<DataPE>(sortedContained.values());
     }
 
     //
