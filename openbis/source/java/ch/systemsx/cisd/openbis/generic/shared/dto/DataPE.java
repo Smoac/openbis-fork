@@ -598,7 +598,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
             {
                 if (isContainerComponentRelationship(relationship))
                 {
-                    sortedContained.put(relationship.getOrdinal(), relationship.getChildDataSet());
+                    Integer ordinal = relationship.getOrdinal();
+                    sortedContained.put(ordinal == null ? new Integer(0) : ordinal, relationship.getChildDataSet());
                 }
             }
         }
