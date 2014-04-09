@@ -169,6 +169,7 @@ public class DataSetRelationshipPE implements Serializable
     @NotNull(message = ValidationMessages.RELATIONSHIP_NOT_NULL_MESSAGE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = ColumnNames.RELATIONSHIP_COLUMN)
+    @Id
     public RelationshipTypePE getRelationshipType()
     {
         return relationshipType;
