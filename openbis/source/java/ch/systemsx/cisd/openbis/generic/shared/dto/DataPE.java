@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -587,18 +589,28 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Transient
     public List<DataPE> getContainedDataSets()
     {
-        List<DataPE> dataSets = new ArrayList<DataPE>();
+        Map<Integer, DataPE> containedWithOrdinal = new HashMap<Integer, DataPE>(); // Auxiliar structure to sort later
+
+        // Obtaining the contained relationships, they can come in any order
         if (childRelationships != null)
         {
             for (DataSetRelationshipPE relationship : childRelationships)
             {
                 if (isContainerComponentRelationship(relationship))
                 {
-                    dataSets.add(relationship.getChildDataSet());
+                    containedWithOrdinal.put(relationship.getOrdinal(), relationship.getChildDataSet());
                 }
             }
         }
-        return dataSets;
+
+        // Sorting them one time, the ordinals always start with 0.
+        ArrayList<DataPE> orderedContained = new ArrayList<DataPE>();
+        for (int i = 0; i < containedWithOrdinal.size(); i++)
+        {
+            orderedContained.add(containedWithOrdinal.get(i));
+        }
+
+        return orderedContained;
     }
 
     //
