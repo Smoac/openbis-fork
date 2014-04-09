@@ -1306,12 +1306,54 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
+    private static final class Key
+    {
+        private Long componentId;
+
+        private Long containerId;
+
+        Key(Long containerId, Long componentId)
+        {
+            this.containerId = containerId;
+            this.componentId = componentId;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof Key == false)
+            {
+                return false;
+            }
+            Key key = (Key) obj;
+            return isEqual(containerId, key.containerId) && isEqual(componentId, key.componentId);
+        }
+
+        private boolean isEqual(Long n1OrNull, Long n2OrNull)
+        {
+            return n1OrNull == null ? n1OrNull == n2OrNull : n1OrNull.equals(n2OrNull);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return (containerId == null ? 0 : containerId.intValue()) * 37
+                    + (componentId == null ? 0 : componentId.intValue());
+        }
+
+    }
+
     @Override
     public IDatasetLocationNode listLocationsByDatasetCode(String datasetCode)
     {
-        TableMap<Long, DatasetLocationNodeRecord> records = loadRawLocationData(datasetCode);
+        List<DatasetLocationNodeRecord> records = loadRawLocationData(datasetCode);
 
-        Map<Long, DatasetLocationNode> nodeMap = new HashMap<Long, DatasetLocationNode>();
+        Map<Key, DatasetLocationNode> nodeMap = new HashMap<Key, DatasetLocationNode>();
+        Map<Long, List<DatasetLocationNode>> containerMap = new HashMap<Long, List<DatasetLocationNode>>();
         DatasetLocationNode rootNode = null;
         for (DatasetLocationNodeRecord record : records)
         {
@@ -1327,51 +1369,54 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             {
                 rootNode = node;
             }
-            nodeMap.put(record.id, node);
+            nodeMap.put(new Key(record.container_id, record.id), node);
+            if (record.location == null)
+            {
+                List<DatasetLocationNode> list = containerMap.get(record.id);
+                if (list == null)
+                {
+                    list = new ArrayList<DatasetLocationNode>();
+                    containerMap.put(record.id, list);
+                }
+                list.add(node);
+            }
         }
 
-        linkContainedData(records, nodeMap);
+        linkContainedData(records, nodeMap, containerMap);
 
         return rootNode;
     }
 
-    private void linkContainedData(TableMap<Long, DatasetLocationNodeRecord> records,
-            Map<Long, DatasetLocationNode> nodeMap)
+    private void linkContainedData(List<DatasetLocationNodeRecord> records,
+            Map<Key, DatasetLocationNode> nodeMap, Map<Long, List<DatasetLocationNode>> containerMap)
     {
-        Set<Entry<Long, DatasetLocationNode>> entrySet = nodeMap.entrySet();
-        for (Entry<Long, DatasetLocationNode> entry : entrySet)
+        for (DatasetLocationNodeRecord record : records)
         {
-            Long id = entry.getKey();
-            DatasetLocationNode node = entry.getValue();
-            Long containerId = records.tryGet(id).container_id;
+            Long containerId = record.container_id;
+            Long componentId = record.id;
+            DatasetLocationNode componentNode = nodeMap.get(new Key(containerId, componentId));
             if (containerId != null)
             {
-                DatasetLocationNode containerNode = nodeMap.get(containerId);
-                if (containerNode != null)
+                List<DatasetLocationNode> containers = containerMap.get(containerId);
+                for (DatasetLocationNode containerNode : containers)
                 {
-                    containerNode.addContained(node);
+                    containerNode.addContained(componentNode);
                 }
             }
         }
     }
 
-    private TableMap<Long, DatasetLocationNodeRecord> loadRawLocationData(String datasetCode)
+    private List<DatasetLocationNodeRecord> loadRawLocationData(String datasetCode)
     {
         Long relationshipTypeId = getContainerComponentRelationshipTypeId();
         DataIterator<DatasetLocationNodeRecord> queryResult =
                 query.listLocationsByDatasetCode(datasetCode, relationshipTypeId);
-        TableMap<Long, DatasetLocationNodeRecord> records =
-                new TableMap<Long, DatasetLocationNodeRecord>(queryResult,
-                        new IKeyExtractor<Long, DatasetLocationNodeRecord>()
-                            {
-                                @Override
-                                public Long getKey(DatasetLocationNodeRecord r)
-                                {
-                                    return r.id;
-                                }
-                            });
-        queryResult.close();
-        return records;
+        List<DatasetLocationNodeRecord> result = new ArrayList<DatasetLocationNodeRecord>();
+        for (DatasetLocationNodeRecord datasetLocationNodeRecord : queryResult)
+        {
+            result.add(datasetLocationNodeRecord);
+        }
+        return result;
     }
 
     private Long getParentChildRelationshipTypeId()

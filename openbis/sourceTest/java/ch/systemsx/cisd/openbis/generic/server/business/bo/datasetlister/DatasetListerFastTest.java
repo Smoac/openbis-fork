@@ -49,6 +49,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 { IDatasetListingQuery.class })
 public class DatasetListerFastTest extends AssertJUnit
 {
+    private static final Comparator<IDatasetLocationNode> DATA_SET_LOCATION_NODE_COMPARATOR = new Comparator<IDatasetLocationNode>()
+        {
+            @Override
+            public int compare(IDatasetLocationNode n1, IDatasetLocationNode n2)
+            {
+                return n1.getLocation().getDataSetCode().compareTo(n2.getLocation().getDataSetCode());
+            }
+        };
+
     private static final String DSS_URL = "dss-url";
 
     private static final String DSS_CODE = "DSS";
@@ -101,9 +110,9 @@ public class DatasetListerFastTest extends AssertJUnit
                     one(query).listLocationsByDatasetCode("ds-1", 137L);
                     will(returnValue(new WrappingDataIterator<DatasetLocationNodeRecord>(Arrays
                             .<DatasetLocationNodeRecord> asList(
-                                    location(2L, "ds-c1", "a/b/c/1", 1L),
-                                    location(3L, "ds-c2", "a/b/c/2", 1L),
-                                    location(1L, "ds-1", null, null)))));
+                                    location(2L, "ds-c1", "a/b/c/1", 1L, 0),
+                                    location(3L, "ds-c2", "a/b/c/2", 1L, 1),
+                                    location(1L, "ds-1", null, null, null)))));
                 }
             });
 
@@ -116,23 +125,68 @@ public class DatasetListerFastTest extends AssertJUnit
         assertEquals(true, location.isContainer());
         List<IDatasetLocationNode> components =
                 new ArrayList<IDatasetLocationNode>(location.getComponents());
-        Collections.sort(components, new Comparator<IDatasetLocationNode>()
-            {
-                @Override
-                public int compare(IDatasetLocationNode n1, IDatasetLocationNode n2)
-                {
-                    return n1.getLocation().getDataSetCode()
-                            .compareTo(n2.getLocation().getDataSetCode());
-                }
-            });
+        Collections.sort(components, DATA_SET_LOCATION_NODE_COMPARATOR);
         assertEquals("ds-c1", components.get(0).getLocation().getDataSetCode());
+        assertEquals(new Integer(0), components.get(0).getLocation().getOrderInContainer());
         assertEquals("a/b/c/1", components.get(0).getLocation().getDataSetLocation());
         assertEquals("ds-c2", components.get(1).getLocation().getDataSetCode());
+        assertEquals(new Integer(1), components.get(1).getLocation().getOrderInContainer());
         assertEquals("a/b/c/2", components.get(1).getLocation().getDataSetLocation());
     }
 
+    @Test
+    public void testListLocationsOfContainerComponentDAG()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(relationshipTypeDAO).tryFindRelationshipTypeByCode(
+                            BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+                    RelationshipTypePE type = new RelationshipTypePE();
+                    type.setId(137L);
+                    will(returnValue(type));
+                    one(query).listLocationsByDatasetCode("-2306", 137L);
+                    will(returnValue(new WrappingDataIterator<DatasetLocationNodeRecord>(Arrays
+                            .<DatasetLocationNodeRecord> asList(
+                                    location(999L, "-2306", null, null, null),
+                                    location(998L, "-2304", null, 999L, 0),
+                                    location(997L, "-2303", "a/b/c/2303", 999L, 1),
+                                    location(995L, "-2305", "a/b/c/2305", 999L, 2),
+                                    location(996L, "-2302", "a/b/c/2302", 998L, 1),
+                                    location(997L, "-2303", "a/b/c/2303", 998L, 2)))));
+                }
+            });
+
+        IDatasetLocationNode location = datasetLister.listLocationsByDatasetCode("-2306");
+
+        List<IDatasetLocationNode> components =
+                new ArrayList<IDatasetLocationNode>(location.getComponents());
+        Collections.sort(components, DATA_SET_LOCATION_NODE_COMPARATOR);
+        assertEquals("-2303", components.get(0).getLocation().getDataSetCode());
+        assertEquals(new Integer(1), components.get(0).getLocation().getOrderInContainer());
+        assertEquals("a/b/c/2303", components.get(0).getLocation().getDataSetLocation());
+        assertEquals("[]", components.get(0).getComponents().toString());
+        assertEquals("-2304", components.get(1).getLocation().getDataSetCode());
+        assertEquals(new Integer(0), components.get(1).getLocation().getOrderInContainer());
+        assertEquals(null, components.get(1).getLocation().getDataSetLocation());
+        List<IDatasetLocationNode> subComponents =
+                new ArrayList<IDatasetLocationNode>(components.get(1).getComponents());
+        Collections.sort(subComponents, DATA_SET_LOCATION_NODE_COMPARATOR);
+        assertEquals("-2302", subComponents.get(0).getLocation().getDataSetCode());
+        assertEquals(new Integer(1), subComponents.get(0).getLocation().getOrderInContainer());
+        assertEquals("a/b/c/2302", subComponents.get(0).getLocation().getDataSetLocation());
+        assertEquals("-2303", subComponents.get(1).getLocation().getDataSetCode());
+        assertEquals(new Integer(2), subComponents.get(1).getLocation().getOrderInContainer());
+        assertEquals("a/b/c/2303", subComponents.get(1).getLocation().getDataSetLocation());
+        assertEquals("-2305", components.get(2).getLocation().getDataSetCode());
+        assertEquals(new Integer(2), components.get(2).getLocation().getOrderInContainer());
+        assertEquals("a/b/c/2305", components.get(2).getLocation().getDataSetLocation());
+        assertEquals("[]", components.get(2).getComponents().toString());
+
+    }
+
     private DatasetLocationNodeRecord location(long id, String code, String location,
-            Long containerID)
+            Long containerID, Integer ordinal)
     {
         DatasetLocationNodeRecord record = new DatasetLocationNodeRecord();
         record.id = id;
@@ -141,6 +195,7 @@ public class DatasetListerFastTest extends AssertJUnit
         record.data_store_url = DSS_URL;
         record.location = location;
         record.container_id = containerID;
+        record.ordinal = ordinal;
         return record;
     }
 
