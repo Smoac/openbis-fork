@@ -120,8 +120,8 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setValue('FRC')\
-                            .setDescription('Code of enzyme, e.g. "FRC1"'),
+                            .setValue('FRE')\
+                            .setDescription('Code of enzyme, e.g. "FRE1"'),
         inputWidgetFactory().createTextInputField(CONC_LABEL)\
                             .setMandatory(True)\
                             .setDescription('Concentration')
@@ -139,7 +139,7 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setDescription('Code of enzyme sample, e.g. "FRC1"'),
+                            .setDescription('Code of enzyme sample, e.g. "FRE1"'),
         inputWidgetFactory().createTextInputField(CONC_LABEL)\
                             .setMandatory(True)\
                             .setDescription('Concentration')       
