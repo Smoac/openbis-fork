@@ -182,8 +182,6 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
                     one(service).tryGetDataSetLocation(DATA_SET1);
                     will(returnValue(new ExternalDataLocationNode(ds1)));
 
-                    one(service).notifyDatasetAccess(DATA_SET1);
-
                     allowing(shareIdManager).getShareId(DATA_SET1);
                     will(returnValue(SHARE_ID));
 
@@ -214,19 +212,19 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
                 FileUtilities.loadToString(new File(destination, DATA_SET1_EXAMPLE_FILE_PATH))
                         .trim());
         assertEquals(
-                "asContent(ds1)\n"
-                        + "asContent(ds1).getRootNode()\n"
-                        + "asContent(ds1).getRootNode().getRelativePath()\n"
-                        + "asContent(ds1).getRootNode().isDirectory()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).getRelativePath()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).isDirectory()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).getChildNodes()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).getRelativePath()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).isDirectory()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).getFileLength()\n"
-                        + "asContent(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).isChecksumCRC32Precalculated()\n"
-                        + "asContent(ds1).close()", contentProviderRecordingWrapper.toString());
+                "asContentWithoutModifyingAccessTimestamp(ds1)\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getRelativePath()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().isDirectory()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).getRelativePath()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).isDirectory()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).getChildNodes()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).getRelativePath()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).isDirectory()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).getFileLength()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).getRootNode().getChildNodes().get(0).getChildNodes().get(0).isChecksumCRC32Precalculated()\n"
+                        + "asContentWithoutModifyingAccessTimestamp(ds1).close()", contentProviderRecordingWrapper.toString());
         context.assertIsSatisfied();
     }
 

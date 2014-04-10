@@ -126,7 +126,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
                     one(statusUpdater).update(Arrays.asList("ds1"),
                             DataSetArchivingStatus.AVAILABLE, true);
 
-                    one(contentProvider).asContent("ds1");
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp("ds1");
                     will(returnValue(new MockContent(":0:0", "f.txt:9:8DA988AF")));
 
                     FileUtilities.writeToFile(new File(retrievedDataSet, "f.txt"), "abcdefghi");

@@ -103,6 +103,12 @@ public class TemplateBasedDataSetResourceResolverTest extends AbstractFileSystem
         }
 
         @Override
+        public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode) throws IllegalArgumentException
+        {
+            return null; // not necessary for this test
+        }
+
+        @Override
         public IHierarchicalContent asContent(File datasetDirectory)
         {
             return new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(

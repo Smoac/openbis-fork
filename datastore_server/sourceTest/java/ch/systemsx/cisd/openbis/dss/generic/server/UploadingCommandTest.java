@@ -131,6 +131,12 @@ public class UploadingCommandTest extends AssertJUnit
                     }
 
                     @Override
+                    public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode) throws IllegalArgumentException
+                    {
+                        return asContent(dataSetCode);
+                    }
+
+                    @Override
                     public IHierarchicalContentProvider cloneFor(
                             ISessionTokenProvider sessionTokenProvider)
                     {

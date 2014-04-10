@@ -95,7 +95,7 @@ public abstract class AbstractDataSetPackager
         IHierarchicalContent root = null;
         try
         {
-            root = contentProvider.asContent(externalData.getCode());
+            root = contentProvider.asContentWithoutModifyingAccessTimestamp(externalData.getCode());
         } catch (Exception ex)
         {
             throw handleNonExistingDataSet(externalData, ex);

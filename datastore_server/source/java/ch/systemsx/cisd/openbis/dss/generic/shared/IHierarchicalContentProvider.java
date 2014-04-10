@@ -45,11 +45,19 @@ public interface IHierarchicalContentProvider
     IHierarchicalContent asContent(String dataSetCode) throws IllegalArgumentException;
 
     /**
-     * A faster alternative of {@link #asContent(String)} for the case when an {@link AbstractExternalData}
-     * object has already been fetched from the openBIS AS.
+     * This method needs to access openBIS DB to retrieve information first. It does not modify the access timestamp of requested dataset.
      * 
-     * @param dataSet a fully populated {@link AbstractExternalData} instance. For container data sets all
-     *            physical (contained) data sets must be present.
+     * @return {@link IHierarchicalContent} for the specified data set
+     * @throws IllegalArgumentException if data set doesn't exist in openBIS DB
+     */
+    IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode) throws IllegalArgumentException;
+
+    /**
+     * A faster alternative of {@link #asContent(String)} for the case when an {@link AbstractExternalData} object has already been fetched from the
+     * openBIS AS.
+     * 
+     * @param dataSet a fully populated {@link AbstractExternalData} instance. For container data sets all physical (contained) data sets must be
+     *            present.
      * @return {@link IHierarchicalContent} for the specified data set
      */
     IHierarchicalContent asContent(AbstractExternalData dataSet);
