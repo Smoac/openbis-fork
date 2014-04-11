@@ -12,11 +12,13 @@ SPACE = "YEAST_LAB"
 """code attribute name"""
 ATR_CODE = "code"
 ATR_NAME = "name"
+ATR_COMMENT = "comment"
 
 """labels of table columns"""
 LINK_LABEL = "link"
 CODE_LABEL = "code"
 NAME_LABEL = "name"
+COMMENT_LABEL = "comment"
 
 """action labels"""
 
@@ -26,7 +28,7 @@ DELETE_ACTION_LABEL = "Delete"
 
 """helper functions"""
 
-def _createSampleLink(protocols_list):
+def _createSampleLink(protocols_list, comment_list):
     """
        Creates sample link XML element for sample with specified 'code'. The element will contain
        given code as 'code' attribute apart from standard 'permId' attribute.
@@ -47,6 +49,7 @@ def _createSampleLink(protocols_list):
     
     sampleLink.addAttribute(ATR_CODE, protocols_list)
     sampleLink.addAttribute(ATR_NAME, name) 
+    sampleLink.addAttribute(ATR_COMMENT, comment_list)
     
     return sampleLink    
 
@@ -62,14 +65,15 @@ def showRawValueInForms():
     return False
  
 def batchColumnNames():
-    return [CODE_LABEL]
+    return [CODE_LABEL, COMMENT_LABEL]
  
 def updateFromRegistrationForm(bindings):
     elements = []
     for item in bindings:
         protocols_list = item.get('CODE')
+        comment_list = item.get('COMMENT')
     if protocols_list:
-          sampleLink = _createSampleLink(protocols_list)
+          sampleLink = _createSampleLink(protocols_list, comment_list)
           elements.append(sampleLink)
             
     property.value = propertyConverter().convertToString(elements)
@@ -83,19 +87,20 @@ def configureUI():
     tableBuilder.addHeader(LINK_LABEL)
     tableBuilder.addHeader(CODE_LABEL)
     tableBuilder.addHeader(NAME_LABEL) 
- 
+    tableBuilder.addHeader(COMMENT_LABEL) 
 
     """The property value should contain XML with list of samples. Add a new row for every sample."""
     elements = list(propertyConverter().convertToElements(property))
     for protocol in elements:
         protocols_list = protocol.getAttribute(ATR_CODE, "")
         name = protocol.getAttribute(ATR_NAME,"") 
-   
+        comment_list=protocol.getAttribute(ATR_COMMENT, "")  
         
         row = tableBuilder.addRow()
         row.setCell(LINK_LABEL, protocol, protocols_list)
         row.setCell(CODE_LABEL, protocols_list)
-    row.setCell(NAME_LABEL, name)
+        row.setCell(NAME_LABEL, name)
+        row.setCell(COMMENT_LABEL, comment_list)
  
         
     """Specify that the property should be shown in a tab and set the table output."""
@@ -112,9 +117,11 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setValue('FRC')\
-                            .setDescription('Code of protocol, e.g. "FRC1"'),
-       
+                            .setValue('FRPROT')\
+                            .setDescription('Code of protocol, e.g. "FRPROT1"'),
+        inputWidgetFactory().createMultilineTextInputField(COMMENT_LABEL)\
+                            .setMandatory(True)\
+                            .setDescription('Comment')       
     ]
     addAction.addInputWidgets(widgets)
       
@@ -128,13 +135,15 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setDescription('Code of protocol sample, e.g. "FRC1"'),
-       
+                            .setDescription('Code of protocol sample, e.g. "FRPROT1"'),
+       inputWidgetFactory().createMultilineTextInputField(COMMENT_LABEL)\
+                            .setMandatory(True)\
+                            .setDescription('Comments'),       
     ]
     editAction.addInputWidgets(widgets)  
   # Bind field name with column name.
     editAction.addBinding(CODE_LABEL, CODE_LABEL)
-
+    editAction.addBinding(COMMENT_LABEL, COMMENT_LABEL)
 
   
     """
@@ -158,7 +167,8 @@ def updateFromUI(action):
            and add it to existing elements.
         """
         protocols_list = action.getInputValue(CODE_LABEL)
-        sampleLink = _createSampleLink(protocols_list)
+        comment_list = action.getInputValue(COMMENT_LABEL) 
+        sampleLink = _createSampleLink(protocols_list, comment_list)
         
         elements.append(sampleLink)
     elif action.name == EDIT_ACTION_LABEL:
@@ -167,10 +177,10 @@ def updateFromUI(action):
            and replace it with an element with values from input fields.
         """
         protocols_list = action.getInputValue(CODE_LABEL)
-
+        comment_list = action.getInputValue(COMMENT_LABEL)
         
 
-        sampleLink = _createSampleLink(protocols_list)
+        sampleLink = _createSampleLink(protocols_list, comment_list)
         
         
 
@@ -195,6 +205,17 @@ def updateFromBatchInput(bindings):
     elements = []
     input = bindings.get('')
     if input is not None:
-        commentEntry = _createCommentEntry(input)
-        elements.append(commentEntry)
-        property.value = propertyConverter().convertToString(elements)  
+        protocols = input.split(',')
+        for protocol in protocols:
+            (code, comment) = _extractCodeAndComment(protocol)
+            sampleLink = _createSampleLink(code, comment)
+            elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
+    
+def _extractCodeAndComment(protocol):
+    codeAndComment = protocol.split(':')
+    if (len(codeAndComment) == 2):
+        return (codeAndComment[0].strip(), codeAndComment[1].strip())
+    else:
+        return (codeAndComment[0].strip(), "n.a.") 

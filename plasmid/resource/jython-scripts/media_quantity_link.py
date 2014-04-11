@@ -113,8 +113,8 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setValue('FRC')\
-                            .setDescription('Code of media, e.g. "FRC1"'),
+                            .setValue('FRM')\
+                            .setDescription('Code of media, e.g. "FRM1"'),
         inputWidgetFactory().createTextInputField(QUANTITY_LABEL)\
                             .setMandatory(True)\
                             .setDescription('Quantity')
@@ -131,7 +131,7 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setDescription('Code of media sample, e.g. "FRC1"'),
+                            .setDescription('Code of media sample, e.g. "FRM1"'),
         inputWidgetFactory().createTextInputField(QUANTITY_LABEL)\
                             .setMandatory(True)\
                             .setDescription('Quantity of the media sample, e.g. "1M"'),
