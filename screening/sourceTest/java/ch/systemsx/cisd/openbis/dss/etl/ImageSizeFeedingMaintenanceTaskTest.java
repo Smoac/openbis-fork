@@ -164,7 +164,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
                     one(service).listPhysicalDataSets();
                     will(returnValue(Arrays.asList(ds0, ds1)));
 
-                    one(contentProvider).asContent(ds1.getDataSetCode());
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp(ds1.getDataSetCode());
                     will(returnValue(ds1Content));
 
                     one(dao).tryGetImageDatasetByPermId(ds1.getDataSetCode());
