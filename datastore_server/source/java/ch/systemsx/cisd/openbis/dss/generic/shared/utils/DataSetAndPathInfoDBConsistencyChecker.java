@@ -575,7 +575,7 @@ public class DataSetAndPathInfoDBConsistencyChecker
     {
         try
         {
-            return contentProvider.asContent(datasetCode);
+            return contentProvider.asContentWithoutModifyingAccessTimestamp(datasetCode);
         } catch (IllegalArgumentException e)
         {
             return null;

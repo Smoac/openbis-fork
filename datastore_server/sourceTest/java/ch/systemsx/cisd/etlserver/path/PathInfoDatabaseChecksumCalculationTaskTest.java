@@ -112,14 +112,14 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
                 {
                     one(dao).listDataSetFilesWithUnkownChecksum();
                     will(returnValue(Arrays.asList(e4, e2, e3, e1)));
-                    
-                    one(contentProvider).asContent("1");
+
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp("1");
                     will(returnValue(content1));
-                    
-                    one(contentProvider).asContent("2");
+
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp("2");
                     will(returnValue(content2));
-                    
-                    one(contentProvider).asContent("3");
+
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp("3");
                     will(throwException(new IllegalArgumentException("unkown data set 3")));
                     
                     one(content1).getNode("f1.txt");

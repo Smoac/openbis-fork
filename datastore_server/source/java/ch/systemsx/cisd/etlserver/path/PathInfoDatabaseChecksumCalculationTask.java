@@ -105,7 +105,7 @@ public class PathInfoDatabaseChecksumCalculationTask implements IMaintenanceTask
             String dataSetCode = entry.getKey();
             try
             {
-                IHierarchicalContent content = hierarchicalContentProvider.asContent(dataSetCode);
+                IHierarchicalContent content = hierarchicalContentProvider.asContentWithoutModifyingAccessTimestamp(dataSetCode);
                 try
                 {
                     List<PathEntryDTO> pathEntries = entry.getValue();
