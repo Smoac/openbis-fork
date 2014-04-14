@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,18 +43,19 @@ public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<AbstractExte
     @Override
     public void describeTo(Description description)
     {
-        description.appendText("A dataset with children " + expectedChildren);
+        description.appendText("A dataset with " + getSubDataSetType() + " " + expectedChildren);
     }
 
     @Override
     public boolean matchesSafely(AbstractExternalData actual)
     {
-        if (actual.getChildren().size() != expectedChildren.size())
+        Collection<AbstractExternalData> children = getSubDataSets(actual);
+        if (children.size() != expectedChildren.size())
         {
             return false;
         }
 
-        for (AbstractExternalData child : actual.getChildren())
+        for (AbstractExternalData child : children)
         {
             if (expectedChildren.contains(child.getCode()) == false)
             {
@@ -62,5 +64,15 @@ public class ExternalDataHasChildrenMatcher extends TypeSafeMatcher<AbstractExte
         }
 
         return true;
+    }
+
+    protected String getSubDataSetType()
+    {
+        return "children";
+    }
+
+    protected Collection<AbstractExternalData> getSubDataSets(AbstractExternalData actual)
+    {
+        return actual.getChildren();
     }
 }

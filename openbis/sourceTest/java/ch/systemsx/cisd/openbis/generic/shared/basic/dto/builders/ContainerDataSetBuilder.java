@@ -16,12 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * Builder class for creating an instance of {@link PhysicalDataSet} or {@link ContainerDataSet}.
@@ -46,16 +43,10 @@ public class ContainerDataSetBuilder extends AbstractDataSetBuilder<ContainerDat
         return dataSet.tryGetAsContainerDataSet();
     }
 
-    public ContainerDataSetBuilder contains(PhysicalDataSet contained)
+    public ContainerDataSetBuilder component(AbstractExternalData component)
     {
-        List<AbstractExternalData> containedDataSets =
-                dataSet.tryGetAsContainerDataSet().getContainedDataSets();
-        if (containedDataSets == null)
-        {
-            containedDataSets = new ArrayList<AbstractExternalData>();
-            dataSet.tryGetAsContainerDataSet().setContainedDataSets(containedDataSets);
-        }
-        containedDataSets.add(contained);
+        ContainerDataSet container = dataSet.tryGetAsContainerDataSet();
+        component.addContainer(container, container.getContainedDataSets().size());
         return asConcreteSubclass();
     }
 

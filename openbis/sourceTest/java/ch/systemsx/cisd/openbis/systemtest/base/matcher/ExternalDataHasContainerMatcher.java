@@ -16,19 +16,30 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
+import java.util.List;
+
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 
 public class ExternalDataHasContainerMatcher extends TypeSafeMatcher<AbstractExternalData>
 {
 
     private AbstractExternalData expectedContainer;
 
+    private Integer expectedOrder;
+
     public ExternalDataHasContainerMatcher(AbstractExternalData expected)
     {
         this.expectedContainer = expected;
+    }
+
+    public ExternalDataHasContainerMatcher orderInContainer(int order)
+    {
+        this.expectedOrder = order;
+        return this;
     }
 
     @Override
@@ -40,11 +51,16 @@ public class ExternalDataHasContainerMatcher extends TypeSafeMatcher<AbstractExt
     @Override
     public boolean matchesSafely(AbstractExternalData actual)
     {
-        if (actual.tryGetContainer() == null)
+        List<ContainerDataSet> containerDataSets = actual.getContainerDataSets();
+        for (ContainerDataSet container : containerDataSets)
         {
-            return false;
+            String containerCode = container.getCode();
+            if (expectedContainer.getCode().equals(containerCode))
+            {
+                Integer order = actual.getOrderIn(containerCode);
+                return expectedOrder == null || expectedOrder.equals(order);
+            }
         }
-
-        return expectedContainer.getCode().equals(actual.tryGetContainer().getCode());
+        return false;
     }
 }

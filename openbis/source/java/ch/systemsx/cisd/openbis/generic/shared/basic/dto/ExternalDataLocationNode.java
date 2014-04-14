@@ -22,23 +22,30 @@ import java.util.List;
 import java.util.TreeMap;
 
 /**
- * Implementation of {@link IDatasetLocationNode} that uses {@link AbstractExternalData} object as a source
- * of data set locations.
+ * Implementation of {@link IDatasetLocationNode} that uses {@link AbstractExternalData} object as a source of data set locations.
  * 
  * @author pkupczyk
  */
 public class ExternalDataLocationNode implements IDatasetLocationNode
 {
 
-    private AbstractExternalData externalData;
+    private final AbstractExternalData externalData;
+
+    private final Integer orderInParentContainer;
 
     public ExternalDataLocationNode(AbstractExternalData externalData)
+    {
+        this(externalData, null);
+    }
+
+    private ExternalDataLocationNode(AbstractExternalData externalData, Integer orderInParentContainer)
     {
         if (externalData == null)
         {
             throw new IllegalArgumentException("ExternalData cannot be null");
         }
         this.externalData = externalData;
+        this.orderInParentContainer = orderInParentContainer;
     }
 
     @Override
@@ -51,7 +58,14 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
                     "Couldn't retrieve full data set infomation from data set "
                             + externalData.getCode());
         }
-        return dataSet;
+
+        DatasetLocation datasetLocation = new DatasetLocation();
+        datasetLocation.setDatasetCode(dataSet.getCode());
+        datasetLocation.setDataSetLocation(dataSet.getLocation());
+        datasetLocation.setDataStoreCode(dataSet.getDataStoreCode());
+        datasetLocation.setDataStoreUrl(dataSet.getDataStoreUrl());
+        datasetLocation.setOrderInContainer(orderInParentContainer);
+        return datasetLocation;
     }
 
     @Override
@@ -69,20 +83,20 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
         }
 
         ContainerDataSet container = externalData.tryGetAsContainerDataSet();
-        List<AbstractExternalData> containedExternalDatas = container.getContainedDataSets();
+        List<AbstractExternalData> components = container.getContainedDataSets();
 
-        if (containedExternalDatas != null)
+        if (components != null)
         {
-            TreeMap<String, IDatasetLocationNode> containedLocationNodes =
+            TreeMap<String, IDatasetLocationNode> componentsLocationNodes =
                     new TreeMap<String, IDatasetLocationNode>();
-
-            for (AbstractExternalData containedExternalData : containedExternalDatas)
+            String containerCode = container.getCode();
+            for (AbstractExternalData component : components)
             {
-                containedLocationNodes.put(containedExternalData.getCode(),
-                        new ExternalDataLocationNode(containedExternalData));
+                componentsLocationNodes.put(component.getCode(),
+                        new ExternalDataLocationNode(component, component.getOrderIn(containerCode)));
             }
 
-            return containedLocationNodes.values();
+            return componentsLocationNodes.values();
         } else
         {
             return Collections.emptyList();

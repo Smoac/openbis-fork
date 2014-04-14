@@ -960,101 +960,89 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
     private void enrichWithContainers(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
-
         Set<Long> containersNotLoaded = new HashSet<Long>();
-        for (AbstractExternalData dataSet : datasetMap.values())
+        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
+        List<DatasetRelationRecord> relationshipRecords = asList(query.listParentDataSetIds(datasetMap.keySet(), relationshipTypeId));
+        for (DatasetRelationRecord datasetRelationRecord : relationshipRecords)
         {
-            ContainerDataSet containerOrNull = dataSet.tryGetContainer();
-            Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
-            if (containerId != null)
+            AbstractExternalData component = datasetMap.get(datasetRelationRecord.data_id_child);
+            assert component != null;
+            long containerId = datasetRelationRecord.data_id_parent;
+            AbstractExternalData container = datasetMap.get(containerId);
+            if (container != null)
             {
-                ContainerDataSet loadedContainer = (ContainerDataSet) datasetMap.get(containerId);
-                if (loadedContainer != null)
-                {
-                    dataSet.setContainer(loadedContainer);
-                } else
-                {
-                    containersNotLoaded.add(containerId);
-                }
+                addContainer(component, container, datasetRelationRecord);
+            } else
+            {
+                containersNotLoaded.add(containerId);
             }
         }
-
-        if (false == containersNotLoaded.isEmpty())
+        if (containersNotLoaded.isEmpty())
         {
-            // load the unavailable container data sets with an additional query
-            List<AbstractExternalData> containersSecondPass = listByDatasetIds(containersNotLoaded);
-            TableMap<Long, AbstractExternalData> secondPassMap =
-                    new TableMap<Long, AbstractExternalData>(containersSecondPass,
-                            KeyExtractorFactory.<AbstractExternalData> createIdKeyExtractor());
-            for (AbstractExternalData dataSet : datasetMap.values())
+            return;
+        }
+        // load the unavailable container data sets with an additional query
+        TableMap<Long, AbstractExternalData> containersSecondPassMap = loadDataSetsByIds(containersNotLoaded);
+        for (DatasetRelationRecord datasetRelationRecord : relationshipRecords)
+        {
+            AbstractExternalData component = datasetMap.get(datasetRelationRecord.data_id_child);
+            AbstractExternalData container = containersSecondPassMap.tryGet(datasetRelationRecord.data_id_parent);
+            if (container != null)
             {
-                ContainerDataSet containerOrNull = dataSet.tryGetContainer();
-                Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
-                ContainerDataSet newlyLoaded = (ContainerDataSet) secondPassMap.tryGet(containerId);
-                if (newlyLoaded != null)
-                {
-                    dataSet.setContainer(newlyLoaded);
-                }
+                addContainer(component, container, datasetRelationRecord);
             }
         }
     }
 
     private void enrichWithContainedDataSets(Long2ObjectMap<AbstractExternalData> datasetMap)
     {
-        Long2ObjectMap<AbstractExternalData> fullContextMap =
-                new Long2ObjectOpenHashMap<AbstractExternalData>(datasetMap);
-        LongSet containerIDs = new LongOpenHashSet();
-        for (AbstractExternalData dataSet : datasetMap.values())
+        LongSet componentsNotLoaded = new LongOpenHashSet();
+        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
+        List<DatasetRelationRecord> relationshipRecords = asList(query.listChildrenDataSetIds(datasetMap.keySet(), relationshipTypeId));
+        for (DatasetRelationRecord datasetRelationRecord : relationshipRecords)
         {
-            if (dataSet.isContainer())
+            AbstractExternalData container = datasetMap.get(datasetRelationRecord.data_id_parent);
+            assert container != null;
+            long componentId = datasetRelationRecord.data_id_child;
+            AbstractExternalData component = datasetMap.get(componentId);
+            if (component != null)
             {
-                containerIDs.add(dataSet.getId());
-            }
-            ContainerDataSet containerOrNull = dataSet.tryGetContainer();
-            Long containerId = (containerOrNull != null) ? containerOrNull.getId() : null;
-            if (containerId != null && false == fullContextMap.containsKey(containerId))
+                addContainer(component, container, datasetRelationRecord);
+            } else
             {
-                containerIDs.add(containerId);
-                fullContextMap.put(containerId, containerOrNull);
+                componentsNotLoaded.add(componentId);
             }
         }
-
-        if (containerIDs.isEmpty())
+        if (componentsNotLoaded.isEmpty())
         {
             return;
         }
-
-        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
-        List<Long> containedDataSetIDs = asList(query.getDatasetChildrenIds(containerIDs, relationshipTypeId));
-        LongSet notYetLoadedChilren = new LongOpenHashSet();
-
-        for (Long containedDataSetID : containedDataSetIDs)
+        Long2ObjectMap<AbstractExternalData> datasets = createPrimaryDatasets(query.getDatasets(componentsNotLoaded));
+        for (DatasetRelationRecord datasetRelationRecord : relationshipRecords)
         {
-            if (false == fullContextMap.containsKey(containedDataSetID))
+            AbstractExternalData container = datasetMap.get(datasetRelationRecord.data_id_parent);
+            AbstractExternalData component = datasets.get(datasetRelationRecord.data_id_child);
+            if (component != null)
             {
-                notYetLoadedChilren.add(containedDataSetID);
+                addContainer(component, container, datasetRelationRecord);
             }
         }
+    }
 
-        if (false == notYetLoadedChilren.isEmpty())
-        {
-            Long2ObjectMap<AbstractExternalData> childrenSecondPass =
-                    createPrimaryDatasets(asList(query.getDatasets(notYetLoadedChilren)));
-            fullContextMap.putAll(childrenSecondPass);
-        }
+    private TableMap<Long, AbstractExternalData> loadDataSetsByIds(Set<Long> dataSetIds)
+    {
+        List<AbstractExternalData> dataSets = listByDatasetIds(dataSetIds);
+        return new TableMap<Long, AbstractExternalData>(dataSets,
+                KeyExtractorFactory.<AbstractExternalData> createIdKeyExtractor());
+    }
 
-        for (Long id : containedDataSetIDs)
+    private void addContainer(AbstractExternalData component, AbstractExternalData container, DatasetRelationRecord record)
+    {
+        if (container.isContainer() == false)
         {
-            AbstractExternalData contained = fullContextMap.get(id);
-            Long containerId = contained.tryGetContainer().getId();
-            ContainerDataSet container = fullContextMap.get(containerId).tryGetAsContainerDataSet();
-            // set container to the child
-            contained.setContainer(container);
-            // add the child to the container
-            List<AbstractExternalData> containedDataSets = container.getContainedDataSets();
-            containedDataSets.add(contained);
-            container.setContainedDataSets(containedDataSets);
+            throw new IllegalStateException("Data set '" + container.getCode() + "' is not a container data set.");
         }
+        component.addContainer(container.tryGetAsContainerDataSet(), record.ordinal);
     }
 
     private static <T> List<T> asList(Long2ObjectMap<T> items)
@@ -1093,19 +1081,6 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             {
                 enrichWithDeletion(dataSetOrNull, record);
                 datasets.put(record.id, dataSetOrNull);
-            }
-        }
-        Long relationshipTypeId = getContainerComponentRelationshipTypeId();
-        DataIterator<DatasetRelationRecord> relRecords = query.listParentDataSetIds(ids, relationshipTypeId);
-        for (DatasetRelationRecord datasetRelationRecord : relRecords)
-        {
-            AbstractExternalData dataSet = datasets.get(datasetRelationRecord.data_id_child);
-            if (dataSet != null)
-            {
-                ContainerDataSet container = new ContainerDataSet();
-                container.setId(datasetRelationRecord.data_id_parent);
-                dataSet.setContainer(container);
-                dataSet.setOrderInContainer(datasetRelationRecord.ordinal);
             }
         }
         return datasets;

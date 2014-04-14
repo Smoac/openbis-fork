@@ -16,10 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityWithDeletionInformation;
@@ -40,12 +44,28 @@ public abstract class AbstractExternalData extends
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
+    private static final class ContainerAndOrder implements Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final ContainerDataSet containerDataSet;
+
+        private final Integer orderInContainer;
+
+        ContainerAndOrder(ContainerDataSet containerDataSet, Integer orderInContainer)
+        {
+            this.containerDataSet = containerDataSet;
+            this.orderInContainer = orderInContainer;
+        }
+    }
+
     /**
-     * {@link Comparator} for data sets contained in a (virtual) container which uses ascending
-     * order in container.
+     * {@link Comparator} for data sets contained in a (virtual) container which uses ascending order in container.
      */
     public static final Comparator<AbstractExternalData> DATA_SET_COMPONENTS_COMPARATOR =
             new DataSetComponentsComparator();
+
+    private final Map<String, ContainerAndOrder> containersAndOrderByContainerId = new TreeMap<String, ContainerAndOrder>();
 
     private boolean derived;
 
@@ -80,10 +100,6 @@ public abstract class AbstractExternalData extends
     private DataStore dataStore;
 
     private String permlink;
-
-    private Integer orderInContainer;
-
-    private ContainerDataSet containerOrNull;
 
     private boolean storageConfirmation;
 
@@ -359,24 +375,48 @@ public abstract class AbstractExternalData extends
     /**
      * @return the "virtual" container of this data set or null.
      */
+    @Deprecated
     public ContainerDataSet tryGetContainer()
     {
-        return containerOrNull;
+        if (containersAndOrderByContainerId.isEmpty())
+        {
+            return null;
+        }
+        return containersAndOrderByContainerId.values().iterator().next().containerDataSet;
     }
 
-    public void setContainer(ContainerDataSet containerOrNull)
-    {
-        this.containerOrNull = containerOrNull;
-    }
-
+    @Deprecated
     public Integer getOrderInContainer()
     {
-        return orderInContainer;
+        ContainerDataSet container = tryGetContainer();
+        return container == null ? null : getOrderIn(container.getCode());
     }
 
-    public void setOrderInContainer(Integer orderInContainer)
+    public void addContainer(ContainerDataSet containerDataSet, Integer orderInContainer)
     {
-        this.orderInContainer = orderInContainer;
+        List<AbstractExternalData> components = containerDataSet.getContainedDataSets();
+        if (components.contains(this) == false)
+        {
+            components.add(this);
+        }
+        containersAndOrderByContainerId.put(containerDataSet.getCode(), new ContainerAndOrder(containerDataSet, orderInContainer));
+    }
+
+    public List<ContainerDataSet> getContainerDataSets()
+    {
+        List<ContainerDataSet> containers = new ArrayList<ContainerDataSet>();
+        Collection<ContainerAndOrder> values = containersAndOrderByContainerId.values();
+        for (ContainerAndOrder containerAndOrder : values)
+        {
+            containers.add(containerAndOrder.containerDataSet);
+        }
+        return containers;
+    }
+
+    public Integer getOrderIn(String containerDataSetCode)
+    {
+        ContainerAndOrder containerAndOrder = containersAndOrderByContainerId.get(containerDataSetCode);
+        return containerAndOrder == null ? null : containerAndOrder.orderInContainer;
     }
 
     public boolean isStorageConfirmation()

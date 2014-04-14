@@ -290,8 +290,8 @@ public class DatasetListerTest extends AbstractDAOTest
 
         PhysicalDataSet dataset1 = datasets.get(1).tryGetAsDataSet();
         assertNotNull(dataset1);
-        assertEquals(2, (int) dataset1.getOrderInContainer());
-        assertEquals(dataset1.tryGetContainer(), containerDataSet);
+        assertEquals(2, (int) dataset1.getOrderIn(containerDataSet.getCode()));
+        assertEquals(dataset1.getContainerDataSets().get(0), containerDataSet);
     }
 
     @Test
@@ -360,7 +360,7 @@ public class DatasetListerTest extends AbstractDAOTest
         PhysicalDataSet dataset = datasets.get(0).tryGetAsDataSet();
         assertNotNull(dataset);
 
-        ContainerDataSet parent = dataset.tryGetContainer();
+        ContainerDataSet parent = dataset.getContainerDataSets().get(0);
         assertNotNull(parent);
         assertEquals("20110509092359990-10", parent.getCode());
     }

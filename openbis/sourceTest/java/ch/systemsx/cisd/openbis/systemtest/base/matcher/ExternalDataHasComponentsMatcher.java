@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, SIS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,36 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base.matcher;
 
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
+import java.util.Collection;
+import java.util.Collections;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
-public class HasNoContainerMatcher extends TypeSafeMatcher<Object>
+/**
+ * @author Franz-Josef Elmer
+ */
+public class ExternalDataHasComponentsMatcher extends ExternalDataHasChildrenMatcher
 {
 
-    public HasNoContainerMatcher()
+    public ExternalDataHasComponentsMatcher(AbstractExternalData first, AbstractExternalData[] rest)
     {
+        super(first, rest);
     }
 
     @Override
-    public void describeTo(Description description)
+    protected String getSubDataSetType()
     {
-        description.appendText("An entity without container");
+        return "components";
     }
 
     @Override
-    public boolean matchesSafely(Object actual)
+    protected Collection<AbstractExternalData> getSubDataSets(AbstractExternalData actual)
     {
-        if (actual instanceof Sample)
+        if (actual.isContainer() == false)
         {
-            return ((Sample) actual).getContainer() == null;
+            return Collections.emptySet();
         }
-        if (actual instanceof AbstractExternalData)
-        {
-            return ((AbstractExternalData) actual).getContainerDataSets().isEmpty();
-        }
-        return false;
+        return actual.tryGetAsContainerDataSet().getContainedDataSets();
     }
+
 }

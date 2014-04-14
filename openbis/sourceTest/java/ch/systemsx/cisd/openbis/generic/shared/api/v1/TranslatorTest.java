@@ -105,8 +105,8 @@ public class TranslatorTest extends AssertJUnit
 
         dsContainer =
                 new ContainerDataSetBuilder().code("ds-container").type("T3")
-                        .experiment(experiment).sample(sample).contains(ds1.getDataSet())
-                        .contains(ds2.getDataSet());
+                        .experiment(experiment).sample(sample).component(ds1.getDataSet())
+                        .component(ds2.getDataSet());
         dsLink =
                 new LinkDataSetBuilder().code("lds").type("L1").experiment(experiment)
                         .sample(sample).registrationDate(new Date(123456789L))

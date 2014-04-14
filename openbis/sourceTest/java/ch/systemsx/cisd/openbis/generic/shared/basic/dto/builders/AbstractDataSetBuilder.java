@@ -21,13 +21,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
 /**
@@ -67,7 +67,7 @@ public abstract class AbstractDataSetBuilder<T extends AbstractDataSetBuilder<?>
 
     public T container(ContainerDataSet container)
     {
-        dataSet.setContainer(container);
+        dataSet.addContainer(container, 0);
         return asConcreteSubclass();
     }
 

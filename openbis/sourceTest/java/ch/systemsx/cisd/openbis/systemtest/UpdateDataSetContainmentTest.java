@@ -34,6 +34,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.auth.GuardedDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.InstanceDomain;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.RolePermutator;
 import ch.systemsx.cisd.openbis.systemtest.base.auth.SpaceDomain;
+import ch.systemsx.cisd.openbis.systemtest.base.builder.ExternalDataBuilder;
 
 /**
  * @author anttil
@@ -144,15 +145,21 @@ public class UpdateDataSetContainmentTest extends BaseTest
     }
 
     @Test
-    public void containerOfDataSetCanBeChanged() throws Exception
+    public void dataSetCanBeAddedToAnotherContainer() throws Exception
     {
-        AbstractExternalData component = create(aDataSet().inSample(sample));
-        create(aDataSet().inSample(sample).asContainer().withComponent(component));
+        ExternalDataBuilder containerBuilder = aDataSet().inSample(sample).asContainer();
+        AbstractExternalData component1 = create(aDataSet().inSample(sample));
+        AbstractExternalData component2 = create(aDataSet().inSample(sample));
+        AbstractExternalData container = create(containerBuilder.withComponent(component1).withComponent(component2));
         AbstractExternalData newContainer = create(aDataSet().inSample(sample).asContainer());
 
-        perform(anUpdateOf(newContainer).withComponent(component));
+        perform(anUpdateOf(newContainer).withComponent(component2));
 
-        assertThat(component, hasContainer(newContainer));
+        assertThat(component1, hasContainer(container).orderInContainer(0));
+        assertThat(component2, hasContainer(container).orderInContainer(1));
+        assertThat(component2, hasContainer(newContainer).orderInContainer(0));
+        assertThat(container, hasComponents(component1, component2));
+        assertThat(newContainer, hasComponents(component2));
     }
 
     @Test(expectedExceptions =

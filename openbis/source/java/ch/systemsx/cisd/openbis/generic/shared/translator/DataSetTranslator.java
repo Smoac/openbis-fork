@@ -238,13 +238,7 @@ public class DataSetTranslator
         externalData.setDataSetType(DataSetTypeTranslator.translate(dataPE.getDataSetType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
         externalData.setDerived(dataPE.isDerived());
-        DataSetRelationshipPE relationship = getContainerRelationshipOrNull(dataPE);
-        if (relationship != null)
-        {
-            externalData.setOrderInContainer(relationship.getOrdinal());
-            externalData.setContainer(tryToTranslateContainer(relationship.getParentDataSet(), baseIndexURL,
-                    managedPropertyEvaluatorFactory));
-        }
+        addContainers(externalData, dataPE, baseIndexURL, managedPropertyEvaluatorFactory);
         final Collection<AbstractExternalData> parents = new HashSet<AbstractExternalData>();
         externalData.setParents(parents);
         for (DataPE parentPE : dataPE.getParents())
@@ -272,6 +266,19 @@ public class DataSetTranslator
         }
         externalData.setDeletion(DeletionTranslator.translate(dataPE.getDeletion()));
         return externalData;
+    }
+
+    private static void addContainers(AbstractExternalData externalData, DataPE dataPE, String baseIndexURL,
+            IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
+    {
+        List<DataSetRelationshipPE> containerComponentRelationships =
+                RelationshipUtils.getContainerComponentRelationships(dataPE.getParentRelationships());
+        for (DataSetRelationshipPE relationship : containerComponentRelationships)
+        {
+            ContainerDataSet container = tryToTranslateContainer(relationship.getParentDataSet(), baseIndexURL,
+                    managedPropertyEvaluatorFactory);
+            externalData.addContainer(container, relationship.getOrdinal());
+        }
     }
 
     private static DataSetRelationshipPE getContainerRelationshipOrNull(DataPE dataPE)
@@ -321,12 +328,6 @@ public class DataSetTranslator
     {
         PhysicalDataSet dataSet = new PhysicalDataSet();
         dataSet.setSize(externalDataPE.getSize());
-
-        DataSetRelationshipPE relationship = getContainerRelationshipOrNull(externalDataPE);
-        if (relationship != null)
-        {
-            dataSet.setOrderInContainer(relationship.getOrdinal());
-        }
         dataSet.setComplete(BooleanOrUnknown.tryToResolve(externalDataPE.getComplete()));
         dataSet.setStatus(externalDataPE.getStatus());
         dataSet.setPresentInArchive(externalDataPE.isPresentInArchive());

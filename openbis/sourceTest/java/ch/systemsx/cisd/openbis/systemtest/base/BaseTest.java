@@ -38,9 +38,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexMode;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -77,6 +77,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.builder.SpaceBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.TrashEmptyBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.builder.UpdateBuilder;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasChildrenMatcher;
+import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasComponentsMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasContainerMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasNoSampleMatcher;
 import ch.systemsx.cisd.openbis.systemtest.base.matcher.ExternalDataHasParentsMatcher;
@@ -96,7 +97,7 @@ import ch.systemsx.cisd.openbis.systemtest.base.matcher.SampleHasParentsMatcher;
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 @TransactionConfiguration(transactionManager = "transaction-manager")
 @Test(groups =
-    { "system-cleandb" })
+{ "system-cleandb" })
 public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextTests
 {
 
@@ -382,9 +383,14 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
         return new SampleHasContainerMatcher(refresh(container));
     }
 
-    protected Matcher<AbstractExternalData> hasContainer(AbstractExternalData container)
+    protected ExternalDataHasContainerMatcher hasContainer(AbstractExternalData container)
     {
         return new ExternalDataHasContainerMatcher(refresh(container));
+    }
+
+    protected Matcher<AbstractExternalData> hasComponents(AbstractExternalData first, AbstractExternalData... rest)
+    {
+        return new ExternalDataHasComponentsMatcher(refresh(first), refresh(rest));
     }
 
     protected Matcher<Object> hasNoContainer()
