@@ -720,6 +720,12 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public void markSuccessfulPostRegistration(String token, String dataSetCode);
 
     /**
+     * Informs that the data set has been accessed
+     */
+    @Transactional
+    public void notifyDatasetAccess(String token, String dataSetCode);
+
+    /**
      * Gets the list of all datasets, which are in the post-registration queue.
      */
     @Transactional

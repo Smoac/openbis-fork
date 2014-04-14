@@ -103,6 +103,8 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                     one(openbisService).tryGetDataSetLocation(dataSetCode);
                     will(returnValue(data));
 
+                    one(openbisService).notifyDatasetAccess(dataSetCode);
+
                     one(shareIdManager).lock(dataSetCode);
                     one(directoryProvider).getDataSetDirectory(data.getLocation());
                     will(returnValue(dataRootFile));
@@ -164,6 +166,12 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                 {
                     one(openbisService).tryGetDataSetLocation(containerCode);
                     will(returnValue(container));
+
+                    one(openbisService).notifyDatasetAccess(containerCode);
+
+                    one(openbisService).notifyDatasetAccess(dataSet1Code);
+                    one(openbisService).notifyDatasetAccess(dataSet2Code);
+                    one(openbisService).notifyDatasetAccess(dataSet3Code);
 
                     one(shareIdManager).lock(dataSet1Code);
                     one(directoryProvider).getDataSetDirectory(dataSet1.getLocation());

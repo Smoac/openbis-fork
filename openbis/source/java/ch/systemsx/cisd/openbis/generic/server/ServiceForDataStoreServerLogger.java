@@ -718,6 +718,12 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public void notifyDatasetAccess(String sessionToken, String dataSetCode)
+    {
+        logAccess(sessionToken, "notifyDatasetAccess", "DATA_SET_CODE(%s)", dataSetCode);
+    }
+
+    @Override
     public List<AbstractExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {

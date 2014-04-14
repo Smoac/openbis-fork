@@ -64,7 +64,7 @@ public class DatasetListerFastTest extends AssertJUnit
         IEntityPropertiesEnricher propertiesEnricher =
                 context.mock(IEntityPropertiesEnricher.class);
         datasetLister =
-                new DatasetLister(42L, new DatabaseInstance(), query, propertiesEnricher, null,
+                new DatasetLister(42L, new DatabaseInstance(), query, propertiesEnricher, null, null,
                         null, null);
     }
 

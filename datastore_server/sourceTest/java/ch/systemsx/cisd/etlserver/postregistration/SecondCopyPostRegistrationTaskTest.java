@@ -181,6 +181,8 @@ public class SecondCopyPostRegistrationTaskTest extends AbstractFileSystemTestCa
                     one(service).tryGetDataSetLocation(DATA_SET1);
                     will(returnValue(new ExternalDataLocationNode(ds1)));
 
+                    one(service).notifyDatasetAccess(DATA_SET1);
+
                     allowing(shareIdManager).getShareId(DATA_SET1);
                     will(returnValue(SHARE_ID));
 

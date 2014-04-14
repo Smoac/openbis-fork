@@ -718,6 +718,8 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
                 {
                     one(openBisService).tryGetDataSetLocation(DATA_SET_CODE);
                     will(returnValue(dataSet));
+
+                    one(openBisService).notifyDatasetAccess(DATA_SET_CODE);
                 }
             });
     }

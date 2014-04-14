@@ -138,6 +138,26 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             long dataSetTypeId);
 
     /**
+     * Returns datasets from store with given id that have status equal 'AVAILABLE' and were accessed before given date.
+     */
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
+            + "    AND data.access_timestamp < ?{2} AND external_data.present_in_archive=?{3}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getAvailableExtDatasAccessedBefore(long dataStoreId,
+            Date lastAccessDate, boolean presentInArchive);
+
+    /**
+     * Like {@link #getAvailableExtDatasAccessedBefore(long, Date, boolean)} with additional condition for data set type id.
+     */
+    @Select(sql = SELECT_ALL_EXTERNAL_DATAS
+            + "    WHERE data.dast_id = ?{1} AND external_data.status = 'AVAILABLE' "
+            + "    AND data.access_timestamp < ?{2} AND external_data.present_in_archive=?{3} "
+            + "    AND data.dsty_id = ?{4}", fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getAvailableExtDatasAccessedBeforeWithDataSetType(
+            long dataStoreId, Date lastAccessDate, boolean presentInArchive,
+            long dataSetTypeId);
+
+    /**
      * Returns the directly connected dataset ids for the given sample id.
      */
     @Select(sql = "select id from data where data.samp_id=?{1}", fetchSize = FETCH_SIZE)

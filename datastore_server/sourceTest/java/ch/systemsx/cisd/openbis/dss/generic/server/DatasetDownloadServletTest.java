@@ -713,6 +713,10 @@ public class DatasetDownloadServletTest
     {
         prepareCreateSession();
         prepareTryGetDatasetLocation(externalData);
+        if (externalData != null)
+        {
+            prepareDatasetAccessed();
+        }
     }
 
     private void prepareCreateSession()
@@ -763,6 +767,16 @@ public class DatasetDownloadServletTest
                 {
                     one(shareIdManager).lock(EXAMPLE_DATA_SET_CODE);
                     one(shareIdManager).releaseLock(EXAMPLE_DATA_SET_CODE);
+                }
+            });
+    }
+
+    private void prepareDatasetAccessed()
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(openbisService).notifyDatasetAccess(EXAMPLE_DATA_SET_CODE);
                 }
             });
     }

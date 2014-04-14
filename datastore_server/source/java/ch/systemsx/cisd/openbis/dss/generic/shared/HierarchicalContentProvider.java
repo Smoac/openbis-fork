@@ -154,6 +154,8 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
 
     private IHierarchicalContent asContent(IDatasetLocationNode locationNode)
     {
+        openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
+
         if (isLocal(locationNode))
         {
             if (locationNode.isContainer())
@@ -177,6 +179,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     });
                 for (IDatasetLocationNode component : sortedNodes)
                 {
+                    openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
                     IHierarchicalContent componentContent = tryCreateComponentContent(component);
                     if (componentContent != null)
                     {

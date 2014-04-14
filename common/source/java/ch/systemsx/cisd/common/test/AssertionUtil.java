@@ -62,6 +62,15 @@ public class AssertionUtil
         assertTrue(errorMsg, text.contains(expectedSubstring));
     }
 
+    /** asserts that given text contains expectedSubstring */
+    public static void assertSize(Collection<?> collection, int size)
+    {
+        String errorMsg =
+                String.format("Collection \n'%s'\nwas expected to have %d elements, but has %d.",
+                        collection.toString(), size, collection.size());
+        assertTrue(errorMsg, collection.size() == size);
+    }
+
     /** asserts that given text contains expectedSubstring. Comparision is case insensitive. */
     public static void assertContainsInsensitive(String expectedSubstring, String text)
     {

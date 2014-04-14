@@ -2674,6 +2674,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public void notifyDatasetAccess(String sessionToken, String dataSetCode)
+    {
+        checkSession(sessionToken);
+
+        daoFactory.getDataDAO().updateAccessTimestamp(dataSetCode);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public List<AbstractExternalData> listDataSetsForPostRegistration(String sessionToken,
             String dataStoreCode)
     {

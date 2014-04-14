@@ -344,6 +344,8 @@ public final class ColumnNames
 
     public static final String IS_PRIVATE_COLUMN = "private";
 
+    public static final String ACCESS_TIMESTAMP = "access_timestamp";
+
     private ColumnNames()
     {
         // Can not be instantiated.
