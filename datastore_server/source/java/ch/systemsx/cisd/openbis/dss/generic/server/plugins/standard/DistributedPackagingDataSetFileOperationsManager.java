@@ -16,53 +16,37 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.FilteredHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.IHierarchicalContentNodeFilter;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
-import ch.systemsx.cisd.openbis.dss.archiveverifier.verifier.ZipFileIntegrityVerifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
-import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiveFolders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IdentifierAttributeMappingManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
-
-import de.schlichtherle.io.rof.SimpleReadOnlyFile;
-import de.schlichtherle.util.zip.BasicZipFile;
-import de.schlichtherle.util.zip.ZipEntry;
 
 /**
  * @author Franz-Josef Elmer
@@ -75,9 +59,11 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     static final String DEFAULT_DESTINATION_KEY = "default-archive-folder";
 
-    static final String WITH_SHARDING_KEY = "with-sharding";
+    static final String DEFAULT_SMALL_DATA_SETS_DESTINATION_KEY = "default-small-data-sets-archive-folder";
 
-    static final String COMPRESS_KEY = "compressing";
+    static final String SMALL_DATA_SETS_SIZE_LIMIT_KEY = "small-data-sets-size-limit";
+
+    static final String WITH_SHARDING_KEY = "with-sharding";
 
     static final String IGNORE_EXISTING_KEY = "ignore-existing";
 
@@ -92,11 +78,13 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             }
         };
 
-    private boolean compress;
-
     private boolean ignoreExisting;
 
     private File defaultFolder;
+
+    private File defaultSmallDataSetsFolder;
+
+    private Long smallDataSetsSizeLimit;
 
     private boolean withSharding;
 
@@ -106,34 +94,52 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private transient IEncapsulatedOpenBISService service;
 
-    private transient IHierarchicalContentProvider contentProvider;
-
     private transient IDataSetDirectoryProvider directoryProvider;
 
     private transient IdentifierAttributeMappingManager archiveFolderMapping;
 
-    public DistributedPackagingDataSetFileOperationsManager(Properties properties)
+    private IPackageManager packageManager;
+
+    public DistributedPackagingDataSetFileOperationsManager(Properties properties, IPackageManager packageManager)
     {
-        this(properties, null, null, null);
+        this(properties, null, null, packageManager);
     }
 
     DistributedPackagingDataSetFileOperationsManager(Properties properties,
-            IEncapsulatedOpenBISService service, IHierarchicalContentProvider contentProvider,
-            IDataSetDirectoryProvider directoryProvider)
+            IEncapsulatedOpenBISService service, IDataSetDirectoryProvider directoryProvider, IPackageManager packageManager)
     {
         this.service = service;
-        this.contentProvider = contentProvider;
         this.directoryProvider = directoryProvider;
-        compress = PropertyUtils.getBoolean(properties, COMPRESS_KEY, true);
+        this.packageManager = packageManager;
+
         ignoreExisting = PropertyUtils.getBoolean(properties,
                 IGNORE_EXISTING_KEY, false);
         withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
+
         defaultFolder = new File(PropertyUtils.getMandatoryProperty(properties, DEFAULT_DESTINATION_KEY));
         if (defaultFolder.isDirectory() == false)
         {
             throw new ConfigurationFailureException("Default archive folder '" + defaultFolder.getPath()
                     + "' doesn't exist or is not a folder.");
         }
+
+        String aDefaultSmallDataSetsFolder = PropertyUtils.getProperty(properties, DEFAULT_SMALL_DATA_SETS_DESTINATION_KEY);
+        if (false == StringUtils.isBlank(aDefaultSmallDataSetsFolder))
+        {
+            defaultSmallDataSetsFolder = new File(aDefaultSmallDataSetsFolder);
+            if (defaultSmallDataSetsFolder.isDirectory() == false)
+            {
+                throw new ConfigurationFailureException("Default small data sets archive folder '" + defaultSmallDataSetsFolder.getPath()
+                        + "' doesn't exist or is not a folder.");
+            }
+        }
+
+        long aSmallDataSetsSizeLimit = PropertyUtils.getLong(properties, SMALL_DATA_SETS_SIZE_LIMIT_KEY, -1);
+        if (aSmallDataSetsSizeLimit > 0)
+        {
+            smallDataSetsSizeLimit = aSmallDataSetsSizeLimit * 1024;
+        }
+
         mappingFilePathOrNull = properties.getProperty(MAPPING_FILE_KEY);
         createArchives = PropertyUtils.getBoolean(properties, CREATE_ARCHIVES_KEY, false);
         getArchiveFolderMapping(); // Loads and validates mapping file
@@ -144,118 +150,56 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     {
         AbstractExternalData dataSet = getDataSetWithAllMetaData(datasetDescription);
         IShareIdManager shareIdManager = getDirectoryProvider().getShareIdManager();
-        DataSetExistenceChecker dataSetExistenceChecker =
-                new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
         Status status = Status.OK;
         String dataSetCode = datasetDescription.getDataSetCode();
         File file = getArchiveFile(datasetDescription);
         shareIdManager.lock(dataSetCode);
-        AbstractDataSetPackager dataSetPackager = null;
         try
         {
-            dataSetPackager = createPackager(file, dataSetExistenceChecker);
-            dataSetPackager.addDataSetTo("", dataSet);
+            packageManager.create(file, dataSet);
         } catch (Exception ex)
         {
             status = Status.createError(ex.toString());
             operationLog.error("Couldn't create package file: " + file, ex);
         } finally
         {
-            if (dataSetPackager != null)
+            try
             {
-                try
+                if (Status.OK.equals(status))
                 {
-                    dataSetPackager.close();
+                    Collection<VerificationError> errors = packageManager.verify(file);
 
-                    if (Status.OK.equals(status))
+                    if (errors.size() > 0)
                     {
-                        Collection<VerificationError> errors = new ZipFileIntegrityVerifier().verify(file);
-
-                        if (errors.size() > 0)
-                        {
-                            status = Status.createError(errors.toString());
-                            throw new RuntimeException(errors.toString());
-                        }
+                        status = Status.createError(errors.toString());
+                        throw new RuntimeException(errors.toString());
                     }
-
-                    operationLog.info("Data set '" + dataSetCode + "' archived: " + file);
-                } catch (Exception ex)
-                {
-                    operationLog.error("Couldn't create package file: " + file, ex);
                 }
+
+                operationLog.info("Data set '" + dataSetCode + "' archived: " + file);
+            } catch (Exception ex)
+            {
+                operationLog.error("Couldn't create package file: " + file, ex);
             }
             shareIdManager.releaseLock(dataSetCode);
         }
         return status;
     }
 
-    private AbstractDataSetPackager createPackager(File file, DataSetExistenceChecker dataSetExistenceChecker)
-    {
-        return new ZipDataSetPackager(file, compress, getContentProvider(), dataSetExistenceChecker);
-    }
-
     @Override
     public Status retrieveFromDestination(File originalData, DatasetDescription datasetDescription)
     {
         File file = getArchiveFile(datasetDescription);
-        BasicZipFile zipFile = null;
-        FileOutputStream fileOutputStream = null;
-        try
+
+        Status status = packageManager.extract(file, originalData);
+
+        if (status.isOK())
         {
-            zipFile = new BasicZipFile(new SimpleReadOnlyFile(file), "UTF-8", true, false);
-            @SuppressWarnings("unchecked")
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements())
-            {
-                ZipEntry entry = entries.nextElement();
-                File outputFile = new File(originalData, entry.getName());
-                if (entry.isDirectory() == false)
-                {
-                    if (AbstractDataSetPackager.META_DATA_FILE_NAME.equals(entry.getName()) == false)
-                    {
-                        outputFile.getParentFile().mkdirs();
-                        InputStream inputStream = new BufferedInputStream(zipFile.getInputStream(entry));
-                        fileOutputStream = new FileOutputStream(outputFile);
-                        BufferedOutputStream outputStream = new BufferedOutputStream(fileOutputStream);
-                        try
-                        {
-                            IOUtils.copyLarge(inputStream, outputStream);
-                        } finally
-                        {
-                            IOUtils.closeQuietly(inputStream);
-                            IOUtils.closeQuietly(outputStream);
-                        }
-                    }
-                } else
-                {
-                    if (outputFile.isFile())
-                    {
-                        throw new EnvironmentFailureException("Could not extract directory '" + outputFile
-                                + "' because it exists already as a plain file.");
-                    }
-                    outputFile.mkdirs();
-                }
-            }
-            operationLog.info("Data set '" + datasetDescription.getDataSetCode() + "' unzipped from archive '"
+            operationLog.info("Data set '" + datasetDescription.getDataSetCode() + "' retrieved from archive '"
                     + file.getPath() + "' to '" + originalData + "'.");
-            return Status.OK;
-        } catch (Exception ex)
-        {
-            return Status.createError(ex.toString());
-        } finally
-        {
-            if (zipFile != null)
-            {
-                try
-                {
-                    zipFile.close();
-                } catch (IOException ex)
-                {
-                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-                }
-            }
-            IOUtils.closeQuietly(fileOutputStream);
         }
+
+        return status;
     }
 
     @Override
@@ -274,10 +218,22 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     private File tryFindArchiveFile(IDatasetLocation datasetLocation)
     {
         File archiveFile = getArchiveFile(defaultFolder, datasetLocation, false);
+
         if (archiveFile.isFile())
         {
             return archiveFile;
         }
+
+        if (defaultSmallDataSetsFolder != null)
+        {
+            archiveFile = getArchiveFile(defaultSmallDataSetsFolder, datasetLocation, false);
+
+            if (archiveFile.isFile())
+            {
+                return archiveFile;
+            }
+        }
+
         Collection<File> folders = getArchiveFolderMapping().getAllFolders();
         for (File folder : folders)
         {
@@ -363,7 +319,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     @Override
     public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset)
     {
-        return new FilteredHierarchicalContent(new ZipBasedHierarchicalContent(getArchiveFile(dataset)), FILTER);
+        return new FilteredHierarchicalContent(packageManager.asHierarchialContent(getArchiveFile(dataset)), FILTER);
     }
 
     private AbstractExternalData getDataSetWithAllMetaData(DatasetDescription datasetDescription)
@@ -381,7 +337,19 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private File getArchiveFile(DatasetDescription datasetDescription)
     {
-        File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, defaultFolder);
+        File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, null);
+
+        // there is no mapping, lets use default archive folders
+        if (folder == null)
+        {
+            File[] folders = new File[] {
+                    defaultFolder,
+                    defaultSmallDataSetsFolder
+            };
+            ArchiveFolders archiveFolders = ArchiveFolders.create(folders, false, smallDataSetsSizeLimit);
+            folder = archiveFolders.getFolder(datasetDescription);
+        }
+
         return getArchiveFile(folder, datasetDescription, true);
     }
 
@@ -393,7 +361,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private String createPackageFileName(IDatasetLocation datasetLocation)
     {
-        return datasetLocation.getDataSetCode() + ".zip";
+        return packageManager.getName(datasetLocation);
     }
 
     private File getArchiveFolder(File baseFolder, IDatasetLocation datasetLocation, boolean forWriting)
@@ -419,15 +387,6 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         return service;
     }
 
-    private IHierarchicalContentProvider getContentProvider()
-    {
-        if (contentProvider == null)
-        {
-            contentProvider = ServiceProvider.getHierarchicalContentProvider();
-        }
-        return contentProvider;
-    }
-
     private IDataSetDirectoryProvider getDirectoryProvider()
     {
         if (directoryProvider == null)
@@ -441,7 +400,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
     {
         if (archiveFolderMapping == null)
         {
-            archiveFolderMapping = new IdentifierAttributeMappingManager(mappingFilePathOrNull, createArchives);
+            archiveFolderMapping = new IdentifierAttributeMappingManager(mappingFilePathOrNull, createArchives, smallDataSetsSizeLimit);
         }
         return archiveFolderMapping;
     }

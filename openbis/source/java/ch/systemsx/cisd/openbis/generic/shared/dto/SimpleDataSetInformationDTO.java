@@ -59,6 +59,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
 
     private String dataStoreUrl;
 
+    private Integer orderInContainer;
+
     public void setDataStoreCode(String dataStoreCode)
     {
         this.dataStoreCode = dataStoreCode;
@@ -202,6 +204,17 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setDataStoreUrl(String dataStoreUrl)
     {
         this.dataStoreUrl = dataStoreUrl;
+    }
+
+    @Override
+    public Integer getOrderInContainer()
+    {
+        return orderInContainer;
+    }
+
+    public void setOrderInContainer(Integer orderInContainer)
+    {
+        this.orderInContainer = orderInContainer;
     }
 
 }

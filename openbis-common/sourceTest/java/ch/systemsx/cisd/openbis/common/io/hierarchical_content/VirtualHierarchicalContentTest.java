@@ -67,6 +67,18 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
 
     private IHierarchicalContentNode mergedNode;
 
+    private IHierarchicalContentNode rootNode1;
+
+    private IHierarchicalContentNode rootNode2;
+
+    private IHierarchicalContentNode rootNode3;
+
+    private IHierarchicalContentNode childNode1;
+
+    private IHierarchicalContentNode childNode2;
+
+    private IHierarchicalContentNode childNode3;
+
     @BeforeMethod
     public void beforeMethod() throws Exception
     {
@@ -80,13 +92,19 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         component2 = context.mock(IHierarchicalContent.class, "component2");
         component3 = context.mock(IHierarchicalContent.class, "component3");
 
+        rootNode1 = context.mock(IHierarchicalContentNode.class, "rootNode1");
         node1 = context.mock(IHierarchicalContentNode.class, "node1");
+        childNode1 = context.mock(IHierarchicalContentNode.class, "childNode1");
+        rootNode2 = context.mock(IHierarchicalContentNode.class, "rootNode2");
         node2 = context.mock(IHierarchicalContentNode.class, "node2");
+        childNode2 = context.mock(IHierarchicalContentNode.class, "childNode2");
+        rootNode3 = context.mock(IHierarchicalContentNode.class, "rootNode3");
         node3 = context.mock(IHierarchicalContentNode.class, "node3");
+        childNode3 = context.mock(IHierarchicalContentNode.class, "childNode3");
         mergedNode = context.mock(IHierarchicalContentNode.class, "mergedNode");
 
         components = new IHierarchicalContent[]
-            { component1, component2, component3 };
+        { component1, component2, component3 };
     }
 
     @AfterMethod
@@ -135,13 +153,13 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         assertEquals(virtualContent.hashCode(), virtualContentSameComponents.hashCode());
 
         IHierarchicalContent[] subComponents =
-            { component1, component2 };
+        { component1, component2 };
         IHierarchicalContent virtualContentSubComponents = createContent(subComponents);
         assertFalse(virtualContent.equals(virtualContentSubComponents));
         assertFalse(virtualContent.hashCode() == virtualContentSubComponents.hashCode());
 
         IHierarchicalContent[] reorderedComponents = new IHierarchicalContent[]
-            { component1, component3, component2 };
+        { component1, component3, component2 };
         IHierarchicalContent virtualContentReorderedComponents = createContent(reorderedComponents);
         assertFalse(virtualContent.equals(virtualContentReorderedComponents));
         assertFalse(virtualContent.hashCode() == virtualContentReorderedComponents.hashCode());
@@ -320,4 +338,88 @@ public class VirtualHierarchicalContentTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testSimpleNodeShadowing()
+    {
+        prepareComponent(component1, rootNode1, node1, childNode1, 11);
+        prepareComponent(component2, rootNode2, node2, childNode2, 22);
+        VirtualHierarchicalContent virtualContent = new VirtualHierarchicalContent(Arrays.asList(component1, component2));
+
+        IHierarchicalContentNode rootNode = virtualContent.getRootNode();
+
+        List<IHierarchicalContentNode> childNodes = rootNode.getChildNodes();
+        IHierarchicalContentNode childNode = childNodes.get(0);
+        assertEquals(22L, childNode.getFileLength());
+        
+        assertEquals(1, childNodes.size());
+        
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testNestedVirtualNodeShadowing()
+    {
+        prepareComponent(component1, rootNode1, node1, childNode1, 11);
+        prepareComponent(component2, rootNode2, node2, childNode2, 22);
+        VirtualHierarchicalContent virtualContent1 = new VirtualHierarchicalContent(Arrays.asList(component1, component2));
+        prepareComponent(component3, rootNode3, node3, childNode3, 33);
+        VirtualHierarchicalContent virtualContent = new VirtualHierarchicalContent(Arrays.asList(component3, virtualContent1));
+        
+        IHierarchicalContentNode rootNode = virtualContent.getRootNode();
+        
+        List<IHierarchicalContentNode> nodes = rootNode.getChildNodes();
+        IHierarchicalContentNode node = nodes.get(0);
+        assertEquals(1, nodes.size());
+        List<IHierarchicalContentNode> childNodes = node.getChildNodes();
+        IHierarchicalContentNode childNode = childNodes.get(0);
+        assertEquals(1, childNodes.size());
+        assertEquals(22L, childNode.getFileLength());
+        
+        context.assertIsSatisfied();
+        
+    }
+    
+    private void prepareComponent(final IHierarchicalContent content, final IHierarchicalContentNode rootNode, 
+            final IHierarchicalContentNode node, final IHierarchicalContentNode childNode, final long length)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                allowing(content).getRootNode();
+                will(returnValue(rootNode));
+                
+                allowing(rootNode).getChildNodes();
+                will(returnValue(Arrays.asList(node)));
+                
+                allowing(node).getChildNodes();
+                will(returnValue(Arrays.asList(childNode)));
+                
+                allowing(node).getRelativePath();
+                will(returnValue("hi.txt"));
+                
+                allowing(node).isDirectory();
+                will(returnValue(false));
+                
+                allowing(node).exists();
+                will(returnValue(true));
+                
+                allowing(node).getFileLength();
+                will(returnValue(length));
+                
+                allowing(childNode).getRelativePath();
+                will(returnValue("hi.txt"));
+                
+                allowing(childNode).isDirectory();
+                will(returnValue(false));
+                
+                allowing(childNode).exists();
+                will(returnValue(true));
+                
+                allowing(childNode).getFileLength();
+                will(returnValue(length));
+                
+            }
+        });
+        
+    }
 }

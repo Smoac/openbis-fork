@@ -39,7 +39,7 @@ public class MappingBasedShareFinder implements IShareFinder
     public MappingBasedShareFinder(Properties properties)
     {
         String mappingFilePath = PropertyUtils.getMandatoryProperty(properties, MAPPING_FILE_KEY);
-        mapping = new IdentifierAttributeMappingManager(mappingFilePath, false);
+        mapping = new IdentifierAttributeMappingManager(mappingFilePath, false, null);
     }
     
     @Override

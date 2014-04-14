@@ -22,10 +22,12 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.HighLevelException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetFile;
 import ch.systemsx.cisd.etlserver.registrator.recovery.DataSetStorageRecoveryInfo.RecoveryStage;
 import ch.systemsx.cisd.etlserver.registrator.v2.DataSetStorageAlgorithmRunner;
@@ -190,7 +192,30 @@ public class DataSetStorageRecoveryManager implements IDataSetStorageRecoveryMan
     @Override
     public boolean canRecoverFromError(Throwable ex)
     {
-        return HighLevelException.isRetriable(ex);
+        if (ex instanceof HighLevelException)
+        {
+            return HighLevelException.isRetriable(ex);
+        }
+        else if (ex instanceof ServiceExecutionException)
+        {
+            try
+            {
+                // somewhat ugly fix to check if an exception hidden behind service conversation error
+                // is retriable high level exception
+                ServiceExecutionException sex = (ServiceExecutionException) ex;
+                String desc = sex.getDescription();
+                String exceptionClassname = desc.substring(0, desc.indexOf(":"));
+                Class<?> exceptionClass = Class.forName(exceptionClassname);
+                if (HighLevelException.class.isAssignableFrom(exceptionClass))
+                {
+                    return EnvironmentFailureException.class.isAssignableFrom(exceptionClass);
+                }
+            } catch (ClassNotFoundException cnfex)
+            {
+                // at least we tried
+            }
+        }
+        return true;
     }
 
     @Override

@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -158,7 +160,22 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             {
                 List<IHierarchicalContent> componentContents =
                         new ArrayList<IHierarchicalContent>();
-                for (IDatasetLocationNode component : locationNode.getComponents())
+                List<IDatasetLocationNode> sortedNodes = new ArrayList<IDatasetLocationNode>(locationNode.getComponents());
+                Collections.sort(sortedNodes, new Comparator<IDatasetLocationNode>()
+                    {
+                        @Override
+                        public int compare(IDatasetLocationNode n1, IDatasetLocationNode n2)
+                        {
+                            return getOrderInContainer(n1) - getOrderInContainer(n2);
+                        }
+                        
+                        private int getOrderInContainer(IDatasetLocationNode node)
+                        {
+                            Integer orderInContainer = node.getLocation().getOrderInContainer();
+                            return orderInContainer == null ? 0 : orderInContainer;
+                        }
+                    });
+                for (IDatasetLocationNode component : sortedNodes)
                 {
                     IHierarchicalContent componentContent = tryCreateComponentContent(component);
                     if (componentContent != null)
