@@ -126,9 +126,9 @@ function DilutionWidget(containerId, serverFacade) {
 				var metalMass = conjugatedClone.properties["METAL_MASS"];
 				var predefinedMass = _this._predefinedMass[rowNumber] + "";
 				//TO-DO Uncomment when finish
-				//if(predefinedMass === metalMass) {
+				if(predefinedMass === metalMass) {
 					$component.append($("<option>").attr('value',conjugatedClone.permId).text(conjugatedClone.code));
-				//}
+				}
 			}
 			
 			//Add dropdown to the DOM
