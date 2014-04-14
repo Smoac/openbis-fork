@@ -523,3 +523,10 @@ table.downloads {
 .hiddenInput { /* used by storage widget */
 	display: none !important;
 }
+
+/*
+ * Dilution Widget
+ */
+ .table-condensed-dilution th, .table-condensed-dilution td {
+ 	padding: 0 3px;
+ }
