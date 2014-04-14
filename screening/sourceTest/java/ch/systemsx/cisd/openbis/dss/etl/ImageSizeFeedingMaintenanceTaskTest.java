@@ -271,7 +271,7 @@ public class ImageSizeFeedingMaintenanceTaskTest extends AssertJUnit
             {
                 {
                     String dataSetCode = dataSet.getDataSetCode();
-                    one(contentProvider).asContent(dataSetCode);
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
                     will(returnValue(content));
 
                     one(dao).tryGetImageDatasetByPermId(dataSetCode);
