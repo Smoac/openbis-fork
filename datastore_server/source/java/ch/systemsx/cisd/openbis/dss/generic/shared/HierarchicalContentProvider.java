@@ -174,8 +174,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         {
             if (locationNode.isContainer())
             {
-                List<IHierarchicalContent> componentContents =
-                        new ArrayList<IHierarchicalContent>();
+                List<IHierarchicalContent> componentContents = new ArrayList<IHierarchicalContent>();
                 List<IDatasetLocationNode> sortedNodes = new ArrayList<IDatasetLocationNode>(locationNode.getComponents());
                 Collections.sort(sortedNodes, new Comparator<IDatasetLocationNode>()
                     {
@@ -203,8 +202,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                         componentContents.add(componentContent);
                     }
                 }
-                return getHierarchicalContentFactory().asVirtualHierarchicalContent(
-                        componentContents);
+                return getHierarchicalContentFactory().asVirtualHierarchicalContent(componentContents);
             } else
             {
                 return asContent(locationNode.getLocation());
@@ -236,8 +234,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         return this.dataStoreCode.equals(node.getLocation().getDataStoreCode());
     }
 
-    private IHierarchicalContent tryCreateComponentContent(
-            IDatasetLocationNode componentLocationNode)
+    private IHierarchicalContent tryCreateComponentContent(IDatasetLocationNode componentLocationNode)
     {
         try
         {

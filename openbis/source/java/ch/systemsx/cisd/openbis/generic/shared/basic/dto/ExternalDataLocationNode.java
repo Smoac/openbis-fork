@@ -51,19 +51,12 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
     @Override
     public IDatasetLocation getLocation()
     {
-        PhysicalDataSet dataSet = externalData.tryGetAsDataSet();
-        if (dataSet == null)
-        {
-            throw new IllegalArgumentException(
-                    "Couldn't retrieve full data set infomation from data set "
-                            + externalData.getCode());
-        }
-
         DatasetLocation datasetLocation = new DatasetLocation();
-        datasetLocation.setDatasetCode(dataSet.getCode());
-        datasetLocation.setDataSetLocation(dataSet.getLocation());
-        datasetLocation.setDataStoreCode(dataSet.getDataStoreCode());
-        datasetLocation.setDataStoreUrl(dataSet.getDataStoreUrl());
+        datasetLocation.setDatasetCode(externalData.getCode());
+        PhysicalDataSet dataSet = externalData.tryGetAsDataSet();
+        datasetLocation.setDataSetLocation(dataSet == null ? null : dataSet.getLocation());
+        datasetLocation.setDataStoreCode(externalData.getDataStore().getCode());
+        datasetLocation.setDataStoreUrl(externalData.getDataStore().getHostUrl());
         datasetLocation.setOrderInContainer(orderInParentContainer);
         return datasetLocation;
     }
