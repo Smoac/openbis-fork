@@ -193,7 +193,10 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     });
                 for (IDatasetLocationNode component : sortedNodes)
                 {
-                    openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
+                    if (shouldUpdateAccessTimestamp)
+                    {
+                        openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
+                    }
                     IHierarchicalContent componentContent = tryCreateComponentContent(component);
                     if (componentContent != null)
                     {
