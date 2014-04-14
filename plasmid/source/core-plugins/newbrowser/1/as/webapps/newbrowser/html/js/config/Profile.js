@@ -133,6 +133,12 @@ $.extend(DefaultProfile.prototype, {
 		this.inspectorContentExtra = function(sample, propertyContent) {
 			return "";
 		}
+		
+		/*
+		 * Returns a Jquery component that is appended at the end of the form before the data set viewer
+		 */
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+		}
 	
 		/*
 		 * Used by DataSet Uploader
@@ -1224,10 +1230,16 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		/*
 		 * Used by Main Menu
 		 */
-		
 		this.mainMenuContentExtra = function() {
-			var content = "<center><h5><i class='icon-info-sign'></i> Please log in into your google account on the brower to see your laboratory calendar.</h5></center><br /><iframe src='https://www.google.com/calendar/embed?src=kcm620topcrg5677ikbn5epg0s%40group.calendar.google.com&ctz=Europe/Zurich' margin-left = '20' style='border: 50' width='800' height='600' frameborder='0' scrolling='no'></iframe>";
-			return content;
+			return "<center><h5><i class='icon-info-sign'></i> Please log in into your google account on the brower to see your laboratory calendar.</h5></center><br /><iframe src='https://www.google.com/calendar/embed?src=kcm620topcrg5677ikbn5epg0s%40group.calendar.google.com&ctz=Europe/Zurich' margin-left = '20' style='border: 50' width='800' height='600' frameborder='0' scrolling='no'></iframe>";
+		}
+		
+		/*
+		 * Used by Sample Form
+		 */
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+			var dilutionWidget = new DilutionWidget(containerId, this.serverFacade);
+			dilutionWidget.init();
 		}
 	}
 });

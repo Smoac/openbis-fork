@@ -472,6 +472,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			
 			//
+			// Extra component placeholder defined by Profile.sampleFormContentExtra(sampleTypeCode, sample)
+			//
+			component += "<div id='sample-form-content-extra'></div>";
+			
+			//
 			// FORM SUBMIT
 			//
 			if(!(this.mode === SampleFormMode.VIEW)) {
@@ -536,6 +541,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				});
 			}
 		}
+		
+		//Extra components
+		this.profile.sampleFormContentExtra(this.sampleTypeCode, this.sample, "sample-form-content-extra");
 	}
 	
 	this.showSamplesWithoutPage = function(event) {

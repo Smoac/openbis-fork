@@ -190,8 +190,14 @@ function DilutionWidget(containerId, serverFacade) {
 		//
 		$("#"+this._containerId).empty();
 
+		//Top Title
+		var $legend = $("<legend>");
+		$legend.append("Dilution Calculator");
+		
 		//Defining containers
 		var $wrapper = $("<div>");
+		$wrapper.append($legend);
+		
 		var $table = $("<table>", { "class" : "table table-bordered table-condensed table-condensed-dilution", "id" : this._widgetTableId});
 		
 		$wrapper.append($table);
@@ -204,14 +210,14 @@ function DilutionWidget(containerId, serverFacade) {
 		//Headers
 		var $tableHeadTr = $("<tr>");
 		$tableHeadTr
-			.append("<th>Number</th>")
-			.append("<th>Metal Mass</th>")
-			.append("<th>Protein</th>")
-			.append("<th>Conjugated Clone</th>")
-			.append("<th>Reactivity</th>")
-			.append("<th>Supplier</th>")
-			.append("<th>Concentration</th>")
-			.append("<th>Calculated</th>");
+			.append("<th><center>Number</center></th>")
+			.append("<th><center>Metal Mass</center></th>")
+			.append("<th><center>Protein</center></th>")
+			.append("<th><center>Conjugated Clone</center></th>")
+			.append("<th><center>Reactivity</center></th>")
+			.append("<th><center>Supplier</center></th>")
+			.append("<th><center>Concentration</center></th>")
+			.append("<th><center>Calculated</center></th>");
 		$tableHead.append($tableHeadTr);
 
 		for(var i = 0; i < 31; i++){
@@ -267,18 +273,18 @@ function DilutionWidget(containerId, serverFacade) {
 				
 		var $tableRowTrF1 = $("<tr>");
 		$tableRowTrF1.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
-		.append("<td>Volume</td>")
+		.append("<td><b>Volume</b></td>")
 		.append($tableRowTrF1TextBoxLastTD);
 		
 		$tableBody.append($tableRowTrF1);
 		var $tableRowTrF2 = $("<tr>");
 		$tableRowTrF2.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
-		.append("<td>Buffer Volume</td>")
+		.append("<td><b>Buffer Volume</b></td>")
 		.append("<td style='text-align : center;'>" + this._totalVolume + "</td>");
 		$tableBody.append($tableRowTrF2);
 		var $tableRowTrF3 = $("<tr>");
 		$tableRowTrF3.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
-		.append("<td>Total</td>")
+		.append("<td><b>Total</b></td>")
 		.append("<td style='text-align : center;'>0</td>");
 		$tableBody.append($tableRowTrF3);
 		
