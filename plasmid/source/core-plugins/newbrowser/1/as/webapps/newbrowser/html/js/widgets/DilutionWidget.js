@@ -53,7 +53,6 @@ function DilutionWidget(containerId, serverFacade) {
 		);
 		
 		$component.attr('data-row-number', rowNumber);
-		$component.attr('required', '');
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < this._allProteins.length; i++) {
@@ -118,7 +117,6 @@ function DilutionWidget(containerId, serverFacade) {
 			);
 			
 			$component.attr('data-row-number', rowNumber);
-			$component.attr('required', '');
 			
 			$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 			for(var i = 0; i < conjugatedClones.length; i++) {
