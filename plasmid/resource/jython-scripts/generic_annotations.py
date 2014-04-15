@@ -1,5 +1,5 @@
 """ 
-Managed Property Script for links to samples with concentration, quantity, comments
+Managed Property Script for links to samples with concentration, quantity, details
 
 
 
@@ -13,17 +13,15 @@ SPACE = "YEAST_LAB"
 """code attribute name"""
 ATR_CODE = "code"
 ATR_QUANTITY = "quantity"
-ATR_CONC = "concentration"
-ATR_COMMENT = "comment"
+ATR_DETAIL = "detail"
 ATR_NAME="name"
 
 """labels of table columns"""
 LINK_LABEL = "link"
 CODE_LABEL = "code"
 QUANTITY_LABEL = "quantity"
-CONC_LABEL = "concentration"
 NAME_LABEL="name"
-COMMENT_LABEL = "comment"
+DETAIL_LABEL = "details"
 
 
 """action labels"""
@@ -34,7 +32,7 @@ DELETE_ACTION_LABEL = "Delete"
 
 """helper functions"""
 
-def _createSampleLink(entities_list, quantity_list, concentration_list, comment_list):
+def _createSampleLink(entities_list, quantity_list, detail_list):
     """
        Creates sample link XML element for sample with specified 'code'. The element will contain
        given code as 'code' attribute apart from standard 'permId' attribute.
@@ -56,13 +54,10 @@ def _createSampleLink(entities_list, quantity_list, concentration_list, comment_
     sampleLink.addAttribute(ATR_NAME, name) 
     if not quantity_list:
         quantity_list = ' '
-    if not concentration_list:
-        concentration_list =' '
-    if not comment_list:
-        comment_list=' '
+    if not detail_list:
+        detail_list=' '
     sampleLink.addAttribute(ATR_QUANTITY, quantity_list)
-    sampleLink.addAttribute(ATR_CONC, concentration_list)
-    sampleLink.addAttribute(ATR_COMMENT, comment_list)
+    sampleLink.addAttribute(ATR_DETAIL, detail_list)
 
     return sampleLink    
 
@@ -77,17 +72,16 @@ def showRawValueInForms():
     return False
  
 def batchColumnNames():
-    return [CODE_LABEL, QUANTITY_LABEL, CONC_LABEL, COMMENT_LABEL]
+    return [CODE_LABEL, QUANTITY_LABEL, DETAIL_LABEL]
  
 def updateFromRegistrationForm(bindings):
     elements = []
     for item in bindings:
         entities_list = item.get('CODE')
         quantity_list = item.get('QUANTITY')
-        concentration_list = item.get('CONCENTRATION')
-        comment_list = item.get('COMMENT')
+        detail_list = item.get('DETAIL')
     if entities_list:
-          sampleLink = _createSampleLink(entities_list, quantity_list, concentration_list, comment_list)
+          sampleLink = _createSampleLink(entities_list, quantity_list, detail_list)
           
           elements.append(sampleLink)
             
@@ -100,8 +94,7 @@ def configureUI():
     tableBuilder.addHeader(CODE_LABEL)
     tableBuilder.addHeader(NAME_LABEL)
     tableBuilder.addHeader(QUANTITY_LABEL)
-    tableBuilder.addHeader(CONC_LABEL)
-    tableBuilder.addHeader(COMMENT_LABEL) 
+    tableBuilder.addHeader(DETAIL_LABEL) 
     
 
     """The property value should contain XML with list of samples. Add a new row for every sample."""
@@ -110,16 +103,14 @@ def configureUI():
         entities_list = entity.getAttribute(ATR_CODE, "")
         name = entity.getAttribute(ATR_NAME,"")
         quantity_list=entity.getAttribute(ATR_QUANTITY, "")
-        concentration_list=entity.getAttribute(ATR_CONC, "")
-        comment_list=entity.getAttribute(ATR_COMMENT, "") 
+        detail_list=entity.getAttribute(ATR_DETAIL, "") 
         
         row = tableBuilder.addRow()
         row.setCell(LINK_LABEL, entity, entities_list)
         row.setCell(CODE_LABEL, entities_list)
         row.setCell(NAME_LABEL, name)
         row.setCell(QUANTITY_LABEL, quantity_list)
-        row.setCell(CONC_LABEL, concentration_list)
-        row.setCell(COMMENT_LABEL, comment_list)
+        row.setCell(DETAIL_LABEL, detail_list)
         
     """Specify that the property should be shown in a tab and set the table output."""
     property.setOwnTab(True)
@@ -140,10 +131,7 @@ def configureUI():
         inputWidgetFactory().createTextInputField(QUANTITY_LABEL)\
                             .setMandatory(False)\
                             .setDescription('Quantity'),
-        inputWidgetFactory().createTextInputField(CONC_LABEL)\
-                            .setMandatory(False)\
-                            .setDescription('Concentration'),
-        inputWidgetFactory().createMultilineTextInputField(COMMENT_LABEL)\
+        inputWidgetFactory().createMultilineTextInputField(DETAIL_LABEL)\
                             .setMandatory(False)\
                             .setDescription('Comment')                              
     ]
@@ -163,10 +151,7 @@ def configureUI():
         inputWidgetFactory().createTextInputField(QUANTITY_LABEL)\
                             .setMandatory(False)\
                             .setDescription('Quantity of the entity sample, e.g. "1M"'),
-        inputWidgetFactory().createTextInputField(CONC_LABEL)\
-                            .setMandatory(False)\
-                            .setDescription('Concentration'),
-        inputWidgetFactory().createMultilineTextInputField(COMMENT_LABEL)\
+        inputWidgetFactory().createMultilineTextInputField(DETAIL_LABEL)\
                             .setMandatory(False)\
                             .setDescription('Comment')  
     ]
@@ -174,8 +159,7 @@ def configureUI():
   # Bind field name with column name.
     editAction.addBinding(CODE_LABEL, CODE_LABEL)
     editAction.addBinding(QUANTITY_LABEL, QUANTITY_LABEL) 
-    editAction.addBinding(CONC_LABEL, CONC_LABEL) 
-    editAction.addBinding(COMMENT_LABEL, COMMENT_LABEL)
+    editAction.addBinding(DETAIL_LABEL, DETAIL_LABEL)
 
   
     """
@@ -200,9 +184,8 @@ def updateFromUI(action):
         """
         entities_list = action.getInputValue(CODE_LABEL)
         quantity_list = action.getInputValue(QUANTITY_LABEL)
-        concentration_list = action.getInputValue(CONC_LABEL)
-        comment_list = action.getInputValue(COMMENT_LABEL) 
-        sampleLink = _createSampleLink(entities_list, quantity_list, concentration_list, comment_list)
+        detail_list = action.getInputValue(DETAIL_LABEL) 
+        sampleLink = _createSampleLink(entities_list, quantity_list, detail_list)
         
         elements.append(sampleLink)
     elif action.name == EDIT_ACTION_LABEL:
@@ -212,11 +195,10 @@ def updateFromUI(action):
         """
         entities_list = action.getInputValue(CODE_LABEL)
         quantity_list = action.getInputValue(QUANTITY_LABEL)
-        concentration_list = action.getInputValue(CONC_LABEL)
-        comment_list = action.getInputValue(COMMENT_LABEL) 
+        detail_list = action.getInputValue(DETAIL_LABEL) 
         
 
-        sampleLink = _createSampleLink(entities_list, quantity_list, concentration_list, comment_list)
+        sampleLink = _createSampleLink(entities_list, quantity_list, detail_list)
         
         
 
@@ -243,16 +225,16 @@ def updateFromBatchInput(bindings):
     if input is not None:
         entities = input.split(',')
         for entity in entities:
-            (code, quantity, concentration, comment) = _extractCodeAndQuantity(entity)
+            (code, quantity, detail) = _extractCodeAndQuantity(entity)
 #            sampleLink = _createSampleLink(code, quantity, concentration)
-            sampleLink =   _createSampleLink(entities_list, quantity_list, concentration_list, comment_list)
+            sampleLink =   _createSampleLink(entities_list, quantity_list, detail_list)
             elements.append(sampleLink)
             
     property.value = propertyConverter().convertToString(elements)
     
 def _extractCodeAndQuantity(entity):
     codeAndQuantity = entity.split(':')
-    if (len(codeAndQuantity) == 4):
-        return (codeAndQuantity[0].strip(), codeAndQuantity[1].strip(), codeAndQuantity[2].strip(), codeAndQuantity[3].strip())
+    if (len(codeAndQuantity) == 3):
+        return (codeAndQuantity[0].strip(), codeAndQuantity[1].strip(), codeAndQuantity[2].strip())
     else:
         return (codeAndQuantity[0].strip(), "n.a.")
