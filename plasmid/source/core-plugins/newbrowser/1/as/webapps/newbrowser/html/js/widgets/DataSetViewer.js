@@ -26,10 +26,13 @@
  */
 function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) {
 	this.containerId = containerId;
+	this.containerIdTitle = containerId + "-title";
+	this.containerIdContent = containerId + "-content";
 	this.serverFacade = serverFacade;
 	this.sample = sample;
 	this.sampleDataSets = {};
 	this.sampleDataSetsFiles = {};
+	this.datastoreDownloadURL = datastoreDownloadURL
 	
 	this._isPreviewable = function(file) {
 		if(!file.isDirectory) {
@@ -48,14 +51,33 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		return false;
 	}
 	
+	this._isImage = function(file) {
+		if(!file.isDirectory) {
+			var haveExtension = file.pathInDataSet.lastIndexOf(".");
+			if( haveExtension !== -1 && (haveExtension + 1 < file.pathInDataSet.length)) {
+				var extension = file.pathInDataSet.substring(haveExtension + 1, file.pathInDataSet.length).toLowerCase();
+				
+				return 	extension === "jpg" || extension === "jpeg" ||
+						extension === "png" ||
+						extension === "gif";
+			}
+		}
+		return false;
+	}
+	
 	this.init = function() {
 		//
 		// Loading Message
 		//
 		var $container = $("#"+this.containerId);
 		$container.empty();
-		$container.append($("<legend>").html("DataSets"));
-		$container.append($("<p>")
+		
+		var $containerTitle = $("<div>", {"id" : this.containerIdTitle });
+		$container.append($containerTitle);
+		$container.append($("<div>", {"id" : this.containerIdContent }));
+		
+		$containerTitle.append($("<legend>").html("Data Sets"));
+		$containerTitle.append($("<p>")
 							.append($("<i>", { class: "icon-info-sign" }))
 							.append(" Loading datasets."));
 		//
@@ -74,7 +96,22 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 				if(getCall) {
 					getCall(callback);
 				} else {
-					localReference.repaint();
+					//Switch Title
+					$containerTitle.empty();
+					
+					//Upload Button
+					var $uploadButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-upload" }));
+					$uploadButton.click(function() { 
+						mainController.changeView('showCreateDataSetPage',localReference.sample); //TO-DO Fix Global Access
+					} );
+					
+					$containerTitle.append($("<legend>").append("Data Sets ").append($uploadButton));
+					
+					//Switch
+					$containerTitle.append(localReference._getSwitch());				
+					
+					//Repaint
+					localReference.repaintImages();
 				}
 			}
 			
@@ -94,20 +131,55 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		});
 	}
 	
-	this.repaint = function() {
-		var $container = $("#"+this.containerId);
+	this._getSwitch = function() {
+		var _this = this;
+		var $switch = $("<div>", {"class" : "switch-toggle well"});
+		$switch.change(function(event) {
+			var mode = $('input[name=dataSetVieweMode]:checked').val();
+			switch(mode) {
+				case "imageMode":
+					_this.repaintImages();
+					break;
+				case "fileMode":
+					_this.repaintFiles();
+					break;
+			}
+		});
+		
+		$switch
+			.append($("<input>", {"value" : "imageMode", "id" : "imageMode", "name" : "dataSetVieweMode", "type" : "radio", "checked" : ""}))
+			.append($("<label>", {"for" : "imageMode", "onclick" : ""}).append("Data Set Images"))
+			.append($("<input>", {"value" : "fileMode", "id" : "fileMode","name" : "dataSetVieweMode", "type" : "radio"}))
+			.append($("<label>", {"for" : "fileMode", "onclick" : ""}).append("Data Set Files"));
+
+		$switch.append($("<a>", {"class" : "btn btn-primary"}));
+		
+		return $switch;
+	}
+	
+	this.repaintImages = function() {
+		_this = this;
+		
+		var $container = $("#"+this.containerIdContent);
 		$container.empty();
-		
-		//Upload Button
-		var $uploadButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-upload" }));
-		
-		var localSample = this.sample;
-		$uploadButton.click(function() { 
-			mainController.changeView('showCreateDataSetPage',localSample); //TO-DO Fix Global Access
-		} );
-		
-		//Title
-		$container.append($("<legend>").html("DataSets ").append($uploadButton));
+		//
+		for(var datasetCode in this.sampleDataSets) {
+			var dataset = this.sampleDataSets[datasetCode];
+			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
+			
+			datasetFiles.forEach(
+				function(file) {
+					if (_this._isImage(file)) {
+						var $image = $("<img>", {"style" : "width:300px", "src" : _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession()});
+						$container.append($image);
+					}
+			});
+		}
+	}
+	
+	this.repaintFiles = function() {
+		var $container = $("#"+this.containerIdContent);
+		$container.empty();
 		
 		//
 		// No data store URL
