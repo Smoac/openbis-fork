@@ -136,6 +136,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 								}
 							}
 						}
+						localReference._reloadPreviewImage();
 				}
 				
 				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
@@ -330,9 +331,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			//
 			// SELECT PROJECT/SPACE AND CODE
 			//
+			if (this.mode !== SampleFormMode.CREATE) {
+				component += "<img data-preview-loaded='false' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px; float:right;'></img>"
+			}
 			component += "<fieldset>";
 			component += "<legend>Identification Info</legend>";
-			
 			//Space/Project
 			var spaceSelectEnabled = true;
 			if(!this.isELNExperiment && 
@@ -731,6 +734,34 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		} else { //This should never happen
 			Util.showError("Unknown Error.", function() {Util.unblockUI();});
 		}
+	}
+	
+	this._updateLoadingToNotAvailableImage = function() {
+		var notLoadedImages = $("[data-preview-loaded='false']");
+		notLoadedImages.attr('src', "./img/image_unavailable.png");
+	}
+	
+	this._reloadPreviewImage = function() {
+		var _this = this;
+		var previewCallback = 
+			function(data) {
+				if (data.result.length == 0) {
+					_this._updateLoadingToNotAvailableImage();
+				} else {
+					var x = "123";
+					var listFilesForDataSetCallback = 
+						function(dataFiles) {
+							var elementId = 'preview-image';
+							var downloadUrl = _this.profile.allDataStores[0].downloadUrl + '/' + data.result[0].code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + _this.serverFacade.getSession();
+							
+							var img = $("#" + elementId);
+							img.attr('src', downloadUrl);
+							img.attr('data-preview-loaded', 'true');
+						};
+					_this.serverFacade.listFilesForDataSet(data.result[0].code, "/", true, listFilesForDataSetCallback);
+				}
+			};
 		
+		this.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [this.sample.permId], previewCallback);
 	}
 }
