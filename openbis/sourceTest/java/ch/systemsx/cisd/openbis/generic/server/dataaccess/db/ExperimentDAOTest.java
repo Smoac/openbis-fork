@@ -448,7 +448,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         DataPE container = dao.tryToFindDataSetByCode("20110509092359990-10");
 
         List<TechId> containedIds =
-                dao.listContainedDataSetsRecursively(Collections.singleton(TechId.create(container)));
+                dao.listComponentDataSetsWithASingleContainerRecursively(Collections.singleton(TechId.create(container)));
 
         assertEquals(3, containedIds.size());
 

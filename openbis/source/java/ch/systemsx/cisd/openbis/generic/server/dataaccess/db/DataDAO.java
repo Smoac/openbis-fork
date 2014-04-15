@@ -1053,12 +1053,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return findRelatedIds("data_id_parent", "data_id_child", dataSetIds, relationshipTypeId);
     }
 
-    @Override
-    public Set<TechId> findChildrenIds(Collection<TechId> dataSetIds, long relationshipTypeId)
-    {
-        return findRelatedIds("data_id_child", "data_id_parent", dataSetIds, relationshipTypeId);
-    }
-
     @SuppressWarnings("unchecked")
     private Set<TechId> findRelatedIds(String side1, String side2, final Collection<TechId> dataSetIds, final long relationshipTypeId)
     {
@@ -1069,6 +1063,12 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
         final String query =
                 "select " + side1 + " from data_set_relationships where " + side2 + " in (:ids) and relationship_id = :type";
+        return findRelatedIds(query, dataSetIds, relationshipTypeId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<TechId> findRelatedIds(final String query, final Collection<TechId> dataSetIds, final long relationshipTypeId)
+    {
         final List<? extends Number> results =
                 (List<? extends Number>) getHibernateTemplate().execute(new HibernateCallback()
                     {
@@ -1241,7 +1241,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     }
 
     @Override
-    public List<TechId> listContainedDataSetsRecursively(Collection<TechId> containersIds)
+    public List<TechId> listComponentDataSetsWithASingleContainerRecursively(Collection<TechId> containersIds)
     {
         Set<TechId> allIds = new LinkedHashSet<TechId>();
         // cascade deletion of contained datasets
@@ -1252,7 +1252,10 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         while (allIds.addAll(containedDataSetIds))
         {
             Long relationshipTypeId = RelationshipUtils.getContainerComponentRelationshipType(relationshipTypeDAO).getId();
-            containedDataSetIds = findChildrenIds(containedDataSetIds, relationshipTypeId);
+            String sql = "select data_id_child from data_set_relationships as r "
+            + "where data_id_parent in (:ids) and relationship_id = :type "
+            + "and (select count(*) from data_set_relationships where data_id_child = r.data_id_child) = 1";
+            containedDataSetIds = findRelatedIds(sql, containedDataSetIds, relationshipTypeId);
         }
 
         return new ArrayList<TechId>(allIds);

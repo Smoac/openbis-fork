@@ -195,7 +195,7 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
 
-                    one(dataDAO).listContainedDataSetsRecursively(with(dsIdsMatcher));
+                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(with(dsIdsMatcher));
                     will(returnValue(dataSetIds));
 
                     oneOf(deletionDAO).trash(with(same(EntityKind.DATA_SET)), with(dsIdsMatcher),
@@ -240,7 +240,7 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
 
-                    one(dataDAO).listContainedDataSetsRecursively(with(dataSetIdsMatcher));
+                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(with(dataSetIdsMatcher));
                     will(returnValue(dataSetIds));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
@@ -317,7 +317,7 @@ public final class TrashBOTest extends AbstractBOTest
                     RecordingMatcher<List<TechId>> dataSetIdsMatcher =
                             new RecordingMatcher<List<TechId>>();
 
-                    one(dataDAO).listContainedDataSetsRecursively(with(dataSetIdsMatcher));
+                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(with(dataSetIdsMatcher));
                     will(returnValue(TechId.createList(70, 71, 72, 73)));
 
                     one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
@@ -343,7 +343,7 @@ public final class TrashBOTest extends AbstractBOTest
                     one(dataSetTable).getNonDeletableExternalDataSets();
                     will(returnValue(Arrays.asList()));
 
-                    one(dataDAO).listContainedDataSetsRecursively(dataSetIds);
+                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(dataSetIds);
                     will(returnValue(allIds));
 
                     one(deletionDAO).trash(EntityKind.DATA_SET, dataSetIds, deletion, true);
@@ -373,7 +373,7 @@ public final class TrashBOTest extends AbstractBOTest
                     dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
                     will(returnValue(Arrays.asList(dataSet)));
 
-                    one(dataDAO).listContainedDataSetsRecursively(dataSetIds);
+                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(dataSetIds);
                     will(returnValue(allIds));
 
                 }

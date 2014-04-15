@@ -137,7 +137,7 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         assert deletion != null;
 
-        List<TechId> allIdsAsList = getDataDAO().listContainedDataSetsRecursively(dataSetIds);
+        List<TechId> allIdsAsList = getDataDAO().listComponentDataSetsWithASingleContainerRecursively(dataSetIds);
         checkForNonDeletableDataSets(allIdsAsList);
 
         if (isOriginalDeletion)

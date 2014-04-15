@@ -272,7 +272,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         {
             // get recursively all datasets that are contained and contained
             List<TechId> ids =
-                    daoFactory.getDataDAO().listContainedDataSetsRecursively(
+                    daoFactory.getDataDAO().listComponentDataSetsWithASingleContainerRecursively(
                             TechId.createList(dataSetTable.getDataSets()));
 
             dataSetTable.loadByIds(ids);
