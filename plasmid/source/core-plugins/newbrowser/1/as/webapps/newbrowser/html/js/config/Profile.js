@@ -1114,6 +1114,7 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 
 
 
+
 //BODENMILLER LAB PROFILE
 function BodenmillerLabProfile(serverFacade) {
 	this.init(serverFacade);
@@ -1238,11 +1239,20 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		 * Used by Sample Form
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			var dilutionWidget = new DilutionWidget(containerId, this.serverFacade);
-			dilutionWidget.init();
+			var isExperiment = false;
+			this.ELNExperiments.forEach(function(experimentTypeCode){
+				if(experimentTypeCode === sampleTypeCode) {
+					isExperiment = true;
+				}
+			});
+			if(isExperiment) {
+				var dilutionWidget = new DilutionWidget(containerId, this.serverFacade);
+				dilutionWidget.init();
+			}
 		}
 	}
 });
+
 
 function BioATProfile(serverFacade) {
 	this.init(serverFacade);
