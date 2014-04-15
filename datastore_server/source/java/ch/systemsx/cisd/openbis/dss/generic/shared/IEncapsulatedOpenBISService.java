@@ -344,7 +344,7 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
             Date maxDeletionDateOrNull);
 
     /**
-     * Updates specified properties of given data set.
+     * Updates specified properties of given data set. It only adds new properties and don't update existing ones.
      */
     @ManagedAuthentication
     public void updateDataSet(String code, List<NewProperty> properties, SpaceIdentifier space)
