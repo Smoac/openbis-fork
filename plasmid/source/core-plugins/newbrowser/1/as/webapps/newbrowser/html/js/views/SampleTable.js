@@ -145,7 +145,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		Util.blockUI();
 		var localReference = this;
 		this.serverFacade.searchWithType(this.sampleTypeCode, null, function(data) {
-			localReference.reloadWithSamples(data);
+			localReference.reloadWithSamples(data);			
 			Util.unblockUI();
 		});
 	}
@@ -205,7 +205,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
-		tableTemplate += "<tr class=\"sample-table-header interactive\"><th sort-attribute='code'>Code</th>";
+		tableTemplate += "<tr class=\"sample-table-header interactive\"><th sort-attribute='code'>Code</th><th sort-attribute=''>Preview</th>";
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
 			tableTemplate += "<th sort-property='" + sampleTypeProperties[i] + "'>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
@@ -371,11 +371,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			.on("click", onClickFunction)
 			.selectAll("td").data(function(sample) {
 				var tableFields = null;
-			
 				if(localReference.isSearch) {
-					tableFields = [sample.code, sample.sampleTypeCode, sample.properties, sample.properties ];
+					tableFields = [sample.code, "<img data-preview-loaded='false' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample.properties, sample.properties ];
 				} else {
-					tableFields = [sample.code];
+					tableFields = [sample.code, "<img data-preview-loaded='false' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>"];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
 						var tableFieldValue = sample.properties[sampleTypeProperties[i]];
 						if(!tableFieldValue) {
@@ -450,7 +449,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				.attr("class", "sample-table-data-cell")
 				.html(
 					function(d, index) {
-						if (localReference.isSearch && index == 2) {
+						if (localReference.isSearch && index == 3) {
 							if (searchText && searchText.length > 0 && d) {
 								for (propertyName in d) {
 									var propertyValue = d[propertyName];
@@ -473,7 +472,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 									}
 								}
 							}
-						} else if (localReference.isSearch && index == 3) {
+						} else if (localReference.isSearch && index == 4) {
 							if (searchText && searchText.length > 0 && d) {
 							
 								for (propertyName in d) {
@@ -745,5 +744,51 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		this._start = start;
 		this._samplesToPaint = this._filteredSamples.slice(this._start, this._start + this._limit);
 		this.repaint();
+		this._reloadPreviewImages();
+	}
+	
+	this._updateLoadingToNotAvailableImage = function() {
+		var notLoadedImages = $("[data-preview-loaded='false']");
+		notLoadedImages.attr('src', "./img/image_unavailable.png");
+	}
+	
+	this._reloadPreviewImages = function() {
+		var _this = this;
+		var previewCallback = function(data) {
+			var requestChain = [];
+			data.result.forEach(function(dataset) { requestChain.push(
+					function() {
+						var listFilesForDataSetCallback = function(dataFiles) {
+							var elementId = 'preview'+dataset.sampleIdentifierOrNull.replace(/\//g,'-');
+							var downloadUrl = _this.profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + _this.serverFacade.getSession();
+							
+							var img = $("#" + elementId);
+							img.attr('src', downloadUrl);
+							img.attr('data-preview-loaded', 'true');
+							
+							//Run next
+						    var next = requestChain.pop();
+							if (next) {
+								next();
+							} else {
+								_this._updateLoadingToNotAvailableImage();
+							}
+						};
+						_this.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
+					}
+			);});
+			//Run first
+		    var next = requestChain.pop();
+			if (next) {
+				next();
+			} else {
+				_this._updateLoadingToNotAvailableImage();
+			}
+		};
+		
+		var samplePermIds = [];
+		this._samplesToPaint.forEach(function(sample) {samplePermIds.push(sample.permId);});
+		
+		this.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", samplePermIds, previewCallback);
 	}
 }

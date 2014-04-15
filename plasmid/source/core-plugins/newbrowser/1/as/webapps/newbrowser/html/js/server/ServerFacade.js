@@ -248,6 +248,47 @@ function ServerFacade(openbisServer) {
 		return result;
 	}
 	
+	this.searchDataSetsWithTypeForSamples = function(dataSetTypeCode, samplesPermIds, callbackFunction)
+	{
+		var sampleMatchClauses = []
+		
+		samplesPermIds.forEach(function(samplesPermId){
+			sampleMatchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "PERM_ID",
+				desiredValue : samplesPermId
+			});
+		});
+		
+		var sampleCriteria = {
+				matchClauses : sampleMatchClauses,
+				operator : "MATCH_ANY_CLAUSES"
+		}
+		
+		var sampleSubCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "SAMPLE",	
+				"criteria" : sampleCriteria
+		}
+		
+		var dataSetMatchClauses = [{
+    			"@type":"AttributeMatchClause",
+    			fieldType : "ATTRIBUTE",			
+    			attribute : "TYPE",
+    			desiredValue : dataSetTypeCode
+		}]
+
+		var dataSetCriteria = 
+		{
+			matchClauses : dataSetMatchClauses,
+			subCriterias : [ sampleSubCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
+	}
+	
 	this.searchWithUniqueId = function(sampleIdentifier, callbackFunction)
 	{	
 		var matchClauses = [

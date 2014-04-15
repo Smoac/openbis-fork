@@ -31,3 +31,6 @@ elnExperimentTypeS.setGeneratedCodePrefix('C')
 # The default experiment used by the UI, assigned automatically to new samples
 folderType = tr.getOrCreateNewExperimentType("ELN_FOLDER")
 folderType.setDescription("Folder")
+
+# Preview Image
+tr.getOrCreateNewDataSetType("ELN_PREVIEW")
