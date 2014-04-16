@@ -20,6 +20,7 @@ from java.io import File
 from java.io import FileOutputStream
 from java.lang import System
 from net.lingala.zip4j.core import ZipFile
+import time
 
 def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
@@ -45,6 +46,16 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("STATUS","FAIL");
 		row.setCell("MESSAGE", "Operation Failed");
 
+def getThreadProperties(transaction):
+  threadPropertyDict = {}
+  threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties()
+  for key in threadProperties:
+    try:
+      threadPropertyDict[key] = threadProperties.getProperty(key)
+    except:
+      pass
+  return threadPropertyDict
+  
 def insertDataSet(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String
@@ -67,8 +78,13 @@ def insertDataSet(tr, parameters, tableBuilder):
 		
 		dataSet.setPropertyValue(key,propertyValue);
 	
-	#Move All Files
-	tempDir = System.getProperty("java.io.tmpdir");
+	#Move All Files using a tmp directory close to the datastore
+	threadProperties = getThreadProperties(tr);
+	tempDir =  threadProperties[u'incoming-dir'] + "/tmp_eln/" + str(time.time());
+	tempDirFile = File(tempDir);
+	tempDirFile.mkdir();
+	
+	#tempDir = System.getProperty("java.io.tmpdir");
 	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
 	
 	for fileName in fileNames:
