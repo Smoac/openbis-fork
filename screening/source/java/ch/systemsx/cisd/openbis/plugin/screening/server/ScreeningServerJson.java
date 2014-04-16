@@ -38,8 +38,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageReprese
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -49,6 +51,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation;
 
 /**
  * @author pkupczyk
@@ -316,10 +319,21 @@ public class ScreeningServerJson implements IScreeningApiServer
         return server.loadPhysicalThumbnailsBase64(sessionToken, imageReferences, format);
     }
 
+    @Override
+    public LogicalImageInfo getImageInfo(String sessionToken, String datasetCode, WellLocation wellLocationOrNull)
+    {
+        return server.getImageInfo(sessionToken, datasetCode, wellLocationOrNull);
+    }
+
+    @Override
+    public List<ImageResolution> getImageResolutions(String sessionToken, String datasetCode)
+    {
+        return new ImageResolutionList(getImageResolutions(sessionToken, datasetCode));
+    }
+
     /*
-     * The collections listed below have been created to help Jackson library embed/detect types of
-     * the collection's items during JSON serialization/deserialization. (see
-     * http://wiki.fasterxml.com/JacksonPolymorphicDeserialization#A5._Known_Issues)
+     * The collections listed below have been created to help Jackson library embed/detect types of the collection's items during JSON
+     * serialization/deserialization. (see http://wiki.fasterxml.com/JacksonPolymorphicDeserialization#A5._Known_Issues)
      */
 
     private static class FeatureVectorDatasetReferenceList extends
@@ -472,6 +486,18 @@ public class ScreeningServerJson implements IScreeningApiServer
 
         public DatasetImageRepresentationFormatsList(
                 Collection<? extends DatasetImageRepresentationFormats> c)
+        {
+            super(c);
+        }
+    }
+
+    private static class ImageResolutionList extends
+            ArrayList<ImageResolution> implements IModifiable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public ImageResolutionList(
+                Collection<? extends ImageResolution> c)
         {
             super(c);
         }

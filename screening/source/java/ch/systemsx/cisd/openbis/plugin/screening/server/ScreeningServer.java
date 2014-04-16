@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -25,6 +26,7 @@ import javax.annotation.Resource;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
@@ -72,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -108,6 +111,9 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.PlateContentLoader
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningApiImpl;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.ImageResolutionTranslator;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.LogicalImageInfoTranslator;
+import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellLocationTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -176,7 +182,7 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     /**
      * The minor version of this service.
      */
-    public static final int MINOR_VERSION = 10;
+    public static final int MINOR_VERSION = 11;
 
     @Resource(name = ResourceNames.SCREENING_BUSINESS_OBJECT_FACTORY)
     private IScreeningBusinessObjectFactory businessObjectFactory;
@@ -541,6 +547,71 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException
     {
         return createScreeningApiImpl(sessionToken).listImageDatasets(plates);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo getImageInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String datasetCode, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation wellLocationOrNull)
+    {
+        checkSession(sessionToken);
+
+        if (StringUtils.isBlank(datasetCode))
+        {
+            throw new IllegalArgumentException("Data set code was null or empty");
+        }
+
+        DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(datasetCode);
+
+        if (dataSet == null)
+        {
+            return null;
+        }
+
+        WellLocation internalWellLocation = new WellLocationTranslator().translate(wellLocationOrNull);
+
+        LogicalImageInfo internalInfo = getImageDatasetInfo(sessionToken, datasetCode, dataSet.getDataStore().getCode(), internalWellLocation);
+
+        return new LogicalImageInfoTranslator().translate(internalInfo);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> getImageResolutions(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
+            String datasetCode)
+    {
+        checkSession(sessionToken);
+
+        if (StringUtils.isBlank(datasetCode))
+        {
+            throw new IllegalArgumentException("Data set code was null or empty");
+        }
+
+        DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(datasetCode);
+
+        if (dataSet == null)
+        {
+            return null;
+        }
+
+        List<ImageResolution> internalResolutions = getImageDatasetResolutions(sessionToken, datasetCode, dataSet.getDataStore().getCode());
+
+        if (internalResolutions == null)
+        {
+            return null;
+        }
+
+        List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> apiResolutions =
+                new LinkedList<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>();
+
+        for (ImageResolution internalResolution : internalResolutions)
+        {
+            apiResolutions.add(new ImageResolutionTranslator().translate(internalResolution));
+        }
+
+        return apiResolutions;
     }
 
     @Override

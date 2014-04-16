@@ -124,6 +124,11 @@ public class ImageDatasetParameters implements Serializable
     {
         return channels.size();
     }
+    
+    public List<InternalImageChannel> getChannels()
+    {
+        return channels;
+    }
 
     /** never null, can be empty if channel does not exist or no transformations are available */
     public List<InternalImageTransformationInfo> getAvailableImageTransformationsFor(

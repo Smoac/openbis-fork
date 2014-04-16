@@ -180,6 +180,22 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     @Override
+    public ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo getImageInfo(String sessionToken, String datasetCode,
+            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation wellLocationOrNull)
+    {
+        logAccess(sessionToken, "getImageInfo", "dataset(%s) well(%s)", datasetCode, wellLocationOrNull);
+        return null;
+    }
+
+    @Override
+    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> getImageResolutions(String sessionToken,
+            String datasetCode)
+    {
+        logAccess(sessionToken, "getImageResolutions", "dataset(%s)", datasetCode);
+        return null;
+    }
+
+    @Override
     public ImageDatasetEnrichedReference getImageDatasetReference(String sessionToken,
             String datasetCode, String datastoreCode)
     {

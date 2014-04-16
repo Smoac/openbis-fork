@@ -41,8 +41,10 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.IImageReprese
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetMetadata;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageSize;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LoadImageConfiguration;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.MaterialTypeIdentifier;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
@@ -52,10 +54,11 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation;
 
 /**
- * This interface is a part of the official public screening API. It is forbidden to change it in a
- * non-backward-compatible manner without discussing it with all screening customers.
+ * This interface is a part of the official public screening API. It is forbidden to change it in a non-backward-compatible manner without discussing
+ * it with all screening customers.
  * 
  * @author Tomasz Pylak
  */
@@ -94,8 +97,7 @@ public interface IScreeningApiServer extends IRpcService
     void logoutScreening(final String sessionToken) throws IllegalArgumentException;
 
     /**
-     * Return the list of all visible plates assigned to any experiment, along with their
-     * hierarchical context (space, project, experiment).
+     * Return the list of all visible plates assigned to any experiment, along with their hierarchical context (space, project, experiment).
      */
     @Transactional(readOnly = true)
     List<Plate> listPlates(String sessionToken) throws IllegalArgumentException;
@@ -111,8 +113,7 @@ public interface IScreeningApiServer extends IRpcService
             throws IllegalArgumentException;
 
     /**
-     * Fetches the contents of a given list of plates. The result will contain well and material
-     * properties.
+     * Fetches the contents of a given list of plates. The result will contain well and material properties.
      * 
      * @since 1.8
      */
@@ -122,8 +123,7 @@ public interface IScreeningApiServer extends IRpcService
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException;
 
     /**
-     * Return the list of all visible experiments, along with their hierarchical context (space,
-     * project).
+     * Return the list of all visible experiments, along with their hierarchical context (space, project).
      * 
      * @since 1.1
      */
@@ -132,8 +132,7 @@ public interface IScreeningApiServer extends IRpcService
     List<ExperimentIdentifier> listExperiments(String sessionToken);
 
     /**
-     * Return the list of all experiments visible to user <var>userId</var>, along with their
-     * hierarchical context (space, project).
+     * Return the list of all experiments visible to user <var>userId</var>, along with their hierarchical context (space, project).
      * 
      * @since 1.6
      */
@@ -142,24 +141,36 @@ public interface IScreeningApiServer extends IRpcService
     List<ExperimentIdentifier> listExperiments(String sessionToken, String userId);
 
     /**
-     * For a given set of plates (given by space / plate bar code), provide the list of all data
-     * sets containing feature vectors for each of these plates.
+     * For a given set of plates (given by space / plate bar code), provide the list of all data sets containing feature vectors for each of these
+     * plates.
      */
     @Transactional(readOnly = true)
     List<FeatureVectorDatasetReference> listFeatureVectorDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException;
 
     /**
-     * For a given set of plates provide the list of all data sets containing images for each of
-     * these plates.
+     * For a given set of plates provide the list of all data sets containing images for each of these plates.
      */
     @Transactional(readOnly = true)
     List<ImageDatasetReference> listImageDatasets(String sessionToken,
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException;
 
     /**
-     * For a given set of plates provide the list of all data sets containing raw images for each of
-     * these plates.
+     * Returns information about logical image in the given dataset. In HCS case the well location should be specified.
+     */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(11)
+    public LogicalImageInfo getImageInfo(String sessionToken, String datasetCode, WellLocation wellLocationOrNull);
+
+    /**
+     * Returns information about available image resolutions for a given image dataset.
+     */
+    @Transactional(readOnly = true)
+    @MinimalMinorVersion(11)
+    public List<ImageResolution> getImageResolutions(String sessionToken, String datasetCode);
+
+    /**
+     * For a given set of plates provide the list of all data sets containing raw images for each of these plates.
      * 
      * @since 1.6
      */
@@ -169,8 +180,7 @@ public interface IScreeningApiServer extends IRpcService
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException;
 
     /**
-     * For a given set of plates provide the list of all data sets containing segmentation images
-     * for each of these plates.
+     * For a given set of plates provide the list of all data sets containing segmentation images for each of these plates.
      * 
      * @since 1.6
      */
@@ -186,9 +196,8 @@ public interface IScreeningApiServer extends IRpcService
     List<IDatasetIdentifier> getDatasetIdentifiers(String sessionToken, List<String> datasetCodes);
 
     /**
-     * For the given <var>experimentIdentifier</var>, find all plate locations that are connected to
-     * the specified <var>materialIdentifier</var>. If <code>findDatasets == true</code>, find also
-     * the connected image and image analysis data sets for the relevant plates.
+     * For the given <var>experimentIdentifier</var>, find all plate locations that are connected to the specified <var>materialIdentifier</var>. If
+     * <code>findDatasets == true</code>, find also the connected image and image analysis data sets for the relevant plates.
      * 
      * @since 1.1
      */
@@ -199,9 +208,8 @@ public interface IScreeningApiServer extends IRpcService
             boolean findDatasets);
 
     /**
-     * For the given <var>materialIdentifier</var>, find all plate locations that are connected to
-     * it. If <code>findDatasets == true</code>, find also the connected image and image analysis
-     * data sets for the relevant plates.
+     * For the given <var>materialIdentifier</var>, find all plate locations that are connected to it. If <code>findDatasets == true</code>, find also
+     * the connected image and image analysis data sets for the relevant plates.
      * 
      * @since 1.2
      */
@@ -220,8 +228,7 @@ public interface IScreeningApiServer extends IRpcService
     public List<WellIdentifier> listPlateWells(String sessionToken, PlateIdentifier plateIdentifier);
 
     /**
-     * For a given <var>wellIdentifier</var>, return the corresponding {@link Sample} including
-     * properties.
+     * For a given <var>wellIdentifier</var>, return the corresponding {@link Sample} including properties.
      * 
      * @since 1.3
      */
@@ -239,12 +246,10 @@ public interface IScreeningApiServer extends IRpcService
     public Sample getPlateSample(String sessionToken, PlateIdentifier plateIdentifier);
 
     /**
-     * For a given list of <var>plates</var>, return the mapping of plate wells to materials
-     * contained in each well.
+     * For a given list of <var>plates</var>, return the mapping of plate wells to materials contained in each well.
      * 
      * @param plates The list of plates to get the mapping for
-     * @param materialTypeIdentifierOrNull If not <code>null</code>, consider only materials of the
-     *            given type for the mapping.
+     * @param materialTypeIdentifierOrNull If not <code>null</code>, consider only materials of the given type for the mapping.
      * @return A list of well to material mappings, one element for each plate.
      * @since 1.2
      */
@@ -265,10 +270,8 @@ public interface IScreeningApiServer extends IRpcService
             ExperimentIdentifier experimentIdentifer);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#listAvailableFeatureCodes(String, List)} method for each group
-     * of objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#listAvailableFeatureCodes(String, List)} method for
+     * each group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -278,10 +281,8 @@ public interface IScreeningApiServer extends IRpcService
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#listAvailableFeatures(String, List)} method for each group of
-     * objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#listAvailableFeatures(String, List)} method for each
+     * group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -291,10 +292,8 @@ public interface IScreeningApiServer extends IRpcService
             List<? extends IFeatureVectorDatasetIdentifier> featureDatasets);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadFeatures(String, List, List)} method for each group of
-     * objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadFeatures(String, List, List)} method for each
+     * group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -305,9 +304,8 @@ public interface IScreeningApiServer extends IRpcService
 
     /**
      * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadFeaturesForDatasetWellReferences(String, List, List)}
-     * method for each group of objects on appropriate data store server. Results from the data
-     * stores are combined and returned as a result of this method.
+     * {@link IDssServiceRpcScreening#loadFeaturesForDatasetWellReferences(String, List, List)} method for each group of objects on appropriate data
+     * store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -318,10 +316,8 @@ public interface IScreeningApiServer extends IRpcService
             List<String> featureCodes);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, boolean)} method for each group
-     * of objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadImagesBase64(String, List, boolean)} method for
+     * each group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -333,10 +329,8 @@ public interface IScreeningApiServer extends IRpcService
     boolean convertToPng);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadThumbnailImagesBase64(String, List)} method for each group
-     * of objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadThumbnailImagesBase64(String, List)} method for
+     * each group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -347,10 +341,8 @@ public interface IScreeningApiServer extends IRpcService
     List<PlateImageReference> imageReferences);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageSize)} method for each
-     * group of objects on appropriate data store server. Results from the data stores are combined
-     * and returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageSize)} method
+     * for each group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -362,10 +354,8 @@ public interface IScreeningApiServer extends IRpcService
     ImageSize size);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List)} method for each group of
-     * objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#loadImagesBase64(String, List)} method for each
+     * group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -377,9 +367,8 @@ public interface IScreeningApiServer extends IRpcService
 
     /**
      * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, LoadImageConfiguration)} method
-     * for each group of objects on appropriate data store server. Results from the data stores are
-     * combined and returned as a result of this method.
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, LoadImageConfiguration)} method for each group of objects on appropriate data
+     * store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -392,9 +381,8 @@ public interface IScreeningApiServer extends IRpcService
 
     /**
      * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageRepresentationFormat)}
-     * method for each group of objects on appropriate data store server. Results from the data
-     * stores are combined and returned as a result of this method.
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, ImageRepresentationFormat)} method for each group of objects on appropriate data
+     * store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -407,9 +395,8 @@ public interface IScreeningApiServer extends IRpcService
 
     /**
      * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, IImageRepresentationFormatSelectionCriterion...)}
-     * method for each group of objects on appropriate data store server. Results from the data
-     * stores are combined and returned as a result of this method.
+     * {@link IDssServiceRpcScreening#loadImagesBase64(String, List, IImageRepresentationFormatSelectionCriterion...)} method for each group of
+     * objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -421,10 +408,8 @@ public interface IScreeningApiServer extends IRpcService
     IImageRepresentationFormatSelectionCriterion... criteria);
 
     /**
-     * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#listImageMetadata(String, List)} method for each group of
-     * objects on appropriate data store server. Results from the data stores are combined and
-     * returned as a result of this method.
+     * Groups the specified objects by a data store code and calls {@link IDssServiceRpcScreening#listImageMetadata(String, List)} method for each
+     * group of objects on appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -435,9 +420,8 @@ public interface IScreeningApiServer extends IRpcService
 
     /**
      * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#listAvailableImageRepresentationFormats(String, List)} method
-     * for each group of objects on appropriate data store server. Results from the data stores are
-     * combined and returned as a result of this method.
+     * {@link IDssServiceRpcScreening#listAvailableImageRepresentationFormats(String, List)} method for each group of objects on appropriate data
+     * store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */
@@ -448,9 +432,8 @@ public interface IScreeningApiServer extends IRpcService
 
     /**
      * Groups the specified objects by a data store code and calls
-     * {@link IDssServiceRpcScreening#loadPhysicalThumbnailsBase64(String, List, ImageRepresentationFormat)}
-     * method for each group of objects on appropriate data store server. Results from the data
-     * stores are combined and returned as a result of this method.
+     * {@link IDssServiceRpcScreening#loadPhysicalThumbnailsBase64(String, List, ImageRepresentationFormat)} method for each group of objects on
+     * appropriate data store server. Results from the data stores are combined and returned as a result of this method.
      * 
      * @since 1.10
      */

@@ -144,6 +144,32 @@ openbis.prototype.listImageDatasets = function(plateIdentifiers, action) {
 }
 
 /**
+ * @see IScreeningApiServer.getImageInfo(String, String, WellLocation)
+ * @method
+ */
+openbis.prototype.getImageInfo = function(dataSetCode, wellLocation, action) {
+    this._internal.ajaxRequest({
+            url: this._internal.screeningUrl,
+            data: { "method" : "getImageInfo",
+                    "params" : [ this.getSession(), dataSetCode, wellLocation ] },
+            success: action
+    });
+}
+
+/**
+ * @see IScreeningApiServer.getImageResolutions(String, String)
+ * @method
+ */
+openbis.prototype.getImageResolutions = function(dataSetCode, action) {
+    this._internal.ajaxRequest({
+            url: this._internal.screeningUrl,
+            data: { "method" : "getImageResolutions",
+                    "params" : [ this.getSession(), dataSetCode ] },
+            success: action
+    });
+}
+
+/**
  * @see IScreeningApiServer.listRawImageDatasets(String, List<? extends PlateIdentifier>)
  * @method
  */
