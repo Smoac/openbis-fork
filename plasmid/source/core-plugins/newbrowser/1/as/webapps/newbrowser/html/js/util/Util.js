@@ -162,7 +162,7 @@ var Util = new function() {
 		
 		if(containerWidth < imageWidth) {
 			var newImageWidth = containerWidth;
-			var newImageHeight = $image[0].height * newImageWidth / imageWidth;
+			var newImageHeight = imageHeight * newImageWidth / imageWidth;
 			
 			imageWidth = newImageWidth;
 			imageHeight = newImageHeight;
@@ -170,7 +170,7 @@ var Util = new function() {
 		
 		if(containerHeight < imageHeight) {
 			var newImageHeight = containerHeight;
-			var newImageWidth = $image[0].width * newImageHeight / imageHeight;
+			var newImageWidth = imageWidth * newImageHeight / imageHeight;
 			
 			imageWidth = newImageWidth;
 			imageHeight = newImageHeight;
