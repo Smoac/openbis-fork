@@ -182,7 +182,7 @@ var Util = new function() {
 		var imageHTML = $image[0].outerHTML;
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			imageHTML = imageHTML + "<br>" + "<a class='btn'>Close</a>";
+			imageHTML = "<a class='btn' style='float:right;'><i class='icon-remove'></i></a>" + "<br>" + imageHTML;
 		}
 		
 		this.blockUINoMessage();

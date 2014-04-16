@@ -102,7 +102,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						if(localReference.profile.allDataStores.length > 0) {
 							dataStoreURL = localReference.profile.allDataStores[0].downloadUrl
 						}
-						this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.sample, localReference.serverFacade, dataStoreURL);
+						this.dataSetViewer = new DataSetViewer("dataSetViewerContainer", localReference.profile, localReference.sample, localReference.serverFacade, dataStoreURL);
 						this.dataSetViewer.init();
 						
 						var sample = localReference.sample;

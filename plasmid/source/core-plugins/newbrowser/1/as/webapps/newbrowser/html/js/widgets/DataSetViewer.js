@@ -20,12 +20,14 @@
  * @constructor
  * @this {DataSetViewer}
  * @param {String} containerId The container where the DataSetViewer will be atached.
+ * @param {String} profile Global configuration.
  * @param {Sample} sample The sample where to check for the data.
  * @param {ServerFacade} serverFacade Point of contact to make calls to the server
  * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
  */
-function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) {
+function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL) {
 	this.containerId = containerId;
+	this.profile = profile;
 	this.containerIdTitle = containerId + "-title";
 	this.containerIdContent = containerId + "-content";
 	this.serverFacade = serverFacade;
@@ -156,6 +158,26 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		return $switch;
 	}
 	
+	this._isDisplayed = function(dataSetTypeCode, fileName) {
+		var passes = false;
+		this.profile.dataSetViewerConf["DATA_SET_TYPES"].forEach(function(type) {
+			var datasetTypePattern = new RegExp(type, "")
+			passes = passes || datasetTypePattern.test(dataSetTypeCode);
+		});
+		
+		if (!passes) {
+			return false;
+		}
+		
+		passes = false;
+		this.profile.dataSetViewerConf["FILE_NAMES"].forEach(function(name) {
+			var fileNamePattern = new RegExp(name, "")
+			passes = passes || fileNamePattern.test(fileName);
+		});
+		
+		return passes;
+	}
+	
 	this.repaintImages = function() {
 		_this = this;
 		
@@ -168,8 +190,12 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 			
 			datasetFiles.forEach(
 				function(file) {
-					if (_this._isImage(file)) {
+					if (_this._isImage(file) &&  _this._isDisplayed(dataset.dataSetTypeCode, file.pathInDataSet)) {
+						
 						var $image = $("<img>", {"class" : "zoomableImage", "style" : "width:300px", "src" : _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession()});
+						$image.css({
+							"margin-right" : "10px"
+						});
 						$image.click(function() {
 							Util.showImage($image.attr("src"));
 						});

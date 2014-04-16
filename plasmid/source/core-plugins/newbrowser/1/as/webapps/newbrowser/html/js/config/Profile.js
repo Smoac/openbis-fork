@@ -64,6 +64,11 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.dataSetViewerConf = {
+			"DATA_SET_TYPES" : [".*"],
+			"FILE_NAMES" : [".*"]
+		}
+		
 		this.getColorForInspectors = function(sampleTypeCode) {
 			//Get default color if found
 			var defaultColor = "#ffffc0"
@@ -88,6 +93,12 @@ $.extend(DefaultProfile.prototype, {
 		//
 		// Per Lab Extensions
 		//
+		
+		/*
+		 * Used by Sample Table
+		 */
+		
+		this.isShowUnavailablePreviewOnSampleTable = true;
 		
 		/*
 		 * Used by Sample Form

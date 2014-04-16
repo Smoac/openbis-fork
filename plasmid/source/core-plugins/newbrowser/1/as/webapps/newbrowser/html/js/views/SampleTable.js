@@ -751,7 +751,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	
 	this._updateLoadingToNotAvailableImage = function() {
 		var notLoadedImages = $("[data-preview-loaded='false']");
-		notLoadedImages.attr('src', "./img/image_unavailable.png");
+		if(this.profile.isShowUnavailablePreviewOnSampleTable) {
+			notLoadedImages.attr('src', "./img/image_unavailable.png");
+		} else {
+			notLoadedImages.remove();
+		}
 	}
 	
 	this._reloadPreviewImages = function() {
