@@ -20,10 +20,11 @@ function DilutionWidget(containerId, serverFacade) {
 	this._predefinedMass = [ 139,141,142,143,144
 	                        ,145,146,147,148,149
 	                        ,150,151,152,153,154
-	                        ,156,158,159,160,162
-	                        ,164,165,166,167,168
-	                        ,169,170,171,172,174
-	                        ,175];
+	                        ,155,156,158,159,160
+	                        ,161,162,163,164,165
+	                        ,166,167,168,169,170
+	                        ,171,172,173,174,175
+	                        ,176];
 	this._allProteins = null;
 	this._widgetTableId = "dillution-widget-table";
 	this._totalVolume = null;
@@ -171,7 +172,7 @@ function DilutionWidget(containerId, serverFacade) {
 			var row = $(tBody.rows[rowNum]);
 			var concentration = row.children()[6].innerHTML;
 			if(concentration !== "") {
-				var volumeToAdd = parseFloat(concentration) / this._totalVolume;
+				var volumeToAdd = this._totalVolume / parseFloat(concentration);
 				totalVolumeToAdd += volumeToAdd;
 				this._updateCell(rowNum,7, volumeToAdd);
 			}
@@ -208,14 +209,14 @@ function DilutionWidget(containerId, serverFacade) {
 		//Headers
 		var $tableHeadTr = $("<tr>");
 		$tableHeadTr
-			.append("<th><center>Number</center></th>")
+			.append("<th><center>Index</center></th>")
 			.append("<th><center>Metal Mass</center></th>")
-			.append("<th><center>Protein</center></th>")
+			.append("<th><center>Antibody</center></th>")
 			.append("<th><center>Conjugated Clone</center></th>")
 			.append("<th><center>Reactivity</center></th>")
 			.append("<th><center>Supplier</center></th>")
-			.append("<th><center>Concentration</center></th>")
-			.append("<th><center>Calculated</center></th>");
+			.append("<th><center>Dilution Factor</center></th>")
+			.append("<th><center>Volume To Add</center></th>");
 		$tableHead.append($tableHeadTr);
 
 		for(var i = 0; i < 31; i++){
@@ -271,7 +272,7 @@ function DilutionWidget(containerId, serverFacade) {
 				
 		var $tableRowTrF1 = $("<tr>");
 		$tableRowTrF1.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
-		.append("<td><b>Volume</b></td>")
+		.append("<td><b>Total Volume Needed</b></td>")
 		.append($tableRowTrF1TextBoxLastTD);
 		
 		$tableBody.append($tableRowTrF1);
@@ -282,7 +283,7 @@ function DilutionWidget(containerId, serverFacade) {
 		$tableBody.append($tableRowTrF2);
 		var $tableRowTrF3 = $("<tr>");
 		$tableRowTrF3.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
-		.append("<td><b>Total</b></td>")
+		.append("<td><b>Total Antibody</b></td>")
 		.append("<td style='text-align : center;'>0</td>");
 		$tableBody.append($tableRowTrF3);
 		
