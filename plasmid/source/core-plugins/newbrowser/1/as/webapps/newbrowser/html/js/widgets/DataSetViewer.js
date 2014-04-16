@@ -184,14 +184,15 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		var $container = $("#"+this.containerIdContent);
 		$container.empty();
 		//
+		var maxImages = 30;
+		var numImages = 0;
 		for(var datasetCode in this.sampleDataSets) {
 			var dataset = this.sampleDataSets[datasetCode];
 			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
 			
 			datasetFiles.forEach(
 				function(file) {
-					if (_this._isImage(file) &&  _this._isDisplayed(dataset.dataSetTypeCode, file.pathInDataSet)) {
-						
+					if (numImages < maxImages && _this._isImage(file) &&  _this._isDisplayed(dataset.dataSetTypeCode, file.pathInDataSet)) {
 						var $image = $("<img>", {"class" : "zoomableImage", "style" : "width:300px", "src" : _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession()});
 						$image.css({
 							"margin-right" : "10px"
@@ -200,8 +201,15 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 							Util.showImage($image.attr("src"));
 						});
 						$container.append($image);
+						numImages++
 					}
 			});
+		}
+		
+		if(numImages === maxImages) {
+			$container.append($("<p>")
+					.append($("<i>", { class: "icon-info-sign" }))
+					.append(" You can't see more than " + maxImages + " image at the same time, please use the file browser mode."));
 		}
 	}
 	
