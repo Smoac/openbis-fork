@@ -133,7 +133,7 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 	
 	this._getSwitch = function() {
 		var _this = this;
-		var $switch = $("<div>", {"class" : "switch-toggle well"});
+		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto;"});
 		$switch.change(function(event) {
 			var mode = $('input[name=dataSetVieweMode]:checked').val();
 			switch(mode) {
@@ -148,12 +148,11 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 		
 		$switch
 			.append($("<input>", {"value" : "imageMode", "id" : "imageMode", "name" : "dataSetVieweMode", "type" : "radio", "checked" : ""}))
-			.append($("<label>", {"for" : "imageMode", "onclick" : ""}).append("Data Set Images"))
+			.append($("<label>", {"for" : "imageMode", "onclick" : ""}).append("Images"))
 			.append($("<input>", {"value" : "fileMode", "id" : "fileMode","name" : "dataSetVieweMode", "type" : "radio"}))
-			.append($("<label>", {"for" : "fileMode", "onclick" : ""}).append("Data Set Files"));
+			.append($("<label>", {"for" : "fileMode", "onclick" : ""}).append("Files"));
 
 		$switch.append($("<a>", {"class" : "btn btn-primary"}));
-		
 		return $switch;
 	}
 	
@@ -170,7 +169,10 @@ function DataSetViewer(containerId, sample, serverFacade, datastoreDownloadURL) 
 			datasetFiles.forEach(
 				function(file) {
 					if (_this._isImage(file)) {
-						var $image = $("<img>", {"style" : "width:300px", "src" : _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession()});
+						var $image = $("<img>", {"class" : "zoomableImage", "style" : "width:300px", "src" : _this.datastoreDownloadURL + '/' + dataset.code + "/" + file.pathInDataSet + "?sessionID=" + _this.serverFacade.getSession()});
+						$image.click(function() {
+							Util.showImage($image.attr("src"));
+						});
 						$container.append($image);
 					}
 			});

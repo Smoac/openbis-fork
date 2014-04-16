@@ -428,7 +428,7 @@ table.downloads {
         box-shadow:0 0 1px 1px rgba(255,255,255,0.9);
     }
     20%, 100% {
-        box-shadow:0 0 1px 1px rgba(255,255,255,0.9), 0 0 3px 8px #4F8F27, 0 0 2px 12px #FFF;
+        box-shadow:0 0 1px 1px rgba(255,255,255,0.9), 0 0 3px 8px #006DCC, 0 0 2px 12px #FFF;
     }
 }
 
@@ -437,7 +437,7 @@ table.downloads {
         box-shadow:0 0 1px 1px #FFF;
     }
     20%, 100% {
-        box-shadow:0 0 1px 1px #FFF, 0 0 3px 8px #4F8F27, 0 0 2px 12px #FFF;
+        box-shadow:0 0 1px 1px #FFF, 0 0 3px 8px #006DCC, 0 0 2px 12px #FFF;
     }
 }
 
@@ -530,3 +530,13 @@ table.downloads {
  .table-condensed-dilution th, .table-condensed-dilution td {
  	padding: 0 3px;
  }
+ 
+ /*
+  * Zoomable Images
+  */
+.zoomableImage:hover {
+	cursor: pointer;
+    animation:glow 1200ms linear 200ms 2 alternate;
+    -moz-animation:glow 1200ms linear 200ms 2 alternate;
+    -webkit-animation:glow 1200ms linear 200ms 2 alternate;
+}

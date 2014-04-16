@@ -332,7 +332,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			// SELECT PROJECT/SPACE AND CODE
 			//
 			if (this.mode !== SampleFormMode.CREATE) {
-				component += "<img data-preview-loaded='false' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px; float:right;'></img>"
+				component += "<img data-preview-loaded='false' class='zoomableImage' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px; float:right;'></img>"
 			}
 			component += "<fieldset>";
 			component += "<legend>Identification Info</legend>";
@@ -547,6 +547,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		//Extra components
 		this.profile.sampleFormContentExtra(this.sampleTypeCode, this.sample, "sample-form-content-extra");
+		
+		//Make Preview Image zoomable
+		$("#preview-image").click(function(){
+			Util.showImage($("#preview-image").attr("src"));
+		});
 	}
 	
 	this.showSamplesWithoutPage = function(event) {
