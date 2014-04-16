@@ -21,8 +21,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
@@ -104,7 +104,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignExperimentToProject", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningExperimentToProjectIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -121,7 +121,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignProjectToSpace", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assignProjectToSpaceIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -138,7 +138,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assignSampleToExperimentIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -154,7 +154,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToUnassignSampleFromExperiment", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void unassigningSampleFromExperimentIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
@@ -169,7 +169,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToUnshareSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void unsharingSampleIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
@@ -185,7 +185,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignSampleToSpace", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningSampleToSpaceIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -201,7 +201,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToShareSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void sharingSampleIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
@@ -217,7 +217,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningDataSetToExperimentIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -234,7 +234,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAssignDataSetToExperiment", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void assigningDataSetToSampleIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -251,7 +251,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingParentToSampleIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -268,7 +268,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToRemoveParentFromSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingParentFromSampleIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -285,7 +285,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddContainerToSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingContainerToSampleIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -301,7 +301,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToRemoveContainerFromSample", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingContainerFromSampleIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
@@ -317,7 +317,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddParentToDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingParentToDataSetIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -334,7 +334,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToRemoveParentFromDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingParentFromDataSetIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -351,7 +351,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     }
 
     @Test(dataProvider = "rolesNotAllowedToAddContainerToDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void addingContainerToDataSetIsNotAuthorizedFor(RoleWithHierarchy sourceSpaceRole,
             RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole)
             throws Exception
@@ -361,17 +361,17 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     @Test(dataProvider = "rolesAllowedToRemoveContainerFromDataSet", groups = "authorization")
     public void removingContainerFromDataSetIsAuthorizedFor(RoleWithHierarchy spaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
-        removeContainerFromDataSet(spaceRole, instanceRole);
+        removeContainerFromDataSet(spaceRole, destinationSpaceRole, instanceRole);
     }
 
     @Test(dataProvider = "rolesNotAllowedToRemoveContainerFromDataSet", expectedExceptions =
-        { AuthorizationFailureException.class }, groups = "authorization")
+    { AuthorizationFailureException.class }, groups = "authorization")
     public void removingContainerFromDataSetIsNotAuthorizedFor(RoleWithHierarchy spaceRole,
-            RoleWithHierarchy instanceRole) throws Exception
+            RoleWithHierarchy destinationSpaceRole, RoleWithHierarchy instanceRole) throws Exception
     {
-        removeContainerFromDataSet(spaceRole, instanceRole);
+        removeContainerFromDataSet(spaceRole, destinationSpaceRole, instanceRole);
     }
 
     void assignExperimentToProject(RoleWithHierarchy sourceSpaceRole,
@@ -610,17 +610,18 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     }
 
-    void removeContainerFromDataSet(RoleWithHierarchy sourceSpaceRole,
+    void removeContainerFromDataSet(RoleWithHierarchy sourceSpaceRole, RoleWithHierarchy destinationSpaceRole,
             RoleWithHierarchy instanceRole) throws Exception
     {
         String session =
                 create(aSession().withSpaceRole(sourceSpaceRole, sourceSpace)
+                        .withSpaceRole(destinationSpaceRole, destinationSpace)
                         .withInstanceRole(instanceRole)
                         .withSpaceRole(RoleWithHierarchy.SPACE_ADMIN, unrelatedAdmin)
                         .withSpaceRole(RoleWithHierarchy.SPACE_OBSERVER, unrelatedObserver));
 
         relationshipService.removeDataSetFromContainer(sessionManager.getSession(session),
-                pe(this.sourceDataSet));
+                pe(this.sourceDataSet), pe(destinationDataSet));
     }
 
     GuardedDomain instance = new InstanceDomain();
@@ -879,7 +880,7 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
     RoleWithHierarchy[][] rolesAllowedToRemoveContainerFromDataSet()
     {
         return RolePermutator.getAcceptedPermutations(spaceAdminOrSpaceEtlServerSingle, source,
-                instance);
+                destination, instance);
     }
 
     @DataProvider(name = "rolesNotAllowedToRemoveContainerFromDataSet")

@@ -269,10 +269,10 @@ public class RelationshipService implements IRelationshipService
     }
 
     @Override
-    public void removeDataSetFromContainer(IAuthSession session, DataPE data)
+    public void removeDataSetFromContainer(IAuthSession session, DataPE data, DataPE container)
     {
         releaseRelationship(session, BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP, data,
-                data.getContainer(), ERR_DATASET_CONTAINER_RELATIONSHIP_NOT_FOUND);
+                container, ERR_DATASET_CONTAINER_RELATIONSHIP_NOT_FOUND);
     }
 
     public void setDaoFactory(DAOFactory daoFactory)

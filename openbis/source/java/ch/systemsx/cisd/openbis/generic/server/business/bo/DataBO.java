@@ -721,7 +721,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     {
         for (DataPE component : componentsToRemove)
         {
-            relationshipService.removeDataSetFromContainer(session, component);
+            relationshipService.removeDataSetFromContainer(session, component, data);
         }
     }
 

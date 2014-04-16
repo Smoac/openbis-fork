@@ -589,7 +589,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Transient
     public List<DataPE> getContainedDataSets()
     {
-        SortedMap<Integer, DataPE> sortedContained = new TreeMap<Integer, DataPE>();
+        SortedMap<Double, DataPE> sortedContained = new TreeMap<Double, DataPE>();
 
         // Obtaining the contained relationships, they can come in any order
         if (childRelationships != null)
@@ -605,7 +605,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
                         throw new IllegalStateException("Container data set '" + getCode() + "' has component '"
                                 + component.getCode() + "' with unspecified order in container.");
                     }
-                    sortedContained.put(ordinal, component);
+                    sortedContained.put(ordinal + 1.0 / Math.max(2, component.getId()), component);
                 }
             }
         }

@@ -122,7 +122,7 @@ public class RelationshipServiceStub implements IRelationshipService
     }
 
     @Override
-    public void removeDataSetFromContainer(IAuthSession session, DataPE sample)
+    public void removeDataSetFromContainer(IAuthSession session, DataPE data, DataPE container)
     {
     }
 }

@@ -170,11 +170,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
         contained.addAll(container.getContainedDataSets());
 
-        for (DataPE dataPE : contained)
-        {
-            relationshipService.removeDataSetFromContainer(session, dataPE);
-        }
-
         for (DataPE dataPE : newContainedDataSets)
         {
             relationshipService.assignDataSetToContainer(session, dataPE, container);
@@ -224,22 +219,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         Set<DataPE> parentsToRemove = new HashSet<DataPE>();
         Set<DataPE> parentsToAdd = new HashSet<DataPE>();
 
-        // find parents to be added (exist in newParents but do not exist in old parents)
-        for (DataPE newParent : newParents)
-        {
-            if (oldParents.contains(newParent) == false)
-            {
-                parentsToAdd.add(newParent);
-            }
-        }
-        // find parents to be removed (exist in oldParents but do not exist in new parents)
-        for (DataPE oldParent : oldParents)
-        {
-            if (newParents.contains(oldParent) == false)
-            {
-                parentsToRemove.add(oldParent);
-            }
-        }
+        findToBeRemovedOrAdded(newParents, oldParents, parentsToRemove, parentsToAdd);
 
         // check cycles
         if (validate)
@@ -257,6 +237,27 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         for (DataPE parentToAdd : parentsToAdd)
         {
             relationshipService.addParentToDataSet(session, child, parentToAdd);
+        }
+    }
+
+    protected void findToBeRemovedOrAdded(Collection<DataPE> newDataSets, Collection<DataPE> oldDataSets, Set<DataPE> toBeRemoved,
+            Set<DataPE> toBeAdded)
+    {
+        // find data sets to be added (exist in newDataSets but do not exist in oldDataSets)
+        for (DataPE newDataSet : newDataSets)
+        {
+            if (oldDataSets.contains(newDataSet) == false)
+            {
+                toBeAdded.add(newDataSet);
+            }
+        }
+        // find data sets to be removed (exist in oldDataSets but do not exist in newDataSets)
+        for (DataPE oldDataSet : oldDataSets)
+        {
+            if (newDataSets.contains(oldDataSet) == false)
+            {
+                toBeRemoved.add(oldDataSet);
+            }
         }
     }
 
@@ -353,10 +354,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
 
     protected void updateContainer(DataPE data, String containerCode)
     {
-        if (containerCode == null)
-        {
-            relationshipService.removeDataSetFromContainer(session, data);
-        } else
+        if (containerCode != null)
         {
             DataPE container = getDataDAO().tryToFindDataSetByCode(containerCode);
 
