@@ -1135,9 +1135,9 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
-		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
-
-		
+		this.ELNExperiments = ["ANTIBODY_PANEL"];
+		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
+		this.isShowUnavailablePreviewOnSampleTable = false;
 	
 		this.typeGroups = {
 			"ANTIBODIES" : {
