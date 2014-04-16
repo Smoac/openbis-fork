@@ -144,6 +144,9 @@ function DilutionWidget(containerId, serverFacade) {
 						break;
 					}
 				}
+				
+				var dilutionVolume = parseFloat(data["conjugatedClone"].properties["CYTOF_STAINING_CONC"]) / parseFloat(data["conjugatedClone"].properties["CYTOF_CONCENTRATION"]);
+
 				if(conjugatedCloneSelected === "") {
 					_this._updateCell(rowNumber,4, "");
 					_this._updateCell(rowNumber,5, "");
@@ -152,7 +155,8 @@ function DilutionWidget(containerId, serverFacade) {
 				} else {
 					_this._updateCell(rowNumber,4, data["clone"].properties["REACTIVITY"]);
 					_this._updateCell(rowNumber,5, data["lot"].properties["SUPPLIER"]);
-					_this._updateCell(rowNumber,6, data["conjugatedClone"].properties["CYTOF_CONCENTRATION"]);
+					_this._updateCell(rowNumber,6, dilutionVolume);
+
 				}
 				_this._updateCalculatedValues();
 			}
@@ -172,7 +176,7 @@ function DilutionWidget(containerId, serverFacade) {
 			var row = $(tBody.rows[rowNum]);
 			var concentration = row.children()[6].innerHTML;
 			if(concentration !== "") {
-				var volumeToAdd = this._totalVolume / parseFloat(concentration);
+				var volumeToAdd = this._totalVolume * parseFloat(concentration);
 				totalVolumeToAdd += volumeToAdd;
 				this._updateCell(rowNum,7, volumeToAdd);
 			}
