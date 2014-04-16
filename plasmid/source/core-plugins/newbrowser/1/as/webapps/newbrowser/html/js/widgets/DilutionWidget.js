@@ -33,7 +33,7 @@ function DilutionWidget(containerId, serverFacade) {
 		$("#"+this._containerId).append("Loading data for Dilution Widget.");
 		var _this = this;
 		//Load all proteins
-		this._serverFacade.searchWithType("PROTEIN", null, function(data) {
+		this._serverFacade.searchWithTypeAndLinks("PROTEIN", null, function(data) {
 			_this._allProteins = data;
 			
 			//First repaint after all initializations
@@ -55,9 +55,26 @@ function DilutionWidget(containerId, serverFacade) {
 		
 		$component.attr('data-row-number', rowNumber);
 		
+		//Get proteins for row
+		var proteins = [];
+		var _this = this;
+		this._allProteins.forEach(function(protein) {
+			protein.children.forEach(function(clone) {
+				clone.children.forEach(function(lot) { 
+					lot.children.forEach(function(conjugatedClone) {
+						var metalMass = conjugatedClone.properties["METAL_MASS"];
+						var predefinedMass = _this._predefinedMass[rowNumber] + "";
+						if(predefinedMass === metalMass) {
+							proteins.push(protein);
+						}
+					});
+				});
+			});
+		});
+		//
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
-		for(var i = 0; i < this._allProteins.length; i++) {
-			$component.append($("<option>").attr('value',this._allProteins[i].permId).text(this._allProteins[i].properties["PROTEIN_NAME"]));
+		for(var i = 0; i < proteins.length; i++) {
+			$component.append($("<option>").attr('value',proteins[i].permId).text(proteins[i].properties["PROTEIN_NAME"]));
 		}
 		
 		var _this = this;

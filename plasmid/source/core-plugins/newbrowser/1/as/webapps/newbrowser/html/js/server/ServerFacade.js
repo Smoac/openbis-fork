@@ -312,6 +312,38 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
+	this.searchWithTypeAndLinks = function(sampleType, sampleCode, callbackFunction)
+	{	
+		var matchClauses = [ {"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "TYPE",
+					desiredValue : sampleType
+				}
+		]
+		
+		if(sampleCode){
+		  matchClauses.push(
+			  		{
+				  	"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "CODE",
+					desiredValue : sampleCode 
+				}		
+		  );
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES", "ANCESTORS", "DESCENDANTS"], function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
 	this.searchWithType = function(sampleType, sampleCode, callbackFunction)
 	{	
 		var matchClauses = [ {"@type":"AttributeMatchClause",
