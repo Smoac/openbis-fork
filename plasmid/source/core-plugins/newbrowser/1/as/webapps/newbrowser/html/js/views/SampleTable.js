@@ -371,10 +371,12 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			.on("click", onClickFunction)
 			.selectAll("td").data(function(sample) {
 				var tableFields = null;
+				var imageOnClick = "javascript:Util.showImage($('#preview"+sample.identifier.replace(/\//g,'-')+"').attr('src')); event.stopPropagation();";
+				
 				if(localReference.isSearch) {
-					tableFields = [sample.code, "<img data-preview-loaded='false' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample.properties, sample.properties ];
+					tableFields = [sample.code, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample.properties, sample.properties ];
 				} else {
-					tableFields = [sample.code, "<img data-preview-loaded='false' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>"];
+					tableFields = [sample.code, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>"];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
 						var tableFieldValue = sample.properties[sampleTypeProperties[i]];
 						if(!tableFieldValue) {
