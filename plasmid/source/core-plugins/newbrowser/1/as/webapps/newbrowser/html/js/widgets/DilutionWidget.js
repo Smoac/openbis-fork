@@ -104,84 +104,78 @@ function DilutionWidget(containerId, serverFacade) {
 	}
 	
 	this._updateConjugatedClone = function(rowNumber, proteinPermId) {
-		var _this = this;
-		var callback = function(results) {
-			//Get valid conjugated clones
-			var conjugatedClones = [];
+		//Get valid conjugated clones
+		var conjugatedClones = [];
 			
-			var protein = results[0];
-			protein.children.forEach(function(clone) {
-				clone.children.forEach(function(lot) { 
-					lot.children.forEach(function(conjugatedClone) { 
-						conjugatedClones.push(
-								{
-									"clone" : clone,
-									"lot" : lot,
-									"conjugatedClone" : conjugatedClone
-								});
+		this._allProteins.forEach(function(protein) {
+			if(protein.permId = proteinPermId) {
+				protein.children.forEach(function(clone) {
+					clone.children.forEach(function(lot) { 
+						lot.children.forEach(function(conjugatedClone) { 
+							conjugatedClones.push(
+									{
+										"clone" : clone,
+										"lot" : lot,
+										"conjugatedClone" : conjugatedClone
+									});
+						});
 					});
 				});
-			});
+			}
+		});
 			
-			//Build dropdown with conjugated clones
-			var $component = $("<select>");
-			$component.css(
-					{
-						"margin-top": "1px",
-						"margin-bottom": "1px",
-						"border": "0px",
-						"width": "100%"
-					}
-			);
+		//Build dropdown with conjugated clones
+		var $component = $("<select>");
+		$component.css(
+				{
+					"margin-top": "1px",
+					"margin-bottom": "1px",
+					"border": "0px",
+					"width": "100%"
+				}
+		);
 			
-			$component.attr('data-row-number', rowNumber);
+		$component.attr('data-row-number', rowNumber);
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		for(var i = 0; i < conjugatedClones.length; i++) {
+			var conjugatedClone = conjugatedClones[i]["conjugatedClone"];
+			var metalMass = conjugatedClone.properties["METAL_MASS"];
+			var predefinedMass = this._predefinedMass[rowNumber] + "";
+			if(predefinedMass === metalMass) {
+				$component.append($("<option>").attr('value',conjugatedClone.permId).text(conjugatedClone.code));
+			}
+		}
 			
-			$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		//Add dropdown to the DOM
+		this._updateCell(rowNumber,3, $component);
+		
+		//Add change method to DOM
+		var _this = this;
+		var conjugatedCloneChange = function() {
+			var conjugatedCloneSelected = $(this).val();
+			var data = null;
 			for(var i = 0; i < conjugatedClones.length; i++) {
 				var conjugatedClone = conjugatedClones[i]["conjugatedClone"];
-				var metalMass = conjugatedClone.properties["METAL_MASS"];
-				var predefinedMass = _this._predefinedMass[rowNumber] + "";
-				//TO-DO Uncomment when finish
-				if(predefinedMass === metalMass) {
-					$component.append($("<option>").attr('value',conjugatedClone.permId).text(conjugatedClone.code));
+				if(conjugatedCloneSelected === conjugatedClone.permId) {
+					data = conjugatedClones[i];
+					break;
 				}
 			}
-			
-			//Add dropdown to the DOM
-			_this._updateCell(rowNumber,3, $component);
-			
-			//Add change method to DOM
-			var conjugatedCloneChange = function() {
-				var conjugatedCloneSelected = $(this).val();
-				var data = null;
-				for(var i = 0; i < conjugatedClones.length; i++) {
-					var conjugatedClone = conjugatedClones[i]["conjugatedClone"];
-					if(conjugatedCloneSelected === conjugatedClone.permId) {
-						data = conjugatedClones[i];
-						break;
-					}
-				}
-				
-				var dilutionVolume = parseFloat(data["conjugatedClone"].properties["CYTOF_STAINING_CONC"]) / parseFloat(data["conjugatedClone"].properties["CYTOF_CONCENTRATION"]);
-
-				if(conjugatedCloneSelected === "") {
-					_this._updateCell(rowNumber,4, "");
-					_this._updateCell(rowNumber,5, "");
-					_this._updateCell(rowNumber,6, "");
-					_this._updateCell(rowNumber,7, "");
-				} else {
-					_this._updateCell(rowNumber,4, data["clone"].properties["REACTIVITY"]);
-					_this._updateCell(rowNumber,5, data["lot"].properties["SUPPLIER"]);
-					_this._updateCell(rowNumber,6, dilutionVolume);
-
-				}
-				_this._updateCalculatedValues();
+			if(conjugatedCloneSelected === "") {
+				_this._updateCell(rowNumber,4, "");
+				_this._updateCell(rowNumber,5, "");
+				_this._updateCell(rowNumber,6, "");
+				_this._updateCell(rowNumber,7, "");
+			} else {
+				_this._updateCell(rowNumber,4, data["clone"].properties["REACTIVITY"]);
+				_this._updateCell(rowNumber,5, data["lot"].properties["SUPPLIER"]);
+				_this._updateCell(rowNumber,6, data["conjugatedClone"].properties["CYTOF_CONCENTRATION"]);
 			}
-			
-			$component.change(conjugatedCloneChange);
+			_this._updateCalculatedValues();
 		}
 		
-		this._serverFacade.searchWithUniqueId(proteinPermId, callback);
+		$component.change(conjugatedCloneChange);
 	}
 	
 	this._updateCalculatedValues = function() {
