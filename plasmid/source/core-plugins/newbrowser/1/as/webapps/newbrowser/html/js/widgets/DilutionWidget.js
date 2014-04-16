@@ -219,7 +219,7 @@ function DilutionWidget(containerId, serverFacade) {
 			.append("<th><center>Volume To Add</center></th>");
 		$tableHead.append($tableHeadTr);
 
-		for(var i = 0; i < 31; i++){
+		for(var i = 0; i < this._predefinedMass.length; i++){
 			var $tableRowTr = $("<tr>");
 			
 			var $proteinSelectionTD = $("<td>").append(this._getProteinDropdown(i));
