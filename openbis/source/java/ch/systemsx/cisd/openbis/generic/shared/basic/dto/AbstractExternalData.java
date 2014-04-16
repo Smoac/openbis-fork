@@ -44,19 +44,35 @@ public abstract class AbstractExternalData extends
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
-    private static final class ContainerAndOrder implements Serializable
+    // Couldn't declared as private because of GWT compiler
+    static final class ContainerAndOrder implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        private final ContainerDataSet containerDataSet;
+        private ContainerDataSet containerDataSet;
 
-        private final Integer orderInContainer;
+        private Integer orderInContainer;
 
-        ContainerAndOrder(ContainerDataSet containerDataSet, Integer orderInContainer)
+        public ContainerAndOrder()
+        {
+        }
+
+        public ContainerAndOrder(ContainerDataSet containerDataSet, Integer orderInContainer)
         {
             this.containerDataSet = containerDataSet;
             this.orderInContainer = orderInContainer;
         }
+
+        public ContainerDataSet getContainerDataSet()
+        {
+            return containerDataSet;
+        }
+
+        public Integer getOrderInContainer()
+        {
+            return orderInContainer;
+        }
+
     }
 
     /**
@@ -65,7 +81,7 @@ public abstract class AbstractExternalData extends
     public static final Comparator<AbstractExternalData> DATA_SET_COMPONENTS_COMPARATOR =
             new DataSetComponentsComparator();
 
-    private final Map<String, ContainerAndOrder> containersAndOrderByContainerId = new TreeMap<String, ContainerAndOrder>();
+    private Map<String, ContainerAndOrder> containersAndOrderByContainerId = new TreeMap<String, ContainerAndOrder>();
 
     private boolean derived;
 
@@ -382,7 +398,7 @@ public abstract class AbstractExternalData extends
         {
             return null;
         }
-        return containersAndOrderByContainerId.values().iterator().next().containerDataSet;
+        return containersAndOrderByContainerId.values().iterator().next().getContainerDataSet();
     }
 
     @Deprecated
@@ -408,7 +424,7 @@ public abstract class AbstractExternalData extends
         Collection<ContainerAndOrder> values = containersAndOrderByContainerId.values();
         for (ContainerAndOrder containerAndOrder : values)
         {
-            containers.add(containerAndOrder.containerDataSet);
+            containers.add(containerAndOrder.getContainerDataSet());
         }
         return containers;
     }
@@ -416,7 +432,7 @@ public abstract class AbstractExternalData extends
     public Integer getOrderIn(String containerDataSetCode)
     {
         ContainerAndOrder containerAndOrder = containersAndOrderByContainerId.get(containerDataSetCode);
-        return containerAndOrder == null ? null : containerAndOrder.orderInContainer;
+        return containerAndOrder == null ? null : containerAndOrder.getOrderInContainer();
     }
 
     public boolean isStorageConfirmation()

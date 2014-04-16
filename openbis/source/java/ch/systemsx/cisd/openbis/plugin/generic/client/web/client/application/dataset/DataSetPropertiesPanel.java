@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.dataset;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -28,12 +29,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.Propert
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.property.PropertyGrid;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.ExternalHyperlink;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.PropertiesPanelUtils;
 
@@ -110,10 +111,10 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATOR), dataset.getRegistrator());
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
                 dataset.getRegistrationDate());
-        ContainerDataSet containerOrNull = dataset.tryGetContainer();
-        if (containerOrNull != null)
+        List<ContainerDataSet> containerDataSets = dataset.getContainerDataSets();
+        if (containerDataSets.isEmpty() == false)
         {
-            properties.put(messageProvider.getMessage(Dict.CONTAINER_DATA_SET), containerOrNull);
+            properties.put(messageProvider.getMessage(Dict.CONTAINER_DATA_SET), containerDataSets.get(0));
         }
         properties.put(messageProvider.getMessage(Dict.PROJECT), dataset.getExperiment()
                 .getProject());
