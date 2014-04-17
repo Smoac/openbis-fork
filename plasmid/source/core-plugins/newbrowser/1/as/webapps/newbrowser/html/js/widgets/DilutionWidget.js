@@ -67,7 +67,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 						}
 					}
 				}
-				
+				_this._updateCalculatedValues();
 			}
 		});
 	}
@@ -142,7 +142,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		var conjugatedClones = [];
 			
 		this._allProteins.forEach(function(protein) {
-			if(protein.permId = proteinPermId) {
+			if(protein.permId === proteinPermId) {
 				protein.children.forEach(function(clone) {
 					clone.children.forEach(function(lot) { 
 						lot.children.forEach(function(conjugatedClone) { 
@@ -152,6 +152,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 										"lot" : lot,
 										"conjugatedClone" : conjugatedClone
 									});
+							
 						});
 					});
 				});
@@ -267,13 +268,45 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 	}
 	
 	this._repaint = function() {
+		var _this = this;
 		//
 		$("#"+this._containerId).empty();
 
 		//Top Title
 		var $legend = $("<legend>");
-		$legend.append("Dilution Calculator");
+		$legend.append("Dilution Calculator ");
 		
+		var $printButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-print" }));
+		$printButton.click(function() { 
+			var tableWidget = $("#" + _this._widgetTableId);
+			var clonedWidget = tableWidget.clone();
+			
+			//FIX Selected values
+			var tBody = tableWidget.children()[1];
+			var tBodyClone = clonedWidget.children()[1];
+			for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
+				var row = $(tBody.rows[rowNum]);
+				var antibodyDropDown = $($(row.children()[2]).children()[0]);
+				var antibody = antibodyDropDown.val();
+				if(antibody !== "") {
+					var rowClone = $(tBodyClone.rows[rowNum]);
+					var antibodyDropDownClone = $($(rowClone.children()[2]).children()[0]);
+					antibodyDropDownClone.val(antibody);
+
+					var conjugatedCloneDropDown = $($(row.children()[3]).children()[0]);
+					var conjugatedClone = conjugatedCloneDropDown.val();
+					if(conjugatedClone !== "") {
+						var conjugatedCloneDropDownClone = $($(rowClone.children()[3]).children()[0]);
+						conjugatedCloneDropDownClone.val(conjugatedClone);
+					}
+				}
+			}
+			
+			var newWindow = window.open(null,"print dilution table");
+			$(newWindow.document.body).html(clonedWidget);
+		} );
+		
+		$legend.append($printButton);
 		//Defining containers
 		var $wrapper = $("<div>");
 		$wrapper.append($legend);
