@@ -31,6 +31,14 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.FeaturesBuilder;
 public interface IImagingDataSetRegistrationTransactionV2 extends IDataSetRegistrationTransactionV2
 {
     /**
+     * Creates a new image data set container based on specified configuration and a specified
+     * new image data set container. From the specified container to original physical image data set
+     * will also be the physical image data set of the new container. 
+     * See {@link SimpleImageDataConfig} documentation for configuration details.
+     */
+    IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet, IImageDataSet dataSet);
+    
+    /**
      * Creates a new image data set. See {@link SimpleImageDataConfig} documentation for
      * configuration details.
      */

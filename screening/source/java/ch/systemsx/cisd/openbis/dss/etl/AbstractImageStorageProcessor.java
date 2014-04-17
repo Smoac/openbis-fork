@@ -268,39 +268,56 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
                 plainMoveToStore();
                 return rootDirectory;
             }
+            dbTransaction = processor.createQuery();
 
+            handleImagesAndMoveToStoreIfPrimaryDataSet(dataSetInformation, true, mailClient);
+            if (dataSetInformation instanceof ImageDataSetInformation)
+            {
+                List<DataSetInformation> secondaryDataSets = ((ImageDataSetInformation) dataSetInformation).getSecondaryDataSets();
+                for (DataSetInformation secondaryDataSet : secondaryDataSets)
+                {
+                    handleImagesAndMoveToStoreIfPrimaryDataSet(secondaryDataSet, false, mailClient);
+                }
+            }
+
+            return rootDirectory;
+        }
+
+        private void handleImagesAndMoveToStoreIfPrimaryDataSet(DataSetInformation dataSetInfo, 
+                boolean primaryDataSet, final IMailClient mailClient)
+        {
             ImageFileExtractionWithConfig extractionResultWithConfig =
-                    processor.extractImages(dataSetInformation, incomingDataSetDirectory);
+                    processor.extractImages(dataSetInfo, incomingDataSetDirectory);
             ImageFileExtractionResult extractionResult =
                     extractionResultWithConfig.getExtractionResult();
 
-            validateImages(mailClient, extractionResultWithConfig, extractionResult);
+            validateImages(mailClient, dataSetInfo, extractionResultWithConfig, extractionResult);
 
             List<AcquiredSingleImage> plateImages = extractionResult.getImages();
             ImageStorageConfiguraton imageStorageConfiguraton =
                     extractionResultWithConfig.getImageStorageConfiguraton();
 
-            plainMoveToStore();
             File datasetRelativeImagesFolderPath =
-                    extractionResultWithConfig.getExtractionResult()
-                            .getDatasetRelativeImagesFolderPath();
+                    extractionResultWithConfig.getExtractionResult().getDatasetRelativeImagesFolderPath();
 
-            if (false == getRegisterAsOverviewImageDataSet(dataSetInformation))
+            boolean isOverviewImageDataSet = getRegisterAsOverviewImageDataSet(dataSetInfo);
+            if (primaryDataSet)
+            {
+                plainMoveToStore();
+                shouldDeleteOriginalDataOnCommit =
+                        imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5()
+                        && false == isOverviewImageDataSet;
+            }
+            if (false == isOverviewImageDataSet)
             {
                 processImages(plateImages, datasetRelativeImagesFolderPath,
                         imageStorageConfiguraton);
             }
+            
 
-            shouldDeleteOriginalDataOnCommit =
-                    imageStorageConfiguraton.getOriginalDataStorageFormat().isHdf5()
-                            && false == getRegisterAsOverviewImageDataSet(dataSetInformation);
-
-            dbTransaction = processor.createQuery();
             processor.storeInDatabase(dbTransaction,
                     extractionResultWithConfig.getImageDatasetOwner(), extractionResult,
-                    getRegisterAsOverviewImageDataSet(dataSetInformation));
-
-            return rootDirectory;
+                    isOverviewImageDataSet);
         }
 
         private boolean getRegisterAsOverviewImageDataSet(DataSetInformation dataSetInfo)
@@ -334,14 +351,14 @@ abstract class AbstractImageStorageProcessor extends AbstractStorageProcessor im
             updateImagesRelativePath(relativeImagesDirectory, images);
         }
 
-        private void validateImages(final IMailClient mailClient,
+        private void validateImages(final IMailClient mailClient, DataSetInformation dataSetInfo,
                 ImageFileExtractionWithConfig extractionResultWithConfig,
                 ImageFileExtractionResult extractionResult)
         {
             boolean isComplete =
                     processor.validateImages(extractionResultWithConfig.getImageDatasetOwner(),
                             mailClient, incomingDataSetDirectory, extractionResult);
-            dataSetInformation.setComplete(isComplete);
+            dataSetInfo.setComplete(isComplete);
         }
 
         private boolean isImageDataset()

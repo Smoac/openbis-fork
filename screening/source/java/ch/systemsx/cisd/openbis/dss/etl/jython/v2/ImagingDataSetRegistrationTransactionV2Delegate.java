@@ -69,6 +69,12 @@ public class ImagingDataSetRegistrationTransactionV2Delegate implements
     private final ImagingDataSetRegistrationTransaction transaction;
 
     @Override
+    public IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet,IImageDataSet dataSet)
+    {
+        return transaction.createNewImageDataSetFromDataSet(imageDataSet, dataSet);
+    }
+
+    @Override
     public IImageDataSet createNewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages)
     {

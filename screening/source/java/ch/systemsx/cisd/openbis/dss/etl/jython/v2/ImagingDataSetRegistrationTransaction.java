@@ -122,7 +122,24 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                         incomingFolderWithImages, imageDatasetFactory);
         return createNewImageDataSet(details);
     }
-
+    
+    @SuppressWarnings("unchecked")
+    public IImageDataSet createNewImageDataSetFromDataSet(SimpleImageDataConfig imageDataSet, IImageDataSet dataSet)
+    {
+        final DataSet<ImageDataSetInformation> originalDataSet = (DataSet<ImageDataSetInformation>) dataSet.getOriginalDataset();
+        ImageDataSetInformation originalDataSetInfo = originalDataSet.getRegistrationDetails().getDataSetInformation();
+        File relativeImagesFolderPath = originalDataSetInfo.getDatasetRelativeImagesFolderPath();
+        File incomingFolderWithImages = new File(originalDataSet.getDataSetStagingFolder(), relativeImagesFolderPath.getPath());
+        DataSetRegistrationDetails<ImageDataSetInformation> details =
+                SimpleImageDataSetRegistrator.createImageDatasetDetails(imageDataSet,
+                        incomingFolderWithImages, imageDatasetFactory);
+        ImageDataSetInformation secondaryDataSet = details.getDataSetInformation();
+        secondaryDataSet.setDatasetRelativeImagesFolderPath(relativeImagesFolderPath);
+        secondaryDataSet.setDataSetCode(originalDataSetInfo.getDataSetCode());
+        originalDataSet.getRegistrationDetails().getDataSetInformation().addSecondaryDataSetInformation(secondaryDataSet);
+        return createImageDataSet(details, originalDataSet);
+    }
+    
     public IDataSet createNewOverviewImageDataSet(SimpleImageDataConfig imageDataSet,
             File incomingFolderWithImages)
     {
@@ -276,6 +293,16 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     public IImageDataSet createNewImageDataSet(
             DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails)
     {
+        // create main dataset (with original images)
+        @SuppressWarnings("unchecked")
+        DataSet<ImageDataSetInformation> mainDataset =
+                (DataSet<ImageDataSetInformation>) super.createNewDataSet(imageRegistrationDetails);
+        return createImageDataSet(imageRegistrationDetails, mainDataset);
+    }
+
+    private IImageDataSet createImageDataSet(DataSetRegistrationDetails<ImageDataSetInformation> imageRegistrationDetails,
+            DataSet<ImageDataSetInformation> mainDataset)
+    {
         ImageDataSetInformation imageDataSetInformation =
                 imageRegistrationDetails.getDataSetInformation();
         ImageDataSetStructure imageDataSetStructure =
@@ -313,10 +340,6 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
             imageDataSetInformation.setThumbnailsInfo(thumbnailsInfo);
         }
 
-        // create main dataset (with original images)
-        @SuppressWarnings("unchecked")
-        DataSet<ImageDataSetInformation> mainDataset =
-                (DataSet<ImageDataSetInformation>) super.createNewDataSet(imageRegistrationDetails);
         containedDataSetCodes.add(mainDataset.getDataSetCode());
 
         for (IDataSet thumbnailDataset : thumbnailDatasets)
@@ -328,7 +351,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
                         containedDataSetCodes);
         containerDataset.setOriginalDataset(mainDataset);
         containerDataset.setThumbnailDatasets(thumbnailDatasets);
-        imageDataSetInformation.setContainerDatasetPermId(containerDataset.getDataSetCode());
+        String containerDataSetCode = containerDataset.getDataSetCode();
+        imageDataSetInformation.setContainerDatasetPermId(containerDataSetCode);
 
         return containerDataset;
     }

@@ -17,8 +17,10 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.impl;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.BasicDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
@@ -57,6 +59,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
 
     private Integer colorDepth;
 
+    private final List<DataSetInformation> secondaryDataSets = new ArrayList<DataSetInformation>();
+    
     public File getIncomingDirectory()
     {
         return incomingDirectory;
@@ -173,6 +177,16 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     {
         this.colorDepth = colorDepth;
     }
+    
+    public void addSecondaryDataSetInformation(DataSetInformation dataSetInformation)
+    {
+        secondaryDataSets.add(dataSetInformation);
+    }
+    
+    public List<DataSetInformation> getSecondaryDataSets()
+    {
+        return secondaryDataSets;
+    }
 
     @Override
     public String toString()
@@ -180,6 +194,15 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         final StringBuilder buffer = new StringBuilder(super.toString());
         appendNameAndObject(buffer, "images structure", imageDataSetStructure);
         appendNameAndObject(buffer, "container dataset", tryGetContainerDatasetPermId());
+        if (secondaryDataSets.isEmpty() == false)
+        {
+            CommaSeparatedListBuilder builder = new CommaSeparatedListBuilder();
+            for (DataSetInformation dataSet : secondaryDataSets)
+            {
+                builder.append(dataSet.getDataSetCode());
+            }
+            appendNameAndObject(buffer, "secondary datasets", builder);
+        }
         appendNameAndObject(buffer, "original dataset", this.getDataSetCode());
         if (maximumImageHeight > 0 && maximumImageWidth > 0)
         {
