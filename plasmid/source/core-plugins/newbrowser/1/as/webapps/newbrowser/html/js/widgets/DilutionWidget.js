@@ -187,7 +187,7 @@ function DilutionWidget(containerId, serverFacade) {
 			var row = $(tBody.rows[rowNum]);
 			var concentration = row.children()[6].innerHTML;
 			if(concentration !== "") {
-				var volumeToAdd = this._totalVolume * parseFloat(concentration);
+				var volumeToAdd = this._totalVolume / parseFloat(concentration);
 				totalVolumeToAdd += volumeToAdd;
 				this._updateCell(rowNum,7, volumeToAdd);
 			}
