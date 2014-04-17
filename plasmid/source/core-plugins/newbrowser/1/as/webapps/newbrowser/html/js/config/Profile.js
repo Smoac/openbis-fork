@@ -1134,7 +1134,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
-		this.ELNExperiments = ["ANTIBODY_PANEL"];
+		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
 	
@@ -1153,7 +1153,12 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 				"TYPE" : "CELL_LINES",
 				"DISPLAY_NAME" : "Cell Lines",
 				"LIST" : ["CELL_LINES"]
-			},			
+			},
+			"ANTIBODY_PANEL" : {
+				"TYPE" : "ANTIBODY_PANEL",
+				"DISPLAY_NAME" : "Antibody panels",
+				"LIST" : ["ANTIBODY_PANEL"]
+			},						
 			"OTHERS" : {
 				"TYPE" : "OTHERS",
 				"DISPLAY_NAME" : "Others",
@@ -1249,13 +1254,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		 * Used by Sample Form
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			var isExperiment = false;
-			this.ELNExperiments.forEach(function(experimentTypeCode){
-				if(experimentTypeCode === sampleTypeCode) {
-					isExperiment = true;
-				}
-			});
-			if(isExperiment) {
+			if(sampleTypeCode = "ANTIBODY_PANEL") {
 				var isEnabled = mainController.currentView.mode !== SampleFormMode.VIEW;
 				var dilutionWidget = new DilutionWidget(containerId, this.serverFacade, isEnabled);
 				dilutionWidget.init();
