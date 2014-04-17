@@ -328,7 +328,7 @@ public class ScreeningServerJson implements IScreeningApiServer
     @Override
     public List<ImageResolution> getImageResolutions(String sessionToken, String datasetCode)
     {
-        return new ImageResolutionList(getImageResolutions(sessionToken, datasetCode));
+        return new ImageResolutionList(server.getImageResolutions(sessionToken, datasetCode));
     }
 
     /*

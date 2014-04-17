@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Image Viewer</title>
+
+  <script src="jquery.js"></script>
+  <script src="openbis.js"></script>
+  <script src="openbis-screening.js"></script>
+
+</head>
+<body>
+    <script>
+
+    $(document).ready(function(){
+    	var facade = new OpenbisFacade(new openbis());
+    	
+    	facade.login("admin", "password", function(response){
+            var context = {
+                    getSessionId : function(){
+                        return response.result;
+                    },
+                    getEntityPermId : function(){
+                        return "20140415140347875-53"
+                    }
+                };
+			var widget = new ImageViewerWidget(context, facade);
+			$("body").append(widget.render());				
+    	});
+    });
+    
+    //
+    // FACADE
+    //
+    function OpenbisFacade(openbis){
+    	this.init(openbis);
+    }
+    
+    $.extend(OpenbisFacade.prototype, {
+        init: function(openbis){
+        	this.openbis = openbis;
+        },
+        
+        login: function(user, password, callback){
+        	this.openbis.login(user, password, callback);
+        },
+
+        getImageInfo: function(dataSetCode, callback){
+	        this.openbis.getImageInfo(dataSetCode, null, callback);
+        },
+        
+        getImageResolutions: function(dataSetCode, callback){
+        	this.openbis.getImageResolutions(dataSetCode, callback);
+        }
+    });
+
+    //
+    // IMAGE VIEWER
+    //
+	function ImageViewerWidget(context, facade) {
+	    this.init(context, facade);
+	}
+	
+	$.extend(ImageViewerWidget.prototype, {
+	    init: function(context, facade){
+	    	this.context = context;
+	    	this.facade = facade;
+	    	this.panel = $("<div>")
+	    },
+	    
+	    load: function(callback){
+	    	if(this.loaded){
+	    		callback();
+	    	}else{
+                var thisImageViewer = this;
+                
+                var manager = new CallbackManager(function(){
+                    thisImageViewer.loaded = true;  
+                    callback();
+                });
+                
+                this.facade.getImageInfo(thisImageViewer.context.getEntityPermId(), manager.registerCallback(function(response){
+                    thisImageViewer.imageInfo = response.result;
+                }));
+                
+                this.facade.getImageResolutions(thisImageViewer.context.getEntityPermId(), manager.registerCallback(function(response){
+                    thisImageViewer.imageResolutions = response.result;
+                }));
+	    	}
+	    },
+	    
+	    render: function(){
+	    	var thisImageViewer = this;
+            
+            this.load(function(){
+            	
+                var channelWidget = new ChannelChooserWidget(thisImageViewer.getChannels());
+                channelWidget.addChangeListener(function(){
+                	imageWidget.setChannel(channelWidget.getSelectedChannel());
+                });
+                thisImageViewer.panel.append(channelWidget.render());
+                
+                var resolutionWidget = new ResolutionChooserWidget(thisImageViewer.getResolutions());
+                resolutionWidget.addChangeListener(function(){
+                	imageWidget.setResolution(resolutionWidget.getSelectedResolution());
+                });
+                thisImageViewer.panel.append(resolutionWidget.render());
+                
+                var imageWidget = new ImageWidget();
+                imageWidget.setDataStoreUrl("http://localhost:8889/datastore_server_screening");
+                imageWidget.setSessionToken(thisImageViewer.context.getSessionId());
+                imageWidget.setDataSetCode(thisImageViewer.context.getEntityPermId());
+                imageWidget.setChannelStackId(thisImageViewer.getChannelStack(0, 0).id);
+                imageWidget.setChannel(channelWidget.getSelectedChannel());
+                imageWidget.setResolution(resolutionWidget.getSelectedResolution());
+                thisImageViewer.panel.append(imageWidget.render());
+
+            });
+	    	
+	    	return this.panel;
+	    },
+	    
+	    getChannels: function(){
+	    	return this.imageInfo.imageDataset.imageDataset.imageParameters.channels;
+	    },
+	    
+	    getChannelStack: function(timePoint, depth){
+	    	if(this.channelStacks == null){
+	    		var map = {};
+	    		this.imageInfo.channelStacks.forEach(function(channelStack){
+	    			map[channelStack.timePointOrNull + "_" + channelStack.depthOrNull] = channelStack;
+	    		});
+	    		this.channelStacks = map;
+	    	}
+	    	return this.channelStacks[timePoint + "_" + depth];
+        },
+        
+        getResolutions: function(){
+            return this.imageResolutions;
+        }
+	    
+	});
+	
+    //
+    // CHANNEL CHOOSER
+    //
+    function ChannelChooserWidget(channels) {
+        this.init(channels);
+    }
+    
+    $.extend(ChannelChooserWidget.prototype, {
+
+        init: function(channels){
+        	this.channels = channels;
+        	this.listeners = new ListenerManager();
+        	this.panel = $("<div>");
+        },
+        
+        render: function(){
+        	var thisChooser = this; 
+            
+            var select = $("<select>").appendTo(this.panel);
+            
+            $("<option>").attr("value", "").text("Merged Channels").appendTo(select);
+            
+            this.channels.forEach(function(channel){
+            	$("<option>").attr("value", channel.code).text(channel.label).appendTo(select);
+            });
+
+            if(this.selectedChannel){
+                select.val(this.selectedChannel);
+            }
+            
+            select.change(function(){
+            	thisChooser.setSelectedChannel(select.val());
+            });
+
+            return this.panel;
+        },
+        
+        getSelectedChannel: function(){
+            return this.selectedChannel;
+        },
+        
+        setSelectedChannel: function(channel){
+       		this.selectedChannel = channel;
+    		this.panel.find("select").val(channel);
+       	    this.notifyChangeListeners();
+        },
+        
+        addChangeListener: function(listener){
+        	this.listeners.addListener('change', listener);
+        },
+        
+        notifyChangeListeners: function(){
+        	this.listeners.notifyListeners('change');
+        }
+        
+    });
+    
+    //
+    // RESOLUTION CHOOSER
+    //
+    function ResolutionChooserWidget(resolutions) {
+        this.init(resolutions);
+    }
+    
+    $.extend(ResolutionChooserWidget.prototype, {
+
+    	 init: function(resolutions){
+             this.resolutions = resolutions;
+             this.listeners = new ListenerManager();
+             this.panel = $("<div>");
+         },
+         
+         render: function(){
+             var thisChooser = this; 
+             
+             var select = $("<select>").appendTo(this.panel);
+             
+             $("<option>").attr("value", "").text("Default").appendTo(select);
+             
+             this.resolutions.forEach(function(resolution){
+            	 var value = resolution.width + "x" + resolution.height;
+                 $("<option>").attr("value", value).text(value).appendTo(select);
+             });
+
+             if(this.selectedResolution){
+                 select.val(this.selectedResolution);
+             }
+             
+             select.change(function(){
+                 thisChooser.setSelectedResolution(select.val());
+             });
+
+             return this.panel;
+         },
+         
+         getSelectedResolution: function(){
+             return this.selectedResolution;
+         },
+         
+         setSelectedResolution: function(resolution){
+             this.selectedResolution = resolution;
+             this.panel.find("select").val(resolution);
+             this.notifyChangeListeners();
+         },
+         
+         addChangeListener: function(listener){
+             this.listeners.addListener('change', listener);
+         },
+         
+         notifyChangeListeners: function(){
+             this.listeners.notifyListeners('change');
+         }
+
+    });
+    
+    //
+    // IMAGE
+    //
+    function ImageWidget() {
+        this.init();
+    }
+    
+    $.extend(ImageWidget.prototype, {
+
+        init: function(){
+        	this.panel = $("<div>")
+        },
+        
+        render: function(){
+        	$("<img>").appendTo(this.panel);
+        	this.refresh();
+            return this.panel;
+        },
+        
+        refresh: function(){
+        	var url = this.dataStoreUrl;
+        	url += "?sessionID=" + this.sessionToken;
+        	url += "&dataset=" + this.dataSetCode;
+        	url += "&channelStackId=" + this.channelStackId;
+        	
+        	if(this.channel){
+        	    url += "&channel=" + this.channel;
+        	}else{
+        		url += "&mergeChannels=true";
+        	}
+        	
+        	if(this.resolution){
+        		url += "&mode=thumbnail" + this.resolution;	
+        	}else{
+        		url += "&mode=thumbnail480x480";
+        	}
+        	
+        	this.panel.find("img").attr("src", url);
+        },
+        
+        setDataStoreUrl: function(dataStoreUrl){
+        	this.dataStoreUrl = dataStoreUrl;
+        	this.refresh();
+        },
+        
+        setSessionToken: function(sessionToken){
+        	this.sessionToken = sessionToken;
+        	this.refresh();
+        },
+        
+        setDataSetCode: function(dataSetCode){
+        	this.dataSetCode = dataSetCode;
+        	this.refresh();
+        },
+        
+        setChannelStackId: function(channelStackId){
+        	this.channelStackId = channelStackId;
+        	this.refresh();
+        },
+        
+        setChannel: function(channel){
+        	this.channel = channel;
+        	this.refresh();
+        },
+        
+        setResolution: function(resolution){
+        	this.resolution = resolution;
+        	this.refresh();
+        }
+        
+    });
+    
+    //
+    // CALLBACK MANAGER
+    //
+    function CallbackManager(callback) {
+    	this.init(callback);
+    }
+    
+    $.extend(CallbackManager.prototype, {
+
+    	init: function(callback){
+    		this.callback = callback;
+    		this.callbacks = {};
+    	},
+    	
+        registerCallback: function(callback){
+        	var manager = this;
+        	
+        	var wrapper = function(){
+        		callback.apply(this, arguments);
+        		
+        		delete manager.callbacks[callback]
+        		
+        		for(c in manager.callbacks){
+        		    return;        			
+        		}
+        		
+        		manager.callback();
+        	}
+        	
+        	this.callbacks[callback] = callback;
+        	return wrapper;
+        }
+    });
+
+    
+    //
+    // LISTENER MANAGER
+    //
+    function ListenerManager() {
+    	this.init();
+    }
+    
+    $.extend(ListenerManager.prototype, {
+
+    	init: function(){
+    		this.listeners = {};
+    	},
+    	
+        addListener: function(eventType, listener){
+        	if(!this.listeners[eventType]){
+        		this.listeners[eventType] = []
+        	}
+        	this.listeners[eventType].push(listener);
+        },
+        
+        notifyListeners: function(eventType){
+            if(this.listeners[eventType]){
+                this.listeners[eventType].forEach(function(listener){
+                    listener();
+                });
+            }
+        }
+    });
+    
+    </script>
+</body>
+</html>

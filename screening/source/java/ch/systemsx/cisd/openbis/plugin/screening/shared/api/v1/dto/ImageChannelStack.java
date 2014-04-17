@@ -19,8 +19,10 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.util.JsonPropertyUtil;
 
 /**
  * @author pkupczyk
@@ -98,6 +100,18 @@ public class ImageChannelStack implements Serializable
     public void setSeriesNumberOrNull(Integer seriesNumberOrNull)
     {
         this.seriesNumberOrNull = seriesNumberOrNull;
+    }
+
+    @JsonProperty("id")
+    private String getIdAsString()
+    {
+        return JsonPropertyUtil.toStringOrNull(id);
+    }
+
+    @SuppressWarnings("unused")
+    private void setIdAsString(String id)
+    {
+        this.id = JsonPropertyUtil.toLongOrNull(id);
     }
 
 }
