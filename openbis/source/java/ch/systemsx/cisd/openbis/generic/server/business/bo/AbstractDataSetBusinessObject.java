@@ -155,22 +155,15 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         if (modifiedContainedCodesOrNull == null)
         {
             return; // contained are not changed
-        } else
-        {
-            final Set<DataPE> containedPEs =
-                    findDataSetsByCodes(asSet(modifiedContainedCodesOrNull));
-
-            replaceContainedDataSets(container, containedPEs);
         }
-    }
+        final Set<DataPE> newComponents = findDataSetsByCodes(asSet(modifiedContainedCodesOrNull));
 
-    protected void replaceContainedDataSets(DataPE container, Set<DataPE> newContainedDataSets)
-    {
-        List<DataPE> contained = new ArrayList<DataPE>();
+        for (DataPE dataPE : container.getContainedDataSets())
+        {
+            relationshipService.removeDataSetFromContainer(session, dataPE, container);
+        }
 
-        contained.addAll(container.getContainedDataSets());
-
-        for (DataPE dataPE : newContainedDataSets)
+        for (DataPE dataPE : newComponents)
         {
             relationshipService.assignDataSetToContainer(session, dataPE, container);
             validateContainerContainedRelationshipGraph(container, dataPE);
