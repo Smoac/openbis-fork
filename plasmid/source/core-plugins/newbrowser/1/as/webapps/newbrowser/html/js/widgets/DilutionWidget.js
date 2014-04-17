@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-function DilutionWidget(containerId, serverFacade) {
+function DilutionWidget(containerId, serverFacade, isEnabled) {
 	this._containerId = containerId;
 	this._serverFacade = serverFacade;
+	this._isEnabled = isEnabled;
 	this._predefinedMass = [ 139,141,142,143,144
 	                        ,145,146,147,148,149
 	                        ,150,151,152,153,154
@@ -38,6 +39,36 @@ function DilutionWidget(containerId, serverFacade) {
 			
 			//First repaint after all initializations
 			_this._repaint();
+			
+			//Disable field or give alert
+			var stateField = $("#DILUTION_STATE");
+			if(stateField.length === 0) {
+				Util.showError("You need a property with code DILUTION_STATE on this entity to store the state of the dilution widget.");
+			} else {
+				//Hide State Field
+				var fieldset = stateField.parent().parent().parent();
+				fieldset.hide();
+				
+				//Update Values
+				var stateObj = JSON.parse(stateField.val());
+				var tBody = $("#" + _this._widgetTableId).children()[1];
+				for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
+					var row = $(tBody.rows[rowNum]);
+					var antibodyDropDown = $($(row.children()[2]).children()[0]);
+					var antibody = stateObj[rowNum][0];
+					if(antibody !== "") {
+						antibodyDropDown.val(antibody);
+						antibodyDropDown.change();
+						var conjugatedCloneDropDown = $($(row.children()[3]).children()[0]);
+						var conjugatedClone = stateObj[rowNum][1];
+						if(conjugatedClone !== "") {
+							conjugatedCloneDropDown.val(conjugatedClone);
+							conjugatedCloneDropDown.change();
+						}
+					}
+				}
+				
+			}
 		});
 	}
 	
@@ -94,6 +125,9 @@ function DilutionWidget(containerId, serverFacade) {
 				_this._updateConjugatedClone(rowNumber, proteinPermId);
 			}
 		});
+		if(!_this._isEnabled) {
+			$component.attr('disabled', true)
+		}
 		return $component;
 	}
 	
@@ -179,6 +213,9 @@ function DilutionWidget(containerId, serverFacade) {
 		}
 		
 		$component.change(conjugatedCloneChange);
+		if(!this._isEnabled) {
+			$component.attr('disabled', true)
+		}
 	}
 	
 	this._updateCalculatedValues = function() {
@@ -201,6 +238,32 @@ function DilutionWidget(containerId, serverFacade) {
 		
 		//Buffer Volume
 		this._updateCell(tBody.rows.length - 2,7, this._totalVolume - totalVolumeToAdd);
+		
+		//Update State
+		var state = $("#DILUTION_STATE");
+		if(state.length === 1) {
+			var state = {};
+			for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
+				var row = $(tBody.rows[rowNum]);
+				var antibodyDropDown = $($(row.children()[2]).children()[0]);
+				var antibody = "";
+				if(antibodyDropDown.val()) {
+					antibody = antibodyDropDown.val();
+				}
+				var conjugatedClone = "";
+				
+				if(antibody !== "") {
+					var conjugatedCloneDropDown = $($(row.children()[3]).children()[0]);
+					if(conjugatedCloneDropDown.val()) {
+						conjugatedClone = conjugatedCloneDropDown.val();
+					}
+				}
+				
+				state[rowNum] = [antibody, conjugatedClone];
+			}
+			
+			$("#DILUTION_STATE").val(JSON.stringify(state));
+		}
 	}
 	
 	this._repaint = function() {
