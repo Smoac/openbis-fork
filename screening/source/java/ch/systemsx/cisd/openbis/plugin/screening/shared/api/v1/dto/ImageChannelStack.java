@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -37,6 +39,7 @@ public class ImageChannelStack implements Serializable
 
     private Integer seriesNumberOrNull;
 
+    @JsonIgnore
     public long getId()
     {
         return id;
