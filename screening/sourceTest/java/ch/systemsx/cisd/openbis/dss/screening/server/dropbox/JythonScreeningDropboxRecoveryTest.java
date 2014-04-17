@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
@@ -129,18 +131,17 @@ public class JythonScreeningDropboxRecoveryTest extends AbstractJythonDataSetHan
 
     protected void assertImagesStored(AtomicEntityOperationDetails recordedObject)
     {
-        assertEquals(3, recordedObject.getDataSetRegistrations().size());
+        List<? extends NewExternalData> dataSetRegistrations = recordedObject.getDataSetRegistrations();
+        TreeMap<String, NewExternalData> map = new TreeMap<String, NewExternalData>();
+        for (NewExternalData dataSet : dataSetRegistrations)
+        {
+            map.put(dataSet.getDataSetType().getCode(), dataSet);
+        }
+        assertEquals("[HCS_IMAGE_CONTAINER_RAW, HCS_IMAGE_OVERVIEW, HCS_IMAGE_RAW]", map.keySet().toString());
+        assertEquals(3, dataSetRegistrations.size());
 
-        NewExternalData hcsImageOverviewDataSet = recordedObject.getDataSetRegistrations().get(0);
-        NewExternalData hcsImageRawDataSet = recordedObject.getDataSetRegistrations().get(1);
-        NewExternalData hcsImageContainerRawDataSet =
-                recordedObject.getDataSetRegistrations().get(2);
-
-        assertEquals(new DataSetType("HCS_IMAGE_OVERVIEW"),
-                hcsImageOverviewDataSet.getDataSetType());
-        assertEquals(new DataSetType("HCS_IMAGE_RAW"), hcsImageRawDataSet.getDataSetType());
-        assertEquals(new DataSetType("HCS_IMAGE_CONTAINER_RAW"),
-                hcsImageContainerRawDataSet.getDataSetType());
+        NewExternalData hcsImageOverviewDataSet = map.get("HCS_IMAGE_OVERVIEW");
+        NewExternalData hcsImageRawDataSet = map.get("HCS_IMAGE_RAW");
 
         File rawDatasetLocation =
                 new File(assertStorageDirectoryOfDataset(hcsImageRawDataSet), "original");
