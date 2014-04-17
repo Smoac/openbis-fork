@@ -1249,9 +1249,17 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		 * Used by Sample Form
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			var isEnabled = mainController.currentView.mode !== SampleFormMode.VIEW;
-			var dilutionWidget = new DilutionWidget(containerId, this.serverFacade, isEnabled);
-			dilutionWidget.init();
+			var isExperiment = false;
+			this.ELNExperiments.forEach(function(experimentTypeCode){
+				if(experimentTypeCode === sampleTypeCode) {
+					isExperiment = true;
+				}
+			});
+			if(isExperiment) {
+				var isEnabled = mainController.currentView.mode !== SampleFormMode.VIEW;
+				var dilutionWidget = new DilutionWidget(containerId, this.serverFacade, isEnabled);
+				dilutionWidget.init();
+			}
 		}
 	}
 });
