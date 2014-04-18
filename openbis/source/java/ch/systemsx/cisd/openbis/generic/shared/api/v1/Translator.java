@@ -776,4 +776,28 @@ public class Translator
         initializer.setDownloadLink(url.toString());
         return new Attachment(initializer);
     }
+
+    public static PropertyType translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType)
+    {
+        PropertyTypeInitializer ptInitializer;
+
+        boolean isControlledVocabulary = propertyType.getDataType().getCode() == DataTypeCode.CONTROLLEDVOCABULARY;
+        if (isControlledVocabulary)
+        {
+            ControlledVocabularyPropertyTypeInitializer cvptInitializer = new ControlledVocabularyPropertyTypeInitializer();
+
+            cvptInitializer.setVocabulary(propertyType.getVocabulary());
+            cvptInitializer.setTerms(new ArrayList<ControlledVocabularyPropertyType.VocabularyTerm>());
+            ptInitializer = cvptInitializer;
+        } else
+        {
+            ptInitializer = new PropertyTypeInitializer();
+        }
+        ptInitializer.setDataType(propertyType.getDataType().getCode());
+        ptInitializer.setCode(propertyType.getCode());
+        ptInitializer.setLabel(propertyType.getLabel());
+        ptInitializer.setDescription(propertyType.getDescription());
+
+        return new PropertyType(ptInitializer);
+    }
 }

@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
@@ -461,6 +462,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public Map<String, String> getUserDisplaySettings(final String sessionToken)
     {
         logAccess(sessionToken, "getUserDisplaySettings", "sessionToken(%s)", sessionToken);
+        return null;
+    }
+
+    @Override
+    public List<PropertyType> listPropertyTypes(String sessionToken, boolean withRelations)
+    {
+        logAccess(sessionToken, "listPropertyTypes", "sessionToken(%s) withRelations(%s)", sessionToken, withRelations);
         return null;
     }
 }
