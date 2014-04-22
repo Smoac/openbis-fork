@@ -95,22 +95,31 @@
             this.load(function(){
             	
                 var channelWidget = new ChannelChooserWidget(thisImageViewer.getChannels());
+                channelWidget.setSelectedChannel("RGB");
                 channelWidget.addChangeListener(function(){
                 	imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
                 });
                 thisImageViewer.panel.append(channelWidget.render());
-                
+
                 var resolutionWidget = new ResolutionChooserWidget(thisImageViewer.getResolutions());
+                resolutionWidget.setSelectedResolution("512x512");
                 resolutionWidget.addChangeListener(function(){
                 	imageWidget.setResolution(resolutionWidget.getSelectedResolution());
                 });
                 thisImageViewer.panel.append(resolutionWidget.render());
                 
+                var channelStackWidget = new ChannelStackChooserWidget(thisImageViewer.getChannelStacks());
+                channelStackWidget.setSelectedChannelStack(thisImageViewer.getChannelStacks()[0].id);
+                channelStackWidget.addChangeListener(function(){
+                    imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack());
+                });
+                thisImageViewer.panel.append(channelStackWidget.render());
+                
                 var imageWidget = new ImageWidget();
                 imageWidget.setDataStoreUrl("http://localhost:8889/datastore_server_screening");
                 imageWidget.setSessionToken(thisImageViewer.context.getSessionId());
                 imageWidget.setDataSetCode(thisImageViewer.context.getEntityPermId());
-                imageWidget.setChannelStackId(thisImageViewer.getChannelStack(0, 0).id);
+                imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack());
                 imageWidget.setResolution(resolutionWidget.getSelectedResolution());
                 imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
                 
@@ -122,18 +131,21 @@
 	    },
 	    
 	    getChannels: function(){
-	    	return this.imageInfo.imageDataset.imageDataset.imageParameters.channels;
+	    	//return this.imageInfo.imageDataset.imageDataset.imageParameters.channels;
+	    	return [
+	    	        {
+	    	        	  code: "RGB",
+	    	        	  label: "RGB label"
+	    	        },
+                    {
+                        code: "CMYK",
+                        label: "CMYK label"
+                    }
+	    	        ];
 	    },
 	    
-	    getChannelStack: function(timePoint, depth){
-	    	if(this.channelStacks == null){
-	    		var map = {};
-	    		this.imageInfo.channelStacks.forEach(function(channelStack){
-	    			map[channelStack.timePointOrNull + "_" + channelStack.depthOrNull] = channelStack;
-	    		});
-	    		this.channelStacks = map;
-	    	}
-	    	return this.channelStacks[timePoint + "_" + depth];
+	    getChannelStacks: function(){
+	    	return this.imageInfo.channelStacks;
         },
         
         getResolutions: function(){
@@ -292,15 +304,25 @@
                  $("<option>").attr("value", value).text(value).appendTo(select);
              });
 
-             if(this.selectedResolution){
-                 select.val(this.selectedResolution);
-             }
-             
              select.change(function(){
                  thisChooser.setSelectedResolution(select.val());
              });
+             
+             this.rendered = true;
+             this.refresh();
 
              return this.panel;
+         },
+
+         refresh: function(){
+        	 if(!this.rendered){
+        		 return;
+        	 }
+        	 
+        	 var select = this.panel.find("select");
+        	 if(this.selectedResolution){
+        		 select.val(this.selectedResolution);
+        	 }
          },
          
          getSelectedResolution: function(){
@@ -309,7 +331,7 @@
          
          setSelectedResolution: function(resolution){
              this.selectedResolution = resolution;
-             this.panel.find("select").val(resolution);
+             this.refresh();
              this.notifyChangeListeners();
          },
          
@@ -322,6 +344,74 @@
          }
 
     });
+    
+    //
+    // CHANNEL STACK CHOOSER
+    //
+    function ChannelStackChooserWidget(channelStacks) {
+        this.init(channelStacks);
+    }
+    
+    $.extend(ChannelStackChooserWidget.prototype, {
+
+         init: function(channelStacks){
+             this.channelStacks = channelStacks;
+             this.selectedChannelStack = null;
+             this.listeners = new ListenerManager();
+             this.panel = $("<div>");
+         },
+         
+         render: function(){
+        	  var thisChooser = this; 
+              
+              var select = $("<select>").appendTo(this.panel);
+              
+              this.channelStacks.forEach(function(channelStack){
+            	  var value = channelStack.id;
+            	  var text = "T: " + channelStack.timePointOrNull + ", D: " + channelStack.depthOrNull;
+                  $("<option>").attr("value", value).text(text).appendTo(select);
+              });
+
+              select.change(function(){
+                  thisChooser.setSelectedChannelStack(select.val());
+              });
+              
+              this.rendered = true;
+              this.refresh();
+
+              return this.panel;
+         },
+         
+         refresh: function(){
+        	 if(!this.rendered){
+        		 return;
+        	 }
+        	 
+        	 var select = this.panel.find("select");
+        	 if(this.selectedChannelStack){
+        		  select.val(this.selectedChannelStack);
+        	 }
+         },
+         
+         getSelectedChannelStack: function(){
+             return this.selectedChannelStack;
+         },
+         
+         setSelectedChannelStack: function(channelStack){
+        	 this.selectedChannelStack = channelStack;
+        	 this.refresh();
+             this.notifyChangeListeners();
+         },
+         
+         addChangeListener: function(listener){
+             this.listeners.addListener('change', listener);
+         },
+         
+         notifyChangeListeners: function(){
+             this.listeners.notifyListeners('change');
+         }
+
+    });    
     
     //
     // IMAGE
