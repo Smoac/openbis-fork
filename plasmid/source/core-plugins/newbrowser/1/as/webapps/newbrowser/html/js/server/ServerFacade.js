@@ -65,10 +65,6 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
 	
-	this.listPropertyTypes = function(callbackFunction) {
-		this.openbisServer.listPropertyTypes(false, callbackFunction);
-	}
-	
 	//
 	// Data Set Related Functions
 	//
