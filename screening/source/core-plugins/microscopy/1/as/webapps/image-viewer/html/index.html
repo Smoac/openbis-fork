@@ -96,7 +96,7 @@
             	
                 var channelWidget = new ChannelChooserWidget(thisImageViewer.getChannels());
                 channelWidget.addChangeListener(function(){
-                	imageWidget.setChannel(channelWidget.getSelectedChannel());
+                	imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
                 });
                 thisImageViewer.panel.append(channelWidget.render());
                 
@@ -111,8 +111,9 @@
                 imageWidget.setSessionToken(thisImageViewer.context.getSessionId());
                 imageWidget.setDataSetCode(thisImageViewer.context.getEntityPermId());
                 imageWidget.setChannelStackId(thisImageViewer.getChannelStack(0, 0).id);
-                imageWidget.setChannel(channelWidget.getSelectedChannel());
                 imageWidget.setResolution(resolutionWidget.getSelectedResolution());
+                imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
+                
                 thisImageViewer.panel.append(imageWidget.render());
 
             });
@@ -152,6 +153,11 @@
 
         init: function(channels){
         	this.channels = channels;
+        	this.selectedChannel = null;
+        	this.mergedChannels = channels.map(function(channel){
+                return channel.code;
+            });
+        	
         	this.listeners = new ListenerManager();
         	this.panel = $("<div>");
         },
@@ -166,26 +172,87 @@
             this.channels.forEach(function(channel){
             	$("<option>").attr("value", channel.code).text(channel.label).appendTo(select);
             });
-
-            if(this.selectedChannel){
-                select.val(this.selectedChannel);
-            }
             
             select.change(function(){
-            	thisChooser.setSelectedChannel(select.val());
+                if(select.val() == ""){
+                    thisChooser.setSelectedChannel(null);                    
+                }else{
+                    thisChooser.setSelectedChannel(select.val());
+                }
             });
 
+            var mergedChannels = $("<div>").addClass("mergedChannels").appendTo(this.panel);
+            
+            this.channels.forEach(function(channel){
+	            var mergedChannel = $("<span>").addClass("mergedChannel").appendTo(mergedChannels);
+	            $("<input>").attr("type", "checkbox").attr("value", channel.code).appendTo(mergedChannel);
+	            mergedChannel.append(channel.label);
+            });
+
+            mergedChannels.find("input").change(function(){
+            	var channels = []
+            	mergedChannels.find("input:checked").each(function(){
+            		var checkbox = $(this);
+            		channels.push(checkbox.val());
+            	});
+            	thisChooser.setMergedChannels(channels);
+            });
+
+            this.rendered = true;
+            this.refresh();
+            
             return this.panel;
         },
         
+        refresh: function(){
+        	if(!this.rendered){
+        		return;
+        	}
+        	
+        	var thisChooser = this;
+        	
+        	var select = this.panel.find("select");
+        	var mergedChannels = this.panel.find(".mergedChannels");
+        	
+        	if(this.getSelectedChannel()){
+                select.val(this.getSelectedChannel());
+                mergedChannels.hide();
+        	}else{
+                select.val("");
+                mergedChannels.find("input").each(function(){
+                    var checkbox = $(this);
+                    checkbox.prop("checked", $.inArray(checkbox.val(), thisChooser.getMergedChannels()) != -1);
+                });
+                mergedChannels.show();
+        	}
+        },
+
         getSelectedChannel: function(){
             return this.selectedChannel;
         },
         
         setSelectedChannel: function(channel){
-       		this.selectedChannel = channel;
-    		this.panel.find("select").val(channel);
-       	    this.notifyChangeListeners();
+            this.selectedChannel = channel;
+            this.refresh();
+            this.notifyChangeListeners();
+        },
+        
+        getMergedChannels: function(){
+        	return this.mergedChannels;
+        },
+        
+        setMergedChannels: function(channels){
+            this.mergedChannels = channels;
+            this.refresh();
+            this.notifyChangeListeners();
+        },
+        
+        getSelectedOrMergedChannels: function(){
+            if(this.getSelectedChannel()){
+            	return [this.getSelectedChannel()];
+            }else{
+            	return this.getMergedChannels();
+            }
         },
         
         addChangeListener: function(listener){
@@ -271,21 +338,24 @@
         
         render: function(){
         	$("<img>").appendTo(this.panel);
+        	this.rendered = true;
         	this.refresh();
             return this.panel;
         },
         
         refresh: function(){
+        	if(!this.rendered){
+        		return;
+        	}
+        	
         	var url = this.dataStoreUrl;
         	url += "?sessionID=" + this.sessionToken;
         	url += "&dataset=" + this.dataSetCode;
         	url += "&channelStackId=" + this.channelStackId;
-        	
-        	if(this.channel){
-        	    url += "&channel=" + this.channel;
-        	}else{
-        		url += "&mergeChannels=true";
-        	}
+
+        	this.channels.forEach(function(channel){
+        		url += "&channel=" + channel;
+        	});
         	
         	if(this.resolution){
         		url += "&mode=thumbnail" + this.resolution;	
@@ -316,8 +386,8 @@
         	this.refresh();
         },
         
-        setChannel: function(channel){
-        	this.channel = channel;
+        setChannels: function(channels){
+        	this.channels = channels;
         	this.refresh();
         },
         
