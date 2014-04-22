@@ -355,13 +355,14 @@
     $.extend(ChannelStackChooserWidget.prototype, {
 
          init: function(channelStacks){
-             this.channelStacks = channelStacks;
+             this.channelStackManager = new ChannelStackManager(channelStacks);
              this.selectedChannelStack = null;
              this.listeners = new ListenerManager();
              this.panel = $("<div>");
          },
          
          render: function(){
+        	 /*
         	  var thisChooser = this; 
               
               var select = $("<select>").appendTo(this.panel);
@@ -378,7 +379,15 @@
               
               this.rendered = true;
               this.refresh();
-
+              */
+              
+              console.log("series present: " + this.channelStackManager.isSeriesNumberPresent());
+              console.log("timepoint missing: " + this.channelStackManager.isTimePointMissing());
+              console.log("depth missing: " + this.channelStackManager.isDepthMissing());
+              console.log("depth consistent: " + this.channelStackManager.isDepthConsistent());
+              console.log("time points: " + this.channelStackManager.getTimePoints());
+              console.log("depths: " + this.channelStackManager.getDepths());
+              
               return this.panel;
          },
          
@@ -411,7 +420,116 @@
              this.listeners.notifyListeners('change');
          }
 
-    });    
+    });
+    
+    //
+    // CHANNEL STACK MANAGER
+    //
+    
+    function ChannelStackManager(channelStacks) {
+        this.init(channelStacks);
+    }
+    
+    $.extend(ChannelStackManager.prototype, {
+
+         init: function(channelStacks){
+        	 this.channelStacks = channelStacks;
+         },
+         
+         isSeriesNumberPresent: function(){
+        	 return this.channelStacks.some(function(channelStack){
+                return channelStack.seriesNumberOrNull;        		 
+        	 });
+         },
+         
+         isTimePointMissing: function(){
+             return this.channelStacks.some(function(channelStack){
+                 return channelStack.timePointOrNull == null;              
+              });
+         },
+         
+         isDepthMissing: function(){
+             return this.channelStacks.some(function(channelStack){
+                 return channelStack.depthOrNull == null;              
+              });
+         },
+         
+         isDepthConsistent: function(){
+             var map = this.getChannelStackMap();
+             var depthCounts = {};
+             
+             for(timePoint in map){
+                 var entry = map[timePoint];
+                 var depthCount = Object.keys(entry).length;
+                 depthCounts[depthCount] = true;
+             }
+             
+             return Object.keys(depthCounts).length == 1;
+         },
+         
+         getTimePoints: function(){
+        	 if(!this.timePoints){
+                 var timePoints = {};
+                 
+                 this.channelStacks.forEach(function(channelStack){
+                	 if(channelStack.timePointOrNull != null){
+                		 timePoints[channelStack.timePointOrNull] = true;	 
+                	 }
+                 });
+                 
+                 this.timePoints = Object.keys(timePoints);
+        	 }
+        	 return this.timePoints;
+         },
+         
+         getDepths: function(){
+             if(!this.depths){
+                 var depths = {};
+                 
+                 this.channelStacks.forEach(function(channelStack){
+                     if(channelStack.depthOrNull != null){
+                    	 depths[channelStack.depthOrNull] = true;    
+                     }
+                 });
+                 
+                 this.depths = Object.keys(depths);
+             }
+             return this.depths;
+         },
+         
+         getChannelStack: function(timePoint, depthLevel){
+        	 var map = this.getChannelStackMap();
+        	 var entry = map[timePoint];
+        	 
+        	 if(entry){
+        		 return entry[depthLevel];
+        	 }else{
+        		 return null;
+        	 }
+         },
+         
+         getChannelStacks: function(){
+        	 return this.channelStacks;
+         },
+         
+         getChannelStackMap: function(){
+             if(!this.channelStackMap){
+                 var map = {};
+                 this.channelStacks.forEach(function(channelStack){
+                     if(channelStack.timePointOrNull != null && channelStack.depthOrNull != null){
+                         var entry = map[channelStack.timePointOrNull];
+                         if(!entry){
+                             entry = {};
+                             map[channelStack.timePointOrNull] = entry;
+                         }
+                         entry[channelStack.depthOrNull] = channelStack;
+                     }
+                 });
+                 this.channelStackMap = map;
+             }
+             return this.channelStackMap; 
+         }
+    });
     
     //
     // IMAGE
