@@ -36,7 +36,7 @@ import ch.systemsx.cisd.base.convert.NativeData.ByteOrder;
 import ch.systemsx.cisd.common.xml.XmlDateAdapter;
 
 /**
- * A file for parsing <code>eicML</code> files.
+ * A file for parsing <code>fiaML</code> files.
  * 
  * @author Bernd Rinn
  */
