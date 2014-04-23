@@ -95,23 +95,20 @@
             this.load(function(){
             	
                 var channelWidget = new ChannelChooserWidget(thisImageViewer.getChannels());
-                channelWidget.setSelectedChannel("RGB");
                 channelWidget.addChangeListener(function(){
                 	imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
                 });
                 thisImageViewer.panel.append(channelWidget.render());
 
                 var resolutionWidget = new ResolutionChooserWidget(thisImageViewer.getResolutions());
-                resolutionWidget.setSelectedResolution("512x512");
                 resolutionWidget.addChangeListener(function(){
                 	imageWidget.setResolution(resolutionWidget.getSelectedResolution());
                 });
                 thisImageViewer.panel.append(resolutionWidget.render());
                 
                 var channelStackWidget = new ChannelStackChooserWidget(thisImageViewer.getChannelStacks());
-                channelStackWidget.setSelectedChannelStack(thisImageViewer.getChannelStacks()[0].id);
                 channelStackWidget.addChangeListener(function(){
-                    imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack());
+                    imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack().id);
                 });
                 thisImageViewer.panel.append(channelStackWidget.render());
                 
@@ -119,7 +116,7 @@
                 imageWidget.setDataStoreUrl("http://localhost:8889/datastore_server_screening");
                 imageWidget.setSessionToken(thisImageViewer.context.getSessionId());
                 imageWidget.setDataSetCode(thisImageViewer.context.getEntityPermId());
-                imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack());
+                imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack().id);
                 imageWidget.setResolution(resolutionWidget.getSelectedResolution());
                 imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
                 
@@ -131,17 +128,7 @@
 	    },
 	    
 	    getChannels: function(){
-	    	//return this.imageInfo.imageDataset.imageDataset.imageParameters.channels;
-	    	return [
-	    	        {
-	    	        	  code: "RGB",
-	    	        	  label: "RGB label"
-	    	        },
-                    {
-                        code: "CMYK",
-                        label: "CMYK label"
-                    }
-	    	        ];
+	    	return this.imageInfo.imageDataset.imageDataset.imageParameters.channels;
 	    },
 	    
 	    getChannelStacks: function(){
@@ -355,70 +342,157 @@
     $.extend(ChannelStackChooserWidget.prototype, {
 
          init: function(channelStacks){
-             this.channelStackManager = new ChannelStackManager(channelStacks);
-             this.selectedChannelStack = null;
-             this.listeners = new ListenerManager();
-             this.panel = $("<div>");
+             var manager = new ChannelStackManager(channelStacks);
+             
+             if(manager.isMatrix()){
+            	 this.widget = new ChannelStackMatrixChooserWidget(channelStacks);
+             }else{
+            	 this.widget = new ChannelStackDefaultChooserWidget(channelStacks);
+             }
          },
          
          render: function(){
-        	 /*
-        	  var thisChooser = this; 
-              
-              var select = $("<select>").appendTo(this.panel);
-              
-              this.channelStacks.forEach(function(channelStack){
-            	  var value = channelStack.id;
-            	  var text = "T: " + channelStack.timePointOrNull + ", D: " + channelStack.depthOrNull;
-                  $("<option>").attr("value", value).text(text).appendTo(select);
-              });
-
-              select.change(function(){
-                  thisChooser.setSelectedChannelStack(select.val());
-              });
-              
-              this.rendered = true;
-              this.refresh();
-              */
-              
-              console.log("series present: " + this.channelStackManager.isSeriesNumberPresent());
-              console.log("timepoint missing: " + this.channelStackManager.isTimePointMissing());
-              console.log("depth missing: " + this.channelStackManager.isDepthMissing());
-              console.log("depth consistent: " + this.channelStackManager.isDepthConsistent());
-              console.log("time points: " + this.channelStackManager.getTimePoints());
-              console.log("depths: " + this.channelStackManager.getDepths());
-              
-              return this.panel;
-         },
-         
-         refresh: function(){
-        	 if(!this.rendered){
-        		 return;
-        	 }
-        	 
-        	 var select = this.panel.find("select");
-        	 if(this.selectedChannelStack){
-        		  select.val(this.selectedChannelStack);
-        	 }
+        	 return this.widget.render();
          },
          
          getSelectedChannelStack: function(){
-             return this.selectedChannelStack;
-         },
-         
-         setSelectedChannelStack: function(channelStack){
-        	 this.selectedChannelStack = channelStack;
-        	 this.refresh();
-             this.notifyChangeListeners();
+             return this.widget.getSelectedChannelStack();
          },
          
          addChangeListener: function(listener){
-             this.listeners.addListener('change', listener);
+        	 this.widget.addChangeListener(listener);
          },
          
          notifyChangeListeners: function(){
-             this.listeners.notifyListeners('change');
+        	 this.widget.notifyChangeListeners();
          }
+
+    });
+    
+    //
+    // CHANNEL STACK MATRIX CHOOSER
+    //
+    function ChannelStackMatrixChooserWidget(channelStacks) {
+        this.init(channelStacks);
+    }
+    
+    $.extend(ChannelStackMatrixChooserWidget.prototype, {
+
+        init: function(channelStacks){
+            this.channelStackManager = new ChannelStackManager(channelStacks);
+            this.selectedTimePoint = this.channelStackManager.getTimePoints()[0]; 
+            this.selectedDepth = this.channelStackManager.getDepths()[0];
+            this.listeners = new ListenerManager();
+            this.panel = $("<div>");
+        },
+        
+        render: function(){
+            var thisChooser = this; 
+            
+            var timeSelect = $("<select>").addClass("timeChooser").appendTo(this.panel);
+            
+            this.channelStackManager.getTimePoints().forEach(function(timePoint){
+                $("<option>").attr("value", timePoint).text(timePoint).appendTo(timeSelect);
+            });
+
+            timeSelect.change(function(){
+                thisChooser.setSelectedTimePoint(timeSelect.val());
+            });
+            
+            var depthSelect = $("<select>").addClass("depthChooser").appendTo(this.panel);
+            
+            this.channelStackManager.getDepths().forEach(function(depth){
+                $("<option>").attr("value", depth).text(depth).appendTo(depthSelect);
+            });
+
+            depthSelect.change(function(){
+                thisChooser.setSelectedDepth(depthSelect.val());
+            });
+            
+            this.rendered = true;
+            this.refresh();
+
+            return this.panel;
+        },
+        
+        refresh: function(){
+        	 if(!this.rendered){
+                 return;
+             }
+             
+             var timeSelect = this.panel.find("select.timeChooser");
+             
+             if(this.selectedTimePoint){
+                 timeSelect.val(this.selectedTimePoint);
+             }
+             
+             var depthSelect = this.panel.find("select.depthChooser");
+             
+             if(this.selectedDepth){
+                 depthSelect.val(this.selectedDepth);
+             }          
+        },
+        
+        getSelectedChannelStack: function(){
+        	return this.channelStackManager.getChannelStack(this.selectedTimePoint, this.selectedDepth);
+        },
+        
+        setSelectedTimePoint: function(timePoint){
+        	this.selectedTimePoint = timePoint;
+        	this.refresh();
+        	this.notifyChangeListeners();
+        },
+        
+        setSelectedDepth: function(depth){
+            this.selectedDepth = depth;
+            this.refresh();
+            this.notifyChangeListeners();
+        },
+        
+        addChangeListener: function(listener){
+            this.listeners.addListener('change', listener);
+        },
+        
+        notifyChangeListeners: function(){
+            this.listeners.notifyListeners('change');
+        }
+
+    });
+    
+    //
+    // CHANNEL STACK DEFAULT CHOOSER
+    //
+    function ChannelStackDefaultChooserWidget(channelStacks) {
+        this.init(channelStacks);
+    }
+    
+    $.extend(ChannelStackDefaultChooserWidget.prototype, {
+
+        init: function(channelStacks){
+            this.channelStackManager = new ChannelStackManager(channelStacks);
+            this.listeners = new ListenerManager();
+            this.panel = $("<div>");
+        },
+        
+        render: function(){
+            this.panel.append("Default channel stack chooser");
+            return this.panel;
+        },
+        
+        getSelectedChannelStack: function(){
+            return null;
+        },
+        
+        setSelectedChannelStack: function(channelStack){
+        },
+        
+        addChangeListener: function(listener){
+            this.listeners.addListener('change', listener);
+        },
+        
+        notifyChangeListeners: function(){
+            this.listeners.notifyListeners('change');
+        }
 
     });
     
@@ -434,6 +508,10 @@
 
          init: function(channelStacks){
         	 this.channelStacks = channelStacks;
+         },
+         
+         isMatrix: function(){
+        	return !this.isSeriesNumberPresent() && !this.isTimePointMissing() && !this.isDepthMissing() && this.isDepthConsistent();  
          },
          
          isSeriesNumberPresent: function(){
