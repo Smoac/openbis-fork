@@ -21,58 +21,25 @@
     <script>
 
     $(document).ready(function(){
-    	var facade = new OpenbisFacade(new openbis());
+    	var facade = new openbis();
     	
     	facade.login("admin", "password", function(response){
-            var context = {
-                    getSessionId : function(){
-                        return response.result;
-                    },
-                    getEntityPermId : function(){
-                        return "20140415140347875-53"
-                    }
-                };
-			var widget = new ImageViewerWidget(context, facade);
+			var widget = new ImageViewerWidget(facade, "20140415140347875-53");
 			$("body").append(widget.render());				
     	});
     });
     
     //
-    // FACADE
-    //
-    function OpenbisFacade(openbis){
-    	this.init(openbis);
-    }
-    
-    $.extend(OpenbisFacade.prototype, {
-        init: function(openbis){
-        	this.openbis = openbis;
-        },
-        
-        login: function(user, password, callback){
-        	this.openbis.login(user, password, callback);
-        },
-
-        getImageInfo: function(dataSetCode, callback){
-	        this.openbis.getImageInfo(dataSetCode, null, callback);
-        },
-        
-        getImageResolutions: function(dataSetCode, callback){
-        	this.openbis.getImageResolutions(dataSetCode, callback);
-        }
-    });
-
-    //
     // IMAGE VIEWER
     //
-	function ImageViewerWidget(context, facade) {
-	    this.init(context, facade);
+	function ImageViewerWidget(openbis, dataSetCode) {
+	    this.init(openbis, dataSetCode);
 	}
 	
 	$.extend(ImageViewerWidget.prototype, {
-	    init: function(context, facade){
-	    	this.context = context;
-	    	this.facade = facade;
+	    init: function(openbis, dataSetCode){
+	    	this.facade = new OpenbisFacade(openbis);
+	    	this.dataSetCode = dataSetCode;
 	    	this.panel = $("<div>")
 	    },
 	    
@@ -87,11 +54,15 @@
                     callback();
                 });
                 
-                this.facade.getImageInfo(thisImageViewer.context.getEntityPermId(), manager.registerCallback(function(response){
+                this.facade.tryGetDataStoreBaseURL(thisImageViewer.dataSetCode, manager.registerCallback(function(response){
+                    thisImageViewer.dataStoreUrl = response.result;
+                }));
+                
+                this.facade.getImageInfo(thisImageViewer.dataSetCode, manager.registerCallback(function(response){
                     thisImageViewer.imageInfo = response.result;
                 }));
                 
-                this.facade.getImageResolutions(thisImageViewer.context.getEntityPermId(), manager.registerCallback(function(response){
+                this.facade.getImageResolutions(thisImageViewer.dataSetCode, manager.registerCallback(function(response){
                     thisImageViewer.imageResolutions = response.result;
                 }));
 	    	}
@@ -121,9 +92,9 @@
                 thisImageViewer.panel.append(channelStackWidget.render());
                 
                 var imageWidget = new ImageWidget();
-                imageWidget.setDataStoreUrl("http://localhost:8889/datastore_server_screening");
-                imageWidget.setSessionToken(thisImageViewer.context.getSessionId());
-                imageWidget.setDataSetCode(thisImageViewer.context.getEntityPermId());
+                imageWidget.setSessionToken(thisImageViewer.facade.getSession());
+                imageWidget.setDataStoreUrl(thisImageViewer.dataStoreUrl);
+                imageWidget.setDataSetCode(thisImageViewer.dataSetCode);
                 imageWidget.setChannelStackId(channelStackWidget.getSelectedChannelStack().id);
                 imageWidget.setResolution(resolutionWidget.getSelectedResolution());
                 imageWidget.setChannels(channelWidget.getSelectedOrMergedChannels());
@@ -148,6 +119,35 @@
         }
 	    
 	});
+	
+	//
+    // FACADE
+    //
+    function OpenbisFacade(openbis){
+        this.init(openbis);
+    }
+    
+    $.extend(OpenbisFacade.prototype, {
+        init: function(openbis){
+            this.openbis = openbis;
+        },
+        
+        getSession: function(){
+            return this.openbis.getSession();
+        },
+        
+        tryGetDataStoreBaseURL: function(dataSetCode, action){
+        	this.openbis.tryGetDataStoreBaseURL(dataSetCode, action);
+        },
+
+        getImageInfo: function(dataSetCode, callback){
+            this.openbis.getImageInfo(dataSetCode, null, callback);
+        },
+        
+        getImageResolutions: function(dataSetCode, callback){
+            this.openbis.getImageResolutions(dataSetCode, callback);
+        }
+    });
 	
     //
     // CHANNEL CHOOSER
@@ -652,7 +652,7 @@
         		return;
         	}
         	
-        	var url = this.dataStoreUrl;
+        	var url = this.dataStoreUrl + "/datastore_server_screening";
         	url += "?sessionID=" + this.sessionToken;
         	url += "&dataset=" + this.dataSetCode;
         	url += "&channelStackId=" + this.channelStackId;
