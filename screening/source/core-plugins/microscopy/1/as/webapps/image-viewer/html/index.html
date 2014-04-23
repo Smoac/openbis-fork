@@ -8,6 +8,14 @@
   <script src="openbis.js"></script>
   <script src="openbis-screening.js"></script>
 
+  <style>
+  
+  .widget {
+    margin-bottom: 10px;
+  }
+  
+  </style>
+
 </head>
 <body>
     <script>
@@ -158,12 +166,14 @@
             });
         	
         	this.listeners = new ListenerManager();
-        	this.panel = $("<div>");
+        	this.panel = $("<div>").addClass("widget");
         },
         
         render: function(){
         	var thisChooser = this; 
             
+        	$("<div>").text("Channel:").appendTo(this.panel);
+        	
             var select = $("<select>").appendTo(this.panel);
             
             $("<option>").attr("value", "").text("Merged Channels").appendTo(select);
@@ -276,11 +286,13 @@
     	 init: function(resolutions){
              this.resolutions = resolutions;
              this.listeners = new ListenerManager();
-             this.panel = $("<div>");
+             this.panel = $("<div>").addClass("widget");
          },
          
          render: function(){
              var thisChooser = this; 
+             
+             $("<div>").text("Resolution:").appendTo(this.panel);
              
              var select = $("<select>").appendTo(this.panel);
              
@@ -383,11 +395,15 @@
             this.selectedTimePoint = this.channelStackManager.getTimePoints()[0]; 
             this.selectedDepth = this.channelStackManager.getDepths()[0];
             this.listeners = new ListenerManager();
-            this.panel = $("<div>");
+            this.panel = $("<div>").addClass("widget");
         },
         
         render: function(){
             var thisChooser = this; 
+            
+            $("<div>").text("Channel Stack:").appendTo(this.panel);
+            
+            $("<span>").text("T:").appendTo(this.panel);
             
             var timeSelect = $("<select>").addClass("timeChooser").appendTo(this.panel);
             
@@ -398,6 +414,8 @@
             timeSelect.change(function(){
                 thisChooser.setSelectedTimePoint(timeSelect.val());
             });
+            
+            $("<span>").text("D:").appendTo(this.panel);
             
             var depthSelect = $("<select>").addClass("depthChooser").appendTo(this.panel);
             
