@@ -141,7 +141,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 25;
+    public static final int MINOR_VERSION = 26;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -1274,5 +1274,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             userSettings.put("projectCode", projectCode);
         }
         return userSettings;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType> listPropertyTypes(String sessionToken, boolean withRelations)
+    {
+        HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
+                getVocabularyTermsMap(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType> basic = commonServer.listPropertyTypes(sessionToken, withRelations);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType> api =
+                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType>();
+
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType : basic)
+        {
+            api.add(Translator.translate(propertyType, vocabTerms));
+        }
+        return api;
     }
 }

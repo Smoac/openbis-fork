@@ -48,13 +48,15 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperim
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
+
 
 /**
  * Service for retrieving general informations.
  * 
- * @author Franz-Josef Elmer
+ * @author Franz Josef Elmer
  */
 public interface IGeneralInformationService extends IRpcService
 {
@@ -523,4 +525,13 @@ public interface IGeneralInformationService extends IRpcService
             boolean allVersions);
 
     public Map<String, String> getUserDisplaySettings(final String sessionToken);
+    
+    /**
+     * Lists property types.
+     * 
+     * @param withRelations If <code>true</code>, return relations.
+     * @since 1.26
+     */
+    public List<PropertyType> listPropertyTypes(String sessionToken, boolean withRelations);
 }
+

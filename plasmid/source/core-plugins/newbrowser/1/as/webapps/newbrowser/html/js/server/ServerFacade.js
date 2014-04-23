@@ -65,6 +65,10 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
 	
+	this.listPropertyTypes = function(callbackFunction) {
+		this.openbisServer.listPropertyTypes(false, callbackFunction);
+	}
+	
 	//
 	// Data Set Related Functions
 	//
@@ -218,6 +222,7 @@ function ServerFacade(openbisServer) {
 				{
 					sampleOrId = samplesById[sampleOrId]; 
 				}
+				result[i] = sampleOrId;
 				
 				//Fill Parents
 				if(sampleOrId.parents) {
