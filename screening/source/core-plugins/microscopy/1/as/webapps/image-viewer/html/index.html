@@ -230,7 +230,11 @@
                 select.val("");
                 mergedChannels.find("input").each(function(){
                     var checkbox = $(this);
-                    checkbox.prop("checked", $.inArray(checkbox.val(), thisChooser.getMergedChannels()) != -1);
+                    var checked = $.inArray(checkbox.val(), thisChooser.getMergedChannels()) != -1;
+                    checkbox.prop("checked", checked);
+                    if(checked){
+                        checkbox.prop("disabled", thisChooser.getMergedChannels().length == 1);
+                    }
                 });
                 mergedChannels.show();
         	}
@@ -285,6 +289,7 @@
 
     	 init: function(resolutions){
              this.resolutions = resolutions;
+             this.selectedResolution = null;
              this.listeners = new ListenerManager();
              this.panel = $("<div>").addClass("widget");
          },
@@ -304,7 +309,11 @@
              });
 
              select.change(function(){
-                 thisChooser.setSelectedResolution(select.val());
+            	 if(select.val() == ""){
+            		 thisChooser.setSelectedResolution(null);
+            	 }else{
+            		 thisChooser.setSelectedResolution(select.val());
+            	 }
              });
              
              this.rendered = true;
