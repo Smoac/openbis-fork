@@ -50,7 +50,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 				fieldset.hide();
 				
 				//Update Values
-				var stateObj = JSON.parse(stateField.val());
+				var stateObj = JSON.parse((!stateField.val())?"{}":stateField.val());
 				var tBody = $("#" + _this._widgetTableId).children()[1];
 				for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
 					var row = $(tBody.rows[rowNum]);
@@ -95,7 +95,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 					lot.children.forEach(function(conjugatedClone) {
 						var metalMass = conjugatedClone.properties["METAL_MASS"];
 						var predefinedMass = _this._predefinedMass[rowNumber] + "";
-						if(predefinedMass === metalMass) {
+						if(predefinedMass === metalMass && $.inArray(protein, proteins) === -1) {
 							proteins.push(protein);
 						}
 					});
