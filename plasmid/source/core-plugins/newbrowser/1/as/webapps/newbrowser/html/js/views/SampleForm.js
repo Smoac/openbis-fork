@@ -139,6 +139,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						localReference._reloadPreviewImage();
 				}
 				
+				//Disable managed and dinamic
 				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
 				for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 					var propertyTypeGroup = sampleType.propertyTypeGroups[i];
@@ -149,7 +150,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 							}
 						}
 					}
-						
+				
+				//Repaint parents and children after updating the property state to show the annotations
+				localReference.sampleLinksParents.repaint();
+				localReference.sampleLinksChildren.repaint();
+				
 				//Allow user input
 				Util.unblockUI();
 				localReference.isFormLoaded = true;
@@ -506,8 +511,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		//Add form to layout
 		$("#"+this.containerId).append(component);
 		this.storage.repaint();
-		this.sampleLinksParents.repaint();
-		this.sampleLinksChildren.repaint();
 		
 		//Enable Events
 		$("#sampleCode").change(

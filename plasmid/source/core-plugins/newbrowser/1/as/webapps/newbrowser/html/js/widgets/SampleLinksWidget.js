@@ -21,8 +21,8 @@
  *
  * @constructor
  * @this {SampleLinksTable}
- * @param {string} containerId The Container where the Inspector DOM will be atached.
- * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
+ * @param {string} containerId The Container where the Inspector DOM will be attached.
+ * @param {Profile} profile The profile to be used, typically, the global variable that holds the configuration for the application.
  * @param {boolean} isDisabled Disables the component.
  */
 function SampleLinksWidget(containerId, profile, serverFacade, title, sampleTypeHints, isDisabled, samplesToEdit) {
@@ -35,10 +35,31 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.samplesToEdit = (samplesToEdit)?samplesToEdit:new Array(); //Only used to populate the widget
 	this.samples = {};
 	this.samplesRemoved = {};
+	this.stateObj = null;
 	
 	this._lastUsedId = null;
 	this._lastIndex = 0;
 	
+	this._getDefaultSampleHint = function(sampleTypeCode) {
+		var defaultMinCount = 0;
+		var defaultProperties = [];
+		
+		for(var i = 0; i < sampleTypeHints.length; i++) {
+			if(sampleTypeHints[i]["TYPE"] === sampleTypeCode) {
+				defaultMinCount = sampleTypeHints[i]["MIN_COUNT"];
+				defaultProperties = sampleTypeHints[i]["ANNOTATION_PROPERTIES"];
+			}
+		}
+		
+		var typeToAdd = {
+				"LABEL" : sampleTypeCode,
+				"TYPE": sampleTypeCode,
+				"MIN_COUNT" : defaultMinCount,
+				"ANNOTATION_PROPERTIES" : defaultProperties
+		};
+		
+		return typeToAdd;
+	}
 	this._addAny = function(id, tableId, sampleId) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
@@ -72,12 +93,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 				}
 				
-				var typeToAdd = {
-						"LABEL" : sampleTypeCode,
-						"TYPE": sampleTypeCode,
-						"MIN_COUNT" : 0
-				};
-				
+				var typeToAdd = _this._getDefaultSampleHint(sampleTypeCode);
 				_this.addOneSlot(typeToAdd);
 				Util.unblockUI();
 			}
@@ -113,6 +129,35 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			$controls.append($buttonTextField);
 			$controls.append(" ");
 			
+			var annotations = sampleTypeHint["ANNOTATION_PROPERTIES"];
+			var annotationComponents =  [];
+			
+			for(var i = 0; i < annotations.length; i++) {
+					var propertyType = this.profile.getPropertyType(annotations[i]["TYPE"]);
+					propertyType.mandatory = annotations[i]["MANDATORY"];
+					var $propertyField = FormUtil.getFieldForPropertyType(propertyType);
+					$propertyField.attr("property-type-code" , annotations[i]["TYPE"]);
+					
+					$propertyField.change(function() {
+						var samplePermId = _this.samples[sampleId].permId;
+						
+						var field = $(this);
+						var sampleTypeAnnotations = _this.stateObj[samplePermId];
+						if(!sampleTypeAnnotations) {
+							sampleTypeAnnotations = {};
+							_this.stateObj[samplePermId] = sampleTypeAnnotations;
+						}
+						sampleTypeAnnotations[field.attr("property-type-code")] = field.val();
+						
+						$("#ANNOTATIONS_STATE").val(JSON.stringify(_this.stateObj));
+					});
+					
+					$controls.append(propertyType.label + ": ");
+					$controls.append($propertyField);
+					$controls.append(" ");
+					annotationComponents.push($propertyField);
+			}
+			
 			var $buttonPlusOne = $("<a>", {"class" : "btn" });
 			$buttonPlusOne.append($("<i>", { "class" : "icon-plus-sign"}));
 			$controls.append($buttonPlusOne);
@@ -124,6 +169,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			if(this.isDisabled) {
 				$buttonTextField.attr("disabled", "");
+				for(var i = 0; i < annotationComponents.length; i++) {
+					annotationComponents[i].attr("disabled", "");
+				}
 				$buttonPlusOne.attr("disabled", "");
 				$buttonDelete.attr("disabled", "");
 			} else {
@@ -133,10 +181,12 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
 					
 					if(sampleType !== null) {
+						//Clear last state
 						if(_this._lastUsedId) {
 							$('#'+_this._lastUsedId + "-table").empty();
 							$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
 						}
+						//Put new state
 						var onClick = function(sample) {
 							$('#'+_this._lastUsedId + "-table").empty();
 							$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
@@ -147,6 +197,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
 						var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
 						sampleTable.init();
+						//Store new state
 						_this._lastUsedId = id;
 					} else {
 						_this._addAny(id, tableId, sampleId);
@@ -205,6 +256,19 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		//Add predefined slots
 		for(var i = 0; i < this.sampleTypeHints.length; i++) {
 			this.addOneSlot(sampleTypeHints[i]);
+		}
+		
+		//Initialize annotations from property
+		var stateField = $("#ANNOTATIONS_STATE");
+		if(stateField.length === 0) {
+			Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
+		} else {
+			//Hide State Field
+			var fieldset = stateField.parent().parent().parent();
+			fieldset.hide();
+			
+			//Update Values
+			this.stateObj = JSON.parse((!stateField.val())?"{}":stateField.val());
 		}
 		
 		//Add sample links to edit
@@ -285,11 +349,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				var sampleId = this.containerId + "-" + this._lastIndex + "-sample";
 				freePredefinedSampleId = sampleId;
 				
-				var typeToAdd = {
-					"LABEL" : sampleToAdd.sampleTypeCode,
-					"TYPE": sampleToAdd.sampleTypeCode,
-					"MIN_COUNT" : 0
-				};
+				var typeToAdd = this._getDefaultSampleHint(sampleToAdd.sampleTypeCode);
 				this.addOneSlot(typeToAdd);
 			}
 			
@@ -297,16 +357,17 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			this.samples[freePredefinedSampleId] = sampleToAdd;
 			
 			//Show meaningful information
-			var propertiesToShow = this.profile.typePropertiesForTable[sampleToAdd.sampleTypeCode];
+			var propertiesToShow = this.profile.typePropertiesForSmallTable[sampleToAdd.sampleTypeCode];
 			if(propertiesToShow === null || propertiesToShow === undefined) {
-				propertiesToShow = this.profile.getAllPropertiCodesForTypeCode(sampleToAdd.sampleTypeCode);
+				propertiesToShow = [];
 			}
+			
 			var propertiesToShowDisplayNames = this.profile.getPropertiesDisplayNamesForTypeCode(sampleToAdd.sampleTypeCode, propertiesToShow);
 			
 			var meaningfulInfo = "<b>Code: </b>" + sampleToAdd.code + " ";
 			
-			var max3Length = (propertiesToShow.length > 3)?3:propertiesToShow.length;
-			for(var j = 0; j < max3Length; j++) {
+			
+			for(var j = 0; j < propertiesToShow.length; j++) {
 				var propertyToShow = sampleToAdd.properties[propertiesToShow[j]];
 				if(!propertyToShow && propertiesToShow[j].charAt(0) === '$') {
 					propertyToShow = sampleToAdd.properties[propertiesToShow[j].substr(1)];
@@ -321,6 +382,17 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			}
 			$input.empty();
 			$input.append(meaningfulInfo);
+			
+			//Update annotations
+			var sampleState = this.stateObj[sampleToAdd.permId];
+			var items = $input.parent().children();
+			for(var i = 0; i < items.length; i++) {
+				var item = $(items[i]);
+				var propertyTypeCode = item.attr("property-type-code");
+				if(sampleState[propertyTypeCode]) {
+					item.val(sampleState[propertyTypeCode]);
+				}
+			}
 		} else {
 			Util.showError("Item Already selected, choose another.");
 		}

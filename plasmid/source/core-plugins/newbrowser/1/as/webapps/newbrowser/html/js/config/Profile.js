@@ -46,6 +46,7 @@ $.extend(DefaultProfile.prototype, {
 		this.allTypes = [];
 		this.allVocabularies = [];
 		this.allDataStores = [];
+		this.allPropertyTypes = [];
 		this.displaySettings = {};
 		
 		this.typeGroups = {
@@ -57,6 +58,7 @@ $.extend(DefaultProfile.prototype, {
 		};
 		
 		this.typePropertiesForTable = {};
+		this.typePropertiesForSmallTable = {};
 		
 		this.colorForInspectors = {};
 		
@@ -165,6 +167,14 @@ $.extend(DefaultProfile.prototype, {
 			return $.inArray(sampleTypeCode, this.ELNExperiments) !== -1;
 		}
 	
+		this.getPropertyType = function(propertyTypeCode) {
+			for (var i = 0; i < this.allPropertyTypes.length; i++) {
+				if(this.allPropertyTypes[i].code === propertyTypeCode) {
+					return this.allPropertyTypes[i];
+				}
+			}
+			return null;
+		}
 		this.getVocabularyById = function(id) {
 			for (var i = 0; i < this.allVocabularies.length; i++) {
 				var vocabulary = this.allVocabularies[i];
@@ -263,6 +273,13 @@ $.extend(DefaultProfile.prototype, {
 			return sampleTypes;
 		}
 		
+		this.initPropertyTypes = function() {
+			var _this = this; 
+			this.serverFacade.listPropertyTypes(function(data) {
+				_this.allPropertyTypes = data.result;
+			});
+		}
+		
 		this.initVocabulariesForSampleTypes = function() {
 			//Build Vocabularies from sample types
 			for(var sampleTypeIdx = 0; sampleTypeIdx < this.allTypes.length; sampleTypeIdx++) {
@@ -352,6 +369,7 @@ $.extend(DefaultProfile.prototype, {
 				}
 			}
 		
+			this.initPropertyTypes();
 			this.initVocabulariesForSampleTypes();
 			this.initMenuStructure();
 		}
@@ -1137,7 +1155,27 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
-	
+
+// For testing	
+//		this.sampleTypeDefinitionsExtension = {
+//				"SYSTEM_EXPERIMENT" : {
+//					"SAMPLE_PARENTS_HINT" : [
+//					                             	{
+//														"LABEL" : "Protein",
+//														"TYPE": "PROTEIN",
+//														"MIN_COUNT" : 1,
+//														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "TEST_NUMBER", "MANDATORY" : true }
+//														                           ,{"TYPE" : "CONTRIBUTOR", "MANDATORY" : false }]
+//													}
+//												]
+//				}
+//		}
+//		
+//		this.typePropertiesForSmallTable = {
+//				"SYSTEM_EXPERIMENT" : ["NAME"],
+//				"PROTEIN" : ["PROTEIN_NAME"]
+//		}
+//		
 		this.typeGroups = {
 			"ANTIBODIES" : {
 				"TYPE" : "ANTIBODIES",
@@ -1344,25 +1382,29 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 					                             	{
 														"LABEL" : "Protocol",
 														"TYPE": "PROTOCOL",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATIONS" : []
 													}
 													,
 													{
 														"LABEL" : "Plasmid",
 														"TYPE": "PLASMIDS",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATIONS" : []
 													}
 													,
 													{
 														"LABEL" : "Inhibitor",
 														"TYPE": "INHIBITORS",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATIONS" : []
 													}
 													,
 													{
 														"LABEL" : "Cell Line",
 														"TYPE": "CELL_LINE",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATIONS" : []
 													}
 												],
 				}

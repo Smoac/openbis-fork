@@ -41,6 +41,7 @@ function MainController(profile) {
 	// Configuration
 	this.profile = profile;
 	this.profile.serverFacade = this.serverFacade;
+	FormUtil.profile = this.profile;
 	
 	// Atributes - Widgets typically hold both the model and the view, they are here so they can be accessed by inline HTML/Javascript when needed.
 	
