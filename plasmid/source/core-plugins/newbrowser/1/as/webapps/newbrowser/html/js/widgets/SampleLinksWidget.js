@@ -137,7 +137,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					propertyType.mandatory = annotations[i]["MANDATORY"];
 					var $propertyField = FormUtil.getFieldForPropertyType(propertyType);
 					$propertyField.attr("property-type-code" , annotations[i]["TYPE"]);
-					
+					$propertyField.prop("disabled", true);
 					$propertyField.change(function() {
 						var samplePermId = _this.samples[sampleId].permId;
 						
@@ -383,14 +383,17 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			$input.empty();
 			$input.append(meaningfulInfo);
 			
-			//Update annotations
+			//Update annotations when adding an existing sample for updates
 			var sampleState = this.stateObj[sampleToAdd.permId];
 			var items = $input.parent().children();
 			for(var i = 0; i < items.length; i++) {
 				var item = $(items[i]);
 				var propertyTypeCode = item.attr("property-type-code");
-				if(sampleState[propertyTypeCode]) {
+				if(propertyTypeCode && sampleState && sampleState[propertyTypeCode]) {
 					item.val(sampleState[propertyTypeCode]);
+				}
+				if(!this.isDisabled) {
+					item.prop("disabled", false);
 				}
 			}
 		} else {
@@ -399,9 +402,28 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	}
 
 	this.removeSample = function(sampleId) {
-		if(this.samples[sampleId]) {
-			$('#'+sampleId).empty();
-			$('#'+sampleId).append("Select");
+		var sample = this.samples[sampleId];
+		if(sample) {
+			//Remove Link
+			var $input = $('#'+sampleId);
+			$input.empty();
+			$input.append("Select");
+			
+			//Remove Link Annotations
+			var sampleState = this.stateObj[sample.permId];
+			var items = $input.parent().children();
+			for(var i = 0; i < items.length; i++) {
+				var item = $(items[i]);
+				var propertyTypeCode = item.attr("property-type-code");
+				if(propertyTypeCode && sampleState && sampleState[propertyTypeCode]) {
+					item.val("");
+					delete this.stateObj[sample.permId];
+				}
+				item.prop("disabled", true);
+			}
+			$("#ANNOTATIONS_STATE").val(JSON.stringify(this.stateObj));
+			
+			//Update
 			this.samplesRemoved[sampleId] = this.samples[sampleId];
 			this.samples[sampleId] = null;
 		}
