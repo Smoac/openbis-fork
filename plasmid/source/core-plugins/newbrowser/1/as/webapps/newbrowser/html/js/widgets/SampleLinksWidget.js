@@ -40,6 +40,37 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this._lastUsedId = null;
 	this._lastIndex = 0;
 	
+	this._writeState = function(permId, propertyTypeCode, propertyTypeValue) {
+		this._readState();
+		
+		var sampleTypeAnnotations = this.stateObj[permId];
+		if(!sampleTypeAnnotations) {
+			sampleTypeAnnotations = {};
+			this.stateObj[permId] = sampleTypeAnnotations;
+		}
+		if(propertyTypeValue === null) {
+			delete this.stateObj[permId];
+		} else {
+			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
+		}
+		
+		$("#ANNOTATIONS_STATE").val(JSON.stringify(this.stateObj));
+	}
+	
+	this._readState = function() {
+		var stateField = $("#ANNOTATIONS_STATE");
+		if(stateField.length === 0) {
+			Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
+		} else {
+			//Hide State Field
+			var fieldset = stateField.parent().parent().parent();
+			fieldset.hide();
+			
+			//Update Values
+			this.stateObj = JSON.parse((!stateField.val())?"{}":stateField.val());
+		}
+	}
+	
 	this._getDefaultSampleHint = function(sampleTypeCode) {
 		var defaultMinCount = 0;
 		var defaultProperties = [];
@@ -139,17 +170,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					$propertyField.attr("property-type-code" , annotations[i]["TYPE"]);
 					$propertyField.prop("disabled", true);
 					$propertyField.change(function() {
-						var samplePermId = _this.samples[sampleId].permId;
-						
-						var field = $(this);
-						var sampleTypeAnnotations = _this.stateObj[samplePermId];
-						if(!sampleTypeAnnotations) {
-							sampleTypeAnnotations = {};
-							_this.stateObj[samplePermId] = sampleTypeAnnotations;
-						}
-						sampleTypeAnnotations[field.attr("property-type-code")] = field.val();
-						
-						$("#ANNOTATIONS_STATE").val(JSON.stringify(_this.stateObj));
+						var $field = $(this);
+						var permId = _this.samples[sampleId].permId;
+						var propertyTypeCode = $field.attr("property-type-code");
+						var propertyTypeValue = $field.val();
+						_this._writeState(permId, propertyTypeCode, propertyTypeValue);
 					});
 					
 					$controls.append(propertyType.label + ": ");
@@ -259,17 +284,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		}
 		
 		//Initialize annotations from property
-		var stateField = $("#ANNOTATIONS_STATE");
-		if(stateField.length === 0) {
-			Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");
-		} else {
-			//Hide State Field
-			var fieldset = stateField.parent().parent().parent();
-			fieldset.hide();
-			
-			//Update Values
-			this.stateObj = JSON.parse((!stateField.val())?"{}":stateField.val());
-		}
+		this._readState();
 		
 		//Add sample links to edit
 		for(var i = 0; i < this.samplesToEdit.length; i++) {
@@ -410,18 +425,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			$input.append("Select");
 			
 			//Remove Link Annotations
-			var sampleState = this.stateObj[sample.permId];
 			var items = $input.parent().children();
 			for(var i = 0; i < items.length; i++) {
 				var item = $(items[i]);
 				var propertyTypeCode = item.attr("property-type-code");
-				if(propertyTypeCode && sampleState && sampleState[propertyTypeCode]) {
+				if(propertyTypeCode) {
 					item.val("");
-					delete this.stateObj[sample.permId];
+					this._writeState(sample.permId, propertyTypeCode, null);
+					item.prop("disabled", true);
 				}
-				item.prop("disabled", true);
 			}
-			$("#ANNOTATIONS_STATE").val(JSON.stringify(this.stateObj));
 			
 			//Update
 			this.samplesRemoved[sampleId] = this.samples[sampleId];
