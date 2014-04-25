@@ -266,8 +266,6 @@ public class ZipDataSetPackagerTest extends AbstractFileSystemTestCase
                 {
                     one(openbisService).tryGetDataSetLocation(dataSet.getCode());
                     will(returnValue(new DatasetLocationNode(dataSet)));
-
-                    one(openbisService).notifyDatasetAccess(dataSet.getCode());
                 }
             });
     }

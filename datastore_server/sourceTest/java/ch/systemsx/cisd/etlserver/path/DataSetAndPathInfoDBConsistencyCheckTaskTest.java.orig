@@ -208,7 +208,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(provider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
+                    one(provider).asContent(dataSetCode);
                     will(throwException(exception));
                 }
             });
@@ -221,7 +221,7 @@ public class DataSetAndPathInfoDBConsistencyCheckTaskTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(provider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
+                    one(provider).asContent(dataSetCode);
                     will(returnValue(content));
                 }
             });

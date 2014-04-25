@@ -135,6 +135,17 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
     @Override
     public IHierarchicalContent asContent(String dataSetCode)
     {
+        return asContent(dataSetCode, true);
+    }
+
+    @Override
+    public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode) throws IllegalArgumentException
+    {
+        return asContent(dataSetCode, false);
+    }
+
+    private IHierarchicalContent asContent(String dataSetCode, boolean shouldUPdateAccessTimestamp)
+    {
         IDatasetLocationNode locationNode = openbisService.tryGetDataSetLocation(dataSetCode);
         if (locationNode == null)
         {
@@ -143,18 +154,21 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             throw new IllegalArgumentException("Unknown data set: " + dataSetCode);
         }
 
-        return asContent(locationNode);
+        return asContent(locationNode, shouldUPdateAccessTimestamp);
     }
 
     @Override
     public IHierarchicalContent asContent(AbstractExternalData dataSet)
     {
-        return asContent(new ExternalDataLocationNode(dataSet));
+        return asContent(new ExternalDataLocationNode(dataSet), true);
     }
 
-    private IHierarchicalContent asContent(IDatasetLocationNode locationNode)
+    private IHierarchicalContent asContent(IDatasetLocationNode locationNode, boolean shouldUpdateAccessTimestamp)
     {
-        openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
+        if (shouldUpdateAccessTimestamp)
+        {
+            openbisService.notifyDatasetAccess(locationNode.getLocation().getDataSetCode());
+        }
 
         if (isLocal(locationNode))
         {
@@ -179,7 +193,10 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                     });
                 for (IDatasetLocationNode component : sortedNodes)
                 {
-                    openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
+                    if (shouldUpdateAccessTimestamp)
+                    {
+                        openbisService.notifyDatasetAccess(component.getLocation().getDataSetCode());
+                    }
                     IHierarchicalContent componentContent = tryCreateComponentContent(component);
                     if (componentContent != null)
                     {
@@ -226,7 +243,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
         {
             if (componentLocationNode.isContainer())
             {
-                return asContent(componentLocationNode);
+                return asContent(componentLocationNode, true);
             } else
             {
                 return asContent(componentLocationNode.getLocation());

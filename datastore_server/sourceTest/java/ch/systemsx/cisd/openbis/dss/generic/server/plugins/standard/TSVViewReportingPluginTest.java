@@ -98,6 +98,12 @@ public class TSVViewReportingPluginTest extends AbstractFileSystemTestCase
                     return getContent(datasetLocation.getDataSetLocation());
                 }
 
+                @Override
+                public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode) throws IllegalArgumentException
+                {
+                    return null; // not necessary for this test
+                }
+
                 public IHierarchicalContent getContent(String location)
                 {
                     return asContent(new File(new File(store, SHARE_ID), location));

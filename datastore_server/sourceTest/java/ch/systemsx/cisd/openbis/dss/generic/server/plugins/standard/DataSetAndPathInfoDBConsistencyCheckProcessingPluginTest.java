@@ -437,9 +437,9 @@ public class DataSetAndPathInfoDBConsistencyCheckProcessingPluginTest extends
 
                 protected void getContent(final String dataSetCode)
                 {
-                    oneOf(fileProvider).asContent(dataSetCode);
+                    oneOf(fileProvider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
                     will(returnValue(fileContent));
-                    oneOf(pathInfoProvider).asContent(dataSetCode);
+                    oneOf(pathInfoProvider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
                     will(returnValue(pathInfoContent));
                 }
             });

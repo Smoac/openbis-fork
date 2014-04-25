@@ -96,6 +96,12 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
                 }
 
                 @Override
+                public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode)
+                {
+                    return null; // not necessary for this test
+                }
+
+                @Override
                 public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
                 {
                     return null;

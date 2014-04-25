@@ -181,7 +181,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             if (status.isOK())
             {
                 IHierarchicalContent content =
-                        context.getHierarchicalContentProvider().asContent(dataSetCode);
+                        context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
                 File temp =
                         new File(context.getDirectoryProvider().getStoreRoot(), STAGING_FOLDER
                                 + "/" + dataSetCode);

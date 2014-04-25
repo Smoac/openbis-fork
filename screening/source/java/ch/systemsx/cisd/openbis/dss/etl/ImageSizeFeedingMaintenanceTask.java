@@ -121,7 +121,7 @@ public class ImageSizeFeedingMaintenanceTask implements IDataStoreLockingMainten
         IHierarchicalContent content = null;
         try
         {
-            content = contentProvider.asContent(dataSetCode);
+            content = contentProvider.asContentWithoutModifyingAccessTimestamp(dataSetCode);
             ImgImageDatasetDTO imageDataSet = dao.tryGetImageDatasetByPermId(dataSetCode);
             if (imageDataSet != null)
             {

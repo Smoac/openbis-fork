@@ -814,7 +814,7 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
         context.checking(new Expectations()
             {
                 {
-                    one(contentProvider).asContent(dataSetCode);
+                    one(contentProvider).asContentWithoutModifyingAccessTimestamp(dataSetCode);
                     will(returnValue(contentFactory.asHierarchicalContent(file, null)));
                 }
             });
