@@ -173,7 +173,13 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						var $field = $(this);
 						var permId = _this.samples[sampleId].permId;
 						var propertyTypeCode = $field.attr("property-type-code");
-						var propertyTypeValue = $field.val();
+						var propertyType = _this.profile.getPropertyType(propertyTypeCode)
+						var propertyTypeValue;
+						if (propertyType.dataType === "BOOLEAN") {
+							propertyTypeValue = $field[0].checked;
+						} else {
+							propertyTypeValue = $field.val();
+						}
 						_this._writeState(permId, propertyTypeCode, propertyTypeValue);
 					});
 					

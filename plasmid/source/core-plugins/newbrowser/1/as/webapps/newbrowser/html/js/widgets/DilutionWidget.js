@@ -50,7 +50,14 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 				fieldset.hide();
 				
 				//Update Values
-				var stateObj = JSON.parse((!stateField.val())?"{}":stateField.val());
+				var stateFieldVar = stateField.val();
+				var stateObj = null;
+				if(stateFieldVar) {
+					stateObj = JSON.parse(stateFieldVar);
+				} else {
+					stateObj = JSON.parse("{}");
+					return; //No update
+				}
 				var tBody = $("#" + _this._widgetTableId).children()[1];
 				for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
 					var row = $(tBody.rows[rowNum]);
