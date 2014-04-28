@@ -82,7 +82,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			
 			//Update Values
 			this.stateObj = {};
-			var stateFieldValue = stateField.val();
+			var stateFieldValue = Util.getEmptyIfNull(stateField.val());
 			if(stateFieldValue === "") {
 				return;
 			}
