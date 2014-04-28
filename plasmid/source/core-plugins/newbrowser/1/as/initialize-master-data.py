@@ -33,4 +33,6 @@ folderType = tr.getOrCreateNewExperimentType("ELN_FOLDER")
 folderType.setDescription("Folder")
 
 # Preview Image
-tr.getOrCreateNewDataSetType("ELN_PREVIEW")
+elnDataSetPreviewType = tr.getOrCreateNewDataSetType("ELN_PREVIEW")
+elnDataSetPreviewType.setDescription("ELN Preview");
+elnDataSetPreviewType.setDataSetKind("PHYSICAL");
