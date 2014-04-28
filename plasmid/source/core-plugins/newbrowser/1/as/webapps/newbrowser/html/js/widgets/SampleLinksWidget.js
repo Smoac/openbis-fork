@@ -54,7 +54,21 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
 		}
 		
-		$("#ANNOTATIONS_STATE").val(JSON.stringify(this.stateObj));
+		var xmlDoc = "<root>";
+		
+		for(var permId in this.stateObj) {
+			xmlDoc	+= "<Sample permId=\"" + permId + "\""; 
+			for(var propertyTypeCode in this.stateObj[permId]) {
+				var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
+				xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				
+			} 
+			xmlDoc	+= " />";
+		}
+		
+		xmlDoc	+= "</root>";
+		
+		$("#ANNOTATIONS_STATE").val(xmlDoc);
 	}
 	
 	this._readState = function() {
@@ -67,7 +81,27 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			fieldset.hide();
 			
 			//Update Values
-			this.stateObj = JSON.parse((!stateField.val())?"{}":stateField.val());
+			this.stateObj = {};
+			var stateFieldValue = stateField.val();
+			if(stateFieldValue === "") {
+				return;
+			}
+			var xmlDoc = new DOMParser().parseFromString(stateField.val() , 'text/xml');
+			var root = xmlDoc.children[0];
+			var samples = root.children;
+			for(var i = 0; i < samples.length; i++) {
+				var sample = samples[0];
+				var permId = sample.attributes["permId"].value;
+				for(var j = 0; j < sample.attributes.length; j++) {
+					var attribute = sample.attributes[j];
+					if(attribute.name !== "permId") {
+						if(!this.stateObj[permId]) {
+							this.stateObj[permId] = {};
+						}
+						this.stateObj[permId][attribute.name] = attribute.value;
+					}
+				}
+			}
 		}
 	}
 	
@@ -411,7 +445,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				var item = $(items[i]);
 				var propertyTypeCode = item.attr("property-type-code");
 				if(propertyTypeCode && sampleState && sampleState[propertyTypeCode]) {
-					item.val(sampleState[propertyTypeCode]);
+					if (this.profile.getPropertyType(propertyTypeCode).dataType === "BOOLEAN") {
+						item[0].checked = sampleState[propertyTypeCode] === "true";
+					} else {
+						item.val(sampleState[propertyTypeCode]);
+					}
 				}
 				if(!this.isDisabled) {
 					item.prop("disabled", false);
