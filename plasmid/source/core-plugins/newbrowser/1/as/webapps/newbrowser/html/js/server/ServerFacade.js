@@ -66,7 +66,9 @@ function ServerFacade(openbisServer) {
 	}
 	
 	this.listPropertyTypes = function(callbackFunction) {
-		this.openbisServer.listPropertyTypes(false, callbackFunction);
+		if(this.openbisServer.listPropertyTypes) { //If not present will not break, but annotations should not be used.
+			this.openbisServer.listPropertyTypes(false, callbackFunction);
+		}
 	}
 	
 	//
