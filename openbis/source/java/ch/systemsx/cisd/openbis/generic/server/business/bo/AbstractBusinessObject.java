@@ -216,18 +216,23 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return permID == null ? getPermIdDAO().createPermId() : permID;
     }
 
-    protected <T extends EntityPropertyPE> Set<T> convertProperties(final EntityTypePE type,
-            final Set<T> existingProperties, List<IEntityProperty> properties)
+    Set<String> extractPropertiesCodes(List<IEntityProperty> properties)
     {
-        final PersonPE registrator = findPerson();
-        Set<String> propertiesToUpdate = new HashSet<String>();
+        Set<String> propertiesCodes = new HashSet<String>();
         if (properties != null)
         {
             for (IEntityProperty property : properties)
             {
-                propertiesToUpdate.add(property.getPropertyType().getCode());
+                propertiesCodes.add(property.getPropertyType().getCode());
             }
         }
+        return propertiesCodes;
+    }
+
+    protected <T extends EntityPropertyPE> Set<T> convertProperties(final EntityTypePE type,
+            final Set<T> existingProperties, List<IEntityProperty> properties, Set<String> propertiesToUpdate)
+    {
+        final PersonPE registrator = findPerson();
         return entityPropertiesConverter.updateProperties(existingProperties, type, properties,
                 registrator, propertiesToUpdate);
     }
@@ -559,7 +564,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
         return RelationshipUtils.getContainerComponentRelationshipType(getRelationshipTypeDAO());
     }
 
-    protected void updateProperties(EntityTypePE entityType, List<IEntityProperty> properties,
+    protected void updateProperties(EntityTypePE entityType, List<IEntityProperty> properties, Set<String> propertiesToUpdate,
             IEntityPropertiesHolder entityAsPropertiesHolder,
             IModifierAndModificationDateBean entityAsModifiableBean)
     {
@@ -573,7 +578,7 @@ abstract class AbstractBusinessObject implements IDAOFactory
             existingPropertyValuesByCode.put(propertyCode, getValue(existingProperty));
         }
         Set<? extends EntityPropertyPE> convertedProperties =
-                convertProperties(entityType, existingProperties, properties);
+                convertProperties(entityType, existingProperties, properties, propertiesToUpdate);
         if (isEquals(existingPropertyValuesByCode, convertedProperties) == false)
         {
             entityAsPropertiesHolder.setProperties(convertedProperties);

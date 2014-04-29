@@ -1064,7 +1064,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
         DataSetBatchUpdateDetails details = dataSetUpdates.getDetails();
 
-        updateProperties(dataSet.getEntityType(), dataSetUpdates.getProperties(), dataSet, dataSet);
+        updateProperties(dataSet.getEntityType(), dataSetUpdates.getProperties(), details.getPropertiesToUpdate(), dataSet, dataSet);
         checkPropertiesBusinessRules(dataSet);
 
         boolean isExperimentFromSample = false;

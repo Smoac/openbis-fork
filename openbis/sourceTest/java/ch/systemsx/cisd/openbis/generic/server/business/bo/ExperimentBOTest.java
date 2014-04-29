@@ -465,7 +465,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareUpdateProperties(exp.getProperties(), newProperties, experimentType,
                 ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(),
                 Arrays.asList(changedProperty, addedProperty));
-        bo.updateProperties(experiment.getEntityType(), newProperties, experiment, experiment);
+        bo.updateProperties(experiment.getEntityType(), newProperties, Collections.<String> emptySet(), experiment, experiment);
 
         assertTrue(experiment.getProperties().contains(changedProperty));
         assertFalse(experiment.getProperties().contains(deletedProperty));
@@ -492,7 +492,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();
@@ -519,7 +519,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();
@@ -547,7 +547,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();
@@ -575,7 +575,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();
@@ -604,7 +604,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();
@@ -629,7 +629,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();
@@ -654,7 +654,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 new ExperimentBO(daoFactory, ManagerTestTool.EXAMPLE_SESSION, propertiesConverter,
                         managedPropertyEvaluatorFactory);
 
-        bo.updateProperties(entityType, newProperties, entityAsPropertiesHolder,
+        bo.updateProperties(entityType, newProperties, Collections.<String> emptySet(), entityAsPropertiesHolder,
                 entityAsModifiableBean);
 
         context.assertIsSatisfied();

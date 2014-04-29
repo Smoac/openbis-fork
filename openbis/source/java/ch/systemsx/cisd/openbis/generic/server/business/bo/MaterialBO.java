@@ -152,7 +152,7 @@ public final class MaterialBO extends AbstractMaterialBusinessObject implements 
     {
         final Set<MaterialPropertyPE> existingProperties = material.getProperties();
         final MaterialTypePE type = material.getMaterialType();
-        material.setProperties(convertProperties(type, existingProperties, properties));
+        material.setProperties(convertProperties(type, existingProperties, properties, extractPropertiesCodes(properties)));
     }
 
     @Override

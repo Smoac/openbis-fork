@@ -418,7 +418,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     {
         final Set<SamplePropertyPE> existingProperties = sample.getProperties();
         final SampleTypePE type = sample.getSampleType();
-        sample.setProperties(convertProperties(type, existingProperties, properties));
+        sample.setProperties(convertProperties(type, existingProperties, properties, extractPropertiesCodes(properties)));
     }
 
     private void batchUpdateProperties(SamplePE sample, List<IEntityProperty> properties,
