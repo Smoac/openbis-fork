@@ -210,11 +210,13 @@ function ServerFacade(openbisServer) {
 		//
 		// Fix Result List
 		//
+		var visitedSamples = {};
 		function fixSamples(result)
 		{
 			for(var i = 0; i < result.length; i++)
 			{
 				var sampleOrId = result[i];
+				
 				if (isNaN(sampleOrId))
 				{
 					sampleOrId = samplesById[sampleOrId["@id"]];
@@ -223,6 +225,12 @@ function ServerFacade(openbisServer) {
 					sampleOrId = samplesById[sampleOrId]; 
 				}
 				result[i] = sampleOrId;
+				if(visitedSamples[sampleOrId.permId]) {
+					continue;
+				} else {
+					visitedSamples[sampleOrId.permId] = true;
+				}
+				console.log(sampleOrId.code);
 				
 				//Fill Parents
 				if(sampleOrId.parents) {
