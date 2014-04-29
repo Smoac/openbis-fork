@@ -93,7 +93,12 @@ function MainController(profile) {
 			
 				localReference.changeView("showMainMenu", null);
 				Util.unblockUI();
-			
+				
+				var openNewSampleTab = Util.queryString.samplePermId;
+				
+				if(openNewSampleTab) {
+					localReference.changeView("showViewSamplePageFromPermId", openNewSampleTab);
+				}
 				//Get datastores for automatic DSS configuration, the first one will be used
 				localReference.serverFacade.listDataStores(
 					function(dataStores) {
@@ -136,30 +141,46 @@ function MainController(profile) {
 		
 		switch (newViewChange) {
 			case "showInspectors":
+				document.title = "Show Inspectors";
 				this._showInspectors();
 				break;
 			case "showMainMenu":
+				document.title = "Main Menu";
 				this._showMainMenu();
 				break;
 			case "showSearchPage":
+				document.title = "Search";
 				this._showSearchPage(arg);
 				break;
 			case "showSamplesPage":
+				document.title = "Samples " + arg;
 				this._showSamplesPage(arg);
 				break;
 			case "showSampleHierarchyPage":
+				document.title = "Hierarchy " + arg;
 				this._showSampleHierarchyPage(arg);
 				break;
 			case "showCreateSamplePage":
+				document.title = "Create Sample " + arg;
 				this._showCreateSamplePage(arg);
 				break;
 			case "showEditSamplePage":
+				document.title = arg;
 				this._showEditSamplePage(arg);
 				break;
 			case "showViewSamplePageFromPermId":
-				this._showViewSamplePageFromPermId(arg);
+				var _this = this;
+				this.serverFacade.searchWithUniqueId(arg, function(data) {
+					if(!data[0]) {
+						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+					} else {
+						document.title = data[0].code;
+						_this._showViewSamplePage(data[0]);
+					}
+				});
 				break;
 			case "showCreateDataSetPage":
+				document.title = "Create Data Set for " + arg;
 				this._showCreateDataSetPage(arg);
 				break;
 			default:
@@ -261,23 +282,17 @@ function MainController(profile) {
 		});
 	}
 
-	this._showViewSamplePageFromPermId = function(permId) {
-		var localInstance = this;
-		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			if(!data[0]) {
-				window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
-			}
-			//Update menu
-			var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePageFromPermId", data[0].permId, 'View '+data[0].code);
-			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
+	this._showViewSamplePage = function(sample) {
+		//Update menu
+		var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePageFromPermId", sample.permId, 'View '+ sample.code);
+		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 			
-			//Show Form
-			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
-			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, data[0]);
-			sampleForm.init();
-			localInstance.currentView = sampleForm;
-			history.pushState(null, "", ""); //History Push State
-		});
+		//Show Form
+		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
+		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
+		sampleForm.init();
+		this.currentView = sampleForm;
+		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this._showCreateDataSetPage = function(sample) {
