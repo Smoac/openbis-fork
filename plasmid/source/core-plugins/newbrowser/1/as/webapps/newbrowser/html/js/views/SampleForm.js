@@ -759,12 +759,16 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					var x = "123";
 					var listFilesForDataSetCallback = 
 						function(dataFiles) {
-							var elementId = 'preview-image';
-							var downloadUrl = _this.profile.allDataStores[0].downloadUrl + '/' + data.result[0].code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + _this.serverFacade.getSession();
-							
-							var img = $("#" + elementId);
-							img.attr('src', downloadUrl);
-							img.attr('data-preview-loaded', 'true');
+							if(!dataFiles.result) {
+								//DSS Is not running probably
+							} else {
+								var elementId = 'preview-image';
+								var downloadUrl = _this.profile.allDataStores[0].downloadUrl + '/' + data.result[0].code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + _this.serverFacade.getSession();
+								
+								var img = $("#" + elementId);
+								img.attr('src', downloadUrl);
+								img.attr('data-preview-loaded', 'true');
+							}
 						};
 					_this.serverFacade.listFilesForDataSet(data.result[0].code, "/", true, listFilesForDataSetCallback);
 				}

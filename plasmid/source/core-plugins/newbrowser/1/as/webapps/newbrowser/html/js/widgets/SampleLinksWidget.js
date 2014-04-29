@@ -87,10 +87,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				return;
 			}
 			var xmlDoc = new DOMParser().parseFromString(stateField.val() , 'text/xml');
-			var root = xmlDoc.children[0];
-			var samples = root.children;
+			var samples = xmlDoc.getElementsByTagName("Sample");
 			for(var i = 0; i < samples.length; i++) {
-				var sample = samples[0];
+				var sample = samples[i];
 				var permId = sample.attributes["permId"].value;
 				for(var j = 0; j < sample.attributes.length; j++) {
 					var attribute = sample.attributes[j];

@@ -179,11 +179,21 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	}
 	
 	this.repaintImages = function() {
-		_this = this;
-		
 		var $container = $("#"+this.containerIdContent);
 		$container.empty();
+		
 		//
+		// No data store URL
+		//
+		if(datastoreDownloadURL === null) {
+			$container.append($("<p>")
+					.append($("<i>", { class: "icon-ban-circle" }))
+					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
+			return;
+		}
+		
+		//
+		_this = this;
 		var maxImages = 30;
 		var numImages = 0;
 		for(var datasetCode in this.sampleDataSets) {
