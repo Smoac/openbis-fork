@@ -18,15 +18,16 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
@@ -113,7 +114,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.server.logic.ScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.WellContentLoader;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.ImageResolutionTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.LogicalImageInfoTranslator;
-import ch.systemsx.cisd.openbis.plugin.screening.server.logic.dto.WellLocationTranslator;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
@@ -551,67 +551,74 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo getImageInfo(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String datasetCode, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation wellLocationOrNull)
+    public Map<String, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo> getImageInfo(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes)
     {
         checkSession(sessionToken);
 
-        if (StringUtils.isBlank(datasetCode))
+        if (datasetCodes == null)
         {
-            throw new IllegalArgumentException("Data set code was null or empty");
+            throw new IllegalArgumentException("Data set codes were null");
         }
 
-        DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(datasetCode);
+        Map<String, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo> map =
+                new HashMap<String, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo>();
 
-        if (dataSet == null)
+        for (String datasetCode : datasetCodes)
         {
-            return null;
+            DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(datasetCode);
+
+            if (dataSet != null)
+            {
+                LogicalImageInfo internalInfo = getImageDatasetInfo(sessionToken, datasetCode, dataSet.getDataStore().getCode(), null);
+                map.put(datasetCode, new LogicalImageInfoTranslator().translate(internalInfo));
+            }
         }
 
-        WellLocation internalWellLocation = new WellLocationTranslator().translate(wellLocationOrNull);
-
-        LogicalImageInfo internalInfo = getImageDatasetInfo(sessionToken, datasetCode, dataSet.getDataStore().getCode(), internalWellLocation);
-
-        return new LogicalImageInfoTranslator().translate(internalInfo);
+        return map;
     }
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> getImageResolutions(String sessionToken,
-            @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
-            String datasetCode)
+    public Map<String, List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>> getImageResolutions(String sessionToken,
+            @AuthorizationGuard(guardClass = DataSetCodeCollectionPredicate.class)
+            List<String> datasetCodes)
     {
         checkSession(sessionToken);
 
-        if (StringUtils.isBlank(datasetCode))
+        if (datasetCodes == null)
         {
-            throw new IllegalArgumentException("Data set code was null or empty");
+            throw new IllegalArgumentException("Data set codes were null");
         }
 
-        DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(datasetCode);
+        Map<String, List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>> map =
+                new HashMap<String, List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>>();
 
-        if (dataSet == null)
+        for (String datasetCode : datasetCodes)
         {
-            return null;
+            DataPE dataSet = daoFactory.getDataDAO().tryToFindDataSetByCode(datasetCode);
+
+            if (dataSet != null)
+            {
+                List<ImageResolution> internalResolutions = getImageDatasetResolutions(sessionToken, datasetCode, dataSet.getDataStore().getCode());
+
+                if (internalResolutions != null)
+                {
+                    List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> apiResolutions =
+                            new LinkedList<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>();
+
+                    for (ImageResolution internalResolution : internalResolutions)
+                    {
+                        apiResolutions.add(new ImageResolutionTranslator().translate(internalResolution));
+                    }
+
+                    map.put(datasetCode, apiResolutions);
+                }
+            }
         }
 
-        List<ImageResolution> internalResolutions = getImageDatasetResolutions(sessionToken, datasetCode, dataSet.getDataStore().getCode());
-
-        if (internalResolutions == null)
-        {
-            return null;
-        }
-
-        List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> apiResolutions =
-                new LinkedList<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>();
-
-        for (ImageResolution internalResolution : internalResolutions)
-        {
-            apiResolutions.add(new ImageResolutionTranslator().translate(internalResolution));
-        }
-
-        return apiResolutions;
+        return map;
     }
 
     @Override

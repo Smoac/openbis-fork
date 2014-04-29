@@ -42,6 +42,10 @@ $.extend(AbstractWidget.prototype, {
 	},
 
 	render : function() {
+		if (this.rendered) {
+			return this.panel;
+		}
+
 		var thisWidget = this;
 
 		this.load(function() {
@@ -83,6 +87,173 @@ $.extend(AbstractWidget.prototype, {
 });
 
 // TODO do not pollute the global namespace and expose only ImageViewer
+
+//
+// IMAGE VIEWER CHOOSER VIEW
+//
+
+function ImageViewerChooserView(controller) {
+	this.init(controller);
+}
+
+$.extend(ImageViewerChooserView.prototype, AbstractView.prototype, {
+
+	init : function(controller) {
+		AbstractView.prototype.init.call(this, controller);
+		this.panel = $("<div>");
+	},
+
+	render : function() {
+		this.panel.append(this.createDataSetChooserWidget());
+		this.panel.append(this.createImageViewerContainerWidget());
+
+		this.refresh();
+
+		return this.panel;
+	},
+
+	refresh : function() {
+		var select = this.panel.find(".dataSetChooser").find("select");
+		var container = this.panel.find(".imageViewerContainer");
+
+		if (this.controller.getSelectedDataSetCode() != null) {
+			select.val(this.controller.getSelectedDataSetCode());
+			container.children().detach();
+			container.append(this.controller.getImageViewer(this.controller.getSelectedDataSetCode()).render());
+		}
+	},
+
+	createDataSetChooserWidget : function() {
+		var thisView = this;
+		var widget = $("<div>").addClass("dataSetChooser");
+
+		$("<div>").text("Data set:").appendTo(widget);
+
+		var select = $("<select>").appendTo(widget);
+
+		this.controller.getAllDataSetCodes().forEach(function(dataSetCode) {
+			$("<option>").attr("value", dataSetCode).text(dataSetCode).appendTo(select);
+		});
+
+		select.change(function() {
+			thisView.controller.setSelectedDataSetCode(select.val());
+		});
+
+		return widget;
+	},
+
+	createImageViewerContainerWidget : function() {
+		return $("<div>").addClass("imageViewerContainer");
+	}
+
+});
+
+//
+// IMAGE VIEWER CHOOSER
+//
+
+function ImageViewerChooserWidget(openbis, dataSetCodes) {
+	this.init(openbis, dataSetCodes);
+}
+
+$.extend(ImageViewerChooserWidget.prototype, AbstractWidget.prototype, {
+	init : function(openbis, dataSetCodes) {
+		AbstractWidget.prototype.init.call(this, new ImageViewerChooserView(this));
+		this.facade = new OpenbisFacade(openbis);
+		this.setAllDataSetCodes(dataSetCodes)
+	},
+
+	load : function(callback) {
+		if (this.loaded) {
+			callback();
+		} else {
+			var thisViewer = this;
+
+			var manager = new CallbackManager(function() {
+				thisViewer.loaded = true;
+				callback();
+			});
+
+			this.facade.getDataStoreBaseURLs(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
+				thisViewer.dataSetCodeToDataStoreUrlMap = response.result;
+			}));
+
+			this.facade.getImageInfo(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
+				thisViewer.dataSetCodeToImageInfoMap = response.result;
+			}));
+
+			this.facade.getImageResolutions(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
+				thisViewer.dataSetCodeToImageResolutionsMap = response.result;
+			}));
+		}
+	},
+
+	getSelectedDataSetCode : function() {
+		if (this.selectedDataSetCode != null) {
+			return this.selectedDataSetCode;
+		} else {
+			return null;
+		}
+	},
+
+	setSelectedDataSetCode : function(dataSetCode) {
+		if (this.getSelectedDataSetCode() != dataSetCode) {
+			this.selectedDataSetCode = dataSetCode;
+			this.refresh();
+		}
+	},
+
+	getAllDataSetCodes : function() {
+		if (this.dataSetCodes) {
+			return this.dataSetCodes;
+		} else {
+			return [];
+		}
+	},
+
+	setAllDataSetCodes : function(dataSetCodes) {
+		if (!dataSetCodes) {
+			dataSetCodes = [];
+		}
+		if (this.getAllDataSetCodes().toString() != dataSetCodes.toString()) {
+			this.dataSetCodes = dataSetCodes;
+			if (dataSetCodes.length > 0) {
+				this.setSelectedDataSetCode(dataSetCodes[0]);
+			}
+			this.refresh();
+		}
+	},
+
+	getImageViewer : function(dataSetCode) {
+		if (!this.imageViewerMap) {
+			this.imageViewerMap = {};
+		}
+
+		if (!this.imageViewerMap[dataSetCode]) {
+			this.imageViewerMap[dataSetCode] = new ImageViewerWidget(this._getSessionToken(), dataSetCode, this._getDataStoreUrl(dataSetCode), this
+					._getImageInfo(dataSetCode), this._getImageResolutions(dataSetCode));
+		}
+
+		return this.imageViewerMap[dataSetCode];
+	},
+
+	_getSessionToken : function() {
+		return this.facade.getSession();
+	},
+
+	_getDataStoreUrl : function(dataSetCode) {
+		return this.dataSetCodeToDataStoreUrlMap[dataSetCode];
+	},
+
+	_getImageInfo : function(dataSetCode) {
+		return this.dataSetCodeToImageInfoMap[dataSetCode];
+	},
+
+	_getImageResolutions : function(dataSetCode) {
+		return this.dataSetCodeToImageResolutionsMap[dataSetCode];
+	}
+
+});
 
 //
 // IMAGE VIEWER VIEW
@@ -173,54 +344,30 @@ $.extend(ImageViewerView.prototype, AbstractView.prototype, {
 // IMAGE VIEWER
 //
 
-function ImageViewerWidget(openbis, dataSetCode) {
-	this.init(openbis, dataSetCode);
+function ImageViewerWidget(sessionToken, dataSetCode, dataStoreUrl, imageInfo, imageResolutions) {
+	this.init(sessionToken, dataSetCode, dataStoreUrl, imageInfo, imageResolutions);
 }
 
 $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
-	init : function(openbis, dataSetCode) {
+	init : function(sessionToken, dataSetCode, dataStoreUrl, imageInfo, imageResolutions) {
 		AbstractWidget.prototype.init.call(this, new ImageViewerView(this));
 		this.facade = new OpenbisFacade(openbis);
+		this.sessionToken = sessionToken;
 		this.dataSetCode = dataSetCode;
-	},
+		this.dataStoreUrl = dataStoreUrl;
+		this.imageInfo = imageInfo;
+		this.imageResolutions = imageResolutions;
 
-	load : function(callback) {
-		if (this.loaded) {
-			callback();
-		} else {
-			var thisViewer = this;
-
-			var manager = new CallbackManager(function() {
-				thisViewer.loaded = true;
-
-				var channels = thisViewer.getAllChannels();
-
-				if (channels && channels.length > 0) {
-					thisViewer.setSelectedMergedChannels(channels.map(function(channel) {
-						return channel.code
-					}));
-				}
-
-				var channelStacks = thisViewer.getAllChannelStacks();
-
-				if (channelStacks && channelStacks.length > 0) {
-					thisViewer.setSelectedChannelStackId(channelStacks[0].id);
-				}
-
-				callback();
-			});
-
-			this.facade.tryGetDataStoreBaseURL(thisViewer.dataSetCode, manager.registerCallback(function(response) {
-				thisViewer.dataStoreUrl = response.result;
+		var channels = this.getAllChannels();
+		if (channels && channels.length > 0) {
+			this.setSelectedMergedChannels(channels.map(function(channel) {
+				return channel.code
 			}));
+		}
 
-			this.facade.getImageInfo(thisViewer.dataSetCode, manager.registerCallback(function(response) {
-				thisViewer.imageInfo = response.result;
-			}));
-
-			this.facade.getImageResolutions(thisViewer.dataSetCode, manager.registerCallback(function(response) {
-				thisViewer.imageResolutions = response.result;
-			}));
+		var channelStacks = this.getAllChannelStacks();
+		if (channelStacks && channelStacks.length > 0) {
+			this.setSelectedChannelStackId(channelStacks[0].id);
 		}
 	},
 
@@ -291,7 +438,7 @@ $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
 	getSelectedImageData : function() {
 		var imageData = new ImageData();
 		imageData.setDataStoreUrl(this.dataStoreUrl);
-		imageData.setSessionToken(this.facade.getSession());
+		imageData.setSessionToken(this.sessionToken);
 		imageData.setDataSetCode(this.dataSetCode);
 		imageData.setChannelStackId(this.getSelectedChannelStackId());
 
@@ -335,36 +482,6 @@ $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
 
 // TODO add listeners for channel, resoluton, channel stack
 
-});
-
-//
-// FACADE
-//
-
-function OpenbisFacade(openbis) {
-	this.init(openbis);
-}
-
-$.extend(OpenbisFacade.prototype, {
-	init : function(openbis) {
-		this.openbis = openbis;
-	},
-
-	getSession : function() {
-		return this.openbis.getSession();
-	},
-
-	tryGetDataStoreBaseURL : function(dataSetCode, action) {
-		this.openbis.tryGetDataStoreBaseURL(dataSetCode, action);
-	},
-
-	getImageInfo : function(dataSetCode, callback) {
-		this.openbis.getImageInfo(dataSetCode, null, callback);
-	},
-
-	getImageResolutions : function(dataSetCode, callback) {
-		this.openbis.getImageResolutions(dataSetCode, callback);
-	}
 });
 
 //
@@ -517,6 +634,8 @@ $.extend(ChannelChooserWidget.prototype, AbstractWidget.prototype, {
 	isMergedChannelEnabled : function(channel) {
 		if (this.getSelectedMergedChannels().length == 1) {
 			return !this.isMergedChannelSelected(channel);
+		}else{
+			return true;
 		}
 	},
 
@@ -782,7 +901,7 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 	createButtonsWidget : function() {
 		var thisView = this;
 
-		buttons = new MovieButtonsWidget(this.controller.getTimePoints().length);
+		var buttons = new MovieButtonsWidget(this.controller.getTimePoints().length);
 
 		buttons.setFrameContentLoader(function(frameIndex, callback) {
 			var timePoint = thisView.controller.getTimePoints()[frameIndex];
@@ -1223,6 +1342,49 @@ $.extend(ImageWidget.prototype, AbstractWidget.prototype, {
 		this.refresh();
 	}
 
+});
+
+//
+// FACADE
+//
+
+function OpenbisFacade(openbis) {
+	this.init(openbis);
+}
+
+$.extend(OpenbisFacade.prototype, {
+	init : function(openbis) {
+		this.openbis = openbis;
+	},
+
+	getSession : function() {
+		return this.openbis.getSession();
+	},
+
+	getDataStoreBaseURLs : function(dataSetCodes, action) {
+		this.openbis.getDataStoreBaseURLs(dataSetCodes, function(response) {
+			var dataSetCodeToUrlMap = {};
+
+			if (response.result) {
+				response.result.forEach(function(urlForDataSets) {
+					urlForDataSets.dataSetCodes.forEach(function(dataSetCode) {
+						dataSetCodeToUrlMap[dataSetCode] = urlForDataSets.dataStoreURL;
+					});
+				});
+				response.result = dataSetCodeToUrlMap;
+			}
+
+			action(response);
+		});
+	},
+
+	getImageInfo : function(dataSetCodes, callback) {
+		this.openbis.getImageInfo(dataSetCodes, callback);
+	},
+
+	getImageResolutions : function(dataSetCodes, callback) {
+		this.openbis.getImageResolutions(dataSetCodes, callback);
+	}
 });
 
 //

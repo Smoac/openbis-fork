@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -51,7 +52,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation;
 
 /**
  * @author pkupczyk
@@ -320,15 +320,20 @@ public class ScreeningServerJson implements IScreeningApiServer
     }
 
     @Override
-    public LogicalImageInfo getImageInfo(String sessionToken, String datasetCode, WellLocation wellLocationOrNull)
+    public Map<String, LogicalImageInfo> getImageInfo(String sessionToken, List<String> datasetCodes)
     {
-        return server.getImageInfo(sessionToken, datasetCode, wellLocationOrNull);
+        return server.getImageInfo(sessionToken, datasetCodes);
     }
 
     @Override
-    public List<ImageResolution> getImageResolutions(String sessionToken, String datasetCode)
+    public Map<String, List<ImageResolution>> getImageResolutions(String sessionToken, List<String> datasetCodes)
     {
-        return new ImageResolutionList(server.getImageResolutions(sessionToken, datasetCode));
+        Map<String, List<ImageResolution>> map = server.getImageResolutions(sessionToken, datasetCodes);
+        for (Map.Entry<String, List<ImageResolution>> entry : map.entrySet())
+        {
+            map.put(entry.getKey(), new ImageResolutionList(entry.getValue()));
+        }
+        return map;
     }
 
     /*

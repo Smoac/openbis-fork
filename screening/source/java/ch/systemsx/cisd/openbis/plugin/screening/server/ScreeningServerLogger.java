@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.screening.server;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -180,18 +181,18 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     @Override
-    public ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo getImageInfo(String sessionToken, String datasetCode,
-            ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation wellLocationOrNull)
+    public Map<String, ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.LogicalImageInfo> getImageInfo(String sessionToken,
+            List<String> datasetCodes)
     {
-        logAccess(sessionToken, "getImageInfo", "dataset(%s) well(%s)", datasetCode, wellLocationOrNull);
+        logAccess(sessionToken, "getImageInfo", "datasets(%s)", abbreviate(datasetCodes));
         return null;
     }
 
     @Override
-    public List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution> getImageResolutions(String sessionToken,
-            String datasetCode)
+    public Map<String, List<ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageResolution>> getImageResolutions(String sessionToken,
+            List<String> datasetCodes)
     {
-        logAccess(sessionToken, "getImageResolutions", "dataset(%s)", datasetCode);
+        logAccess(sessionToken, "getImageResolutions", "datasets(%s)", abbreviate(datasetCodes));
         return null;
     }
 

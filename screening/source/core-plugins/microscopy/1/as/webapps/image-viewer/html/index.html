@@ -25,7 +25,7 @@
     	var facade = new openbis();
     	
     	facade.login("admin", "password", function(response){
-			var widget = new ImageViewerWidget(facade, "20140415140347875-53");
+			var widget = new ImageViewerChooserWidget(facade, ["20140415140347875-53", "20140429125231346-56", "20140429125614418-59"]);
 			$("body").append(widget.render());				
     	});
     });

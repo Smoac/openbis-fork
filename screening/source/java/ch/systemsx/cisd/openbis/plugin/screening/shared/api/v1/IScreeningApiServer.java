@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +55,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateMetadata
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellMaterialMapping;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.PlateWellReferenceWithDatasets;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellLocation;
 
 /**
  * This interface is a part of the official public screening API. It is forbidden to change it in a non-backward-compatible manner without discussing
@@ -156,18 +156,18 @@ public interface IScreeningApiServer extends IRpcService
             List<? extends PlateIdentifier> plates) throws IllegalArgumentException;
 
     /**
-     * Returns information about logical image in the given dataset. In HCS case the well location should be specified.
+     * Returns information about logical image in the given image datasets.
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(11)
-    public LogicalImageInfo getImageInfo(String sessionToken, String datasetCode, WellLocation wellLocationOrNull);
+    public Map<String, LogicalImageInfo> getImageInfo(String sessionToken, List<String> datasetCode);
 
     /**
-     * Returns information about available image resolutions for a given image dataset.
+     * Returns information about available image resolutions for the given image datasets.
      */
     @Transactional(readOnly = true)
     @MinimalMinorVersion(11)
-    public List<ImageResolution> getImageResolutions(String sessionToken, String datasetCode);
+    public Map<String, List<ImageResolution>> getImageResolutions(String sessionToken, List<String> datasetCode);
 
     /**
      * For a given set of plates provide the list of all data sets containing raw images for each of these plates.
