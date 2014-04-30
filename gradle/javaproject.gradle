@@ -41,6 +41,11 @@ sourceSets {
             srcDirs = ['sourceTest/java']
         }
     }
+    examples {
+        java {
+            srcDirs = ['sourceExamples/java']
+        }
+    }
 }
 
 buildDir = 'targets/gradle'
