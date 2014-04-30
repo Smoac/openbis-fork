@@ -75,26 +75,31 @@ gatheringTask.setProject(antProject)
 gatheringTask.setVersion("version")
 gatheringTask.setRevision("revision")
 gatheringTask.setClean("clean")
-gatheringTask.execute()
-versionNumber = antProject.getProperty("version")
-revisionNumber = antProject.getProperty("revision")
-cleanFlag = antProject.getProperty("clean")
 
-// set version
-version=versionNumber+"-r"+revisionNumber
-println "${project.name}: ${version}"
-
-// create BUILD INFO file
-def targetsDist = 'targets/dist'
-def distFolder = new File("${project.projectDir}/${targetsDist}")
-distFolder.deleteDir()
-distFolder.mkdirs()
-
-def writer = new FileWriter("${project.projectDir}/${targetsDist}/BUILD-${project.name}.INFO")
 try {
-    writer.println("${versionNumber}:${revisionNumber}:${cleanFlag}")
-} finally {
-    writer.close()
+    gatheringTask.execute()
+    versionNumber = antProject.getProperty("version")
+    revisionNumber = antProject.getProperty("revision")
+    cleanFlag = antProject.getProperty("clean")
+    
+    // set version
+    version=versionNumber+"-r"+revisionNumber
+    println "${project.name}: ${version}"
+    
+    // create BUILD INFO file
+    def targetsDist = 'targets/dist'
+    def distFolder = new File("${project.projectDir}/${targetsDist}")
+    distFolder.deleteDir()
+    distFolder.mkdirs()
+    
+    def writer = new FileWriter("${project.projectDir}/${targetsDist}/BUILD-${project.name}.INFO")
+    try {
+        writer.println("${versionNumber}:${revisionNumber}:${cleanFlag}")
+    } finally {
+        writer.close()
+    }
+} catch (Exception e) {
+	println "skipping gathering"
 }
 
 
@@ -236,9 +241,29 @@ task testRuntimeDependencies(type: Copy) {
 task checkDependencies(dependsOn: classes) << {
 	ant.taskdef(name: 'dependencychecker', classname: 'classycle.ant.DependencyCheckingTask', classpath: configurations.testRuntime.asPath)
     ant.dependencychecker(
-    			definitionFile: 'resource/dependency-structure.ddf', 
-    			failOnUnwantedDependencies: 'true',
-    			mergeInnerClasses: 'true') {
-    	fileset(dir: "${buildDir}", includes: "**/*.class")
-	}
+                definitionFile: 'resource/dependency-structure.ddf', 
+                failOnUnwantedDependencies: 'true',
+                mergeInnerClasses: 'true') {
+        fileset(dir: "${buildDir}", includes: "**/*.class")
+    }
+}
+
+apply plugin: 'ivy-publish'
+publishing {
+    publications {
+        ivy(IvyPublication) {
+            from components.java
+            artifact(sourcesJar)
+        }
+    }
+    repositories {
+        ivy {
+            ivyPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
+            artifactPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
+        }
+    }
+}
+
+publish {
+    dependsOn build
 }

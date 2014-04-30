@@ -1,17 +1,18 @@
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
-apply plugin: 'ivy-publish'
-
-dependencies {
-	compile 'apache:commons-io:+',
-			'apache:commons-lang:+',
-			'testng:testng:+',
-			'rinn:restrictions:+',
-			'cisd:cisd-unix:+',
-			'cisd:cisd-nativedata:+'
-} 
-
+apply from: '../gradle/javaproject.gradle'
 
 group="cisd"
+
+dependencies {
+    compile 'apache:commons-io:+',
+            'apache:commons-lang:+',
+            'testng:testng:+',
+            'rinn:restrictions:+'
+} 
+
+tasks.withType(Test) {
+    systemProperty "java.library.path", "../libraries/unix/native/unix/amd64-Linux:../libraries/nativedata/native/nativedata/amd64-Linux:../libraries/unix/native/unix/x86_64-Mac OS X:../libraries/nativedata/native/nativedata/x86_64-Mac OS X"
+}
+
 new ByteArrayOutputStream().withStream { os ->
     def result = exec {
         executable = 'svn'
@@ -22,32 +23,79 @@ new ByteArrayOutputStream().withStream { os ->
     def matchLastChangedRevMatcher = outputAsString =~ /Last Changed Rev: (\d+)/
     def urlMatcher = outputAsString =~ /URL: .*\/(.+)/
 
-	def revision = "r${matchLastChangedRevMatcher[0][1]}"
-	def branch = urlMatcher[0][1]
-	
-	if (branch.equals('trunk')) {
-		project.version = revision
-	} else {
-		project.version = branch
-	}
-}
+    def revision = "r${matchLastChangedRevMatcher[0][1]}"
+    def branch = urlMatcher[0][1]
 
-publishing {
-    publications {
-    	ivy(IvyPublication) {
-			from components.java
-			artifact(sourceJar)
-		}
-    }
-    repositories {
-    	ivy {
-			ivyPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
-		    artifactPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
-	    }
+    if (branch.equals('trunk')) {
+        project.version = revision
+    } else {
+        project.version = branch
     }
 }
 
-publish {
-	dependsOn build
+sourceSets {
+  test {
+    resources {
+      srcDir "../libraries"
+      include "nativedata/**"
+      include "unix/**"
+    }
+  }
 }
+
+jar {
+    from fileTree("../libraries/nativedata/")
+    from fileTree("../libraries/unix/")	
+}
+
+task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
+    archiveName 'cisd-base-test.jar'
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from files(sourceSets.test.output.classesDir)
+    from files("../libraries/nativedata")
+    from files("../libraries/unix")
+ 
+    from {configurations.testRuntime.collect {zipTree(it)}}
+ 
+    manifest {
+        attributes 'Main-Class': 'ch.systemsx.cisd.base.AllTests'
+    }
+}
+
+task javadocZip(type: Zip, dependsOn: javadoc) {
+    archiveName 'cisd-base-javadoc.zip'
+    from javadoc.destinationDir
+}
+
+task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip, standaloneTestJar]) {
+    archiveBaseName = 'cisd-base'
+    from ('dist') {
+        into 'cisd-base'
+    }
+
+    from ('doc') {
+        into 'cisd-base/doc'
+    }
+
+    from (jar.archivePath) {
+        into 'cisd-base/lib'
+        rename '(.*)', 'cisd-base.jar'
+    }
+    
+    from (sourcesJar.archivePath) {
+        into 'cisd-base/src'
+        rename '(.*)', 'cisd-base-src.jar'
+    }
+    
+    from (standaloneTestJar.archivePath) {
+        into 'cisd-base/lib'
+    }
+    
+    from (javadocZip.archivePath) {
+        into 'cisd-base/doc'
+    }
+}
+
+build.dependsOn distributionZip
 
