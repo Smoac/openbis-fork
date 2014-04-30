@@ -1,2 +1,11 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+group="cisd"
+
+dependencies {
+    compile 'cisd:cisd-base:+',
+            'cisd:cisd-jhdf5:+',
+            'rinn:restrictions:+'
+    
+    testCompile 'testng:testng:+'
+} 
