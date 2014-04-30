@@ -1,0 +1,39 @@
+apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+
+group="cisd"
+
+dependencies {
+    compile 'cisd:cisd-base:+',
+            'rinn:restrictions:+'
+    
+    testCompile 'testng:testng:+'
+} 
+
+task javadocZip(type: Zip, dependsOn: javadoc) {
+    archiveName 'cisd-args4j-javadoc.zip'
+    from javadoc.destinationDir
+}
+
+task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip]) {
+    baseName = 'cisd-args4j'
+
+    from ('dist') {
+        into 'cisd-args4j'
+    }
+
+    from (javadocZip.archivePath) {
+        into 'cisd-args4j/doc'
+    }
+
+    from (jar.archivePath) {
+        into 'cisd-args4j/lib'
+        rename '(.*)', 'cisd-args4j.jar'
+    }
+    
+    from (sourcesJar.archivePath) {
+        into 'cisd-args4j/src'
+        rename '(.*)', 'cisd-args4j-src.zip'
+    }
+}
+
+build.dependsOn distributionZip

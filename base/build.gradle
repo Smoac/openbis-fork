@@ -69,7 +69,7 @@ task javadocZip(type: Zip, dependsOn: javadoc) {
 }
 
 task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip, standaloneTestJar]) {
-    archiveBaseName = 'cisd-base'
+    baseName = 'cisd-base'
     from ('dist') {
         into 'cisd-base'
     }
