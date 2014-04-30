@@ -9,3 +9,43 @@ dependencies {
     
     testCompile 'testng:testng:+'
 } 
+
+task javadocZip(type: Zip, dependsOn: javadoc) {
+    archiveName 'sis-hcscld-javadoc.zip'
+    from javadoc.destinationDir
+}
+
+task exampleSourcesJar(type: Jar) {
+    classifier = 'exampleSources'
+    from sourceSets.examples.allSource
+}
+
+task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, javadocZip]) {
+    baseName = 'sis-hcscld'
+
+    from ('dist') {
+        into 'sis-hcscld'
+    }
+
+    from (javadocZip.archivePath) {
+        into 'sis-hcscld/doc'
+    }
+
+    from (jar.archivePath) {
+        into 'sis-hcscld/lib'
+        rename '(.*)', 'sis-hcscld.jar'
+    }
+    
+    from (sourcesJar.archivePath) {
+        into 'sis-hcscld/src'
+        rename '(.*)', 'sis-hcscld-src.zip'
+    }
+
+    from (exampleSourcesJar.archivePath) {
+        into 'sis-hcscld/doc'
+        rename '(.*)', 'sis-hcscld-examples-src.zip'
+    }
+
+}
+
+build.dependsOn distributionZip
