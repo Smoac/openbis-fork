@@ -88,7 +88,7 @@ function MainController(profile) {
 			
 				//Start App
 				localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
-				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.menuStructure);
+				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.inventoryStructure);
 				localReference.navigationBar.repaint();
 			
 				localReference.changeView("showMainMenu", null);
@@ -168,6 +168,10 @@ function MainController(profile) {
 				document.title = arg;
 				this._showEditSamplePage(arg);
 				break;
+			case "showViewExperiment":
+				var _this = this;
+				//TO-DO get the sample with the identifier and show the view
+				break;
 			case "showViewSamplePageFromPermId":
 				var _this = this;
 				this.serverFacade.searchWithUniqueId(arg, function(data) {
@@ -208,7 +212,7 @@ function MainController(profile) {
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Main menu
-		var mainMenu = new MainMenu(this, "mainContainer", this.profile.menuStructure, this.profile.mainMenuContentExtra());
+		var mainMenu = new MainMenu(this, "mainContainer", this.profile.inventoryStructure, this.profile.mainMenuContentExtra());
 		mainMenu.init();
 		
 		this.currentView = mainMenu;

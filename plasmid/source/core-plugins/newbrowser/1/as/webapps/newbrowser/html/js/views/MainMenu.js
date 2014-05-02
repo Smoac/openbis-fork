@@ -27,71 +27,25 @@ function MainMenu(mainController, containerId, menuStructure, mainMenuContentExt
 	this.containerId = containerId;
 	this.menuStructure = menuStructure;
 	this.mainMenuContentExtra = mainMenuContentExtra;
-
+	this.inventoryWidget = null;
+	
 	this.init = function() {
 		this.repaint();
 	}
 	
 	this.repaint = function() {
-		var localReference = this;
-		
-		$("#"+this.containerId).empty();
-		
-		var $mainMenuContainerWrapper = $("<div>", { style: "float:left; margin-right:10px;" });
-		var $mainMenuContainer = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
-		$mainMenuContainerWrapper.append($mainMenuContainer);
-		
-		var $mainMenuContainerWrapperSub = $("<div>", { style: "float:left" });
-		
-		for (var k = 0; k < this.menuStructure.length; k++) {
-			var groupOfMenuItems = this.menuStructure[k];
-			
-			var onHoverEvent = function(groupOfMenuItems) {
-				return function() {
-					var $mainMenuContainerSub = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
-					for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
-						var menuItem = groupOfMenuItems.menuItems[i];
-						
-						//this is necessary to avoid using the same menuItem reference in all clicks
-						var onClick = function(menuItem) {
-							return function() {
-								localReference.mainController.changeView(menuItem.href, menuItem.hrefArgs);
-							}
-						}
-						
-						var $subMenuOption = $("<li>", {click: onClick(menuItem)})
-						.append($("<a>").append(menuItem.displayName));
-						
-						$mainMenuContainerSub.append($subMenuOption);
-					}
-					$mainMenuContainerWrapperSub.empty();
-					$mainMenuContainerWrapperSub.append($mainMenuContainerSub);
-				}
-			}
-			
-			var $mainMenuIconContainer = $("<li>", { mouseenter: onHoverEvent(groupOfMenuItems)})
-				.append($("<a>").append(groupOfMenuItems.displayName + "<i class='icon-chevron-right'></i>"));
-			
-			$mainMenuContainer.append($mainMenuIconContainer);
-		}
-			
-		$("#"+this.containerId).append($mainMenuContainerWrapper);
-		$("#"+this.containerId).append($mainMenuContainerWrapperSub);
+		var mainMenuWrapper = $("#"+this.containerId);
+		mainMenuWrapper.empty();
+		mainMenuWrapper.append($("<h1>", {"style" : "clear: both;"}).text("Spaces > Projects > Experiments"));
+		mainMenuWrapper.append($("<div>", { "id" : "browserWidgetContainer", "style" : "clear: both;"}));
+		mainMenuWrapper.append($("<h1>", {"style" : "clear: both;"}).text("Inventory"));
+		mainMenuWrapper.append($("<div>", { "id" : "inventoryWidgetContainer", "style" : "clear: both;"}));
 		var $mainMenuExtra = $("<div>", { id: "mainMenuExtra", style: "clear:both;" });
 		$mainMenuExtra.append(this.mainMenuContentExtra);
-		$("#"+this.containerId).append($mainMenuExtra);
+		mainMenuWrapper.append($mainMenuExtra);
+		this.browserWidget = new BrowserWidget("browserWidgetContainer", this.mainController, this.mainController.serverFacade);
+		this.browserWidget.init();
+		this.inventoryWidget = new InventoryWidget(this.mainController, "inventoryWidgetContainer", this.menuStructure);
+		this.inventoryWidget.init();
 	}
-}
-
-function GroupOfMenuItems(key, displayName, menuItems) {
-	this.key = key;
-	this.displayName = displayName;
-	this.menuItems = menuItems;
-}
-
-function MenuItem(image, href, hrefArgs, displayName) {
-	this.image = image;
-	this.href = href;
-	this.hrefArgs = hrefArgs;
-	this.displayName = displayName;
 }

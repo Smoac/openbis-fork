@@ -33,7 +33,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
-		this.menuStructure = [];
+		this.inventoryStructure = [];
 		this.sampleTypeDefinitionsExtension = {
 		}
 		this.searchType = {
@@ -333,7 +333,7 @@ $.extend(DefaultProfile.prototype, {
 				}
 			}
 			if(groupOfMenuItems.menuItems.length > 0) {
-					this.menuStructure.push(groupOfMenuItems);
+					this.inventoryStructure.push(groupOfMenuItems);
 			}
 		
 			for(typeGroupCode in this.typeGroups) {
@@ -352,7 +352,7 @@ $.extend(DefaultProfile.prototype, {
 					}
 				}
 				if(groupOfMenuItems.menuItems.length > 0) {
-					this.menuStructure.push(groupOfMenuItems);
+					this.inventoryStructure.push(groupOfMenuItems);
 				}
 			}
 		}
@@ -1134,7 +1134,7 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 					}
 				}
 				if(groupOfMenuItems.menuItems.length > 0) {
-					this.menuStructure.push(groupOfMenuItems);
+					this.inventoryStructure.push(groupOfMenuItems);
 				}
 			}
 		}
@@ -1156,7 +1156,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
 
-// For testing	
+//		//For testing	
 //		this.sampleTypeDefinitionsExtension = {
 //				"SYSTEM_EXPERIMENT" : {
 //					"SAMPLE_PARENTS_HINT" : [
@@ -1164,10 +1164,19 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 //														"LABEL" : "Protein",
 //														"TYPE": "PROTEIN",
 //														"MIN_COUNT" : 1,
-//														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "TEST_NUMBER", "MANDATORY" : true }
-//														                           ,{"TYPE" : "CONTRIBUTOR", "MANDATORY" : false }]
+//														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "PHOSPHO", "MANDATORY" : true }
+//														                           ,{"TYPE" : "ISOTYPE", "MANDATORY" : false }]
 //													}
-//												]
+//												],
+//					"SAMPLE_CHILDREN_HINT" : [
+//											                             	{
+//																				"LABEL" : "Protein",
+//																				"TYPE": "PROTEIN",
+//																				"MIN_COUNT" : 1,
+//																				"ANNOTATION_PROPERTIES" : [ {"TYPE" : "PHOSPHO", "MANDATORY" : true }
+//																				                           ,{"TYPE" : "ISOTYPE", "MANDATORY" : false }]
+//																			}
+//																		]
 //				}
 //		}
 //		
@@ -1175,7 +1184,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 //				"SYSTEM_EXPERIMENT" : ["NAME"],
 //				"PROTEIN" : ["PROTEIN_NAME"]
 //		}
-//		
+		
 		this.typeGroups = {
 			"ANTIBODIES" : {
 				"TYPE" : "ANTIBODIES",
