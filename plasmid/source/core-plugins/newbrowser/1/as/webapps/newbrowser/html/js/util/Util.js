@@ -180,10 +180,14 @@ var Util = new function() {
 		$image.attr("width", imageWidth);
 		$image.attr("height", imageHeight);
 		
-		var imageHTML = $image[0].outerHTML;
+		
+		var $imageWrapper = $("<div>", {"style" : "margin:10px"});
+		$imageWrapper.append($image);
+		
+		var imageHTML = $imageWrapper[0].outerHTML;
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			imageHTML = "<a class='btn' style='float:right;'><i class='icon-remove'></i></a>" + "<br>" + imageHTML;
+			imageHTML = "<div style='text-align:right;'><a class='btn'><i class='icon-remove'></i></a></div>" + imageHTML;
 		}
 		
 		this.blockUINoMessage();
