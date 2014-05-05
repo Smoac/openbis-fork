@@ -100,7 +100,7 @@ $.extend(ImageViewerChooserView.prototype, AbstractView.prototype, {
 
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
-		this.panel = $("<div>");
+		this.panel = $("<div>").addClass("imageViewerChooser");
 	},
 
 	render : function() {
@@ -119,19 +119,19 @@ $.extend(ImageViewerChooserView.prototype, AbstractView.prototype, {
 		if (this.controller.getSelectedDataSetCode() != null) {
 			select.val(this.controller.getSelectedDataSetCode());
 			container.children().detach();
-			container.append(this.controller.getImageViewer(this.controller.getSelectedDataSetCode()).render());
+			container.append(this.createImageViewerWidget(this.controller.getSelectedDataSetCode()));
 		}
 	},
 
 	createDataSetChooserWidget : function() {
 		var thisView = this;
-		var widget = $("<div>").addClass("dataSetChooser");
+		var widget = $("<div>").addClass("dataSetChooser").addClass("form-group");
 
-		$("<div>").text("Data set:").appendTo(widget);
+		$("<label>").text("Data set").attr("for", "dataSetChooserSelect").appendTo(widget);
 
-		var select = $("<select>").appendTo(widget);
+		var select = $("<select>").attr("id", "dataSetChooserSelect").addClass("form-control").appendTo(widget);
 
-		this.controller.getAllDataSetCodes().forEach(function(dataSetCode) {
+		this.controller.getDataSetCodes().forEach(function(dataSetCode) {
 			$("<option>").attr("value", dataSetCode).text(dataSetCode).appendTo(select);
 		});
 
@@ -144,6 +144,19 @@ $.extend(ImageViewerChooserView.prototype, AbstractView.prototype, {
 
 	createImageViewerContainerWidget : function() {
 		return $("<div>").addClass("imageViewerContainer");
+	},
+
+	createImageViewerWidget : function(dataSetCode) {
+		if (!this.imageViewerMap) {
+			this.imageViewerMap = {};
+		}
+
+		if (!this.imageViewerMap[dataSetCode]) {
+			this.imageViewerMap[dataSetCode] = new ImageViewerWidget(this.controller.getSessionToken(), dataSetCode, this.controller
+					.getDataStoreUrl(dataSetCode), this.controller.getImageInfo(dataSetCode), this.controller.getImageResolutions(dataSetCode));
+		}
+
+		return this.imageViewerMap[dataSetCode].render();
 	}
 
 });
@@ -160,7 +173,7 @@ $.extend(ImageViewerChooserWidget.prototype, AbstractWidget.prototype, {
 	init : function(openbis, dataSetCodes) {
 		AbstractWidget.prototype.init.call(this, new ImageViewerChooserView(this));
 		this.facade = new OpenbisFacade(openbis);
-		this.setAllDataSetCodes(dataSetCodes)
+		this.setDataSetCodes(dataSetCodes)
 	},
 
 	load : function(callback) {
@@ -188,6 +201,43 @@ $.extend(ImageViewerChooserWidget.prototype, AbstractWidget.prototype, {
 		}
 	},
 
+	getSessionToken : function() {
+		return this.facade.getSession();
+	},
+
+	getImageInfo : function(dataSetCode) {
+		return this.dataSetCodeToImageInfoMap[dataSetCode];
+	},
+
+	getImageResolutions : function(dataSetCode) {
+		return this.dataSetCodeToImageResolutionsMap[dataSetCode];
+	},
+
+	getDataStoreUrl : function(dataSetCode) {
+		return this.dataSetCodeToDataStoreUrlMap[dataSetCode];
+	},
+
+	getDataSetCodes : function() {
+		if (this.dataSetCodes) {
+			return this.dataSetCodes;
+		} else {
+			return [];
+		}
+	},
+
+	setDataSetCodes : function(dataSetCodes) {
+		if (!dataSetCodes) {
+			dataSetCodes = [];
+		}
+		if (this.getDataSetCodes().toString() != dataSetCodes.toString()) {
+			this.dataSetCodes = dataSetCodes;
+			if (dataSetCodes.length > 0) {
+				this.setSelectedDataSetCode(dataSetCodes[0]);
+			}
+			this.refresh();
+		}
+	},
+
 	getSelectedDataSetCode : function() {
 		if (this.selectedDataSetCode != null) {
 			return this.selectedDataSetCode;
@@ -201,56 +251,6 @@ $.extend(ImageViewerChooserWidget.prototype, AbstractWidget.prototype, {
 			this.selectedDataSetCode = dataSetCode;
 			this.refresh();
 		}
-	},
-
-	getAllDataSetCodes : function() {
-		if (this.dataSetCodes) {
-			return this.dataSetCodes;
-		} else {
-			return [];
-		}
-	},
-
-	setAllDataSetCodes : function(dataSetCodes) {
-		if (!dataSetCodes) {
-			dataSetCodes = [];
-		}
-		if (this.getAllDataSetCodes().toString() != dataSetCodes.toString()) {
-			this.dataSetCodes = dataSetCodes;
-			if (dataSetCodes.length > 0) {
-				this.setSelectedDataSetCode(dataSetCodes[0]);
-			}
-			this.refresh();
-		}
-	},
-
-	getImageViewer : function(dataSetCode) {
-		if (!this.imageViewerMap) {
-			this.imageViewerMap = {};
-		}
-
-		if (!this.imageViewerMap[dataSetCode]) {
-			this.imageViewerMap[dataSetCode] = new ImageViewerWidget(this._getSessionToken(), dataSetCode, this._getDataStoreUrl(dataSetCode), this
-					._getImageInfo(dataSetCode), this._getImageResolutions(dataSetCode));
-		}
-
-		return this.imageViewerMap[dataSetCode];
-	},
-
-	_getSessionToken : function() {
-		return this.facade.getSession();
-	},
-
-	_getDataStoreUrl : function(dataSetCode) {
-		return this.dataSetCodeToDataStoreUrlMap[dataSetCode];
-	},
-
-	_getImageInfo : function(dataSetCode) {
-		return this.dataSetCodeToImageInfoMap[dataSetCode];
-	},
-
-	_getImageResolutions : function(dataSetCode) {
-		return this.dataSetCodeToImageResolutionsMap[dataSetCode];
 	}
 
 });
@@ -267,7 +267,7 @@ $.extend(ImageViewerView.prototype, AbstractView.prototype, {
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
 		this.imageLoader = new ImageLoader();
-		this.panel = $("<div>");
+		this.panel = $("<div>").addClass("imageViewer");
 	},
 
 	render : function() {
@@ -292,7 +292,7 @@ $.extend(ImageViewerView.prototype, AbstractView.prototype, {
 	createChannelWidget : function() {
 		var thisView = this;
 
-		var widget = new ChannelChooserWidget(this.controller.getAllChannels());
+		var widget = new ChannelChooserWidget(this.controller.getChannels());
 		widget.addChangeListener(function() {
 			thisView.controller.setSelectedChannel(thisView.channelWidget.getSelectedChannel());
 			thisView.controller.setSelectedMergedChannels(thisView.channelWidget.getSelectedMergedChannels());
@@ -305,7 +305,7 @@ $.extend(ImageViewerView.prototype, AbstractView.prototype, {
 	createResolutionWidget : function() {
 		var thisView = this;
 
-		var widget = new ResolutionChooserWidget(this.controller.getAllResolutions());
+		var widget = new ResolutionChooserWidget(this.controller.getResolutions());
 		widget.addChangeListener(function() {
 			thisView.controller.setSelectedResolution(thisView.resolutionWidget.getSelectedResolution());
 		});
@@ -317,7 +317,7 @@ $.extend(ImageViewerView.prototype, AbstractView.prototype, {
 	createChannelStackWidget : function() {
 		var thisView = this;
 
-		var widget = new ChannelStackChooserWidget(this.controller.getAllChannelStacks());
+		var widget = new ChannelStackChooserWidget(this.controller.getChannelStacks());
 
 		widget.setChannelStackContentLoader(function(channelStack, callback) {
 			var imageData = thisView.controller.getSelectedImageData();
@@ -358,14 +358,14 @@ $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
 		this.imageInfo = imageInfo;
 		this.imageResolutions = imageResolutions;
 
-		var channels = this.getAllChannels();
+		var channels = this.getChannels();
 		if (channels && channels.length > 0) {
 			this.setSelectedMergedChannels(channels.map(function(channel) {
 				return channel.code
 			}));
 		}
 
-		var channelStacks = this.getAllChannelStacks();
+		var channelStacks = this.getChannelStacks();
 		if (channelStacks && channelStacks.length > 0) {
 			this.setSelectedChannelStackId(channelStacks[0].id);
 		}
@@ -451,11 +451,11 @@ $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
 		return imageData;
 	},
 
-	getAllChannels : function() {
+	getChannels : function() {
 		return this.imageInfo.imageDataset.imageDataset.imageParameters.channels;
 	},
 
-	getAllChannelStacks : function() {
+	getChannelStacks : function() {
 		return this.imageInfo.channelStacks.sort(function(o1, o2) {
 			var t1 = o1.timePointOrNull;
 			var t2 = o2.timePointOrNull;
@@ -476,7 +476,7 @@ $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
 		});
 	},
 
-	getAllResolutions : function() {
+	getResolutions : function() {
 		return this.imageResolutions;
 	}
 
@@ -530,15 +530,14 @@ $.extend(ChannelChooserView.prototype, AbstractView.prototype, {
 
 	createChannelWidget : function() {
 		var thisView = this;
-		var widget = $("<div>").addClass("channelWidget");
+		var widget = $("<div>").addClass("channelWidget").addClass("form-group");
 
-		$("<div>").text("Channel:").appendTo(widget);
+		$("<label>").text("Channel").attr("for", "channelChooserSelect").appendTo(widget);
 
-		var select = $("<select>").appendTo(widget);
-
+		var select = $("<select>").attr("id", "channelChooserSelect").addClass("form-control").appendTo(widget);
 		$("<option>").attr("value", "").text("Merged Channels").appendTo(select);
 
-		this.controller.getAllChannels().forEach(function(channel) {
+		this.controller.getChannels().forEach(function(channel) {
 			$("<option>").attr("value", channel.code).text(channel.label).appendTo(select);
 		});
 
@@ -555,12 +554,16 @@ $.extend(ChannelChooserView.prototype, AbstractView.prototype, {
 
 	createMergedChannelsWidget : function() {
 		var thisView = this;
-		var widget = $("<div>").addClass("mergedChannelsWidget");
+		var widget = $("<div>").addClass("mergedChannelsWidget").addClass("form-group");
 
-		this.controller.getAllChannels().forEach(function(channel) {
-			var mergedChannel = $("<span>").addClass("mergedChannel").appendTo(widget);
-			$("<input>").attr("type", "checkbox").attr("value", channel.code).appendTo(mergedChannel);
-			mergedChannel.append(channel.label);
+		$("<label>").text("Merged Channels").appendTo(widget);
+
+		var checkboxes = $("<div>").appendTo(widget);
+
+		this.controller.getChannels().forEach(function(channel) {
+			var checkbox = $("<label>").addClass("checkbox-inline").appendTo(checkboxes);
+			$("<input>").attr("type", "checkbox").attr("value", channel.code).appendTo(checkbox);
+			checkbox.append(channel.label);
 		});
 
 		widget.find("input").change(function() {
@@ -588,7 +591,7 @@ $.extend(ChannelChooserWidget.prototype, AbstractWidget.prototype, {
 
 	init : function(channels) {
 		AbstractWidget.prototype.init.call(this, new ChannelChooserView(this));
-		this.setAllChannels(channels);
+		this.setChannels(channels);
 	},
 
 	getSelectedChannel : function() {
@@ -634,12 +637,12 @@ $.extend(ChannelChooserWidget.prototype, AbstractWidget.prototype, {
 	isMergedChannelEnabled : function(channel) {
 		if (this.getSelectedMergedChannels().length == 1) {
 			return !this.isMergedChannelSelected(channel);
-		}else{
+		} else {
 			return true;
 		}
 	},
 
-	getAllChannels : function() {
+	getChannels : function() {
 		if (this.channels) {
 			return this.channels;
 		} else {
@@ -647,12 +650,12 @@ $.extend(ChannelChooserWidget.prototype, AbstractWidget.prototype, {
 		}
 	},
 
-	setAllChannels : function(channels) {
+	setChannels : function(channels) {
 		if (!channels) {
 			channels = [];
 		}
 
-		if (this.getAllChannels().toString() != channels.toString()) {
+		if (this.getChannels().toString() != channels.toString()) {
 			this.setSelectedChannel(null);
 			this.setSelectedMergedChannels(channels.map(function(channel) {
 				return channel.code;
@@ -676,19 +679,18 @@ $.extend(ResolutionChooserView.prototype, AbstractView.prototype, {
 
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
-		this.panel = $("<div>");
+		this.panel = $("<div>").addClass("resolutionChooserWidget").addClass("form-group");
 	},
 
 	render : function() {
 		var thisView = this;
 
-		$("<div>").text("Resolution:").appendTo(this.panel);
+		$("<label>").text("Resolution").attr("for", "resolutionChooserSelect").appendTo(this.panel);
 
-		var select = $("<select>").appendTo(this.panel);
-
+		var select = $("<select>").attr("id", "resolutionChooserSelect").addClass("form-control").appendTo(this.panel);
 		$("<option>").attr("value", "").text("Default").appendTo(select);
 
-		this.controller.getAllResolutions().forEach(function(resolution) {
+		this.controller.getResolutions().forEach(function(resolution) {
 			var value = resolution.width + "x" + resolution.height;
 			$("<option>").attr("value", value).text(value).appendTo(select);
 		});
@@ -730,7 +732,7 @@ $.extend(ResolutionChooserWidget.prototype, AbstractWidget.prototype, {
 
 	init : function(resolutions) {
 		AbstractWidget.prototype.init.call(this, new ResolutionChooserView(this));
-		this.setAllResolutions(resolutions);
+		this.setResolutions(resolutions);
 	},
 
 	getSelectedResolution : function() {
@@ -745,7 +747,7 @@ $.extend(ResolutionChooserWidget.prototype, AbstractWidget.prototype, {
 		}
 	},
 
-	getAllResolutions : function() {
+	getResolutions : function() {
 		if (this.resolutions) {
 			return this.resolutions;
 		} else {
@@ -753,12 +755,12 @@ $.extend(ResolutionChooserWidget.prototype, AbstractWidget.prototype, {
 		}
 	},
 
-	setAllResolutions : function(resolutions) {
+	setResolutions : function(resolutions) {
 		if (!resolutions) {
 			resolutions = [];
 		}
 
-		if (this.getAllResolutions().toString() != resolutions.toString()) {
+		if (this.getResolutions().toString() != resolutions.toString()) {
 			this.resolutions = resolutions;
 			this.refresh();
 			this.notifyChangeListeners();
@@ -829,16 +831,18 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
-		this.panel = $("<div>");
+		this.panel = $("<div>").addClass("channelStackChooserWidget").addClass("form-group");
 	},
 
 	render : function() {
 		var thisView = this;
 
-		$("<div>").text("Channel Stack:").appendTo(this.panel);
-		this.panel.append(this.createTimePointWidget());
-		this.panel.append(this.createDepthWidget());
-		this.panel.append(this.createButtonsWidget());
+		var slidersRow = $("<div>").addClass("row").appendTo(this.panel);
+		$("<div>").addClass("col-md-6").append(this.createTimePointWidget()).appendTo(slidersRow);
+		$("<div>").addClass("col-md-6").append(this.createDepthWidget()).appendTo(slidersRow);
+
+		var buttonsRow = $("<div>").appendTo(this.panel);
+		buttonsRow.append(this.createTimePointButtonsWidget());
 
 		this.refresh();
 
@@ -846,34 +850,52 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 	},
 
 	refresh : function() {
-		var timeSelect = this.panel.find("select.timeChooser");
+		var time = this.controller.getSelectedTimePoint();
+		var timeLabel = this.panel.find(".timePointWidget label");
+		var timeInput = this.panel.find(".timePointWidget input");
 
-		if (this.controller.getSelectedTimePoint() != null) {
-			timeSelect.val(this.controller.getSelectedTimePoint());
-			this.buttons.setSelectedFrame(this.controller.getTimePoints().indexOf(this.controller.getSelectedTimePoint()));
+		if (time != null) {
+			var timeCount = this.controller.getTimePoints().length;
+			var timeIndex = this.controller.getTimePoints().indexOf(time);
+
+			timeLabel.text("Time: " + time + " sec (" + (timeIndex + 1) + "/" + timeCount + ")");
+			timeInput.slider("setValue", time);
+
+			this.timePointButtons.setSelectedFrame(timeIndex);
 		}
 
-		var depthSelect = this.panel.find("select.depthChooser");
+		var depth = this.controller.getSelectedDepth();
+		var depthLabel = this.panel.find(".depthWidget label");
+		var depthInput = this.panel.find(".depthWidget input");
 
-		if (this.controller.getSelectedDepth() != null) {
-			depthSelect.val(this.controller.getSelectedDepth());
+		if (depth != null) {
+			var depthCount = this.controller.getDepths().length;
+			var depthIndex = this.controller.getDepths().indexOf(depth);
+
+			depthLabel.text("Depth: " + depth + " (" + (depthIndex + 1) + "/" + depthCount + ")");
+			depthInput.slider("setValue", depthIndex);
 		}
 	},
 
 	createTimePointWidget : function() {
 		var thisView = this;
-		var widget = $("<span>");
+		var widget = $("<div>").addClass("timePointWidget").addClass("form-group");
 
-		$("<span>").text("T:").appendTo(widget);
+		$("<label>").attr("for", "timePointInput").appendTo(widget);
 
-		var timeSelect = $("<select>").addClass("timeChooser").appendTo(widget);
+		var timeInput = $("<input>").attr("id", "timePointInput").attr("type", "text").addClass("form-control");
 
-		this.controller.getTimePoints().forEach(function(timePoint) {
-			$("<option>").attr("value", timePoint).text(timePoint).appendTo(timeSelect);
-		});
+		$("<div>").append(timeInput).appendTo(widget);
 
-		timeSelect.change(function() {
-			thisView.controller.setSelectedTimePoint(timeSelect.val());
+		timeInput.slider({
+			"min" : 0,
+			"max" : this.controller.getTimePoints().length - 1,
+			"step" : 1,
+			"tooltip" : "hide"
+		}).on("slide", function(event) {
+			var timeIndex = parseInt(event.value);
+			var time = thisView.controller.getTimePoints()[timeIndex];
+			thisView.controller.setSelectedTimePoint(time);
 		});
 
 		return widget;
@@ -881,24 +903,29 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 
 	createDepthWidget : function() {
 		var thisView = this;
-		var widget = $("<span>");
+		var widget = $("<div>").addClass("depthWidget").addClass("form-group");
 
-		$("<span>").text("D:").appendTo(widget);
+		$("<label>").attr("for", "depthInput").appendTo(widget);
 
-		var depthSelect = $("<select>").addClass("depthChooser").appendTo(widget);
+		var depthInput = $("<input>").attr("id", "depthInput").attr("type", "text").addClass("form-control");
 
-		this.controller.getDepths().forEach(function(depth) {
-			$("<option>").attr("value", depth).text(depth).appendTo(depthSelect);
-		});
+		$("<div>").append(depthInput).appendTo(widget);
 
-		depthSelect.change(function() {
-			thisView.controller.setSelectedDepth(depthSelect.val());
+		depthInput.slider({
+			"min" : 0,
+			"max" : this.controller.getDepths().length - 1,
+			"step" : 1,
+			"tooltip" : "hide"
+		}).on("slide", function(event) {
+			var depthIndex = parseInt(event.value);
+			var depth = thisView.controller.getDepths()[depthIndex];
+			thisView.controller.setSelectedDepth(depth);
 		});
 
 		return widget;
 	},
 
-	createButtonsWidget : function() {
+	createTimePointButtonsWidget : function() {
 		var thisView = this;
 
 		var buttons = new MovieButtonsWidget(this.controller.getTimePoints().length);
@@ -915,7 +942,7 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 			thisView.controller.setSelectedTimePoint(timePoint);
 		});
 
-		this.buttons = buttons;
+		this.timePointButtons = buttons;
 		return buttons.render();
 	}
 
@@ -1094,41 +1121,64 @@ $.extend(MovieButtonsView.prototype, AbstractView.prototype, {
 
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
-		this.panel = $("<div>");
+		this.panel = $("<div>").addClass("movieButtonsWidget").addClass("form-group");
 	},
 
 	render : function() {
 		var thisView = this;
 
-		var play = $("<button>").addClass("play").text("Play").appendTo(this.panel);
+		var row = $("<div>").addClass("row").appendTo(this.panel);
+
+		var buttonsRow = $("<div>").addClass("buttons").addClass("row").appendTo(this.panel);
+		var delayRow = $("<div>").addClass("delay").addClass("form-inline").appendTo(this.panel);
+
+		$("<div>").addClass("col-md-6").append(buttonsRow).appendTo(row);
+		$("<div>").addClass("col-md-6").append(delayRow).appendTo(row);
+
+		var play = $("<button>").addClass("play").addClass("btn").addClass("btn-primary");
+		$("<span>").addClass("glyphicon").addClass("glyphicon-play").appendTo(play);
+		$("<div>").addClass("col-md-3").append(play).appendTo(buttonsRow);
 
 		play.click(function() {
 			thisView.controller.play();
 		});
 
-		var stop = $("<button>").addClass("stop").text("Stop").appendTo(this.panel);
+		var stop = $("<button>").addClass("stop").addClass("btn").addClass("btn-primary");
+		$("<span>").addClass("glyphicon").addClass("glyphicon-stop").appendTo(stop);
+		$("<div>").addClass("col-md-3").append(stop).appendTo(buttonsRow);
 
 		stop.click(function() {
 			thisView.controller.stop();
 		});
 
-		var prev = $("<button>").addClass("prev").text("<<").appendTo(this.panel);
+		var prev = $("<button>").addClass("prev").addClass("btn").addClass("btn-default");
+		$("<span>").addClass("glyphicon").addClass("glyphicon-backward").appendTo(prev);
+		$("<div>").addClass("col-md-3").append(prev).appendTo(buttonsRow);
 
 		prev.click(function() {
 			thisView.controller.prev();
 		});
 
-		var next = $("<button>").addClass("next").text(">>").appendTo(this.panel);
+		var next = $("<button>").addClass("next").addClass("btn").addClass("btn-default");
+		$("<span>").addClass("glyphicon").addClass("glyphicon-forward").appendTo(next);
+		$("<div>").addClass("col-md-3").append(next).appendTo(buttonsRow);
 
 		next.click(function() {
 			thisView.controller.next();
 		});
 
-		var delay = $("<input>").attr("type", "text").addClass("delay").appendTo(this.panel);
+		var delayTable = $("<table>").appendTo(delayRow);
+		var delayTr = $("<tr>").appendTo(delayTable);
 
+		$("<td>").append($("<span>").addClass("delayLabel").text("delay:").attr("for", "delayInput")).appendTo(delayTr);
+
+		var delay = $("<input>").attr("id", "delayInput").attr("type", "text").addClass("delay").addClass("form-control");
 		delay.change(function() {
-			thisView.controller.setSelectedDelay(parseInt(delay.val()));
+			thisView.controller.setSelectedDelay(delay.val());
 		});
+		$("<td>").attr("width", "100%").append(delay).appendTo(delayTr);
+
+		$("<td>").append($("<span>").addClass("delayUnit").text("ms")).appendTo(delayTr);
 
 		this.refresh();
 
@@ -1171,7 +1221,7 @@ $.extend(MovieButtonsWidget.prototype, AbstractWidget.prototype, {
 			callback();
 		};
 		this.frameAction = null;
-		this.selectedDelay = 500;
+		this.selectedDelay = 100;
 		this.selectedFrame = 0;
 	},
 
@@ -1291,7 +1341,7 @@ $.extend(ImageView.prototype, AbstractView.prototype, {
 
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
-		this.panel = $("<div>")
+		this.panel = $("<div>").addClass("imageWidget");
 	},
 
 	render : function() {

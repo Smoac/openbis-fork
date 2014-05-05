@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Image Viewer</title>
+<meta charset="utf-8">
+<title>Image Viewer</title>
 
-  <script src="jquery.js"></script>
-  <script src="openbis.js"></script>
-  <script src="openbis-screening.js"></script>
-  <script src="image-viewer.js"></script>
+<script src="jquery.js"></script>
+<script src="openbis.js"></script>
+<script src="openbis-screening.js"></script>
 
-  <style>
-  
-  .widget {
-    margin-bottom: 10px;
-  }
-  
-  </style>
+<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
 
-</head> 
+<link rel="stylesheet" href="lib/bootstrap-slider/css/bootstrap-slider.min.css">
+<script src="lib/bootstrap-slider/js/bootstrap-slider.min.js"></script>
+
+<link rel="stylesheet" href="image-viewer.css">
+<script src="image-viewer.js"></script>
+
+</head>
 <body>
-    <script>
+	<script>
+		$(document).ready(function() {
+			var facade = new openbis();
 
-    $(document).ready(function(){
-    	var facade = new openbis();
-    	
-    	facade.login("admin", "password", function(response){
-			var widget = new ImageViewerChooserWidget(facade, ["20140415140347875-53", "20140429125231346-56", "20140429125614418-59"]);
-			$("body").append(widget.render());				
-    	});
-    });
-    
-    </script>
+			facade.login("admin", "password", function(response) {
+				var widget = new ImageViewerChooserWidget(facade, [ "20140415140347875-53", "20140429125231346-56", "20140429125614418-59" ]);
+				$("#container").append(widget.render());
+			});
+		});
+	</script>
+
+	<div id="container" class="container" style="width: 800px"></div>
+
 </body>
 </html>
