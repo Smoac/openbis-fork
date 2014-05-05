@@ -215,7 +215,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
 
         maintenanceTask.setUp("", properties);
         
-        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa]\n"
+        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
                 + ERROR_PREFIX + "BLAST isn't installed or property '" + BLAST_TOOLS_DIRECTORY_PROPERTY 
@@ -231,7 +231,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         
         maintenanceTask.setUp("BLAST databases creation", properties);
 
-        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa]\n"
+        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.",
                 logRecorder.getLogContent());
@@ -258,7 +258,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         dataFolder.mkdirs();
         FileUtilities.writeToFile(new File(dataSetFolder1, "fasta.txt"), ">1\nGATTACA\n");
         FileUtilities.writeToFile(new File(dataSetFolder1, "fasta1.fa"), ">2\nGATTACA\nGATTACA\n");
-        FileUtilities.writeToFile(new File(dataFolder, "fasta2.fa"), ">3\nIJAB\n");
+        FileUtilities.writeToFile(new File(dataFolder, "fasta2.fastq"), "@3\nIAKKATA\n+\nznhjnxzx\n");
         prepareContentProvider(ds3, dataSetFolder1);
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 11e5; i++)
@@ -270,7 +270,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
 
         maintenanceTask.execute();
 
-        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa]\n"
+        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
                 + INFO_PREFIX + "Scan 4 data sets for creating BLAST databases.", logRecorder.getLogContent());
@@ -319,7 +319,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
 
         maintenanceTask.execute();
 
-        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa]\n"
+        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
                 + INFO_PREFIX + "Scan 3 data sets for creating BLAST databases.", logRecorder.getLogContent());
@@ -348,13 +348,13 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         RecordingMatcher<TrackingDataSetCriteria> lastSeenIdMatcher = prepareListNewerDataSet(ds1);
         File dataSetFolder1 = new File(workingDirectory, "data-set-example1");
         dataSetFolder1.mkdirs();
-        FileUtilities.writeToFile(new File(dataSetFolder1, "fasta.fa"), ">1\nGATTACA\n");
+        FileUtilities.writeToFile(new File(dataSetFolder1, "fasta.fastq"), "@1\nGATTACA\n+\nznhjnxzx\n");
         prepareContentProvider(ds1, dataSetFolder1);
         maintenanceTask.setProcessSuccesses(false);
         
         maintenanceTask.execute();
         
-        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa]\n"
+        assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.\n"

@@ -69,7 +69,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     static final String FILE_TYPES_PROPERTY = "file-types";
     
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set-for-BLAST-database-creation";
-    private static final String DEFAULT_FILE_TYPES = ".fasta .fa .fsa";
+    private static final String DEFAULT_FILE_TYPES = ".fasta .fa .fsa .fastq";
     private static final String DEFAULT_BLAST_DATABASES_FOLDER = "blast-databases";
 
     private static final Logger operationLog =
