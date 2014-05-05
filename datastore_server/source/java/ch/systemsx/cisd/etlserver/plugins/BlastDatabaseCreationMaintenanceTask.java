@@ -16,21 +16,20 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -44,6 +43,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -51,18 +51,20 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
- * This maintenance task creates a BLAST database for all files 
+ * This maintenance task creates a BLAST database for all files with defined file types of data set with 
+ * matching data set types. 
  *
  * @author Franz-Josef Elmer
  */
 public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 {
+    static final String DATASET_TYPES_PROPERTY = "dataset-types";
     static final String BLAST_TOOLS_DIRECTORY_PROPERTY = "blast-tools-directory";
     static final String BLAST_DATABASES_FOLDER_PROPERTY = "blast-databases-folder";
+    static final String BLAST_TEMP_FOLDER_PROPERTY = "blast-temp-folder";
     static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
     static final String FILE_TYPES_PROPERTY = "file-types";
     
@@ -77,6 +79,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     
     private File lastSeenDataSetFile;
 
+    private List<Pattern> dataSetTypePatterns;
     private List<String> fileTypes;
     private File blastDatabasesFolder;
     private File tmpFolder;
@@ -86,17 +89,24 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     @Override
     public void setUp(String pluginName, Properties properties)
     {
+        List<String> dataSetTypeRegexs = PropertyUtils.getMandatoryList(properties, DATASET_TYPES_PROPERTY);
+        dataSetTypePatterns = new ArrayList<Pattern>();
+        for (String regex : dataSetTypeRegexs)
+        {
+            try
+            {
+                dataSetTypePatterns.add(Pattern.compile(regex));
+            } catch (PatternSyntaxException ex)
+            {
+                throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY 
+                        + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
+            }
+        }
         fileTypes = Arrays.asList(properties.getProperty(FILE_TYPES_PROPERTY, DEFAULT_FILE_TYPES).split(" +"));
         operationLog.info("File types: " + fileTypes);
         lastSeenDataSetFile = getFile(properties, LAST_SEEN_DATA_SET_FILE_PROPERTY, DEFAULT_LAST_SEEN_DATA_SET_FILE);
-        blastDatabasesFolder = getFile(properties, BLAST_DATABASES_FOLDER_PROPERTY, DEFAULT_BLAST_DATABASES_FOLDER);
-        operationLog.info("BLAST databases folder: " + blastDatabasesFolder);
-        tmpFolder = new File(blastDatabasesFolder, "tmp");
-        FileUtilities.deleteRecursively(tmpFolder);
-        if (tmpFolder.mkdirs() == false)
-        {
-            throw new ConfigurationFailureException("Couldn't create folder '" + tmpFolder + "'.");
-        }
+        setUpBlastDatabasesFolder(properties);
+        setUpBlastTempFolder(properties);
         String blastToolDirectory = getBLASTToolDirectory(properties);
         makeblastdb = blastToolDirectory + "makeblastdb";
         if (process(makeblastdb, "-version") == false)
@@ -107,7 +117,53 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         makembindex = blastToolDirectory + "makembindex";
         
     }
+
+    private void setUpBlastDatabasesFolder(Properties properties)
+    {
+        blastDatabasesFolder = getFile(properties, BLAST_DATABASES_FOLDER_PROPERTY, DEFAULT_BLAST_DATABASES_FOLDER);
+        operationLog.info("BLAST databases folder: " + blastDatabasesFolder);
+        if (blastDatabasesFolder.exists())
+        {
+            if (blastDatabasesFolder.isFile())
+            {
+                throw new ConfigurationFailureException("BLAST databases folder '" + blastDatabasesFolder 
+                        + "' is an existing file.");
+            }
+        } else
+        {
+            if (blastDatabasesFolder.mkdirs() == false)
+            {
+                throw new ConfigurationFailureException("Couldn't create BLAST databases folder '" 
+                        + blastDatabasesFolder + "'.");
+            }
+        }
+    }
     
+    private void setUpBlastTempFolder(Properties properties)
+    {
+        String tempFolderProperty = properties.getProperty(BLAST_TEMP_FOLDER_PROPERTY);
+        if (tempFolderProperty == null)
+        {
+            tmpFolder = new File(blastDatabasesFolder, "tmp");
+        } else
+        {
+            tmpFolder = new File(tempFolderProperty);
+        }
+        if (tmpFolder.exists())
+        {
+            boolean success = FileUtilities.deleteRecursively(tmpFolder);
+            if (success == false)
+            {
+                operationLog.warn("Couldn't delete temp folder '" + tmpFolder + "'.");
+            }
+        }
+        if (tmpFolder.mkdirs() == false)
+        {
+            throw new ConfigurationFailureException("Couldn't create temp folder '" + tmpFolder + "'.");
+        }
+        operationLog.info("Temp folder '" + tmpFolder + "' created.");
+    }
+
     private File getFile(Properties properties, String pathProperty, String defaultPath)
     {
         String path = properties.getProperty(pathProperty);
@@ -136,7 +192,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         for (AbstractExternalData dataSet : dataSets)
         {
-            if (dataSet.tryGetAsDataSet() != null && dataSet.isAvailable())
+            if (dataSet.tryGetAsDataSet() != null && dataSet.isAvailable() && dataSetTypeMatches(dataSet))
             {
                 try
                 {
@@ -149,6 +205,19 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
             updateLastSeenEventId(dataSet.getId());
         }
+    }
+    
+    private boolean dataSetTypeMatches(AbstractExternalData dataSet)
+    {
+        String dataSetType = dataSet.getDataSetType().getCode();
+        for (Pattern pattern : dataSetTypePatterns)
+        {
+            if (pattern.matcher(dataSetType).matches())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void createBlastDatabase(AbstractExternalData dataSet, IHierarchicalContentProvider contentProvider)
@@ -175,6 +244,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                     "-title", databaseName, "-out", databaseFile);
             if (success == false)
             {
+                operationLog.error("Creation of BLAST database failed for data set '" + dataSetCode 
+                        + "'. Temporary fasta file: " + fastaFile);
                 break;
             }
             File databaseSeqFile = new File(databaseFile + ".nsq");
@@ -197,7 +268,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         return process(Arrays.asList(command));
     }
     
-    private boolean process(List<String> command)
+    boolean process(List<String> command)
     {
         ProcessResult processResult = ProcessExecutionHelper.run(command, operationLog, machineLog);
         if (processResult.isOK())
