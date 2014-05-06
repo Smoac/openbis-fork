@@ -13,3 +13,4 @@
 /recovery-state
 .DS_Store
 /.activity
+sourceTest/java/ch/systemsx/cisd/etlserver/plugins/LastSeenDataSetFileContentTestResources/writeLastSeenFile
