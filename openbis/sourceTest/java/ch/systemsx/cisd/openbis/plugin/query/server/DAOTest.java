@@ -167,7 +167,7 @@ public class DAOTest extends AbstractTransactionalTestNGSpringContextTests
     @Test
     public void testQueryWithSpecialCharacters()
     {
-        String query = "select code as \"exp.[code]\" from experiments";
+        String query = "select code as \"exp.[code]\" from experiments order by id";
 
         DatabaseConfigurationContext context = new DatabaseConfigurationContext();
         context.setDatabaseEngineCode("postgresql");
