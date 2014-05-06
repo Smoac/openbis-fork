@@ -255,12 +255,7 @@ task checkDependencies(dependsOn: classes) << {
 
 apply plugin: 'ivy-publish'
 publishing {
-    publications {
-        ivy(IvyPublication) {
-            from components.java
-            artifact(sourcesJar)
-        }
-    }
+
     repositories {
         ivy {
             ivyPattern "file://${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
