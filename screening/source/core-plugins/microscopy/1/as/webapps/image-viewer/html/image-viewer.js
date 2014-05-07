@@ -456,24 +456,10 @@ $.extend(ImageViewerWidget.prototype, AbstractWidget.prototype, {
 	},
 
 	getChannelStacks : function() {
-		return this.imageInfo.channelStacks.sort(function(o1, o2) {
-			var t1 = o1.timePointOrNull;
-			var t2 = o2.timePointOrNull;
-			var d1 = o1.depthOrNull;
-			var d2 = o2.depthOrNull;
-
-			var compare = function(v1, v2) {
-				if (v1 > v2) {
-					return 1;
-				} else if (v1 < v2) {
-					return -1;
-				} else {
-					return 0;
-				}
-			}
-
-			return compare(t1, t2) * 10 + compare(d1, d2);
-		});
+		if (this.channelStackManager == null) {
+			this.channelStackManager = new ChannelStackManager(this.imageInfo.channelStacks);
+		}
+		return this.channelStackManager.getChannelStacks();
 	},
 
 	getResolutions : function() {
@@ -785,7 +771,7 @@ $.extend(ChannelStackChooserWidget.prototype, {
 		if (manager.isMatrix()) {
 			this.widget = new ChannelStackMatrixChooserWidget(channelStacks);
 		} else {
-			this.widget = new ChannelStackDefaultChooserWidget(channelStacks);
+			this.widget = new ChannelStackSeriesChooserWidget(channelStacks);
 		}
 	},
 
@@ -893,9 +879,11 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 			"step" : 1,
 			"tooltip" : "hide"
 		}).on("slide", function(event) {
-			var timeIndex = parseInt(event.value);
-			var time = thisView.controller.getTimePoints()[timeIndex];
-			thisView.controller.setSelectedTimePoint(time);
+			if (!$.isArray(event.value) && !isNaN(event.value)) {
+				var timeIndex = parseInt(event.value);
+				var time = thisView.controller.getTimePoints()[timeIndex];
+				thisView.controller.setSelectedTimePoint(time);
+			}
 		});
 
 		return widget;
@@ -917,9 +905,11 @@ $.extend(ChannelStackMatrixChooserView.prototype, AbstractView.prototype, {
 			"step" : 1,
 			"tooltip" : "hide"
 		}).on("slide", function(event) {
-			var depthIndex = parseInt(event.value);
-			var depth = thisView.controller.getDepths()[depthIndex];
-			thisView.controller.setSelectedDepth(depth);
+			if (!$.isArray(event.value) && !isNaN(event.value)) {
+				var depthIndex = parseInt(event.value);
+				var depth = thisView.controller.getDepths()[depthIndex];
+				thisView.controller.setSelectedDepth(depth);
+			}
 		});
 
 		return widget;
@@ -1070,41 +1060,146 @@ $.extend(ChannelStackMatrixChooserWidget.prototype, AbstractWidget.prototype, {
 });
 
 //
-// CHANNEL STACK DEFAULT CHOOSER VIEW
+// CHANNEL STACK SERIES CHOOSER VIEW
 //
 
-function ChannelStackDefaultChooserView(controller) {
+function ChannelStackSeriesChooserView(controller) {
 	this.init(controller);
 }
 
-$.extend(ChannelStackDefaultChooserView.prototype, AbstractView.prototype, {
+$.extend(ChannelStackSeriesChooserView.prototype, AbstractView.prototype, {
 
 	init : function(controller) {
 		AbstractView.prototype.init.call(this, controller);
+		this.panel = $("<div>").addClass("channelStackChooserWidget").addClass("form-group");
+	},
+
+	render : function() {
+		var thisView = this;
+
+		this.panel.append(this.createSliderWidget());
+		this.panel.append(this.createButtonsWidget());
+
+		this.refresh();
+
+		return this.panel;
+	},
+
+	refresh : function() {
+		var channelStackId = this.controller.getSelectedChannelStackId();
+
+		if (channelStackId != null) {
+			var count = this.controller.getChannelStacks().length;
+			var index = this.controller.getChannelStackIndex(channelStackId);
+
+			var sliderLabel = this.panel.find(".sliderWidget label");
+			sliderLabel.text("Channel Stack: " + index + " (" + (index + 1) + "/" + count + ")");
+
+			var sliderInput = this.panel.find(".sliderWidget input");
+			sliderInput.slider("setValue", index);
+
+			this.buttons.setSelectedFrame(index);
+		}
+	},
+
+	createSliderWidget : function() {
+		var thisView = this;
+		var widget = $("<div>").addClass("sliderWidget").addClass("form-group");
+
+		$("<label>").attr("for", "sliderInput").appendTo(widget);
+
+		var sliderInput = $("<input>").attr("id", "sliderInput").attr("type", "text").addClass("form-control");
+
+		$("<div>").append(sliderInput).appendTo(widget);
+
+		sliderInput.slider({
+			"min" : 0,
+			"max" : this.controller.getChannelStacks().length - 1,
+			"step" : 1,
+			"tooltip" : "hide"
+		}).on("slide", function(event) {
+			if (!$.isArray(event.value) && !isNaN(event.value)) {
+				var index = parseInt(event.value);
+				var channelStack = thisView.controller.getChannelStacks()[index];
+				thisView.controller.setSelectedChannelStackId(channelStack.id);
+			}
+		});
+
+		return widget;
+	},
+
+	createButtonsWidget : function() {
+		var thisView = this;
+
+		var buttons = new MovieButtonsWidget(this.controller.getChannelStacks().length);
+
+		buttons.setFrameContentLoader(function(frameIndex, callback) {
+			var channelStack = thisView.controller.getChannelStacks()[frameIndex];
+			thisView.controller.loadChannelStackContent(channelStack, callback);
+		});
+
+		buttons.addChangeListener(function() {
+			var channelStack = thisView.controller.getChannelStacks()[buttons.getSelectedFrame()];
+			thisView.controller.setSelectedChannelStackId(channelStack.id);
+		});
+
+		this.buttons = buttons;
+		return buttons.render();
 	}
 
 });
 
 //
-// CHANNEL STACK DEFAULT CHOOSER
+// CHANNEL STACK SERIES CHOOSER
 //
 
-function ChannelStackDefaultChooserWidget(channelStacks) {
+function ChannelStackSeriesChooserWidget(channelStacks) {
 	this.init(channelStacks);
 }
 
-$.extend(ChannelStackDefaultChooserWidget.prototype, AbstractWidget.prototype, {
+$.extend(ChannelStackSeriesChooserWidget.prototype, AbstractWidget.prototype, {
 
 	init : function(channelStacks) {
-		AbstractWidget.prototype.init.call(this, new ChannelStackDefaultChooserView(this));
+		AbstractWidget.prototype.init.call(this, new ChannelStackSeriesChooserView(this));
 		this.channelStackManager = new ChannelStackManager(channelStacks);
 	},
 
+	getChannelStacks : function() {
+		return this.channelStackManager.getChannelStacks();
+	},
+
+	getChannelStackIndex : function(channelStackId) {
+		return this.channelStackManager.getChannelStackIndex(channelStackId);
+	},
+
+	loadChannelStackContent : function(channelStack, callback) {
+		this.getChannelStackContentLoader()(channelStack, callback);
+	},
+
+	getChannelStackContentLoader : function() {
+		if (this.channelStackContentLoader) {
+			return this.channelStackContentLoader;
+		} else {
+			return function(channelStack, callback) {
+				callback();
+			}
+		}
+	},
+
+	setChannelStackContentLoader : function(channelStackContentLoader) {
+		this.channelStackContentLoader = channelStackContentLoader;
+	},
+
 	getSelectedChannelStackId : function() {
-		return null;
+		return this.selectedChannelStackId;
 	},
 
 	setSelectedChannelStackId : function(channelStackId) {
+		if (this.selectedChannelStackId != channelStackId) {
+			this.selectedChannelStackId = channelStackId;
+			this.refresh();
+			this.notifyChangeListeners();
+		}
 	}
 
 });
@@ -1449,9 +1544,44 @@ $.extend(ChannelStackManager.prototype, {
 
 	init : function(channelStacks) {
 		this.channelStacks = channelStacks;
+		this.channelStacks.sort(function(o1, o2) {
+			var s1 = o1.seriesNumberOrNull;
+			var s2 = o2.seriesNumberOrNull;
+			var t1 = o1.timePointOrNull;
+			var t2 = o2.timePointOrNull;
+			var d1 = o1.depthOrNull;
+			var d2 = o2.depthOrNull;
+
+			var compare = function(v1, v2) {
+				if (v1 == null) {
+					if (v2 == null) {
+						return 0;
+					} else {
+						return -1;
+					}
+				} else if (v2 == null) {
+					return 1;
+				} else {
+					if (v1 > v2) {
+						return 1;
+					} else if (v1 < v2) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+			}
+
+			return compare(s1, s2) * 100 + compare(t1, t2) * 10 + compare(d1, d2);
+		});
 	},
 
 	isMatrix : function() {
+		/*
+		 * TODO return (!this.isSeriesNumberPresent() ||
+		 * this.getSeriesNumbers().length == 1) && !this.isTimePointMissing() &&
+		 * !this.isDepthMissing() && this.isDepthConsistent();
+		 */
 		return !this.isSeriesNumberPresent() && !this.isTimePointMissing() && !this.isDepthMissing() && this.isDepthConsistent();
 	},
 
@@ -1486,6 +1616,27 @@ $.extend(ChannelStackManager.prototype, {
 		return Object.keys(depthCounts).length == 1;
 	},
 
+	getSeriesNumbers : function() {
+		if (!this.seriesNumbers) {
+			var seriesNumbers = {};
+
+			this.channelStacks.forEach(function(channelStack) {
+				if (channelStack.seriesNumberOrNull != null) {
+					seriesNumbers[channelStack.seriesNumberOrNull] = true;
+				}
+			});
+
+			this.seriesNumbers = Object.keys(seriesNumbers).map(function(seriesNumber) {
+				return parseInt(seriesNumber);
+			}).sort();
+		}
+		return this.seriesNumbers;
+	},
+
+	getSeriesNumber : function(index) {
+		return this.getSeriesNumbers()[index];
+	},
+
 	getTimePoints : function() {
 		if (!this.timePoints) {
 			var timePoints = {};
@@ -1498,7 +1649,7 @@ $.extend(ChannelStackManager.prototype, {
 
 			this.timePoints = Object.keys(timePoints).map(function(timePoint) {
 				return parseInt(timePoint);
-			});
+			}).sort();
 		}
 		return this.timePoints;
 	},
@@ -1533,7 +1684,7 @@ $.extend(ChannelStackManager.prototype, {
 
 			this.depths = Object.keys(depths).map(function(depth) {
 				return parseInt(depth);
-			});
+			}).sort();
 		}
 		return this.depths;
 	},
@@ -1556,15 +1707,18 @@ $.extend(ChannelStackManager.prototype, {
 		return this.depthsMap[depth];
 	},
 
-	getChannelStackByTimePointAndDepth : function(timePoint, depth) {
-		var map = this.getChannelStackByTimePointAndDepthMap();
-		var entry = map[timePoint];
+	getChannelStackIndex : function(channelStackId) {
+		if (!this.channelStackMap) {
+			var map = {};
 
-		if (entry) {
-			return entry[depth];
-		} else {
-			return null;
+			this.getChannelStacks().forEach(function(channelStack, index) {
+				map[channelStack.id] = index;
+			});
+
+			this.channelStackMap = map;
 		}
+
+		return this.channelStackMap[channelStackId];
 	},
 
 	getChannelStackById : function(channelStackId) {
@@ -1578,12 +1732,19 @@ $.extend(ChannelStackManager.prototype, {
 		return this.channelStackByIdMap[channelStackId];
 	},
 
-	getChannelStacks : function() {
-		return this.channelStacks;
+	getChannelStackByTimePointAndDepth : function(timePoint, depth) {
+		var map = this.getChannelStackByTimePointAndDepthMap();
+		var entry = map[timePoint];
+
+		if (entry) {
+			return entry[depth];
+		} else {
+			return null;
+		}
 	},
 
 	getChannelStackByTimePointAndDepthMap : function() {
-		if (!this.channelStackMap) {
+		if (!this.channelStackByTimePointAndDepthMap) {
 			var map = {};
 			this.channelStacks.forEach(function(channelStack) {
 				if (channelStack.timePointOrNull != null && channelStack.depthOrNull != null) {
@@ -1595,10 +1756,15 @@ $.extend(ChannelStackManager.prototype, {
 					entry[channelStack.depthOrNull] = channelStack;
 				}
 			});
-			this.channelStackMap = map;
+			this.channelStackByTimePointAndDepthMap = map;
 		}
-		return this.channelStackMap;
+		return this.channelStackByTimePointAndDepthMap;
+	},
+
+	getChannelStacks : function() {
+		return this.channelStacks;
 	}
+
 });
 
 //

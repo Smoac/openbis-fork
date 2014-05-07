@@ -24,13 +24,13 @@
 			var facade = new openbis();
 
 			facade.login("admin", "password", function(response) {
-				var widget = new ImageViewerChooserWidget(facade, [ "20140415140347875-53", "20140429125231346-56", "20140429125614418-59" ]);
+				var widget = new ImageViewerChooserWidget(facade, [ "20140415140347875-53", "20140506132344798-146" ]);
 				$("#container").append(widget.render());
 			});
 		});
 	</script>
 
-	<div id="container" class="container" style="width: 800px"></div>
+	<div id="container" style="width: 600px; padding: 20px;"></div>
 
 </body>
 </html>
