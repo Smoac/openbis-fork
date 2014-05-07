@@ -274,6 +274,9 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         if (processResult.isOK())
         {
             processResult.logAsInfo();
+        } else
+        {
+            processResult.log();
         }
         return processResult.isOK();
     }
