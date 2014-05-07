@@ -1,14 +1,69 @@
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
 group="cisd"
+buildInfo=project.name
 
 dependencies {
-    compile 'cisd:cisd-base:+',
-            'cisd:cisd-jhdf5:+',
+    compile project(':jhdf5'),
+            'cisd:cisd-base:+',
             'rinn:restrictions:+'
     
     testCompile 'testng:testng:+'
 } 
+
+new ByteArrayOutputStream().withStream { os ->
+    def result = exec {
+        executable = 'svn'
+        args = ['info']
+        standardOutput = os
+    }
+    def outputAsString = os.toString()
+    def matchLastChangedRevMatcher = outputAsString =~ /Last Changed Rev: (\d+)/
+    def urlMatcher = outputAsString =~ /URL: .*\/(.+)/
+
+    def revision = "r${matchLastChangedRevMatcher[0][1]}"
+    def branch = urlMatcher[0][1]
+
+    if (branch.equals('trunk')) {
+        project.version = revision
+    } else {
+        project.version = branch
+    }
+}
+
+task isClean(type: Exec) {
+    workingDir = '.'
+    commandLine = ['svn', 'status']
+    standardOutput = new ByteArrayOutputStream()
+
+    ext.output = { 
+        return standardOutput.toString().length() == 0
+    }    
+}
+
+task createBuildInfo(dependsOn: [isClean]){
+    
+    ext.output = "${buildDir}/BUILD-${buildInfo}.INFO"
+    
+    doLast {
+        def writer = new FileWriter(ext.output)
+        try {
+            writer.println("SNAPSHOT:"+project.version.substring(1)+":"+(isClean.output()?"clean":"dirty"))
+        } finally {
+            writer.close()
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ch.ethz.sis.hcscld.BuildAndEnvironmentInfo'
+        attributes 'Class-Path': configurations.runtime.collect { it.getName() }.join(' ')
+    }
+
+    from (createBuildInfo.output)
+}
+jar.dependsOn createBuildInfo
 
 task javadocZip(type: Zip, dependsOn: javadoc) {
     archiveName 'sis-hcscld-javadoc.zip'
@@ -20,7 +75,7 @@ task exampleSourcesJar(type: Jar) {
     from sourceSets.examples.allSource
 }
 
-task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, javadocZip]) {
+task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, javadocZip, project(':jhdf5').distributionZip]) {
     baseName = 'sis-hcscld'
 
     from ('dist') {
@@ -36,6 +91,12 @@ task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, 
         rename '(.*)', 'sis-hcscld.jar'
     }
     
+    from (configurations.runtime) {
+        exclude '*restriction*'
+        exclude '*bcel*'
+        into 'sis-hcscld/lib'
+    }
+    
     from (sourcesJar.archivePath) {
         into 'sis-hcscld/src'
         rename '(.*)', 'sis-hcscld-src.zip'
@@ -46,6 +107,17 @@ task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, 
         rename '(.*)', 'sis-hcscld-examples-src.zip'
     }
 
+    from (project(':jhdf5').nativeJarLinux.archivePath) {
+        into 'sis-hcscld/lib'
+    }
+
+    from (project(':jhdf5').nativeJarMac.archivePath) {
+        into 'sis-hcscld/lib'
+    }
+
+    from (project(':jhdf5').nativeJarWindowsIntel.archivePath) {
+        into 'sis-hcscld/lib'
+    }
 }
 
 build.dependsOn distributionZip
