@@ -532,6 +532,7 @@ var common = {
   menu_processing: "Actions",
 
   menu_archiving: "Archiving",
+  ARCHIVING_MENU_BACKUP: "Add to Archive",
   ARCHIVING_MENU_ARCHIVE: "Archive",
   ARCHIVING_MENU_UNARCHIVE: "Unarchive",
   ARCHIVING_MENU_LOCK: "Disable",

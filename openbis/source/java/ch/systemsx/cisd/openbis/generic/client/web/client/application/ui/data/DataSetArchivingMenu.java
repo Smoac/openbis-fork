@@ -43,10 +43,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.TextToolItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ArchivingResult;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchivingServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * 'Archiving' menu for Data Sets.
@@ -71,6 +71,7 @@ public class DataSetArchivingMenu extends TextToolItem
         this.selectedDataSetsGetter = selectedDataSetsGetter;
 
         Menu submenu = new Menu();
+        addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_BACKUP);
         addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_ARCHIVE);
         addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_UNARCHIVE);
         addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_LOCK);
@@ -81,6 +82,7 @@ public class DataSetArchivingMenu extends TextToolItem
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
     private static enum ArchivingActionMenuKind implements IActionMenuItem
     {
+        ARCHIVING_MENU_BACKUP(ArchivingServiceKind.BACKUP),
         ARCHIVING_MENU_ARCHIVE(ArchivingServiceKind.ARCHIVE), ARCHIVING_MENU_UNARCHIVE(
                 ArchivingServiceKind.UNARCHIVE), ARCHIVING_MENU_LOCK(ArchivingServiceKind.LOCK),
         ARCHIVING_MENU_UNLOCK(ArchivingServiceKind.UNLOCK);
@@ -192,9 +194,15 @@ public class DataSetArchivingMenu extends TextToolItem
                             selectedAndDisplayedItems.createCriteria(computeOnSelected);
                     switch (taskKind)
                     {
+                        case BACKUP:
+                            viewContext.getService().archiveDatasets(
+                                    criteria, false,
+                                    createArchivingDisplayCallback(taskKind.getDescription(),
+                                            computeOnSelected));
+                            break;
                         case ARCHIVE:
                             viewContext.getService().archiveDatasets(
-                                    criteria,
+                                    criteria, true,
                                     createArchivingDisplayCallback(taskKind.getDescription(),
                                             computeOnSelected));
                             break;
@@ -307,6 +315,8 @@ public class DataSetArchivingMenu extends TextToolItem
         {
             switch (taskKind)
             {
+                case BACKUP:
+                    return DataSetArchivingStatus.AVAILABLE;
                 case ARCHIVE:
                     return DataSetArchivingStatus.AVAILABLE;
                 case UNARCHIVE:
