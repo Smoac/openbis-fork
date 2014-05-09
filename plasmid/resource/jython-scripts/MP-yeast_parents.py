@@ -9,7 +9,7 @@ import re
 """"space that all parents come from (fixed)"""
 SPACE = "YEAST_LAB"
 
-"""code attribute name"""
+"""plasmid_list attribute name"""
 ATR_CODE = "code"
 
 """labels of table columns"""
@@ -24,22 +24,25 @@ DELETE_ACTION_LABEL = "Delete"
 
 """helper functions"""
 
-def _createSampleLink(code):
+def _createSampleLink(plasmid_list):
     """
-       Creates sample link XML element for sample with specified 'code'. The element will contain
-       given code as 'code' attribute apart from standard 'permId' attribute.
+       Creates sample link XML element for sample with specified 'plasmid_list'. The element will contain
+       given plasmid_list as 'plasmid_list' attribute apart from standard 'permId' attribute.
        
-       If the sample doesn't exist in DB a fake link will be created with the 'code' as permId.
+       If the sample doesn't exist in DB a fake link will be created with the 'plasmid_list' as permId.
        
        @return: sample link XML element as string, e.g.:
-       - '<Sample code="FRP1" permId="20110309154532868-4219"/>'
-       - '<Sample code="FAKE_SAMPLE_CODE" permId="FAKE_SAMPLE_CODE"/>
+       - '<Sample plasmid_list="FRP1" permId="20110309154532868-4219"/>'
+       - '<Sample plasmid_list="FAKE_SAMPLE_CODE" permId="FAKE_SAMPLE_CODE"/>
     """
-    permId = entityInformationProvider().getSamplePermId(SPACE, code)
+    plasmidPath= "/YEAST_LAB/" + plasmid_list
+    permId = entityInformationProvider().getSamplePermId(SPACE, plasmid_list)
     if not permId:
-        permId = code
+        permId = plasmid_list
     sampleLink = elementFactory().createSampleLink(permId)
-    sampleLink.addAttribute(ATR_CODE, code)
+    
+    sampleLink.addAttribute(ATR_CODE, plasmid_list)
+    
     return sampleLink    
 
 
@@ -48,13 +51,33 @@ Example input:
 
 FRY1, FRY2, FRY3, FRY4
 """
+
+def showRawValueInForms():
+    return False
+ 
+def batchColumnNames():
+    return [CODE_LABEL]
+
+def updateFromRegistrationForm(bindings):
+    elements = []
+    for item in bindings:
+        plasmid_list = item.get('CODE')
+        sampleLink = _createSampleLink(plasmid_list)
+        elements.append(sampleLink)
+            
+    property.value = propertyConverter().convertToString(elements)
+
+ 
+
+
+
 def updateFromBatchInput(bindings):
     elements = []
     input = bindings.get('')
     if input is not None:
         samples = input.split(',')
-        for code in samples:
-            sampleLink = _createSampleLink(code.strip())
+        for plasmid_list in samples:
+            sampleLink = _createSampleLink(plasmid_list.strip())
             elements.append(sampleLink)
     property.value = propertyConverter().convertToString(elements)
 
@@ -68,11 +91,11 @@ def configureUI():
     """The property value should contain XML with list of samples. Add a new row for every sample."""
     elements = list(propertyConverter().convertToElements(property))
     for plasmid in elements:
-        code = plasmid.getAttribute(ATR_CODE, "")
+        plasmid_list = plasmid.getAttribute(ATR_CODE, "")
    
         row = tableBuilder.addRow()
-        row.setCell(LINK_LABEL, plasmid, code)
-        row.setCell(CODE_LABEL, code)
+        row.setCell(LINK_LABEL, plasmid, plasmid_list)
+        row.setCell(CODE_LABEL, plasmid_list)
         
     """Specify that the property should be shown in a tab and set the table output."""
     property.setOwnTab(True)
@@ -103,7 +126,7 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setDescription('Code of yeast parent sample, e.g. "FRY1"'),
+                            .setDescription('Code of yeast parent sample, e.g. "FRY1"')
     ]
     editAction.addInputWidgets(widgets)
     # Bind field name with column name.
@@ -129,8 +152,8 @@ def updateFromUI(action):
            For 'add' action create new yeast parent element with values from input fields
            and add it to existing elements.
         """
-        code = action.getInputValue(CODE_LABEL)
-        sampleLink = _createSampleLink(code)
+        plasmid_list = action.getInputValue(CODE_LABEL)
+        sampleLink = _createSampleLink(plasmid_list)
         
         elements.append(sampleLink)
     elif action.name == EDIT_ACTION_LABEL:
@@ -138,8 +161,8 @@ def updateFromUI(action):
            For 'edit' action find the yeast parent element corresponding to selected row
            and replace it with an element with values from input fields.
         """
-        code = action.getInputValue(CODE_LABEL)
-        sampleLink = _createSampleLink(code)
+        plasmid_list = action.getInputValue(CODE_LABEL)
+        sampleLink = _createSampleLink(plasmid_list)
         
         selectedRowId = action.getSelectedRows()[0]
         elements[selectedRowId] = sampleLink
