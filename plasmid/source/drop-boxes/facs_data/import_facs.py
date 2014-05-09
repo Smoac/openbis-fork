@@ -81,18 +81,18 @@ def process(transaction):
 	for exp in set(experimentNameList):
 		experiment = transaction.getExperiment("/" + space  + "/" + proj + "/" + exp)
 		if not experiment:
-  			experiment = transaction.createNewExperiment("/" + space  + "/" + proj + "/" + exp, "FACS_DATA")	
+  			experiment = transaction.createNewExperiment("/" + space  + "/" + proj + "/" + exp, "ANALYSIS")	
 
   	for sample, directory in zip(sampleNameList,directoryToImportList):
   		if sample == "na":
-  			sampleNew = transaction.createNewSampleWithGeneratedCode(space, "FACS_DATA")
+  			sampleNew = transaction.createNewSampleWithGeneratedCode(space, "RESULT")
   			sampleNew.setExperiment(experiment)
   		else:
-  			sampleNew = transaction.createNewSample("/" + space + "/" + sample, "FACS_DATA" )
+  			sampleNew = transaction.createNewSample("/" + space + "/" + sample, "RESULT" )
 			sampleNew.setExperiment(experiment)
 		
 		dataSet = transaction.createNewDataSet()
-		dataSet.setDataSetType("FACS_DATA")
+		dataSet.setDataSetType("FACS_DATA_RAW")
 		dataSet.setSample(sampleNew)
 		transaction.moveFile(directory, dataSet)					
 	
