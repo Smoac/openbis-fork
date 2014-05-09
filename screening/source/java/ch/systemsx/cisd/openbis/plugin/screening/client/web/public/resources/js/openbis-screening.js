@@ -144,27 +144,27 @@ openbis.prototype.listImageDatasets = function(plateIdentifiers, action) {
 }
 
 /**
- * @see IScreeningApiServer.getImageInfo(String, String, WellLocation)
+ * @see IScreeningApiServer.getImageInfo(String, List<String>)
  * @method
  */
-openbis.prototype.getImageInfo = function(dataSetCode, wellLocation, action) {
+openbis.prototype.getImageInfo = function(dataSetCodes, action) {
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "getImageInfo",
-                    "params" : [ this.getSession(), dataSetCode, wellLocation ] },
+                    "params" : [ this.getSession(), dataSetCodes ] },
             success: action
     });
 }
 
 /**
- * @see IScreeningApiServer.getImageResolutions(String, String)
+ * @see IScreeningApiServer.getImageResolutions(String, List<String>)
  * @method
  */
-openbis.prototype.getImageResolutions = function(dataSetCode, action) {
+openbis.prototype.getImageResolutions = function(dataSetCodes, action) {
     this._internal.ajaxRequest({
             url: this._internal.screeningUrl,
             data: { "method" : "getImageResolutions",
-                    "params" : [ this.getSession(), dataSetCode ] },
+                    "params" : [ this.getSession(), dataSetCodes ] },
             success: action
     });
 }

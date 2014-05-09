@@ -1,0 +1,23 @@
+.imageViewer .slider.slider-horizontal {
+	width: 100%;
+}
+
+.imageViewer .movieButtonsWidget .delay input {
+	width: 100%;
+}
+
+.imageViewer .movieButtonsWidget .delayLabel {
+	padding-right: 5px;
+}
+
+.imageViewer .movieButtonsWidget .delayUnit {
+	padding-left: 5px;
+}
+
+.imageViewer .movieButtonsWidget button {
+	width: 100%;
+}
+
+.imageViewer .imageWidget {
+	margin-top: 20px;
+}
