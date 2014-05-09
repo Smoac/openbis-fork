@@ -1,5 +1,5 @@
 """ 
-Managed Property Script for handling General Enzymes.
+Managed Property Script for handling ENZYMES.
 
 
 """
@@ -7,18 +7,18 @@ Managed Property Script for handling General Enzymes.
 import re
 
 """"space that all parents come from (fixed)"""
-SPACE = "YEAST_LAB"
+SPACE = "YEAST_LAB"F
 
 """code attribute name"""
 ATR_CODE = "code"
-ATR_NAME = "name"
-ATR_CONC = "concentration"
+ATR_CONCENTRATION = "concentration"
+ATR_NAME="name"
 
 """labels of table columns"""
 LINK_LABEL = "link"
 CODE_LABEL = "code"
-NAME_LABEL = "name"
-CONC_LABEL = "concentration"
+CONCENTRATION_LABEL = "concentration"
+NAME_LABEL="name"
 
 """action labels"""
 
@@ -43,29 +43,27 @@ def _createSampleLink(enzymes_list, concentration_list):
     permId =entityInformationProvider().getSamplePermId(SPACE, enzymes_list)
     if not permId:
         permId = enzymes_list
-    name  = entityInformationProvider().getSamplePropertyValue(permId, 'NAME')
-    print "the name is", name
+    name  = entityInformationProvider().getSamplePropertyValue(permId, 'NAME')    
     sampleLink = elementFactory().createSampleLink(permId)
     
     sampleLink.addAttribute(ATR_CODE, enzymes_list)
     sampleLink.addAttribute(ATR_NAME, name) 
-    sampleLink.addAttribute(ATR_CONC, concentration_list)
-   
+    sampleLink.addAttribute(ATR_CONCENTRATION, concentration_list)
+
     return sampleLink    
 
 
 """
 Example input:
 
-FRC1, FRC2, FRC3, FRC4
+FRC1:2nM, FRC2, FRC3:3 nM
 """
-
 
 def showRawValueInForms():
     return False
  
 def batchColumnNames():
-    return [CODE_LABEL, CONC_LABEL]
+    return [CODE_LABEL, CONCENTRATION_LABEL]
  
 def updateFromRegistrationForm(bindings):
     elements = []
@@ -78,33 +76,27 @@ def updateFromRegistrationForm(bindings):
             
     property.value = propertyConverter().convertToString(elements)
 
-
-
-
 def configureUI():
     """Create table builder and add columns."""
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader(LINK_LABEL)
     tableBuilder.addHeader(CODE_LABEL)
-    tableBuilder.addHeader(CONC_LABEL)
-    tableBuilder.addHeader(NAME_LABEL) 
- 
+    tableBuilder.addHeader(CONCENTRATION_LABEL)
+    tableBuilder.addHeader(NAME_LABEL)
 
     """The property value should contain XML with list of samples. Add a new row for every sample."""
     elements = list(propertyConverter().convertToElements(property))
     for enzyme in elements:
         enzymes_list = enzyme.getAttribute(ATR_CODE, "")
-        name = enzyme.getAttribute(ATR_NAME,"") 
-        concentration_list=enzyme.getAttribute(ATR_CONC, "")
-   
+        name = enzyme.getAttribute(ATR_NAME,"")
+        concentration_list=enzyme.getAttribute(ATR_CONCENTRATION, "")
+
         
         row = tableBuilder.addRow()
         row.setCell(LINK_LABEL, enzyme, enzymes_list)
         row.setCell(CODE_LABEL, enzymes_list)
         row.setCell(NAME_LABEL, name)
-        row.setCell(CONC_LABEL, concentration_list)
-        
- 
+        row.setCell(CONCENTRATION_LABEL, concentration_list)
         
     """Specify that the property should be shown in a tab and set the table output."""
     property.setOwnTab(True)
@@ -120,12 +112,11 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setValue('FRE')\
-                            .setDescription('Code of enzyme, e.g. "FRE1"'),
-        inputWidgetFactory().createTextInputField(CONC_LABEL)\
+                            .setValue('FRC')\
+                            .setDescription('Code of enzyme, e.g. "FRC1"'),
+        inputWidgetFactory().createTextInputField(CONCENTRATION_LABEL)\
                             .setMandatory(True)\
                             .setDescription('Concentration')
-       
     ]
     addAction.addInputWidgets(widgets)
       
@@ -139,15 +130,15 @@ def configureUI():
     widgets = [
         inputWidgetFactory().createTextInputField(CODE_LABEL)\
                             .setMandatory(True)\
-                            .setDescription('Code of enzyme sample, e.g. "FRE1"'),
-        inputWidgetFactory().createTextInputField(CONC_LABEL)\
+                            .setDescription('Code of enzyme sample, e.g. "FRC1"'),
+        inputWidgetFactory().createTextInputField(CONCENTRATION_LABEL)\
                             .setMandatory(True)\
-                            .setDescription('Concentration')       
+                            .setDescription('Concentration of the enzyme sample, e.g. "1M"'),
     ]
     editAction.addInputWidgets(widgets)  
   # Bind field name with column name.
     editAction.addBinding(CODE_LABEL, CODE_LABEL)
-    editAction.addBinding(CONC_LABEL, CONC_LABEL) 
+    editAction.addBinding(CONCENTRATION_LABEL, CONCENTRATION_LABEL) 
 
 
   
@@ -172,7 +163,7 @@ def updateFromUI(action):
            and add it to existing elements.
         """
         enzymes_list = action.getInputValue(CODE_LABEL)
-        concentration_list = action.getInputValue(CONC_LABEL)
+        concentration_list = action.getInputValue(CONCENTRATION_LABEL)
         sampleLink = _createSampleLink(enzymes_list, concentration_list)
         
         elements.append(sampleLink)
@@ -182,7 +173,8 @@ def updateFromUI(action):
            and replace it with an element with values from input fields.
         """
         enzymes_list = action.getInputValue(CODE_LABEL)
-        concentration_list = action.getInputValue(CONC_LABEL)
+        concentration_list = action.getInputValue(CONCENTRATION_LABEL)
+
         
 
         sampleLink = _createSampleLink(enzymes_list, concentration_list)
@@ -204,17 +196,8 @@ def updateFromUI(action):
         raise ValidationException('action not supported')
       
     """Update value of the managed property to XML string created from modified list of elements."""
-    property.value = converter.convertToString(elements)  
-
-#def updateFromBatchInput(bindings):
-#    elements = []
-#    input = bindings.get('')
-#    if input is not None:
-#        commentEntry = _createCommentEntry(input)
-#        elements.append(commentEntry)
-#        property.value = propertyConverter().convertToString(elements)  
-        
-        
+    property.value = converter.convertToString(elements)
+    
 def updateFromBatchInput(bindings):
     elements = []
     input = bindings.get('')
@@ -222,10 +205,8 @@ def updateFromBatchInput(bindings):
         enzymes = input.split(',')
         for enzyme in enzymes:
             (code, concentration) = _extractCodeAndConcentration(enzyme)
-            commentEntry = _createCommentEntry(input)
             sampleLink = _createSampleLink(code, concentration)
-            elements.append(sampleLink, commentEntry)
-            property.value = propertyConverter().convertToString(elements) 
+            elements.append(sampleLink)
             
     property.value = propertyConverter().convertToString(elements)
     
@@ -235,7 +216,3 @@ def _extractCodeAndConcentration(enzyme):
         return (codeAndConcentration[0].strip(), codeAndConcentration[1].strip())
     else:
         return (codeAndConcentration[0].strip(), "n.a.")
-        
-        
-        
-        
