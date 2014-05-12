@@ -23,12 +23,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Geometry;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellLocation;
 
 /**
- * Stores values of one feature for all wells (and optionally one chosen timepoint and/or
- * depth-scan).
+ * Stores values of one feature for all wells (and optionally one chosen timepoint and/or depth-scan).
  * 
  * @author Tomasz Pylak
  */
@@ -95,7 +96,7 @@ public class FeatureValuesMap implements Serializable
             {
                 WellLocation wellLocation = entry.getKey();
                 String value = entry.getValue();
-                float floatValue = Float.parseFloat(value);
+                float floatValue = parseFloatOrEmptyString(value);
                 map.put(wellLocation, floatValue);
             } catch (NumberFormatException ex)
             {
@@ -105,9 +106,22 @@ public class FeatureValuesMap implements Serializable
         return map;
     }
 
+    private float parseFloatOrEmptyString(String value)
+    {
+        float floatValue;
+        if (StringUtils.isBlank(value))
+        {
+            floatValue = Float.NaN;
+        } else
+        {
+            floatValue = Float.parseFloat(value);
+        }
+        return floatValue;
+    }
+
     /**
-     * Assuming that all values come from the set fixed of vocabulary terms calculates the mapping
-     * from vocabulary term into a unique term sequence number.<br>
+     * Assuming that all values come from the set fixed of vocabulary terms calculates the mapping from vocabulary term into a unique term sequence
+     * number.<br>
      * Should be called when {@link #tryExtractFloatValues} returns null.
      * 
      * @return mapping between wells and integer sequence numbers of terms casted to floats
