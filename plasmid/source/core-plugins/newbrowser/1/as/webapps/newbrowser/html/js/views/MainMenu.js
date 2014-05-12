@@ -21,6 +21,8 @@
  * @this {MainMenu}
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {List<GroupOfMenuItems>} inventoryStructure The menu structure.
+ * @param {Map<String, List<Projects>>} experimentsStructure The menu structure.
+ * @param {String} mainMenuContentExtra Extra HTML code for the main menu.
  */
 function MainMenu(mainController, containerId, inventoryStructure, experimentsStructure, mainMenuContentExtra) {
 	this.mainController = mainController;

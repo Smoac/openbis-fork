@@ -15,11 +15,11 @@
  */
 
 /**
- * Creates an instance of MainMenu.
+ * Creates an instance of the inventory widget.
  *
  * @constructor
- * @this {MainMenu}
- * @param {string} containerId The Container where the Inspector DOM will be atached.
+ * @this {InventoryWidget}
+ * @param {string} containerId The Container where the Inspector DOM will be attached.
  * @param {List<GroupOfMenuItems>} menuStructure The menu structure.
  */
 function InventoryWidget(mainController, containerId, menuStructure) {
