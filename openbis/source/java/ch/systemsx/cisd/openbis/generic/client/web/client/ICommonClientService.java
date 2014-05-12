@@ -1036,7 +1036,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Schedules archiving of the specified datasets.
      */
-    public ArchivingResult archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria)
+    public ArchivingResult archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria, boolean removeFromDataStore)
             throws UserFailureException;
 
     /**
@@ -1049,7 +1049,7 @@ public interface ICommonClientService extends IClientService
      * Schedules archiving of the datasets connected to the specified experiments.
      */
     public ArchivingResult archiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria, boolean removeFromDataStore)
             throws UserFailureException;
 
     /**

@@ -23,7 +23,7 @@ import java.io.Serializable;
  */
 public enum ArchivingServiceKind implements Serializable
 {
-    ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"), LOCK("Disable Archiving"), UNLOCK(
+    BACKUP("Backup Archiving"), ARCHIVE("Archiving"), UNARCHIVE("Unarchiving"), LOCK("Disable Archiving"), UNLOCK(
             "Enable Archiving");
 
     private final String description;

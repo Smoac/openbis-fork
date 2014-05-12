@@ -2255,11 +2255,11 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public ArchivingResult archiveDatasets(
-            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria)
+            DisplayedOrSelectedDatasetCriteria displayedOrSelectedDatasetCriteria, boolean removeFromDataStore)
     {
         final String sessionToken = getSessionToken();
         List<String> datasetCodes = extractDatasetCodes(displayedOrSelectedDatasetCriteria);
-        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
+        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
         return new ArchivingResult(datasetCodes.size(), result);
     }
 
@@ -2580,11 +2580,11 @@ public final class CommonClientService extends AbstractClientService implements
 
     @Override
     public ArchivingResult archiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria)
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria, boolean removeFromDataStore)
     {
         final String sessionToken = getSessionToken();
         List<String> datasetCodes = extractDatasetCodes(criteria);
-        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, true);
+        int result = commonServer.archiveDatasets(sessionToken, datasetCodes, removeFromDataStore);
         return new ArchivingResult(datasetCodes.size(), result);
     }
 

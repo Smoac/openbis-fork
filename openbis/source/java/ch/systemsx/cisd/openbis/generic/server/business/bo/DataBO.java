@@ -610,7 +610,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         updateContainer(updates.getModifiedContainerDatasetCodeOrNull());
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         updateFileFormatType(data, updates.getFileFormatTypeCode());
-        updateProperties(data.getEntityType(), updates.getProperties(), data, data);
+        updateProperties(data.getEntityType(), updates.getProperties(), extractPropertiesCodes(updates.getProperties()), data, data);
 
         if (data.getContainer() != null)
         {

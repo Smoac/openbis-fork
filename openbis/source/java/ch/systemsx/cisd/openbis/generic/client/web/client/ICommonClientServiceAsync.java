@@ -922,9 +922,9 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             DisplayedOrSelectedDatasetCriteria criteria, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#archiveDatasets(DisplayedOrSelectedDatasetCriteria)
+     * @see ICommonClientService#archiveDatasets(DisplayedOrSelectedDatasetCriteria, boolean)
      */
-    public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria,
+    public void archiveDatasets(DisplayedOrSelectedDatasetCriteria criteria, boolean removeFromDataStore,
             AsyncCallback<ArchivingResult> callback);
 
     /**
@@ -934,10 +934,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ArchivingResult> callback);
 
     /**
-     * @see ICommonClientService#archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder)
+     * @see ICommonClientService#archiveDatasets(DisplayedCriteriaOrSelectedEntityHolder, boolean)
      */
     public void archiveDatasets(
-            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria,
+            DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria, boolean removeFromDataStore,
             AsyncCallback<ArchivingResult> callback);
 
     /**

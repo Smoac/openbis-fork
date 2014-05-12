@@ -53,8 +53,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 
 /**
- * 'Archiving' menu for data sets connected to experiments. Here, experiments are the central
- * entity, as opposed to {@link DataSetArchivingMenu}, where data sets are the central entity.
+ * 'Archiving' menu for data sets connected to experiments. Here, experiments are the central entity, as opposed to {@link DataSetArchivingMenu},
+ * where data sets are the central entity.
  * 
  * @author Piotr Buczek
  * @author Chandrasekhar Ramakrishnan
@@ -77,6 +77,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
         this.selectedDataSetsGetter = selectedDataSetsGetter;
 
         Menu submenu = new Menu();
+        addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_BACKUP);
         addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_ARCHIVE);
         addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_UNARCHIVE);
         addMenuItem(submenu, ArchivingActionMenuKind.ARCHIVING_MENU_LOCK);
@@ -87,6 +88,7 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
     /** {@link ActionMenu} kind enum with names matching dictionary keys */
     private static enum ArchivingActionMenuKind implements IActionMenuItem
     {
+        ARCHIVING_MENU_BACKUP(ArchivingServiceKind.BACKUP),
         ARCHIVING_MENU_ARCHIVE(ArchivingServiceKind.ARCHIVE), ARCHIVING_MENU_UNARCHIVE(
                 ArchivingServiceKind.UNARCHIVE), ARCHIVING_MENU_LOCK(ArchivingServiceKind.LOCK),
         ARCHIVING_MENU_UNLOCK(ArchivingServiceKind.UNLOCK);
@@ -199,13 +201,19 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
                 @Override
                 public void execute(DatastoreServiceDescription service, boolean computeOnSelected)
                 {
-                        DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria =
+                    DisplayedCriteriaOrSelectedEntityHolder<TableModelRowWithObject<Experiment>> criteria =
                             selectedAndDisplayedItems.createCriteria(computeOnSelected);
                     switch (taskKind)
                     {
+                        case BACKUP:
+                            viewContext.getService().archiveDatasets(
+                                    criteria, false,
+                                    createArchivingDisplayCallback(taskKind.getDescription(),
+                                            computeOnSelected));
+                            break;
                         case ARCHIVE:
                             viewContext.getService().archiveDatasets(
-                                    criteria,
+                                    criteria, true,
                                     createArchivingDisplayCallback(taskKind.getDescription(),
                                             computeOnSelected));
                             break;
@@ -320,6 +328,8 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
         {
             switch (taskKind)
             {
+                case BACKUP:
+                    return DataSetArchivingStatus.AVAILABLE;
                 case ARCHIVE:
                     return DataSetArchivingStatus.AVAILABLE;
                 case UNARCHIVE:
@@ -381,11 +391,11 @@ public class ExperimentDataSetArchivingMenu extends TextToolItem
         {
             this.displayedItemsConfig = displayedItemsConfig;
             this.selectedItems = selectedItems;
-//            this.selectedItems = new ArrayList<Experiment>();
-//            for (TableModelRowWithObject<Experiment> row : selectedItems)
-//            {
-//                this.selectedItems.add(row.getObjectOrNull());
-//            }
+            // this.selectedItems = new ArrayList<Experiment>();
+            // for (TableModelRowWithObject<Experiment> row : selectedItems)
+            // {
+            // this.selectedItems.add(row.getObjectOrNull());
+            // }
             this.displayedItemsCount = displayedItemsCount;
         }
 
