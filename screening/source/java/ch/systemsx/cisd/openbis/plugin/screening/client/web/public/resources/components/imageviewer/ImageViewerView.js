@@ -17,7 +17,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 
 		render : function() {
 			this.panel.append(this.renderDataSetChooserWidget());
-			this.panel.append(this.renderDataSetImageViewerWidget());
+			this.panel.append(this.renderImageParametersWidget());
 			this.panel.append(this.renderImageWidget());
 
 			this.refresh();
@@ -26,26 +26,26 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		},
 
 		refresh : function() {
-			this.refreshDataSetImageViewerWidget();
+			this.refreshImageParametersWidget();
 		},
 
 		renderDataSetChooserWidget : function() {
 			return this.controller.getDataSetChooserWidget().render();
 		},
 
-		renderDataSetImageViewerWidget : function() {
-			return $("<div>").addClass("dataSetImageViewerContainer");
+		renderImageParametersWidget : function() {
+			return $("<div>").addClass("imageParametersWidgetContainer");
 		},
 
 		renderImageWidget : function() {
 			return this.controller.getImageWidget().render();
 		},
 
-		refreshDataSetImageViewerWidget : function() {
-			var container = this.panel.find(".dataSetImageViewerContainer");
-			var imageViewer = this.controller.getDataSetImageViewerWidget(this.controller.getSelectedDataSetCode());
+		refreshImageParametersWidget : function() {
+			var container = this.panel.find(".imageParametersWidgetContainer");
+			var widget = this.controller.getImageParametersWidget(this.controller.getSelectedDataSetCode());
 			container.children().detach();
-			container.append(imageViewer.render());
+			container.append(widget.render());
 		}
 
 	});

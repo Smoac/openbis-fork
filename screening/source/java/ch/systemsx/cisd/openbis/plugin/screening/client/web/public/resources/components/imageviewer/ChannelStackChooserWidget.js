@@ -1,9 +1,10 @@
-define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ChannelStackMatrixChooserView",
-		"components/imageviewer/ChannelStackSeriesChooserView", "components/imageviewer/ChannelStackManager" ], function($, AbstractWidget,
-		ChannelStackMatrixChooserView, ChannelStackSeriesChooserView, ChannelStackManager) {
+define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ChannelStackChooserView",
+		"components/imageviewer/ChannelStackMatrixChooserWidget", "components/imageviewer/ChannelStackSeriesChooserWidget",
+		"components/imageviewer/ChannelStackManager" ], function($, AbstractWidget, ChannelStackChooserView, ChannelStackMatrixChooserWidget,
+		ChannelStackSeriesChooserWidget, ChannelStackManager) {
 
 	//
-	// CHANNEL STACK CHOOSER
+	// CHANNEL STACK CHOOSER WIDGET
 	//
 
 	function ChannelStackChooserWidget(channelStacks) {
@@ -13,133 +14,48 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 	$.extend(ChannelStackChooserWidget.prototype, AbstractWidget.prototype, {
 
 		init : function(channelStacks) {
+			AbstractWidget.prototype.init.call(this, new ChannelStackChooserView(this));
 			this.channelStackManager = new ChannelStackManager(channelStacks);
 
 			if (this.channelStackManager.isMatrix()) {
-				AbstractWidget.prototype.init.call(this, new ChannelStackMatrixChooserView(this));
+				this.widget = new ChannelStackMatrixChooserWidget(channelStacks);
 			} else {
-				AbstractWidget.prototype.init.call(this, new ChannelStackSeriesChooserView(this));
+				this.widget = new ChannelStackSeriesChooserWidget(channelStacks);
 			}
 
-			if (channelStacks && channelStacks.length > 0) {
-				this.setSelectedChannelStack(channelStacks[0]);
-			}
+			var thisWidget = this;
+
+			this.widget.addChangeListener(function() {
+				thisWidget.notifyChangeListeners();
+			});
 		},
 
-		getTimePoints : function() {
-			return this.channelStackManager.getTimePoints();
+		getState : function() {
+			return this.widget.getState();
 		},
 
-		getDepths : function() {
-			return this.channelStackManager.getDepths();
-		},
-
-		getChannelStacks : function() {
-			return this.channelStackManager.getChannelStacks();
-		},
-
-		getChannelStackIndex : function(channelStackId) {
-			return this.channelStackManager.getChannelStackIndex(channelStackId);
-		},
-
-		getChannelStackById : function(channelStackId) {
-			return this.channelStackManager.getChannelStackById(channelStackId);
-		},
-
-		getChannelStackByTimePointAndDepth : function(timePoint, depth) {
-			return this.channelStackManager.getChannelStackByTimePointAndDepth(timePoint, depth);
-		},
-
-		loadChannelStackContent : function(channelStack, callback) {
-			this.getChannelStackContentLoader()(channelStack, callback);
+		setState : function(state) {
+			this.widget.setState(state);
 		},
 
 		getChannelStackContentLoader : function() {
-			if (this.channelStackContentLoader) {
-				return this.channelStackContentLoader;
-			} else {
-				return function(channelStack, callback) {
-					callback();
-				}
-			}
+			return this.widget.getChannelStackContentLoader();
 		},
 
 		setChannelStackContentLoader : function(channelStackContentLoader) {
-			this.channelStackContentLoader = channelStackContentLoader;
+			this.widget.setChannelStackContentLoader(channelStackContentLoader);
 		},
 
 		getSelectedChannelStackId : function() {
-			return this.selectedChannelStackId;
+			return this.widget.getSelectedChannelStackId();
 		},
 
 		setSelectedChannelStackId : function(channelStackId) {
-			if (this.selectedChannelStackId != channelStackId) {
-				this.selectedChannelStackId = channelStackId;
-				this.refresh();
-				this.notifyChangeListeners();
-			}
+			this.widget.setSelectedChannelStackId(channelStackId);
 		},
 
-		getSelectedChannelStack : function() {
-			var channelStackId = this.getSelectedChannelStackId();
-
-			if (channelStackId != null) {
-				return this.channelStackManager.getChannelStackById(channelStackId);
-			} else {
-				return null;
-			}
-		},
-
-		setSelectedChannelStack : function(channelStack) {
-			if (channelStack != null) {
-				this.setSelectedChannelStackId(channelStack.id);
-			} else {
-				this.setSelectedChannelStackId(null);
-			}
-		},
-
-		getSelectedTimePoint : function() {
-			var channelStack = this.getSelectedChannelStack();
-			if (channelStack != null) {
-				return channelStack.timePointOrNull;
-			} else {
-				return null;
-			}
-		},
-
-		setSelectedTimePoint : function(timePoint) {
-			if (timePoint != null && $.inArray(timePoint, this.getTimePoints()) == -1) {
-				timePoint = this.getTimePoints().length > 0 ? this.getTimePoints()[0] : null;
-			}
-
-			if (timePoint != null && this.getSelectedDepth() != null) {
-				var channelStack = this.channelStackManager.getChannelStackByTimePointAndDepth(timePoint, this.getSelectedDepth());
-				this.setSelectedChannelStack(channelStack);
-			} else {
-				this.setSelectedChannelStack(null);
-			}
-		},
-
-		getSelectedDepth : function() {
-			var channelStack = this.getSelectedChannelStack();
-			if (channelStack != null) {
-				return channelStack.depthOrNull;
-			} else {
-				return null;
-			}
-		},
-
-		setSelectedDepth : function(depth) {
-			if (depth != null && $.inArray(depth, this.getDepths()) == -1) {
-				depth = this.getDepths().length > 0 ? this.getDepths()[0] : null;
-			}
-
-			if (depth != null && this.getSelectedTimePoint() != null) {
-				var channelStack = this.channelStackManager.getChannelStackByTimePointAndDepth(this.getSelectedTimePoint(), depth);
-				this.setSelectedChannelStack(channelStack);
-			} else {
-				this.setSelectedChannelStack(null);
-			}
+		getWidget : function() {
+			return this.widget;
 		}
 
 	});

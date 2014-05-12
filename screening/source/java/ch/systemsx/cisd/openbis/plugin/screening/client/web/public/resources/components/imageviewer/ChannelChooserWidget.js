@@ -16,6 +16,20 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			this.setChannels(channels);
 		},
 
+		getState : function() {
+			var state = {};
+			state.selectedChannel = this.getSelectedChannel();
+			state.selectedMergedChannels = this.getSelectedMergedChannels();
+			return state;
+		},
+
+		setState : function(state) {
+			if (state) {
+				this.setSelectedChannel(state.selectedChannel);
+				this.setSelectedMergedChannels(state.selectedMergedChannels);
+			}
+		},
+
 		getSelectedChannel : function() {
 			if (this.selectedChannel) {
 				return this.selectedChannel;

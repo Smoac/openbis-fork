@@ -1,5 +1,4 @@
-define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView", "components/imageviewer/MovieButtonsWidget" ], function($,
-		bootstrap, bootstrapSlider, AbstractView, MovieButtonsWidget) {
+define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView" ], function($, bootstrap, bootstrapSlider, AbstractView) {
 
 	//
 	// CHANNEL STACK MATRIX CHOOSER VIEW
@@ -24,7 +23,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			$("<div>").addClass("col-md-6").append(this.createDepthWidget()).appendTo(slidersRow);
 
 			var buttonsRow = $("<div>").appendTo(this.panel);
-			buttonsRow.append(this.createTimePointButtonsWidget());
+			buttonsRow.append(this.controller.getTimePointButtonsWidget().render());
 
 			this.refresh();
 
@@ -42,8 +41,6 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 				timeLabel.text("Time: " + time + " sec (" + (timeIndex + 1) + "/" + timeCount + ")");
 				timeInput.slider("setValue", time);
-
-				this.timePointButtons.setSelectedFrame(timeIndex);
 			}
 
 			var depth = this.controller.getSelectedDepth();
@@ -109,27 +106,6 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			});
 
 			return widget;
-		},
-
-		createTimePointButtonsWidget : function() {
-			var thisView = this;
-
-			var buttons = new MovieButtonsWidget(this.controller.getTimePoints().length);
-
-			buttons.setFrameContentLoader(function(frameIndex, callback) {
-				var timePoint = thisView.controller.getTimePoints()[frameIndex];
-				var depth = thisView.controller.getSelectedDepth();
-				var channelStack = thisView.controller.getChannelStackByTimePointAndDepth(timePoint, depth);
-				thisView.controller.loadChannelStackContent(channelStack, callback);
-			});
-
-			buttons.addChangeListener(function() {
-				var timePoint = thisView.controller.getTimePoints()[buttons.getSelectedFrame()];
-				thisView.controller.setSelectedTimePoint(timePoint);
-			});
-
-			this.timePointButtons = buttons;
-			return buttons.render();
 		}
 
 	});

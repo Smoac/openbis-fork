@@ -1,7 +1,7 @@
 define([ "jquery", "components/common/CallbackManager", "components/imageviewer/AbstractWidget", "components/imageviewer/ImageViewerView",
-		"components/imageviewer/DataSetChooserWidget", "components/imageviewer/DataSetImageViewerWidget", "components/imageviewer/ImageWidget",
+		"components/imageviewer/DataSetChooserWidget", "components/imageviewer/ImageParametersWidget", "components/imageviewer/ImageWidget",
 		"components/imageviewer/ImageLoader", "components/imageviewer/ImageData", "components/imageviewer/OpenbisFacade" ], function($,
-		CallbackManager, AbstractWidget, ImageViewerView, DataSetChooserWidget, DataSetImageViewerWidget, ImageWidget, ImageLoader, ImageData,
+		CallbackManager, AbstractWidget, ImageViewerView, DataSetChooserWidget, ImageParametersWidget, ImageWidget, ImageLoader, ImageData,
 		OpenbisFacade) {
 
 	//
@@ -80,37 +80,42 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 		},
 
 		getSelectedChannel : function() {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getChannelChooserWidget().getSelectedChannel();
 		},
 
+		setSelectedChannel : function(channel) {
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
+			return viewer.getChannelChooserWidget().setSelectedChannel(channel);
+		},
+
 		getSelectedMergedChannels : function() {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getChannelChooserWidget().getSelectedMergedChannels();
 		},
 
 		setSelectedMergedChannels : function(channels) {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getChannelChooserWidget().setSelectedMergedChannels(channels);
 		},
 
 		getSelectedResolution : function() {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getResolutionChooserWidget().getSelectedResolution();
 		},
 
 		setSelectedResolution : function(resolution) {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getResolutionChooserWidget().setSelectedResolution(resolution);
 		},
 
 		getSelectedChannelStackId : function() {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getChannelStackChooserWidget().getSelectedChannelStackId();
 		},
 
 		setSelectedChannelStackId : function(channelStackId) {
-			var viewer = this.getDataSetImageViewerWidget(this.getSelectedDataSetCode());
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getChannelStackChooserWidget().setSelectedChannelStackId(channelStackId);
 		},
 
@@ -137,14 +142,10 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 				var widget = new DataSetChooserWidget(this.getDataSetCodes());
 
 				widget.addChangeListener(function(event) {
-					var oldViewer = thisWidget.getDataSetImageViewerWidget(event.getOldValue());
-					var newViewer = thisWidget.getDataSetImageViewerWidget(event.getNewValue());
+					var oldWidget = thisWidget.getImageParametersWidget(event.getOldValue());
+					var newWidget = thisWidget.getImageParametersWidget(event.getNewValue());
 
-					newViewer.getChannelChooserWidget().setSelectedChannel(oldViewer.getChannelChooserWidget().getSelectedChannel());
-					newViewer.getChannelChooserWidget().setSelectedMergedChannels(oldViewer.getChannelChooserWidget().getSelectedMergedChannels());
-					newViewer.getResolutionChooserWidget().setSelectedResolution(oldViewer.getResolutionChooserWidget().getSelectedResolution());
-					newViewer.getChannelStackChooserWidget().setSelectedTimePoint(oldViewer.getChannelStackChooserWidget().getSelectedTimePoint());
-					newViewer.getChannelStackChooserWidget().setSelectedDepth(oldViewer.getChannelStackChooserWidget().getSelectedDepth());
+					newWidget.setState(oldWidget.getState());
 
 					thisWidget.getImageWidget().setImageData(thisWidget.getSelectedImageData());
 					thisWidget.refresh();
@@ -156,7 +157,7 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 			return this.dataSetChooserWidget;
 		},
 
-		getDataSetImageViewerWidget : function(dataSetCode) {
+		getImageParametersWidget : function(dataSetCode) {
 			var thisWidget = this;
 
 			if (!this.imageViewerMap) {
@@ -164,7 +165,7 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 			}
 
 			if (!this.imageViewerMap[dataSetCode]) {
-				var widget = new DataSetImageViewerWidget(this.getImageInfo(dataSetCode), this.getImageResolutions(dataSetCode));
+				var widget = new ImageParametersWidget(this.getImageInfo(dataSetCode), this.getImageResolutions(dataSetCode));
 
 				widget.getChannelStackChooserWidget().setChannelStackContentLoader(function(channelStack, callback) {
 					var imageData = thisWidget.getSelectedImageData();
@@ -174,7 +175,6 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 
 				widget.addChangeListener(function() {
 					thisWidget.getImageWidget().setImageData(thisWidget.getSelectedImageData());
-					thisWidget.refresh();
 				});
 
 				this.imageViewerMap[dataSetCode] = widget;

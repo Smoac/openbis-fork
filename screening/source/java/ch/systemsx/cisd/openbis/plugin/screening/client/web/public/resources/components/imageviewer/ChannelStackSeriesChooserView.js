@@ -1,5 +1,4 @@
-define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView", "components/imageviewer/MovieButtonsWidget", ], function(
-		$, bootstrap, bootstrapSlider, AbstractView, MovieButtonsWidget) {
+define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView" ], function($, bootstrap, bootstrapSlider, AbstractView) {
 
 	//
 	// CHANNEL STACK SERIES CHOOSER VIEW
@@ -20,7 +19,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			var thisView = this;
 
 			this.panel.append(this.createSliderWidget());
-			this.panel.append(this.createButtonsWidget());
+			this.panel.append(this.controller.getButtonsWidget().render());
 
 			this.refresh();
 
@@ -39,8 +38,6 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 				var sliderInput = this.panel.find(".sliderWidget input");
 				sliderInput.slider("setValue", index);
-
-				this.buttons.setSelectedFrame(index);
 			}
 		},
 
@@ -68,25 +65,6 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			});
 
 			return widget;
-		},
-
-		createButtonsWidget : function() {
-			var thisView = this;
-
-			var buttons = new MovieButtonsWidget(this.controller.getChannelStacks().length);
-
-			buttons.setFrameContentLoader(function(frameIndex, callback) {
-				var channelStack = thisView.controller.getChannelStacks()[frameIndex];
-				thisView.controller.loadChannelStackContent(channelStack, callback);
-			});
-
-			buttons.addChangeListener(function() {
-				var channelStack = thisView.controller.getChannelStacks()[buttons.getSelectedFrame()];
-				thisView.controller.setSelectedChannelStackId(channelStack.id);
-			});
-
-			this.buttons = buttons;
-			return buttons.render();
 		}
 
 	});

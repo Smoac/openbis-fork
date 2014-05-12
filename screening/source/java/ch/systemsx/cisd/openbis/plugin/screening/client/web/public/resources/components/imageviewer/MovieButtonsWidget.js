@@ -116,6 +116,20 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 			this.selectedFrame = 0;
 		},
 
+		getState : function() {
+			var state = {};
+			state.selectedFrame = this.getSelectedFrame();
+			state.selectedDelay = this.getSelectedDelay();
+			return state;
+		},
+
+		setState : function(state) {
+			if (state) {
+				this.setSelectedFrame(state.selectedFrame);
+				this.setSelectedDelay(state.selectedDelay);
+			}
+		},
+
 		play : function() {
 			if (this.frameAction) {
 				return;
@@ -202,7 +216,6 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 			frame = Math.min(Math.max(0, frame), this.frameCount - 1);
 
 			if (this.selectedFrame != frame) {
-				// log("Selected frame: " + frame);
 				this.selectedFrame = frame;
 				this.frameContentLoader(frame, callback);
 				this.refresh();
