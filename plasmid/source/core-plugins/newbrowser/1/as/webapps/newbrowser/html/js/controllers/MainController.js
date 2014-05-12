@@ -170,7 +170,9 @@ function MainController(profile) {
 				break;
 			case "showViewExperiment":
 				var _this = this;
-				//TO-DO get the sample with the identifier and show the view
+				this.serverFacade.getELNExperimentSampleIdForExperiment(arg, function(permId) {
+					_this.changeView("showViewSamplePageFromPermId", permId);
+				});
 				break;
 			case "showViewSamplePageFromPermId":
 				var _this = this;

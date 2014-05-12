@@ -71,6 +71,23 @@ function ServerFacade(openbisServer) {
 		}
 	}
 	
+	this.getELNExperimentSampleIdForExperiment = function(experimentIdentifier, callbackFunction) {
+		this.openbisServer.listSamplesForExperiment(experimentIdentifier, function(data) {
+			var permId = null;
+			if(data.result) {
+				var experimentIdentifierParts = experimentIdentifier.split("/");
+				for(var i = 0; i < data.result.length; i++) {
+					var sample = data.result[i];
+					var sampleIdentifierParts = sample.identifier.split("/");
+					if(sampleIdentifierParts[2] == experimentIdentifierParts[3]) {
+						permId = sample.permId;
+					}
+				}
+			}
+			callbackFunction(permId);
+		});
+	}
+	
 	//
 	// Data Set Related Functions
 	//

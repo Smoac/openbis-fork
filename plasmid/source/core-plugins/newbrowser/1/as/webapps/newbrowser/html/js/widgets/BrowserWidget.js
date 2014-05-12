@@ -48,9 +48,7 @@ function BrowserWidget(containerId, mainController, serverFacade) {
 					if(project.experiments) {
 						for(var k = 0; k < project.experiments.length; k++) {
 							var experiment = project.experiments[k];
-							var experimentIdentifier = experiment.identifier.split("/");
-							var sampleIdentifier = "/" + experimentIdentifier[1] + "/" + experimentIdentifier[3];
-							experiments[experiment.code] = new BrowserExperiment("showViewExperiment", sampleIdentifier, experiment.code);
+							experiments[experiment.code] = new BrowserExperiment("showViewExperiment", experiment.identifier, experiment.code);
 						}
 					}
 					projects[project.code] = new BrowserProject(project.code, project.code, experiments);
