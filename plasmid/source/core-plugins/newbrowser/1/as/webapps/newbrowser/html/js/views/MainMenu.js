@@ -20,12 +20,13 @@
  * @constructor
  * @this {MainMenu}
  * @param {string} containerId The Container where the Inspector DOM will be atached.
- * @param {List<GroupOfMenuItems>} menuStructure The menu structure.
+ * @param {List<GroupOfMenuItems>} inventoryStructure The menu structure.
  */
-function MainMenu(mainController, containerId, menuStructure, mainMenuContentExtra) {
+function MainMenu(mainController, containerId, inventoryStructure, experimentsStructure, mainMenuContentExtra) {
 	this.mainController = mainController;
 	this.containerId = containerId;
-	this.menuStructure = menuStructure;
+	this.inventoryStructure = inventoryStructure;
+	this.experimentsStructure = experimentsStructure;
 	this.mainMenuContentExtra = mainMenuContentExtra;
 	this.inventoryWidget = null;
 	
@@ -51,11 +52,11 @@ function MainMenu(mainController, containerId, menuStructure, mainMenuContentExt
 		mainMenuWrapper.append($mainMenuExtra);
 		
 		//Browser Widget
-		this.browserWidget = new BrowserWidget("browserWidgetContainer", this.mainController, this.mainController.serverFacade);
+		this.browserWidget = new BrowserWidget(this.mainController, "browserWidgetContainer", this.experimentsStructure);
 		this.browserWidget.init();
 		
 		//Inventory Widget
-		this.inventoryWidget = new InventoryWidget(this.mainController, "inventoryWidgetContainer", this.menuStructure);
+		this.inventoryWidget = new InventoryWidget(this.mainController, "inventoryWidgetContainer", this.inventoryStructure);
 		this.inventoryWidget.init();
 	}
 }

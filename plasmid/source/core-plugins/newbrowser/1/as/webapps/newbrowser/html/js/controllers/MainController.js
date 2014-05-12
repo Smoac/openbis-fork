@@ -77,40 +77,41 @@ function MainController(profile) {
 		//Get Metadata from all sample types before showing the main menu
 		
 		var localReference = this;
-		this.serverFacade.listSampleTypes(
+		this.serverFacade.listSampleTypes (
 			function(result) {
 			
 				//Load Sample Types
 				localReference.profile.allTypes = result.result;
 			
 				//Init profile
-				localReference.profile.init();
-			
-				//Start App
-				localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
-				localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.inventoryStructure);
-				localReference.navigationBar.repaint();
-			
-				localReference.changeView("showMainMenu", null);
-				Util.unblockUI();
+				localReference.profile.init(function() {
+					//Start App
+					localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
+					localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.inventoryStructure);
+					localReference.navigationBar.repaint();
 				
-				var openNewSampleTab = Util.queryString.samplePermId;
-				
-				if(openNewSampleTab) {
-					localReference.changeView("showViewSamplePageFromPermId", openNewSampleTab);
-				}
-				//Get datastores for automatic DSS configuration, the first one will be used
-				localReference.serverFacade.listDataStores(
-					function(dataStores) {
-						localReference.profile.allDataStores = dataStores.result;
+					localReference.changeView("showMainMenu", null);
+					Util.unblockUI();
+					
+					var openNewSampleTab = Util.queryString.samplePermId;
+					
+					if(openNewSampleTab) {
+						localReference.changeView("showViewSamplePageFromPermId", openNewSampleTab);
 					}
-				);
-				
-				//Get display settings
-				localReference.serverFacade.getUserDisplaySettings( function(response) {
-					if(response.result) {
-						localReference.profile.displaySettings = response.result;
-					}
+					
+					//Get datastores for automatic DSS configuration, the first one will be used
+					localReference.serverFacade.listDataStores(
+						function(dataStores) {
+							localReference.profile.allDataStores = dataStores.result;
+						}
+					);
+					
+					//Get display settings
+					localReference.serverFacade.getUserDisplaySettings( function(response) {
+						if(response.result) {
+							localReference.profile.displaySettings = response.result;
+						}
+					});
 				});
 			}
 		);
@@ -214,7 +215,7 @@ function MainController(profile) {
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Main menu
-		var mainMenu = new MainMenu(this, "mainContainer", this.profile.inventoryStructure, this.profile.mainMenuContentExtra());
+		var mainMenu = new MainMenu(this, "mainContainer", this.profile.inventoryStructure, this.profile.experimentsStructure, this.profile.mainMenuContentExtra());
 		mainMenu.init();
 		
 		this.currentView = mainMenu;

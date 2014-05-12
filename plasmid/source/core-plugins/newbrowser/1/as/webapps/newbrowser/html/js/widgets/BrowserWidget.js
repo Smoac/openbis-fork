@@ -1,61 +1,9 @@
-function BrowserWidget(containerId, mainController, serverFacade) {
+function BrowserWidget(mainController, containerId, structure) {
 	this.containerId = containerId;
 	this.mainController = mainController;
-	this.serverFacade = serverFacade;
-	this.structure = {};
+	this.structure = structure;
 	
 	this.init = function() {
-		var _this = this;
-		this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
-			var spaces = dataWithSpacesAndProjects.result;
-			var projects = [];
-			var projectsAsMap = {};
-			for(var i = 0; i < spaces.length; i++) {
-				var space = spaces[i];
-				for(var j = 0; j < space.projects.length; j++) {
-					var project = space.projects[i];
-					delete project["@id"];
-					delete project["@type"];
-					projects.push(project);
-					projectsAsMap[project.code] = project;
-				}
-			}
-			
-			_this.serverFacade.listExperiments(projects, function(experiments) {
-				for(var i = 0; i < experiments.result.length; i++) {
-					var experiment = experiments.result[i];
-					var identifier = experiment.identifier.split("/");
-					var project = projectsAsMap[identifier[2]];
-					if(!project.experiments) {
-						project.experiments = [];
-					}
-					project.experiments.push(experiment);
-				}
-				_this._initStructure(spaces);
-			}
-			);
-		});
-	}
-	
-	this._initStructure = function(spaces) {
-		for(var i = 0; i < spaces.length; i++) {
-			var space = spaces[i];
-			var projects = {};
-			if(space.projects) {
-				for(var j = 0; j < space.projects.length; j++) {
-					var project = space.projects[j];
-					var experiments = {};
-					if(project.experiments) {
-						for(var k = 0; k < project.experiments.length; k++) {
-							var experiment = project.experiments[k];
-							experiments[experiment.code] = new BrowserExperiment("showViewExperiment", experiment.identifier, experiment.code);
-						}
-					}
-					projects[project.code] = new BrowserProject(project.code, project.code, experiments);
-				}
-			}
-			this.structure[space.code] = new BrowserSpace(space.code, space.code, projects);
-		}
 		this.repaint();
 	}
 	
