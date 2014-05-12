@@ -21,10 +21,10 @@ define([ "jquery" ], function($) {
 			this.listeners[eventType].push(listener);
 		},
 
-		notifyListeners : function(eventType) {
+		notifyListeners : function(eventType, event) {
 			if (this.listeners[eventType]) {
 				this.listeners[eventType].forEach(function(listener) {
-					listener();
+					listener(event);
 				});
 			}
 		}

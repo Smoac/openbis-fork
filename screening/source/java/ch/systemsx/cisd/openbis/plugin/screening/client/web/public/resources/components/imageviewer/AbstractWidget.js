@@ -55,13 +55,22 @@ define([ "jquery", "components/common/ListenerManager" ], function($, ListenerMa
 			this.refresh();
 		},
 
-		addChangeListener : function(listener) {
-			this.listeners.addListener('change', listener);
+		addListener : function(eventType, listener) {
+			this.listeners.addListener(eventType, listener);
 		},
 
-		notifyChangeListeners : function() {
-			this.listeners.notifyListeners('change');
+		notifyListeners : function(eventType, event) {
+			this.listeners.notifyListeners(eventType, event);
+		},
+
+		addChangeListener : function(listener) {
+			this.addListener("change", listener);
+		},
+
+		notifyChangeListeners : function(event) {
+			this.notifyListeners("change", event);
 		}
+
 	});
 
 	return AbstractWidget;

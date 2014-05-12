@@ -105,6 +105,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 		init : function(channelStacks) {
 			AbstractWidget.prototype.init.call(this, new ChannelStackSeriesChooserView(this));
 			this.channelStackManager = new ChannelStackManager(channelStacks);
+			this.setSelectedChannelStackId(channelStacks[0].id);
 		},
 
 		getChannelStacks : function() {

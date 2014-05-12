@@ -14,8 +14,6 @@ define([ "jquery" ], function($) {
 		},
 
 		loadImage : function(imageData, callback) {
-			// log("loadImage: " + imageData.channelStackId);
-
 			var url = imageData.dataStoreUrl + "/datastore_server_screening";
 			url += "?sessionID=" + imageData.sessionToken;
 			url += "&dataset=" + imageData.dataSetCode;

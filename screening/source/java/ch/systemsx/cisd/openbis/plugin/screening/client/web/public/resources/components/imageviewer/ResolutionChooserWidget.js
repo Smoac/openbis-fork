@@ -1,57 +1,5 @@
-define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewer/AbstractWidget" ], function($, AbstractView, AbstractWidget) {
-
-	//
-	// RESOLUTION CHOOSER VIEW
-	//
-
-	function ResolutionChooserView(controller) {
-		this.init(controller);
-	}
-
-	$.extend(ResolutionChooserView.prototype, AbstractView.prototype, {
-
-		init : function(controller) {
-			AbstractView.prototype.init.call(this, controller);
-			this.panel = $("<div>").addClass("resolutionChooserWidget").addClass("form-group");
-		},
-
-		render : function() {
-			var thisView = this;
-
-			$("<label>").text("Resolution").attr("for", "resolutionChooserSelect").appendTo(this.panel);
-
-			var select = $("<select>").attr("id", "resolutionChooserSelect").addClass("form-control").appendTo(this.panel);
-			$("<option>").attr("value", "").text("Default").appendTo(select);
-
-			this.controller.getResolutions().forEach(function(resolution) {
-				var value = resolution.width + "x" + resolution.height;
-				$("<option>").attr("value", value).text(value).appendTo(select);
-			});
-
-			select.change(function() {
-				if (select.val() == "") {
-					thisView.controller.setSelectedResolution(null);
-				} else {
-					thisView.controller.setSelectedResolution(select.val());
-				}
-			});
-
-			this.refresh();
-
-			return this.panel;
-		},
-
-		refresh : function() {
-			var select = this.panel.find("select");
-
-			if (this.controller.getSelectedResolution() != null) {
-				select.val(this.controller.getSelectedResolution());
-			} else {
-				select.val("");
-			}
-		}
-
-	});
+define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ResolutionChooserView" ], function($, AbstractWidget,
+		ResolutionChooserView) {
 
 	//
 	// RESOLUTION CHOOSER
@@ -73,6 +21,10 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 		},
 
 		setSelectedResolution : function(resolution) {
+			if (resolution != null && $.inArray(resolution, this.getResolutionsCodes()) == -1) {
+				resolution = null;
+			}
+
 			if (this.selectedResolution != resolution) {
 				this.selectedResolution = resolution;
 				this.refresh();
@@ -86,6 +38,12 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 			} else {
 				return [];
 			}
+		},
+
+		getResolutionsCodes : function() {
+			return this.getResolutions().map(function(resolution) {
+				return resolution.width + "x" + resolution.height;
+			});
 		},
 
 		setResolutions : function(resolutions) {

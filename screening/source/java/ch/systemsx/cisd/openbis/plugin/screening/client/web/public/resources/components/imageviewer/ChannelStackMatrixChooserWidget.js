@@ -148,6 +148,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 		init : function(channelStacks) {
 			AbstractWidget.prototype.init.call(this, new ChannelStackMatrixChooserView(this));
 			this.channelStackManager = new ChannelStackManager(channelStacks);
+			this.setSelectedChannelStack(channelStacks[0]);
 		},
 
 		getTimePoints : function() {
