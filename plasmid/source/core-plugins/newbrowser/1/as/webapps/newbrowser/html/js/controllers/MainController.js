@@ -166,7 +166,7 @@ function MainController(profile) {
 				this._showCreateSamplePage(arg);
 				break;
 			case "showEditSamplePage":
-				document.title = arg;
+				document.title = arg.code;
 				this._showEditSamplePage(arg);
 				break;
 			case "showViewExperiment":
