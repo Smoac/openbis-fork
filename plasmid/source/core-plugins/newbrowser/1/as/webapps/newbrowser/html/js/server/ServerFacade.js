@@ -232,7 +232,6 @@ function ServerFacade(openbisServer) {
 				} else {
 					visitedSamples[sampleOrId.permId] = true;
 				}
-				console.log(sampleOrId.code);
 				
 				//Fill Parents
 				if(sampleOrId.parents) {

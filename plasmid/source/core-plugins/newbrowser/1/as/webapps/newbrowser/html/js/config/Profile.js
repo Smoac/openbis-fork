@@ -1156,7 +1156,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
 
-//		//For testing	
+		//For testing	
 //		this.sampleTypeDefinitionsExtension = {
 //				"SYSTEM_EXPERIMENT" : {
 //					"SAMPLE_PARENTS_HINT" : [
@@ -1392,40 +1392,28 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 														"LABEL" : "Protocol",
 														"TYPE": "PROTOCOL",
 														"MIN_COUNT" : 1,
-														"ANNOTATIONS" : []
+														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Plasmid",
 														"TYPE": "PLASMIDS",
 														"MIN_COUNT" : 1,
-														"ANNOTATIONS" : []
+														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Inhibitor",
 														"TYPE": "INHIBITORS",
 														"MIN_COUNT" : 1,
-														"ANNOTATIONS" : []
+														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Cell Line",
 														"TYPE": "CELL_LINE",
 														"MIN_COUNT" : 1,
-														"ANNOTATIONS" : []
-													}
-												],
-				}
-		}
-		
-		this.sampleTypeDefinitionsExtension = {
-				"WESTERN_BLOTTING" : {
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Antibodies",
-														"TYPE": "ANTIBODIES",
-														"MIN_COUNT" : 1
+														"ANNOTATION_PROPERTIES" : []
 													}
 												],
 				}
