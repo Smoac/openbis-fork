@@ -1,6 +1,5 @@
-define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView", "components/imageviewer/AbstractWidget",
-		"components/imageviewer/MovieButtonsWidget", "components/imageviewer/ChannelStackManager" ], function($, bootstrap, bootstrapSlider,
-		AbstractView, AbstractWidget, MovieButtonsWidget, ChannelStackManager) {
+define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView", "components/imageviewer/MovieButtonsWidget", ], function(
+		$, bootstrap, bootstrapSlider, AbstractView, MovieButtonsWidget) {
 
 	//
 	// CHANNEL STACK SERIES CHOOSER VIEW
@@ -92,62 +91,6 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 	});
 
-	//
-	// CHANNEL STACK SERIES CHOOSER
-	//
-
-	function ChannelStackSeriesChooserWidget(channelStacks) {
-		this.init(channelStacks);
-	}
-
-	$.extend(ChannelStackSeriesChooserWidget.prototype, AbstractWidget.prototype, {
-
-		init : function(channelStacks) {
-			AbstractWidget.prototype.init.call(this, new ChannelStackSeriesChooserView(this));
-			this.channelStackManager = new ChannelStackManager(channelStacks);
-			this.setSelectedChannelStackId(channelStacks[0].id);
-		},
-
-		getChannelStacks : function() {
-			return this.channelStackManager.getChannelStacks();
-		},
-
-		getChannelStackIndex : function(channelStackId) {
-			return this.channelStackManager.getChannelStackIndex(channelStackId);
-		},
-
-		loadChannelStackContent : function(channelStack, callback) {
-			this.getChannelStackContentLoader()(channelStack, callback);
-		},
-
-		getChannelStackContentLoader : function() {
-			if (this.channelStackContentLoader) {
-				return this.channelStackContentLoader;
-			} else {
-				return function(channelStack, callback) {
-					callback();
-				}
-			}
-		},
-
-		setChannelStackContentLoader : function(channelStackContentLoader) {
-			this.channelStackContentLoader = channelStackContentLoader;
-		},
-
-		getSelectedChannelStackId : function() {
-			return this.selectedChannelStackId;
-		},
-
-		setSelectedChannelStackId : function(channelStackId) {
-			if (this.selectedChannelStackId != channelStackId) {
-				this.selectedChannelStackId = channelStackId;
-				this.refresh();
-				this.notifyChangeListeners();
-			}
-		}
-
-	});
-
-	return ChannelStackSeriesChooserWidget;
+	return ChannelStackSeriesChooserView;
 
 });

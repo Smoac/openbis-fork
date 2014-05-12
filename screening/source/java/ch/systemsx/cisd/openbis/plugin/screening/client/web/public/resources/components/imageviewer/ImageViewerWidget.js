@@ -143,7 +143,8 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 					newViewer.getChannelChooserWidget().setSelectedChannel(oldViewer.getChannelChooserWidget().getSelectedChannel());
 					newViewer.getChannelChooserWidget().setSelectedMergedChannels(oldViewer.getChannelChooserWidget().getSelectedMergedChannels());
 					newViewer.getResolutionChooserWidget().setSelectedResolution(oldViewer.getResolutionChooserWidget().getSelectedResolution());
-					// TODO copy over time point and depth
+					newViewer.getChannelStackChooserWidget().setSelectedTimePoint(oldViewer.getChannelStackChooserWidget().getSelectedTimePoint());
+					newViewer.getChannelStackChooserWidget().setSelectedDepth(oldViewer.getChannelStackChooserWidget().getSelectedDepth());
 
 					thisWidget.getImageWidget().setImageData(thisWidget.getSelectedImageData());
 					thisWidget.refresh();
