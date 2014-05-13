@@ -92,8 +92,8 @@ public final class DataSet implements Serializable, IIdHolder
 
         private List<DataSet> containedDataSets = Collections.emptyList();
 
-        private DataSet containerOrNull;
-
+        private List<DataSet> containerDataSets = Collections.emptyList();
+        
         private HashMap<String, String> properties = new HashMap<String, String>();
 
         private List<Metaproject> metaprojects = new ArrayList<Metaproject>();
@@ -237,14 +237,15 @@ public final class DataSet implements Serializable, IIdHolder
                     (null == containedDataSets) ? new ArrayList<DataSet>() : containedDataSets;
         }
 
-        public DataSet getContainerOrNull()
+        public List<DataSet> getContainerDataSets()
         {
-            return containerOrNull;
+            return containerDataSets;
         }
 
-        public void setContainerOrNull(DataSet containerOrNull)
+        public void setContainerDataSets(List<DataSet> containerDataSets)
         {
-            this.containerOrNull = containerOrNull;
+            this.containerDataSets =
+                    (null == containerDataSets) ? new ArrayList<DataSet>() : containerDataSets;
         }
 
         public boolean isLinkDataSet()
@@ -339,7 +340,7 @@ public final class DataSet implements Serializable, IIdHolder
 
     private List<DataSet> containedDataSets = Collections.emptyList();
 
-    private DataSet containerOrNull;
+    private List<DataSet> containerDataSets = Collections.emptyList();
 
     private EntityRegistrationDetails registrationDetails;
 
@@ -384,7 +385,7 @@ public final class DataSet implements Serializable, IIdHolder
                     "Unspecified entity registration details.");
             this.registrationDetails = initializer.getRegistrationDetails();
             this.containerDataSet = initializer.isContainerDataSet();
-            this.containerOrNull = initializer.getContainerOrNull();
+            this.containerDataSets = initializer.getContainerDataSets();
             this.containedDataSets = initializer.getContainedDataSets();
             this.linkDataSet = initializer.isLinkDataSet();
             this.externalDataSetCode = initializer.getExternalDataSetCode();
@@ -520,10 +521,20 @@ public final class DataSet implements Serializable, IIdHolder
 
     /**
      * @since 1.20
+     * @deprecated Use {@link #getContainerDataSets()}.
      */
+    @Deprecated
     public DataSet getContainerOrNull()
     {
-        return containerOrNull;
+        return containerDataSets.isEmpty() ? null : containerDataSets.get(0);
+    }
+    
+    /**
+     * @since 1.27
+     */
+    public List<DataSet> getContainerDataSets()
+    {
+        return containerDataSets;
     }
 
     public boolean isLinkDataSet()
@@ -692,9 +703,9 @@ public final class DataSet implements Serializable, IIdHolder
         this.containerDataSet = containerDataSet;
     }
 
-    private void setContainerOrNull(DataSet containerOrNull)
+    private void setContainerDataSets(List<DataSet> containerDataSets)
     {
-        this.containerOrNull = containerOrNull;
+        this.containerDataSets = containerDataSets;
     }
 
     private void setLinkDataSet(boolean linkDataSet)

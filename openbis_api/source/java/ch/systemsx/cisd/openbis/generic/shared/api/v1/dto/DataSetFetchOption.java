@@ -43,7 +43,7 @@ public enum DataSetFetchOption implements FetchOption
     PARENTS, 
     /** The children of a dataset. */
     CHILDREN, 
-    /** The container of a dataset, if it is a contained dataset. */
+    /** The containers of a dataset, if it is a contained dataset. */
     CONTAINER, 
     /** The contained datasets of a dataset, if it is a container. */
     CONTAINED,
