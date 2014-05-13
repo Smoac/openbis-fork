@@ -290,7 +290,7 @@ public class DatasetListerTest extends AbstractDAOTest
 
         PhysicalDataSet dataset1 = datasets.get(1).tryGetAsDataSet();
         assertNotNull(dataset1);
-        assertEquals(2, (int) dataset1.getOrderIn(containerDataSet.getCode()));
+        assertEquals(2, (int) dataset1.getOrderInContainer(containerDataSet.getCode()));
         assertEquals(dataset1.getContainerDataSets().get(0), containerDataSet);
     }
 

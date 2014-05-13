@@ -34,10 +34,10 @@ public class ExternalDataLocationNodeTest extends AssertJUnit
     @Test
     public void test()
     {
-        ContainerDataSetBuilder rootContainer = new ContainerDataSetBuilder().code("c1");
+        ContainerDataSetBuilder rootContainer = new ContainerDataSetBuilder(1).code("c1");
         DataStore store = new DataStoreBuilder("DSS").getStore();
         rootContainer.component(new DataSetBuilder().code("p1").store(store).location("a/b/c/1").getDataSet());
-        ContainerDataSetBuilder subContainer = new ContainerDataSetBuilder().code("c2");
+        ContainerDataSetBuilder subContainer = new ContainerDataSetBuilder(2).code("c2");
         PhysicalDataSet component2 = new DataSetBuilder().code("p2").store(store).location("a/b/c/2").getDataSet();
         subContainer.component(component2);
         subContainer.component(new DataSetBuilder().code("p3").store(store).location("a/b/c/3").getDataSet());
@@ -52,18 +52,18 @@ public class ExternalDataLocationNodeTest extends AssertJUnit
         assertEquals("p1", components.get(1).getLocation().getDataSetCode());
         assertEquals("DSS", components.get(1).getLocation().getDataStoreCode());
         assertEquals("a/b/c/1", components.get(1).getLocation().getDataSetLocation());
-        assertEquals(0, components.get(1).getLocation().getOrderInContainer().intValue());
+        assertEquals(0, components.get(1).getLocation().getOrderInContainer("c1").intValue());
         assertEquals("p2", components.get(2).getLocation().getDataSetCode());
         assertEquals("a/b/c/2", components.get(2).getLocation().getDataSetLocation());
-        assertEquals(2, components.get(2).getLocation().getOrderInContainer().intValue());
+        assertEquals(2, components.get(2).getLocation().getOrderInContainer("c1").intValue());
         assertEquals(3, components.size());
         components = new ArrayList<IDatasetLocationNode>(components.get(0).getComponents());
         assertEquals("p2", components.get(0).getLocation().getDataSetCode());
         assertEquals("a/b/c/2", components.get(0).getLocation().getDataSetLocation());
-        assertEquals(0, components.get(0).getLocation().getOrderInContainer().intValue());
+        assertEquals(0, components.get(0).getLocation().getOrderInContainer("c2").intValue());
         assertEquals("p3", components.get(1).getLocation().getDataSetCode());
         assertEquals("a/b/c/3", components.get(1).getLocation().getDataSetLocation());
-        assertEquals(1, components.get(1).getLocation().getOrderInContainer().intValue());
+        assertEquals(1, components.get(1).getLocation().getOrderInContainer("c2").intValue());
         assertEquals(2, components.size());
     }
 }

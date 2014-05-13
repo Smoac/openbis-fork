@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
-import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
  * Kind of <i>Java Bean</i> or <i>Value Object</i> which contains any information we would like to know about one DATA.
@@ -230,21 +229,24 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
     private Long getContainerId()
     {
-        DataPE container = getContainer();
-        return container != null ? container.getId() : null;
+        List<DataPE> containers = getContainers();
+        return containers.isEmpty() ? null : containers.get(0).getId();
     }
 
     @Transient
-    public DataPE getContainer()
+    public List<DataPE> getContainers()
     {
-        for (DataSetRelationshipPE relationship : getParentRelationships())
+        final Set<DataSetRelationshipPE> relationships = getParentRelationships();
+        final List<DataPE> containers = new ArrayList<DataPE>();
+        for (DataSetRelationshipPE r : relationships)
         {
-            if (RelationshipUtils.isContainerComponentRelationship(relationship))
+            if (isContainerComponentRelationship(r))
             {
-                return relationship.getParentDataSet();
+                assert r.getChildDataSet().equals(this);
+                containers.add(r.getParentDataSet());
             }
         }
-        return null;
+        return containers;
     }
 
     public void addParentRelationship(final DataSetRelationshipPE relationship)

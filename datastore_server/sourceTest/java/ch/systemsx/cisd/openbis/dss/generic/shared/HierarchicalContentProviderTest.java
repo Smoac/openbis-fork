@@ -296,7 +296,7 @@ public class HierarchicalContentProviderTest extends AssertJUnit
                 }
 
                 @Override
-                public Integer getOrderInContainer()
+                public Integer getOrderInContainer(String containerDataSetCode)
                 {
                     return null;
                 }

@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
@@ -40,7 +42,7 @@ public class DatasetDescription implements Serializable, IDatasetLocation
 
     private String dataSetLocation;
 
-    private Integer orderInContainer;
+    private final Map<String, Integer> orderInContainers = new HashMap<String, Integer>();
 
     private Date registrationTimestamp;
 
@@ -312,14 +314,19 @@ public class DatasetDescription implements Serializable, IDatasetLocation
     }
 
     @Override
-    public Integer getOrderInContainer()
+    public Integer getOrderInContainer(String containerDataSetCode)
     {
-        return orderInContainer;
+        return orderInContainers.get(containerDataSetCode);
     }
 
-    public void setOrderInContainer(Integer orderInContainer)
+    public void addOrderInContainer(String containerDataSetCode, Integer orderInContainer)
     {
-        this.orderInContainer = orderInContainer;
+        orderInContainers.put(containerDataSetCode, orderInContainer);
+    }
+
+    public Map<String, Integer> getOrderInContainers()
+    {
+        return orderInContainers;
     }
 
 }

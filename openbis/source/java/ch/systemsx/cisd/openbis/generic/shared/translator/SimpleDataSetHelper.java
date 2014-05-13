@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -71,7 +72,12 @@ public class SimpleDataSetHelper
         result.setSampleCode(data.getSampleCode());
         result.setDataSetType(data.getDataSetType().getCode());
         result.setDataStoreUrl(data.getDataStore().getHostUrl());
-        result.setOrderInContainer(data.getOrderInContainer());
+        List<ContainerDataSet> containerDataSets = data.getContainerDataSets();
+        for (ContainerDataSet containerDataSet : containerDataSets)
+        {
+            String containerDataSetCode = containerDataSet.getCode();
+            result.addOrderInContainer(containerDataSetCode, data.getOrderInContainer(containerDataSetCode));
+        }
         return result;
     }
 
@@ -89,7 +95,7 @@ public class SimpleDataSetHelper
         result.setSpaceCode(datasetDescription.getSpaceCode());
         result.setProjectCode(datasetDescription.getProjectCode());
         result.setSampleCode(datasetDescription.getSampleCode());
-        result.setOrderInContainer(datasetDescription.getOrderInContainer());
+        result.setOrderInContainers(datasetDescription.getOrderInContainers());
         return result;
     }
 }

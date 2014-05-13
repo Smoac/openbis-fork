@@ -870,7 +870,11 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         {
             case CONTAINER:
                 datasets = datasetLister.listByContainerTechId(datasetId);
-                Collections.sort(datasets, AbstractExternalData.DATA_SET_COMPONENTS_COMPARATOR);
+                Collections.sort(datasets, new AbstractExternalData.DataSetComponentsComparator(datasetId));
+                break;
+            case COMPONENT:
+                datasets = datasetLister.listByComponentTechId(datasetId);
+                Collections.sort(datasets);
                 break;
             case CHILD:
                 datasets = datasetLister.listByChildTechId(datasetId);

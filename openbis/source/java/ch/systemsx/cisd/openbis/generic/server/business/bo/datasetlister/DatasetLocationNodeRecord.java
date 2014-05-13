@@ -28,6 +28,8 @@ public class DatasetLocationNodeRecord
 
     public Long container_id;
 
+    public String container_code;
+
     public Integer ordinal;
 
     public String location;

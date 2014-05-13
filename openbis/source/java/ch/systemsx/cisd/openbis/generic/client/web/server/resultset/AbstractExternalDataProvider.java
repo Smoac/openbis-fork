@@ -20,7 +20,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ARCHIVING_STATUS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CODE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CONTAINER_DATASET;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.CONTAINER_DATASETS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_PRODUCER_CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_SET_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.DATA_STORE_CODE;
@@ -36,7 +36,7 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.IS_DELETED;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.LOCATION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.METAPROJECTS;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINER;
+import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.ORDER_IN_CONTAINERS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PARENT_DATASETS;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PERM_ID;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.PRESENT_IN_ARCHIVE;
@@ -53,19 +53,20 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDat
 
 import java.util.List;
 
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkTableCell;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
@@ -91,8 +92,8 @@ public abstract class AbstractExternalDataProvider extends
         builder.addColumn(CODE).withDefaultWidth(150);
         builder.addColumn(EXTERNAL_CODE).withDefaultWidth(150).hideByDefault();
         builder.addColumn(DATA_SET_TYPE).withDefaultWidth(200);
-        builder.addColumn(CONTAINER_DATASET).withDefaultWidth(150).hideByDefault();
-        builder.addColumn(ORDER_IN_CONTAINER).withDefaultWidth(100).hideByDefault();
+        builder.addColumn(CONTAINER_DATASETS).withDefaultWidth(150).hideByDefault();
+        builder.addColumn(ORDER_IN_CONTAINERS).withDefaultWidth(100).hideByDefault();
         builder.addColumn(PARENT_DATASETS).withDefaultWidth(150).hideByDefault();
         builder.addColumn(SAMPLE).withDefaultWidth(100).hideByDefault();
         builder.addColumn(EXTERNAL_DATA_SAMPLE_IDENTIFIER).withDefaultWidth(200);
@@ -153,14 +154,14 @@ public abstract class AbstractExternalDataProvider extends
                         metaProjectsToString(dataSet.getMetaprojects()));
 
                 builder.column(DATA_SET_TYPE).addString(dataSet.getDataSetType().getCode());
-                ContainerDataSet container = dataSet.tryGetContainer();
-                if (container != null)
+                List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+                builder.column(CONTAINER_DATASETS).addEntityLink(containerDataSets);
+                CommaSeparatedListBuilder listBuilder = new CommaSeparatedListBuilder();
+                for (ContainerDataSet containerDataSet : containerDataSets)
                 {
-                    builder.column(CONTAINER_DATASET).addEntityLink(container, container.getCode());
+                    listBuilder.append(dataSet.getOrderInContainer(containerDataSet.getCode()));
                 }
-                Integer orderInContainer = dataSet.getOrderInContainer();
-                builder.column(ORDER_IN_CONTAINER).addString(
-                        orderInContainer == null ? "" : orderInContainer.toString());
+                builder.column(ORDER_IN_CONTAINERS).addString(listBuilder.toString());
                 builder.column(PARENT_DATASETS).addEntityLink(dataSet.getParents());
 
                 Sample sample = dataSet.getSample();

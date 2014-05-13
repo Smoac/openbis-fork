@@ -31,11 +31,11 @@ public class ExternalDataGridColumnIDs
 
     public static final String DATA_SET_TYPE = "DATA_SET_TYPE";
 
-    public static final String CONTAINER_DATASET = "CONTAINER_DATASET";
+    public static final String CONTAINER_DATASETS = "CONTAINER_DATASETS";
 
     public static final String PARENT_DATASETS = "PARENT_DATASETS";
 
-    public static final String ORDER_IN_CONTAINER = "ORDER_IN_CONTAINER";
+    public static final String ORDER_IN_CONTAINERS = "ORDER_IN_CONTAINERS";
 
     public static final String SAMPLE = "SAMPLE";
 

@@ -57,14 +57,14 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMess
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DisplayedOrSelectedDatasetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISerializableComparable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.WebAppContext;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -117,8 +117,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             AsyncCallback<AbstractExternalData> asyncCallback);
 
     /**
-     * To be subclassed. Creates additional panels of the viewer in the right side section besides
-     * components, datasets and attachments
+     * To be subclassed. Creates additional panels of the viewer in the right side section besides components, datasets and attachments
      */
     protected List<TabContent> createAdditionalSectionPanels(AbstractExternalData dataset)
     {
@@ -275,6 +274,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             final TabContent containedSection = new DataSetContainedSection(context, dataset);
             container.addSection(containedSection);
         }
+        final TabContent containerSection = new DataSetContainerSection(context, dataset);
+        container.addSection(containerSection);
 
         // parents
         final TabContent parentsSection = new DataSetParentsSection(context, dataset);
@@ -370,18 +371,18 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     public DatabaseModificationKind[] getRelevantModifications()
     {
         return new DatabaseModificationKind[]
-            { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
-                    DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
-                    DatabaseModificationKind.edit(ObjectKind.SAMPLE),
-                    DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
-                    DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
+        { DatabaseModificationKind.edit(ObjectKind.DATA_SET),
+                DatabaseModificationKind.createOrDelete(ObjectKind.DATA_SET),
+                DatabaseModificationKind.createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                DatabaseModificationKind.createOrDelete(ObjectKind.VOCABULARY_TERM),
+                DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
+                DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
+                DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
+                DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
     }
 
     @Override
@@ -391,10 +392,9 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     }
 
     /**
-     * Holder of a {@link Button} that has a menu with items that schedule dataset plugin
-     * processing. The button is hidden at the beginning. When data set is successfully loaded by
-     * the viewer and there is a nonempty list of plugins assigned to its data type data then the
-     * menu is filled and button is shown.
+     * Holder of a {@link Button} that has a menu with items that schedule dataset plugin processing. The button is hidden at the beginning. When data
+     * set is successfully loaded by the viewer and there is a nonempty list of plugins assigned to its data type data then the menu is filled and
+     * button is shown.
      */
     private class ProcessButtonHolder
     {

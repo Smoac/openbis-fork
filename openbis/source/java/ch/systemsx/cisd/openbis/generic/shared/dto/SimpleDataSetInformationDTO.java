@@ -18,6 +18,8 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
@@ -59,7 +61,7 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
 
     private String dataStoreUrl;
 
-    private Integer orderInContainer;
+    private Map<String, Integer> orderInContainers = new HashMap<String, Integer>();
 
     public void setDataStoreCode(String dataStoreCode)
     {
@@ -207,14 +209,19 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     }
 
     @Override
-    public Integer getOrderInContainer()
+    public Integer getOrderInContainer(String containerDataSetCode)
     {
-        return orderInContainer;
+        return orderInContainers.get(containerDataSetCode);
     }
 
-    public void setOrderInContainer(Integer orderInContainer)
+    public void addOrderInContainer(String containerDataSetCode, Integer orderInContainer)
     {
-        this.orderInContainer = orderInContainer;
+        orderInContainers.put(containerDataSetCode, orderInContainer);
+    }
+
+    public void setOrderInContainers(Map<String, Integer> orderInContainers)
+    {
+        this.orderInContainers = orderInContainers;
     }
 
 }

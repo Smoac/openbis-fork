@@ -23,5 +23,5 @@ import java.io.Serializable;
  */
 public enum DataSetRelationshipRole implements Serializable
 {
-    CONTAINER, PARENT, CHILD;
+    CONTAINER, COMPONENT, PARENT, CHILD;
 }

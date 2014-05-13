@@ -60,7 +60,7 @@ public class DatasetLocation implements IDatasetLocation, Serializable, ICodeHol
     }
 
     @Override
-    public Integer getOrderInContainer()
+    public Integer getOrderInContainer(String containerDataSetCode)
     {
         return orderInContainer;
     }

@@ -112,7 +112,7 @@ public class DataSetPropertiesPanel extends ContentPanel
         properties.put(messageProvider.getMessage(Dict.REGISTRATION_DATE),
                 dataset.getRegistrationDate());
         List<ContainerDataSet> containerDataSets = dataset.getContainerDataSets();
-        if (containerDataSets.isEmpty() == false)
+        if (containerDataSets.size() == 1)
         {
             properties.put(messageProvider.getMessage(Dict.CONTAINER_DATA_SET), containerDataSets.get(0));
         }

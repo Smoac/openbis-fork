@@ -328,9 +328,9 @@ var common = {
   // DataSet Browser
   //
   
-  container_dataset: "Container",
+  container_datasets: "Containers",
   parent_datasets: "Parents",
-  order_in_container: "Order in Container",
+  order_in_containers: "Order in Containers",
   children_datasets: "Children",
   no_datasets_selected: "No Data Sets were selected.",
   datasets_from_different_stores_selected: "Data Sets from different Data Stores were selected, so no operation can be performed on all of them.",
@@ -823,6 +823,7 @@ var common = {
  file_format_type: "File Type",
  production_date: "Production Date",
  data_producer_code: "Producer",
+ container_dataset: "Container",
  data_store_code: "Data Store",
  button_upload_datasets: "Export Data",
  confirm_dataset_upload_title: "Uploading Confirmation and Authentication",

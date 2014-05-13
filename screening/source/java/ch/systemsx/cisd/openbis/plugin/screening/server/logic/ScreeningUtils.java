@@ -216,8 +216,8 @@ public class ScreeningUtils
     private static <T extends DataPE> boolean isContainerMatching(T dataset,
             String... datasetTypeCodePatterns)
     {
-        DataPE container = dataset.getContainer();
-        return container != null && isOneOfTypesMatching(container, datasetTypeCodePatterns);
+        List<DataPE> containers = dataset.getContainers();
+        return containers.isEmpty() == false && isOneOfTypesMatching(containers.get(0), datasetTypeCodePatterns);
     }
 
     private static boolean isNotEmpty(AbstractExternalData dataset)

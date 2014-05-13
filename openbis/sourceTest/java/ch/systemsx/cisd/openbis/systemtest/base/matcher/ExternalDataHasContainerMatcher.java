@@ -57,7 +57,7 @@ public class ExternalDataHasContainerMatcher extends TypeSafeMatcher<AbstractExt
             String containerCode = container.getCode();
             if (expectedContainer.getCode().equals(containerCode))
             {
-                Integer order = actual.getOrderIn(containerCode);
+                Integer order = actual.getOrderInContainer(containerCode);
                 return expectedOrder == null || expectedOrder.equals(order);
             }
         }

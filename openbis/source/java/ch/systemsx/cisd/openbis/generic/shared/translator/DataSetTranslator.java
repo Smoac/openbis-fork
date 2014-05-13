@@ -76,7 +76,12 @@ public class DataSetTranslator
 
         description.setDataStoreCode(data.getDataStore().getCode());
         description.setRegistrationTimestamp(data.getRegistrationDate());
-        description.setOrderInContainer(data.getOrderInContainer());
+        List<ContainerDataSet> containerDataSets = data.getContainerDataSets();
+        for (ContainerDataSet containerDataSet : containerDataSets)
+        {
+            String containerDataSetCode = containerDataSet.getCode();
+            description.addOrderInContainer(containerDataSetCode, data.getOrderInContainer(containerDataSetCode));
+        }
 
         PhysicalDataSet dataSet = data.tryGetAsDataSet();
         if (dataSet != null)
@@ -281,17 +286,6 @@ public class DataSetTranslator
         }
     }
 
-    private static DataSetRelationshipPE getContainerRelationshipOrNull(DataPE dataPE)
-    {
-        List<DataSetRelationshipPE> containerComponentRelationships =
-                RelationshipUtils.getContainerComponentRelationships(dataPE.getParentRelationships());
-        if (containerComponentRelationships.isEmpty() == false)
-        {
-            return containerComponentRelationships.get(0);
-        }
-        return null;
-    }
-
     private static ContainerDataSet tryToTranslateContainer(DataPE containerOrNull,
             String baseIndexURL, IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
@@ -447,12 +441,13 @@ public class DataSetTranslator
 
         DatasetDescription description = new DatasetDescription();
         description.setDataSetCode(dataSet.getCode());
-        DataSetRelationshipPE relationship = getContainerRelationshipOrNull(dataSet);
-        if (relationship != null)
+        List<DataSetRelationshipPE> containerComponentRelationships =
+                RelationshipUtils.getContainerComponentRelationships(dataSet.getParentRelationships());
+        for (DataSetRelationshipPE relationship : containerComponentRelationships)
         {
-            description.setOrderInContainer(relationship.getOrdinal());
+            String containerDataSetCode = relationship.getParentDataSet().getCode();
+            description.addOrderInContainer(containerDataSetCode, relationship.getOrdinal());
         }
-
         description.setRegistrationTimestamp(dataSet.getRegistrationDate());
         if (dataSet.isExternalData())
         {

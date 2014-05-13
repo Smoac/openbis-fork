@@ -31,6 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdAndCodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIsStub;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ITaggable;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 
 /**
  * A DTO for any kind of data set.
@@ -75,13 +76,9 @@ public abstract class AbstractExternalData extends
 
     }
 
-    /**
-     * {@link Comparator} for data sets contained in a (virtual) container which uses ascending order in container.
-     */
-    public static final Comparator<AbstractExternalData> DATA_SET_COMPONENTS_COMPARATOR =
-            new DataSetComponentsComparator();
-
     private Map<String, ContainerAndOrder> containersAndOrderByContainerId = new TreeMap<String, ContainerAndOrder>();
+
+    private Map<Long, ContainerAndOrder> containersAndOrderByContainerTechId = new TreeMap<Long, ContainerAndOrder>();
 
     private boolean derived;
 
@@ -401,13 +398,6 @@ public abstract class AbstractExternalData extends
         return containersAndOrderByContainerId.values().iterator().next().getContainerDataSet();
     }
 
-    @Deprecated
-    public Integer getOrderInContainer()
-    {
-        ContainerDataSet container = tryGetContainer();
-        return container == null ? null : getOrderIn(container.getCode());
-    }
-
     public void addContainer(ContainerDataSet containerDataSet, Integer orderInContainer)
     {
         List<AbstractExternalData> components = containerDataSet.getContainedDataSets();
@@ -415,7 +405,9 @@ public abstract class AbstractExternalData extends
         {
             components.add(this);
         }
-        containersAndOrderByContainerId.put(containerDataSet.getCode(), new ContainerAndOrder(containerDataSet, orderInContainer));
+        ContainerAndOrder containerAndOrder = new ContainerAndOrder(containerDataSet, orderInContainer);
+        containersAndOrderByContainerId.put(containerDataSet.getCode(), containerAndOrder);
+        containersAndOrderByContainerTechId.put(containerDataSet.getId(), containerAndOrder);
     }
 
     public List<ContainerDataSet> getContainerDataSets()
@@ -429,7 +421,13 @@ public abstract class AbstractExternalData extends
         return containers;
     }
 
-    public Integer getOrderIn(String containerDataSetCode)
+    public Integer getOrderInContainer(Long containerDataSetTechId)
+    {
+        ContainerAndOrder containerAndOrder = containersAndOrderByContainerTechId.get(containerDataSetTechId);
+        return containerAndOrder == null ? null : containerAndOrder.getOrderInContainer();
+    }
+
+    public Integer getOrderInContainer(String containerDataSetCode)
     {
         ContainerAndOrder containerAndOrder = containersAndOrderByContainerId.get(containerDataSetCode);
         return containerAndOrder == null ? null : containerAndOrder.getOrderInContainer();
@@ -474,14 +472,23 @@ public abstract class AbstractExternalData extends
         return this.isStub;
     }
 
-    private static final class DataSetComponentsComparator implements
-            Comparator<AbstractExternalData>
+    /**
+     * {@link Comparator} for data sets contained in a (virtual) container which uses ascending order in container.
+     */
+    public static final class DataSetComponentsComparator implements Comparator<AbstractExternalData>
     {
+        private Long id;
+
+        public DataSetComponentsComparator(TechId techId)
+        {
+            id = techId.getId();
+        }
+
         @Override
         public int compare(AbstractExternalData o1, AbstractExternalData o2)
         {
-            Integer order1 = o1.getOrderInContainer();
-            Integer order2 = o2.getOrderInContainer();
+            Integer order1 = o1.getOrderInContainer(id);
+            Integer order2 = o2.getOrderInContainer(id);
             // sanity check
             if (order1 == null || order2 == null)
             {

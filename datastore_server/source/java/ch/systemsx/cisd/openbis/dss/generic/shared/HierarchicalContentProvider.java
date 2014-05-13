@@ -175,6 +175,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
             if (locationNode.isContainer())
             {
                 List<IHierarchicalContent> componentContents = new ArrayList<IHierarchicalContent>();
+                final String containerDataSetCode = locationNode.getLocation().getDataSetCode();
                 List<IDatasetLocationNode> sortedNodes = new ArrayList<IDatasetLocationNode>(locationNode.getComponents());
                 Collections.sort(sortedNodes, new Comparator<IDatasetLocationNode>()
                     {
@@ -186,7 +187,7 @@ public class HierarchicalContentProvider implements IHierarchicalContentProvider
                         
                         private int getOrderInContainer(IDatasetLocationNode node)
                         {
-                            Integer orderInContainer = node.getLocation().getOrderInContainer();
+                            Integer orderInContainer = node.getLocation().getOrderInContainer(containerDataSetCode);
                             return orderInContainer == null ? 0 : orderInContainer;
                         }
                     });

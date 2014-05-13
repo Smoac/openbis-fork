@@ -86,7 +86,7 @@ public class ExternalDataLocationNode implements IDatasetLocationNode
             for (AbstractExternalData component : components)
             {
                 componentsLocationNodes.put(component.getCode(),
-                        new ExternalDataLocationNode(component, component.getOrderIn(containerCode)));
+                        new ExternalDataLocationNode(component, component.getOrderInContainer(containerCode)));
             }
 
             return componentsLocationNodes.values();

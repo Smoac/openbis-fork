@@ -408,6 +408,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     }
 
     @Override
+    public List<AbstractExternalData> listByComponentTechId(TechId componentDatasetId)
+    {
+        return enrichDatasets(query.getParentsOf(new LongOpenHashSet(Arrays.asList(componentDatasetId.getId())),
+                getContainerComponentRelationshipTypeId()));
+    }
+
+    @Override
     public List<AbstractExternalData> listByContainerTechId(TechId containerDatasetId)
     {
         return enrichDatasets(query.getChildrenOf(new LongOpenHashSet(Arrays.asList(containerDatasetId.getId())),

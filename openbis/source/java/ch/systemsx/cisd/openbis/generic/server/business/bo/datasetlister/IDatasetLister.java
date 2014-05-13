@@ -57,6 +57,9 @@ public interface IDatasetLister
     /** @return datasets that are parents of a dataset with the specified id */
     List<AbstractExternalData> listByChildTechId(TechId childDatasetId);
 
+    /** @return datasets that are containers of a dataset with the specified id */
+    List<AbstractExternalData> listByComponentTechId(TechId componentDatasetId);
+
     /** @return datasets that are components of a dataset with the specified id */
     List<AbstractExternalData> listByContainerTechId(TechId containerDatasetId);
 
