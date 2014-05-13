@@ -420,6 +420,21 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 			var sampleChildrenLinks = (this.sample)?this.sample.children:null;
 			this.sampleLinksChildren = new SampleLinksWidget(sampleChildrenWidgetId, this.profile, this.serverFacade, "Children", requiredChildren, isDisabled, sampleChildrenLinks);
+			
+			//
+			// GENERATE CHILDREN
+			//
+			if(!(this.mode === SampleFormMode.VIEW)) {
+				component += "<fieldset>";
+				component += "<div class='control-group'>";
+				component += "<div class='controls'>";
+				component += "<a class='btn' id='generate_children'>Generate Children</a>";
+				component += "</div>";
+				component += "</div>";
+				component += "</fieldset>";
+			}
+			
+			
 			//
 			// SAMPLE TYPE FIELDS
 			//
@@ -527,6 +542,12 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		if (this.mode === SampleFormMode.VIEW) {
 			this.enableEditButtonEvent();
+		}
+		
+		if(!(this.mode === SampleFormMode.VIEW)) {
+			$("#generate_children").click(function(event) {
+				localInstance._generateChildren();
+			});
 		}
 		
 		//Events to take care of a dirty form
@@ -775,5 +796,147 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			};
 		
 		this.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [this.sample.permId], previewCallback);
+	}
+	
+	this._generateChildren = function() {
+		// Buttons
+		var getGeneratedChildrenCodes = function() {
+			//Get selected parents
+			var $parentsFields = $("#parentsToGenerateChildren").find("input:checked");
+			//Group parents by type - this structure helps the create children algorithm
+			var selectedParentsByType = {};
+			for(var i = 0; i < $parentsFields.length; i++) {
+				var parentIdentifier = $parentsFields[i].id;
+				var parent = parentsByIdentifier[parentIdentifier];
+				var typeList = selectedParentsByType[parent.sampleTypeCode];
+				if(!typeList) {
+					typeList = [];
+					selectedParentsByType[parent.sampleTypeCode] = typeList;
+				}
+				typeList.push(parent);
+			}
+			//Generate Children from parents
+			var generatedChildren = [];
+			var parentSampleCode = $("#sampleCode").val();
+			for(var sampleTypeCode in selectedParentsByType) {
+				var parentsOfType = selectedParentsByType[sampleTypeCode];
+				
+				var newGeneratedChildren = [];
+				
+				for(var i = 0; i < parentsOfType.length; i++) {
+					var parentOfType = parentsOfType[i];
+					if(generatedChildren.length === 0) {
+						newGeneratedChildren.push(parentSampleCode + "_" + parentOfType.code);
+					} else {
+						for(var k = 0; k < generatedChildren.length; k++) {
+							newGeneratedChildren.push(generatedChildren[k] + "_" + parentOfType.code);
+						}
+					}
+				}
+				
+				generatedChildren = newGeneratedChildren;
+			}
+			return generatedChildren;
+		}
+		
+		var $previewButton = $("<a>", { "class" : "btn" }).append("<i class='icon-repeat'></i>");
+		$previewButton.click(function(event) {
+			var generatedChildren = getGeneratedChildrenCodes();
+			
+			//Show generated children
+			$("#previewChildrenGenerator").empty();
+			for(var i = 0; i < generatedChildren.length; i++) {
+				$("#previewChildrenGenerator").append(generatedChildren[i] + "<br />");
+			}
+		});
+		
+		var _this = this;
+		var $generateButton = $("<a>", { "class" : "btn" }).append("Generate!");
+		$generateButton.click(function(event) { 
+			var generatedChildrenSpace = null;
+			if(_this.isELNExperiment) {
+				generatedChildrenSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
+			} else {
+				generatedChildrenSpace = $("#sampleSpaceProject").val();
+			}
+			var generatedChildrenCodes = getGeneratedChildrenCodes();
+			var generatedChildrenType = $("#childrenTypeSelector").val();
+			if(generatedChildrenType === "") {
+				Util.showError("Please select the children type.", function() {}, true);
+			} else {
+				for(var i = 0; i < generatedChildrenCodes.length; i++) {
+					var virtualSample = new Object();
+					virtualSample.code = generatedChildrenCodes[i];
+					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
+					virtualSample.sampleTypeCode = generatedChildrenType;
+					_this.sampleLinksChildren.addSample(virtualSample);
+				}
+					
+				Util.unblockUI();
+			}
+		});
+		
+		var $cancelButton = $("<a>", { "class" : "btn" }).append("<i class='icon-remove'></i>");
+		$cancelButton.click(function(event) { 
+			Util.unblockUI();
+		});
+		
+		// Parents
+		var $parents = $("<div>");
+		var parentsIdentifiers = this.sampleLinksParents.getSamplesIdentifiers();
+		var parentsByType = {};
+		var parentsByIdentifier = {};
+		for(var i = 0; i < parentsIdentifiers.length; i++) {
+			var parent = this.sampleLinksParents.getSampleByIdentifier(parentsIdentifiers[i]);
+			var typeList = parentsByType[parent.sampleTypeCode];
+			if(!typeList) {
+				typeList = [];
+				parentsByType[parent.sampleTypeCode] = typeList;
+			}
+			typeList.push(parent);
+			parentsByIdentifier[parent.identifier] = parent;
+		}
+		
+		for(var parentTypeCode in parentsByType) {
+			$parents.append(parentTypeCode + ":").append($("<br>"));
+			var parentsOfType = parentsByType[parentTypeCode];
+			for(var i = 0; i < parentsOfType.length; i++) {
+				var parent = parentsOfType[i];
+				var parentProperty = new Object();
+				parentProperty.code = parent.identifier;
+				parentProperty.description = parent.identifier;
+				parentProperty.label = parent.code;
+				parentProperty.dataType = "BOOLEAN";
+				$parents.append(FormUtil.getFieldForPropertyTypeWithLabel(parentProperty));
+			}
+		}
+		
+		var $parentsComponent = $("<fieldset id='parentsToGenerateChildren'>");
+		$parentsComponent.append($("<legend>").text("Parents"))
+		$parentsComponent.append($parents);
+		
+		// Children
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
+		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
+		var $childrenComponent = $("<fieldset>");
+		$childrenComponent.append($("<legend>").text("Children"))
+		$childrenComponent.append($childrenTypeDropdownWithLabel);
+		
+		// Preview
+		var $previewComponent = $("<fieldset>");
+		$previewComponent.append($("<legend>").append("Preview ").append($previewButton));
+		$previewComponent.append($("<div>", {"id" : "previewChildrenGenerator"}));
+		
+		// Mounting the widget with the components
+		var $childrenGenerator = $("<form>", { "class" : "form-horizontal"})
+									.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton))
+									.append($("<h1>").append("Children Generator"))
+									.append($parentsComponent)
+									.append($childrenComponent)
+									.append($previewComponent)
+									.append($("<br>")).append($generateButton);
+		
+		// Show Widget
+		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%'});
 	}
 }

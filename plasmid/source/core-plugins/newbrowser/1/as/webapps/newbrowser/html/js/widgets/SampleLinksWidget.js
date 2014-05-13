@@ -513,6 +513,16 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		return sampleIdentifiers;
 	}
 	
+	this.getSampleByIdentifier = function(identifier) {
+		for(sampleObjKey in this.samples) {
+			var sampleObj = this.samples[sampleObjKey];
+			if(sampleObj !== null && sampleObj.identifier === identifier) {
+				return sampleObj;
+			}
+		}
+		return null;
+	}
+	
 	this.getSamplesRemovedIdentifiers = function() {
 		var sampleIdentifiers = new Array();
 		for(sampleObjKey in this.samplesRemoved) {

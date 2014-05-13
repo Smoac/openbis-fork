@@ -5,6 +5,47 @@ var FormUtil = new function() {
 	// Standard Form Fields
 	//
 	
+	this.getSampleTypeDropdown = function(id, isRequired) {
+		var sampleTypes = this.profile.getAllSampleTypes();
+		
+		var $component = $("<select>", {"id" : id});
+		if (isRequired) {
+			$component.attr('required', '');
+		}
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		for(var i = 0; i < sampleTypes.length; i++) {
+			var sampleType = sampleTypes[i];
+			var label = Util.getEmptyIfNull(sampleType.description);
+			if(label === "") {
+				label = sampleType.code;
+			}
+			
+			$component.append($("<option>").attr('value',sampleType.code).text(label));
+		}
+		
+		return $component;
+	}
+	
+	this.getFieldForComponentWithLabel = function($component, label) {
+		var $fieldset = $('<fieldset>');
+		
+		var $controlGroup = $('<div>', {class : 'control-group'});
+		var $controlLabel = $('<label>', {class : 'control-label'}).text(label + ":");
+		var $controls = $('<div>', {class : 'controls'});
+			
+		$controlGroup.append($controlLabel);
+		$controlGroup.append($controls);
+		$fieldset.append($controlGroup);
+		
+		$controls.append($component);
+		if($component.attr('required')) {
+			$controls.append(' (Required)')
+		}
+		
+		return $fieldset;
+	}
+	
 	this.getFieldForPropertyTypeWithLabel = function(propertyType) {
 		var $fieldset = $('<fieldset>');
 		

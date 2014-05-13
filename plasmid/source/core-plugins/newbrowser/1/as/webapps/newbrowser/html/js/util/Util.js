@@ -31,7 +31,7 @@ var Util = new function() {
 		$.blockUI({ message: '', css: { width: '0px' } });
 	}
 	
-	this.blockUI = function(message) {
+	this.blockUI = function(message, extraCSS) {
 		this.unblockUI();
 		BlockScrollUtil.disable_scroll();
 		
@@ -44,6 +44,13 @@ var Util = new function() {
 					'box-shadow' : '0 1px 10px rgba(0, 0, 0, 0.1)',
 					'cursor' : 'default'
 		};
+		
+		if(extraCSS) {
+			for(extraCSSProperty in extraCSS) {
+				var extraCSSValue = extraCSS[extraCSSProperty];
+				css[extraCSSProperty] = extraCSSValue;
+			}
+		}
 		
 		$('#navbar').block({ message: '', css: { width: '0px' } });
 		if(message) {
@@ -68,13 +75,17 @@ var Util = new function() {
 	//
 	// Methods to show messages as pop ups
 	//
-	this.showError = function(withHTML, andCallback) {
+	
+	this.showError = function(withHTML, andCallback, noBlock) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
 			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
 		}
 		
-		this.blockUINoMessage();
+		if(!noBlock) {
+			this.blockUINoMessage();
+		}
+		
 		var localReference = this;
 		jError(
 				withHTML,
