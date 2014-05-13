@@ -16,16 +16,12 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			this.setResolutions(resolutions);
 		},
 
-		getState : function() {
-			var state = {};
+		doGetState : function(state) {
 			state.selectedResolution = this.getSelectedResolution();
-			return state;
 		},
 
-		setState : function(state) {
-			if (state) {
-				this.setSelectedResolution(state.selectedResolution);
-			}
+		doSetState : function(state) {
+			this.setSelectedResolution(state.selectedResolution);
 		},
 
 		getSelectedResolution : function() {

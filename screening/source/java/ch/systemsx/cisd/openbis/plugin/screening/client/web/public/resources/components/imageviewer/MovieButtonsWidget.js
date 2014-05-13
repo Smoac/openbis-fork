@@ -116,18 +116,14 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 			this.selectedFrame = 0;
 		},
 
-		getState : function() {
-			var state = {};
+		doGetState : function(state) {
 			state.selectedFrame = this.getSelectedFrame();
 			state.selectedDelay = this.getSelectedDelay();
-			return state;
 		},
 
-		setState : function(state) {
-			if (state) {
-				this.setSelectedFrame(state.selectedFrame);
-				this.setSelectedDelay(state.selectedDelay);
-			}
+		doSetState : function(state) {
+			this.setSelectedFrame(state.selectedFrame);
+			this.setSelectedDelay(state.selectedDelay);
 		},
 
 		play : function() {

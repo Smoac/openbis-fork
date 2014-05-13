@@ -19,7 +19,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			var thisView = this;
 
 			this.panel.append(this.createSliderWidget());
-			this.panel.append(this.controller.getButtonsWidget().render());
+			this.panel.append(this.controller.getChannelStackButtonsWidget().render());
 
 			this.refresh();
 

@@ -18,20 +18,16 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			this.imageResolutions = imageResolutions;
 		},
 
-		getState : function() {
-			var state = {};
+		doGetState : function(state) {
 			state.channelChooserState = this.getChannelChooserWidget().getState();
 			state.resolutionChooserState = this.getResolutionChooserWidget().getState();
 			state.channelStackChooserState = this.getChannelStackChooserWidget().getState();
-			return state;
 		},
 
-		setState : function(state) {
-			if (state) {
-				this.getChannelChooserWidget().setState(state.channelChooserState);
-				this.getResolutionChooserWidget().setState(state.resolutionChooserState);
-				this.getChannelStackChooserWidget().setState(state.channelStackChooserState);
-			}
+		doSetState : function(state) {
+			this.getChannelChooserWidget().setState(state.channelChooserState);
+			this.getResolutionChooserWidget().setState(state.resolutionChooserState);
+			this.getChannelStackChooserWidget().setState(state.channelStackChooserState);
 		},
 
 		getChannelChooserWidget : function() {

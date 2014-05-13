@@ -21,18 +21,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
-		getState : function() {
-			var state = {};
-			state.buttonsWidget = this.getButtonsWidget().getState();
+		doGetState : function(state) {
+			state.channelStackButtonsWidget = this.getChannelStackButtonsWidget().getState();
 			state.selectedChannelStackIndex = this.getSelectedChannelStackIndex();
-			return state;
 		},
 
-		setState : function(state) {
-			if (state) {
-				this.getButtonsWidget().setState(state.buttonsWidget);
-				this.setSelectedChannelStackIndex(state.selectedChannelStackIndex);
-			}
+		doSetState : function(state) {
+			this.getChannelStackButtonsWidget().setState(state.getChannelStackButtonsWidget);
+			this.setSelectedChannelStackIndex(state.selectedChannelStackIndex);
 		},
 
 		getChannelStacks : function() {
@@ -95,13 +91,13 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 			if (this.getSelectedChannelStackId() != channelStackId) {
 				this.selectedChannelStackId = channelStackId;
-				this.getButtonsWidget().setSelectedFrame(this.getSelectedChannelStackIndex());
+				this.getChannelStackButtonsWidget().setSelectedFrame(this.getSelectedChannelStackIndex());
 				this.refresh();
 				this.notifyChangeListeners();
 			}
 		},
 
-		getButtonsWidget : function() {
+		getChannelStackButtonsWidget : function() {
 			if (this.buttonsWidget == null) {
 				var thisWidget = this;
 

@@ -46,6 +46,30 @@ define([ "jquery", "components/common/ListenerManager" ], function($, ListenerMa
 			}
 		},
 
+		getState : function() {
+			if (!this.state) {
+				this.state = {};
+			}
+			this.doGetState(this.state);
+			return this.state;
+		},
+
+		setState : function(state) {
+			if (state) {
+				if (!this.state) {
+					this.state = {};
+				}
+				$.extend(this.state, state);
+				this.doSetState(this.state);
+			}
+		},
+
+		doGetState : function(state) {
+		},
+
+		doSetState : function(state) {
+		},
+
 		getView : function() {
 			return this.view;
 		},

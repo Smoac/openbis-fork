@@ -21,20 +21,16 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
-		getState : function() {
-			var state = {};
+		doGetState : function(state) {
 			state.timePointButtonsState = this.getTimePointButtonsWidget().getState();
 			state.selectedTimePoint = this.getSelectedTimePoint();
 			state.selectedDepth = this.getSelectedDepth();
-			return state;
 		},
 
-		setState : function(state) {
-			if (state) {
-				this.getTimePointButtonsWidget().setState(state.timePointButtonsState);
-				this.setSelectedTimePoint(state.selectedTimePoint);
-				this.setSelectedDepth(state.selectedDepth);
-			}
+		doSetState : function(state) {
+			this.getTimePointButtonsWidget().setState(state.timePointButtonsState);
+			this.setSelectedTimePoint(state.selectedTimePoint);
+			this.setSelectedDepth(state.selectedDepth);
 		},
 
 		getTimePoints : function() {
