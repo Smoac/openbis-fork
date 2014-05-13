@@ -25,7 +25,11 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		},
 
 		getSelectedResolution : function() {
-			return this.selectedResolution;
+			if (this.selectedResolution) {
+				return this.selectedResolution;
+			} else {
+				return null;
+			}
 		},
 
 		setSelectedResolution : function(resolution) {
