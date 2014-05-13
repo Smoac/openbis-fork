@@ -2,7 +2,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		ChannelChooserView) {
 
 	//
-	// CHANNEL CHOOSER
+	// CHANNEL CHOOSER WIDGET
 	//
 
 	function ChannelChooserWidget(channels) {

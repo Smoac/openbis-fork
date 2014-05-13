@@ -18,12 +18,10 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 		render : function() {
 			var thisView = this;
 
-			var slidersRow = $("<div>").addClass("row").appendTo(this.panel);
-			$("<div>").addClass("col-md-6").append(this.createTimePointWidget()).appendTo(slidersRow);
-			$("<div>").addClass("col-md-6").append(this.createDepthWidget()).appendTo(slidersRow);
-
-			var buttonsRow = $("<div>").appendTo(this.panel);
-			buttonsRow.append(this.controller.getTimePointButtonsWidget().render());
+			this.panel.append(this.createTimePointWidget());
+			this.panel.append(this.controller.getTimePointButtonsWidget().render());
+			this.panel.append(this.createDepthWidget());
+			this.panel.append(this.controller.getDepthButtonsWidget().render());
 
 			this.refresh();
 

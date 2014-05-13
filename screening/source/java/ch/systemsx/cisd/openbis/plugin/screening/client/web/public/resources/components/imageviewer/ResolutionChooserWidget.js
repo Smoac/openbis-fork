@@ -2,7 +2,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		ResolutionChooserView) {
 
 	//
-	// RESOLUTION CHOOSER
+	// RESOLUTION CHOOSER WIDGET
 	//
 
 	function ResolutionChooserWidget(resolutions) {

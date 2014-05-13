@@ -3,7 +3,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		ChannelStackMatrixChooserView, MovieButtonsWidget, ChannelStackManager) {
 
 	//
-	// CHANNEL STACK MATRIX CHOOSER
+	// CHANNEL STACK MATRIX CHOOSER WIDGET
 	//
 
 	function ChannelStackMatrixChooserWidget(channelStacks) {
@@ -23,12 +23,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 		doGetState : function(state) {
 			state.timePointButtonsState = this.getTimePointButtonsWidget().getState();
+			state.depthButtonsState = this.getDepthButtonsWidget().getState();
 			state.selectedTimePoint = this.getSelectedTimePoint();
 			state.selectedDepth = this.getSelectedDepth();
 		},
 
 		doSetState : function(state) {
 			this.getTimePointButtonsWidget().setState(state.timePointButtonsState);
+			this.getDepthButtonsWidget().setState(state.depthButtonsState);
 			this.setSelectedTimePoint(state.selectedTimePoint);
 			this.setSelectedDepth(state.selectedDepth);
 		},
@@ -139,6 +141,30 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 
 			return this.timeButtonsWidget;
+		},
+
+		getDepthButtonsWidget : function() {
+			if (this.depthButtonsWidget == null) {
+				var thisWidget = this;
+
+				var widget = new MovieButtonsWidget(this.getDepths().length);
+
+				widget.setFrameContentLoader(function(frameIndex, callback) {
+					var depth = thisWidget.getDepths()[frameIndex];
+					var timePoint = thisWidget.getSelectedTimePoint();
+					var channelStack = thisWidget.getChannelStackByTimePointAndDepth(timePoint, depth);
+					thisWidget.loadChannelStackContent(channelStack, callback);
+				});
+
+				widget.addChangeListener(function() {
+					var depth = thisWidget.getDepths()[widget.getSelectedFrame()];
+					thisWidget.setSelectedDepth(depth);
+				});
+
+				this.depthButtonsWidget = widget;
+			}
+
+			return this.depthButtonsWidget;
 		}
 
 	});

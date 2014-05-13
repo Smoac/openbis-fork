@@ -3,7 +3,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		ChannelStackSeriesChooserView, MovieButtonsWidget, ChannelStackManager) {
 
 	//
-	// CHANNEL STACK SERIES CHOOSER
+	// CHANNEL STACK SERIES CHOOSER WIDGET
 	//
 
 	function ChannelStackSeriesChooserWidget(channelStacks) {
