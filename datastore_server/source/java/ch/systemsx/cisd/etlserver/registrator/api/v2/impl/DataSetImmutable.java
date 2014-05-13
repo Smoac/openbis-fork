@@ -157,20 +157,36 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     @Override
     public boolean isContainedDataSet()
     {
-        return dataSet.tryGetContainer() != null;
+        return dataSet.getContainerDataSets().isEmpty() == false;
     }
 
     @Override
     public String getContainerDataSet()
     {
-        ContainerDataSet container = dataSet.tryGetContainer();
-        if (container != null)
-        {
-            return container.getCode();
-        } else
+        List<String> containerDataSets = getContainerDataSets();
+        if (containerDataSets.isEmpty())
         {
             return null;
         }
+        return containerDataSets.get(0);
+    }
+
+    @Override
+    public List<String> getContainerDataSets()
+    {
+        List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+        List<String> result = new ArrayList<String>();
+        for (ContainerDataSet containerDataSet : containerDataSets)
+        {
+            result.add(containerDataSet.getCode());
+        }
+        return result;
+    }
+
+    @Override
+    public Integer getOrderInContainer(String containerDataSetCode)
+    {
+        return dataSet.getOrderInContainer(containerDataSetCode);
     }
 
     @Override

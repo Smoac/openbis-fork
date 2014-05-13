@@ -152,12 +152,16 @@ public class DataSetLister implements IDataSetLister
             List<DataSetRecord> containers = containersByComponents.get(dataSetInitializer.getId());
             if (containers != null)
             {
-                DataSetRecord container = containers.get(0);
-                DataSetInitializer containerInitializer = new DataSetInitializer();
-                containerInitializer.setStub(true);
-                containerInitializer.setId(container.ctnr_id);
-                containerInitializer.setCode(container.ctnr_code);
-                dataSetInitializer.setContainerOrNull(new DataSet(containerInitializer));
+                List<DataSet> containerDataSets = new ArrayList<DataSet>();
+                for (DataSetRecord container : containers)
+                {
+                    DataSetInitializer containerInitializer = new DataSetInitializer();
+                    containerInitializer.setStub(true);
+                    containerInitializer.setId(container.ctnr_id);
+                    containerInitializer.setCode(container.ctnr_code);
+                    containerDataSets.add(new DataSet(containerInitializer));
+                }
+                dataSetInitializer.setContainerDataSets(containerDataSets);
             }
         }
     }

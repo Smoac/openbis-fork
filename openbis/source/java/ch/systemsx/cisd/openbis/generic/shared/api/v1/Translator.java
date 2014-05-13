@@ -503,11 +503,13 @@ public class Translator
         {
             initializer.putProperty(prop.getPropertyType().getCode(), prop.tryGetAsString());
         }
-        if (externalDatum.tryGetContainer() != null)
+        List<ContainerDataSet> containerDataSets = externalDatum.getContainerDataSets();
+        List<DataSet> translatedContainerDataSets = new ArrayList<DataSet>();
+        for (ContainerDataSet containerDataSet : containerDataSets)
         {
-            initializer.setContainerOrNull(translate(externalDatum.tryGetContainer(),
-                    connectionsToGet, false));
+            translatedContainerDataSets.add(translate(containerDataSet, connectionsToGet, false));
         }
+        initializer.setContainerDataSets(translatedContainerDataSets);
 
         initializer.setContainerDataSet(externalDatum.isContainer());
         if (externalDatum.isContainer() && doRecurseIntoContainedDataSets)

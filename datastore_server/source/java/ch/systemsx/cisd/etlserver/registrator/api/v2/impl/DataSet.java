@@ -334,6 +334,18 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
     }
 
     @Override
+    public List<String> getContainerDataSets()
+    {
+        return null;
+    }
+
+    @Override
+    public Integer getOrderInContainer(String containerDataSetCode)
+    {
+        return null;
+    }
+
+    @Override
     public void setExternalDataManagementSystem(
             IExternalDataManagementSystemImmutable externalDataManagementSystem)
     {

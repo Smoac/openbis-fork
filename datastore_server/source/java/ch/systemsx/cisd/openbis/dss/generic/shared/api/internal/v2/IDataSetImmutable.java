@@ -124,9 +124,25 @@ public interface IDataSetImmutable extends IMetaprojectContent
     public boolean isContainedDataSet();
 
     /**
-     * Return the code of the container in which this data set is contained
+     * Return the code of the container in which this data set is contained. If the data set is in more than
+     * one container only the code of one of these containers is returned. 
+     * 
+     * @deprecated Use {@link #getContainerDataSets()}.
      */
+    @Deprecated
     public String getContainerDataSet();
+    
+    /**
+     * Returns the codes of all containers in which this data set is contained.
+     */
+    public List<String> getContainerDataSets();
+    
+    /**
+     * Returns the order of this data set in the specified container data set.
+     * 
+     * @return <code>null</code> if this data set is not a component of the specified container data set.
+     */
+    public Integer getOrderInContainer(String containerDataSetCode);
 
     /** @return true if this is a data set, that links to external data management system */
     public boolean isLinkDataSet();
