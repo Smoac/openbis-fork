@@ -866,6 +866,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			} else {
 				for(var i = 0; i < generatedChildrenCodes.length; i++) {
 					var virtualSample = new Object();
+					virtualSample.newSample = true;
 					virtualSample.code = generatedChildrenCodes[i];
 					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
 					virtualSample.sampleTypeCode = generatedChildrenType;
@@ -928,13 +929,15 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		$previewComponent.append($("<div>", {"id" : "previewChildrenGenerator"}));
 		
 		// Mounting the widget with the components
-		var $childrenGenerator = $("<form>", { "class" : "form-horizontal"})
-									.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton))
+		var $childrenGenerator = $("<div>");
+		$childrenGenerator.append($("<div>", {"style" : "text-align:right;"}).append($cancelButton));
+		$childrenGenerator.append($("<form>", { "class" : "form-horizontal" , "style" : "margin-left:20px; margin-right:20px;"})
 									.append($("<h1>").append("Children Generator"))
 									.append($parentsComponent)
 									.append($childrenComponent)
 									.append($previewComponent)
-									.append($("<br>")).append($generateButton);
+									.append($("<br>")).append($generateButton)
+								);
 		
 		// Show Widget
 		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%'});
