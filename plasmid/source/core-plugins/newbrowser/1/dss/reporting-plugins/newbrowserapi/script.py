@@ -131,6 +131,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	
 	#Optional parameters
 	sampleParents = parameters.get("sampleParents"); #List<String> Identifiers are in SPACE/CODE format
+	sampleChildrenNew = parameters.get("sampleChildrenNew"); #List<java.util.LinkedHashMap<String, String>>
 	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
 	
@@ -190,19 +191,26 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	if sampleParents != None:
 		sample.setParentSampleIdentifiers(sampleParents);
 	
+	#Create new sample children
+	for newSampleChild in sampleChildrenNew:
+		child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
+		child.setParentSampleIdentifiers([sampleIdentifier]);
+		
 	#Add sample children
 	for sampleChildIdentifier in sampleChildren:
 		child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
-		childParents = child.getParentSampleIdentifiers();
-		childParents.add(sampleIdentifier);
-		child.setParentSampleIdentifiers(childParents);
-	
+		if child != None: #The new created ones will not be found
+			childParents = child.getParentSampleIdentifiers();
+			childParents.add(sampleIdentifier);
+			child.setParentSampleIdentifiers(childParents);
+
 	#Remove sample children
 	for sampleChildIdentifier in sampleChildrenRemoved:
 		child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
-		childParents = child.getParentSampleIdentifiers();
-		childParents.remove(sampleIdentifier);
-		child.setParentSampleIdentifiers(childParents);
-		
+		if child != None: #The new created ones will not be found
+			childParents = child.getParentSampleIdentifiers();
+			childParents.remove(sampleIdentifier);
+			child.setParentSampleIdentifiers(childParents);
+
 	#Return from the call
 	return True;

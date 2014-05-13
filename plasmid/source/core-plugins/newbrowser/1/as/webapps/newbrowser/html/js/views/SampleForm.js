@@ -677,6 +677,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 		}
 		
+		//Children to create
+		var samplesToCreate = [];
+		this.sampleLinksChildren.getSamples().forEach(function(child) {
+			if(child.newSample) {
+				samplesToCreate.push(child);
+			}
+		});
+		
 		//Method
 		var method = "";
 		if(this.mode === SampleFormMode.CREATE) {
@@ -699,6 +707,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				"sampleParents": sampleParentsFinal,
 				//Children links
 				"sampleChildren": sampleChildrenFinal,
+				"sampleChildrenNew": samplesToCreate,
 				"sampleChildrenRemoved": sampleChildrenRemovedFinal,
 				//Experiment parameters
 				"sampleExperimentProject": sampleProject,
