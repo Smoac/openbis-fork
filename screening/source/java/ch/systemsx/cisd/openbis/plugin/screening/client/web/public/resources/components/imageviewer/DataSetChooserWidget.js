@@ -1,52 +1,8 @@
-define([ "jquery", "components/common/ChangeEvent", "components/imageviewer/AbstractView", "components/imageviewer/AbstractWidget" ], function($,
-		ChangeEvent, AbstractView, AbstractWidget) {
+define([ "jquery", "components/common/ChangeEvent", "components/imageviewer/AbstractWidget", "components/imageviewer/DataSetChooserView" ], function(
+		$, ChangeEvent, AbstractWidget, DataSetChooserView) {
 
 	//
-	// DATA SET CHOOSER VIEW
-	//
-
-	function DataSetChooserView(controller) {
-		this.init(controller);
-	}
-
-	$.extend(DataSetChooserView.prototype, AbstractView.prototype, {
-
-		init : function(controller) {
-			AbstractView.prototype.init.call(this, controller);
-			this.panel = $("<div>").addClass("dataSetChooser");
-		},
-
-		render : function() {
-			var thisView = this;
-			var widget = $("<div>").addClass("form-group");
-
-			$("<label>").text("Data set").attr("for", "dataSetChooserSelect").appendTo(widget);
-
-			var select = $("<select>").attr("id", "dataSetChooserSelect").addClass("form-control").appendTo(widget);
-
-			this.controller.getDataSetCodes().forEach(function(dataSetCode) {
-				$("<option>").attr("value", dataSetCode).text(dataSetCode).appendTo(select);
-			});
-
-			select.change(function() {
-				thisView.controller.setSelectedDataSetCode(select.val());
-			});
-
-			return widget;
-		},
-
-		refresh : function() {
-			var select = this.panel.find("select");
-
-			if (this.controller.getSelectedDataSetCode() != null) {
-				select.val(this.controller.getSelectedDataSetCode());
-			}
-		}
-
-	});
-
-	//
-	// DATA SET CHOOSER
+	// DATA SET CHOOSER WIDGET
 	//
 
 	function DataSetChooserWidget(dataSetCodes) {

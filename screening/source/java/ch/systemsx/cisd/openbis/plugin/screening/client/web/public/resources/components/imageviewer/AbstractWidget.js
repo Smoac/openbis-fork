@@ -26,12 +26,24 @@ define([ "jquery", "components/common/ListenerManager" ], function($, ListenerMa
 
 			var thisWidget = this;
 
-			this.load(function() {
+			var doRender = function() {
+				thisWidget.panel.empty();
 				if (thisWidget.getView()) {
 					thisWidget.panel.append(thisWidget.getView().render());
 					thisWidget.rendered = true;
+					thisWidget.notifyRenderListeners();
 				}
-			});
+			};
+
+			if (this.loaded) {
+				doRender();
+			} else {
+				this.load(function() {
+					thisWidget.loaded = true;
+					thisWidget.notifyLoadListeners();
+					doRender();
+				});
+			}
 
 			return this.panel;
 		},
@@ -76,7 +88,10 @@ define([ "jquery", "components/common/ListenerManager" ], function($, ListenerMa
 
 		setView : function(view) {
 			this.view = view;
-			this.refresh();
+			if (this.rendered) {
+				this.rendered = false;
+				this.render();
+			}
 		},
 
 		addListener : function(eventType, listener) {
@@ -93,6 +108,22 @@ define([ "jquery", "components/common/ListenerManager" ], function($, ListenerMa
 
 		notifyChangeListeners : function(event) {
 			this.notifyListeners("change", event);
+		},
+
+		addLoadListener : function(listener) {
+			this.addListener("load", listener);
+		},
+
+		notifyLoadListeners : function() {
+			this.notifyListeners("load");
+		},
+
+		addRenderListener : function(listener) {
+			this.addListener("render", listener);
+		},
+
+		notifyRenderListeners : function() {
+			this.notifyListeners("render");
 		}
 
 	});

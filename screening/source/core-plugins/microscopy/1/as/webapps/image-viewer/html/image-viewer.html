@@ -14,15 +14,30 @@
 </head>
 <body>
 	<script>
-		require([ "jquery", "openbis-screening", "components/imageviewer/ImageViewerChooserWidget" ], function($, openbis, ImageViewerChooserWidget) {
+		require([ "jquery", "openbis-screening", "components/imageviewer/ImageViewerWidget" ], function($, openbis, ImageViewerWidget) {
 
 			$(document).ready(function() {
-				var facade = new openbis();
 
+				var facade = new openbis();
 				facade.login("admin", "password", function(response) {
-					var widget = new ImageViewerChooserWidget(facade, [ "20140415140347875-53", "20140506132344798-146" ]);
+
+					var widget = new ImageViewerWidget(facade, [ "20140415140347875-53", "20140429125614418-59", "20140506132344798-146" ]);
+
+					widget.addLoadListener(function() {
+						var view = widget.getDataSetChooserWidget().getView();
+
+						view.getDataSetText = function(dataSetCode) {
+							return "My data set: " + dataSetCode;
+						};
+
+						widget.getDataSetChooserWidget().addChangeListener(function(event) {
+							console.log("data set changed from: " + event.getOldValue() + " to: " + event.getNewValue());
+						});
+					});
+
 					$("#container").append(widget.render());
 				});
+
 			});
 		});
 	</script>
