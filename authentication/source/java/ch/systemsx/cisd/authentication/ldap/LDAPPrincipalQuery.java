@@ -397,6 +397,9 @@ public final class LDAPPrincipalQuery implements ISelfTestable
         {
             return threadContext;
         }
+        if(password != null && password.isEmpty()) {
+            throw new RuntimeException("Try to login user '" + dn +"' with empty password.");
+        }
         final Hashtable<String, String> env = new Hashtable<String, String>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, LDAP_CONTEXT_FACTORY_CLASSNAME);
         env.put(Context.PROVIDER_URL, config.getServerUrl());
