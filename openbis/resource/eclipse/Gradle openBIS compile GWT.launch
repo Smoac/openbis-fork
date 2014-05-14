@@ -2,8 +2,6 @@
 <launchConfiguration type="org.springsource.ide.eclipse.gradle.launch">
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
 <stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PGM_ARGS" value="-Dopenbis.development-build=true"/>
-<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PROJECT" value="openbis"/>
-<listAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKLIST">
-<listEntry value=":openbis:compileGWT"/>
-</listAttribute>
+<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.PROJECT" value="gradle"/>
+<stringAttribute key="org.springsource.ide.eclipse.gradle.launch.TASKTEXT" value=":openbis:compileGWT&#10;"/>
 </launchConfiguration>
