@@ -70,9 +70,9 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-{ DatasetRecord.class })
+    { DatasetRecord.class })
 @Test(groups =
-{ "db", "dataset" })
+    { "db", "dataset" })
 public class DatasetListerTest extends AbstractDAOTest
 {
     private IDatasetLister lister;
@@ -88,7 +88,9 @@ public class DatasetListerTest extends AbstractDAOTest
                 DatasetListingQueryTest.createDatasetListerDAO(daoFactory);
         SecondaryEntityDAO secondaryEntityDAO =
                 SecondaryEntityListingQueryTest.createSecondaryEntityDAO(daoFactory);
-        lister = DatasetLister.create(datasetListerDAO, secondaryEntityDAO, daoFactory.getDataDAO(), "url", null);
+        lister =
+                DatasetLister.create(datasetListerDAO, secondaryEntityDAO, daoFactory.getDataDAO(),
+                        "url", null);
         exampleSample =
                 DatasetListingQueryTest.getSample("CISD", "CP-TEST-1",
                         datasetListerDAO.getDatabaseInstanceId(), daoFactory);
@@ -98,7 +100,8 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListBySampleTechIdDirect()
     {
-        List<AbstractExternalData> datasets = lister.listBySampleTechId(new TechId(exampleSampleId), true);
+        List<AbstractExternalData> datasets =
+                lister.listBySampleTechId(new TechId(exampleSampleId), true);
         assertEquals(1, datasets.size());
         AbstractExternalData externalData = datasets.get(0);
         assertEquals(exampleSampleId, externalData.getSample().getId().longValue());
@@ -180,7 +183,8 @@ public class DatasetListerTest extends AbstractDAOTest
                 + "      20081105092259900-1 (HCS_IMAGE) [COMMENT: no comment]\n"
                 + "        20081105092359990-2 (HCS_IMAGE) [COMMENT: no comment]\n",
                 builder.toString());
-        Map<String, AbstractExternalData> dataSetsByCode = new HashMap<String, AbstractExternalData>();
+        Map<String, AbstractExternalData> dataSetsByCode =
+                new HashMap<String, AbstractExternalData>();
         for (Sample sample : samples)
         {
             List<AbstractExternalData> rootDataSets = dataSets.get(sample);
@@ -224,7 +228,8 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByTrackingCriteriaWithNoSample()
     {
-        List<AbstractExternalData> dataSets = lister.listByTrackingCriteria(new TrackingDataSetCriteria(9));
+        List<AbstractExternalData> dataSets =
+                lister.listByTrackingCriteria(new TrackingDataSetCriteria(9));
         Collections.sort(dataSets, new Comparator<AbstractExternalData>()
             {
                 @Override
@@ -262,16 +267,17 @@ public class DatasetListerTest extends AbstractDAOTest
     @Test
     public void testListByArchiverCriteria()
     {
-        ArchiverDataSetCriteria criteria = new ArchiverDataSetCriteria(numberOfDaysSince2012(), null, false);
+        ArchiverDataSetCriteria criteria =
+                new ArchiverDataSetCriteria(numberOfDaysSince2011(), null, false);
         List<AbstractExternalData> result = lister.listByArchiverCriteria("STANDARD", criteria);
 
-        AssertionUtil.assertSize(result, 4);
+        AssertionUtil.assertSize(result, 16);
     }
 
-    protected int numberOfDaysSince2012()
+    protected int numberOfDaysSince2011()
     {
         Calendar c = Calendar.getInstance();
-        c.set(2012, 1, 1);
+        c.set(2011, 1, 1);
         return (int) ((new Date().getTime() - c.getTime().getTime()) / 1000 / 60 / 60 / 24);
     }
 
@@ -300,7 +306,8 @@ public class DatasetListerTest extends AbstractDAOTest
         final Long ds2Id = 24L;
         final Long ds3Id = 25L;
 
-        List<AbstractExternalData> datasets = lister.listByDatasetIds(Arrays.asList(ds1Id, ds2Id, ds3Id));
+        List<AbstractExternalData> datasets =
+                lister.listByDatasetIds(Arrays.asList(ds1Id, ds2Id, ds3Id));
 
         assertEquals(3, datasets.size());
         assertTrue(datasets.get(0).isLinkData());
@@ -453,8 +460,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getInstance()
                 .getCode());
         assertNull(dataSet.getSample());
-        assertEquals("[COMMENT: no comment]",
-                dataSet.getProperties().toString());
+        assertEquals("[COMMENT: no comment]", dataSet.getProperties().toString());
         assertEquals("analysis/result", ((PhysicalDataSet) dataSet).getLocation());
         assertNull(((PhysicalDataSet) dataSet).getShareId());
         assertNull(((PhysicalDataSet) dataSet).getSize());
