@@ -114,7 +114,7 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @Override
     public boolean hasDataSet(SamplePE sample) throws DataAccessException
     {
-        final DetachedCriteria criteria = DetachedCriteria.forClass(ExternalDataPE.class);
+        final DetachedCriteria criteria = DetachedCriteria.forClass(DataPE.class);
         criteria.add(Restrictions.eq("sampleInternal", sample));
         criteria.setProjection(Projections.rowCount());
         Integer count =
