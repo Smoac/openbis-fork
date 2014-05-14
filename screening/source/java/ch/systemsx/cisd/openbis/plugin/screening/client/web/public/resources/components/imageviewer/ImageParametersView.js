@@ -16,6 +16,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 
 		render : function() {
 			this.panel.append(this.controller.getChannelChooserWidget().render());
+			this.panel.append(this.controller.getTransformationChooserWidget().render());
 			this.panel.append(this.controller.getResolutionChooserWidget().render());
 			this.panel.append(this.controller.getChannelStackChooserWidget().render());
 

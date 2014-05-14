@@ -1,7 +1,7 @@
 define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ImageParametersView",
-		"components/imageviewer/ChannelChooserWidget", "components/imageviewer/ResolutionChooserWidget",
-		"components/imageviewer/ChannelStackChooserWidget" ], function($, AbstractWidget, ImageParametersView, ChannelChooserWidget,
-		ResolutionChooserWidget, ChannelStackChooserWidget) {
+		"components/imageviewer/ChannelChooserWidget", "components/imageviewer/TransformationChooserWidget",
+		"components/imageviewer/ResolutionChooserWidget", "components/imageviewer/ChannelStackChooserWidget" ], function($, AbstractWidget,
+		ImageParametersView, ChannelChooserWidget, TransformationChooserWidget, ResolutionChooserWidget, ChannelStackChooserWidget) {
 
 	//
 	// IMAGE PARAMETERS WIDGET
@@ -20,12 +20,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 		doGetState : function(state) {
 			state.channelChooserState = this.getChannelChooserWidget().getState();
+			state.transformationChooserState = this.getTransformationChooserWidget().getState();
 			state.resolutionChooserState = this.getResolutionChooserWidget().getState();
 			state.channelStackChooserState = this.getChannelStackChooserWidget().getState();
 		},
 
 		doSetState : function(state) {
 			this.getChannelChooserWidget().setState(state.channelChooserState);
+			this.getTransformationChooserWidget().setState(state.transformationChooserState);
 			this.getResolutionChooserWidget().setState(state.resolutionChooserState);
 			this.getChannelStackChooserWidget().setState(state.channelStackChooserState);
 		},
@@ -33,23 +35,40 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		getChannelChooserWidget : function() {
 			if (this.channelChooserWidget == null) {
 				var thisWidget = this;
-				this.channelChooserWidget = new ChannelChooserWidget(this.imageInfo.imageDataset.imageDataset.imageParameters.channels);
-				this.channelChooserWidget.addChangeListener(function() {
+				var widget = new ChannelChooserWidget(this.imageInfo.imageDataset.imageDataset.imageParameters.channels);
+				widget.addChangeListener(function() {
+					thisWidget.getTransformationChooserWidget().setSelectedChannels(widget.getSelectedChannels());
 					thisWidget.refresh();
 					thisWidget.notifyChangeListeners();
 				});
+				this.channelChooserWidget = widget;
 			}
 			return this.channelChooserWidget;
+		},
+
+		getTransformationChooserWidget : function() {
+			if (this.transformationChooserWidget == null) {
+				var thisWidget = this;
+				var widget = new TransformationChooserWidget(this.imageInfo.imageDataset.imageDataset.imageParameters.channels);
+				widget.setSelectedChannels(this.getChannelChooserWidget().getSelectedChannels());
+				widget.addChangeListener(function() {
+					thisWidget.refresh();
+					thisWidget.notifyChangeListeners();
+				});
+				this.transformationChooserWidget = widget;
+			}
+			return this.transformationChooserWidget;
 		},
 
 		getResolutionChooserWidget : function() {
 			if (this.resolutionChooserWidget == null) {
 				var thisWidget = this;
-				this.resolutionChooserWidget = new ResolutionChooserWidget(this.imageResolutions);
-				this.resolutionChooserWidget.addChangeListener(function() {
+				var widget = new ResolutionChooserWidget(this.imageResolutions);
+				widget.addChangeListener(function() {
 					thisWidget.refresh();
 					thisWidget.notifyChangeListeners();
 				});
+				this.resolutionChooserWidget = widget;
 			}
 			return this.resolutionChooserWidget;
 		},
@@ -57,11 +76,12 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		getChannelStackChooserWidget : function() {
 			if (this.channelStackChooserWidget == null) {
 				var thisWidget = this;
-				this.channelStackChooserWidget = new ChannelStackChooserWidget(this.imageInfo.channelStacks);
-				this.channelStackChooserWidget.addChangeListener(function() {
+				var widget = new ChannelStackChooserWidget(this.imageInfo.channelStacks);
+				widget.addChangeListener(function() {
 					thisWidget.refresh();
 					thisWidget.notifyChangeListeners();
 				});
+				this.channelStackChooserWidget = widget;
 			}
 			return this.channelStackChooserWidget;
 		}

@@ -1,3 +1,15 @@
+.imageViewer .formPanel {
+	width: 600px;
+}
+
+.imageViewer .imagePanel {
+	margin-top: 25px;
+}
+
+.imageViewer .formCell,.imageViewer .imageCell {
+	vertical-align: top;
+}
+
 .imageViewer .slider.slider-horizontal {
 	width: 100%;
 }
@@ -19,5 +31,5 @@
 }
 
 .imageViewer .imageWidget {
-	margin-top: 20px;
+	margin-left: 30px;
 }

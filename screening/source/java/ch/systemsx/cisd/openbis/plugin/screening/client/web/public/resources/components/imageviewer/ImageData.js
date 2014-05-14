@@ -35,6 +35,10 @@ define([ "jquery" ], function($) {
 
 		setResolution : function(resolution) {
 			this.resolution = resolution;
+		},
+
+		setTransformation : function(transformation) {
+			this.transformation = transformation;
 		}
 
 	});

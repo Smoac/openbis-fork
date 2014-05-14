@@ -16,9 +16,18 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		},
 
 		render : function() {
-			this.panel.append(this.renderDataSetChooserWidget());
-			this.panel.append(this.renderImageParametersWidget());
-			this.panel.append(this.renderImageWidget());
+			var table = $("<table>").appendTo(this.panel);
+			var row = $("<tr>").appendTo(table);
+
+			var formCell = $("<td>").addClass("formCell").appendTo(row);
+			var formPanel = $("<div>").addClass("formPanel").appendTo(formCell);
+
+			formPanel.append(this.renderDataSetChooserWidget()).append(this.renderImageParametersWidget());
+
+			var imageCell = $("<td>").addClass("imageCell").appendTo(row);
+			var imagePanel = $("<div>").addClass("imagePanel").appendTo(imageCell);
+
+			imagePanel.append(this.renderImageWidget());
 
 			this.refresh();
 

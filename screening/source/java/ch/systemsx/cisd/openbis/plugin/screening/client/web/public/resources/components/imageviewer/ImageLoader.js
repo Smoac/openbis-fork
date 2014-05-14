@@ -29,6 +29,10 @@ define([ "jquery" ], function($) {
 				url += "&mode=thumbnail480x480";
 			}
 
+			if (imageData.transformation) {
+				url += "&transformation=" + encodeURIComponent(imageData.transformation);
+			}
+
 			$("<img>").attr("src", url).load(function() {
 				if (callback) {
 					callback(this);

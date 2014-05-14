@@ -34,6 +34,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
+		getSelectedChannels : function() {
+			if (this.getSelectedChannel() != null) {
+				return [ this.getSelectedChannel() ];
+			} else {
+				return this.getSelectedMergedChannels();
+			}
+		},
+
 		setSelectedChannel : function(channel) {
 			if (channel != null && $.inArray(channel, this.getChannelsCodes()) == -1) {
 				channel = null;
