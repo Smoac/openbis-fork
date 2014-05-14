@@ -698,6 +698,18 @@ public final class DataSet implements Serializable, IIdHolder
         this.registrationDetails = registrationDetails;
     }
 
+    private void setContainerOrNull(DataSet containerOrNull)
+    {
+        // Does nothing. It is needed by Jackson.
+        // With the corresponding getContainerOrNull() method Jackson creates a JSON object
+        // with attribute containerOrNull and containerDataSets. 
+        // Currently we do not need to care about the creation of an instance of this Java class from a
+        // JSON object which has both attributes set because the JSON APIs have currently no
+        // method with an argument containing a DataSet object. The only exception is
+        // IGeneralInformationService.filterDataSetsVisibleToUser() but we can assume that it containes only
+        // data sets received from the server and not created on the client side.
+    }
+
     private void setContainerDataSet(boolean containerDataSet)
     {
         this.containerDataSet = containerDataSet;
