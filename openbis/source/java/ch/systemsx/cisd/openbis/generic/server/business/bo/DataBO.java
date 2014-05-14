@@ -652,7 +652,7 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
             return; // container data set was not changed
         } else
         {
-            updateContainer(data, modifiedContainerDatasetCodeOrNull);
+            updateContainers(data, modifiedContainerDatasetCodeOrNull);
         }
     }
 

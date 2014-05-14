@@ -27,17 +27,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.server.IBasicTableDataProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.server.util.TSVRenderer;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GridRowModel;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
@@ -256,10 +257,15 @@ public class TableForUpdateExporter
             AbstractExternalData dataSet = row.getOriginalObject().getObjectOrNull();
             builder.addRow(dataSet);
             builder.column(NewDataSet.CODE).addString(dataSet.getCode());
-            ContainerDataSet container = dataSet.tryGetContainer();
-            if (container != null)
+            List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+            if (containerDataSets.isEmpty() == false)
             {
-                builder.column(NewDataSet.CONTAINER).addString(container.getCode());
+                CommaSeparatedListBuilder listBuilder = new CommaSeparatedListBuilder();
+                for (ContainerDataSet containerDataSet : containerDataSets)
+                {
+                    listBuilder.append(containerDataSet.getCode());
+                }
+                builder.column(NewDataSet.CONTAINER).addString(listBuilder.toString());
             }
             Collection<AbstractExternalData> parents = dataSet.getParents();
             if (parents != null && parents.isEmpty() == false)

@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.hamcrest.BaseMatcher;
@@ -735,6 +736,52 @@ public class DataBOTest extends AbstractBOTest
     }
 
     @Test
+    public void testUpdateChangeContainers()
+    {
+        ExperimentPE experiment = new ExperimentPE();
+        experiment.setCode(EXPERIMENT_IDENTIFIER.getExperimentCode());
+        experiment.setProject(ManagerTestTool.EXAMPLE_PROJECT);
+        final DataPE ds1 = createDataSet("ds-1", null, experiment);
+        DataPE ds2 = createDataSet("cds-2", null, experiment);
+        DataPE ds3 = createDataSet("cds-3", null, experiment);
+        DataPE ds4 = createDataSet("cds-4", null, experiment);
+        DataPE ds5 = createDataSet("cds-5", null, experiment);
+        RelationshipTypePE relationshipType = new RelationshipTypePE();
+        relationshipType.setCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+        ds1.setParentRelationships(new LinkedHashSet<DataSetRelationshipPE>(Arrays.asList(new DataSetRelationshipPE(ds2, ds1,
+                relationshipType, 1, null))));
+        DataSetUpdatesDTO dataSetUpdatesDTO = createDataSetUpdates(ds1, null, EXPERIMENT_IDENTIFIER);
+        dataSetUpdatesDTO.setModifiedContainerDatasetCodeOrNull(ds3.getCode() + "," + ds4.getCode() + "  ,   " + ds5.getCode());
+        prepareTryToFindDataSetByCode(ds3);
+        prepareTryToFindDataSetByCode(ds4);
+        prepareTryToFindDataSetByCode(ds5);
+        prepareForUpdate(ds1, experiment);
+        prepareRemoveDataSetFromContainer(ds1, ds2);
+        prepareAssignDataSetToContainer(ds1, ds3);
+        prepareAssignDataSetToContainer(ds1, ds4);
+        prepareAssignDataSetToContainer(ds1, ds5);
+        context.checking(new Expectations()
+            {
+                {
+                    one(propertiesConverter).updateProperties(
+                            ds1.getProperties(), ds1.getDataSetType(),
+                            null, ManagerTestTool.EXAMPLE_PERSON, Collections.<String> emptySet());
+                    will(returnValue(Collections.emptySet()));
+
+                    expectMandatoryPropertiesCheck(this, ds1.getDataSetType());
+
+                    one(dataDAO).validateAndSaveUpdatedEntity(ds1);
+                }
+            });
+
+        IDataBO dataBO = createDataBO();
+
+        dataBO.update(dataSetUpdatesDTO);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testUpdateWithDataSetAsItsOwnContainer()
     {
         final ExperimentPE experiment = new ExperimentPE();
@@ -794,13 +841,7 @@ public class DataBOTest extends AbstractBOTest
         dataSetUpdatesDTO.setModifiedContainedDatasetCodesOrNull(componentCodes);
 
         prepareForUpdate(container1, experiment);
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataDAO).tryToFindDataSetByCode(container2.getCode());
-                    will(returnValue(container2));
-                }
-            });
+        prepareTryToFindDataSetByCode(container2);
 
         IDataBO dataBO = createDataBO();
         try
@@ -813,6 +854,37 @@ public class DataBOTest extends AbstractBOTest
                     + " neither directly nor via subordinate components.", e.getMessage());
         }
         context.assertIsSatisfied();
+    }
+
+    private void prepareRemoveDataSetFromContainer(final DataPE dataSet, final DataPE container)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(relationshipService).removeDataSetFromContainer(EXAMPLE_SESSION, dataSet, container);
+                }
+            });
+    }
+
+    private void prepareAssignDataSetToContainer(final DataPE dataSet, final DataPE container)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(relationshipService).assignDataSetToContainer(EXAMPLE_SESSION, dataSet, container);
+                }
+            });
+    }
+
+    private void prepareTryToFindDataSetByCode(final DataPE dataSet)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(dataDAO).tryToFindDataSetByCode(dataSet.getCode());
+                    will(returnValue(dataSet));
+                }
+            });
     }
 
     private void prepareForUpdate(final ExternalDataPE dataSet, final SamplePE sample)

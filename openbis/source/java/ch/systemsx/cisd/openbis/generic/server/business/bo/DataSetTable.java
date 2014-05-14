@@ -1098,7 +1098,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
             if (dataSetUpdates.getModifiedContainerDatasetCodeOrNull() != null)
             {
-                updateContainer(dataSet, dataSetUpdates.getModifiedContainerDatasetCodeOrNull());
+                updateContainers(dataSet, dataSetUpdates.getModifiedContainerDatasetCodeOrNull());
             }
         }
         if (details.isParentsUpdateRequested())

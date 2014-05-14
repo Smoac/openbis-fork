@@ -17,10 +17,13 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ch.systemsx.cisd.common.collection.CollectionUtils;
@@ -345,26 +348,38 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         }
     }
 
-    protected void updateContainer(DataPE data, String containerCode)
+    protected void updateContainers(DataPE data, String containerCodes)
     {
-        if (containerCode != null)
+        if (containerCodes == null)
         {
-            DataPE container = getDataDAO().tryToFindDataSetByCode(containerCode);
-
-            if (container == null)
-            {
-                throw UserFailureException.fromTemplate(
-                        "Data Set with a following code doesn't exist: '%s'.", containerCode);
-            }
-            if (!container.isContainer())
-            {
-                throw UserFailureException.fromTemplate(
-                        "Data Set with a following code is not a container: '%s'.", containerCode);
-            }
-
-            validateContainerContainedRelationshipGraph(container, data);
-            relationshipService.assignDataSetToContainer(session, data, container);
+            return;
         }
+        List<String> codes = Arrays.asList(containerCodes.split(" *, *"));
+        Map<String, DataPE> newContainers = getDataSets(codes);
+        List<DataPE> oldContainers = data.getContainers();
+        for (DataPE oldContainer : oldContainers)
+        {
+            if (newContainers.remove(oldContainer.getCode()) == null)
+            {
+                relationshipService.removeDataSetFromContainer(session, data, oldContainer);
+            }
+        }
+        for (DataPE newContainer : newContainers.values())
+        {
+            relationshipService.assignDataSetToContainer(session, data, newContainer);
+            validateContainerContainedRelationshipGraph(newContainer, data);
+        }
+    }
+
+    private Map<String, DataPE> getDataSets(List<String> codes)
+    {
+        Set<DataPE> dataSets = findDataSetsByCodes(codes);
+        Map<String, DataPE> dataSetsByCode = new HashMap<String, DataPE>();
+        for (DataPE dataSet : dataSets)
+        {
+            dataSetsByCode.put(dataSet.getCode(), dataSet);
+        }
+        return dataSetsByCode;
     }
 
     private void validateContainerContainedRelationshipGraph(DataPE container, DataPE contained)
