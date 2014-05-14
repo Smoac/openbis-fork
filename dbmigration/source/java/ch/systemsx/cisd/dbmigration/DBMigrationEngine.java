@@ -122,7 +122,11 @@ public final class DBMigrationEngine
         }
         final LogEntry entry = getAndCheckLastLogEntry();
         final String databaseVersion = entry.getVersion();
-        if (version.equals(databaseVersion))
+        if ("0".equals(databaseVersion)) {
+            executeSchemaScript(version);
+            fillWithInitialData(version);
+            return;
+        } else if (version.equals(databaseVersion))
         {
             if (operationLog.isDebugEnabled())
             {
