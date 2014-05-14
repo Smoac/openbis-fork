@@ -52,6 +52,8 @@ public class DataSet
 
     private List<DataSet> containedDataSets;
 
+    private List<DataSet> containerDataSets;
+    
     private IDataSetDss dataSetDss;
 
     /* Default constructor needed to create a retry-proxy */
@@ -209,8 +211,10 @@ public class DataSet
 
     /**
      * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getContainerOrNull()
+     * @deprecated Use {@link #getContainerDataSets()}
      */
     @Retry
+    @Deprecated
     public DataSet getContainerOrNull()
     {
         final DataSet containerOrNull =
@@ -218,7 +222,7 @@ public class DataSet
                         getMetadata().getContainerOrNull(), null) : null;
         return containerOrNull;
     }
-
+    
     /**
      * Returns <code>true</code>, if result of {@link #getContainerOrNull()} can be trusted and
      * <code>false</code>, if it cannot be trusted because the server is too old to deliver this
@@ -242,8 +246,7 @@ public class DataSet
                     getMetadata().getContainedDataSets();
             for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet primitiveContainedDataSet : primitiveContainedDataSets)
             {
-                DataSet containedDataSet =
-                        new DataSet(facade, dssComponent, primitiveContainedDataSet, null);
+                DataSet containedDataSet = new DataSet(facade, dssComponent, primitiveContainedDataSet, null);
                 containedDataSets.add(containedDataSet);
             }
 
@@ -251,6 +254,26 @@ public class DataSet
         return containedDataSets;
     }
 
+    /**
+     * @see ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet#getContainerDataSets()
+     */
+    @Retry
+    public List<DataSet> getContainerDataSets()
+    {
+        if (null == containerDataSets)
+        {
+            containerDataSets = new ArrayList<DataSet>();
+            List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> primitiveContainerDataSets =
+                    getMetadata().getContainerDataSets();
+            for (ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet primitiveContainerDataSet : primitiveContainerDataSets)
+            {
+                DataSet containerDataSet = new DataSet(facade, dssComponent, primitiveContainerDataSet, null);
+                containerDataSets.add(containerDataSet);
+            }
+        }
+        return containedDataSets;
+    }
+    
     /**
      * Returns the primary data set. For a non-container data set, this is itself. For a container
      * data set, this is the one contained data set that is considered primary.
