@@ -207,13 +207,7 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-task sourceJarForEclipseLaunchConfigs(type: Copy, dependsOn: sourcesJar) {
-	into sourcesJar.destinationDir
-	from sourcesJar.archivePath
-	rename '.*', 'sources.jar'
-}
-
-compileJava.dependsOn sourceJarForEclipseLaunchConfigs
+compileJava.dependsOn sourcesJar
 
 artifacts {
     tests testJar

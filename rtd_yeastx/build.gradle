@@ -23,7 +23,7 @@ dependencies {
 sourceSets { 
     main {
         resources {
-            srcDirs = ['source/java', 'source', 'targets/dist']
+            srcDirs = ['source/java', 'source']
             exclude 'java/**'
         }
     }
@@ -34,6 +34,9 @@ jar {
         attributes("Main-Class": "ch.systemsx.cisd.yeastx.BuildAndEnvironmentInfo",
                    "Version": versionNumber,
                    "Build-Number": "${versionNumber} (r${revisionNumber},${cleanFlag})")
+    }
+    from('targets/dist') {
+    	include 'BUILD-*'
     }
 }
 
