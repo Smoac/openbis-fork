@@ -848,16 +848,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			return generatedChildren;
 		}
 		
-		var $previewButton = $("<a>", { "class" : "btn" }).append("<i class='icon-repeat'></i>");
-		$previewButton.click(function(event) {
+		var showPreview = function() {
 			var generatedChildren = getGeneratedChildrenCodes();
-			
 			//Show generated children
 			$("#previewChildrenGenerator").empty();
 			for(var i = 0; i < generatedChildren.length; i++) {
 				$("#previewChildrenGenerator").append(generatedChildren[i] + "<br />");
 			}
-		});
+		}
 		
 		var _this = this;
 		var $generateButton = $("<a>", { "class" : "btn" }).append("Generate!");
@@ -891,6 +889,17 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			Util.unblockUI();
 		});
 		
+		var $selectAllButton = $("<a>", { "class" : "btn" }).append("Enable/Disable All");
+		$selectAllButton.click(function(event) { 
+			var $parentsFields = $("#parentsToGenerateChildren").find("input");
+			for(var i = 0; i < $parentsFields.length; i++) {
+				var $parentField = $parentsFields[i];
+				$parentField.checked = !$parentField.checked;
+			}
+			
+			showPreview();
+		});
+		
 		// Parents
 		var $parents = $("<div>");
 		var parentsIdentifiers = this.sampleLinksParents.getSamplesIdentifiers();
@@ -908,8 +917,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 		
 		for(var parentTypeCode in parentsByType) {
-			$parents.append(parentTypeCode + ":").append($("<br>"));
+			var $parentsTypeColumn = $("<div>" , {"class" : "span3"});
+			
+			//$parents.append(parentTypeCode + ":").append($("<br>"));
+			$parentsTypeColumn.append(parentTypeCode + ":").append($("<br>"));
+			
 			var parentsOfType = parentsByType[parentTypeCode];
+			
 			for(var i = 0; i < parentsOfType.length; i++) {
 				var parent = parentsOfType[i];
 				var parentProperty = new Object();
@@ -917,12 +931,21 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				parentProperty.description = parent.identifier;
 				parentProperty.label = parent.code;
 				parentProperty.dataType = "BOOLEAN";
-				$parents.append(FormUtil.getFieldForPropertyTypeWithLabel(parentProperty));
+				//$parents.append(FormUtil.getFieldForPropertyTypeWithLabel(parentProperty));
+				
+				var $field = FormUtil.getFieldForPropertyTypeWithLabel(parentProperty);
+				var $checkBox = $($field[0].elements[0]);
+				$checkBox.change(function() { 
+					showPreview();
+				});
+				
+				$parentsTypeColumn.append($field);
 			}
+			$parents.append($parentsTypeColumn);
 		}
 		
-		var $parentsComponent = $("<fieldset id='parentsToGenerateChildren'>");
-		$parentsComponent.append($("<legend>").text("Parents"))
+		var $parentsComponent = $("<fieldset>", { "id" : 'parentsToGenerateChildren' } );
+		$parentsComponent.append($("<legend>").append("Parents ").append($selectAllButton))
 		$parentsComponent.append($parents);
 		
 		// Children
@@ -934,7 +957,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		// Preview
 		var $previewComponent = $("<fieldset>");
-		$previewComponent.append($("<legend>").append("Preview ").append($previewButton));
+		$previewComponent.append($("<legend>").append("Preview"));
 		$previewComponent.append($("<div>", {"id" : "previewChildrenGenerator"}));
 		
 		// Mounting the widget with the components
@@ -949,6 +972,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 								);
 		
 		// Show Widget
-		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%'});
+		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%', 'width' : '80%', 'left' : '10%', 'right' : '10%'});
 	}
 }
