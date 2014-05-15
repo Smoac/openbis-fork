@@ -540,3 +540,14 @@ table.downloads {
     -moz-animation:glow 1200ms linear 200ms 2 alternate;
     -webkit-animation:glow 1200ms linear 200ms 2 alternate;
 }
+
+/*
+ * Compact in-table controls
+ */
+.table-compact .control-group {
+ 	margin-bottom: 0;
+}
+
+.text-center-important {
+	text-align: center !important;
+}

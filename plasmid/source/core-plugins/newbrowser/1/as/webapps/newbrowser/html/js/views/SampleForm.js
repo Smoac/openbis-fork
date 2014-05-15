@@ -808,7 +808,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this._generateChildren = function() {
-		// Buttons
+		// Utility self contained methods
 		var getGeneratedChildrenCodes = function() {
 			//Get selected parents
 			var $parentsFields = $("#parentsToGenerateChildren").find("input:checked");
@@ -858,6 +858,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 		
 		var _this = this;
+		// Buttons
 		var $generateButton = $("<a>", { "class" : "btn" }).append("Generate!");
 		$generateButton.click(function(event) { 
 			var generatedChildrenSpace = null;
@@ -903,8 +904,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		// Parents
 		var $parents = $("<div>");
 		var parentsIdentifiers = this.sampleLinksParents.getSamplesIdentifiers();
-		var parentsByType = {};
-		var parentsByIdentifier = {};
+		var parentsByType = {}; //This is the main model
+		var parentsByIdentifier = {}; // Used by the getGeneratedChildrenCodes function
 		for(var i = 0; i < parentsIdentifiers.length; i++) {
 			var parent = this.sampleLinksParents.getSampleByIdentifier(parentsIdentifiers[i]);
 			var typeList = parentsByType[parent.sampleTypeCode];
@@ -916,33 +917,67 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			parentsByIdentifier[parent.identifier] = parent;
 		}
 		
-		for(var parentTypeCode in parentsByType) {
-			var $parentsTypeColumn = $("<div>" , {"class" : "span3"});
-			
-			//$parents.append(parentTypeCode + ":").append($("<br>"));
-			$parentsTypeColumn.append(parentTypeCode + ":").append($("<br>"));
-			
-			var parentsOfType = parentsByType[parentTypeCode];
-			
-			for(var i = 0; i < parentsOfType.length; i++) {
-				var parent = parentsOfType[i];
-				var parentProperty = new Object();
-				parentProperty.code = parent.identifier;
-				parentProperty.description = parent.identifier;
-				parentProperty.label = parent.code;
-				parentProperty.dataType = "BOOLEAN";
-				//$parents.append(FormUtil.getFieldForPropertyTypeWithLabel(parentProperty));
-				
-				var $field = FormUtil.getFieldForPropertyTypeWithLabel(parentProperty);
-				var $checkBox = $($field[0].elements[0]);
-				$checkBox.change(function() { 
-					showPreview();
-				});
-				
-				$parentsTypeColumn.append($field);
-			}
-			$parents.append($parentsTypeColumn);
+		var $parentsTable = $("<table>", { "class" : "table table-bordered table-compact" });
+		var $headerRow = $("<tr>");
+		$parentsTable.append($headerRow);
+		var maxDepth = 0;
+		for (var key in parentsByType) {
+			$headerRow.append($("<th>", {"class" : "text-center-important"}).text(key));
+			maxDepth = Math.max(maxDepth, parentsByType[key].length);
 		}
+
+		for (var idx = 0; idx < maxDepth; idx++) {
+			var $tableRow = $("<tr>");
+			for (key in parentsByType) {
+				if (idx < parentsByType[key].length) {
+					var parent = parentsByType[key][idx];
+					var parentProperty = {
+							code : parent.identifier,
+							description : parent.identifier,
+							label : parent.code,
+							dataType : "BOOLEAN"
+					};
+					var $field = FormUtil.getFieldForPropertyTypeWithLabel(parentProperty);
+					var $checkBox = $($field[0].elements[0]);
+					$checkBox.change(function() { 
+						showPreview();
+					});
+					
+					$tableRow.append($("<td>").append($field));
+ 				} else {
+ 					$tableRow.append($("<td>").html("&nbsp;"));
+ 				}
+			}
+			$parentsTable.append($tableRow);
+		}
+		
+		$parents.append($parentsTable);
+//		for(var parentTypeCode in parentsByType) {
+//			var $parentsTypeColumn = $("<div>" , {"class" : "span3"});
+//			
+//			//$parents.append(parentTypeCode + ":").append($("<br>"));
+//			$parentsTypeColumn.append(parentTypeCode + ":").append($("<br>"));
+//			
+//			var parentsOfType = parentsByType[parentTypeCode];
+//			
+//			for(var i = 0; i < parentsOfType.length; i++) {
+//				var parent = parentsOfType[i];
+//				var parentProperty = new Object();
+//				parentProperty.code = parent.identifier;
+//				parentProperty.description = parent.identifier;
+//				parentProperty.label = parent.code;
+//				parentProperty.dataType = "BOOLEAN";
+//				
+//				var $field = FormUtil.getFieldForPropertyTypeWithLabel(parentProperty);
+//				var $checkBox = $($field[0].elements[0]);
+//				$checkBox.change(function() { 
+//					showPreview();
+//				});
+//				
+//				$parentsTypeColumn.append($field);
+//			}
+//			$parents.append($parentsTypeColumn);
+//		}
 		
 		var $parentsComponent = $("<fieldset>", { "id" : 'parentsToGenerateChildren' } );
 		$parentsComponent.append($("<legend>").append("Parents ").append($selectAllButton))
