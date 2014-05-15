@@ -271,7 +271,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		var localReference = this;
 		$( "#editButton" ).click(function() {
 			mainController.navigationBar.updateBreadCloseActual();
-			mainController.changeView('showEditSamplePage',sample);
+			mainController.changeView('showEditSamplePageFromPermId',sample.permId);
 		});
 	}
 	

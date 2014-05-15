@@ -93,10 +93,11 @@ function MainController(profile) {
 					localReference.changeView("showMainMenu", null);
 					Util.unblockUI();
 					
-					var openNewSampleTab = Util.queryString.samplePermId;
-					
-					if(openNewSampleTab) {
-						localReference.changeView("showViewSamplePageFromPermId", openNewSampleTab);
+					//Page reload using the URL info
+					var viewName = Util.queryString.viewName;
+					var viewData = Util.queryString.viewData
+					if(viewName && viewData) {
+						localReference.changeView(viewName, viewData);
 					}
 					
 					//Get datastores for automatic DSS configuration, the first one will be used
@@ -118,10 +119,9 @@ function MainController(profile) {
 	}
 	
 	//
-	// Main View Changer - Everything on the application rely on this method to alter the views
+	// Main View Changer - Everything on the application rely on this method to alter the views, arg should be a string
 	//
 	this.changeView = function(newViewChange, arg) {
-		
 		//
 		// Dirty forms management, to avoid loosing changes.
 		//
@@ -165,9 +165,16 @@ function MainController(profile) {
 				document.title = "Create Sample " + arg;
 				this._showCreateSamplePage(arg);
 				break;
-			case "showEditSamplePage":
-				document.title = arg.code;
-				this._showEditSamplePage(arg);
+			case "showEditSamplePageFromPermId":
+				var _this = this;
+				this.serverFacade.searchWithUniqueId(arg, function(data) {
+					if(!data[0]) {
+						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+					} else {
+						document.title = data[0].code;
+						_this._showEditSamplePage(data[0]);
+					}
+				});
 				break;
 			case "showViewExperiment":
 				var _this = this;
@@ -198,6 +205,12 @@ function MainController(profile) {
 				window.alert("The system tried to create a non existing view");
 				break;
 		}
+		
+		//
+		// Permanent URLs
+		//
+		var url = window.location.href.split("?")[0] + "?viewName=" + newViewChange + "&viewData=" + arg;
+		history.pushState(null, "", url); //History Push State
 	}
 	
 	//
@@ -209,8 +222,6 @@ function MainController(profile) {
 		
 		//Show Inspectors
 		this.inspector.repaint();
-		
-		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this._showMainMenu = function() {
@@ -223,7 +234,6 @@ function MainController(profile) {
 		mainMenu.init();
 		
 		this.currentView = mainMenu;
-		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this._showSamplesPage = function(sampleTypeCode) {
@@ -242,7 +252,6 @@ function MainController(profile) {
 		sampleTable.init();
 		
 		this.currentView = sampleTable;
-		history.pushState(null, "", ""); //History Push State
 	}
 
 	this._showSampleHierarchyPage = function(permId) {
@@ -256,7 +265,6 @@ function MainController(profile) {
 			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
 			sampleHierarchy.init();
 			localInstance.currentView = sampleHierarchy;
-			history.pushState(null, "", ""); //History Push State
 		});
 	}
 	
@@ -274,7 +282,6 @@ function MainController(profile) {
 		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
 		sampleForm.init();
 		this.currentView = sampleForm;
-		history.pushState(null, "", ""); //History Push State
 	}
 
 	this._showEditSamplePage = function(sample) {
@@ -289,7 +296,6 @@ function MainController(profile) {
 			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0]);
 			sampleForm.init();
 			localInstance.currentView = sampleForm;
-			history.pushState(null, "", ""); //History Push State
 		});
 	}
 
@@ -303,7 +309,6 @@ function MainController(profile) {
 		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
 		sampleForm.init();
 		this.currentView = sampleForm;
-		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this._showCreateDataSetPage = function(sample) {
@@ -315,7 +320,6 @@ function MainController(profile) {
 		var datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
 		datasetForm.init();
 		this.currentView = datasetForm;
-		history.pushState(null, "", ""); //History Push State
 	}
 	
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
