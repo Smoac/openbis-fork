@@ -286,7 +286,7 @@ function MainController(profile) {
 
 	this._showEditSamplePage = function(sample) {
 		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePage", sample, 'Update '+sample.code);
+		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePageFromPermId", sample.permId, 'Update '+sample.code);
 		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
