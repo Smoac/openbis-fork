@@ -17,12 +17,10 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		},
 
 		doGetState : function(state) {
-			state.selectedChannels = this.getSelectedChannels();
 			state.selectedTransformation = this.getSelectedTransformation();
 		},
 
 		doSetState : function(state) {
-			this.setSelectedChannels(state.selectedChannels);
 			this.setSelectedTransformation(state.selectedTransformation);
 		},
 
@@ -72,6 +70,66 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 				this.selectedTransformation = transformation;
 				this.refresh();
 				this.notifyChangeListeners();
+			}
+		},
+
+		getTransformationParameters : function() {
+			var selectedTransformation = this.getSelectedTransformation();
+			var userTransformation = this.getUserDefinedTransformation().code;
+
+			if (selectedTransformation == userTransformation) {
+				var channelsToParametersMap = this.getTransformationParametersMap()[userTransformation];
+
+				if (!channelsToParametersMap) {
+					channelsToParametersMap = {};
+				}
+
+				var parameters = channelsToParametersMap[this.getSelectedChannels().toString()];
+
+				if (!parameters) {
+					parameters = [];
+
+					this.getSelectedChannels().forEach(function(channel) {
+						parameters.push({
+							name : channel + " white point",
+							value : 65535
+						});
+						parameters.push({
+							name : channel + " black point",
+							value : 0
+						});
+					});
+
+					this.setTransformationParameters(parameters);
+				}
+
+				return parameters;
+
+			} else {
+				return [];
+			}
+		},
+
+		getTransformationParametersMap : function() {
+			if (!this.transformationParametersMap) {
+				this.transformationParametersMap = {};
+			}
+			return this.transformationParametersMap;
+		},
+
+		setTransformationParameters : function(parameters) {
+			var selectedTransformation = this.getSelectedTransformation();
+			var userTransformation = this.getUserDefinedTransformation().code;
+
+			if (selectedTransformation == userTransformation) {
+				var channelsToParametersMap = this.getTransformationParametersMap()[userTransformation];
+
+				if (!channelsToParametersMap) {
+					channelsToParametersMap = {};
+					this.getTransformationParametersMap()[userTransformation] = channelsToParametersMap;
+				}
+
+				channelsToParametersMap[this.getSelectedChannels().toString()] = parameters;
 			}
 		},
 
