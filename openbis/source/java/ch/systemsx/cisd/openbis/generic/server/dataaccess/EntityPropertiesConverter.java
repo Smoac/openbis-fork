@@ -273,11 +273,12 @@ public final class EntityPropertiesConverter implements IEntityPropertiesConvert
         }
         if (isNullOrBlank(valueOrNull) == false)
         {
-            final String validated =
-                    propertyValueValidator.validatePropertyValue(propertyType, valueOrNull);
+            String translatedValue = extendedETPT.translate(registrator, valueOrNull);
 
-            return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE,
-                    extendedETPT.translate(registrator, validated));
+            final String validatedValue =
+                    propertyValueValidator.validatePropertyValue(propertyType, translatedValue);
+
+            return createEntityProperty(registrator, propertyType, entityTypePropertyTypePE, validatedValue);
         }
         return null;
     }
