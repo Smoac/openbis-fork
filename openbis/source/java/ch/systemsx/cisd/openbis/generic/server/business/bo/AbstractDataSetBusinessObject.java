@@ -366,6 +366,11 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         }
         for (DataPE newContainer : newContainers.values())
         {
+            if (newContainer.isContainer() == false)
+            {
+                throw UserFailureException.fromTemplate(
+                        "Data Set with a following code is not a container: '%s'.", newContainer.getCode());
+            }
             relationshipService.assignDataSetToContainer(session, data, newContainer);
             validateContainerContainedRelationshipGraph(newContainer, data);
         }
