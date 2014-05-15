@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calc
 
 import java.util.List;
 
-import org.apache.lucene.search.Query;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 
 import ch.systemsx.cisd.common.resource.ReleasableIterable;
@@ -31,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdaptor;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -98,9 +95,14 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public Iterable<IDataAdaptor> parentsOfType(String typeCodeRegexp)
     {
+        return getParentsOfType(typeCodeRegexp, evaluator.getParentChildRelationshipTypeId());
+    }
+
+    private Iterable<IDataAdaptor> getParentsOfType(String typeCodeRegexp, Long relationshipTypeId)
+    {
         ReleasableIterable<IDataAdaptor> iterable =
                 new ReleasableIterable<IDataAdaptor>(new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
-                        .parentsOfType(typeCodeRegexp));
+                        .parentsOfType(typeCodeRegexp, relationshipTypeId));
         getResources().add(iterable);
         return iterable;
     }
@@ -114,9 +116,14 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public Iterable<IDataAdaptor> childrenOfType(String typeCodeRegexp)
     {
+        return getChildrenOfType(typeCodeRegexp, evaluator.getParentChildRelationshipTypeId());
+    }
+
+    private Iterable<IDataAdaptor> getChildrenOfType(String typeCodeRegexp, Long relationshipTypeId)
+    {
         ReleasableIterable<IDataAdaptor> iterable =
                 new ReleasableIterable<IDataAdaptor>(new ExternalDataAdaptorRelationsLoader(externalDataPE, evaluator, session)
-                        .childrenOfType(typeCodeRegexp));
+                        .childrenOfType(typeCodeRegexp, relationshipTypeId));
         getResources().add(iterable);
         return iterable;
     }
@@ -136,6 +143,12 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     }
 
     @Override
+    public Iterable<IDataAdaptor> containers()
+    {
+        return getParentsOfType(ENTITY_TYPE_ANY_CODE_REGEXP, evaluator.getContainerComponentRelationshipTypeId());
+    }
+
+    @Override
     public Iterable<IDataAdaptor> contained()
     {
         return containedOfType(ENTITY_TYPE_ANY_CODE_REGEXP);
@@ -144,16 +157,7 @@ public class ExternalDataAdaptor extends AbstractEntityAdaptor implements IDataA
     @Override
     public Iterable<IDataAdaptor> containedOfType(String typeCodeRegexp)
     {
-        Query typeConstraint =
-                regexpConstraint(ENTITY_TYPE_CODE_FIELD, typeCodeRegexp.toLowerCase());
-        Query containerConstraint =
-                constraint(SearchFieldConstants.CONTAINER_ID, Long.toString(externalDataPE.getId()));
-        Query query = and(typeConstraint, containerConstraint);
-
-        ScrollableResults results = execute(query, DataPE.class, session);
-        EntityAdaptorIterator<IDataAdaptor> iterator = new EntityAdaptorIterator<IDataAdaptor>(results, evaluator, session);
-        getResources().add(iterator);
-        return iterator;
+        return getChildrenOfType(typeCodeRegexp, evaluator.getContainerComponentRelationshipTypeId());
     }
 
 }

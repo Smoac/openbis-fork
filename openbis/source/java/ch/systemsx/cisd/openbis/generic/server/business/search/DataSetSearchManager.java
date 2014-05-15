@@ -92,6 +92,30 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
             }
         };
 
+    private final IRelationshipHandler CONTAINER_RELATIONSHIP_HANDLER = new IRelationshipHandler()
+        {
+
+            @Override
+            public Collection<Long> findRelatedIdsByCriteria(String userId,
+                    DetailedSearchCriteria criteria,
+                    List<DetailedSearchSubCriteria> otherSubCriterias)
+            {
+                return findDataSetIds(userId, criteria, otherSubCriterias);
+            }
+
+            @Override
+            public Map<Long, Set<Long>> listIdsToRelatedIds(Collection<Long> dataSetIds)
+            {
+                return lister.listContainerIds(dataSetIds);
+            }
+
+            @Override
+            public Map<Long, Set<Long>> listRelatedIdsToIds(Collection<Long> parentDataSetIds)
+            {
+                return lister.listComponetIds(parentDataSetIds);
+            }
+        };
+
     public DataSetSearchManager(IHibernateSearchDAO searchDAO, IDatasetLister lister)
     {
         super(searchDAO, lister);
@@ -102,18 +126,21 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     {
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
+        DetailedSearchCriteria containerCriteria = new DetailedSearchCriteria();
         List<DetailedSearchSubCriteria> otherSubCriterias =
                 new ArrayList<DetailedSearchSubCriteria>();
-        groupDataSetSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria,
+        groupDataSetSubCriteria(criteria.getSubCriterias(), parentCriteria, childCriteria, containerCriteria,
                 otherSubCriterias);
 
         boolean hasMainCriteria = false == criteria.getCriteria().isEmpty() || false == otherSubCriterias.isEmpty();
         boolean hasParentCriteria = false == parentCriteria.isEmpty();
         boolean hasChildCriteria = false == childCriteria.isEmpty();
+        boolean hasContainerCriteria = false == containerCriteria.isEmpty();
 
         Collection<Long> dataSetIds = null;
 
-        if (hasMainCriteria || (hasMainCriteria == false && hasParentCriteria == false && hasChildCriteria == false))
+        if (hasMainCriteria || (hasMainCriteria == false && hasParentCriteria == false && hasChildCriteria == false
+                && hasContainerCriteria == false))
         {
             dataSetIds = findDataSetIds(userId, criteria, otherSubCriterias);
             if (dataSetIds == null)
@@ -132,6 +159,12 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
         {
             dataSetIds = filterSearchResultsBySubcriteria(userId, dataSetIds, childCriteria,
                     CHILDREN_RELATIONSHIP_HANDLER);
+        }
+
+        if (hasContainerCriteria)
+        {
+            dataSetIds = filterSearchResultsBySubcriteria(userId, dataSetIds, containerCriteria,
+                    CONTAINER_RELATIONSHIP_HANDLER);
         }
 
         return lister.listByDatasetIds(restrictResultSetIfNecessary(dataSetIds));
@@ -163,10 +196,11 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
 
     private void groupDataSetSubCriteria(List<DetailedSearchSubCriteria> allSubCriterias,
             DetailedSearchCriteria parentCriteria, DetailedSearchCriteria childCriteria,
-            List<DetailedSearchSubCriteria> otherSubCriterias)
+            DetailedSearchCriteria containerCriteria, List<DetailedSearchSubCriteria> otherSubCriterias)
     {
         parentCriteria.setCriteria(new ArrayList<DetailedSearchCriterion>());
         childCriteria.setCriteria(new ArrayList<DetailedSearchCriterion>());
+        containerCriteria.setCriteria(new ArrayList<DetailedSearchCriterion>());
         for (DetailedSearchSubCriteria subCriteria : allSubCriterias)
         {
             switch (subCriteria.getTargetEntityKind())
@@ -178,6 +212,9 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
                 case DATA_SET_CHILD:
                     // merge all child sub criteria into one
                     mergeSubCriteria(childCriteria, subCriteria);
+                    break;
+                case DATA_SET_CONTAINER:
+                    mergeSubCriteria(containerCriteria, subCriteria);
                     break;
                 default:
                     otherSubCriterias.add(subCriteria);

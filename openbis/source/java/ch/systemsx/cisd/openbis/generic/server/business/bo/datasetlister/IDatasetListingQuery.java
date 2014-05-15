@@ -178,30 +178,6 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<DatasetRelationRecord> listChildrenDataSetIds(LongSet ids, long relationShipTypeId);
 
-    /**
-     * Returns all datasets that are children of any specified dataset id.
-     */
-    // @Select(sql = SELECT_ALL
-    // + "    WHERE data.id IN (SELECT data_id_child FROM data_set_relationships r WHERE r.data_id_parent = any(?{1}))", parameterBindings =
-    // { LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    // public DataIterator<DatasetRecord> getChildDatasetsForParents(LongSet parentDatasetIds);
-
-    /**
-     * Returns the datasets that are parents of a dataset with given id.
-     */
-    // @Select(sql = SELECT_ALL
-    // + " WHERE data.id IN (SELECT data_id_parent FROM data_set_relationships r WHERE r.data_id_child=?{1})", fetchSize = FETCH_SIZE)
-    // public DataIterator<DatasetRecord> getParentDatasetsForChild(long childDatasetId);
-
-    /**
-     * Returns the datasets that are contained in a dataset with given id.
-     */
-    // @Select(sql = SELECT_ALL
-    // +
-    // " WHERE id in (select data_id_child from data_set_relationships where relationship_id in (select id from relationship_types wheredata.ctnr_id=?{1}",
-    // fetchSize = FETCH_SIZE)
-    // public DataIterator<DatasetRecord> getContainedDatasetsForContainer(long containerDatasetId);
-
     @Select(sql = SELECT_ALL + " where id in (select data_id_child from data_set_relationships "
             + "where data_id_parent = any(?{1}) and relationship_id = ?{2})", parameterBindings =
     { LongSetMapper.class }, fetchSize = FETCH_SIZE)

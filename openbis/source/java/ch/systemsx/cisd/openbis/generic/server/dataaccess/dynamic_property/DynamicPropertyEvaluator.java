@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConver
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.EntityPropertiesConverter.IHibernateSessionProvider;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.EntityAdaptorFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.dynamic_property.calculator.api.IDynamicPropertyCalculator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -65,6 +67,8 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
 
     private final IDynamicPropertyCalculatorFactory dynamicPropertyCalculatorFactory;
 
+    private final IRelationshipTypeDAO relationshipTypeDAO;
+
     /** path of evaluation - used to generate meaningful error message for cyclic dependencies */
     private final List<EntityTypePropertyTypePE> evaluationPath =
             new ArrayList<EntityTypePropertyTypePE>();
@@ -77,6 +81,7 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
     {
         assert daoFactory != null;
+        relationshipTypeDAO = daoFactory.getRelationshipTypeDAO();
         this.entityPropertiesConverter =
                 new EntityPropertiesConverterDelegatorFacade(daoFactory,
                         customSessionProviderOrNull, managedPropertyEvaluatorFactory);
@@ -256,6 +261,18 @@ public class DynamicPropertyEvaluator implements IDynamicPropertyEvaluator
     public List<EntityTypePropertyTypePE> getEvaluationPath()
     {
         return evaluationPath;
+    }
+
+    @Override
+    public Long getParentChildRelationshipTypeId()
+    {
+        return RelationshipUtils.getParentChildRelationshipType(relationshipTypeDAO).getId();
+    }
+
+    @Override
+    public Long getContainerComponentRelationshipTypeId()
+    {
+        return RelationshipUtils.getContainerComponentRelationshipType(relationshipTypeDAO).getId();
     }
 
     @Override

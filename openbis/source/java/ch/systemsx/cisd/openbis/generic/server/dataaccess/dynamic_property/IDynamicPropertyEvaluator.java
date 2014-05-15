@@ -32,8 +32,7 @@ import ch.systemsx.cisd.openbis.generic.shared.hotdeploy_plugins.api.IEntityAdap
 public interface IDynamicPropertyEvaluator
 {
     /**
-     * Evaluates all dynamic properties of specified entity. Replaces placeholders with evaluated
-     * values.
+     * Evaluates all dynamic properties of specified entity. Replaces placeholders with evaluated values.
      */
     public <T extends IEntityInformationWithPropertiesHolder> void evaluateProperties(T entity,
             Session session);
@@ -47,9 +46,13 @@ public interface IDynamicPropertyEvaluator
             EntityTypePropertyTypePE dynamicPropertyETPT);
 
     /**
-     * @return current path of evaluation of dynamic properties depending on other dynamic
-     *         properties - useful to generate meaningful error message for cyclic dependencies
+     * @return current path of evaluation of dynamic properties depending on other dynamic properties - useful to generate meaningful error message
+     *         for cyclic dependencies
      */
     public List<EntityTypePropertyTypePE> getEvaluationPath();
+
+    public Long getParentChildRelationshipTypeId();
+
+    public Long getContainerComponentRelationshipTypeId();
 
 }

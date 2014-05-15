@@ -226,14 +226,6 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     }
 
     @Transient
-    @Field(index = Index.UN_TOKENIZED, store = Store.YES, name = SearchFieldConstants.CONTAINER_ID)
-    private Long getContainerId()
-    {
-        List<DataPE> containers = getContainers();
-        return containers.isEmpty() ? null : containers.get(0).getId();
-    }
-
-    @Transient
     public List<DataPE> getContainers()
     {
         final Set<DataSetRelationshipPE> relationships = getParentRelationships();

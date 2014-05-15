@@ -277,12 +277,23 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     @Override
     public Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs)
     {
+        return listParentIds(dataSetIDs, getParentChildRelationshipTypeId());
+    }
+
+    @Override
+    public Map<Long, Set<Long>> listContainerIds(Collection<Long> dataSetIDs)
+    {
+        return listParentIds(dataSetIDs, getContainerComponentRelationshipTypeId());
+    }
+
+    private Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs, Long relationshipTypeId)
+    {
         LongOpenHashSet ids = new LongOpenHashSet();
         for (Long id : dataSetIDs)
         {
             ids.add(id);
         }
-        DataIterator<DatasetRelationRecord> relationships = query.listParentDataSetIds(ids, getParentChildRelationshipTypeId());
+        DataIterator<DatasetRelationRecord> relationships = query.listParentDataSetIds(ids, relationshipTypeId);
         Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
         for (DatasetRelationRecord relationship : relationships)
         {
@@ -300,12 +311,23 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     @Override
     public Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs)
     {
+        return listChilderenIds(dataSetIDs, getParentChildRelationshipTypeId());
+    }
+
+    @Override
+    public Map<Long, Set<Long>> listComponetIds(Collection<Long> dataSetIDs)
+    {
+        return listChilderenIds(dataSetIDs, getContainerComponentRelationshipTypeId());
+    }
+
+    private Map<Long, Set<Long>> listChilderenIds(Collection<Long> dataSetIDs, Long relationshipTypeId)
+    {
         LongOpenHashSet ids = new LongOpenHashSet();
         for (Long id : dataSetIDs)
         {
             ids.add(id);
         }
-        DataIterator<DatasetRelationRecord> relationships = query.listChildrenDataSetIds(ids, getParentChildRelationshipTypeId());
+        DataIterator<DatasetRelationRecord> relationships = query.listChildrenDataSetIds(ids, relationshipTypeId);
         Map<Long, Set<Long>> map = new LinkedHashMap<Long, Set<Long>>();
         for (DatasetRelationRecord relationship : relationships)
         {

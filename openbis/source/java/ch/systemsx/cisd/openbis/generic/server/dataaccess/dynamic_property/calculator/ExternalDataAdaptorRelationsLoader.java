@@ -47,7 +47,7 @@ public class ExternalDataAdaptorRelationsLoader
         this.relationsQuery = QueryTool.getManagedQuery(IExternalDataAdaptorRelationsQuery.class);
     }
 
-    public Iterable<IDataAdaptor> parentsOfType(String typeRegexp)
+    public Iterable<IDataAdaptor> parentsOfType(String typeRegexp, final long relationShipTypeId)
     {
         return relationsLoader.entitiesOfType(DataPE.class, typeRegexp, new IEntityTypesLoader()
             {
@@ -62,12 +62,12 @@ public class ExternalDataAdaptorRelationsLoader
                 @Override
                 public List<Long> loadEntityIdsOfTypes(Long entityId, LongSet entityTypeIds)
                 {
-                    return relationsQuery.getParentIdsOfTypes(entityId, entityTypeIds);
+                    return relationsQuery.getParentIdsOfTypes(entityId, entityTypeIds, relationShipTypeId);
                 }
             });
     }
 
-    public Iterable<IDataAdaptor> childrenOfType(String typeRegexp)
+    public Iterable<IDataAdaptor> childrenOfType(String typeRegexp, final long relationShipTypeId)
     {
         return relationsLoader.entitiesOfType(DataPE.class, typeRegexp, new IEntityTypesLoader()
             {
@@ -83,7 +83,7 @@ public class ExternalDataAdaptorRelationsLoader
                 @Override
                 public List<Long> loadEntityIdsOfTypes(Long entityId, LongSet entityTypeIds)
                 {
-                    return relationsQuery.getChildIdsOfTypes(entityId, entityTypeIds);
+                    return relationsQuery.getChildIdsOfTypes(entityId, entityTypeIds, relationShipTypeId);
                 }
             });
     }

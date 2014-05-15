@@ -223,7 +223,7 @@ public class CommonServerTest extends SystemTestCase
         testAdaptorCommon(EntityKind.DATA_SET, "20110509092359990-10",
                 "dataset_adaptor_test__contained.py");
         assertEntitiesReleased(EntityKind.DATA_SET, 5);
-        assertScrollableResultsReleased(3);
+        assertScrollableResultsReleased(2);
     }
 
     @Test

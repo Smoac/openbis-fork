@@ -75,11 +75,15 @@ public interface IDatasetLister
      */
     Map<Long, Set<Long>> listParentIds(Collection<Long> dataSetIDs);
 
+    Map<Long, Set<Long>> listContainerIds(Collection<Long> dataSetIDs);
+
     /**
      * Returns a map with all child data set IDs of specified data set IDs. The keys of the map are IDs from the argument. A value of the map contains
      * at least one element.
      */
     Map<Long, Set<Long>> listChildrenIds(Collection<Long> dataSetIDs);
+
+    Map<Long, Set<Long>> listComponetIds(Collection<Long> dataSetIDs);
 
     /**
      * Returns a map with all data sets of specified samples. The sample arguments are the key into the returned map. The returned data sets contains

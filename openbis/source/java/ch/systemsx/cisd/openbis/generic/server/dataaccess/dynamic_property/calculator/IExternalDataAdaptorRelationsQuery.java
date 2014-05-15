@@ -40,15 +40,17 @@ public interface IExternalDataAdaptorRelationsQuery extends BaseQuery
     @Select(sql = "SELECT dsr.data_id_parent FROM data_set_relationships dsr, "
             + " data d, data_set_types dst WHERE "
             + " dsr.data_id_parent = d.id AND d.dsty_id = dst.id AND "
-            + " dsr.data_id_child = ?{1} AND dst.id = any(?{2})", parameterBindings =
-        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<Long> getParentIdsOfTypes(Long childId, LongSet parentTypeIds);
+            + " dsr.data_id_child = ?{1} AND dst.id = any(?{2}) AND "
+            + " dsr.relationship_id = ?{3}", parameterBindings =
+    { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<Long> getParentIdsOfTypes(Long childId, LongSet parentTypeIds, Long relationshipTypeId);
 
     @Select(sql = "SELECT dsr.data_id_child FROM data_set_relationships dsr, "
             + " data d, data_set_types dst WHERE "
             + " dsr.data_id_child = d.id AND d.dsty_id = dst.id AND "
-            + " dsr.data_id_parent = ?{1} AND dst.id = any(?{2})", parameterBindings =
-        { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public List<Long> getChildIdsOfTypes(Long parentId, LongSet childTypeIds);
+            + " dsr.data_id_parent = ?{1} AND dst.id = any(?{2}) AND "
+            + " dsr.relationship_id = ?{3}", parameterBindings =
+    { TypeMapper.class, LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public List<Long> getChildIdsOfTypes(Long parentId, LongSet childTypeIds, Long relationshipTypeId);
 
 }

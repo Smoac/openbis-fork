@@ -39,8 +39,7 @@ public interface IDataAdaptor extends IEntityAdaptor
     public Iterable<IDataAdaptor> parents();
 
     /**
-     * Returns parent data sets of this data set. Types of the returned parent data sets must match
-     * the specified regular expression.
+     * Returns parent data sets of this data set. Types of the returned parent data sets must match the specified regular expression.
      */
     public Iterable<IDataAdaptor> parentsOfType(String typeCodeRegexp);
 
@@ -50,15 +49,22 @@ public interface IDataAdaptor extends IEntityAdaptor
     public Iterable<IDataAdaptor> children();
 
     /**
-     * Returns child data sets of this data set. Types of the returned child data sets must match
-     * the specified regular expression.
+     * Returns child data sets of this data set. Types of the returned child data sets must match the specified regular expression.
      */
     public Iterable<IDataAdaptor> childrenOfType(String typeCodeRegexp);
 
     /**
      * Returns the container data set, or null if not exists.
+     * 
+     * @deprecated Use {@link #containers()}
      */
+    @Deprecated
     public IDataAdaptor container();
+
+    /**
+     * Returns the containers data sets of this data set.
+     */
+    public Iterable<IDataAdaptor> containers();
 
     /**
      * Returns contained data sets of this data set.
@@ -66,8 +72,7 @@ public interface IDataAdaptor extends IEntityAdaptor
     public Iterable<IDataAdaptor> contained();
 
     /**
-     * Returns contained data sets of this data set. Types of the returned contained data sets must
-     * match the specified regular expression.
+     * Returns contained data sets of this data set. Types of the returned contained data sets must match the specified regular expression.
      */
     public Iterable<IDataAdaptor> containedOfType(String typeCodeRegexp);
 
