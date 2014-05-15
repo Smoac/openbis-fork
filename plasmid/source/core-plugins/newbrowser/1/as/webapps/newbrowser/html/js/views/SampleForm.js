@@ -504,7 +504,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			// FORM SUBMIT
 			//
 			if(!(this.mode === SampleFormMode.VIEW)) {
-				component += "<fieldset>";
+				component += "<fieldset style='margin-top:20px;'>";
 				component += "<div class='control-group'>";
 				component += "<div class='controls'>";
 				component += "<input type='submit' class='btn btn-primary' value='" + message + " " + sampleTypeDisplayName + "'>";
