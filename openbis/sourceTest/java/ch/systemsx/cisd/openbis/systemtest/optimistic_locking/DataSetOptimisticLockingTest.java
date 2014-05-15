@@ -19,9 +19,11 @@ package ch.systemsx.cisd.openbis.systemtest.optimistic_locking;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -584,14 +586,13 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         ContainerDataSet loadedContainerDataSet2 =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
         AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
-        assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
+        assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
                 .toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
                 .toString());
-        Set<String> expectedCodes = new HashSet<String>(Arrays.asList("DS-1", "DS-2"));
-        String code = loadedContainedDataSet.tryGetContainer().getCode();
-        assertEquals(code + " not in " + expectedCodes, true, expectedCodes.contains(code));
-        assertEquals("system", loadedContainerDataSet1.getModifier().getUserId());
+        assertEquals("[DS-2]", extractCodes(loadedContainedDataSet.getContainerDataSets()).toString());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
+                loadedContainerDataSet1, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
                 loadedContainerDataSet2, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
@@ -631,14 +632,13 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         ContainerDataSet loadedContainerDataSet2 =
                 (ContainerDataSet) toolBox.loadDataSet(containerDataSet2.getCode());
         AbstractExternalData loadedContainedDataSet = toolBox.loadDataSet(containedDataSet.getCode());
-        assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
+        assertEquals("[]", toolBox.extractCodes(loadedContainerDataSet1.getContainedDataSets())
                 .toString());
         assertEquals("[DS-3]", toolBox.extractCodes(loadedContainerDataSet2.getContainedDataSets())
                 .toString());
-        Set<String> expectedCodes = new HashSet<String>(Arrays.asList("DS-1", "DS-2"));
-        String code = loadedContainedDataSet.tryGetContainer().getCode();
-        assertEquals(code + " not in " + expectedCodes, true, expectedCodes.contains(code));
-        assertEquals("system", loadedContainerDataSet1.getModifier().getUserId());
+        assertEquals("[DS-2]", extractCodes(loadedContainedDataSet.getContainerDataSets()).toString());
+        toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
+                loadedContainerDataSet1, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker,
                 loadedContainerDataSet2, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedContainedDataSet,
@@ -733,4 +733,16 @@ public class DataSetOptimisticLockingTest extends OptimisticLockingTestCase
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet1, "test");
         toolBox.checkModifierAndModificationDateOfBean(timeIntervalChecker, loadedDataSet2, "test");
     }
+
+    private List<String> extractCodes(List<? extends AbstractExternalData> dataSets)
+    {
+        List<String> result = new ArrayList<String>();
+        for (AbstractExternalData dataSet : dataSets)
+        {
+            result.add(dataSet.getCode());
+        }
+        Collections.sort(result);
+        return result;
+    }
+
 }
