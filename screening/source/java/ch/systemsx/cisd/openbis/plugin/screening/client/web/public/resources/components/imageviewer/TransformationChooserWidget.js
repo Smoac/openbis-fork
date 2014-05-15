@@ -18,10 +18,12 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 		doGetState : function(state) {
 			state.selectedTransformation = this.getSelectedTransformation();
+			state.transformationParametersMap = this.getTransformationParametersMap();
 		},
 
 		doSetState : function(state) {
 			this.setSelectedTransformation(state.selectedTransformation);
+			this.setTransformationParametersMap(state.transformationParametersMap);
 		},
 
 		getSelectedChannels : function() {
@@ -78,35 +80,72 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			var userTransformation = this.getUserDefinedTransformation().code;
 
 			if (selectedTransformation == userTransformation) {
-				var channelsToParametersMap = this.getTransformationParametersMap()[userTransformation];
-
-				if (!channelsToParametersMap) {
-					channelsToParametersMap = {};
-				}
-
-				var parameters = channelsToParametersMap[this.getSelectedChannels().toString()];
+				var parameters = this.getTransformationParametersMap()[userTransformation];
 
 				if (!parameters) {
 					parameters = [];
-
-					this.getSelectedChannels().forEach(function(channel) {
-						parameters.push({
-							name : channel + " white point",
-							value : 65535
-						});
-						parameters.push({
-							name : channel + " black point",
-							value : 0
-						});
-					});
-
-					this.setTransformationParameters(parameters);
+					this.getTransformationParametersMap()[userTransformation] = parameters;
 				}
 
-				return parameters;
+				this.getChannelsCodes().forEach(function(channel) {
+					var found = parameters.some(function(parameter) {
+						return parameter.channel == channel;
+					});
+					if (!found) {
+						parameters.push({
+							"channel" : channel,
+							"name" : "whitepoint",
+							"value" : 65535
+						});
+						parameters.push({
+							"channel" : channel,
+							"name" : "blackpoint",
+							"value" : 0
+						});
+					}
+				});
+
+				var selectedChannels = this.getSelectedChannels();
+
+				return parameters.filter(function(parameter) {
+					return $.inArray(parameter.channel, selectedChannels) != -1;
+				});
 
 			} else {
 				return [];
+			}
+		},
+
+		setTransformationParameters : function(parameters) {
+			if (!parameters) {
+				return;
+			}
+
+			var selectedTransformation = this.getSelectedTransformation();
+			var userTransformation = this.getUserDefinedTransformation().code;
+
+			if (selectedTransformation == userTransformation) {
+				var existingParameters = this.getTransformationParametersMap()[userTransformation];
+
+				if (existingParameters) {
+					parameters.forEach(function(parameter) {
+						var found = false;
+
+						existingParameters.forEach(function(existingParameter) {
+							if (existingParameter.channel == parameter.channel && existingParameter.name == parameter.name) {
+								existingParameter.value = parameter.value;
+								found = true;
+							}
+						});
+
+						if (!found) {
+							existingParameters.push(parameter);
+						}
+					});
+				} else {
+					this.getTransformationParametersMap()[userTransformation] = parameters;
+				}
+
 			}
 		},
 
@@ -117,20 +156,9 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			return this.transformationParametersMap;
 		},
 
-		setTransformationParameters : function(parameters) {
-			var selectedTransformation = this.getSelectedTransformation();
-			var userTransformation = this.getUserDefinedTransformation().code;
-
-			if (selectedTransformation == userTransformation) {
-				var channelsToParametersMap = this.getTransformationParametersMap()[userTransformation];
-
-				if (!channelsToParametersMap) {
-					channelsToParametersMap = {};
-					this.getTransformationParametersMap()[userTransformation] = channelsToParametersMap;
-				}
-
-				channelsToParametersMap[this.getSelectedChannels().toString()] = parameters;
-			}
+		setTransformationParametersMap : function(map) {
+			this.transformationParametersMap = map;
+			this.refresh();
 		},
 
 		getChannels : function() {

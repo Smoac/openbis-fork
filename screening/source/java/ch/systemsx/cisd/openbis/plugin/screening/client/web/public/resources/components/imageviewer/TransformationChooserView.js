@@ -51,11 +51,12 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			if (parameters.length > 0) {
 				parameters.forEach(function(parameter) {
 					var parameterPanel = $("<div>");
-					parameterPanel.append(parameter.name);
-					$("<input>").attr("name", parameter.name).val(parameter.value).change(function() {
+					parameterPanel.append(parameter.channel + " " + parameter.name);
+					$("<input>").attr("name", parameter.name).attr("channel", parameter.channel).val(parameter.value).change(function() {
 						var parameterValues = [];
 						parametersPanel.find("input").each(function() {
 							parameterValues.push({
+								"channel" : $(this).attr("channel"),
 								name : $(this).attr("name"),
 								value : $(this).val()
 							});
