@@ -72,13 +72,13 @@ public interface IDataSetListingQuery extends BaseQuery
             { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public List<DataSetRecord> getContainers(LongSet ids, long relationShipTypeId);
 
-    @Select(sql = RELATIONS_SQL + " where dc.code = any(?{1})", parameterBindings =
+    @Select(sql = RELATIONS_SQL + " where dc.code = any(?{1}) and r.relationship_id = ?{2}", parameterBindings =
     { StringArrayMapper.class })
-    public List<DataSetRelationRecord> getDataSetParentsCodes(String[] dataSetCodes);
+    public List<DataSetRelationRecord> getDataSetParentsCodes(String[] dataSetCodes, long relationshipTypeId);
 
-    @Select(sql = RELATIONS_SQL + " where dp.code = any(?{1})", parameterBindings =
+    @Select(sql = RELATIONS_SQL + " where dp.code = any(?{1}) and r.relationship_id = ?{2}", parameterBindings =
     { StringArrayMapper.class })
-    public List<DataSetRelationRecord> getDataSetChildrenCodes(String[] dataSetCodes);
+    public List<DataSetRelationRecord> getDataSetChildrenCodes(String[] dataSetCodes, long relationshipTypeId);
 
     @Select(sql = " select ds.download_url as url, array_agg(d.code::text) as data_set_codes"
             + " from data d left join data_stores ds on ds.id = d.dast_id"

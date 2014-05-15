@@ -262,7 +262,8 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
             dataSets = query.getDatasetsForExperiment(experimentId.getId());
         } else
         {
-            dataSets = query.getDataSetsForExperimentAndDescendents(experimentId.getId());
+            Long relationshipTypeId = getParentChildRelationshipTypeId();
+            dataSets = query.getDataSetsForExperimentAndDescendents(experimentId.getId(), relationshipTypeId);
         }
         return enrichDatasets(dataSets);
     }

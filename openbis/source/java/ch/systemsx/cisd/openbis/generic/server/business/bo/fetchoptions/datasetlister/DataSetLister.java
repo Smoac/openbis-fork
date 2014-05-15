@@ -311,7 +311,8 @@ public class DataSetLister implements IDataSetLister
     private void enrichDataSetInitializersWithParents(List<DataSetInitializer> dataSetInitializers,
             String[] dataSetCodes)
     {
-        List<DataSetRelationRecord> dataSetRelations = query.getDataSetParentsCodes(dataSetCodes);
+        Long relationshipTypeId = getParentChildRelationshipType();
+        List<DataSetRelationRecord> dataSetRelations = query.getDataSetParentsCodes(dataSetCodes, relationshipTypeId);
 
         if (dataSetRelations != null && !dataSetRelations.isEmpty())
         {
@@ -341,7 +342,8 @@ public class DataSetLister implements IDataSetLister
     private void enrichDataSetInitializersWithChildren(
             List<DataSetInitializer> dataSetInitializers, String[] dataSetCodes)
     {
-        List<DataSetRelationRecord> dataSetRelations = query.getDataSetChildrenCodes(dataSetCodes);
+        Long relationshipTypeId = getParentChildRelationshipType();
+        List<DataSetRelationRecord> dataSetRelations = query.getDataSetChildrenCodes(dataSetCodes, relationshipTypeId);
 
         if (dataSetRelations != null && !dataSetRelations.isEmpty())
         {
@@ -367,6 +369,11 @@ public class DataSetLister implements IDataSetLister
                 dataSetInitializer.setChildrenCodes(childrenCodes);
             }
         }
+    }
+
+    private Long getParentChildRelationshipType()
+    {
+        return RelationshipUtils.getParentChildRelationshipType(relationshipTypeDAO).getId();
     }
 
     @Override

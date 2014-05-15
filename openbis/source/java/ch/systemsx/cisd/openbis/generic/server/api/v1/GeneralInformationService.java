@@ -869,8 +869,11 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @ReturnValueFilter(validatorClass = DataSetByExperimentIdentifierValidator.class)
     public List<DataSet> getDataSetMetaData(String sessionToken, List<String> dataSetCodes)
     {
-        Session session = getSession(sessionToken);
+        return getDataSetMetaData(getSession(sessionToken), dataSetCodes, true);
+    }
 
+    private List<DataSet> getDataSetMetaData(Session session, List<String> dataSetCodes, boolean noContainedDataSets)
+    {
         IDataDAO dataDAO = getDAOFactory().getDataDAO();
         List<DataSet> result = new ArrayList<DataSet>();
         EnumSet<Connections> connections = EnumSet.of(Connections.PARENTS, Connections.CHILDREN);
@@ -890,7 +893,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                     DataSetTranslator.translate(dataPE, session.getBaseIndexURL(),
                             MetaprojectTranslator.translate(metaprojects),
                             managedPropertyEvaluatorFactory);
-            if (ds instanceof ContainerDataSet)
+            if (ds instanceof ContainerDataSet && noContainedDataSets)
             {
                 ContainerDataSet cds = (ContainerDataSet) ds;
                 cds.getContainedDataSets().clear();
@@ -926,16 +929,15 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             dataSetFetchOptions.addOption(option);
         }
 
+        Session session = getSession(sessionToken);
         if (dataSetFetchOptions.isSubsetOf(DataSetFetchOption.BASIC, DataSetFetchOption.PARENTS,
                 DataSetFetchOption.CHILDREN))
         {
-            Session session = getSession(sessionToken);
-            final IDataSetLister lister =
-                    new DataSetLister(getDAOFactory(), session.tryGetPerson());
+            final IDataSetLister lister = new DataSetLister(getDAOFactory(), session.tryGetPerson());
             return lister.getDataSetMetaData(dataSetCodes, dataSetFetchOptions);
         } else
         {
-            List<DataSet> dataSetList = getDataSetMetaData(sessionToken, dataSetCodes);
+            List<DataSet> dataSetList = getDataSetMetaData(session, dataSetCodes, false);
             if (dataSetList != null)
             {
                 for (DataSet dataSet : dataSetList)

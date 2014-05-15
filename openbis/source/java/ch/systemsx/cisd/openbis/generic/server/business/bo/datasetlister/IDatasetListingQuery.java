@@ -85,9 +85,9 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + "                       inner join data_set_relationships as dr on dr.data_id_parent = cd.id "
             + "                       left join data as d on d.id = dr.data_id_child "
             + "                       left outer join external_data as ed on d.id = ed.data_id"
-            + "                       left outer join link_data as ld on d.id = ld.data_id) "
+            + "                       left outer join link_data as ld on d.id = ld.data_id where dr.relationship_id = ?{2}) "
             + "select * from connected_data")
-    public DataIterator<DatasetRecord> getDataSetsForExperimentAndDescendents(long experimentId);
+    public DataIterator<DatasetRecord> getDataSetsForExperimentAndDescendents(long experimentId, long relationshipTypeId);
 
     /**
      * Returns the directly connected datasets for the given sample id.
