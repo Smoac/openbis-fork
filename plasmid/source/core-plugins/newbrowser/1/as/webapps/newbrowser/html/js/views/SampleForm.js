@@ -48,7 +48,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.sampleLinksChildren = null;
 	this.mode = mode;
 	this.sample = sample;
-	this.storage = null;
+	this.storages = [];
 	this.dataSetViewer = null;
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
@@ -64,10 +64,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.init = function() {
 			Util.blockUI();
 			var localReference = this;
-			
-			this.storage = new Storage(this.serverFacade,'sampleStorage', this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
-			this.storage.init();
-				
 			this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
 				//Collection information
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
@@ -444,8 +440,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				
 				if(propertyTypeGroup.name) {
 					component += "<legend>" + propertyTypeGroup.name + "</legend>";
-					if(this.storage.isPropertyGroupFromStorage(propertyTypeGroup.name)) {
-						component += "<div id='sampleStorage'></div>"; // When a storage is used, the storage needs a container
+					var storagePropertyGroup = this.profile.getPropertyGroupFromStorage(propertyTypeGroup.name);
+					if(storagePropertyGroup) {
+						var containerId = "sampleStorage" + this.storages.length + 1;
+						var storage = new Storage(this.serverFacade,containerId, this.profile, this.sampleTypeCode, this.sample, this.mode === SampleFormMode.VIEW);
+						storage.init(storagePropertyGroup);
+						this.storages.push(storage);
+						component += "<div id='" + containerId + "'></div>"; // When a storage is used, the storage needs a container
 					}
 				} else {
 					component += "<legend></legend>";
@@ -453,7 +454,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				
 				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 					var propertyType = propertyTypeGroup.propertyTypes[j];
-					if(this.storage.isPropertyFromStorage(propertyType.code)) { continue; } // When a storage is used, the storage controls the rendering of the properties
+					if(this.storages.length > 0 && this.storages[this.storages.length - 1].isPropertyFromStorage(propertyType.code)) { continue; } // When a storage is used, the storage controls the rendering of the properties
 					
 					component += "<div class='control-group'>";
 					component += "<label class='control-label' for='inputCode'>" + propertyType.label + ":</label>";
@@ -525,7 +526,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 		//Add form to layout
 		$("#"+this.containerId).append(component);
-		this.storage.repaint();
+		this.storages.forEach(function(storage) {storage.repaint()});
 		
 		//Enable Events
 		$("#sampleCode").change(

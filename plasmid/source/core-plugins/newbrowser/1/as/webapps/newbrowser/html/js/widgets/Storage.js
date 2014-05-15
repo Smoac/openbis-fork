@@ -35,19 +35,11 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 	this.sample = sample; // Needed for edit mode
 	this.isDisabled = isDisabled; //Needed for view mode
 	this.selectedStorageCache = null;
+	this.selectedPropertyGroup = null;
 	
 	//
 	// Private utility methods used to check if a storage is properly configured for certain entity type.
 	//
-	this._isStorageForType = function() {
-		for(var storageProperty in this.profile.storagesConfiguration["STORAGE_PROPERTIES"]) {
-			var storagePropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"][storageProperty];
-			if(!(this._getPropertyFromType(storagePropertyCode) !== null)) {
-				return false;
-			}
-		}
-		return true;
-	}
 	
 	this._getPropertyFromType = function(propertyTypeCode) {
 		for(var i = 0; i < this.sampleType.propertyTypeGroups.length; i++) {
@@ -187,21 +179,13 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 	}
 		
 	//
-	// Public utility methods used by the sample form to know what is responsability of the storage. To behave correctly, init should be executed first.
+	// Public utility methods used by the sample form to know what section is responsible of the storage. To behave correctly, init should be executed first.
 	//
-	this.isPropertyGroupFromStorage = function(propertyGroupName) {
-		if(!this.isStorageAvailable) { return false; }
-		
-		if(this.profile.storagesConfiguration["STORAGE_PROPERTY_GROUP"] === propertyGroupName) {
-			return true;
-		}
-		return false;
-	}
 	
 	this.isPropertyFromStorage = function(samplePropertyTypeCode) {
 		if(!this.isStorageAvailable) { return false; }
 		
-		var storageProperties = this.profile.storagesConfiguration["STORAGE_PROPERTIES"];
+		var storageProperties = this.selectedPropertyGroup;
 		for(var propertyType in storageProperties) {
 			var storagePropertyTypeCode = storageProperties[propertyType];
 			if(storagePropertyTypeCode === samplePropertyTypeCode) {
@@ -214,21 +198,22 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 	//
 	// Main methods to interact with the storage
 	//
-	this.init = function() {
-		this.isStorageAvailable = this.profile.storagesConfiguration["isEnabled"] && this._isStorageForType();
+	this.init = function(selectedPropertyGroup) {
+		this.selectedPropertyGroup = selectedPropertyGroup;
+		this.isStorageAvailable = this.profile.storagesConfiguration["isEnabled"];
 	}
 	
 	this.repaint = function() {
 		if(!this.isStorageAvailable) { return; }
 			
-		var storageNamePropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["NAME_PROPERTY"];
+		var storageNamePropertyCode = this.selectedPropertyGroup["NAME_PROPERTY"];
 		var selectedStorage = this._getSelectedValue(storageNamePropertyCode, false, this.sample);
 		
 		//Build storage cache and paint it afterwards
 		if(selectedStorage) {
-			var storageRowPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["ROW_PROPERTY"];
-			var storageColPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["COLUMN_PROPERTY"];
-			var storageBoxPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["BOX_PROPERTY"];
+			var storageRowPropertyCode = this.selectedPropertyGroup["ROW_PROPERTY"];
+			var storageColPropertyCode = this.selectedPropertyGroup["COLUMN_PROPERTY"];
+			var storageBoxPropertyCode = this.selectedPropertyGroup["BOX_PROPERTY"];
 			
 			var propertyTypeCodes = [storageNamePropertyCode, storageRowPropertyCode, storageColPropertyCode, storageBoxPropertyCode];
 			var propertyValues = ["'" + selectedStorage + "'", "?*", "?*", "?*"];
@@ -283,16 +268,16 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 	this._repaint = function() {
 		if(!this.isStorageAvailable) { return; }
 		
-		var storageNamePropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["NAME_PROPERTY"];
+		var storageNamePropertyCode = this.selectedPropertyGroup["NAME_PROPERTY"];
 		var selectedStorage = this._getSelectedValue(storageNamePropertyCode, false, this.sample);
 		
-		var storageRowPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["ROW_PROPERTY"];
+		var storageRowPropertyCode = this.selectedPropertyGroup["ROW_PROPERTY"];
 		var selectedRow = this._getSelectedValue(storageRowPropertyCode, true, this.sample);
 		
-		var storageColPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["COLUMN_PROPERTY"];
+		var storageColPropertyCode = this.selectedPropertyGroup["COLUMN_PROPERTY"];
 		var selectedCol = this._getSelectedValue(storageColPropertyCode, true, this.sample);
 		
-		var storageBoxPropertyCode = this.profile.storagesConfiguration["STORAGE_PROPERTIES"]["BOX_PROPERTY"];
+		var storageBoxPropertyCode = this.selectedPropertyGroup["BOX_PROPERTY"];
 		var selectedBox = this._getSelectedValue(storageBoxPropertyCode, false, this.sample);
 		
 		var localReference = this;

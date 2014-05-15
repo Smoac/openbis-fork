@@ -68,6 +68,22 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.getPropertyGroupFromStorage = function(propertyGroupName) {
+			if(!this.storagesConfiguration["isEnabled"]) { return false; }
+			var _this = this;
+			var propertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
+			var selectedPropertyGroup = null;
+			if(propertyGroups) {
+				propertyGroups.forEach(function(propertyGroup) {
+					if(propertyGroup["STORAGE_PROPERTY_GROUP"] === propertyGroupName) {
+						selectedPropertyGroup = propertyGroup;
+					}
+				});
+			}
+			return selectedPropertyGroup;
+		}
+		
+		
 		this.dataSetViewerConf = {
 			"DATA_SET_TYPES" : [".*"],
 			"FILE_NAMES" : [".*"]
@@ -530,33 +546,6 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 			"SAMPLE_PROPERTY_TEST" : "#000000"
 		};
 	
-		this.storagesConfiguration = {
-			"isEnabled" : true,
-			/*
-			 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-			*/
-			"STORAGE_PROPERTIES": {
-						"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-						"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
-						"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
-						"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
-			},
-			/*
-			 * Where the storage will be painted.
-			*/
-			"STORAGE_PROPERTY_GROUP" : "Storage information",
-			/*
-			 * Storages map, can hold configurations for several storages.
-			*/
-			"STORAGE_CONFIGS": {
-				"-80DEGREES" : { //Freezer name given by the NAME_PROPERTY
-								"ROW_NUM" : 9, //Number of rows
-								"COLUMN_NUM" : 9, //Number of columns
-								"BOX_NUM" : 999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-							}
-			}
-		};
-	
 		/*
 		 * Used by Sample Form
 		 */
@@ -962,33 +951,6 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 			"SAMPLE_PROPERTY_TEST" : "#000000"
 		};
 	
-		this.storagesConfiguration = {
-			"isEnabled" : true,
-			/*
-			 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-			*/
-			"STORAGE_PROPERTIES": {
-						"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-						"ROW_PROPERTY" : "ROW", //Vocabulary on LSILab, can be (Vocabulary, text and integer).
-						"COLUMN_PROPERTY" : "COLUMN", //Integer on LSILab, can be (Vocabulary, text and integer).
-						"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
-			},
-			/*
-			 * Where the storage will be painted.
-			*/
-			"STORAGE_PROPERTY_GROUP" : "Storage information",
-			/*
-			 * Storages map, can hold configurations for several storages.
-			*/
-			"STORAGE_CONFIGS": {
-				"-80DEGREES" : { //Freezer name given by the NAME_PROPERTY
-								"ROW_NUM" : 9, //Number of rows
-								"COLUMN_NUM" : 9, //Number of columns
-								"BOX_NUM" : 999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-							}
-			}
-		};
-	
 		/*
 		 * Used by Sample Form
 		 */
@@ -1223,7 +1185,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
-
+		
 		//For testing	
 //		this.sampleTypeDefinitionsExtension = {
 //				"SYSTEM_EXPERIMENT" : {
@@ -1292,32 +1254,41 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 			"LOT" : "#CCCC99",
 		};
 	
-		this.storagesConfiguration = {
-			"isEnabled" : true,
-			/*
-			 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-			*/
-			"STORAGE_PROPERTIES": {
-						"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-						"ROW_PROPERTY" : "ROW", //Vocabulary on BodenmillerLab, can be (Vocabulary, text and integer).
-						"COLUMN_PROPERTY" : "COLUMN", //Integer on BodenmillerLab, can be (Vocabulary, text and integer).
-						"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
-			},
-			/*
-			 * Where the storage will be painted.
-			*/
-			"STORAGE_PROPERTY_GROUP" : "Storage information",
-			/*
-			 * Storages map, can hold configurations for several storages.
-			*/
-			"STORAGE_CONFIGS": {
-				"-80DEGREES" : { //Freezer name given by the NAME_PROPERTY
-								"ROW_NUM" : 9, //Number of rows
-								"COLUMN_NUM" : 9, //Number of columns
-								"BOX_NUM" : 999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-							}
-			}
-		};
+//		this.storagesConfiguration = {
+//				"isEnabled" : true,
+//				/*
+//				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
+//				*/
+//				"STORAGE_PROPERTIES": [{
+//					"STORAGE_PROPERTY_GROUP" : "Storage information", //Where the storage will be painted.
+//					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
+//					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
+//					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
+//					"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
+//				},
+//				{
+//					"STORAGE_PROPERTY_GROUP" : "Storage information 2", //Where the storage will be painted.
+//					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
+//					"ROW_PROPERTY" : "ROW_2", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
+//					"COLUMN_PROPERTY" : "COLUMN_2", //Integer on YeastLab, can be (Vocabulary, text and integer).
+//					"BOX_PROPERTY" : "BOX_NUMBER_2" //Should be text.
+//				}],
+//				/*
+//				 * Storages map, can hold configurations for several storages.
+//				*/
+//				"STORAGE_CONFIGS": {
+//					"TESTFREEZER" : { //Freezer name given by the NAME_PROPERTY
+//									"ROW_NUM" : 3, //Number of rows
+//									"COLUMN_NUM" : 3, //Number of columns
+//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+//								},
+//					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+//									"ROW_NUM" : 1, //Number of rows
+//									"COLUMN_NUM" : 1, //Number of columns
+//									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+//								}
+//				}
+//			};
 	
 		/*
 		 * Used by Sample Form
