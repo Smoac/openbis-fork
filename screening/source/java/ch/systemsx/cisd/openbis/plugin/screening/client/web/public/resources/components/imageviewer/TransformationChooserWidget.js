@@ -128,22 +128,35 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 				var existingParameters = this.getTransformationParametersMap()[userTransformation];
 
 				if (existingParameters) {
+					var changed = false;
+
 					parameters.forEach(function(parameter) {
 						var found = false;
 
 						existingParameters.forEach(function(existingParameter) {
 							if (existingParameter.channel == parameter.channel && existingParameter.name == parameter.name) {
-								existingParameter.value = parameter.value;
 								found = true;
+								if (existingParameter.value != parameter.value) {
+									existingParameter.value = parameter.value;
+									changed = true;
+								}
 							}
 						});
 
 						if (!found) {
 							existingParameters.push(parameter);
+							changed = true;
 						}
 					});
+
+					if (changed) {
+						this.refresh();
+						this.notifyChangeListeners();
+					}
 				} else {
 					this.getTransformationParametersMap()[userTransformation] = parameters;
+					this.refresh();
+					this.notifyChangeListeners();
 				}
 
 			}
@@ -224,7 +237,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		getOptimalTransformation : function() {
 			return {
 				code : "$DEFAULT$",
-				label : "Optimal (image)"
+				label : "Optimal image"
 			}
 		},
 
