@@ -32,9 +32,17 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			if (channelStackId != null) {
 				var count = this.controller.getChannelStacks().length;
 				var index = this.controller.getChannelStackIndex(channelStackId);
+				var channelStack = this.controller.getChannelStacks()[index];
 
 				var sliderLabel = this.panel.find(".sliderWidget label");
-				sliderLabel.text("Channel Stack: " + index + " (" + (index + 1) + "/" + count + ")");
+				var labelText = "Series: " + channelStack.seriesNumberOrNull;
+				if (channelStack.timePointOrNull != null) {
+					labelText += ", Time: " + channelStack.timePointOrNull + " sec";
+				}
+				if (channelStack.depthOrNull != null) {
+					labelText += ", Depth: " + channelStack.depthOrNull;
+				}
+				sliderLabel.text(labelText);
 
 				var sliderInput = this.panel.find(".sliderWidget input");
 				sliderInput.slider("setValue", index);
