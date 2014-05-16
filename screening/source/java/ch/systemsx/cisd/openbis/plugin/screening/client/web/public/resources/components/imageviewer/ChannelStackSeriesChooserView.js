@@ -46,6 +46,12 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 				var sliderInput = this.panel.find(".sliderWidget input");
 				sliderInput.slider("setValue", index);
+
+				if (count <= 1) {
+					sliderInput.slider("disable");
+				} else {
+					sliderInput.slider("enable");
+				}
 			}
 		},
 

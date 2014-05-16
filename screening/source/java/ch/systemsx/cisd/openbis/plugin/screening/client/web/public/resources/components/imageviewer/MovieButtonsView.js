@@ -77,19 +77,22 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		},
 
 		refresh : function() {
+			var disabled = this.controller.getFrameCount() <= 1;
+
 			var play = this.panel.find("button.play");
-			play.prop("disabled", this.controller.isPlaying());
+			play.prop("disabled", this.controller.isPlaying() || disabled);
 
 			var stop = this.panel.find("button.stop");
-			stop.prop("disabled", this.controller.isStopped());
+			stop.prop("disabled", this.controller.isStopped() || disabled);
 
 			var prev = this.panel.find("button.prev");
-			prev.prop("disabled", this.controller.isFirstFrameSelected());
+			prev.prop("disabled", this.controller.isFirstFrameSelected() || disabled);
 
 			var next = this.panel.find("button.next");
-			next.prop("disabled", this.controller.isLastFrameSelected());
+			next.prop("disabled", this.controller.isLastFrameSelected() || disabled);
 
 			var delay = this.panel.find("input.delay");
+			delay.prop("disabled", disabled)
 			delay.val(this.controller.getSelectedDelay());
 		}
 

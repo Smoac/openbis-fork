@@ -39,6 +39,12 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 				timeLabel.text("Time: " + time + " sec (" + (timeIndex + 1) + "/" + timeCount + ")");
 				timeInput.slider("setValue", time);
+
+				if (timeCount <= 1) {
+					timeInput.slider("disable");
+				} else {
+					timeInput.slider("enable");
+				}
 			}
 
 			var depth = this.controller.getSelectedDepth();
@@ -51,6 +57,12 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 				depthLabel.text("Depth: " + depth + " (" + (depthIndex + 1) + "/" + depthCount + ")");
 				depthInput.slider("setValue", depthIndex);
+
+				if (depthCount <= 1) {
+					depthInput.slider("disable");
+				} else {
+					depthInput.slider("enable");
+				}
 			}
 		},
 

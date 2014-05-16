@@ -125,6 +125,10 @@ define([ "jquery", "components/imageviewer/MovieButtonsView", "components/imagev
 					}
 				},
 
+				getFrameCount : function() {
+					return this.frameCount;
+				},
+
 				setFrameContentLoader : function(frameContentLoader) {
 					this.frameContentLoader = frameContentLoader;
 				},

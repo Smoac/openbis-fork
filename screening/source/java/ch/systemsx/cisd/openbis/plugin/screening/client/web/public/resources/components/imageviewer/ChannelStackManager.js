@@ -45,7 +45,8 @@ define([ "jquery" ], function($) {
 		},
 
 		isMatrix : function() {
-			return !this.isSeriesNumberPresent() && !this.isTimePointMissing() && !this.isDepthMissing() && this.isDepthConsistent();
+			return (!this.isSeriesNumberPresent() || this.getSeriesNumbers().length == 1) && !this.isTimePointMissing() && !this.isDepthMissing()
+					&& this.isDepthConsistent();
 		},
 
 		isSeriesNumberPresent : function() {
