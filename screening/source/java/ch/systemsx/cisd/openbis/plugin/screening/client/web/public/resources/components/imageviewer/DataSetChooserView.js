@@ -17,7 +17,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 
 		render : function() {
 			var thisView = this;
-			var widget = $("<div>").addClass("form-group");
+			var widget = $("<div>").addClass("form-group").appendTo(this.panel);
 
 			$("<label>").text("Data set").attr("for", "dataSetChooserSelect").appendTo(widget);
 
@@ -32,7 +32,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 				thisView.controller.setSelectedDataSetCode(select.val());
 			});
 
-			return widget;
+			return this.panel;
 		},
 
 		getDataSetText : function(dataSetCode) {
