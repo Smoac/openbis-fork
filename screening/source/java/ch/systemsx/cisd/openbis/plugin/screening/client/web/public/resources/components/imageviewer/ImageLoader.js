@@ -30,7 +30,39 @@ define([ "jquery" ], function($) {
 			}
 
 			if (imageData.transformation) {
-				url += "&transformation=" + encodeURIComponent(imageData.transformation);
+
+				// TODO duplicated constant (see TransformationChooserWidget.js)
+
+				if ("$USER_DEFINED_RESCALING$" == imageData.transformation) {
+
+					var channelToParametersMap = {};
+
+					imageData.transformationParameters.forEach(function(parameter) {
+						var channelParameters = channelToParametersMap[parameter.channel];
+
+						if (!channelParameters) {
+							channelParameters = {};
+							channelToParametersMap[parameter.channel] = channelParameters;
+						}
+
+						channelParameters[parameter.name] = parameter;
+					});
+
+					var multipleChannels = Object.keys(channelToParametersMap).length > 1;
+
+					for (channel in channelToParametersMap) {
+						var blackPoint = channelToParametersMap[channel]["blackpoint"].value;
+						var whitePoint = channelToParametersMap[channel]["whitepoint"].value;
+						url += "&transformation";
+						if (multipleChannels) {
+							url += channel;
+						}
+						url += "=" + encodeURIComponent(imageData.transformation + "(" + blackPoint + "," + whitePoint + ")");
+					}
+
+				} else {
+					url += "&transformation=" + encodeURIComponent(imageData.transformation);
+				}
 			}
 
 			$("<img>").attr("src", url).load(function() {

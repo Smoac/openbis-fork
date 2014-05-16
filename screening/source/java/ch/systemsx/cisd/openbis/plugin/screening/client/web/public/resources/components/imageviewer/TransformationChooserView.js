@@ -130,10 +130,11 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var thisView = this;
 			var widget = $("<div>").addClass("transformationParameter").addClass("form-group");
 
+			var channelObject = this.controller.getChannelsMap()[channel];
 			var blackPoint = parameters["blackpoint"].value;
 			var whitePoint = parameters["whitepoint"].value;
 
-			$("<label>").text(channel + " [" + blackPoint + ", " + whitePoint + "]").appendTo(widget);
+			$("<label>").text(channelObject.label + " [" + blackPoint + ", " + whitePoint + "]").appendTo(widget);
 
 			var input = $("<input>").attr("type", "text").attr("channel", channel).addClass("form-control");
 
@@ -153,6 +154,8 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		},
 
 		refreshParameters : function() {
+			var thisView = this;
+
 			var parameters = this.controller.getTransformationParameters();
 			var channelToParametersMap = {};
 
@@ -172,11 +175,12 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 				var input = $(this).find("input");
 
 				var channel = input.attr("channel");
+				var channelObject = thisView.controller.getChannelsMap()[channel];
 				var channelParameters = channelToParametersMap[channel];
 				var blackPoint = channelParameters["blackpoint"].value;
 				var whitePoint = channelParameters["whitepoint"].value;
 
-				label.text(channel + " [" + blackPoint + ", " + whitePoint + "]");
+				label.text(channelObject.label + " [" + blackPoint + ", " + whitePoint + "]");
 				input.slider("setValue", [ blackPoint, whitePoint ]);
 			});
 		},

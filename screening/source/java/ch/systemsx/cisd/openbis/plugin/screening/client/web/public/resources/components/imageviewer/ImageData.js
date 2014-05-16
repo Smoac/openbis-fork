@@ -39,7 +39,13 @@ define([ "jquery" ], function($) {
 
 		setTransformation : function(transformation) {
 			this.transformation = transformation;
+		},
+
+		setTransformationParameters : function(transformationParameters) {
+			this.transformationParameters = transformationParameters;
 		}
+
+	// TODO add getters
 
 	});
 

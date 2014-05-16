@@ -119,6 +119,16 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 			return viewer.getTransformationChooserWidget().setSelectedTransformation(transformation);
 		},
 
+		getSelectedTransformationParameters : function() {
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
+			return viewer.getTransformationChooserWidget().getTransformationParameters();
+		},
+
+		setSelectedTransformationParameters : function(parameters) {
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
+			return viewer.getTransformationChooserWidget().setTransformationParameters(parameters);
+		},
+
 		getSelectedChannelStackId : function() {
 			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
 			return viewer.getChannelStackChooserWidget().getSelectedChannelStackId();
@@ -143,6 +153,7 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 			}
 			imageData.setResolution(this.getSelectedResolution());
 			imageData.setTransformation(this.getSelectedTransformation());
+			imageData.setTransformationParameters(this.getSelectedTransformationParameters());
 			return imageData;
 		},
 
