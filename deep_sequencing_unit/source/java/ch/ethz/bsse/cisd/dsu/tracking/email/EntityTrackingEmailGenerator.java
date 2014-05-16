@@ -168,6 +168,8 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                 createSeparatorLine(SUBSECTION_SEPARATOR_CHAR);
 
         private final static String EXTERNAL_SAMPLE_NAME_PROPERTY_CODE = "EXTERNAL_SAMPLE_NAME";
+        
+        private final static String CONTACT_PERSON_NAME_PROPERTY_CODE = "CONTACT_PERSON_NAME";
 
         private final static String INDEX1_PROPERTY_CODE = "BARCODE";
 
@@ -285,7 +287,12 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             
             String Index1 = getIndex1(dataSet);
             String Index2 = getIndex2(dataSet);
-            String externalSampleName = externalSampleNameFromDataSet(dataSet);
+            
+            HashMap<String, String> parentProperties = propertiesFromParentSample(dataSet, sequencingSamples, Index1, Index2);
+            
+            String externalSampleName = parentProperties.get(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
+            String contactPersonName = parentProperties.get(CONTACT_PERSON_NAME_PROPERTY_CODE);
+
             String Index = null;
 
             if (Index1 != null) {
@@ -298,10 +305,12 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             if (Index != null && externalSampleName != null)
             {
                 appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString() +
-                        " Index: " + Index + ", External Sample Name: " + externalSampleName);
+                        " Index: " + Index + ", External Sample Name: " + externalSampleName +
+                        ", Contact Person: " + contactPersonName
+                        );
             }
             else {
-                appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString());
+                appendln(sb, "Data Set Type: " + dataSet.getDataSetType().toString() + ", No Meta Data");
             }
             appendln(sb, dataSet.getPermlink());
         }
@@ -312,6 +321,13 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
                     tryGetSamplePropertyValue(sequencingSample, EXTERNAL_SAMPLE_NAME_PROPERTY_CODE);
             assert externalSampleName != null;
             return externalSampleName;
+        }
+        
+        private static String getContactPersonName(Sample sequencingSample)
+        {
+            String contactPersonName = tryGetSamplePropertyValue(sequencingSample, CONTACT_PERSON_NAME_PROPERTY_CODE);
+            assert contactPersonName != null;
+            return contactPersonName;
         }
         
         private static String getIndex1(AbstractExternalData dataSet) {
@@ -344,23 +360,61 @@ public class EntityTrackingEmailGenerator implements IEntityTrackingEmailGenerat
             return null;
         }
 
-        private static String externalSampleNameFromDataSet(AbstractExternalData dataSet)
+        private static HashMap<String, String> propertiesFromParentSample(AbstractExternalData dataSet, 
+                Collection<Sample> sequencingSamples, String dsIndex1, String dsIndex2)
         {
-            List<IEntityProperty> properties = dataSet.getProperties();
-
-            String externalSampleName = null;
-            for (IEntityProperty p : properties)
-            {
-                if (p.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE))
-                {
-                    externalSampleName = p.getValue();
-                    if (!externalSampleName.equals(null))
-                    {
-                        return externalSampleName;
-                    }
-                }
+            HashMap<String, String> parentPropertiesMap = new HashMap<String, String>();
+            if (dsIndex1 == null)  {
+                return parentPropertiesMap;
             }
-            return null;
+            if (dsIndex2 == null) {
+                dsIndex2 = "";
+            }
+
+            for (Sample parent : sequencingSamples) 
+            {
+                String parentIndex1 = "";
+                String parentIndex2 = "";
+                String externalSampleName = "";
+                String contactPersonName = "";
+                
+                List<IEntityProperty> parentSampleProperties = parent.getProperties();
+                for (IEntityProperty pp : parentSampleProperties) {
+                    if (pp.getPropertyType().getCode().equals(INDEX1_PROPERTY_CODE)) {
+                        parentIndex1 = pp.getVocabularyTerm().getCode();
+                    }
+                    
+                    if (pp.getPropertyType().getCode().equals(INDEX2_PROPERTY_CODE)) {
+                        parentIndex2 = pp.getVocabularyTerm().getCode();
+                        if (parentIndex2.equals(null)) {
+                            parentIndex2 = "";
+                        }
+                    }
+                    
+                    if (pp.getPropertyType().getCode().equals(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE)) {
+                        externalSampleName = pp.getValue();
+                    }
+                    
+                    if (pp.getPropertyType().getCode().equals(CONTACT_PERSON_NAME_PROPERTY_CODE)) {
+                        contactPersonName = pp.getValue();
+                    }
+                    
+//                  //if(index1 == parentIndex1 && (!index2 || !parentIndex2 || index2 == parentIndex2)){
+                    if (parentIndex1.equals(dsIndex1) && (!(dsIndex2.isEmpty()) || !(parentIndex2.isEmpty()) || parentIndex2.equals(dsIndex2))) {
+                        
+                        parentIndex1 = "";
+                        parentIndex2 = "";
+                        
+                        System.out.println("Found matching meta data for: " + dataSet.getCode() + " from " + parent.getCode());
+                        
+                        parentPropertiesMap.put(EXTERNAL_SAMPLE_NAME_PROPERTY_CODE, externalSampleName);
+                        parentPropertiesMap.put(CONTACT_PERSON_NAME_PROPERTY_CODE, contactPersonName);
+                    }
+                        
+                }
+                   
+            }
+            return parentPropertiesMap;
         }
 
         private static String tryGetSamplePropertyValue(Sample sequencingSample, String propertyCode)
