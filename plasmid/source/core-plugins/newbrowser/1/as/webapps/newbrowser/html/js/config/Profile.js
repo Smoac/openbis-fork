@@ -344,7 +344,7 @@ $.extend(DefaultProfile.prototype, {
 				for(var i = 0; i < spaces.length; i++) {
 					var space = spaces[i];
 					for(var j = 0; j < space.projects.length; j++) {
-						var project = space.projects[i];
+						var project = space.projects[j];
 						delete project["@id"];
 						delete project["@type"];
 						projects.push(project);
