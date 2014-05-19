@@ -1,5 +1,5 @@
 var require = {
-	baseUrl : "/openbis-test-screening/resources",
+	baseUrl : "/openbis/resources",
 	paths : {
 		"jquery" : "js/jquery",
 		"openbis" : "js/openbis",
