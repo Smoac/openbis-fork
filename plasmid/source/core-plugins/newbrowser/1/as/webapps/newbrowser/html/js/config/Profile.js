@@ -777,7 +777,7 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 	}
 });
 
-//Example profile with basic configuration that donÂ´t requires any programming
+//Example profile with basic configuration that don«t requires any programming
 function PhosphoProfile(serverFacade) {
 	this.init(serverFacade);
 }
@@ -789,7 +789,7 @@ $.extend(PhosphoProfile.prototype, DefaultProfile.prototype, {
 		//Put on this list all experiment types, ELN experiments need to have both an experiment type and a sample type with the same CODE.
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 
-		//Black list, put on this list all types that you donÂ´t want to appear on the menu and the ELN experiments.
+		//Black list, put on this list all types that you don«t want to appear on the menu and the ELN experiments.
 		this.notShowTypes = ["SYSTEM_EXPERIMENT", "FJELMER_TEST", "SEARCH"];
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
@@ -821,7 +821,7 @@ $.extend(PhosphoProfile.prototype, DefaultProfile.prototype, {
 			}
 		};
 		
-		//The properties you want to appear on the tables, if you donÂ´t specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {
 				"BIOLOGICAL_SAMPLE" : ["NAME", "COMMENT", "TREATMENT_TYPE1", "TREATMENT_VALUE1", "TREATMENT_TYPE2", "TREATMENT_VALUE2", "TREATMENT_TYPE3", "TREATMENT_VALUE3"],
 				"BIOL_APMS" : ["NAME", "COMMENT", "BAIT", "DIGESTION"],
@@ -835,7 +835,7 @@ $.extend(PhosphoProfile.prototype, DefaultProfile.prototype, {
 				"MS_INJECTION" : ["INSTRUMENT_TYPE"]
 		};
 		
-		//The colors for the notes, if you donÂ´t specify the color, light yellow will be used by default.
+		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 		
 		//The configuration for the visual storages.
@@ -845,7 +845,7 @@ $.extend(PhosphoProfile.prototype, DefaultProfile.prototype, {
 }
 });
 
-//Example profile with basic configuration that donÂ´t requires any programming
+//Example profile with basic configuration that don«t requires any programming
 function ExampleProfile(serverFacade) {
 	this.init(serverFacade);
 }
@@ -857,7 +857,7 @@ $.extend(ExampleProfile.prototype, DefaultProfile.prototype, {
 		//Put on this list all experiment types, ELN experiments need to have both an experiment type and a sample type with the same CODE.
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 
-		//Black list, put on this list all types that you donÂ´t want to appear on the menu and the ELN experiments.
+		//Black list, put on this list all types that you don«t want to appear on the menu and the ELN experiments.
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
@@ -869,10 +869,10 @@ $.extend(ExampleProfile.prototype, DefaultProfile.prototype, {
 			}
 		};
 		
-		//The properties you want to appear on the tables, if you donÂ´t specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
 		
-		//The colors for the notes, if you donÂ´t specify the color, light yellow will be used by default.
+		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 		
 		//The configuration for the visual storages.
@@ -1360,7 +1360,7 @@ $.extend(BioATProfile.prototype, DefaultProfile.prototype, {
 		//Put on this list all experiment types, ELN experiments need to have both an experiment type and a sample type with the same CODE.
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 
-		//Black list, put on this list all types that you donÂ´t want to appear on the menu and the ELN experiments.
+		//Black list, put on this list all types that you don«t want to appear on the menu and the ELN experiments.
 		this.notShowTypes = ["SYSTEM_EXPERIMENT", "COMPOUND", "CONTROL_WELL", "LIBRARY", "ORF", "ORF_WELL", "SHRNA", "SHRNA_WELL", "SIRNA", "SIRNA_WELL", "UNKNOWN"];
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
@@ -1377,10 +1377,10 @@ $.extend(BioATProfile.prototype, DefaultProfile.prototype, {
 			}
 		};
 		
-		//The properties you want to appear on the tables, if you donÂ´t specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
 		
-		//The colors for the notes, if you donÂ´t specify the color, light yellow will be used by default.
+		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 		
 		//The configuration for the visual storages.
@@ -1423,6 +1423,43 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 		};
 
 
+		this.storagesConfiguration = {
+				"isEnabled" : true,
+				/*
+				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
+				*/
+				"STORAGE_PROPERTIES": [{
+					"STORAGE_PROPERTY_GROUP" : "Storage", //Section where the storage will be painted.
+					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
+					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
+					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
+					"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
+				},
+				{
+					"STORAGE_PROPERTY_GROUP" : "Storage 2", //Section where the storage will be painted.
+					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
+					"ROW_PROPERTY" : "ROW_2", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
+					"COLUMN_PROPERTY" : "COLUMN_2", //Integer on YeastLab, can be (Vocabulary, text and integer).
+					"BOX_PROPERTY" : "BOX_NUMBER_2" //Should be text.
+				}],
+				/*
+				 * Storages map, can hold configurations for several storages.
+				*/
+				"STORAGE_CONFIGS": {
+					"TESTFREEZER" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 3, //Number of rows
+									"COLUMN_NUM" : 3, //Number of columns
+									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								}
+				}
+			};
+
+
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {
 				"PLASMID_EXPRESSION" : {
@@ -1430,41 +1467,33 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 					                             	{
 														"LABEL" : "Protocol",
 														"TYPE": "PROTOCOLS",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Plasmid",
 														"TYPE": "PLASMIDS",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Inhibitor",
 														"TYPE": "INHIBITORS",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Cell Line",
 														"TYPE": "CELL_LINE",
-														"MIN_COUNT" : 1
-													}
-												],
-				},
-			
-				"WESTERN_BLOTTING" : {
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Antibodies",
-														"TYPE": "ANTIBODIES",
-														"MIN_COUNT" : 1
+														"MIN_COUNT" : 1,
+														"ANNOTATION_PROPERTIES" : []
 													}
 												],
 				}
-
 		}
-		
 		
 		
 		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
@@ -1472,10 +1501,5 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 		
 		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
-		
-		//The configuration for the visual storages.
-		this.storagesConfiguration = {
-			"isEnabled" : false
-		};
 }
 });
