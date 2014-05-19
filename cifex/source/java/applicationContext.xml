@@ -43,6 +43,7 @@
             <bean class="ch.systemsx.cisd.common.mail.MailClient">
                 <constructor-arg value="${mail.from}" />
                 <constructor-arg value="${mail.smtp.host}" />
+                <constructor-arg value="${mail.smtp.port}" />
                 <constructor-arg value="${mail.smtp.user}" />
                 <constructor-arg value="${mail.smtp.password}" />
                 <constructor-arg value="${mail.test.address}" />

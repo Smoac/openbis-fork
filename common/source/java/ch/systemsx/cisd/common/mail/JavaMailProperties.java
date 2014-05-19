@@ -38,12 +38,15 @@ public final class JavaMailProperties
     /** The return email address of the current user. */
     public static final String MAIL_FROM = "mail.from";
 
-    /** The default host name of the mail server for Transports. */
+    /** The host name of the mail server for Transports. */
     public static final String MAIL_SMTP_HOST = "mail.smtp.host";
 
-    /** The default user name to use when connecting to the mail server. */
-    public static final String MAIL_SMTP_USER = "mail.smtp.user";
+    /** The host port of the mail server for Transports. */
+    public static final String MAIL_SMTP_PORT = "mail.smtp.port";
 
+    /** The user name to use when connecting to the mail server. */
+    public static final String MAIL_SMTP_USER = "mail.smtp.user";
+    
     /** Whether authentication is needed when connecting to the mail server. */
     public static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
 

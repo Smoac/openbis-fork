@@ -333,10 +333,11 @@
     <bean id="mail-client-parameters" class="ch.systemsx.cisd.common.mail.MailClientParameters">
         <property name="from" value="${mail.from}"/>
         <property name="smtpHost" value="${mail.smtp.host}"/>
+        <property name="smtpPort" value="${mail.smtp.port}"/>
         <property name="smtpUser" value="${mail.smtp.user}"/>
         <property name="smtpPassword" value="${mail.smtp.password}"/>
+        <property name="testAddress" value="${mail.smtp.address}"/>
     </bean>
-    
     
     <!--  
        Maintenance Tasks
