@@ -79,9 +79,27 @@ public final class MailClient extends Authenticator implements IMailClient
     
     public MailClient(final String from, final String smtpHost)
     {
+        this(from, smtpHost, null, null, null, null);
+    }
+    
+    public MailClient(
+                final String from,
+                final String smtpHost,
+                final String smtpPort,
+                final String smtpUsername,
+                final String smtpPassword,
+                final String testAddress)
+    {
+        assert from != null;
+        assert smtpHost != null;
+
         properties = new Properties();
         properties.put(JavaMailProperties.MAIL_FROM, from);
         properties.put(JavaMailProperties.MAIL_SMTP_HOST, smtpHost);
+        properties.put(JavaMailProperties.MAIL_SMTP_PORT, smtpPort);
+        properties.put(JavaMailProperties.MAIL_SMTP_USER, smtpUsername);
+        properties.put(MailClient.MAIL_SMTP_PASSWORD, smtpPassword);
+        properties.put(MailClient.MAIL_TEST_ADDRESS, testAddress);
         init();
     }
     
