@@ -146,6 +146,8 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      */
     public Set<TechId> findParentIds(Collection<TechId> dataSetIds, long relationshipTypeId);
 
+    public Set<TechId> findChildrenIds(Collection<TechId> dataSetIds, long relationshipTypeId);
+
     public List<DataPE> listByCode(Set<String> values);
 
     /**
@@ -160,12 +162,6 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     /** Returns ids of data sets connected with experiments specified by given ids. */
     public List<TechId> listDataSetIdsByExperimentIds(final Collection<TechId> samples);
-
-    /**
-     * Returns recursively ids of component data sets which have only one container starting with specified containers. The result also contains these
-     * ids.
-     */
-    public List<TechId> listComponentDataSetsWithASingleContainerRecursively(final Collection<TechId> containersIds);
 
     /**
      * Delete data sets with given ids by specified registrator with specified reason.

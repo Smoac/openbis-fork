@@ -18,14 +18,11 @@ package ch.systemsx.cisd.openbis.generic.server;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -53,8 +50,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.plugin.DataSetServerPluginRegistry;
@@ -78,7 +73,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.IDisplaySettingsUpdate;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomColumnPE;
@@ -254,71 +248,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         return dataSetServerPluginRegistry.getPlugin(EntityKind.DATA_SET, dataSetType)
                 .getSlaveServer();
-    }
-
-    @Deprecated
-    /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
-    protected void permanentlyDeleteDataSets(Session session, IDataSetTable dataSetTable,
-            List<String> dataSetCodes, String reason, boolean forceDisallowedTypes)
-    {
-        // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
-
-        // first load by codes to get the ids
-        dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
-
-        List<DataPE> dataSets = dataSetTable.getDataSets();
-
-        if (atLeastOneOfDataSetsIsContainer(dataSets))
-        {
-            // get recursively all datasets that are contained and contained
-            List<TechId> ids =
-                    daoFactory.getDataDAO().listComponentDataSetsWithASingleContainerRecursively(
-                            TechId.createList(dataSetTable.getDataSets()));
-
-            dataSetTable.loadByIds(ids);
-
-            dataSets = dataSetTable.getDataSets();
-        }
-        Map<DataSetTypePE, List<DataPE>> groupedDataSets =
-                new LinkedHashMap<DataSetTypePE, List<DataPE>>();
-
-        // Check all data sets before deleting group by group. If we delete one group of data sets
-        // and find an incorrect data set in another group then we cannot roll back already made
-        // deletions in data store server. Therefore we'd better make a check now to minimize a
-        // chance of failure.
-        DataSetTable.assertDatasetsAreDeletable(dataSets);
-        DataSetTable.assertDatasetsWithDisallowedTypes(dataSets, forceDisallowedTypes);
-
-        for (DataPE dataSet : dataSets)
-        {
-            DataSetTypePE dataSetType = dataSet.getDataSetType();
-            List<DataPE> list = groupedDataSets.get(dataSetType);
-            if (list == null)
-            {
-                list = new ArrayList<DataPE>();
-                groupedDataSets.put(dataSetType, list);
-            }
-            list.add(dataSet);
-        }
-        for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
-        {
-            DataSetTypePE dataSetType = entry.getKey();
-            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
-            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason,
-                    forceDisallowedTypes);
-        }
-    }
-
-    private boolean atLeastOneOfDataSetsIsContainer(Collection<DataPE> dataSets)
-    {
-        for (DataPE dataSet : dataSets)
-        {
-            if (dataSet.isContainer())
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private final RoleAssignmentPE createRoleAssigment(final PersonPE registrator,

@@ -23,11 +23,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.ValidationException;
 
@@ -40,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluat
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.RelationshipUtils;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
@@ -60,7 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.ExperimentTypeCode;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "experiment" })
+{ "db", "experiment" })
 public class ExperimentDAOTest extends AbstractDAOTest
 {
     private static final String MODIFIED = "_MODIFIED";
@@ -447,10 +450,11 @@ public class ExperimentDAOTest extends AbstractDAOTest
 
         DataPE container = dao.tryToFindDataSetByCode("20110509092359990-10");
 
-        List<TechId> containedIds =
-                dao.listComponentDataSetsWithASingleContainerRecursively(Collections.singleton(TechId.create(container)));
+        Long typeId = RelationshipUtils.getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO()).getId();
+        Collection<TechId> ids = Collections.<TechId> singleton(TechId.create(container));
+        Set<TechId> containedIds = dao.findChildrenIds(ids, typeId);
 
-        assertEquals(3, containedIds.size());
+        assertEquals(2, containedIds.size());
 
         List<DataPE> contained = new LinkedList<DataPE>();
         for (TechId techId : containedIds)
@@ -622,7 +626,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     private final static Object[][] illegalCodesProvider()
     {
         return new Object[][]
-            {
+        {
                 { EXCEED_CODE_LENGTH_CHARACTERS },
                 { "" },
                 { null },

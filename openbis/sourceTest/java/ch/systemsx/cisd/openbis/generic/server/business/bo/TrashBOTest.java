@@ -17,8 +17,11 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.jmock.Expectations;
 import org.testng.annotations.BeforeMethod;
@@ -28,10 +31,12 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
@@ -41,11 +46,13 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Piotr Buczek
  */
 @Friend(toClasses =
-    { ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
+{ ScriptBO.class, ScriptBO.IScriptFactory.class, ScriptPE.class })
 public final class TrashBOTest extends AbstractBOTest
 {
 
     private static String EXAMPLE_REASON = "example reason";
+
+    private static Long COMPONENT_CONTAINER_RELATIONSHIP_ID = 1234L;
 
     private static TechId EXAMPLE_ID = new TechId(1L);
 
@@ -73,6 +80,13 @@ public final class TrashBOTest extends AbstractBOTest
                     allowing(boFactory).createDataSetTable(ManagerTestTool.EXAMPLE_SESSION);
                     will(returnValue(dataSetTable));
 
+                    allowing(relationshipTypeDAO).tryFindRelationshipTypeByCode(BasicConstant.CONTAINER_COMPONENT_INTERNAL_RELATIONSHIP);
+                    RelationshipTypePE type = new RelationshipTypePE();
+                    type.setId(COMPONENT_CONTAINER_RELATIONSHIP_ID);
+                    will(returnValue(type));
+
+                    allowing(boFactory).createDatasetLister(ManagerTestTool.EXAMPLE_SESSION);
+                    will(returnValue(datasetLister));
                 }
             });
     }
@@ -169,46 +183,33 @@ public final class TrashBOTest extends AbstractBOTest
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> experimentIds = EXAMPLE_ID_LIST;
+        final List<TechId> sampleIds = TechId.createList(50, 51);
         final List<TechId> dataSetIds = TechId.createList(60, 61);
-        final RecordingMatcher<List<TechId>> dsIdsMatcher = new RecordingMatcher<List<TechId>>();
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetTable).loadByIds(dataSetIds);
-                    one(dataSetTable).getNonDeletableExternalDataSets();
-                    will(returnValue(Arrays.asList()));
-
-                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
-                    will(returnValue(experimentIds.size()));
-
-                    // trash dependent samples
-                    List<TechId> sampleIds = TechId.createList(50, 51);
                     one(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
                     will(returnValue(sampleIds));
-                    RecordingMatcher<List<TechId>> sampleIdsMatcher =
-                            new RecordingMatcher<List<TechId>>();
-                    one(deletionDAO).trash(with(same(EntityKind.SAMPLE)), with(sampleIdsMatcher),
-                            with(same(deletion)), with(false));
-                    will(returnValue(0));
 
-                    // trash dependent data sets
+                    one(sampleDAO).listSampleIdsByContainerIds(sampleIds);
+                    will(returnValue(Arrays.asList()));
+
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
 
-                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(with(dsIdsMatcher));
-                    will(returnValue(dataSetIds));
-
-                    oneOf(deletionDAO).trash(with(same(EntityKind.DATA_SET)), with(dsIdsMatcher),
-                            with(same(deletion)), with(false));
-                    will(returnValue(0));
+                    one(dataDAO).listDataSetIdsBySampleIds(sampleIds);
+                    will(returnValue(Arrays.asList()));
                 }
             });
+        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
+        prepareListDataSetContainerIds(dataSetIds, new LinkedHashMap<Long, Set<Long>>());
+        prepareGetNondeletableDataSets(dataSetIds);
+        prepareTrash(deletion, EntityKind.EXPERIMENT, true, experimentIds);
+        prepareTrash(deletion, EntityKind.SAMPLE, false, sampleIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
+
         trashBO.trashExperiments(experimentIds);
 
-        // Check that the data set ids match
-        List<TechId> usedDsIds = dsIdsMatcher.getRecordedObjects().get(1);
-        assertEquals(new HashSet<TechId>().addAll(dataSetIds),
-                new HashSet<TechId>().addAll(usedDsIds));
         context.assertIsSatisfied();
     }
 
@@ -218,39 +219,40 @@ public final class TrashBOTest extends AbstractBOTest
         final DeletionPE deletion = createDeletion();
         final List<TechId> experimentIds = EXAMPLE_ID_LIST;
         final List<TechId> sampleIds = TechId.createList(50, 51);
-        final RecordingMatcher<List<TechId>> dataSetIdsMatcher =
-                new RecordingMatcher<List<TechId>>();
+        final List<TechId> componentSampleIds = TechId.createList(52, 53);
         final List<TechId> dataSetIds = TechId.createList(60, 61);
-
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetTable).loadByIds(dataSetIds);
-                    one(dataSetTable).getNonDeletableExternalDataSets();
-                    will(returnValue(Arrays.asList()));
-
-                    one(deletionDAO).trash(EntityKind.EXPERIMENT, experimentIds, deletion, true);
-                    will(returnValue(experimentIds.size()));
-
-                    // trash dependent samples - see prepareDeletionOfSamplesWithDependencies
                     one(sampleDAO).listSampleIdsByExperimentIds(experimentIds);
                     will(returnValue(sampleIds));
 
-                    // trash dependent data sets
                     one(dataDAO).listDataSetIdsByExperimentIds(experimentIds);
                     will(returnValue(dataSetIds));
 
-                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(with(dataSetIdsMatcher));
-                    will(returnValue(dataSetIds));
-
-                    one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
-                            with(dataSetIdsMatcher), with(same(deletion)), with(false));
-                    will(returnValue(dataSetIds.size()));
+                    one(sampleDAO).listSampleIdsByContainerIds(sampleIds);
+                    will(returnValue(componentSampleIds));
                 }
             });
-        prepareDeletionOfSamplesWithDependencies(deletion, sampleIds, false);
+        prepareTrash(deletion, EntityKind.EXPERIMENT, true, experimentIds);
+        prepareTrash(deletion, EntityKind.SAMPLE, false, sampleIds);
+        prepareTrash(deletion, EntityKind.SAMPLE, false, componentSampleIds);
+        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
+        prepareListDataSetContainerIds(dataSetIds, new LinkedHashMap<Long, Set<Long>>());
+        prepareGetNondeletableDataSets(dataSetIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, dataSetIds);
+
+        List<TechId> sampleDataSets = TechId.createList(70L, 71L);
+        prepareListDataSetIdsBySampleIds(sampleIds, sampleDataSets);
+        prepareFindDataSetComponentIds(sampleDataSets, Arrays.<Long> asList());
+        prepareListDataSetContainerIds(sampleDataSets, new LinkedHashMap<Long, Set<Long>>());
+        prepareGetNondeletableDataSets(sampleDataSets);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, sampleDataSets);
+
+        prepareListDataSetIdsBySampleIds(componentSampleIds, TechId.createList());
+
         trashBO.trashExperiments(experimentIds);
-        verifyRecordedLists(dataSetIds, dataSetIdsMatcher);
+
         context.assertIsSatisfied();
     }
 
@@ -275,58 +277,36 @@ public final class TrashBOTest extends AbstractBOTest
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> sampleIds = EXAMPLE_ID_LIST;
-        prepareDeletionOfSamplesWithDependencies(deletion, sampleIds, true);
-        trashBO.trashSamples(sampleIds);
-        context.assertIsSatisfied();
-    }
-
-    private void prepareDeletionOfSamplesWithDependencies(final DeletionPE deletion,
-            final List<TechId> sampleIds, final boolean firstLevelOfDependency)
-    {
+        final List<TechId> sampleComponentIds = TechId.createList(20L);
+        final List<TechId> sampleDataSetIds = TechId.createList(60);
+        final List<TechId> sampleComponentDataSetIds = TechId.createList(61);
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetTable).loadByIds(TechId.createList(70, 71, 72, 73));
-                    one(dataSetTable).getNonDeletableExternalDataSets();
-                    will(returnValue(Arrays.asList()));
+                    one(sampleDAO).listSampleIdsByContainerIds(sampleIds);
+                    will(returnValue(sampleComponentIds));
 
-                    RecordingMatcher<List<TechId>> sampleIdsMatcher =
-                            new RecordingMatcher<List<TechId>>();
+                    one(dataDAO).listDataSetIdsBySampleIds(sampleIds);
+                    will(returnValue(sampleDataSetIds));
 
-                    one(deletionDAO).trash(with(same(EntityKind.SAMPLE)), with(sampleIdsMatcher),
-                            with(same(deletion)), with(firstLevelOfDependency));
-                    will(returnValue(sampleIds.size()));
-
-                    // don't trash dependent children
-
-                    // trash dependent components
-                    List<TechId> componentIds = TechId.createList(60, 61);
-                    one(sampleDAO).listSampleIdsByContainerIds(with(sampleIdsMatcher));
-                    will(returnValue(componentIds));
-                    RecordingMatcher<List<TechId>> componentIdsMatcher =
-                            new RecordingMatcher<List<TechId>>();
-                    one(deletionDAO).trash(with(same(EntityKind.SAMPLE)),
-                            with(componentIdsMatcher), with(same(deletion)), with(false));
-                    will(returnValue(0));
-
-                    // trash dependent data sets
-                    List<TechId> dataSetIds = TechId.createList(70, 71, 72);
-                    one(dataDAO).listDataSetIdsBySampleIds(with(sampleIdsMatcher));
-                    will(returnValue(dataSetIds));
-
-                    RecordingMatcher<List<TechId>> dataSetIdsMatcher =
-                            new RecordingMatcher<List<TechId>>();
-
-                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(with(dataSetIdsMatcher));
-                    will(returnValue(TechId.createList(70, 71, 72, 73)));
-
-                    one(deletionDAO).trash(with(same(EntityKind.DATA_SET)),
-                            with(dataSetIdsMatcher), with(same(deletion)), with(false));
-                    will(returnValue(2));
-
-                    verifyRecordedLists(sampleIds, sampleIdsMatcher);
+                    one(dataDAO).listDataSetIdsBySampleIds(sampleComponentIds);
+                    will(returnValue(sampleComponentDataSetIds));
                 }
             });
+        prepareTrash(deletion, EntityKind.SAMPLE, true, sampleIds);
+        prepareTrash(deletion, EntityKind.SAMPLE, false, sampleComponentIds);
+        prepareFindDataSetComponentIds(sampleDataSetIds, Arrays.<Long> asList());
+        prepareListDataSetContainerIds(sampleDataSetIds, new LinkedHashMap<Long, Set<Long>>());
+        prepareGetNondeletableDataSets(sampleDataSetIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, sampleDataSetIds);
+        prepareFindDataSetComponentIds(sampleComponentDataSetIds, Arrays.<Long> asList());
+        prepareListDataSetContainerIds(sampleComponentDataSetIds, new LinkedHashMap<Long, Set<Long>>());
+        prepareGetNondeletableDataSets(sampleComponentDataSetIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, sampleComponentDataSetIds);
+
+        trashBO.trashSamples(sampleIds);
+
+        context.assertIsSatisfied();
     }
 
     @Test
@@ -334,27 +314,58 @@ public final class TrashBOTest extends AbstractBOTest
     {
         final DeletionPE deletion = createDeletion();
         final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
+        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList(5L, 6L));
+        prepareFindDataSetComponentIds(TechId.createList(5, 6), Arrays.<Long> asList());
         final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
+        Map<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
+        containerIds.put(5L, new LinkedHashSet<Long>(Arrays.asList(1L)));
+        containerIds.put(6L, new LinkedHashSet<Long>(Arrays.asList(2L)));
+        prepareListDataSetContainerIds(allIds, containerIds);
         final List<TechId> someIds = TechId.createList(5, 6);
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataSetTable).loadByIds(allIds);
-                    one(dataSetTable).getNonDeletableExternalDataSets();
-                    will(returnValue(Arrays.asList()));
+        prepareGetNondeletableDataSets(allIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, true, dataSetIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, someIds);
 
-                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(dataSetIds);
-                    will(returnValue(allIds));
-
-                    one(deletionDAO).trash(EntityKind.DATA_SET, dataSetIds, deletion, true);
-                    will(returnValue(dataSetIds.size()));
-
-                    one(deletionDAO).trash(EntityKind.DATA_SET, someIds, deletion, false);
-                    will(returnValue(someIds.size()));
-
-                }
-            });
         trashBO.trashDataSets(dataSetIds);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTrashDataSetsWithDataSetInAContainer()
+    {
+        createDeletion();
+        List<TechId> dataSetIds = TechId.createList(1);
+        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
+        Map<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
+        containerIds.put(1L, new LinkedHashSet<Long>(Arrays.asList(2L)));
+        prepareListDataSetContainerIds(dataSetIds, containerIds);
+
+        trashBO.trashDataSets(dataSetIds);
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testTrashDataSetsWithDataSetComponentIndirectlyDependentOnOutsideContainer()
+    {
+        DeletionPE deletion = createDeletion();
+        List<TechId> rootDataSetIds = TechId.createList(1);
+        List<TechId> levelOneDataSetIds = TechId.createList(3, 4, 5, 6);
+        prepareFindDataSetComponentIds(rootDataSetIds, TechId.asLongs(levelOneDataSetIds));
+        prepareFindDataSetComponentIds(levelOneDataSetIds, Arrays.<Long> asList());
+        Map<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
+        containerIds.put(3L, new LinkedHashSet<Long>(Arrays.asList(1L)));
+        containerIds.put(4L, new LinkedHashSet<Long>(Arrays.asList(1L, 2L)));
+        containerIds.put(5L, new LinkedHashSet<Long>(Arrays.asList(1L, 4L)));
+        containerIds.put(6L, new LinkedHashSet<Long>(Arrays.asList(4L)));
+        prepareListDataSetContainerIds(TechId.createList(1, 3, 4, 5, 6), containerIds);
+        prepareGetNondeletableDataSets(TechId.createList(1, 3));
+        prepareTrash(deletion, EntityKind.DATA_SET, true, rootDataSetIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, TechId.createList(3));
+
+        trashBO.trashDataSets(rootDataSetIds);
+
         context.assertIsSatisfied();
     }
 
@@ -362,22 +373,12 @@ public final class TrashBOTest extends AbstractBOTest
     public final void testTrashUnavailableDataSets()
     {
         final List<TechId> dataSetIds = TechId.createList(1, 2, 3);
-        final List<TechId> allIds = TechId.createList(1, 2, 3, 5, 6);
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataSetTable).loadByIds(allIds);
-                    one(dataSetTable).getNonDeletableExternalDataSets();
-                    ExternalDataPE dataSet = new ExternalDataPE();
-                    dataSet.setCode("ds1");
-                    dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
-                    will(returnValue(Arrays.asList(dataSet)));
-
-                    one(dataDAO).listComponentDataSetsWithASingleContainerRecursively(dataSetIds);
-                    will(returnValue(allIds));
-
-                }
-            });
+        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
+        prepareListDataSetContainerIds(dataSetIds, new LinkedHashMap<Long, Set<Long>>());
+        ExternalDataPE dataSet = new ExternalDataPE();
+        dataSet.setCode("ds1");
+        dataSet.setStatus(DataSetArchivingStatus.ARCHIVE_PENDING);
+        prepareGetNondeletableDataSets(dataSetIds, dataSet);
 
         createDeletion();
         try
@@ -394,13 +395,61 @@ public final class TrashBOTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
 
-    private static void verifyRecordedLists(List<TechId> expected,
-            RecordingMatcher<List<TechId>> matcher)
+    private void prepareTrash(final DeletionPE deletion, final EntityKind entityKind, final boolean isOriginalDeletion,
+            final List<TechId> entityIds)
     {
-        for (List<TechId> recorded : matcher.getRecordedObjects())
-        {
-            assertTrue(recorded.containsAll(expected));
-            assertTrue(expected.containsAll(recorded));
-        }
+        context.checking(new Expectations()
+            {
+                {
+                    one(deletionDAO).trash(entityKind, entityIds, deletion, isOriginalDeletion);
+                    will(returnValue(entityIds.size()));
+                }
+            });
     }
+
+    private void prepareGetNondeletableDataSets(final List<TechId> ids, final ExternalDataPE... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataSetTable).loadByIds(ids);
+                    one(dataSetTable).getNonDeletableExternalDataSets();
+                    will(returnValue(Arrays.asList(dataSets)));
+                }
+            });
+    }
+
+    private void prepareListDataSetIdsBySampleIds(final List<TechId> ids, final List<TechId> dataSetIds)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).listDataSetIdsBySampleIds(ids);
+                    will(returnValue(dataSetIds));
+                }
+            });
+    }
+
+    private void prepareListDataSetContainerIds(final List<TechId> ids, final Map<Long, Set<Long>> containerIds)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(datasetLister).listContainerIds(TechId.asLongs(ids));
+                    will(returnValue(containerIds));
+                }
+            });
+    }
+
+    private void prepareFindDataSetComponentIds(final List<TechId> ids, final List<Long> childrenIds)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).findChildrenIds(new LinkedHashSet<TechId>(ids), COMPONENT_CONTAINER_RELATIONSHIP_ID);
+                    will(returnValue(new LinkedHashSet<TechId>(TechId.createList(childrenIds))));
+                }
+            });
+    }
+
 }

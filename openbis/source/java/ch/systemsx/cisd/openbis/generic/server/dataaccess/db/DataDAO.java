@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -784,8 +783,9 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         final String sqlInsertEvent = SQLBuilder.createInsertEventSQL();
         // data set specific queries
         final String sqlDeleteExternalData = createDeleteExternalDataSQL();
-        final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL();
-        final String sqlDeleteParentConnections = createDeleteParentConnectionsSQL();
+        Long relationshipTypeId = RelationshipUtils.getParentChildRelationshipType(relationshipTypeDAO).getId();
+        final String sqlDeleteChildrenConnections = createDeleteChildrenConnectionsSQL(relationshipTypeId);
+        final String sqlDeleteParentConnections = createDeleteParentConnectionsSQL(relationshipTypeId);
 
         executePermanentDeleteOfDataSets(EntityType.DATASET, dataIds, registrator, reason,
                 sqlSelectPermIds, sqlSelectLocations, sqlDeleteProperties, sqlDeleteDataSets,
@@ -830,16 +830,16 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
                 + SQLBuilder.inEntityIds();
     }
 
-    private static String createDeleteChildrenConnectionsSQL()
+    private static String createDeleteChildrenConnectionsSQL(long relationshipTypeId)
     {
         return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE
-                + " WHERE data_id_parent " + SQLBuilder.inEntityIds();
+                + " WHERE data_id_parent " + SQLBuilder.inEntityIds() + " and relationship_id = " + relationshipTypeId;
     }
 
-    private static String createDeleteParentConnectionsSQL()
+    private static String createDeleteParentConnectionsSQL(long relationshipTypeId)
     {
         return "DELETE FROM " + TableNames.DATA_SET_RELATIONSHIPS_ALL_TABLE
-                + " WHERE data_id_child " + SQLBuilder.inEntityIds();
+                + " WHERE data_id_child " + SQLBuilder.inEntityIds() + " and relationship_id = " + relationshipTypeId;
     }
 
     // TODO refactor - it is very similar code to the one in AbstractGenericEntityWithPropertiesDAO
@@ -1053,6 +1053,12 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return findRelatedIds("data_id_parent", "data_id_child", dataSetIds, relationshipTypeId);
     }
 
+    @Override
+    public Set<TechId> findChildrenIds(Collection<TechId> dataSetIds, long relationshipTypeId)
+    {
+        return findRelatedIds("data_id_child", "data_id_parent", dataSetIds, relationshipTypeId);
+    }
+
     @SuppressWarnings("unchecked")
     private Set<TechId> findRelatedIds(String side1, String side2, final Collection<TechId> dataSetIds, final long relationshipTypeId)
     {
@@ -1238,28 +1244,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     Logger getLogger()
     {
         return operationLog;
-    }
-
-    @Override
-    public List<TechId> listComponentDataSetsWithASingleContainerRecursively(Collection<TechId> containersIds)
-    {
-        Set<TechId> allIds = new LinkedHashSet<TechId>();
-        // cascade deletion of contained datasets
-        Set<TechId> containedDataSetIds = new LinkedHashSet<TechId>();
-
-        containedDataSetIds.addAll(containersIds);
-
-        while (allIds.addAll(containedDataSetIds))
-        {
-            Long relationshipTypeId = RelationshipUtils.getContainerComponentRelationshipType(relationshipTypeDAO).getId();
-            String sql = "select data_id_child from data_set_relationships as r "
-            + "where data_id_parent in (:ids) and relationship_id = :type "
-            + "and (select count(*) from data_set_relationships where data_id_child = r.data_id_child) = 1";
-            containedDataSetIds = findRelatedIds(sql, containedDataSetIds, relationshipTypeId);
-        }
-
-        return new ArrayList<TechId>(allIds);
-
     }
 
     @Override

@@ -30,6 +30,8 @@ import org.springframework.dao.DataAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.batch.BatchOperationExecutor;
 import ch.systemsx.cisd.openbis.generic.server.batch.IBatchOperation;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
@@ -137,27 +139,39 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     {
         assert deletion != null;
 
-        List<TechId> allIdsAsList = getDataDAO().listComponentDataSetsWithASingleContainerRecursively(dataSetIds);
-        checkForNonDeletableDataSets(allIdsAsList);
-
+        IDatasetLister datasetLister = boFactory.createDatasetLister(session);
+        List<TechId> allDeletables = DataSetUtils.getAllDeletableComponentsRecursively(dataSetIds, datasetLister, this);
+        checkForNonDeletableDataSets(allDeletables);
+        List<TechId> deletableOriginals = new ArrayList<TechId>(dataSetIds);
+        deletableOriginals.retainAll(allDeletables);
         if (isOriginalDeletion)
         {
-
-            allIdsAsList.removeAll(dataSetIds);
+            allDeletables.removeAll(deletableOriginals);
 
             TrashBatchOperation batchOperation =
-                    new TrashBatchOperation(EntityKind.DATA_SET, dataSetIds, deletion,
+                    new TrashBatchOperation(EntityKind.DATA_SET, deletableOriginals, deletion,
                             getDeletionDAO(), true);
             BatchOperationExecutor.executeInBatches(batchOperation);
 
             batchOperation =
-                    new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
+                    new TrashBatchOperation(EntityKind.DATA_SET, allDeletables, deletion,
                             getDeletionDAO(), false);
             BatchOperationExecutor.executeInBatches(batchOperation);
         } else
         {
+            int nonDeletable = dataSetIds.size() - deletableOriginals.size();
+            if (nonDeletable == 1)
+            {
+                throw new UserFailureException("One related data sets couldn't be deleted "
+                        + "because it is contained in a data set outside the deletion set.");
+            }
+            if (nonDeletable > 1)
+            {
+                throw new UserFailureException(nonDeletable + " related data sets couldn't be deleted "
+                        + "because they are contained in data sets outside the deletion set.");
+            }
             TrashBatchOperation batchOperation =
-                    new TrashBatchOperation(EntityKind.DATA_SET, allIdsAsList, deletion,
+                    new TrashBatchOperation(EntityKind.DATA_SET, allDeletables, deletion,
                             getDeletionDAO(), false);
             BatchOperationExecutor.executeInBatches(batchOperation);
         }
@@ -165,6 +179,10 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
 
     private void checkForNonDeletableDataSets(List<TechId> allIdsAsList)
     {
+        if (allIdsAsList.isEmpty())
+        {
+            return;
+        }
         IDataSetTable dataSetTable = boFactory.createDataSetTable(session);
         dataSetTable.loadByIds(allIdsAsList);
         List<ExternalDataPE> unavailableDataSets = dataSetTable.getNonDeletableExternalDataSets();

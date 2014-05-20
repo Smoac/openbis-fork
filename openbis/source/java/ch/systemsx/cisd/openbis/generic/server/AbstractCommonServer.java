@@ -17,7 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -25,13 +28,19 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IDataSetTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.util.DataSetUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
@@ -88,6 +97,71 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
             return newPersons;
         }
 
+    }
+
+    @Deprecated
+    /** @deprecated this is legacy code permanently deleting data sets one by one omitting trash */
+    protected void permanentlyDeleteDataSets(Session session, IDataSetTable dataSetTable,
+            List<String> dataSetCodes, String reason, boolean forceDisallowedTypes)
+    {
+        // TODO 2011-06-21, Piotr Buczek: loading less for deletion would probably be faster
+
+        // first load by codes to get the ids
+        dataSetTable.loadByDataSetCodes(dataSetCodes, false, false);
+
+        List<DataPE> dataSets = dataSetTable.getDataSets();
+
+        if (atLeastOneOfDataSetsIsContainer(dataSets))
+        {
+            // get recursively all datasets that are contained and contained
+            List<TechId> ids = DataSetUtils.getAllDeletableComponentsRecursively(
+                    TechId.createList(dataSetTable.getDataSets()), createDatasetLister(session),
+                    getDAOFactory());
+
+            dataSetTable.loadByIds(ids);
+
+            dataSets = dataSetTable.getDataSets();
+        }
+        Map<DataSetTypePE, List<DataPE>> groupedDataSets =
+                new LinkedHashMap<DataSetTypePE, List<DataPE>>();
+
+        // Check all data sets before deleting group by group. If we delete one group of data sets
+        // and find an incorrect data set in another group then we cannot roll back already made
+        // deletions in data store server. Therefore we'd better make a check now to minimize a
+        // chance of failure.
+        DataSetTable.assertDatasetsAreDeletable(dataSets);
+        DataSetTable.assertDatasetsWithDisallowedTypes(dataSets, forceDisallowedTypes);
+
+        for (DataPE dataSet : dataSets)
+        {
+            DataSetTypePE dataSetType = dataSet.getDataSetType();
+            List<DataPE> list = groupedDataSets.get(dataSetType);
+            if (list == null)
+            {
+                list = new ArrayList<DataPE>();
+                groupedDataSets.put(dataSetType, list);
+            }
+            list.add(dataSet);
+        }
+        for (Map.Entry<DataSetTypePE, List<DataPE>> entry : groupedDataSets.entrySet())
+        {
+            DataSetTypePE dataSetType = entry.getKey();
+            IDataSetTypeSlaveServerPlugin plugin = getDataSetTypeSlaveServerPlugin(dataSetType);
+            plugin.permanentlyDeleteDataSets(session, entry.getValue(), reason,
+                    forceDisallowedTypes);
+        }
+    }
+
+    private boolean atLeastOneOfDataSetsIsContainer(Collection<DataPE> dataSets)
+    {
+        for (DataPE dataSet : dataSets)
+        {
+            if (dataSet.isContainer())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int archiveDatasets(String sessionToken, List<String> datasetCodes,
