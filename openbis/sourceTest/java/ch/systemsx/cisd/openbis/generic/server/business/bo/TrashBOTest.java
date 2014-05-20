@@ -334,12 +334,19 @@ public final class TrashBOTest extends AbstractBOTest
     @Test
     public void testTrashDataSetsWithDataSetInAContainer()
     {
+        DeletionPE deletion = createDeletion();
         createDeletion();
         List<TechId> dataSetIds = TechId.createList(1);
-        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList());
+        prepareFindDataSetComponentIds(dataSetIds, Arrays.<Long> asList(3L));
+        prepareFindDataSetComponentIds(TechId.createList(3), Arrays.<Long> asList());
         Map<Long, Set<Long>> containerIds = new LinkedHashMap<Long, Set<Long>>();
         containerIds.put(1L, new LinkedHashSet<Long>(Arrays.asList(2L)));
-        prepareListDataSetContainerIds(dataSetIds, containerIds);
+        containerIds.put(3L, new LinkedHashSet<Long>(Arrays.asList(1L)));
+        List<TechId> dataSetsToBeTrashed = TechId.createList(1, 3);
+        prepareListDataSetContainerIds(dataSetsToBeTrashed, containerIds);
+        prepareGetNondeletableDataSets(dataSetsToBeTrashed);
+        prepareTrash(deletion, EntityKind.DATA_SET, true, dataSetIds);
+        prepareTrash(deletion, EntityKind.DATA_SET, false, TechId.createList(3));
 
         trashBO.trashDataSets(dataSetIds);
 

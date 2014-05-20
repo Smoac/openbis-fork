@@ -140,7 +140,8 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
         assert deletion != null;
 
         IDatasetLister datasetLister = boFactory.createDatasetLister(session);
-        List<TechId> allDeletables = DataSetUtils.getAllDeletableComponentsRecursively(dataSetIds, datasetLister, this);
+        List<TechId> allDeletables = DataSetUtils.getAllDeletableComponentsRecursively(dataSetIds,
+                isOriginalDeletion, datasetLister, this);
         checkForNonDeletableDataSets(allDeletables);
         List<TechId> deletableOriginals = new ArrayList<TechId>(dataSetIds);
         deletableOriginals.retainAll(allDeletables);

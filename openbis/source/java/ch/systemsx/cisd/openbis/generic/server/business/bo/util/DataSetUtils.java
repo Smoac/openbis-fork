@@ -84,12 +84,14 @@ public class DataSetUtils
      * Returns the technical ids of all data sets which fulfill the following criteria:
      * <ol>
      * <li>The data set is from the graph created by all descendants of type component with the specified list of data sets as root nodes.
-     * <li>All ancestors of type container of the data set are part of the graph.
+     * <li>All ancestors of type container of the data set are part of the graph. Those ancestors are ignored for the specified data sets if
+     * <code>isOriginalDeletion == true</code>.
      * </ol>
      */
     public static List<TechId> getAllDeletableComponentsRecursively(List<TechId> dataSetIds,
-            IDatasetLister datasetLister, IDAOFactory daoFactory)
+            boolean isOriginalDeletion, IDatasetLister datasetLister, IDAOFactory daoFactory)
     {
+        Set<Long> dataSetIdsAsSet = new HashSet<Long>(TechId.asLongs(dataSetIds));
         Set<TechId> allIds = getAllPotentiallyDeletableComponentsRecursively(dataSetIds, daoFactory);
         if (allIds.isEmpty())
         {
@@ -99,7 +101,7 @@ public class DataSetUtils
         Map<Long, Set<Long>> containerIds = datasetLister.listContainerIds(allIdsAsLongs);
         for (Long id : allIdsAsLongs)
         {
-            if (containerIds.containsKey(id) == false)
+            if (containerIds.containsKey(id) == false || (isOriginalDeletion && dataSetIdsAsSet.contains(id)))
             {
                 containerIds.put(id, Collections.<Long> emptySet());
             }

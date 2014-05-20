@@ -115,7 +115,7 @@ abstract class AbstractCommonServer<T extends IServer> extends AbstractServer<T>
         {
             // get recursively all datasets that are contained and contained
             List<TechId> ids = DataSetUtils.getAllDeletableComponentsRecursively(
-                    TechId.createList(dataSetTable.getDataSets()), createDatasetLister(session),
+                    TechId.createList(dataSetTable.getDataSets()), true, createDatasetLister(session),
                     getDAOFactory());
 
             dataSetTable.loadByIds(ids);
