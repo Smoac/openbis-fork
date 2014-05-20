@@ -19,6 +19,7 @@ package ch.systemsx.cisd.cifex.server.business;
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.Properties;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -28,11 +29,14 @@ import ch.systemsx.cisd.authentication.IAuthenticationService;
 import ch.systemsx.cisd.cifex.BuildAndEnvironmentInfo;
 import ch.systemsx.cisd.cifex.server.business.bo.BusinessObjectFactory;
 import ch.systemsx.cisd.cifex.server.business.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInvocationHandler;
 import ch.systemsx.cisd.common.mail.IMailClient;
+import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.security.PasswordGenerator;
 
 /**
@@ -62,6 +66,9 @@ public final class DomainModel implements IDomainModel
 
     private final IAuthenticationService externalAuthenticationService;
 
+    /** Location of service properties file. */
+    public static final String SERVICE_PROPERTIES_FILE = "etc/service.properties";
+    
     /**
      * Creates an instance based on the specified DAO Factory and mail client. The specified bean
      * post processor is needed to create proxies for the various manager objects which handle
@@ -69,20 +76,28 @@ public final class DomainModel implements IDomainModel
      * In the Spring <code>applicationContext.xml</code> it is assumed that a the bean post
      * processor is correctly configured with the right TransactionInterceptor.
      */
-    public DomainModel(final IDAOFactory daoFactory, final IMailClient mailClient,
-            final IUserActionLog userActionLogHttp, final IUserActionLog userActionLogRpc,
+    public DomainModel(final IDAOFactory daoFactory, final IUserActionLog userActionLogHttp, final IUserActionLog userActionLogRpc,
             final BeanPostProcessor processor, final UserHttpSessionHolder userSessionHolder,
             final String overrideURL, IAuthenticationService externalAuthenticationService)
     {
         assert daoFactory != null : "Undefined DAO Factory";
-        assert mailClient != null : "Undefined mail client";
         assert userSessionHolder != null : "Undefined user session holder";
 
         this.daoFactory = daoFactory;
         this.processor = processor;
         this.externalAuthenticationService = externalAuthenticationService;
         businessContext = new BusinessContext();
-        businessContext.setMailClient(mailClient);
+        try {
+            Properties serviceProperties = PropertyIOUtils.loadProperties(SERVICE_PROPERTIES_FILE);
+            if(!serviceProperties.isEmpty()) {
+                IMailClient newMailClient = new MailClient(serviceProperties);
+                businessContext.setMailClient(newMailClient);
+            } else {
+                throw new ConfigurationFailureException("Empty service.properties for mail client.");
+            }
+        } catch(Exception ex) {
+            operationLog.error("Exception loading service.properties for mail client.", ex);
+        }
         businessContext.setPasswordGenerator(new PasswordGenerator());
         businessContext.setUserHttpSessionHolder(userSessionHolder);
         businessContext.setUserActionLogHttp(userActionLogHttp);

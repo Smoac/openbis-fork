@@ -39,16 +39,6 @@
 
     <bean id="domain-model" class="ch.systemsx.cisd.cifex.server.business.DomainModel">
         <constructor-arg ref="dao-factory" />
-        <constructor-arg>
-            <bean class="ch.systemsx.cisd.common.mail.MailClient">
-                <constructor-arg value="${mail.from}" />
-                <constructor-arg value="${mail.smtp.host}" />
-                <constructor-arg value="${mail.smtp.port}" />
-                <constructor-arg value="${mail.smtp.user}" />
-                <constructor-arg value="${mail.smtp.password}" />
-                <constructor-arg value="${mail.test.address}" />
-            </bean>
-        </constructor-arg>
         <constructor-arg ref="user-action-log-http" />
         <constructor-arg ref="user-action-log-rpc" />
         <constructor-arg ref="bean-post-processor" />
