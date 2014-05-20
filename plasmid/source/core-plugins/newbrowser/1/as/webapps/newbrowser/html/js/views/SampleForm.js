@@ -986,6 +986,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 								);
 		
 		// Show Widget
-		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%', 'width' : '80%', 'left' : '10%', 'right' : '10%'});
+		Util.blockUI($childrenGenerator, {'text-align' : 'left', 'top' : '10%', 'width' : '80%', 'left' : '10%', 'right' : '10%', 'height' : '80%', 'overflow' : 'auto'});
 	}
 }
