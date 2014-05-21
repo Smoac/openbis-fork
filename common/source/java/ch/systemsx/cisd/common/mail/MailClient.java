@@ -47,6 +47,7 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
@@ -113,13 +114,12 @@ public final class MailClient extends Authenticator implements IMailClient
     
     public MailClient(MailClientParameters parameters)
     {
-        this.properties = parameters.getPropertiesInstance();
-        init();
+        this(parameters.getPropertiesInstance());
     }
     
     public MailClient(Properties properties)
     {
-        this.properties = properties;
+        this.properties = ExtendedProperties.createWith(properties);
         init();
     }
     
