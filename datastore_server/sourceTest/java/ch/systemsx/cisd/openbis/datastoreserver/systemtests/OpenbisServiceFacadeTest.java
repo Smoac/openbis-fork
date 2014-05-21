@@ -153,17 +153,19 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
     }
 
     @Test
-    public void testGetDataSetContainedDataSets() throws Exception
+    public void testGetDataSetContainedAndContainerDataSets() throws Exception
     {
         DataSet ds = createAndLoadADataSet();
         List<DataSet> contained = ds.getContainedDataSets();
         assertEquals(0, contained.size());
+        List<DataSet> containers = ds.getContainerDataSets();
+        assertEquals(0, containers.size());
 
         // The primary data set for a normal (non-container) data set is itself
         assertNotNull(ds.getPrimaryDataSetOrNull());
         assertEquals(ds, ds.getPrimaryDataSetOrNull());
     }
-
+    
     private static String fileInfoString(String startPath, String pathInListing, long length)
     {
         return String.format("FileInfoDssDTO[%s/%s,%s,%d]", startPath, pathInListing,

@@ -271,7 +271,7 @@ public class DataSet
                 containerDataSets.add(containerDataSet);
             }
         }
-        return containedDataSets;
+        return containerDataSets;
     }
     
     /**
