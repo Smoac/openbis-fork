@@ -39,5 +39,6 @@
 	<classpathentry kind="lib" path="/libraries/gxt2.2.5/gxt.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA-sources.jar"/>
 	<classpathentry kind="lib" path="/libraries/gwt2.4/validation-api-1.0.0.GA.jar"/>
+	<classpathentry kind="lib" path="/libraries/mail/mail.jar"/>
 	<classpathentry kind="output" path="targets/www/WEB-INF/classes"/>
 </classpath>
