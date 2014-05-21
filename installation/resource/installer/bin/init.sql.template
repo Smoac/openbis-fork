@@ -1,7 +1,16 @@
 
 -- Execute the following SQL script as a database superuser
 
-create user DB_OWNER;
+DO
+$body$
+  begin
+  IF NOT EXISTS (SELECT * FROM pg_catalog.pg_user WHERE  usename = 'DB_OWNER')
+  THEN
+    create user DB_OWNER;
+  END IF;
+END;
+$body$;
+
 create database DB_NAME with owner DB_OWNER encoding 'UTF8' template=template0 tablespace=pg_default;
 alter database DB_NAME set default_with_oids = off; 
 alter database DB_NAME set join_collapse_limit = '32'; 
@@ -15,3 +24,4 @@ insert into database_version_logs(db_version, run_status, run_status_timestamp) 
 alter database DB_NAME owner to DB_OWNER;
 alter table database_version_logs owner to DB_OWNER;
 commit;
+
