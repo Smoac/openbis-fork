@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectBy
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -106,6 +107,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -141,7 +143,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 27;
+    public static final int MINOR_VERSION = 28;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -1295,5 +1297,15 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             api.add(Translator.translate(propertyType, vocabTerms));
         }
         return api;
+    }
+
+    @Override
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    // this is not a readOnly transaction - uses nextVal()
+    public String generateCode(String sessionToken, String prefix, String entityKind)
+    {
+        checkSession(sessionToken);
+        return new EntityCodeGenerator(getDAOFactory()).generateCode(prefix, EntityKind.valueOf(entityKind));
     }
 }

@@ -65,6 +65,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			Util.blockUI();
 			var localReference = this;
 			this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+				
 				//Collection information
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
 						
@@ -93,6 +95,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 								$("#sampleSpaceProject").val(spaceForSampleType);
 							}
 						}
+						localReference.serverFacade.generateCode(sampleType.codePrefix, function(data) {
+							$("#sampleCode").val(data.result);
+						});
+						
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
 						var dataStoreURL = null;
 						if(localReference.profile.allDataStores.length > 0) {
@@ -136,7 +142,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				}
 				
 				//Disable managed and dinamic
-				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
 				for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 					var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 						for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {

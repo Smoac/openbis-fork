@@ -89,6 +89,13 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
+	// Others
+	//
+	this.generateCode = function(prefix, action) {
+		this.openbisServer.generateCode(prefix, "SAMPLE", action);
+	}
+	
+	//
 	// Data Set Related Functions
 	//
 	this.listDataSetsForSample = function(sampleToSend, trueOrFalse, callbackFunction) {

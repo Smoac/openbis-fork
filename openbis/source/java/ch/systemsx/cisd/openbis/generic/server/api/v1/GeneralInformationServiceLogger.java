@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
-
 /**
  * @author Franz-Josef Elmer
  */
@@ -470,6 +469,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<PropertyType> listPropertyTypes(String sessionToken, boolean withRelations)
     {
         logAccess(sessionToken, "listPropertyTypes", "sessionToken(%s) withRelations(%s)", sessionToken, withRelations);
+        return null;
+    }
+
+    @Override
+    public String generateCode(String sessionToken, String prefix, String entityKind)
+    {
+        logAccess(sessionToken, "generateCode", "sessionToken(%s) prefix(%s) entityKind(%s)", sessionToken, prefix, entityKind);
         return null;
     }
 }

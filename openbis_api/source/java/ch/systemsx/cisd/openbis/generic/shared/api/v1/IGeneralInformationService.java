@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetapr
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -533,5 +534,14 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.26
      */
     public List<PropertyType> listPropertyTypes(String sessionToken, boolean withRelations);
+    
+    /**
+     * Generate Code.
+     * 
+     * @param prefix
+     * @param entityKind
+     * @since 1.28
+     */
+    public String generateCode(String sessionToken, String prefix, String entityKind);
 }
 
