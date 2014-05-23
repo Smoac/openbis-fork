@@ -222,7 +222,7 @@ public class MixColors
             // blue = Math.max(blue, b);
 
         }
-        return getColor(red, green , blue );
+        return getColor(red, green, blue);
     }
 
     /**
@@ -274,49 +274,14 @@ public class MixColors
 
         int width = images[0].getWidth();
         int height = images[0].getHeight();
-
-        final Color[][] notNormalizedPixels = new Color[width][height];
-        float whitePointSumIntencity = 0f; 
-        Color whitePointColor = new Color(0); 
-        final float[] mixedComponents = new float[4];
-        
-        
-        // store the colours and calculate white point
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
-                notNormalizedPixels[x][y] = mixColor;
-                
-				mixColor.getRGBColorComponents(mixedComponents);
-				float sumIntencity = 0f;
-				for (int i=0; i<mixedComponents.length; i++){
-					sumIntencity += mixedComponents[i];
-				}
-				
-				if (whitePointSumIntencity < sumIntencity) {
-					whitePointColor = mixColor;
-					whitePointSumIntencity = sumIntencity;
-				}
-            }
-        }
-        
-        final float whitePointFactor = 255f / getMaxComponent(whitePointColor.getRed(), whitePointColor.getGreen(), whitePointColor.getBlue());
-        
         final BufferedImage mixed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        // apply white point adjustments to the final image
-        for (int y = 0; y < height; ++y)
+        for (int y = 0; y < images[0].getHeight(); ++y)
         {
-            for (int x = 0; x < width; ++x)
+            for (int x = 0; x < images[0].getWidth(); ++x)
             {
-            	notNormalizedPixels[x][y].getRGBColorComponents(mixedComponents);
-				for (int i=0; i<mixedComponents.length; i++){
-					mixedComponents[i] *= whitePointFactor;
-				}
-
-				mixed.setRGB(x, y, new Color(images[0].getColorModel().getColorSpace(), mixedComponents, 1).getRGB());
+                Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
+                mixed.setRGB(x, y, mixColor.getRGB());
             }
         }
         return mixed;
@@ -362,8 +327,7 @@ public class MixColors
         {
             isGrayscale = isGrayscale && images[i].getColorModel().getNumColorComponents() == 1;
             ColorModel colorModel = images[i].getColorModel();
-            operationLog.info("===== Colormodel is: " + colorModel.toString());
-            /*int componentSize;
+            int componentSize;
             try
             {
                 componentSize = colorModel.getComponentSize(0);
@@ -375,7 +339,7 @@ public class MixColors
             if (componentSize != 8)
             {
                 throw new IllegalArgumentException("Only 8-bit images can be merged.");
-            }*/
+            }
         }
         return createColorMergingAlgorithm(quadratic, saturationEnhancementFactor, isGrayscale,
                 numberOfImages);
