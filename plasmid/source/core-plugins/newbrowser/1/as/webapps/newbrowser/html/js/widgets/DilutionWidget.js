@@ -283,7 +283,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		var $legend = $("<legend>");
 		$legend.append("Dilution Calculator ");
 		
-		var $printButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-print" }));
+		var $printButton = $("<a>", { class: "btn btn-default" }).append($("<i>", { class: "icon-print" }));
 		$printButton.click(function() { 
 			var tableWidget = $("#" + _this._widgetTableId);
 			var clonedWidget = tableWidget.clone();

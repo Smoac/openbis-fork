@@ -32,7 +32,7 @@ function Inspector(serverFacade, containerId, profile) {
 	this.repaint = function() {
 		$("#"+containerId).empty();
 		var allInspectors = ""
-		allInspectors += "<a class='btn' href='javascript:mainController.inspector.printInspectors()'><i class='icon-print'></i></a>";
+		allInspectors += "<a class='btn btn-default' href='javascript:mainController.inspector.printInspectors()'><span class='glyphicon glyphicon-print'></span></a>";
 		allInspectors += "<div id='inspectorsContainer' class='inspectorsContainer'>";
 		allInspectors += this.getAllInspectors(false, true, true, true);
 		allInspectors += "</div>";
@@ -131,12 +131,12 @@ function Inspector(serverFacade, containerId, profile) {
 	this.toogleInspector = function(permId) {
 		if($("#" + permId).is(":visible")) {
 			$("#" + permId).hide();
-			$("#" + permId+"_ICON").removeClass("icon-chevron-up");
-			$("#" + permId+"_ICON").addClass("icon-chevron-down");
+			$("#" + permId+"_ICON").removeClass("glyphicon glyphicon-chevron-up");
+			$("#" + permId+"_ICON").addClass("glyphicon glyphicon-chevron-down");
 		} else {
 			$("#" + permId).show();
-			$("#" + permId+"_ICON").removeClass("icon-chevron-down");
-			$("#" + permId+"_ICON").addClass("icon-chevron-up");
+			$("#" + permId+"_ICON").removeClass("glyphicon glyphicon-chevron-down");
+			$("#" + permId+"_ICON").addClass("glyphicon glyphicon-chevron-up");
 		}
 	}
 	
@@ -245,12 +245,12 @@ function Inspector(serverFacade, containerId, profile) {
 			inspector += "<div id='"+divID+"' class='" + inspectorClass + "' style='background-color:" + defaultColor + ";' >";
 			
 			if(showClose) {
-				var removeButton = "<span class='btn inspectorToolbar btn-inverse' style='float:left; margin: 2px' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='icon-remove icon-white'></i></span>";
+				var removeButton = "<span class='btn inspectorToolbar btn-default' style='float:left; margin: 2px' onclick='mainController.inspector.closeNewInspector(\""+entity.id+"\")'><i class='glyphicon glyphicon-remove'></i></span>";
 				inspector += removeButton;
 			}
 			
 			if(withLinks) {
-				var toogleButton = "<span class='btn inspectorToolbar btn-inverse' style='float:left; margin: 2px' onclick='mainController.inspector.toogleInspector(\""+entity.permId+"_TOOGLE\")'><i id='"+entity.permId+"_TOOGLE_ICON' class='icon-chevron-up icon-white'></i></span>";
+				var toogleButton = "<span class='btn inspectorToolbar btn-default' style='float:left; margin: 2px' onclick='mainController.inspector.toogleInspector(\""+entity.permId+"_TOOGLE\")'><i id='"+entity.permId+"_TOOGLE_ICON' class='glyphicon glyphicon-chevron-up'></i></span>";
 				inspector += toogleButton;
 			}
 			
@@ -262,11 +262,11 @@ function Inspector(serverFacade, containerId, profile) {
 			
 			
 			if(withLinks) {
-				var printButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px;' onclick='javascript:mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='icon-print'></i></span>";
+				var printButton = "<span class='btn btn-default inspectorToolbar' style='float:right; margin: 2px;' onclick='javascript:mainController.inspector.printInspector(\""+entity.permId+"\")'><i class='glyphicon glyphicon-print'></i></span>";
 				inspector += printButton;
-				var viewButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px' onclick='javascript:mainController.changeView(\"showViewSamplePageFromPermId\",\""+entity.permId+"\")'><i class='icon-edit'></i></span>";
+				var viewButton = "<span class='btn btn-default inspectorToolbar' style='float:right; margin: 2px' onclick='javascript:mainController.changeView(\"showViewSamplePageFromPermId\",\""+entity.permId+"\")'><i class='glyphicon glyphicon-edit'></i></span>";
 				inspector += viewButton;
-				var hierarchyButton = "<span class='btn inspectorToolbar' style='float:right; margin: 2px' onclick=\"javascript:mainController.changeView('showSampleHierarchyPage','"+entity.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></span>";
+				var hierarchyButton = "<span class='btn btn-default inspectorToolbar' style='float:right; margin: 2px' onclick=\"javascript:mainController.changeView('showSampleHierarchyPage','"+entity.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></span>";
 				inspector += hierarchyButton;
 			}
 			

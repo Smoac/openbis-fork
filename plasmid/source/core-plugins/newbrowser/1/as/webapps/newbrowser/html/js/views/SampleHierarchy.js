@@ -285,7 +285,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 		}
 		component += "</select>";
 		
-		Util.blockUI("Select the type for the Child: <br><br>" + component + "<br> or <a class='btn' id='sampleTypeSelectorCancel'>Cancel</a>");
+		Util.blockUI("Select the type for the Child: <br><br>" + component + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
 		
 		$("#sampleTypeSelectorCancel").on("click", function(event) { 
 			Util.unblockUI();

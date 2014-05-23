@@ -79,7 +79,7 @@ var Util = new function() {
 	this.showError = function(withHTML, andCallback, noBlock) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>Accept</a>";
 		}
 		
 		if(!noBlock) {
@@ -110,7 +110,7 @@ var Util = new function() {
 	this.showSuccess = function(withHTML, andCallback) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>Accept</a>";
 		}
 		
 		this.blockUINoMessage();
@@ -138,7 +138,7 @@ var Util = new function() {
 	this.showInfo = function(withHTML, andCallback) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			withHTML = withHTML + "<br>" + "<a class='btn'>Accept</a>";
+			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>Accept</a>";
 		}
 		
 		this.blockUINoMessage();
@@ -198,7 +198,7 @@ var Util = new function() {
 		var imageHTML = $imageWrapper[0].outerHTML;
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			imageHTML = "<div style='text-align:right;'><a class='btn'><i class='icon-remove'></i></a></div>" + imageHTML;
+			imageHTML = "<div style='text-align:right;'><a class='btn btn-default'><span class='glyphicon glyphicon-remove'></span></a></div>" + imageHTML;
 		}
 		
 		this.blockUINoMessage();

@@ -18,14 +18,24 @@
  * General Overrides
  */
 
+.container  {
+	width: 100%;
+}
+
 body {
-	margin-top: 30px;
+	margin-top: 60px;
 	overflow-y:scroll;
 }
 
 h1, h2, legend {
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-weight: 300;
+}
+
+.btn {
+	min-width: 45px !important;
+	min-height: 37px !important;
+	padding: 8px 12px 6px 14px !important;
 }
 
 /* 
@@ -42,8 +52,8 @@ h1, h2, legend {
 }
 
 .loginForm {
-	width: 360px;
-	height: 360px;
+	width: 410px;
+	height: 410px;
 	padding: 30px;
 	display: block;
 	
@@ -66,7 +76,7 @@ h1, h2, legend {
 
 .loginForm form {
 	position: relative;
-	margin: 20px 0px 60px 0px;	
+	margin: 20px 0px 30px 0px;	
 }
 
 .loginLogo {
@@ -91,7 +101,7 @@ h1, h2, legend {
 	font-family: "Helvetica Neue",sans-serif;
 	border: medium none;
 	font-size: 19px;
-	padding: 10px 0px 0px 10px;
+	padding: 10px 0px 10px 10px;
 	font-weight: 300;
 	-webkit-box-shadow: none;
 	-moz-box-shadow: none;
@@ -109,9 +119,9 @@ h1, h2, legend {
 
 .loginForm .btn {
 	font-family: "Helvetica Neue",sans-serif;
-	position: absolute;
-	top: 46px;
 	left: 310px;
+    position: absolute;
+    top: 51px;
 }
 
 /*
@@ -171,12 +181,13 @@ h1, h2, legend {
 /* 
  * Navigation bar - Search
  */
-.navbar-search .search-query {
+.navbar-form .search-query {
     padding-left: 30px;
     background-image: url(../img/search-icon.png);
     background-repeat: no-repeat;
-    background-position: 12px 7px;
+    background-position: 12px 9px;
 	width: 140px;
+	border-radius: 15px 15px 15px 15px;
 }
 
 .search-query-searching {
@@ -201,10 +212,6 @@ h1, h2, legend {
 	background-image: none;
 }
 
-.pinBtn { /* Pin button resizing fix for Webkit (Chrome/Safari) */
-	width: 16px;
-}
-
 /* tool box */
 .paginationTop span {
     float: left;
@@ -224,20 +231,20 @@ h1, h2, legend {
 	text-align:left;
 }
 
-.tableFilter {
+.tableFilterContainer .search-query {
 	margin-bottom: 0px;
 	padding-left: 30px !important;
 	background-image: url(../img/filter-icon.png);
     background-repeat: no-repeat;
-    background-position: 12px 8px;
+    background-position: 13px 10px;
     width: 80%;
     margin-right: auto;
     margin-left: auto;
+    border-radius: 15px 15px 15px 15px;
 }
 
 .paginationItem {
 	margin-right: 4px;
-	width: 23px;
 }
 
 .paginationTop,

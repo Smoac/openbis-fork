@@ -80,7 +80,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		
 		$containerTitle.append($("<legend>").html("Data Sets"));
 		$containerTitle.append($("<p>")
-							.append($("<i>", { class: "icon-info-sign" }))
+							.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 							.append(" Loading datasets."));
 		//
 		// Loading the datasets
@@ -102,7 +102,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					$containerTitle.empty();
 					
 					//Upload Button
-					var $uploadButton = $("<a>", { class: "btn" }).append($("<i>", { class: "icon-upload" }));
+					var $uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" }));
 					$uploadButton.click(function() { 
 						mainController.changeView('showCreateDataSetPage',localReference.sample); //TO-DO Fix Global Access
 					} );
@@ -135,7 +135,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	
 	this._getSwitch = function() {
 		var _this = this;
-		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto;"});
+		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
 		$switch.change(function(event) {
 			var mode = $('input[name=dataSetVieweMode]:checked').val();
 			switch(mode) {
@@ -150,9 +150,9 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		
 		$switch
 			.append($("<input>", {"value" : "imageMode", "id" : "imageMode", "name" : "dataSetVieweMode", "type" : "radio", "checked" : ""}))
-			.append($("<label>", {"for" : "imageMode", "onclick" : ""}).append("Images"))
+			.append($("<label>", {"for" : "imageMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Images"))
 			.append($("<input>", {"value" : "fileMode", "id" : "fileMode","name" : "dataSetVieweMode", "type" : "radio"}))
-			.append($("<label>", {"for" : "fileMode", "onclick" : ""}).append("Files"));
+			.append($("<label>", {"for" : "fileMode", "onclick" : "", "style" : "padding-top:3px;"}).append("Files"));
 
 		$switch.append($("<a>", {"class" : "btn btn-primary"}));
 		return $switch;
@@ -187,7 +187,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		if(datastoreDownloadURL === null) {
 			$container.append($("<p>")
-					.append($("<i>", { class: "icon-ban-circle" }))
+					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
 					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
 			return;
 		}
@@ -218,7 +218,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		
 		if(numImages === maxImages) {
 			$container.append($("<p>")
-					.append($("<i>", { class: "icon-info-sign" }))
+					.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 					.append(" You can't see more than " + maxImages + " image at the same time, please use the file browser mode."));
 		}
 	}
@@ -232,7 +232,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		if(datastoreDownloadURL === null) {
 			$container.append($("<p>")
-					.append($("<i>", { class: "icon-ban-circle" }))
+					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
 					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
 			return;
 		}
@@ -247,7 +247,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		
 		if(numberOfDatasets === 0) {
 			$container.append($("<p>")
-								.append($("<i>", { class: "icon-info-sign" }))
+								.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 								.append(" No datasets found."));
 			return;
 		}
@@ -275,7 +275,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			
 			if(!datasetFiles) {
 				$container.append($("<p>")
-						.append($("<i>", { class: "icon-ban-circle" }))
+						.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
 						.append(" Please configure properly trusted-cross-origin-domains for this web app, datasets can't be retrieved from the DSS server."));
 				return;
 			}
@@ -308,7 +308,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 												$("<a>")
 													.attr("href", downloadUrl)
 													.attr("target", "_blank")
-													.append($("<i>").attr("class", "icon-search"))
+													.append($("<span>").attr("class", "glyphicon glyphicon-search"))
 											)
 									);
 				} else {

@@ -40,7 +40,7 @@ function BrowserWidget(mainController, containerId, structure) {
 		var $browserProjectsWrapper = $("<div>", { style: "float:left; margin-right:10px;" });
 		var $browserExperimentsWrapper = $("<div>", { style: "float:left; margin-right:10px;" });
 		
-		var $browserSpaces = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+		var $browserSpaces = $("<ul>", { class: "nav nav-pills nav-stacked span5" });
 		$browserSpacesWrapper.append($browserSpaces);
 		
 		
@@ -49,13 +49,13 @@ function BrowserWidget(mainController, containerId, structure) {
 			
 			var spaceOnHoverEvent = function(projects) {
 				return function() {
-					var $browserProjects = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+					var $browserProjects = $("<ul>", { class: "nav nav-pills nav-stacked span5" });
 					for(var projectCode in projects) {
 						var project = projects[projectCode];
 						
 						var projectOnHoverEvent = function(experiments) {
 							return function() {
-								var $browserExperiments = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+								var $browserExperiments = $("<ul>", { class: "nav nav-pills nav-stacked span5" });
 								for(var experimentCode in experiments) {
 									var experiment = experiments[experimentCode];
 									

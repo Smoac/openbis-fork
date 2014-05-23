@@ -157,7 +157,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		}
 		component += "</select>";
 		
-		Util.blockUI("Select type: <br><br>" + component + "<br> or <a class='btn' id='sampleTypeSelectorCancel'>Cancel</a>");
+		Util.blockUI("Select type: <br><br>" + component + "<br> or <a class='btn btn-default' id='sampleTypeSelectorCancel'>Cancel</a>");
 		
 		$("#sampleTypeSelectorCancel").on("click", function(event) { 
 			Util.unblockUI();
@@ -186,7 +186,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var tableId = id + "-table";
 		var sampleId = id + "-sample";
 		var $component = $("<div>", {"id" : id , "class" : "control-group", "sample-type-code" : sampleTypeHint["TYPE"], "sample-min-count" : sampleTypeHint["MIN_COUNT"] } );
-		$component.css({"border-radius" : "10px", "padding" : "10px"});
+		$component.css({"border-radius" : "10px", "padding-left" : "10px"});
 		
 		var requiredText = "";
 		if(sampleTypeHint["MIN_COUNT"] > 0) {
@@ -200,7 +200,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var $label = $("<label>", { "class" : "control-label" }).text(labelText);	
 		var $controls = $("<div>", { "class" : "controls"});
 			
-			var $buttonTextField = $("<a>", {"class" : "btn", "type" : "button", "id" : sampleId});
+			var $buttonTextField = $("<a>", {"class" : "btn btn-default", "type" : "button", "id" : sampleId});
 			$buttonTextField.css({
 				"max-width" : "90%",
 				"text-align" : "left"
@@ -239,13 +239,13 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					annotationComponents.push($propertyField);
 			}
 			
-			var $buttonPlusOne = $("<a>", {"class" : "btn" });
-			$buttonPlusOne.append($("<i>", { "class" : "icon-plus-sign"}));
+			var $buttonPlusOne = $("<a>", {"class" : "btn btn-default" });
+			$buttonPlusOne.append($("<span>", { "class" : "glyphicon glyphicon-plus-sign"}));
 			$controls.append($buttonPlusOne);
 			$controls.append(" ");
 			
-			var $buttonDelete = $("<a>", {"class" : "btn" });
-			$buttonDelete.append($("<i>", { "class" : "icon-minus-sign"}));
+			var $buttonDelete = $("<a>", {"class" : "btn btn-default" });
+			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
 			$controls.append($buttonDelete);
 			
 			if(this.isDisabled) {
@@ -303,11 +303,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this._getPlus = function() {
 		var id = this.containerId + "-plus-button";
 		var tableId = id + "-table";
-		var $component = $("<div>", { "id" : id, "class" : "control-group"} );
-		var $controls = $("<div>", { "class" : "controls"});
+		var $component = $("<div>", { "id" : id, "class" : "form-group", "style" : 'padding: 10px 0px 0px 10px'} );
+		var $controls = $("<div>", { "class" : "col-md-12"});
 		
-		var $buttonPlus = $("<a>", {"class" : "btn"});
-		$buttonPlus.append($("<i>", { "class" : "icon-plus-sign"}));
+		var $buttonPlus = $("<a>", {"class" : "btn btn-default"});
+		$buttonPlus.append($("<span>", { "class" : "glyphicon glyphicon-plus-sign"}));
 		$controls.append($buttonPlus);
 			
 		if(this.isDisabled) {

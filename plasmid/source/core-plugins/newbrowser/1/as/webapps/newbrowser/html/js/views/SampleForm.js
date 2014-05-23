@@ -53,6 +53,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
 	
+	this.formColumClass = 'col-md-12'
+	this.labelColumnClass = 'col-md-1';
+	this.controlColumnClass = 'col-md-5';
+	
 	this.isDirty = function() {
 		return this.isFormDirty;
 	}
@@ -175,10 +179,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 
 	this.getTextBox = function(id, alt, isRequired) {
-		var component = "<textarea id='" + id + "' alt='" + alt + "' style='height: 80px; width: 450px;'";
+		var component = "<textarea class='form-control' id='" + id + "' alt='" + alt + "' style='height: 80px; width: 450px;'";
 		
 		if (isRequired) {
-			component += "required></textarea> (Required)";
+			component += "required></textarea>";
 		} else {
 			component += "></textarea>";
 		}
@@ -187,14 +191,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.getBooleanField = function(id, alt) {
-		return "<input type='checkbox' id='" + id + "' alt='" + alt + "' >";
+		return "<div class='checkbox'><input type='checkbox' id='" + id + "' alt='" + alt + "' ></div>";
 	}
 	
 	this.getInputField = function(type, id, alt, isRequired) {
-		var component = "<input type='" + type + "' id='" + id + "' alt='" + alt + "'";
+		var component = "<input class='form-control' type='" + type + "' id='" + id + "' alt='" + alt + "'";
 		
 		if (isRequired) {
-			component += "required> (Required)";
+			component += "required>";
 		} else {
 			component += ">";
 		}
@@ -203,10 +207,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.getNumberInputField = function(step, id, alt, isRequired) {
-		var component = "<input type='number' id='" + id + "' alt='" + alt + "' step='" + step + "'";
+		var component = "<input class='form-control' type='number' id='" + id + "' alt='" + alt + "' step='" + step + "'";
 		
 		if (isRequired) {
-			component += "required> (Required)";
+			component += "required>";
 		} else {
 			component += ">";
 		}
@@ -215,7 +219,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.getDropDownField = function(code, terms, isRequired) {
-		var component = "<select id='" + code + "' ";
+		var component = "<select class='form-control' id='" + code + "' ";
 		
 		if (isRequired) {
 			component += "required>";
@@ -229,18 +233,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 		component += "</select> ";
 		
-		if (isRequired) {
-			component += " (Required)";
-		}
-		
 		return component;
 	}
 	
 	this.getDatePickerField = function(id, alt, isRequired) {	
-		var component  = "<div class='well' style='width: 250px;'>";
-			component += "<div id='datetimepicker_" + id + "' class='input-append date'>";
+		var component  = "<div class='form-group' style='margin-left: 0px;'>";
+			component += "<div id='datetimepicker_" + id + "' class='input-group date'>";
 			
-			component += "<input id='" + id + "' data-format='yyyy-MM-dd HH:mm:ss' type='text' ";
+			component += "<input class='form-control' id='" + id + "' data-format='yyyy-MM-dd HH:mm:ss' type='text' ";
 			
 			if (isRequired) {
 				component += "required></input>";
@@ -248,9 +248,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				component += "></input>";
 			}
 			
-			component += "<span class='add-on'>";
-			component += "<i data-time-icon='icon-time' data-date-icon='icon-calendar'></i>";
-			component += "</span>";
+			component += "<span class='input-group-addon'><span class='glyphicon glyphicon-calendar'></span>";
 			
 			component += "</div>";
 			component += "</div>";
@@ -261,11 +259,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.getHierarchyButton = function() {
-		return "<a class='btn' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+this.sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
+		return "<a class='btn btn-default' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+this.sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
 	}
 	
 	this.getEditButton = function() {
-		return "<a id='editButton' class='btn'><i class='icon-edit'></i> Enable Editing</a>";
+		return "<a id='editButton' class='btn btn-default'><span class='glyphicon glyphicon-edit'></span> Enable Editing</a>";
 	}
 	
 	this.enableEditButtonEvent = function() {
@@ -281,7 +279,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		if(this.inspector.containsSample(this.sample) !== -1) {
 			inspectedClass = "inspectorClicked";
 		}
-		return "<a id='pinButton' class='btn pinBtn " + inspectedClass + "'><img src='./img/pin-icon.png' style='width:16px; height:16px;' /></a>";
+		return "<a id='pinButton' class='btn btn-default " + inspectedClass + "'><img src='./img/pin-icon.png' style='width:16px; height:16px;' /></a>";
 	}
 	
 	this.enablePINButtonEvent = function() {
@@ -307,8 +305,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 
 		var component = "";
 		
-			component += "<div class='row-fluid'>";
-			component += "<div class='span12'>";
+			component += "<div class='row'>";
+			component += "<div class='" + this.formColumClass + "'>";
 			
 			var message = null;
 			var pinButton = "";
@@ -332,15 +330,17 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + hierarchyButton + " " + editButton + "</h2>";
 			
-			component += "<form class='form-horizontal' action='javascript:void(0);' onsubmit='mainController.currentView.createSample();'>";
+			if (this.mode !== SampleFormMode.CREATE) {
+				component += "<img data-preview-loaded='false' class='zoomableImage' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px;'></img>"
+			}
+			
+			component += "<form class='form-horizontal' role='form' action='javascript:void(0);' onsubmit='mainController.currentView.createSample();'>";
 			
 			//
 			// SELECT PROJECT/SPACE AND CODE
 			//
-			if (this.mode !== SampleFormMode.CREATE) {
-				component += "<img data-preview-loaded='false' class='zoomableImage' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px; float:right;'></img>"
-			}
-			component += "<fieldset>";
+			
+			component += "<div>";
 			component += "<legend>Identification Info</legend>";
 			//Space/Project
 			var spaceSelectEnabled = true;
@@ -351,38 +351,46 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			
 			if(spaceSelectEnabled) {
-				component += "<div class='control-group'>";
+				component += "<div class='form-group'>";
 				if(this.isELNExperiment) {
-					component += "<label class='control-label' for='inputSpace'>Project:</label>";
+					component += "<label class='control-label " + this.labelColumnClass+ "' for='inputSpace'>Project:</label>";
 				} else {
-					component += "<label class='control-label' for='inputSpace'>Space:</label>";
+					component += "<label class='control-label " + this.labelColumnClass+ "' for='inputSpace'>Space:</label>";
 				}
 				
-				component += "<div class='controls'>";
+				component += "<div class='" + this.controlColumnClass + "'>";
 				if(this.isELNExperiment) {
-					component += "<select id='sampleSpaceProject' required>";
+					component += "<select class='form-control' id='sampleSpaceProject' required>";
 					component += "<option disabled=\"disabled\" selected></option>";
 					for(var i = 0; i < this.projects.length; i++) {
 						component += "<option value='"+this.projects[i]+"'>"+this.projects[i]+"</option>";
 					}
-					component += "</select> (Required)";
+					component += "</select>";
 				} else {
-					component += "<select id='sampleSpaceProject' required>";
+					component += "<select class='form-control' id='sampleSpaceProject' required>";
 					component += "<option disabled=\"disabled\" selected></option>";
 					for(var i = 0; i < this.spaces.length; i++) {
 						component += "<option value='"+this.spaces[i]+"'>"+this.spaces[i]+"</option>";
 					}
-					component += "</select> (Required)";
+					component += "</select>";
 				}
 				component += "</div>";
+				
+				component += "<div class='" + this.controlColumnClass + "'>";
+				component += "(Required)";
+				component += "</div>";
+				
 				component += "</div>";
 			}
 			
 			//Code
-			component += "<div class='control-group'>";
-			component += "<label class='control-label' for='inputCode'>Code:</label>";
-			component += "<div class='controls'>";
-			component += "<input type='text' placeholder='Code' id='sampleCode' pattern='[a-zA-Z0-9_\\-\\.]+' required> (Required)";
+			component += "<div class='form-group'>";
+			component += "<label class='control-label  " + this.labelColumnClass+ "' for='inputCode'>Code:</label>";
+			component += "<div class='" + this.controlColumnClass + "'>";
+			component += "<input type='text' class='form-control' placeholder='Code' id='sampleCode' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
+			component += "</div>";
+			component += "<div class='" + this.controlColumnClass + "'>";
+			component += "(Required)";
 			if(this.mode === SampleFormMode.CREATE) {
 				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 			}
@@ -390,7 +398,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "</div>";
 			
 			
-			component += "</fieldset>";
+			component += "</div>";
 			
 			//
 			// LINKS TO PARENTS
@@ -426,13 +434,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			// GENERATE CHILDREN
 			//
 			if(!(this.mode === SampleFormMode.VIEW)) {
-				component += "<fieldset>";
-				component += "<div class='control-group'>";
-				component += "<div class='controls'>";
-				component += "<a class='btn' id='generate_children'>Generate Children</a>";
+				component += "<div>";
+				component += "<div class='form-group'>";
+				component += "<a class='btn btn-default' style='margin-left:25px;' id='generate_children'>Generate Children</a>";
 				component += "</div>";
 				component += "</div>";
-				component += "</fieldset>";
 			}
 			
 			
@@ -441,7 +447,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			//
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
-				component += "<fieldset>";
+				component += "<div>";
 				
 				if(propertyTypeGroup.name) {
 					component += "<legend>" + propertyTypeGroup.name + "</legend>";
@@ -454,17 +460,17 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						component += "<div id='" + containerId + "'></div>"; // When a storage is used, the storage needs a container
 					}
 				} else {
-					component += "<legend></legend>";
+					component += "<legend> Metadata</legend>";
 				}
 				
 				for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 					var propertyType = propertyTypeGroup.propertyTypes[j];
 					if(this.storages.length > 0 && this.storages[this.storages.length - 1].isPropertyFromStorage(propertyType.code)) { continue; } // When a storage is used, the storage controls the rendering of the properties
 					
-					component += "<div class='control-group'>";
-					component += "<label class='control-label' for='inputCode'>" + propertyType.label + ":</label>";
-					component += "<div class='controls'>";
-					
+					component += "<div class='form-group'>";
+					component += "<label class='control-label " + this.labelColumnClass+ "'>" + propertyType.label + ":</label>";
+
+					component += "<div class='" + this.controlColumnClass + "'>";
 					if (propertyType.dataType === "BOOLEAN") {
 						component += this.getBooleanField(propertyType.code, propertyType.description);
 					} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
@@ -494,10 +500,18 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					}
 					
 					component += "</div>";
+					
+					
+					if (propertyType.mandatory) {
+						component += "<div class='" + this.controlColumnClass + "'>";
+						component += "(Required)";
+						component += "</div>";
+					}
+					
 					component += "</div>";
 					
 				}
-				component += "</fieldset>";
+				component += "</div>";
 			}
 			
 			//
@@ -521,7 +535,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			//
 			// DATASETS
 			//
-			component += "<div id='dataSetViewerContainer'></div>";
+			component += "<div id='dataSetViewerContainer' style='margin-top:10px;'></div>";
 			
 			component += "</form>";
 			
@@ -865,7 +879,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		var _this = this;
 		// Buttons
-		var $generateButton = $("<a>", { "class" : "btn" }).append("Generate!");
+		var $generateButton = $("<a>", { "class" : "btn btn-default" }).append("Generate!");
 		$generateButton.click(function(event) { 
 			var generatedChildrenSpace = null;
 			if(_this.isELNExperiment) {
@@ -891,12 +905,12 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 		});
 		
-		var $cancelButton = $("<a>", { "class" : "btn" }).append("<i class='icon-remove'></i>");
+		var $cancelButton = $("<a>", { "class" : "btn btn-default" }).append("<span class='glyphicon glyphicon-remove'></span>");
 		$cancelButton.click(function(event) { 
 			Util.unblockUI();
 		});
 		
-		var $selectAllButton = $("<a>", { "class" : "btn" }).append("Enable/Disable All");
+		var $selectAllButton = $("<a>", { "class" : "btn btn-default" }).append("Enable/Disable All");
 		$selectAllButton.click(function(event) { 
 			var $parentsFields = $("#parentsToGenerateChildren").find("input");
 			for(var i = 0; i < $parentsFields.length; i++) {
@@ -963,19 +977,19 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		$parents.append($parentsTable);
 		
-		var $parentsComponent = $("<fieldset>", { "id" : 'parentsToGenerateChildren' } );
+		var $parentsComponent = $("<div>", { "id" : 'parentsToGenerateChildren'} );
 		$parentsComponent.append($("<legend>").append("Parents ").append($selectAllButton))
 		$parentsComponent.append($parents);
 		
 		// Children
 		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
 		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
-		var $childrenComponent = $("<fieldset>");
+		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
 		
 		// Preview
-		var $previewComponent = $("<fieldset>");
+		var $previewComponent = $("<div>");
 		$previewComponent.append($("<legend>").append("Preview"));
 		$previewComponent.append($("<div>", {"id" : "previewChildrenGenerator"}));
 		

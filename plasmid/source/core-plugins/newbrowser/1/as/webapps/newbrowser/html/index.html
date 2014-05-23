@@ -24,7 +24,6 @@
 	
 	<!-- Third party Stylesheets -->
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css" />
-	<link type="text/css" rel="stylesheet" href="./lib/bootstrap/css/bootstrap-responsive.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-multiselect/css/bootstrap-multiselect.css" />
 	<link type="text/css" rel="stylesheet" href="./lib/bootstrap-slider/css/bootstrap-slider.css" />
@@ -46,6 +45,7 @@
 	-->
 	
 	<!-- Third party libraries -->
+	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/moment.js"></script>
 	<script type="text/javascript" src="./lib/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 	<script type="text/javascript" src="./lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
@@ -147,7 +147,7 @@
 							<input placeholder="Password" id="password" type="password" required="required">
 						</div>
 					
-						<button class="btn" id="login-button" type="submit"><i class="icon-arrow-right"></i></button>
+						<button class="btn btn-default" id="login-button" type="submit"><span class="glyphicon glyphicon-arrow-right"></span></button>
 				</fieldset>
 			</form>
 			
@@ -158,9 +158,9 @@
 	</div>
 	
 	<div id="main">
-		<div class="container-fluid">
-			<div class="row-fluid">
-				<div class="span12" id ="sectionsContainer"></div>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12" id ="sectionsContainer"></div>
 			</div>
 			
 			<div id="mainContainer">

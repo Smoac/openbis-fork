@@ -37,7 +37,7 @@ function InventoryWidget(mainController, containerId, menuStructure) {
 		inventoryWrapper.empty();
 		
 		var $mainMenuContainerWrapper = $("<div>", { style: "float:left; margin-right:10px;" });
-		var $mainMenuContainer = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+		var $mainMenuContainer = $("<ul>", { class: "nav nav-pills nav-stacked span5" });
 		$mainMenuContainerWrapper.append($mainMenuContainer);
 		
 		var $mainMenuContainerWrapperSub = $("<div>", { style: "float:left" });
@@ -47,7 +47,7 @@ function InventoryWidget(mainController, containerId, menuStructure) {
 			
 			var onHoverEvent = function(groupOfMenuItems) {
 				return function() {
-					var $mainMenuContainerSub = $("<ul>", { class: "nav nav-tabs nav-stacked span5" });
+					var $mainMenuContainerSub = $("<ul>", { class: "nav nav-pills nav-stacked span5" });
 					for(var i = 0; i < groupOfMenuItems.menuItems.length; i++) {
 						var menuItem = groupOfMenuItems.menuItems[i];
 						

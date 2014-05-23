@@ -28,6 +28,10 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	this.files = [];
 	this.isFormDirty = false;
 	
+	this.formColumClass = 'col-md-12'
+	this.labelColumnClass = 'col-md-1';
+	this.controlColumnClass = 'col-md-5';
+		
 	this.isDirty = function() {
 		return this.isFormDirty;
 	}
@@ -44,7 +48,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	}
 	
 	this._getDropDownForField = function(code, dataSetTypes) {
-		var $component = $("<select>");
+		var $component = $("<select>", { class : 'form-control ' });
 		$component.attr('id', code);
 		
 		$component.attr('required', '');
@@ -63,17 +67,16 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		var container = $("#"+containerId);
 		container.empty();
 		
-		var $wrapper = $('<form>', { class : 'form-horizontal', 'id' : 'mainDataSetForm'});
+		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		$wrapper.submit(function(event) {localInstance._submitDataSet(); event.preventDefault();});
 		
 		$wrapper.append($('<h2>').text('Create Data Set'));
 		
 		//Drop Down DataSetType Field Set
-		var $dataSetTypeFieldSet = $('<fieldset>');
+		var $dataSetTypeFieldSet = $('<div>');
 		$dataSetTypeFieldSet.append($('<legend>').text('Type Info'));
 		
 		var $dataSetTypeDropDownObj = this._getDropDownForField('DATASET_TYPE', this.dataSetTypes);
-		
 		$dataSetTypeDropDownObj.change(function() { 
 			localInstance._repaintMetadata(
 					localInstance._getDataSetType($('#DATASET_TYPE').val())
@@ -81,11 +84,11 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 			localInstance.isFormDirty = true;
 		});
 		
-		var $dataSetTypeDropDown = $('<div>', { class : 'control-group'});
-		$dataSetTypeDropDown.append($('<label>', {class: 'control-label'}).text('Data Set Type:'));
+		var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
+		$dataSetTypeDropDown.append($('<label>', {class: "control-label " + this.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
 		$dataSetTypeDropDown.append(
-			$('<div>', {class: 'controls'})
-				.append($dataSetTypeDropDownObj).append(' (Required)')
+			$('<div>', {class: this.controlColumnClass})
+				.append($dataSetTypeDropDownObj)
 		);
 		$dataSetTypeFieldSet.append($dataSetTypeDropDown);
 		$wrapper.append($dataSetTypeFieldSet);
@@ -100,13 +103,13 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		
 		//Submit Button
 		var $submitButton = $('<fieldset>')
-			.append($('<div>', { class : "control-group"}))
-			.append($('<div>', {class: 'controls'})
+			.append($('<div>', { class : "form-group"}))
+			.append($('<div>', {class: this.controlColumnClass})
 						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : 'Create Dataset'})));
 		$wrapper.append($submitButton);
 		
 		//Attach to main form
-		container.append($wrapper);
+		container.append($('<div>', { class : 'row'}).append($('<div>', { class : this.formColumClass}).append($wrapper)));
 		
 		//Initialize file chooser
 		var onComplete = function(data) {
@@ -145,22 +148,21 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		if( this.files.length > 1
 			||
 			this.files.length === 1 && this.files[0].indexOf('zip', this.files[0].length - 3) !== -1) {
-			var $leyend = $('<fieldset>').append($('<legend>').text('Files Options'));
-			$wrapper.append($leyend);
+			var $legend = $('<div>').append($('<legend>').text('Files Options'));
+			$wrapper.append($legend);
 		}
 		
 		if(this.files.length > 1) {
-			var $textField = this._getInputField('text', 'folderName', 'Folder Name', null, true);
+			var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
 			$textField.change(function(event) {
 				localInstance.isFormDirty = true;
 			});
 			
-			var $folderName = $('<fieldset>')
-			.append($('<div>', { class : "control-group"})
-					.append($('<label>', {class : 'control-label'}).text('Folder Name:'))
-					.append($('<div>', {class: 'controls'})
-						.append($textField)
-						.append(' (Required)'))
+			var $folderName = $('<div>')
+			.append($('<div>', { class : "form-group"})
+					.append($('<label>', {class : 'control-label '+this.labelColumnClass}).html('Folder Name&nbsp;(*):'))
+					.append($('<div>', {class: this.controlColumnClass})
+						.append($textField))
 			);
 			$wrapper.append($folderName);
 		}
@@ -169,28 +171,27 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				this.files[0].indexOf('zip', this.files[0].length - 3) !== -1) {
 			var isZipDirectoryUpload = this.profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
 			if(isZipDirectoryUpload === null) {
-				var $fileFieldSetIsDirectory = $('<fieldset>')
-				.append($('<div>', { class : "control-group"})
-							.append($('<label>', {class : 'control-label'}).text('Uncompress before import:'))
-							.append($('<div>', {class: 'controls'})
-								.append(this._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
+				var $fileFieldSetIsDirectory = $('<div>')
+				.append($('<div>', { class : "form-group"})
+							.append($('<label>', {class : 'control-label '+this.labelColumnClass}).text('Uncompress before import:'))
+							.append($('<div>', {class: this.controlColumnClass})
+								.append(FormUtil._getBooleanField('isZipDirectoryUpload', 'Uncompress before import:')))
 				);
 				$wrapper.append($fileFieldSetIsDirectory);
 				
 				$("#isZipDirectoryUpload").change(function() {
 					localInstance.isFormDirty = true;
 					if($("#isZipDirectoryUpload"+":checked").val() === "on") {
-						var $textField = localInstance._getInputField('text', 'folderName', 'Folder Name', null, true);
+						var $textField = FormUtil._getInputField('text', 'folderName', 'Folder Name', null, true);
 						$textField.change(function(event) {
 							localInstance.isFormDirty = true;
 						});
 						
-						var $folderName = $('<fieldset>', { "id" : "folderNameContainer"})
-						.append($('<div>', { class : "control-group"})
-								.append($('<label>', {class : 'control-label'}).text('Folder Name:'))
-								.append($('<div>', {class: 'controls'})
-									.append($textField)
-									.append(' (Required)'))
+						var $folderName = $('<div>', { "id" : "folderNameContainer"})
+						.append($('<div>', { class : "form-group"})
+								.append($('<label>', {class : 'control-label '+ localInstance.labelColumnClass}).html('Folder Name&nbsp;(*):'))
+								.append($('<div>', {class: localInstance.controlColumnClass})
+									.append($textField))
 						);
 						$("#fileOptionsContainer").append($folderName);
 						$("#folderName").val(localInstance.files[0].substring(0, localInstance.files[0].indexOf(".")));
@@ -221,7 +222,7 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		for(var i = 0; i < dataSetType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = dataSetType.propertyTypeGroups[i];
 			
-			var $fieldset = $('<fieldset>');
+			var $fieldset = $('<div>');
 			var $legend = $('<legend>'); 
 			$fieldset.append($legend);
 			
@@ -229,28 +230,29 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 				$legend.text(propertyTypeGroup.name);
 			} else if(dataSetType.propertyTypeGroups.length === 1) { //Only when there is only one group without name to render it with a default title.
 				$legend.text("Metadata Fields");
+			} else {
+				$legend.remove();
 			}
 			
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 			
-				var $controlGroup = $('<div>', {class : 'control-group'});
-				var $controlLabel = $('<label>', {class : 'control-label'}).text(propertyType.label + ":");
-				var $controls = $('<div>', {class : 'controls'});
+				var $controlGroup = $('<div>', {class : 'form-group'});
+				var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
+				var $controlLabel = $('<label>', {'class' : "control-label " + this.labelColumnClass}).html(propertyType.label + requiredStar + ":");
+				var $controls = $('<div>', {class : this.controlColumnClass});
 				
 				$controlGroup.append($controlLabel);
 				$controlGroup.append($controls);
 				$fieldset.append($controlGroup);
 				
-				var $component = this.getFieldForPropertyType(propertyType);
+				var $component = FormUtil.getFieldForPropertyType(propertyType);
 				$component.change(function(event) {
 					localInstance.isFormDirty = true;
 				});
 				
 				$controls.append($component);
-				if(propertyType.mandatory) {
-					$controls.append(' (Required)')
-				}
+				
 			}
 			
 			$wrapper.append($fieldset);
@@ -259,102 +261,102 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		$("#metadataContainer").append($wrapper);
 	}
 	
-	//
-	// Standard Form Fields
-	//
-	this.getFieldForPropertyType = function(propertyType) {
-		var $component = null;
-		if (propertyType.dataType === "BOOLEAN") {
-			$component = this._getBooleanField(propertyType.code, propertyType.description);
-		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
-			var vocabulary = null;
-			if(isNaN(propertyType.vocabulary)) {
-				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
-				if(vocabulary === null) { //This should not happen, but can save the day.
-					vocabulary = propertyType.vocabulary;
-					vocabulary.terms = propertyType.terms;
-				}
-			} else {
-				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
-			}
-			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.mandatory);
-		} else if (propertyType.dataType === "HYPERLINK") {
-			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "INTEGER") {
-			$component = this._getInputField("number", propertyType.code, propertyType.description, '1', propertyType.mandatory);
-		} else if (propertyType.dataType === "MATERIAL") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
-			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
-		} else if (propertyType.dataType === "REAL") {
-			$component = this._getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
-		} else if (propertyType.dataType === "TIMESTAMP") {
-			$component = this._getDatePickerField(propertyType.code, propertyType.mandatory);
-		} else if (propertyType.dataType === "VARCHAR") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
-		} else if (propertyType.dataType === "XML") {
-			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
-		}
-		
-		return $component;
-	}
-	
-	this._getBooleanField = function(id, alt) {
-		return $('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt});
-	}
-	
-	this._getDropDownFieldForVocabulary = function(code, terms, isRequired) {
-		var $component = $("<select>");
-		$component.attr('id', code);
-		
-		if (isRequired) {
-			$component.attr('required', '');
-		}
-		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
-		for(var i = 0; i < terms.length; i++) {
-			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
-		}
-		
-		return $component;
-	}
-	
-	this._getInputField = function(type, id, alt, step, isRequired) {
-		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt});
-		if (isRequired) {
-			$component.attr('required', '');
-		}
-		if (isRequired) {
-			$component.attr('step', step);
-		}
-		return $component;
-	}
-	
-	this._getTextBox = function(id, alt, isRequired) {
-		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;'});
-		if (isRequired) {
-			$component.attr('required', '');
-		}
-		return $component;
-	}
-	
-	this._getDatePickerField = function(id, isRequired) {
-		var $component = $('<div>', {'class' : 'well', 'style' : 'width: 250px;'});
-		var $subComponent = $('<div>', {'class' : 'input-append date', 'id' : 'datetimepicker_' + id });
-		var $input = $('<input>', {'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
-		if (isRequired) {
-			$input.attr('required', '');
-		}
-		var $spanAddOn = $('<span>', {'class' : 'add-on'})
-							.append($('<i>', {'data-date-icon' : 'icon-calendar' , 'data-time-icon' : 'icon-time' }));
-		
-		$subComponent.append($input);
-		$subComponent.append($spanAddOn);
-		$subComponent.datetimepicker({ language: 'en' });
-		$component.append($subComponent);
-		
-		return $component;
-	}
+//	//
+//	// Standard Form Fields
+//	//
+//	this.getFieldForPropertyType = function(propertyType) {
+//		var $component = null;
+//		if (propertyType.dataType === "BOOLEAN") {
+//			$component = this._getBooleanField(propertyType.code, propertyType.description);
+//		} else if (propertyType.dataType === "CONTROLLEDVOCABULARY") {
+//			var vocabulary = null;
+//			if(isNaN(propertyType.vocabulary)) {
+//				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary.id);
+//				if(vocabulary === null) { //This should not happen, but can save the day.
+//					vocabulary = propertyType.vocabulary;
+//					vocabulary.terms = propertyType.terms;
+//				}
+//			} else {
+//				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
+//			}
+//			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.mandatory);
+//		} else if (propertyType.dataType === "HYPERLINK") {
+//			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
+//		} else if (propertyType.dataType === "INTEGER") {
+//			$component = this._getInputField("number", propertyType.code, propertyType.description, '1', propertyType.mandatory);
+//		} else if (propertyType.dataType === "MATERIAL") {
+//			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+//		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
+//			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+//		} else if (propertyType.dataType === "REAL") {
+//			$component = this._getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
+//		} else if (propertyType.dataType === "TIMESTAMP") {
+//			$component = this._getDatePickerField(propertyType.code, propertyType.mandatory);
+//		} else if (propertyType.dataType === "VARCHAR") {
+//			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+//		} else if (propertyType.dataType === "XML") {
+//			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+//		}
+//		
+//		return $component;
+//	}
+//	
+//	this._getBooleanField = function(id, alt) {
+//		return $('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt});
+//	}
+//	
+//	this._getDropDownFieldForVocabulary = function(code, terms, isRequired) {
+//		var $component = $("<select>");
+//		$component.attr('id', code);
+//		
+//		if (isRequired) {
+//			$component.attr('required', '');
+//		}
+//		
+//		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+//		for(var i = 0; i < terms.length; i++) {
+//			$component.append($("<option>").attr('value',terms[i].code).text(terms[i].label));
+//		}
+//		
+//		return $component;
+//	}
+//	
+//	this._getInputField = function(type, id, alt, step, isRequired) {
+//		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt});
+//		if (isRequired) {
+//			$component.attr('required', '');
+//		}
+//		if (isRequired) {
+//			$component.attr('step', step);
+//		}
+//		return $component;
+//	}
+//	
+//	this._getTextBox = function(id, alt, isRequired) {
+//		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;'});
+//		if (isRequired) {
+//			$component.attr('required', '');
+//		}
+//		return $component;
+//	}
+//	
+//	this._getDatePickerField = function(id, isRequired) {
+//		var $component = $('<div>', {'class' : 'well', 'style' : 'width: 250px;'});
+//		var $subComponent = $('<div>', {'class' : 'input-append date', 'id' : 'datetimepicker_' + id });
+//		var $input = $('<input>', {'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
+//		if (isRequired) {
+//			$input.attr('required', '');
+//		}
+//		var $spanAddOn = $('<span>', {'class' : 'add-on'})
+//							.append($('<i>', {'data-date-icon' : 'icon-calendar' , 'data-time-icon' : 'icon-time' }));
+//		
+//		$subComponent.append($input);
+//		$subComponent.append($spanAddOn);
+//		$subComponent.datetimepicker({ language: 'en' });
+//		$component.append($subComponent);
+//		
+//		return $component;
+//	}
 	
 	//
 	// Form Submit

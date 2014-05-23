@@ -34,17 +34,16 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 		$("#"+this.containerId).empty();
 		
 		var menu = "";
-			menu += "<div class='navbar-wrapper'>";
-			menu += "<div id='navbar' class='navbar navbar-fixed-top'>";
+			menu += "<nav class='navbar navbar-default navbar-fixed-top' role='navigation'>";
 			menu += "<div class='navbar-inner'>";
 			
 			menu += "<div class='pull-left'>";
 			
-			menu += "<ul class='nav'>";
+			menu += "<ul class='nav navbar-nav'>";
 			// Drop Down
 			menu += "<li>";
 			menu += "<div class='btn-group quickMenu'>";
-			menu += "<button class='btn dropdown-toggle quickMenu' data-toggle='dropdown'><span class='caret'></span></button>";
+			menu += "<button style='height:51px !important; min-width:25px !important;' class='btn btn-default dropdown-toggle quickMenu' data-toggle='dropdown'><span class='caret'></span></button>";
 			
 			menu += "<ul class='dropdown-menu'>"
 			for (var k = 0; k < this.menuStructure.length; k++) {
@@ -77,20 +76,19 @@ function NavigationBar(mainController, containerId, activeMenuId, menuStructure)
 			menu += "</div>";
 			
 			menu += "<div class='pull-right'>";
-			menu += "<ul class='nav'>";
+			menu += "<ul class='nav navbar-nav'>";
 			//Pin Button
 			menu += "<li><a id='pin-button' href='javascript:mainController.changeView(\"showInspectors\",null)'><img src='./img/pin-icon.png' style='width:16px; height:16px;' /><span id='num-pins'>" + this.mainController.inspector.inspectedSamples.length + "</span></a></li>";
 			//Search
-			menu += "<li><form class='navbar-search' onsubmit='return false;'><input id='search' type='text' onkeyup='mainController.changeView(\"showSearchPage\", event);' class='search-query' placeholder='Search'></form></li>";
+			menu += "<li><form class='navbar-form' onsubmit='return false;'><input id='search' type='text' onkeyup='mainController.changeView(\"showSearchPage\", event);' class='form-control search-query' placeholder='Search'></form></li>";
 			//Logout
-			menu += "<li><a id='logout-button' href=''><img src='./img/logout-icon.png' style='width:16px; height:16px;' /></a></li>";
+			menu += "<li><a id='logout-button' href=''><span class='glyphicon glyphicon-off'></span></a></li>";
 			menu += "</ul>";
 			menu += "</div>";
 		
 		
 			menu += "</div> <!-- /.navbar-inner -->";
-			menu += "</div> <!-- /.navbar -->";
-			menu += "</div> <!-- /.navbar-wrapper -->";
+			menu += "</nav> <!-- /.navbar-wrapper -->";
 		
 		$("#"+this.containerId).append(menu);
 	

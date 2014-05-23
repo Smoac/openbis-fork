@@ -56,7 +56,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	} else {
 		this._limit = 20;
 	}
-	this._adjacentPages = 2;
+	this._adjacentPages = 1;
 	
 	this._getPaginationComponent = function(total, start, limit, adjacentPages) {
 		//Check if there is elements
@@ -79,7 +79,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		//Pagination component
 		var $component = $("<span>");
-		$component.append("Showing " + (start + 1) + " to " + shownTo + " from " + total + " ");
 
 		var localReference = this;
 		var paginationClick = function(firstElementFromPage) {
@@ -90,17 +89,17 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		//Start Pages
 		if(currentPage == 1) {
-			var $paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-fast-backward" }));
+			var $paginationItem = $("<a>", { class: "btn btn-default paginationItem" }).attr('disabled', 'disabled').append($("<span>", { class: "glyphicon glyphicon-fast-backward" }));
 			$component.append($paginationItem);
 			
-			$paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-step-backward" }));
+			$paginationItem = $("<a>", { class: "btn btn-default paginationItem" }).attr('disabled', 'disabled').append($("<span>", { class: "glyphicon glyphicon-step-backward" }));
 			$component.append($paginationItem);
 		} else {
-			var $paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(0) }).append($("<i>", { class: "icon-fast-backward" }));
+			var $paginationItem = $("<a>", { class: "btn btn-default paginationItem", click: paginationClick(0) }).append($("<span>", { class: "glyphicon glyphicon-fast-backward" }));
 			$component.append($paginationItem);
 			
 			var firstElementFromPage =  limit * (currentPage - 2);
-			$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-step-backward" }));
+			$paginationItem = $("<a>", { class: "btn btn-default paginationItem", click: paginationClick(firstElementFromPage) }).append($("<span>", { class: "glyphicon glyphicon-step-backward" }));
 			$component.append($paginationItem);
 		}
 		
@@ -112,7 +111,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				if(currentPage === pageNumber) {
 					$paginationItem = $("<a>", { class: "btn btn-primary paginationItem", click: paginationClick(firstElementFromPage) }).append(pageNumber);
 				} else {
-					$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append(pageNumber)
+					$paginationItem = $("<a>", { class: "btn btn-default paginationItem", click: paginationClick(firstElementFromPage) }).append(pageNumber)
 				}
 				$component.append($paginationItem);
 			}
@@ -120,21 +119,22 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		//End Pages
 		if(currentPage == numPages) {
-			var $paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-forward" }));
+			var $paginationItem = $("<a>", { class: "btn btn-default paginationItem" }).attr('disabled', 'disabled').append($("<span>", { class: "glyphicon glyphicon-forward" }));
 			$component.append($paginationItem);
 			
-			$paginationItem = $("<a>", { class: "btn paginationItem" }).attr('disabled', 'disabled').append($("<i>", { class: "icon-fast-forward" }));
+			$paginationItem = $("<a>", { class: "btn btn-default paginationItem" }).attr('disabled', 'disabled').append($("<span>", { class: "glyphicon glyphicon-fast-forward" }));
 			$component.append($paginationItem);
 		} else {
 			var firstElementFromPage =  limit * (currentPage);
-			var $paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-step-forward" }));
+			var $paginationItem = $("<a>", { class: "btn btn-default paginationItem", click: paginationClick(firstElementFromPage) }).append($("<span>", { class: "glyphicon glyphicon-step-forward" }));
 			$component.append($paginationItem);
 			
 			firstElementFromPage =  limit * (numPages - 1);
-			$paginationItem = $("<a>", { class: "btn paginationItem", click: paginationClick(firstElementFromPage) }).append($("<i>", { class: "icon-fast-forward" }));
+			$paginationItem = $("<a>", { class: "btn btn-default paginationItem", click: paginationClick(firstElementFromPage) }).append($("<span>", { class: "glyphicon glyphicon-fast-forward" }));
 			$component.append($paginationItem);
 		}
 
+		$component.append("Showing " + (start + 1) + " to " + shownTo + " from " + total + " ");
 		return $component;
 	}
 	
@@ -200,7 +200,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		if(this.sampleTypeCode == "SEARCH") {
 			$("#tableContainer").append("<div id='paginationContainerTop' class='paginationTop'></div>");
 		} else {
-			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='filter visible columns' class='tableFilter search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
+			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='Filter visible columns' class='form-control search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
 		}
 		$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		
@@ -435,11 +435,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					if(localReference.inspector.containsSample(sample) !== -1) {
 						inspectedClass = "inspectorClicked";
 					}
-					tableFields[tableFields.length] = "<a id='PIN_" + sample.permId + "' class='btn pinBtn " + inspectedClass + "' onmouseover=\"mainController.currentView.previewNote('" + sample.permId + "', 'PIN_" + sample.permId + "');\" ><img src='./img/pin-icon.png' style='width:16px; height:16px;' /></a>";
+					tableFields[tableFields.length] = "<a id='PIN_" + sample.permId + "' class='btn btn-default " + inspectedClass + "' onmouseover=\"mainController.currentView.previewNote('" + sample.permId + "', 'PIN_" + sample.permId + "');\" ><img src='./img/pin-icon.png' style='width:16px; height:16px;' /></a>";
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<a class='btn' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
+					tableFields[tableFields.length] = "<a class='btn btn-default' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
 					tableFields[tableFields.length] = "";
 				} else {
 					tableFields[tableFields.length] = "";
@@ -502,9 +502,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		if (!this.isEmbedded && !this.isSearch) {
 			$("#paginationContainerTop").append("<span class='toolBox' id='toolBoxContainer'></span>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\"><i class='icon-upload'></i>r</a>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\"><i class='icon-upload'></i>u</a>");
-			$("#toolBoxContainer").append("<a class='btn' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\"><i class='icon-plus-sign'></i></a>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn btn-default' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\"><span class='glyphicon glyphicon-upload'></span>r</a>");
+			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn btn-default' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\"><span class='glyphicon glyphicon-upload'></span>u</a>");
+			$("#toolBoxContainer").append("<a class='btn btn-default' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\"><span class='glyphicon glyphicon-plus-sign'></span></a>");
 		}
 		$("#paginationContainerBottom").empty();
 		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
@@ -553,7 +553,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 								}
 								component += "</select>";
 								
-								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn' id='spaceSelectionCancel'>Cancel</a>");
+								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn btn-default' id='spaceSelectionCancel'>Cancel</a>");
 								
 								$("#sampleSpaceSelector").on("change", function(event) {
 									var space = $("#sampleSpaceSelector")[0].value;

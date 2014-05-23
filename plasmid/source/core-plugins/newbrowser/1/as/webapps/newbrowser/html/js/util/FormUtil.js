@@ -1,6 +1,9 @@
 var FormUtil = new function() {
 	this.profile = null;
-	
+	this.formColumClass = 'col-md-12'
+	this.labelColumnClass = 'col-md-1';
+	this.controlColumnClass = 'col-md-5';
+		
 	//
 	// Standard Form Fields
 	//
@@ -8,7 +11,7 @@ var FormUtil = new function() {
 	this.getSampleTypeDropdown = function(id, isRequired) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
-		var $component = $("<select>", {"id" : id});
+		var $component = $("<select>", {"id" : id, class : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
@@ -28,20 +31,23 @@ var FormUtil = new function() {
 	}
 	
 	this.getFieldForComponentWithLabel = function($component, label) {
-		var $fieldset = $('<fieldset>');
+		var $fieldset = $('<div>');
 		
-		var $controlGroup = $('<div>', {class : 'control-group'});
-		var $controlLabel = $('<label>', {class : 'control-label'}).text(label + ":");
-		var $controls = $('<div>', {class : 'controls'});
+		var $controlGroup = $('<div>', {class : 'form-group'});
+		var requiredText = '';
+		if($component.attr('required')) {
+			requiredText = "&nbsp;(*)"
+		}
+		
+		var $controlLabel = $('<label>', { class : 'control-label ' + this.labelColumnClass }).html(label + requiredText + ":");
+		var $controls = $('<div>', { class : 'controls ' + this.controlColumnClass });
 			
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
 		$fieldset.append($controlGroup);
 		
 		$controls.append($component);
-		if($component.attr('required')) {
-			$controls.append(' (Required)')
-		}
+		
 		
 		return $fieldset;
 	}
@@ -105,11 +111,11 @@ var FormUtil = new function() {
 	}
 	
 	this._getBooleanField = function(id, alt) {
-		return $('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt });
+		return $('<div>', {'class' : 'checkbox'}).append($('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt }));
 	}
 	
 	this._getDropDownFieldForVocabulary = function(code, terms, alt, isRequired) {
-		var $component = $("<select>", {'placeholder' : alt});
+		var $component = $("<select>", {'placeholder' : alt, 'class' : 'form-control'});
 		$component.attr('id', code);
 		
 		if (isRequired) {
@@ -125,7 +131,7 @@ var FormUtil = new function() {
 	}
 	
 	this._getInputField = function(type, id, alt, step, isRequired) {
-		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt, 'placeholder' : alt });
+		var $component = $('<input>', {'type' : type, 'id' : id, 'alt' : alt, 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
@@ -136,7 +142,7 @@ var FormUtil = new function() {
 	}
 	
 	this._getTextBox = function(id, alt, isRequired) {
-		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;', 'placeholder' : alt });
+		var $component = $('<textarea>', {'id' : id, 'alt' : alt, 'style' : 'height: 80px; width: 450px;', 'placeholder' : alt, 'class' : 'form-control'});
 		if (isRequired) {
 			$component.attr('required', '');
 		}
@@ -144,14 +150,14 @@ var FormUtil = new function() {
 	}
 	
 	this._getDatePickerField = function(id, alt, isRequired) {
-		var $component = $('<div>', {'class' : 'well', 'style' : 'width: 250px;', 'placeholder' : alt });
-		var $subComponent = $('<div>', {'class' : 'input-append date', 'id' : 'datetimepicker_' + id });
-		var $input = $('<input>', {'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
+		var $component = $('<div>', {'class' : 'form-group', 'style' : 'margin-left: 0px;', 'placeholder' : alt });
+		var $subComponent = $('<div>', {'class' : 'input-group date', 'id' : 'datetimepicker_' + id });
+		var $input = $('<input>', {'class' : 'form-control', 'type' : 'text', 'id' : id, 'data-format' : 'yyyy-MM-dd HH:mm:ss'});
 		if (isRequired) {
 			$input.attr('required', '');
 		}
-		var $spanAddOn = $('<span>', {'class' : 'add-on'})
-							.append($('<i>', {'data-date-icon' : 'icon-calendar' , 'data-time-icon' : 'icon-time' }));
+		var $spanAddOn = $('<span>', {'class' : 'input-group-addon'})
+							.append($('<span>', {'class' : 'glyphicon glyphicon-calendar' }));
 		
 		$subComponent.append($input);
 		$subComponent.append($spanAddOn);
