@@ -353,9 +353,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			if(spaceSelectEnabled) {
 				component += "<div class='form-group'>";
 				if(this.isELNExperiment) {
-					component += "<label class='control-label " + this.labelColumnClass+ "' for='inputSpace'>Project:</label>";
+					component += "<label class='control-label " + this.labelColumnClass+ "'>Project&nbsp;(*):</label>";
 				} else {
-					component += "<label class='control-label " + this.labelColumnClass+ "' for='inputSpace'>Space:</label>";
+					component += "<label class='control-label " + this.labelColumnClass+ "'>Space&nbsp;(*):</label>";
 				}
 				
 				component += "<div class='" + this.controlColumnClass + "'>";
@@ -375,26 +375,21 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					component += "</select>";
 				}
 				component += "</div>";
-				
-				component += "<div class='" + this.controlColumnClass + "'>";
-				component += "(Required)";
-				component += "</div>";
-				
 				component += "</div>";
 			}
 			
 			//Code
 			component += "<div class='form-group'>";
-			component += "<label class='control-label  " + this.labelColumnClass+ "' for='inputCode'>Code:</label>";
+			component += "<label class='control-label  " + this.labelColumnClass+ "'>Code&nbsp;(*):</label>";
 			component += "<div class='" + this.controlColumnClass + "'>";
 			component += "<input type='text' class='form-control' placeholder='Code' id='sampleCode' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
 			component += "</div>";
-			component += "<div class='" + this.controlColumnClass + "'>";
-			component += "(Required)";
 			if(this.mode === SampleFormMode.CREATE) {
+				component += "<div class='" + this.controlColumnClass + "'>";
 				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
+				component += "</div>";
 			}
-			component += "</div>";
+			
 			component += "</div>";
 			
 			
@@ -467,8 +462,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					var propertyType = propertyTypeGroup.propertyTypes[j];
 					if(this.storages.length > 0 && this.storages[this.storages.length - 1].isPropertyFromStorage(propertyType.code)) { continue; } // When a storage is used, the storage controls the rendering of the properties
 					
+					var requiredText = "";
+					if (propertyType.mandatory) {
+						requiredText = "&nbsp;(*)";
+					}
+					
 					component += "<div class='form-group'>";
-					component += "<label class='control-label " + this.labelColumnClass+ "'>" + propertyType.label + ":</label>";
+					component += "<label class='control-label " + this.labelColumnClass+ "'>" + propertyType.label + requiredText + ":</label>";
 
 					component += "<div class='" + this.controlColumnClass + "'>";
 					if (propertyType.dataType === "BOOLEAN") {
@@ -499,15 +499,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						component += this.getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
 					}
 					
-					component += "</div>";
-					
-					
-					if (propertyType.mandatory) {
-						component += "<div class='" + this.controlColumnClass + "'>";
-						component += "(Required)";
-						component += "</div>";
-					}
-					
+					component += "</div>";	
 					component += "</div>";
 					
 				}
