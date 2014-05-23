@@ -993,6 +993,22 @@ public class ImageUtil
         return thumbnail;
     }
 
+    public static BufferedImage convertToRGB(BufferedImage image)
+    {
+        if (image.getType() == BufferedImage.TYPE_INT_RGB
+                || image.getType() == BufferedImage.TYPE_INT_ARGB)
+        {
+            return image;
+        }
+
+        BufferedImage thumbnail =
+                createNewEmptyImage(image, false, image.getWidth(), image.getHeight());
+        Graphics2D graphics2D = thumbnail.createGraphics();
+        graphics2D.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+        graphics2D.dispose();
+        return thumbnail;
+    }
+
     private static BufferedImage createNewEmptyImage(BufferedImage image, boolean highQuality8Bit,
             int thumbnailWidth, int thumbnailHeight)
     {
@@ -1009,6 +1025,9 @@ public class ImageUtil
         } else if (imageType == BufferedImage.TYPE_BYTE_INDEXED)
         {
             imageType = BufferedImage.TYPE_INT_RGB;
+        } else
+        {
+            imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         }
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         return thumbnail;
