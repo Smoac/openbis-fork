@@ -209,6 +209,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
 			tableTemplate += "<th sort-property='" + sampleTypeProperties[i] + "'>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
+		
+		if(!this.isEmbedded) {
+			tableTemplate += "<th></th><th></th><th></th>";
+		}
+		
 		tableTemplate += "</tr></thead><tbody id='sample-data-holder'></tbody></table>";
 		$("#tableContainer").append(tableTemplate);
 		
