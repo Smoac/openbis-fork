@@ -148,7 +148,7 @@ if [ "$command" == "start" ]; then
 fi
 
 # Build classpath from $LIB_FOLDER and $EXT_LIB_FOLDER content. First JAR is datastore_server.jar because it has to appear before cifex.jar
-CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
+CP=`echo $LIB_FOLDER/datastore_server.jar $LIB_FOLDER/common.jar $LIB_FOLDER/dbmigration*.jar $LIB_FOLDER/*.jar $EXT_LIB_FOLDER/*.jar | sed 's/ /:/g'`
 
 CMD="${JAVA_BIN} ${JAVA_OPTS} ${JAVA_MEM_OPTS} -classpath $CP ch.systemsx.cisd.openbis.dss.generic.DataStoreServer"
 

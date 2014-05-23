@@ -153,7 +153,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     private final IEntityProperty[] createSampleProperties(final boolean lowerCase)
     {
         return new IEntityProperty[]
-            { createVarcharSampleProperty(lowerCase, VARCHAR_PROPERTY_TYPE_CODE) };
+        { createVarcharSampleProperty(lowerCase, VARCHAR_PROPERTY_TYPE_CODE) };
     }
 
     @Test
@@ -258,8 +258,8 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                     will(returnValue(propertyTypePE));
 
                     atLeast(1).of(propertyValueValidator).validatePropertyValue(propertyTypePE,
-                            value);
-                    will(returnValue(value));
+                            "Hello alpha");
+                    will(returnValue("Hello alpha"));
 
                     CollectionMatcher<Set<String>> dynamicPropertiesMatcher =
                             new CollectionMatcher<Set<String>>(new HashSet<String>(
@@ -403,7 +403,7 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                             with(matcherOfProperties), with(Collections.<String> emptySet()));
 
                     for (String[] codeAndValue : new String[][]
-                        {
+                    {
                             { "NUMBER", "42" },
                             { "C", "137" } })
                     {

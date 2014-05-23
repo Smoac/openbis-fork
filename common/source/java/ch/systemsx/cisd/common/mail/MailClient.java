@@ -40,7 +40,6 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
@@ -48,6 +47,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.properties.ExtendedProperties;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 
 /**
  * A small mail client that simplifies the sending of emails using of <i>JavaMail API</i>.
@@ -73,82 +74,93 @@ public final class MailClient extends Authenticator implements IMailClient
 
     private static final String UNICODE_CHARSET = "utf-8";
 
-    private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
-
-    private final String smtpUsername;
-
-    private final String smtpPassword;
-
-    private final String smtpHost;
-
-    private final String from;
-
-    private final String testAddress;
-
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MailClient.class);
+    
+    private final Properties properties;
+    
     public MailClient(final String from, final String smtpHost)
     {
-        this(from, smtpHost, null, null, null);
+        this(from, smtpHost, null, null, null, null);
     }
-
-    public MailClient(MailClientParameters parameters)
-    {
-        this(parameters.getFrom(), parameters.getSmtpHost(), parameters.getSmtpUser(), parameters
-                .getSmtpPassword(), null);
-    }
-
-    public MailClient(Properties properties)
-    {
-        this(properties.getProperty(JavaMailProperties.MAIL_FROM), properties
-                .getProperty(JavaMailProperties.MAIL_SMTP_HOST), properties
-                .getProperty(JavaMailProperties.MAIL_SMTP_USER), properties
-                .getProperty(MAIL_SMTP_PASSWORD), properties.getProperty(MAIL_TEST_ADDRESS));
-    }
-
-    public MailClient(final String from, final String smtpHost, final String smtpUsername,
-            final String smtpPassword, final String testAddress)
+    
+    public MailClient(
+                final String from,
+                final String smtpHost,
+                final String smtpPort,
+                final String smtpUsername,
+                final String smtpPassword,
+                final String testAddress)
     {
         assert from != null;
         assert smtpHost != null;
 
-        this.from = from;
-        this.smtpHost = smtpHost;
-        this.smtpUsername = smtpUsername;
-        this.smtpPassword = smtpPassword;
-        this.testAddress = testAddress;
-    }
-
-    private final Properties createProperties()
-    {
-        Properties properties = null;
-        try
-        {
-            properties = new Properties(System.getProperties());
-        } catch (SecurityException ex)
-        {
-            properties = new Properties();
+        properties = new Properties();
+        properties.put(JavaMailProperties.MAIL_FROM, from);
+        properties.put(JavaMailProperties.MAIL_SMTP_HOST, smtpHost);
+        if(smtpPort != null) {
+            properties.put(JavaMailProperties.MAIL_SMTP_PORT, smtpPort);
         }
-        if (smtpUsername != null)
-        {
+        if(smtpUsername != null) {
             properties.put(JavaMailProperties.MAIL_SMTP_USER, smtpUsername);
         }
-        if (smtpHost != null)
-        {
-            properties.put(JavaMailProperties.MAIL_SMTP_HOST, smtpHost);
+        if(smtpPassword != null) {
+            properties.put(MailClient.MAIL_SMTP_PASSWORD, smtpPassword);
         }
-        if (StringUtils.isNotBlank(smtpPassword) && StringUtils.isNotBlank(smtpUsername))
+        if(testAddress != null) {
+            properties.put(MailClient.MAIL_TEST_ADDRESS, testAddress);
+        }
+        init();
+    }
+    
+    public MailClient(MailClientParameters parameters)
+    {
+        this(parameters.getPropertiesInstance());
+    }
+    
+    public MailClient(Properties properties)
+    {
+        this.properties = ExtendedProperties.createWith(properties);
+        init();
+    }
+    
+    private void init() {
+        //Add some properties that don't need to come form the service
+        String smtpUsername = properties.getProperty(JavaMailProperties.MAIL_SMTP_USER);
+        String smtpPassword = properties.getProperty(MailClient.MAIL_SMTP_PASSWORD);
+        if (StringUtils.isNotBlank(smtpUsername) && StringUtils.isNotBlank(smtpPassword))
         {
             properties.put(JavaMailProperties.MAIL_SMTP_AUTH, Boolean.TRUE.toString());
         }
-        properties.put(JavaMailProperties.MAIL_DEBUG, operationLog.isDebugEnabled() ? Boolean.TRUE
-                .toString() : Boolean.FALSE.toString());
+        
+        properties.put(JavaMailProperties.MAIL_DEBUG,operationLog.isDebugEnabled() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
         properties.put(JavaMailProperties.MAIL_TRANSPORT_PROTOCOL, "smtp");
-        return properties;
+        
+        //Get properties from System
+        try
+        {
+            Properties systemProperties = System.getProperties();
+            for(String key:systemProperties.stringPropertyNames()) {
+                if(!properties.containsKey(key)) {
+                    properties.put(key, systemProperties.getProperty(key));
+                }
+            }
+        } catch (SecurityException ex)
+        {
+            operationLog.error("System properties can't be read", ex);
+        }
+
+        //Clear all properties not staring with mail.
+        for(String key:properties.stringPropertyNames()) {
+            if(!key.startsWith("mail.")) {
+                properties.remove(key);
+            }
+        }
     }
 
     @Override
     public void sendTestEmail()
     {
+        String testAddress = properties.getProperty(MailClient.MAIL_TEST_ADDRESS);
         if (testAddress != null)
         {
             if (operationLog.isInfoEnabled())
@@ -169,14 +181,11 @@ public final class MailClient extends Authenticator implements IMailClient
 
     private final Session createSession()
     {
-        Properties properties = createProperties();
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug("Creating mail session with following properties '" + properties
-                    + "'.");
+            operationLog.debug("Creating mail session with following properties '" + properties + "'.");
         }
-        boolean mailSmtpAuth =
-                Boolean.parseBoolean(properties.getProperty(JavaMailProperties.MAIL_SMTP_AUTH));
+        boolean mailSmtpAuth = Boolean.parseBoolean(properties.getProperty(JavaMailProperties.MAIL_SMTP_AUTH));
         Session session = Session.getInstance(properties, mailSmtpAuth ? this : null);
         session.setDebug(operationLog.isDebugEnabled());
         return session;
@@ -243,8 +252,8 @@ public final class MailClient extends Authenticator implements IMailClient
         }
         try
         {
-            return new InternetAddress(addressOrNull.tryGetEmailAddress(), addressOrNull
-                    .tryGetPersonalName());
+            return new InternetAddress(addressOrNull.tryGetEmailAddress(),
+                    addressOrNull.tryGetPersonalName());
         } catch (Exception e)
         {
             operationLog.error("Could not parse address [" + addressOrNull + "].", e);
@@ -373,6 +382,8 @@ public final class MailClient extends Authenticator implements IMailClient
             InternetAddress replyTo, InternetAddress fromOrNull, InternetAddress[] recipients)
             throws EnvironmentFailureException
     {
+        String from = properties.getProperty(JavaMailProperties.MAIL_FROM);
+        
         final InternetAddress fromPerMail =
                 (fromOrNull != null) ? fromOrNull : createInternetAddress(from);
         if (operationLog.isInfoEnabled())
@@ -428,6 +439,8 @@ public final class MailClient extends Authenticator implements IMailClient
 
     private void send(MimeMessage msg) throws MessagingException
     {
+        String smtpHost = properties.getProperty(JavaMailProperties.MAIL_SMTP_HOST);
+        
         if (smtpHost.startsWith(FILE_PREFIX))
         {
             // We don't have a real SMTP server
@@ -442,6 +455,8 @@ public final class MailClient extends Authenticator implements IMailClient
     @SuppressWarnings("unchecked")
     private void writeMessageToFile(MimeMessage msg) throws MessagingException
     {
+        String smtpHost = properties.getProperty(JavaMailProperties.MAIL_SMTP_HOST);
+        
         File emailFolder = new File(smtpHost.substring(FILE_PREFIX.length()));
         if (emailFolder.exists())
         {
@@ -495,6 +510,9 @@ public final class MailClient extends Authenticator implements IMailClient
     @Override
     protected final PasswordAuthentication getPasswordAuthentication()
     {
+        String smtpUsername = properties.getProperty(JavaMailProperties.MAIL_SMTP_USER);
+        String smtpPassword = properties.getProperty(MailClient.MAIL_SMTP_PASSWORD);
+        
         return new PasswordAuthentication(smtpUsername, smtpPassword);
     }
 

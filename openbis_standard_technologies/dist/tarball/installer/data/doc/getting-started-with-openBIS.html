@@ -19,8 +19,40 @@
     ${INSTALL_BIN_PATH}/allup.sh
   </div>This command might take several minutes on the inital startup, depending on the performance of your server!<br>
   After the completion of the above command openBIS will be available at <a href=
-  "https://localhost:8443/openbis">https://localhost:8443/openbis</a><br>
+  "https://localhost:8443/openbis">https://localhost:8443/openbis</a><br><br>
+  
+  <div class="text">
+  Note: by default, openBIS expects to be able to connect your PostgreSQL database as superuser 'postgres' without a password.
+  This is because openBIS needs to create its database users and schemas.
+  If this assumption does not hold, the following commands print the SQL scripts that can be used to create the required databases manually:<br>
+  </div>
 
+  openBIS application server database:
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh openbis_prod openbis
+  </div> 
+  
+  DSS pathinfo database:
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh pathinfo_prod openbis
+  </div> 
+
+  Imaging database (required only if technology 'screening' is enabled)
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh imaging_prod openbis
+  </div> 
+  
+  Proteomics database (required only if technology 'proteomics' is enabled)
+  <div class="sourcecode">
+    ${INSTALL_BIN_PATH}/init_database.sh proteomics_productive openbis
+  </div> 
+  
+  <div class="text"> 
+  The first argument of script 'init_database.sh' defines the database name. The second argument defines the username that openBIS will be using to connect the corresponding database.
+  Again, openBIS expects the user(s) can connect the database without a password. If this is not the case, the password needs to be set to service.properties.
+  Consult openBIS documentation for details.
+  </div>
+  
   <h3>B. Importing test data</h3>
 
   <p>By now you have a fully functional openBIS instance, but it makes little sense if it has no data in it.</p>
