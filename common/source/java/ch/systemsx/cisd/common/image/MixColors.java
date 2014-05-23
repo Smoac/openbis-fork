@@ -302,8 +302,13 @@ public class MixColors
             }
         }
 
-        final float whitePointFactor = 255f / getMaxComponent(whitePointColor.getRed(), whitePointColor.getGreen(), whitePointColor.getBlue());
+        float maxComponent = getMaxComponent(whitePointColor.getRed(), whitePointColor.getGreen(), whitePointColor.getBlue());
+        float whitePointFactor = 1;
 
+        if (maxComponent != 0)
+        {
+            whitePointFactor = 255f / maxComponent;
+        }
         final BufferedImage mixed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         // apply white point adjustments to the final image
