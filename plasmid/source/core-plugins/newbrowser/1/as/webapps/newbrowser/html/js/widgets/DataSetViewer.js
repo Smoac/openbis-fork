@@ -104,7 +104,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 					//Upload Button
 					var $uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" }));
 					$uploadButton.click(function() { 
-						mainController.changeView('showCreateDataSetPage',localReference.sample); //TO-DO Fix Global Access
+						mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
 					} );
 					
 					$containerTitle.append($("<legend>").append("Data Sets ").append($uploadButton));

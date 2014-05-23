@@ -197,9 +197,19 @@ function MainController(profile) {
 					}
 				});
 				break;
-			case "showCreateDataSetPage":
-				document.title = "Create Data Set for " + arg;
-				this._showCreateDataSetPage(arg);
+			case "showCreateDataSetPageFromPermId":
+				var _this = this;
+				this.serverFacade.searchWithUniqueId(arg, function(data) {
+					if(!data[0]) {
+						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+					} else {
+						document.title = "Create Data Set for " + data[0].code;
+						_this._showCreateDataSetPage(data[0]);
+					}
+				});
+				break;
+				
+				
 				break;
 			default:
 				window.alert("The system tried to create a non existing view");
