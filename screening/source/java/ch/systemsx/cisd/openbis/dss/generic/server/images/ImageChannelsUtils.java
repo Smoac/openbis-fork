@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.images;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -33,7 +34,9 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.MixColors;
+import ch.systemsx.cisd.common.image.MixColors.MixedImageWithWhitePoint;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.hcs.Location;
@@ -48,6 +51,7 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.IntensityRangeImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -617,7 +621,18 @@ public class ImageChannelsUtils
         // We do not transform single images here.
         List<ImageWithReference> images =
                 calculateSingleImagesForDisplay(imageReferences, null, null, transformationInfo);
-        BufferedImage mergedImage = mergeImages(images);
+        
+		MixedImageWithWhitePoint mergedImageWithWhitePoint = mergeImages(images);
+		BufferedImage mergedImage = mergedImageWithWhitePoint.getImage();
+        
+		// non-user transformation - apply color range fix after mixing
+        Map<String, String> transMap = transformationInfo.tryGetTransformationCodeForChannels();
+    	Color whitePointColor = mergedImageWithWhitePoint.getWhitePoint();
+        if ((transMap == null || transMap.size() == 0) && mergedChannelTransformationOrNull == null && whitePointColor != null) 
+        {
+        	mergedChannelTransformationOrNull = new IntensityRangeImageTransformerFactory(0, Math.max(Math.max(whitePointColor.getRed(), whitePointColor.getGreen()), whitePointColor.getBlue()));
+        }
+        
         // NOTE: even if we are not merging all the channels but just few of them we use the
         // merged-channel transformation
         if (transformationInfo.isApplyNonImageLevelTransformation())
@@ -627,7 +642,7 @@ public class ImageChannelsUtils
         return mergedImage;
     }
 
-    private static BufferedImage transform(BufferedImage image,
+	private static BufferedImage transform(BufferedImage image,
             AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo)
     {
         BufferedImage resultImage = image;
@@ -788,7 +803,7 @@ public class ImageChannelsUtils
     }
 
     // this method always returns RGB images, even if the input was in grayscale
-    private static BufferedImage mergeImages(List<ImageWithReference> images)
+    private static MixedImageWithWhitePoint mergeImages(List<ImageWithReference> images)
     {
         BufferedImage[] bufferedImages = new BufferedImage[images.size()];
         Color[] colors = new Color[images.size()];
@@ -802,8 +817,8 @@ public class ImageChannelsUtils
         ColorComponent[] colorComponents = tryExtractColorComponent(images);
         if (colorComponents != null)
         {
-            return ColorComponentImageChannelMerger.mergeByExtractingComponents(bufferedImages,
-                    colorComponents);
+            return new MixedImageWithWhitePoint(ColorComponentImageChannelMerger.mergeByExtractingComponents(bufferedImages,
+                    colorComponents), null);
         } else
         {
             return MixColors.mixImages(bufferedImages, colors, false, 0);
