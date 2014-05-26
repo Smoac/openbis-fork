@@ -41,8 +41,8 @@ define([ "jquery" ], function($) {
 			this.transformation = transformation;
 		},
 
-		setTransformationParameters : function(transformationParameters) {
-			this.transformationParameters = transformationParameters;
+		setUserDefinedTransformationParametersMap : function(parametersMap) {
+			this.userDefinedTransformationParametersMap = parametersMap;
 		}
 
 	// TODO add getters

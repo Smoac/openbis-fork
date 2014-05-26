@@ -119,14 +119,24 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 			return viewer.getTransformationChooserWidget().setSelectedTransformation(transformation);
 		},
 
-		getSelectedTransformationParameters : function() {
+		getUserDefinedTransformationParameters : function(channel) {
 			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().getTransformationParameters();
+			return viewer.getTransformationChooserWidget().getUserDefinedTransformationParameters(channel);
 		},
 
-		setSelectedTransformationParameters : function(parameters) {
+		setUserDefinedTransformationParameters : function(channel, parameters) {
 			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
-			return viewer.getTransformationChooserWidget().setTransformationParameters(parameters);
+			return viewer.getTransformationChooserWidget().setUserDefinedTransformationParameters(channel, parameters);
+		},
+
+		getUserDefinedTransformationParametersMap : function() {
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
+			return viewer.getTransformationChooserWidget().getUserDefinedTransformationParametersMap();
+		},
+
+		setUserDefinedTransformationParametersMap : function(parametersMap) {
+			var viewer = this.getImageParametersWidget(this.getSelectedDataSetCode());
+			return viewer.getTransformationChooserWidget().setUserDefinedTransformationParametersMap(parametersMap);
 		},
 
 		getSelectedChannelStackId : function() {
@@ -153,7 +163,7 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 			}
 			imageData.setResolution(this.getSelectedResolution());
 			imageData.setTransformation(this.getSelectedTransformation());
-			imageData.setTransformationParameters(this.getSelectedTransformationParameters());
+			imageData.setUserDefinedTransformationParametersMap(this.getUserDefinedTransformationParametersMap());
 			return imageData;
 		},
 

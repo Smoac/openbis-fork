@@ -81,47 +81,43 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		},
 
 		renderOrRefreshParameters : function(container) {
-			var transformationParameters = this.controller.getTransformationParameters().map(function(parameter) {
-				return parameter.channel + " " + parameter.name;
-			});
+			var thisView = this;
 
-			if (this.currentTransformationParameters != undefined) {
-				if (this.currentTransformationParameters.toString() != transformationParameters.toString()) {
+			if (this.controller.isUserDefinedTransformation()) {
+				var channels = this.controller.getSelectedChannels();
+				var scales = [];
+
+				channels.forEach(function(channel) {
+					var parameters = thisView.controller.getUserDefinedTransformationParameters(channel);
+					scales.push(parameters.min + "_" + parameters.max);
+				});
+
+				var channelsChanned = !this.currentChannels || this.currentChannels.toString() != channels.toString();
+				var scalesChanned = !this.currentScales || this.currentScales.toString() != scales.toString();
+
+				if (channelsChanned || scalesChanned) {
 					container.empty().append(this.renderParameters());
+					this.currentChannels = channels;
+					this.currentScales = scales;
 				} else {
 					this.refreshParameters();
 				}
 			} else {
-				container.append(this.renderParameters());
+				container.empty();
+				this.currentChannels = null;
+				this.currentScales = null;
 			}
-
-			this.currentTransformationParameters = transformationParameters;
 		},
 
 		renderParameters : function() {
 			var thisView = this;
 
 			var panel = $("<div>").addClass("transformationParameters");
-			var parameters = this.controller.getTransformationParameters();
 
-			if (parameters.length > 0) {
-				var channelToParametersMap = {};
-
-				parameters.forEach(function(parameter) {
-					var channelParameters = channelToParametersMap[parameter.channel];
-
-					if (!channelParameters) {
-						channelParameters = {};
-						channelToParametersMap[parameter.channel] = channelParameters;
-					}
-
-					channelParameters[parameter.name] = parameter;
-				});
-
-				this.controller.getSelectedChannels().forEach(function(channel) {
-					panel.append(thisView.renderChannelParameters(channel, channelToParametersMap[channel]));
-				});
-			}
+			this.controller.getSelectedChannels().forEach(function(channel) {
+				var parameters = thisView.controller.getUserDefinedTransformationParameters(channel);
+				panel.append(thisView.renderChannelParameters(channel, parameters));
+			});
 
 			return panel;
 		},
@@ -131,24 +127,51 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var widget = $("<div>").addClass("transformationParameter").addClass("form-group");
 
 			var channelObject = this.controller.getChannelsMap()[channel];
-			var blackPoint = parameters["blackpoint"].value;
-			var whitePoint = parameters["whitepoint"].value;
 
-			$("<label>").text(channelObject.label + " [" + blackPoint + ", " + whitePoint + "]").appendTo(widget);
-
+			var label = $("<label>").text(channelObject.label + " [" + parameters.blackpoint + ", " + parameters.whitepoint + "]");
 			var input = $("<input>").attr("type", "text").attr("channel", channel).addClass("form-control");
 
-			$("<div>").append(input).appendTo(widget);
+			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
+			var inputContainer = $("<div>").addClass("inputContainer").append(input).appendTo(widget);
 
 			input.slider({
-				"min" : 0,
-				"max" : 65535,
+				"min" : parameters.min,
+				"max" : parameters.max,
 				"step" : 1,
 				"tooltip" : "hide",
-				"value" : [ blackPoint, whitePoint ]
+				"value" : [ parameters.blackpoint, parameters.whitepoint ]
 			}).on("slide", function(event) {
-				thisView.controller.setTransformationParameters(thisView.getParameters());
+				var value = input.slider("getValue");
+
+				thisView.controller.setUserDefinedTransformationParameters(channel, {
+					"min" : parameters.min,
+					"max" : parameters.max,
+					"blackpoint" : value[0],
+					"whitepoint" : value[1],
+				});
 			});
+
+			var rescale = $("<a>").text("Rescale").click(function() {
+				var value = input.slider("getValue");
+
+				thisView.controller.setUserDefinedTransformationParameters(channel, {
+					"min" : value[0],
+					"max" : value[1],
+					"blackpoint" : value[0],
+					"whitepoint" : value[1],
+				});
+			}).appendTo(labelContainer);
+
+			var reset = $("<a>").text("Reset").click(function() {
+				var value = input.slider("getValue");
+
+				thisView.controller.setUserDefinedTransformationParameters(channel, {
+					"min" : 0,
+					"max" : 65535,
+					"blackpoint" : 0,
+					"whitepoint" : 65535,
+				});
+			}).appendTo(labelContainer);
 
 			return widget;
 		},
@@ -156,56 +179,17 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		refreshParameters : function() {
 			var thisView = this;
 
-			var parameters = this.controller.getTransformationParameters();
-			var channelToParametersMap = {};
-
-			parameters.forEach(function(parameter) {
-				var channelParameters = channelToParametersMap[parameter.channel];
-
-				if (!channelParameters) {
-					channelParameters = {};
-					channelToParametersMap[parameter.channel] = channelParameters;
-				}
-
-				channelParameters[parameter.name] = parameter;
-			});
-
 			this.panel.find(".transformationParameter").each(function() {
 				var label = $(this).find("label");
 				var input = $(this).find("input");
 
 				var channel = input.attr("channel");
 				var channelObject = thisView.controller.getChannelsMap()[channel];
-				var channelParameters = channelToParametersMap[channel];
-				var blackPoint = channelParameters["blackpoint"].value;
-				var whitePoint = channelParameters["whitepoint"].value;
+				var channelParameters = thisView.controller.getUserDefinedTransformationParameters(channel);
 
-				label.text(channelObject.label + " [" + blackPoint + ", " + whitePoint + "]");
-				input.slider("setValue", [ blackPoint, whitePoint ]);
+				label.text(channelObject.label + " [" + channelParameters.blackpoint + ", " + channelParameters.whitepoint + "]");
+				input.slider("setValue", [ channelParameters.blackpoint, channelParameters.whitepoint ]);
 			});
-		},
-
-		getParameters : function() {
-			var parameters = [];
-
-			this.panel.find(".transformationParameters input").each(function() {
-				var input = $(this);
-				var value = input.slider("getValue");
-
-				parameters.push({
-					"channel" : input.attr("channel"),
-					"name" : "blackpoint",
-					"value" : value[0]
-				});
-
-				parameters.push({
-					"channel" : input.attr("channel"),
-					"name" : "whitepoint",
-					"value" : value[1]
-				});
-			});
-
-			return parameters;
 		}
 
 	});

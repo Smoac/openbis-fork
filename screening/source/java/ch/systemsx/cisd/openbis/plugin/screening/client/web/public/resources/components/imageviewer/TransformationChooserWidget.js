@@ -18,12 +18,12 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 		doGetState : function(state) {
 			state.selectedTransformation = this.getSelectedTransformation();
-			state.transformationParametersMap = this.getTransformationParametersMap();
+			state.userDefinedTransformationParametersMap = this.getUserDefinedTransformationParametersMap();
 		},
 
 		doSetState : function(state) {
 			this.setSelectedTransformation(state.selectedTransformation);
-			this.setTransformationParametersMap(state.transformationParametersMap);
+			this.setUserDefinedTransformationParametersMap(state.userDefinedTransformationParametersMap);
 		},
 
 		getSelectedChannels : function() {
@@ -75,103 +75,44 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
-		getTransformationParameters : function() {
-			var selectedTransformation = this.getSelectedTransformation();
-			var userTransformation = this.getUserDefinedTransformation().code;
+		getUserDefinedTransformationParameters : function(channel) {
+			var parameters = this.getUserDefinedTransformationParametersMap()[channel];
 
-			if (selectedTransformation == userTransformation) {
-				var parameters = this.getTransformationParametersMap()[userTransformation];
-
-				if (!parameters) {
-					parameters = [];
-					this.getTransformationParametersMap()[userTransformation] = parameters;
-				}
-
-				this.getChannelsCodes().forEach(function(channel) {
-					var found = parameters.some(function(parameter) {
-						return parameter.channel == channel;
-					});
-					if (!found) {
-						parameters.push({
-							"channel" : channel,
-							"name" : "whitepoint",
-							"value" : 65535
-						});
-						parameters.push({
-							"channel" : channel,
-							"name" : "blackpoint",
-							"value" : 0
-						});
-					}
-				});
-
-				var selectedChannels = this.getSelectedChannels();
-
-				return parameters.filter(function(parameter) {
-					return $.inArray(parameter.channel, selectedChannels) != -1;
-				});
-
-			} else {
-				return [];
-			}
-		},
-
-		setTransformationParameters : function(parameters) {
 			if (!parameters) {
-				return;
-			}
-
-			var selectedTransformation = this.getSelectedTransformation();
-			var userTransformation = this.getUserDefinedTransformation().code;
-
-			if (selectedTransformation == userTransformation) {
-				var existingParameters = this.getTransformationParametersMap()[userTransformation];
-
-				if (existingParameters) {
-					var changed = false;
-
-					parameters.forEach(function(parameter) {
-						var found = false;
-
-						existingParameters.forEach(function(existingParameter) {
-							if (existingParameter.channel == parameter.channel && existingParameter.name == parameter.name) {
-								found = true;
-								if (existingParameter.value != parameter.value) {
-									existingParameter.value = parameter.value;
-									changed = true;
-								}
-							}
-						});
-
-						if (!found) {
-							existingParameters.push(parameter);
-							changed = true;
-						}
-					});
-
-					if (changed) {
-						this.refresh();
-						this.notifyChangeListeners();
-					}
-				} else {
-					this.getTransformationParametersMap()[userTransformation] = parameters;
-					this.refresh();
-					this.notifyChangeListeners();
+				parameters = {
+					"min" : 0,
+					"max" : 65535,
+					"blackpoint" : 0,
+					"whitepoint" : 65535
 				}
+				this.getUserDefinedTransformationParametersMap()[channel] = parameters;
+			}
 
+			return parameters;
+		},
+
+		setUserDefinedTransformationParameters : function(channel, parameters) {
+			var currentParameters = this.getUserDefinedTransformationParameters(channel);
+
+			if (currentParameters.min != parameters.min || currentParameters.max != parameters.max
+					|| currentParameters.blackpoint != parameters.blackpoint || currentParameters.whitepoint != parameters.whitepoint) {
+				this.getUserDefinedTransformationParametersMap()[channel] = parameters;
+				this.refresh();
+				this.notifyChangeListeners();
 			}
 		},
 
-		getTransformationParametersMap : function() {
-			if (!this.transformationParametersMap) {
-				this.transformationParametersMap = {};
+		getUserDefinedTransformationParametersMap : function() {
+			if (!this.userDefinedTransformationParametersMap) {
+				this.userDefinedTransformationParametersMap = {};
 			}
-			return this.transformationParametersMap;
+			return this.userDefinedTransformationParametersMap;
 		},
 
-		setTransformationParametersMap : function(map) {
-			this.transformationParametersMap = map;
+		setUserDefinedTransformationParametersMap : function(map) {
+			this.userDefinedTransformationParametersMap = map;
 			this.refresh();
+			this.notifyChangeListeners();
 		},
 
 		getChannels : function() {
@@ -241,11 +182,19 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
+		isOptimalTransformation : function() {
+			return this.getSelectedTransformation() == this.getOptimalTransformation().code;
+		},
+
 		getUserDefinedTransformation : function() {
 			return {
 				code : "$USER_DEFINED_RESCALING$",
 				label : "User defined"
 			}
+		},
+
+		isUserDefinedTransformation : function() {
+			return this.getSelectedTransformation() == this.getUserDefinedTransformation().code;
 		}
 
 	});

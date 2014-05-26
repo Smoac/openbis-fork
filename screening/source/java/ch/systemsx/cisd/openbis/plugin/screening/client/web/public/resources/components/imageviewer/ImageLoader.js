@@ -34,25 +34,12 @@ define([ "jquery" ], function($) {
 				// TODO duplicated constant (see TransformationChooserWidget.js)
 
 				if ("$USER_DEFINED_RESCALING$" == imageData.transformation) {
+					var parametersMap = imageData.userDefinedTransformationParametersMap;
+					var multipleChannels = Object.keys(parametersMap).length > 1;
 
-					var channelToParametersMap = {};
-
-					imageData.transformationParameters.forEach(function(parameter) {
-						var channelParameters = channelToParametersMap[parameter.channel];
-
-						if (!channelParameters) {
-							channelParameters = {};
-							channelToParametersMap[parameter.channel] = channelParameters;
-						}
-
-						channelParameters[parameter.name] = parameter;
-					});
-
-					var multipleChannels = Object.keys(channelToParametersMap).length > 1;
-
-					for (channel in channelToParametersMap) {
-						var blackPoint = channelToParametersMap[channel]["blackpoint"].value;
-						var whitePoint = channelToParametersMap[channel]["whitepoint"].value;
+					for (channel in parametersMap) {
+						var blackPoint = parametersMap[channel].blackpoint;
+						var whitePoint = parametersMap[channel].whitepoint;
 						url += "&transformation";
 						if (multipleChannels) {
 							url += channel;
