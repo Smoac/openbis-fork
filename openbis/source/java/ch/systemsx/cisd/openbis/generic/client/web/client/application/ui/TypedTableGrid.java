@@ -57,6 +57,8 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
@@ -128,6 +130,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.ex
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityDetailsTabHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listener.OpenEntityEditorTabClickListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.IDataRefreshCallback;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.SimpleDialog;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils.DisplayInfoTime;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -1123,6 +1126,11 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
         return visibleColumnIds;
     }
 
+    protected String getDefaultFileName()
+    {
+        return getGridDisplayTypeID().toLowerCase();
+    }
+
     // wraps this browser into the interface appropriate for the toolbar. If this class would just
     // implement the interface it could be very confusing for the code reader.
     protected IBrowserGridActionInvoker asActionInvoker()
@@ -1138,9 +1146,45 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                 }
 
                 @Override
-                public void export(TableExportType type)
+                public void export(final TableExportType type)
                 {
-                    delegate.export(type);
+                    String defaultFileName = getDefaultFileName() + ".tsv";
+                    FormPanel form = new FormPanel();
+                    form.setHeaderVisible(false);
+                    form.setBorders(false);
+                    form.setBodyBorder(false);
+                    form.setFieldWidth(450);
+                    final TextField<String> fileNameField = new TextField<String>();
+                    fileNameField.setFieldLabel("File name");
+                    fileNameField.setSelectOnFocus(true);
+                    fileNameField.setAutoValidate(true);
+                    fileNameField.setValue(defaultFileName);
+                    fileNameField.setWidth(300);
+                    form.add(fileNameField);
+                    final SimpleDialog dialog =
+                            new SimpleDialog(form, "Export File Name", "Export", viewContext);
+                    dialog.setFocusWidget(fileNameField);
+                    final IDelegatedAction acceptAction = new IDelegatedAction()
+                        {
+                            @Override
+                            public void execute()
+                            {
+                                delegate.export(type, fileNameField.getValue());
+                            }
+                        };
+                    dialog.setAcceptAction(acceptAction);
+                    dialog.setEnableOfAcceptButton(true);
+                    fileNameField.addKeyListener(new EnterKeyListener()
+                        {
+                            @Override
+                            protected void onEnterKey()
+                            {
+                                dialog.hide();
+                                acceptAction.execute();
+                            }
+                        });
+                    dialog.setSize(600, 120);
+                    dialog.show();
                 }
 
                 @Override
@@ -1873,9 +1917,9 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
      * 
      * @param allColumns whether all columns should be exported
      */
-    private void export(TableExportType type)
+    private void export(TableExportType type, String fileName)
     {
-        export(type, new ExportEntitiesCallback(viewContext));
+        export(type, new ExportEntitiesCallback(viewContext, fileName));
     }
 
     /**
@@ -2203,9 +2247,12 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
 
     private static final class ExportEntitiesCallback extends AbstractAsyncCallback<String>
     {
-        public ExportEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext)
+        private String fileName;
+
+        public ExportEntitiesCallback(final IViewContext<ICommonClientServiceAsync> viewContext, String fileName)
         {
             super(viewContext);
+            this.fileName = fileName;
         }
 
         @Override
@@ -2216,6 +2263,7 @@ public abstract class TypedTableGrid<T extends Serializable> extends LayoutConta
                             GenericConstants.FILE_EXPORTER_DOWNLOAD_SERVLET_NAME);
             methodWithParameters.addParameter(GenericConstants.EXPORT_CRITERIA_KEY_PARAMETER,
                     exportDataKey);
+            methodWithParameters.addParameter(GenericConstants.EXPORT_FILE_NAME, fileName);
             methodWithParameters.addParameter(GenericConstants.TIMESTAMP_PARAMETER, Long.toString(System.currentTimeMillis()));
             WindowUtils.openWindow(methodWithParameters.toString());
         }
