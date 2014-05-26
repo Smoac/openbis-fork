@@ -101,7 +101,7 @@ class TestCase(systemtest.testcase.TestCase):
                     expectedLines = self.getExpectedLogEntries(openbisController.testName, dataName)
                     failed = False
                     for i, line, expectedLine in zip(range(len(lines)), lines, expectedLines):
-                        if not self.assertEquals("%d. line of '%s'" % (i+1, dataName), expectedLine.rstrip(), line.rstrip()):
+                        if not self.assertEquals("%d. line of '%s'" % (i+1, dataName), expectedLine.strip(), line.strip()):
                             self.printLogEntries(lines)
                             failed = True
                             break
