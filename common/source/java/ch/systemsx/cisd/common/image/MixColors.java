@@ -254,6 +254,29 @@ public class MixColors
         Color merge(Color[] colors, int x, int y, BufferedImage[] images);
     }
 
+    public static class MixedImageWithWhitePoint {
+    	private BufferedImage image;
+    	private Color whitePoint;
+    	
+		public MixedImageWithWhitePoint(BufferedImage image, Color whitePointColor) {
+			this.image = image;
+			this.whitePoint = whitePointColor;
+		}
+		
+		public BufferedImage getImage() {
+			return image;
+		}
+		public void setImage(BufferedImage image) {
+			this.image = image;
+		}
+		public Color getWhitePoint() {
+			return whitePoint;
+		}
+		public void setWhitePoint(Color whitePoint) {
+			this.whitePoint = whitePoint;
+		}
+    }
+    
     /**
      * Calculate a new image by mixing the given gray-scale </var>images</var>.
      * 
@@ -261,9 +284,10 @@ public class MixColors
      * @param quadratic If <code>true</code>, use a quadratic (weighted) additive color mixture, otherwise use a linear (unweighted) additive color
      *            mixture.
      * @param saturationEnhancementFactor If > 0, perform a saturation enhancement step with the given factor.
+     * @whitePointColor output of the brightest color in the output mix
      * @return Returns the mixed image.
      */
-    public static BufferedImage mixImages(BufferedImage[] images, Color[] colors,
+    public static MixedImageWithWhitePoint mixImages(BufferedImage[] images, Color[] colors,
             boolean quadratic, float saturationEnhancementFactor)
     {
         assert colors.length == images.length : "number of colors and images do not match";
@@ -274,18 +298,18 @@ public class MixColors
         int width = images[0].getWidth();
         int height = images[0].getHeight();
 
-        final Color[][] notNormalizedPixels = new Color[width][height];
+        final BufferedImage mixed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        
         float whitePointSumIntencity = 0f;
         Color whitePointColor = new Color(0);
         final float[] mixedComponents = new float[4];
 
-        // store the colours and calculate white point
         for (int y = 0; y < height; ++y)
         {
             for (int x = 0; x < width; ++x)
             {
                 Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
-                notNormalizedPixels[x][y] = mixColor;
+                mixed.setRGB(x, y, new Color(images[0].getColorModel().getColorSpace(), mixedComponents, 1).getRGB());
 
                 mixColor.getRGBColorComponents(mixedComponents);
                 float sumIntencity = 0f;
@@ -302,30 +326,7 @@ public class MixColors
             }
         }
 
-        float maxComponent = getMaxComponent(whitePointColor.getRed(), whitePointColor.getGreen(), whitePointColor.getBlue());
-        float whitePointFactor = 1;
-
-        if (maxComponent != 0)
-        {
-            whitePointFactor = 255f / maxComponent;
-        }
-        final BufferedImage mixed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-        // apply white point adjustments to the final image
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                notNormalizedPixels[x][y].getRGBColorComponents(mixedComponents);
-                for (int i = 0; i < mixedComponents.length; i++)
-                {
-                    mixedComponents[i] *= whitePointFactor;
-                }
-
-                mixed.setRGB(x, y, new Color(images[0].getColorModel().getColorSpace(), mixedComponents, 1).getRGB());
-            }
-        }
-        return mixed;
+        return new MixedImageWithWhitePoint(mixed, whitePointColor);
     }
 
     /** For i-th image takes the intensity of (x,y) pixel and saves it in intensities[i]. */
