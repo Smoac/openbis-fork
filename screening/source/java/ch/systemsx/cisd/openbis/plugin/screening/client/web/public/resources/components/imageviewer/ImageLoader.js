@@ -1,4 +1,4 @@
-define([ "jquery" ], function($) {
+define([ "jquery", "components/common/Logger" ], function($, Logger) {
 
 	//
 	// IMAGE LOADER
@@ -11,9 +11,12 @@ define([ "jquery" ], function($) {
 	$.extend(ImageLoader.prototype, {
 
 		init : function() {
+			this.callbacks = [];
 		},
 
 		loadImage : function(imageData, callback) {
+			var thisLoader = this;
+
 			var url = imageData.dataStoreUrl + "/datastore_server_screening";
 			url += "?sessionID=" + imageData.sessionToken;
 			url += "&dataset=" + imageData.dataSetCode;
@@ -31,20 +34,20 @@ define([ "jquery" ], function($) {
 
 			if (imageData.transformation) {
 
-				// TODO duplicated constant (see TransformationChooserWidget.js)
-
 				if ("$USER_DEFINED_RESCALING$" == imageData.transformation) {
 					var parametersMap = imageData.userDefinedTransformationParametersMap;
-					var multipleChannels = Object.keys(parametersMap).length > 1;
+					var multipleChannels = imageData.channels.length > 1;
 
 					for (channel in parametersMap) {
-						var blackPoint = parametersMap[channel].blackpoint;
-						var whitePoint = parametersMap[channel].whitepoint;
-						url += "&transformation";
-						if (multipleChannels) {
-							url += channel;
+						if ($.inArray(channel, imageData.channels) != -1) {
+							var blackPoint = parametersMap[channel].blackpoint;
+							var whitePoint = parametersMap[channel].whitepoint;
+							url += "&transformation";
+							if (multipleChannels) {
+								url += channel;
+							}
+							url += "=" + encodeURIComponent(imageData.transformation + "(" + blackPoint + "," + whitePoint + ")");
 						}
-						url += "=" + encodeURIComponent(imageData.transformation + "(" + blackPoint + "," + whitePoint + ")");
 					}
 
 				} else {
@@ -52,11 +55,40 @@ define([ "jquery" ], function($) {
 				}
 			}
 
-			$("<img>").attr("src", url).load(function() {
-				if (callback) {
-					callback(this);
-				}
-			});
+			if (callback) {
+				this.callbacks.push(callback);
+			}
+
+			if (this.timeoutConfig) {
+				clearTimeout(this.timeoutConfig.id);
+			}
+
+			var timeoutConfig = {};
+			var timeout = function() {
+
+				Logger.log("sending request for timeout with id: " + timeoutConfig.id + " with url: " + timeoutConfig.url);
+
+				$("<img>").attr("src", timeoutConfig.url).load(function() {
+					if (thisLoader.timeoutConfig && thisLoader.timeoutConfig.id === timeoutConfig.id) {
+						var thisImage = this;
+
+						thisLoader.callbacks.forEach(function(callback) {
+							callback(thisImage);
+						});
+
+						thisLoader.timeoutConfig = null;
+						thisLoader.callbacks = [];
+
+						Logger.log("received an UP-TO-DATE response for timeout with id: " + timeoutConfig.id + " with url: " + timeoutConfig.url);
+					} else {
+						Logger.log("received an OUTDATED response for timeout with id: " + timeoutConfig.id + " with url: " + timeoutConfig.url);
+					}
+				});
+			};
+
+			timeoutConfig.id = setTimeout(timeout, 50);
+			timeoutConfig.url = url;
+			this.timeoutConfig = timeoutConfig;
 		}
 
 	});

@@ -16,6 +16,8 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 		},
 
 		render : function() {
+			$("<div>").addClass("imageContainer").appendTo(this.panel);
+			$("<div>").addClass("loadingContainer").appendTo(this.panel);
 			this.refresh();
 			return this.panel;
 		},
@@ -24,9 +26,14 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 			var thisView = this;
 
 			if (this.controller.getImageData()) {
+				var loadingContainer = this.panel.find(".loadingContainer");
+				var imageContainer = this.panel.find(".imageContainer");
+
+				loadingContainer.text("loading...");
+
 				this.controller.loadImage(this.controller.getImageData(), function(image) {
-					thisView.panel.empty();
-					thisView.panel.append(image);
+					loadingContainer.empty();
+					imageContainer.empty().append(image);
 				});
 			} else {
 				this.panel.empty();
