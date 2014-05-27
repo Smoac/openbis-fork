@@ -134,6 +134,12 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			var scrollTop = $(document).scrollTop();
 			$element.css('top', scrollTop + "px"); 
 		});
+		
+		$(window).resize(function(event){
+			var $element = $("#sideMenu");
+			var height = $(window).height();
+			$element.css('min-height', height + "px"); 
+		});
 	}
 	
 	this.hideSideMenu = function() {
@@ -292,6 +298,8 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			this._menuDOMBody.append($menuItem);
 		}
+		
+		$(window).resize();
 	}
 	
 }
