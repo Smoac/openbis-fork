@@ -153,12 +153,17 @@ h1, h2, legend {
 /* 
  * Navigation bar - Search
  */
+ 
+.navbar-form {
+	padding-left: 5px;
+}
+
 .navbar-form .search-query {
     padding-left: 30px;
     background-image: url(../img/search-icon.png);
     background-repeat: no-repeat;
     background-position: 12px 9px;
-	width: 160px;
+	width: 145px;
 	border-radius: 15px 15px 15px 15px;
 }
 

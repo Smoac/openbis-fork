@@ -130,6 +130,24 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		});
 	}
 	
+	this.hideSideMenu = function() {
+		$("#" + this._containerId).hide();
+		$("#mainContainer").removeClass("col-md-10");
+		$("#mainContainer").addClass("col-md-12");
+		
+		var $toggleButtonShow = $("<a>", { "class" : "btn btn-default", "id" : "toggleButtonShow", "href" : "javascript:mainController.sideMenu.showSideMenu();", "style" : "position: absolute; top:0px; left:0px;"})
+								.append($("<span>", { "class" : "glyphicon glyphicon-resize-horizontal" }));
+		
+		$("#mainContainer").append($toggleButtonShow);
+	}
+	
+	this.showSideMenu = function() {
+		$("#" + this._containerId).show();
+		$("#toggleButtonShow").remove();
+		$("#mainContainer").removeClass("col-md-12");
+		$("#mainContainer").addClass("col-md-10");
+	}
+	
 	this._repaint = function() {
 		var _this = this;
 		var $container = $("#" + this._containerId);
@@ -152,6 +170,11 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 										.append($("<span>", { "id" : "num-pins" }).append(this._mainController.inspector.inspectedSamples.length))
 									);
 		
+		var $toggleButton = $("<li>")
+				.append($("<a>", { "href" : "javascript:mainController.sideMenu.hideSideMenu();" })
+					.append($("<span>", { "class" : "glyphicon glyphicon-resize-horizontal" }))
+				);
+		
 		var $searchForm = $("<li>")
 						.append($("<form>", { "class" : "navbar-form", "onsubmit" : "return false;"})
 									.append($("<input>", { "id" : "search", "type" : "text", "onkeyup" : "mainController.changeView(\"showSearchPage\", event);", "class" : "form-control search-query", "placeholder" : "Search"}))
@@ -166,10 +189,11 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			});
 		});
 		var $logoutButton = $("<li>").append(logoutButton);
-			
-		$headerItemList.append($pinButton);
-		$headerItemList.append($searchForm);
+		
 		$headerItemList.append($logoutButton);
+		$headerItemList.append($pinButton);
+		$headerItemList.append($toggleButton);
+		$headerItemList.append($searchForm);
 		
 		var $body = $("<div>");
 			$widget

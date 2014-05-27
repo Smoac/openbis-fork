@@ -73,8 +73,9 @@ function MainController(profile) {
 		//
 		//BackButton Logic
 		var backButtonLogic = function(e) {
-			var viewName = Util.queryString.viewName;
-			var viewData = Util.queryString.viewData
+			var queryString = Util.queryString();
+			var viewName = queryString.viewName;
+			var viewData = queryString.viewData
 			if(viewName && viewData) {
 				localReference.changeView(viewName, viewData);
 			}
@@ -105,15 +106,17 @@ function MainController(profile) {
 					localReference.sideMenu = new SideMenuWidget(localReference, "sideMenu", localReference.serverFacade);
 					localReference.sideMenu.init();
 					
-					localReference.changeView("showHelloPage", null);
-					Util.unblockUI();
-					
 					//Page reload using the URL info
-					var viewName = Util.queryString.viewName;
-					var viewData = Util.queryString.viewData
+					var queryString = Util.queryString();
+					var viewName = queryString.viewName;
+					var viewData = queryString.viewData
 					if(viewName && viewData) {
 						localReference.changeView(viewName, viewData);
+					} else {
+						localReference.changeView("showHelloPage", null);
 					}
+					Util.unblockUI();
+					
 					
 					//Get datastores for automatic DSS configuration, the first one will be used
 					localReference.serverFacade.listDataStores(

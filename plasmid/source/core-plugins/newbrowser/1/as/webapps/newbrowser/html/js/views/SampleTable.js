@@ -165,8 +165,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		// Table Containers
 		//
 		var component = "";
-			component += "<div class='row-fluid'>";
-			component += "<div class='span12'>";
+			component += "<div>";
 			if(this.isSearch) {
 				component += "<h1>Search Results</h1>";
 			} else {
@@ -186,7 +185,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			component += "</div>";
 			component += "</div>";
 			component += "</div>";
-			
 		$("#"+this.sampleTableId).append(component);
 		
 		//
