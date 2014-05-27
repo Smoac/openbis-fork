@@ -18,6 +18,10 @@
  * General Overrides
  */
 
+#mainContainer.col-md-12 {
+	padding-top: 30px;
+}
+
 .container  {
 	width: 100%;
 }
@@ -555,7 +559,7 @@ table.downloads {
  }
  
  .sideMenuItem {
- 	text-align: center;
+ 	padding-left:10px;
  	padding-top:10px;
  	background-color:#FFFFFF;
  	margin-bottom:0px;

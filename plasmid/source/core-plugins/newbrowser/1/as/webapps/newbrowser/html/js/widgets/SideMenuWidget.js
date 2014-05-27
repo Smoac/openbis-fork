@@ -138,7 +138,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		var $toggleButtonShow = $("<a>", { "class" : "btn btn-default", "id" : "toggleButtonShow", "href" : "javascript:mainController.sideMenu.showSideMenu();", "style" : "position: absolute; top:0px; left:0px;"})
 								.append($("<span>", { "class" : "glyphicon glyphicon-resize-horizontal" }));
 		
-		$("#mainContainer").append($toggleButtonShow);
+		$("#main").append($toggleButtonShow);
 	}
 	
 	this.showSideMenu = function() {
@@ -223,8 +223,8 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		// Title
 		//
 		this._menuDOMTitle.empty();
-		
-		if(menuToPaint.parent !== null) {
+		var isBackButtonShown = menuToPaint.parent !== null;
+		if(isBackButtonShown) {
 			var backButton = $("<a>", { "id" : "back-button", "href" : "javascript:void(0);", "style" : "float:left; color:black; padding-left:10px;" }).append($("<span>", { "class" : "glyphicon glyphicon-arrow-left"}));
 			var backButtonClick = function(menuItem) {
 				return function() {
@@ -236,7 +236,14 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			this._menuDOMTitle.append(backButton);
 		}
 		
-		this._menuDOMTitle.append(menuToPaint.displayName);
+		var $mainTitle = $("<span>").append(menuToPaint.displayName);
+		if(isBackButtonShown) {
+			$mainTitle.css({
+				"margin-left" : "-24px"
+			});
+		}
+		
+		this._menuDOMTitle.append($mainTitle);
 		
 		
 		//
@@ -248,7 +255,8 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			
 			var $menuItem = $("<div>", { "class" : "sideMenuItem" });
-			$menuItem.append(menuItem.displayName);
+			var $menuItemTitle = $("<span>").append(menuItem.displayName);
+			$menuItem.append($menuItemTitle);
 			
 			if(menuItem.isTitle) {
 				$menuItem.addClass("sideMenuItemTitle");
