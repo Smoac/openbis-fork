@@ -136,9 +136,19 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		});
 		
 		$(window).resize(function(event){
+			//Use all height
 			var $element = $("#sideMenu");
-			var height = $(window).height();
-			$element.css('min-height', height + "px"); 
+			var windowHeight = $(window).height();
+			$element.css('min-height', windowHeight + "px"); 
+			
+			//Set the children of the menu scrollable
+			var $elementHead = $("#sideMenuHeader");
+			var sideMenuHeaderHeight = $elementHead.height();
+			var $elementBody = $("#sideMenuBody");
+			$elementBody.css('overflow-y', 'auto');
+			$elementBody.css('overflow-x', 'hidden'); 
+			//TO-DO 17px is a hack to be able to scroll properly to the last item on the iPad
+			$elementBody.css('max-height', (windowHeight - sideMenuHeaderHeight - 17) + "px"); 
 		});
 	}
 	
@@ -168,7 +178,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		//
 		// Fix Header
 		//
-		var $header = $("<div>");
+		var $header = $("<div>", { "id" : "sideMenuHeader"});
 		var $headerItemList = $("<ul>", { "class" : "nav navbar-nav"});
 			$header
 				.append(
@@ -207,7 +217,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		$headerItemList.append($toggleButton);
 		$headerItemList.append($searchForm);
 		
-		var $body = $("<div>");
+		var $body = $("<div>", { "id" : "sideMenuBody"});
 			$widget
 				.append($header)
 				.append($body);
