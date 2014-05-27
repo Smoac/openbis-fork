@@ -128,6 +128,12 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				_this._repaint();
 			});
 		});
+		
+		$(window).scroll(function(event){
+			var $element = $("#sideMenu");
+			var scrollTop = $(document).scrollTop();
+			$element.css('top', scrollTop + "px"); 
+		});
 	}
 	
 	this.hideSideMenu = function() {
