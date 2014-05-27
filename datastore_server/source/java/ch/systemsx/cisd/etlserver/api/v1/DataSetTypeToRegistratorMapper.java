@@ -20,6 +20,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
@@ -31,13 +35,15 @@ import ch.systemsx.cisd.etlserver.validation.IDataSetValidator;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 
 /**
- * Utility class the maps between data set types (strings) and IETLServerPlugin instances. Made
- * public to aid tests, but is really package internal.
+ * Utility class the maps between data set types (strings) and IETLServerPlugin instances. Made public to aid tests, but is really package internal.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 class DataSetTypeToRegistratorMapper
 {
+
+    private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, DataSetTypeToRegistratorMapper.class);
+
     // The default plugin is either the one explicitly specified in the properties file, or,
     // otherwise, the first-defined thread
     private final ITopLevelDataSetRegistrator defaultHandler;
@@ -84,7 +90,21 @@ class DataSetTypeToRegistratorMapper
         }
 
         ITopLevelDataSetRegistrator plugin = dropboxToHandlerMap.get(dropboxName);
-        return plugin == null ? defaultHandler : plugin;
+
+        if (plugin == null)
+        {
+            operationLog
+                    .warn("Trying to drop dataset via rpc into dropbox "
+                            + dropboxName
+                            + ", but this dropbox was not configured for it so default dropbox will be used.\nIf that was not intended, then you need to add this line in your servers/datastore_server/etc/service.properties:\ndss-rpc.put."
+                            + dropboxName
+                            + " = " + dropboxName);
+            return defaultHandler;
+        }
+        else
+        {
+            return plugin;
+        }
     }
 
     public ITopLevelDataSetRegistrator getRegistratorForType(String dataSetTypeOrNull)
@@ -203,7 +223,8 @@ class DataSetTypeToRegistratorMapper
         }
 
         public HashMap<String, ITopLevelDataSetRegistrator> getHandlerMap(
-                @SuppressWarnings("hiding") HashMap<String, ITopLevelDataSetRegistrator> dropboxToHandlerMap)
+                @SuppressWarnings("hiding")
+                HashMap<String, ITopLevelDataSetRegistrator> dropboxToHandlerMap)
         {
             HashMap<String, ITopLevelDataSetRegistrator> map =
                     new HashMap<String, ITopLevelDataSetRegistrator>();
