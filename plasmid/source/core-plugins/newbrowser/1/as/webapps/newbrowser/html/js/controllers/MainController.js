@@ -57,6 +57,7 @@ function MainController(profile) {
 	//
 	
 	this.enterApp = function(data) {
+		var localReference = this;
 		//
 		// Check Credentials
 		//
@@ -68,6 +69,19 @@ function MainController(profile) {
 		}
 		
 		//
+		// Back Button Logic
+		//
+		//BackButton Logic
+		var backButtonLogic = function(e) {
+			var viewName = Util.queryString.viewName;
+			var viewData = Util.queryString.viewData
+			if(viewName && viewData) {
+				localReference.changeView(viewName, viewData);
+			}
+		}
+		window.addEventListener("popstate", function(e) {backButtonLogic(e);}); 
+		
+		//
 		// Start App if credentials are ok
 		//
 		$('body').removeClass('bodyLogin');
@@ -76,7 +90,7 @@ function MainController(profile) {
 	
 		//Get Metadata from all sample types before showing the main menu
 		
-		var localReference = this;
+		
 		this.serverFacade.listSampleTypes (
 			function(result) {
 			
@@ -91,7 +105,7 @@ function MainController(profile) {
 					localReference.sideMenu = new SideMenuWidget(localReference, "sideMenu", localReference.serverFacade);
 					localReference.sideMenu.init();
 					
-					localReference.changeView("showMainMenu", null);
+					localReference.changeView("showHelloPage", null);
 					Util.unblockUI();
 					
 					//Page reload using the URL info
@@ -146,9 +160,9 @@ function MainController(profile) {
 				document.title = "Show Inspectors";
 				this._showInspectors();
 				break;
-			case "showMainMenu":
+			case "showHelloPage":
 				document.title = "Main Menu";
-				//this._showMainMenu();
+				this._showHelloPage();
 				break;
 			case "showSearchPage":
 				document.title = "Search";
@@ -232,12 +246,10 @@ function MainController(profile) {
 		this.inspector.repaint();
 	}
 	
-	this._showMainMenu = function() {
-		//Show Main menu
-		var mainMenu = new MainMenu(this, "mainContainer", this.profile.inventoryStructure, this.profile.experimentsStructure, this.profile.mainMenuContentExtra());
-		mainMenu.init();
-		
-		this.currentView = mainMenu;
+	this._showHelloPage = function() {
+		//Show Hello Page
+		$("#mainContainer").empty();
+		this.currentView = null;
 	}
 	
 	this._showSamplesPage = function(sampleTypeCode) {

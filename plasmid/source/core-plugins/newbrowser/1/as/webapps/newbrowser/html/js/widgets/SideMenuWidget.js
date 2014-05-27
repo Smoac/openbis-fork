@@ -29,7 +29,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._serverFacade = serverFacade;
 	this._menuDOMTitle = null;
 	this._menuDOMBody = null;
-	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showMainMenu', null);
+	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showHelloPage', null);
 	this._pointerToMenuNode = this._menuStructure;
 	
 	this._getProjectNodeForCode = function(projectCode) {

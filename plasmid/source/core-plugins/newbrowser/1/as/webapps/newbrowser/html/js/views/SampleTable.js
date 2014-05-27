@@ -167,6 +167,18 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var component = "";
 			component += "<div class='row-fluid'>";
 			component += "<div class='span12'>";
+			if(this.isSearch) {
+				component += "<h1>Search Results</h1>";
+			} else {
+				var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+				var sampleTypeDisplayName = Util.getEmptyIfNull(sampleType.description);
+				if(sampleTypeDisplayName === "") {
+					sampleTypeDisplayName = sampleType.code;
+				}
+				component += "<h1>" + sampleTypeDisplayName + " List</h1>";
+			}
+			
+			
 			component += "<div id='vis'>";
 			component += "<div class='tableContainerBorder'>";
 			component += "<div id='tableContainer'></div>";
