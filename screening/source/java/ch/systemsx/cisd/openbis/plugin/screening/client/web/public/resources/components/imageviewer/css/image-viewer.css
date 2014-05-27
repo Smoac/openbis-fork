@@ -1,5 +1,5 @@
 .imageViewer .formPanel {
-	width: 600px;
+	
 }
 
 .imageViewer .imagePanel {
@@ -10,11 +10,33 @@
 	vertical-align: top;
 }
 
+.imageViewer .labelContainer label {
+	margin-right: 10px;
+}
+
+.imageViewer .labelContainer a {
+	color: #285e8e;
+	padding: 0px 10px;
+	cursor: pointer;
+}
+
+.imageViewer .labelContainer a:hover {
+	text-decoration: underline;
+}
+
 .imageViewer .slider.slider-horizontal {
 	width: 100%;
 }
 
-.imageViewer .movieButtonsWidget .delay input {
+.imageViewer .movieButtonsWidget .mainTable {
+	width: 100%;
+}
+
+.imageViewer .movieButtonsWidget .buttons {
+	min-width: 200px;
+}
+
+.imageViewer .movieButtonsWidget .delayTable {
 	width: 100%;
 }
 
@@ -22,12 +44,18 @@
 	padding-right: 5px;
 }
 
+.imageViewer .movieButtonsWidget input.delay {
+	width: 100%;
+	min-width: 60px;
+}
+
 .imageViewer .movieButtonsWidget .delayUnit {
 	padding-left: 5px;
 }
 
 .imageViewer .movieButtonsWidget button {
-	width: 100%;
+	margin-right: 5%;
+	width: 20%;
 }
 
 .imageViewer .imageWidget {

@@ -18,52 +18,51 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		render : function() {
 			var thisView = this;
 
-			var row = $("<div>").addClass("row").appendTo(this.panel);
+			var table = $("<table>").addClass("mainTable").appendTo(this.panel);
+			var row = $("<tr>").appendTo(table);
 
-			var buttonsRow = $("<div>").addClass("buttons").addClass("row").appendTo(this.panel);
-			var delayRow = $("<div>").addClass("delay").addClass("form-inline").appendTo(this.panel);
-
-			$("<div>").addClass("col-md-6").append(buttonsRow).appendTo(row);
-			$("<div>").addClass("col-md-6").append(delayRow).appendTo(row);
+			var buttonsCell = $("<td>").addClass("buttons").appendTo(row);
+			var delayCell = $("<td>").addClass("delay").addClass("form-inline").appendTo(row);
 
 			var play = $("<button>").addClass("play").addClass("btn").addClass("btn-primary");
 			$("<span>").addClass("glyphicon").addClass("glyphicon-play").appendTo(play);
-			$("<div>").addClass("col-md-3").append(play).appendTo(buttonsRow);
 
+			play.appendTo(buttonsCell);
 			play.click(function() {
 				thisView.controller.play();
 			});
 
 			var stop = $("<button>").addClass("stop").addClass("btn").addClass("btn-primary");
 			$("<span>").addClass("glyphicon").addClass("glyphicon-stop").appendTo(stop);
-			$("<div>").addClass("col-md-3").append(stop).appendTo(buttonsRow);
 
+			stop.appendTo(buttonsCell);
 			stop.click(function() {
 				thisView.controller.stop();
 			});
 
 			var prev = $("<button>").addClass("prev").addClass("btn").addClass("btn-default");
 			$("<span>").addClass("glyphicon").addClass("glyphicon-backward").appendTo(prev);
-			$("<div>").addClass("col-md-3").append(prev).appendTo(buttonsRow);
 
+			prev.appendTo(buttonsCell);
 			prev.click(function() {
 				thisView.controller.prev();
 			});
 
 			var next = $("<button>").addClass("next").addClass("btn").addClass("btn-default");
 			$("<span>").addClass("glyphicon").addClass("glyphicon-forward").appendTo(next);
-			$("<div>").addClass("col-md-3").append(next).appendTo(buttonsRow);
 
+			next.appendTo(buttonsCell);
 			next.click(function() {
 				thisView.controller.next();
 			});
 
-			var delayTable = $("<table>").appendTo(delayRow);
+			var delayTable = $("<table>").addClass("delayTable").appendTo(delayCell);
 			var delayTr = $("<tr>").appendTo(delayTable);
 
 			$("<td>").append($("<span>").addClass("delayLabel").text("delay:").attr("for", "delayInput")).appendTo(delayTr);
 
-			var delay = $("<input>").attr("id", "delayInput").attr("type", "text").addClass("delay").addClass("form-control");
+			var delay = $("<input>").attr("id", "delayInput").attr("type", "text").attr("size", 4).attr("maxlength", 4).addClass("delay").addClass(
+					"form-control");
 			delay.change(function() {
 				thisView.controller.setSelectedDelay(delay.val());
 			});
