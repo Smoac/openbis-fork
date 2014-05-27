@@ -17,7 +17,9 @@
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -38,16 +40,23 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  */
 public final class NewMaterialParserObjectFactory extends AbstractParserObjectFactory<NewMaterial>
 {
+    private final Map<String, PropertyType> typeCache;
+
     public NewMaterialParserObjectFactory(final IPropertyMapper propertyMapper)
     {
         super(NewMaterial.class, propertyMapper);
+        this.typeCache = new HashMap<String, PropertyType>();
     }
 
     private final PropertyType createPropertyType(final String propertyTypeCode)
     {
-        final PropertyType propertyType = new PropertyType();
-        propertyType.setCode(propertyTypeCode);
-        return propertyType;
+        if (typeCache.containsKey(propertyTypeCode) == false)
+        {
+            final PropertyType propertyType = new PropertyType();
+            propertyType.setCode(propertyTypeCode);
+            typeCache.put(propertyTypeCode, propertyType);
+        }
+        return typeCache.get(propertyTypeCode);
     }
 
     private final void setProperties(final NewMaterial newMaterial, final String[] lineTokens)
