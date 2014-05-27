@@ -323,9 +323,9 @@ function MainController(profile) {
 	
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
 	
-	this._showSearchPage = function(event) {
+	this._showSearchPage = function(value) {
 		//Only search with at least 3 characters
-		if(event.target.value.length < 3) {
+		if(value.length < 3) {
 			return;
 		}
 		
@@ -338,7 +338,7 @@ function MainController(profile) {
 				//Update Main Container
 				var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
 				$("#search").addClass("search-query-searching");
-				localReference.serverFacade.searchWithText(event.target.value, function(data) {
+				localReference.serverFacade.searchWithText(value, function(data) {
 					if(localSearchId === localReference.lastSearchId) {
 						$("#search").removeClass("search-query-searching");
 						sampleTable.reloadWithSamples(data);

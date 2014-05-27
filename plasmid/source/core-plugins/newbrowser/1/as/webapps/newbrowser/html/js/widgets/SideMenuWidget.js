@@ -189,7 +189,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		
 		var $searchForm = $("<li>")
 						.append($("<form>", { "class" : "navbar-form", "onsubmit" : "return false;"})
-									.append($("<input>", { "id" : "search", "type" : "text", "onkeyup" : "mainController.changeView(\"showSearchPage\", event);", "class" : "form-control search-query", "placeholder" : "Search"}))
+									.append($("<input>", { "id" : "search", "type" : "text", "onkeyup" : "mainController.changeView(\"showSearchPage\", event.target.value);", "class" : "form-control search-query", "placeholder" : "Search"}))
 								);
 		
 		var logoutButton = $("<a>", { "id" : "logout-button", "href" : "" }).append($("<span>", { "class" : "glyphicon glyphicon-off"}));
