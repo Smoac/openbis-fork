@@ -1,4 +1,4 @@
-define([ "jquery", "components/common/Logger" ], function($, Logger) {
+define([ "jquery" ], function($) {
 
 	//
 	// IMAGE LOADER
@@ -66,8 +66,6 @@ define([ "jquery", "components/common/Logger" ], function($, Logger) {
 			var timeoutConfig = {};
 			var timeout = function() {
 
-				Logger.log("sending request for timeout with id: " + timeoutConfig.id + " with url: " + timeoutConfig.url);
-
 				$("<img>").attr("src", timeoutConfig.url).load(function() {
 					if (thisLoader.timeoutConfig && thisLoader.timeoutConfig.id === timeoutConfig.id) {
 						var thisImage = this;
@@ -78,10 +76,6 @@ define([ "jquery", "components/common/Logger" ], function($, Logger) {
 
 						thisLoader.timeoutConfig = null;
 						thisLoader.callbacks = [];
-
-						Logger.log("received an UP-TO-DATE response for timeout with id: " + timeoutConfig.id + " with url: " + timeoutConfig.url);
-					} else {
-						Logger.log("received an OUTDATED response for timeout with id: " + timeoutConfig.id + " with url: " + timeoutConfig.url);
 					}
 				});
 			};

@@ -119,7 +119,7 @@ define([ "jquery", "components/imageviewer/MovieButtonsView", "components/imagev
 
 					if (this.selectedFrame != frame) {
 						this.selectedFrame = frame;
-						this.frameContentLoader(frame, callback);
+						this.getFrameContentLoader()(frame, callback);
 						this.refresh();
 						this.notifyChangeListeners();
 					}
@@ -133,7 +133,7 @@ define([ "jquery", "components/imageviewer/MovieButtonsView", "components/imagev
 					this.frameContentLoader = frameContentLoader;
 				},
 
-				getFrameContentLoader : function(frameContentLoader) {
+				getFrameContentLoader : function() {
 					return this.frameContentLoader;
 				}
 
