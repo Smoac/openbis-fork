@@ -132,9 +132,13 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 					thisWidget.loadChannelStackContent(channelStack, callback);
 				});
 
-				widget.addChangeListener(function() {
-					var timePoint = thisWidget.getTimePoints()[widget.getSelectedFrame()];
-					thisWidget.setSelectedTimePoint(timePoint);
+				widget.addChangeListener(function(event) {
+					if (event.getField() == "frame") {
+						var timePoint = thisWidget.getTimePoints()[widget.getSelectedFrame()];
+						thisWidget.setSelectedTimePoint(timePoint);
+					} else if (event.getField() == "visible") {
+						thisWidget.refresh();
+					}
 				});
 
 				this.timeButtonsWidget = widget;
@@ -156,9 +160,13 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 					thisWidget.loadChannelStackContent(channelStack, callback);
 				});
 
-				widget.addChangeListener(function() {
-					var depth = thisWidget.getDepths()[widget.getSelectedFrame()];
-					thisWidget.setSelectedDepth(depth);
+				widget.addChangeListener(function(event) {
+					if (event.getField() == "frame") {
+						var depth = thisWidget.getDepths()[widget.getSelectedFrame()];
+						thisWidget.setSelectedDepth(depth);
+					} else if (event.getField() == "visible") {
+						thisWidget.refresh();
+					}
 				});
 
 				this.depthButtonsWidget = widget;

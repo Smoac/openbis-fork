@@ -34,6 +34,8 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 				var index = this.controller.getChannelStackIndex(channelStackId);
 				var channelStack = this.controller.getChannelStacks()[index];
 
+				var sliderWidget = this.panel.find(".sliderWidget");
+
 				var sliderLabel = this.panel.find(".sliderWidget label");
 				var labelText = "Series: " + channelStack.seriesNumberOrNull;
 				if (channelStack.timePointOrNull != null) {
@@ -47,9 +49,14 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 				var sliderInput = this.panel.find(".sliderWidget input");
 				sliderInput.slider("setValue", index);
 
+				var toggle = this.panel.find(".sliderWidget a");
+				toggle.text(this.controller.getChannelStackButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons");
+
 				if (count <= 1) {
+					sliderWidget.addClass("disabled");
 					sliderInput.slider("disable");
 				} else {
+					sliderWidget.removeClass("disabled");
 					sliderInput.slider("enable");
 				}
 			}
@@ -59,13 +66,20 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 			var thisView = this;
 			var widget = $("<div>").addClass("sliderWidget").addClass("form-group");
 
-			$("<label>").attr("for", "sliderInput").appendTo(widget);
+			var label = $("<label>").attr("for", "sliderInput").appendTo(widget);
+			var input = $("<input>").attr("id", "sliderInput").attr("type", "text").addClass("form-control");
 
-			var sliderInput = $("<input>").attr("id", "sliderInput").attr("type", "text").addClass("form-control");
+			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
+			var inputContainer = $("<div>").addClass("inputContainer").append(input).appendTo(widget);
 
-			$("<div>").append(sliderInput).appendTo(widget);
+			$("<a>").click(function() {
+				if (thisView.controller.getChannelStacks().length > 1) {
+					var buttonsWidget = thisView.controller.getChannelStackButtonsWidget();
+					buttonsWidget.setVisible(!buttonsWidget.isVisible());
+				}
+			}).appendTo(labelContainer)
 
-			sliderInput.slider({
+			input.slider({
 				"min" : 0,
 				"max" : this.controller.getChannelStacks().length - 1,
 				"step" : 1,

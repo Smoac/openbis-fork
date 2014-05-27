@@ -93,6 +93,12 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var delay = this.panel.find("input.delay");
 			delay.prop("disabled", disabled)
 			delay.val(this.controller.getSelectedDelay());
+
+			if (this.controller.isVisible()) {
+				this.panel.show();
+			} else {
+				this.panel.hide();
+			}
 		}
 
 	});

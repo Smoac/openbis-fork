@@ -1,5 +1,5 @@
 .imageViewer .formPanel {
-	
+	min-width: 250px;
 }
 
 .imageViewer .imagePanel {
@@ -18,10 +18,20 @@
 	color: #285e8e;
 	padding: 0px 10px;
 	cursor: pointer;
+	float: right;
 }
 
 .imageViewer .labelContainer a:hover {
 	text-decoration: underline;
+}
+
+.imageViewer .disabled .labelContainer a {
+	color: gray;
+	cursor: auto;
+}
+
+.imageViewer .disabled .labelContainer a:hover {
+	text-decoration: none;
 }
 
 .imageViewer .slider.slider-horizontal {
@@ -56,6 +66,10 @@
 .imageViewer .movieButtonsWidget button {
 	margin-right: 5%;
 	width: 20%;
+}
+
+.imageViewer .transformationParameter label {
+	font-weight: normal;
 }
 
 .imageViewer .imageWidget {

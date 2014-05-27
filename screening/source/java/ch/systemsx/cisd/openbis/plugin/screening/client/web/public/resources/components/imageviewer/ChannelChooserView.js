@@ -72,8 +72,6 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var thisView = this;
 			var widget = $("<div>").addClass("mergedChannelsWidget").addClass("form-group");
 
-			$("<label>").text("Merged Channels").appendTo(widget);
-
 			var checkboxes = $("<div>").appendTo(widget);
 
 			this.controller.getChannels().forEach(function(channel) {

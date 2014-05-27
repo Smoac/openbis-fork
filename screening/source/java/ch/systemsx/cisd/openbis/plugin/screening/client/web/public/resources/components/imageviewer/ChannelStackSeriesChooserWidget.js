@@ -27,7 +27,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		},
 
 		doSetState : function(state) {
-			this.getChannelStackButtonsWidget().setState(state.getChannelStackButtonsWidget);
+			this.getChannelStackButtonsWidget().setState(state.channelStackButtonsWidget);
 			this.setSelectedChannelStackIndex(state.selectedChannelStackIndex);
 		},
 
@@ -108,9 +108,13 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 					thisWidget.loadChannelStackContent(channelStack, callback);
 				});
 
-				widget.addChangeListener(function() {
-					var channelStack = thisWidget.getChannelStacks()[widget.getSelectedFrame()];
-					thisWidget.setSelectedChannelStackId(channelStack.id);
+				widget.addChangeListener(function(event) {
+					if (event.getField() == "frame") {
+						var channelStack = thisWidget.getChannelStacks()[widget.getSelectedFrame()];
+						thisWidget.setSelectedChannelStackId(channelStack.id);
+					} else if (event.getField() == "visible") {
+						thisWidget.refresh();
+					}
 				});
 
 				this.buttonsWidget = widget;

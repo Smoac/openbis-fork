@@ -128,7 +128,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 
 			var channelObject = this.controller.getChannelsMap()[channel];
 
-			var label = $("<label>").text(channelObject.label + " [" + parameters.blackpoint + ", " + parameters.whitepoint + "]");
+			var label = $("<label>").text(channelObject.label + " (" + parameters.blackpoint + ", " + parameters.whitepoint + ")");
 			var input = $("<input>").attr("type", "text").attr("channel", channel).addClass("form-control");
 
 			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
@@ -151,17 +151,6 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 				});
 			});
 
-			var rescale = $("<a>").text("Rescale").click(function() {
-				var value = input.slider("getValue");
-
-				thisView.controller.setUserDefinedTransformationParameters(channel, {
-					"min" : value[0],
-					"max" : value[1],
-					"blackpoint" : value[0],
-					"whitepoint" : value[1],
-				});
-			}).appendTo(labelContainer);
-
 			var reset = $("<a>").text("Reset").click(function() {
 				var value = input.slider("getValue");
 
@@ -170,6 +159,17 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 					"max" : 65535,
 					"blackpoint" : 0,
 					"whitepoint" : 65535,
+				});
+			}).appendTo(labelContainer);
+
+			var rescale = $("<a>").text("Rescale").click(function() {
+				var value = input.slider("getValue");
+
+				thisView.controller.setUserDefinedTransformationParameters(channel, {
+					"min" : value[0],
+					"max" : value[1],
+					"blackpoint" : value[0],
+					"whitepoint" : value[1],
 				});
 			}).appendTo(labelContainer);
 
@@ -187,7 +187,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 				var channelObject = thisView.controller.getChannelsMap()[channel];
 				var channelParameters = thisView.controller.getUserDefinedTransformationParameters(channel);
 
-				label.text(channelObject.label + " [" + channelParameters.blackpoint + ", " + channelParameters.whitepoint + "]");
+				label.text(channelObject.label + " (" + channelParameters.blackpoint + ", " + channelParameters.whitepoint + ")");
 				input.slider("setValue", [ channelParameters.blackpoint, channelParameters.whitepoint ]);
 			});
 		}
