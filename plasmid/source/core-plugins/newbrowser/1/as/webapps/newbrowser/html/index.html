@@ -72,19 +72,15 @@
 	
 	<script type="text/javascript" src="./js/views/DataSetForm.js"></script>
 	<script type="text/javascript" src="./js/views/Inspector.js"></script>
-	<script type="text/javascript" src="./js/views/MainMenu.js"></script>
 	<script type="text/javascript" src="./js/views/SampleForm.js"></script>
 	<script type="text/javascript" src="./js/views/SampleHierarchy.js"></script>
 	<script type="text/javascript" src="./js/views/SampleTable.js"></script>
 	
-	
 	<script type="text/javascript" src="./js/widgets/DataSetViewer.js"></script>
-	<script type="text/javascript" src="./js/widgets/NavigationBar.js"></script>
 	<script type="text/javascript" src="./js/widgets/SampleLinksWidget.js"></script>
 	<script type="text/javascript" src="./js/widgets/Storage.js"></script>
 	<script type="text/javascript" src="./js/widgets/DilutionWidget.js"></script>
-	<script type="text/javascript" src="./js/widgets/BrowserWidget.js"></script>
-	<script type="text/javascript" src="./js/widgets/InventoryWidget.js"></script>
+	<script type="text/javascript" src="./js/widgets/SideMenuWidget.js"></script>
 	
 	<script type="text/javascript">
 	//
@@ -160,6 +156,13 @@
 	<div id="main">
 		<div class="container">
 			<div class="row">
+				<div class="col-md-2" id ="sideMenu" style="top:0px; left:0px; width:300px; padding:0px;"></div>
+				<div class="col-md-9" id ="mainContainer"></div>
+			</div>
+		</div>
+		<!-- 
+		<div class="container">
+			<div class="row">
 				<div class="col-md-12" id ="sectionsContainer"></div>
 			</div>
 			
@@ -168,6 +171,7 @@
 			</div>
 			
 		</div>
+		 -->
 	</div>
 </body>
 </html>

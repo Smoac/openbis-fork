@@ -33,8 +33,6 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
-		this.inventoryStructure = [];
-		this.experimentsStructure = {};
 		
 		this.sampleTypeDefinitionsExtension = {
 		}
@@ -331,114 +329,7 @@ $.extend(DefaultProfile.prototype, {
 				}
 			);
 		}
-	
-		this.initExperimentsStructure = function(callback) {
-			var _this = this;
-			this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
-				//
-				// 1
-				//
-				var spaces = dataWithSpacesAndProjects.result;
-				var projects = [];
-				var projectsAsMap = {};
-				for(var i = 0; i < spaces.length; i++) {
-					var space = spaces[i];
-					for(var j = 0; j < space.projects.length; j++) {
-						var project = space.projects[j];
-						delete project["@id"];
-						delete project["@type"];
-						projects.push(project);
-						projectsAsMap[project.code] = project;
-					}
-				}
-
-				//
-				// 2
-				//
-				_this.serverFacade.listExperiments(projects, function(experiments) {
-					for(var i = 0; i < experiments.result.length; i++) {
-						var experiment = experiments.result[i];
-						var identifier = experiment.identifier.split("/");
-						var project = projectsAsMap[identifier[2]];
-						if(!project.experiments) {
-							project.experiments = [];
-						}
-						project.experiments.push(experiment);
-					}
-					
-					//
-					// 3
-					//
-					for(var i = 0; i < spaces.length; i++) {
-						var space = spaces[i];
-						var projects = {};
-						if(space.projects) {
-							for(var j = 0; j < space.projects.length; j++) {
-								var project = space.projects[j];
-								var experiments = {};
-								if(project.experiments) {
-									for(var k = 0; k < project.experiments.length; k++) {
-										var experiment = project.experiments[k];
-										experiments[experiment.code] = new BrowserExperiment("showViewExperiment", experiment.identifier, experiment.code);
-									}
-								}
-								projects[project.code] = new BrowserProject(project.code, project.code, experiments);
-							}
-						}
-						_this.experimentsStructure[space.code] = new BrowserSpace(space.code, space.code, projects);
-					}
-					
-					//
-					// 4
-					//
-					callback();
-				}
-				);
-			});
-			
-		}
-		this.initInventoryStructure = function() {
-			//
-			// Build menu into an in memory structure (Can be used to render it in different manners Menu+Drop Down)
-			//
-			var groupOfMenuItems = new GroupOfMenuItems("EXPERIMENTS","Experiments",[]);
-			for(var i = 0; i < this.ELNExperiments.length; i++) {
-				var sampleTypeCode = this.ELNExperiments[i];
-				var sampleType = this.getTypeForTypeCode(sampleTypeCode);
-			
-				if(sampleType !== null) {
-					var description = Util.getEmptyIfNull(sampleType.description);
-					if(description === "") {
-						description = sampleType.code;
-					}
-					var menuItem = new MenuItem("./img/experiment-icon.png", "showSamplesPage", sampleType.code, description);
-					groupOfMenuItems.menuItems.push(menuItem);
-				}
-			}
-			if(groupOfMenuItems.menuItems.length > 0) {
-					this.inventoryStructure.push(groupOfMenuItems);
-			}
 		
-			for(typeGroupCode in this.typeGroups) {
-				groupOfMenuItems = new GroupOfMenuItems(typeGroupCode,this.typeGroups[typeGroupCode]["DISPLAY_NAME"],[]);
-			
-				for(var i = 0; i < this.typeGroups[typeGroupCode]["LIST"].length; i++) {
-					var sampleType = this.getTypeForTypeCode(this.typeGroups[typeGroupCode]["LIST"][i]);
-				
-					if(sampleType !== null) {
-						var description = Util.getEmptyIfNull(sampleType.description);
-						if(description === "") {
-							description = sampleType.code;
-						}
-						var menuItem = new MenuItem("./img/notebook-icon.png", "showSamplesPage", sampleType.code, description);
-						groupOfMenuItems.menuItems.push(menuItem);
-					}
-				}
-				if(groupOfMenuItems.menuItems.length > 0) {
-					this.inventoryStructure.push(groupOfMenuItems);
-				}
-			}
-		}
 		//
 		// Initializes the Others list with all sampleType codes that are neither in typeGroups or notShowTypes
 		//
@@ -454,8 +345,7 @@ $.extend(DefaultProfile.prototype, {
 		
 			this.initPropertyTypes();
 			this.initVocabulariesForSampleTypes();
-			this.initInventoryStructure();
-			this.initExperimentsStructure(callbackWhenDone);
+			callbackWhenDone();
 		}
 	}
 });

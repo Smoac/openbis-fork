@@ -450,7 +450,6 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 					var callbackOk = function() {
 						localInstance.isFormDirty = false;
 						Util.unblockUI();
-						mainController.navigationBar.backButton(null);
 					}
 					Util.showSuccess("DataSet Created.", callbackOk);
 				} else { //This should never happen

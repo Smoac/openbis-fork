@@ -23,7 +23,6 @@
 }
 
 body {
-	margin-top: 60px;
 	overflow-y:scroll;
 }
 
@@ -122,33 +121,6 @@ h1, h2, legend {
 	left: 305px;
     position: absolute;
     top: 49px;
-}
-
-/*
- * Main Menu
- */
-.mainMenuContainer {
-	margin-left: 20px;
-}
-
-.mainMenuContainer h2 {
-	margin: 0px;
-	line-height: 2	0px;
-}
-
-.mainMenuContainer hr {
-	margin: 10px;
-}
-
-.mainMenuIcon {
-	display: inline-block;
-	margin-left: 10px;
-	text-align: center;
-}
-
-.mainMenuIcon img {
-	width:96px;
-	height:96px;
 }
 
 /* 
@@ -417,10 +389,6 @@ table.downloads {
 	padding: 0px;
 }
 
-.icon-chevron-right {
-	float:right;
-}
-
 /* 
  * Inspector - Glow Effect
  */
@@ -558,3 +526,52 @@ table.downloads {
 .text-center-important {
 	text-align: center !important;
 }
+
+/*
+ * Side Menu Widget
+ */
+ 
+ .navbar {
+ 	border-radius: 0px;
+ }
+ 
+ .sideMenuTitle {
+ 	text-align: center;
+ 	padding-top:10px;
+ 	background-color:#F8F8F8;
+ 	margin-bottom:0px;
+ 	border-color: #E7E7E7;
+ 	min-height: 40px;
+ 	border-style:solid;
+	border-width:1px;
+	border-top-width: 0px;
+	font-weight:bold;
+	font-size: 16px;
+ }
+ 
+ .sideMenuItem {
+ 	text-align: center;
+ 	padding-top:10px;
+ 	background-color:#FFFFFF;
+ 	margin-bottom:0px;
+ 	border-color: #E7E7E7;
+ 	min-height: 40px;
+ 	border-style:solid;
+	border-width:1px;
+	border-top-width: 0px;
+ }
+ 
+ .sideMenuItemTitle {
+ 	font-weight:bold;
+ }
+  
+ .sideMenuItemSelectable:hover {
+ 	background-color:#3399FF;
+ }
+ 
+ .put-chevron-right {
+	float:right;
+	padding-right: 10px;
+ }
+ 
+ 

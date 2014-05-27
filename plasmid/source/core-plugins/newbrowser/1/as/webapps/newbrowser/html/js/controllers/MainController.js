@@ -47,7 +47,7 @@ function MainController(profile) {
 	
 	//Views With State or always visible
 	this.inspector = null; // The samples that are currently being inspected
-	this.navigationBar = null; //Top Bar, typically h
+	this.sideMenu = null;
 	
 	//Others
 	this.currentView = null;
@@ -87,9 +87,10 @@ function MainController(profile) {
 				localReference.profile.init(function() {
 					//Start App
 					localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
-					localReference.navigationBar = new NavigationBar(localReference, "sectionsContainer", null, localReference.profile.inventoryStructure);
-					localReference.navigationBar.repaint();
 				
+					localReference.sideMenu = new SideMenuWidget(localReference, "sideMenu", localReference.serverFacade);
+					localReference.sideMenu.init();
+					
 					localReference.changeView("showMainMenu", null);
 					Util.unblockUI();
 					
@@ -147,7 +148,7 @@ function MainController(profile) {
 				break;
 			case "showMainMenu":
 				document.title = "Main Menu";
-				this._showMainMenu();
+				//this._showMainMenu();
 				break;
 			case "showSearchPage":
 				document.title = "Search";
@@ -227,18 +228,11 @@ function MainController(profile) {
 	// Functions that trigger view changes, should only be called from the main controller changeView method
 	//
 	this._showInspectors = function() {
-		//Update menu
-		this.navigationBar.updateMenu(null);
-		
 		//Show Inspectors
 		this.inspector.repaint();
 	}
 	
 	this._showMainMenu = function() {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('main-menu', 'showMainMenu', null, 'Main Menu');
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
 		//Show Main menu
 		var mainMenu = new MainMenu(this, "mainContainer", this.profile.inventoryStructure, this.profile.experimentsStructure, this.profile.mainMenuContentExtra());
 		mainMenu.init();
@@ -253,9 +247,6 @@ function MainController(profile) {
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
-
-		var breadCrumbPage = new BreadCrumbPage("sample-table", "showSamplesPage", sampleTypeCode, sampleTypeDisplayName);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Sample Table
 		var sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);
@@ -269,9 +260,6 @@ function MainController(profile) {
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
-			var breadCrumbPage = new BreadCrumbPage('sample-hierarchy', "showSampleHierarchyPage", data[0].permId, 'Hierarchy '+data[0].code);
-			localInstance.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-			
 			var sampleHierarchy = new SampleHierarchy(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0]);
 			sampleHierarchy.init();
 			localInstance.currentView = sampleHierarchy;
@@ -284,8 +272,6 @@ function MainController(profile) {
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
-		var breadCrumbPage = new BreadCrumbPage('new-sample', "showCreateSamplePage", sampleTypeCode, 'Create '+sampleTypeDisplayName);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
 		
 		//Show Form
 		var isELNExperiment = this.profile.isELNExperiment(sampleTypeCode);
@@ -295,10 +281,6 @@ function MainController(profile) {
 	}
 
 	this._showEditSamplePage = function(sample) {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('edit-sample', "showEditSamplePageFromPermId", sample.permId, 'Update '+sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
 		//Show Form
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
@@ -310,10 +292,6 @@ function MainController(profile) {
 	}
 
 	this._showViewSamplePage = function(sample) {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('view-sample', "showViewSamplePageFromPermId", sample.permId, 'View '+ sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-			
 		//Show Form
 		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
 		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
@@ -322,10 +300,6 @@ function MainController(profile) {
 	}
 	
 	this._showCreateDataSetPage = function(sample) {
-		//Update menu
-		var breadCrumbPage = new BreadCrumbPage('new-dataset', "showCreateDataSetPage", sample, 'Create Data Set for '+sample.code);
-		this.navigationBar.updateBreadCrumbPage(breadCrumbPage);
-		
 		//Show Form
 		var datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
 		datasetForm.init();
@@ -346,9 +320,6 @@ function MainController(profile) {
 		
 		var possibleSearch = function() {
 			if(localSearchId === localReference.lastSearchId) { //Trigger it if no new have started
-				//Clean page and update menu
-				localReference.navigationBar.updateMenu(null);
-				
 				//Update Main Container
 				var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
 				$("#search").addClass("search-query-searching");
