@@ -77,18 +77,11 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 
 		getUserDefinedTransformationParameters : function(channel) {
 			var parameters = this.getUserDefinedTransformationParametersMap()[channel];
-
-			if (!parameters) {
-				parameters = {
-					"min" : 0,
-					"max" : 65535,
-					"blackpoint" : 0,
-					"whitepoint" : 65535
-				}
-				this.getUserDefinedTransformationParametersMap()[channel] = parameters;
+			if (parameters) {
+				return parameters;
+			} else {
+				return null;
 			}
-
-			return parameters;
 		},
 
 		setUserDefinedTransformationParameters : function(channel, parameters) {
@@ -103,9 +96,25 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		},
 
 		getUserDefinedTransformationParametersMap : function() {
+			var thisWidget = this;
+
 			if (!this.userDefinedTransformationParametersMap) {
 				this.userDefinedTransformationParametersMap = {};
 			}
+
+			this.getSelectedChannels().forEach(function(channel) {
+				var parameters = thisWidget.userDefinedTransformationParametersMap[channel];
+				if (!parameters) {
+					parameters = {
+						"min" : 0,
+						"max" : 65535,
+						"blackpoint" : 0,
+						"whitepoint" : 65535
+					}
+					thisWidget.userDefinedTransformationParametersMap[channel] = parameters;
+				}
+			});
+
 			return this.userDefinedTransformationParametersMap;
 		},
 
