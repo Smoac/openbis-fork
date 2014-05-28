@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
  * message. Template place holders have the form <code>${<i>&lt;place holder name&gt;</i>}</code>.
  * The place holder name for the data set code is <code>data-set-code</code>. To refer a data set
  * property the place holder name has the form
- * <code>property:<i>&lt;property type code (ignoring case)&gt;></code>.
+ * <code>property.<i>&lt;property type code (ignoring case)&gt;></code>.
  * 
  * @author Franz-Josef Elmer
  */
@@ -55,7 +55,7 @@ public class NotifyingTask extends AbstractPostRegistrationTask
      */
     private static final String INCLUDE_DATASET_TYPES_PATTERN = "include-dataset-type-patterns";
 
-    private static final String PROPERTY_PREFIX = "property:";
+    private static final String PROPERTY_PREFIX = "property.";
 
     private static final String DATA_SET_CODE_PLACE_HOLDER = "data-set-code";
 
