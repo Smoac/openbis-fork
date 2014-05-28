@@ -1,37 +1,57 @@
 .imageViewer .formPanel {
-	min-width: 250px;
+	
 }
 
 .imageViewer .imagePanel {
 	margin-top: 25px;
 }
 
+.imageViewer .imageWidget {
+	margin-left: 30px;
+}
+
 .imageViewer .formCell,.imageViewer .imageCell {
 	vertical-align: top;
+}
+
+.imageViewer .formFieldWidget .mainTable {
+	width: 100%;
+}
+
+.imageViewer .labelContainer,.imageViewer .buttonsContainer {
+	white-space: nowrap;
 }
 
 .imageViewer .labelContainer label {
 	margin-right: 10px;
 }
 
-.imageViewer .labelContainer a {
+.imageViewer .buttonsContainer a {
 	color: #285e8e;
 	padding: 0px 10px;
 	cursor: pointer;
 	float: right;
 }
 
-.imageViewer .labelContainer a:hover {
+.imageViewer .buttonsContainer table {
+	float: right;
+}
+
+.imageViewer .buttonsContainer a:hover {
 	text-decoration: underline;
 }
 
-.imageViewer .disabled .labelContainer a {
+.imageViewer .disabled .buttonsContainer a {
 	color: gray;
 	cursor: auto;
 }
 
-.imageViewer .disabled .labelContainer a:hover {
+.imageViewer .disabled .buttonsContainer a:hover {
 	text-decoration: none;
+}
+
+.imageViewer .mergedChannelsWidget label {
+	margin-right: 10px;
 }
 
 .imageViewer .slider.slider-horizontal {
@@ -70,8 +90,4 @@
 
 .imageViewer .transformationParameter label {
 	font-weight: normal;
-}
-
-.imageViewer .imageWidget {
-	margin-left: 30px;
 }

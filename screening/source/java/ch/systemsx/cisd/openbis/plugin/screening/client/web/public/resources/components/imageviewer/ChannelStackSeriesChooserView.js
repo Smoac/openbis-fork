@@ -1,4 +1,5 @@
-define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView" ], function($, bootstrap, bootstrapSlider, AbstractView) {
+define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView", "components/imageviewer/FormFieldWidget" ], function($,
+		bootstrap, bootstrapSlider, AbstractView, FormFieldWidget) {
 
 	//
 	// CHANNEL STACK SERIES CHOOSER VIEW
@@ -33,51 +34,52 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 				var count = this.controller.getChannelStacks().length;
 				var index = this.controller.getChannelStackIndex(channelStackId);
 				var channelStack = this.controller.getChannelStacks()[index];
+				var formField = this.panel.find(".sliderWidget").data("formField");
 
-				var sliderWidget = this.panel.find(".sliderWidget");
-
-				var sliderLabel = this.panel.find(".sliderWidget label");
-				var labelText = "Series: " + channelStack.seriesNumberOrNull;
+				var label = "Series: " + channelStack.seriesNumberOrNull;
 				if (channelStack.timePointOrNull != null) {
-					labelText += ", Time: " + channelStack.timePointOrNull + " sec";
+					label += ", Time: " + channelStack.timePointOrNull + " sec";
 				}
 				if (channelStack.depthOrNull != null) {
-					labelText += ", Depth: " + channelStack.depthOrNull;
+					label += ", Depth: " + channelStack.depthOrNull;
 				}
-				sliderLabel.text(labelText);
 
-				var sliderInput = this.panel.find(".sliderWidget input");
-				sliderInput.slider("setValue", index);
+				formField.setLabel(label);
+				formField.getWidget().slider("setValue", index);
 
-				var toggle = this.panel.find(".sliderWidget a");
-				toggle.text(this.controller.getChannelStackButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons");
+				var toggle = formField.getButton("toggle");
+				toggle.text = this.controller.getChannelStackButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons";
+				formField.setButton(toggle);
 
 				if (count <= 1) {
-					sliderWidget.addClass("disabled");
-					sliderInput.slider("disable");
+					formField.setEnabled(false);
+					formField.getWidget().slider("disable");
 				} else {
-					sliderWidget.removeClass("disabled");
-					sliderInput.slider("enable");
+					formField.setEnabled(true);
+					formField.getWidget().slider("enable");
 				}
 			}
 		},
 
 		createSliderWidget : function() {
 			var thisView = this;
-			var widget = $("<div>").addClass("sliderWidget").addClass("form-group");
 
-			var label = $("<label>").attr("for", "sliderInput").appendTo(widget);
-			var input = $("<input>").attr("id", "sliderInput").attr("type", "text").addClass("form-control");
-
-			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
-			var inputContainer = $("<div>").addClass("inputContainer").append(input).appendTo(widget);
-
-			$("<a>").click(function() {
-				if (thisView.controller.getChannelStacks().length > 1) {
-					var buttonsWidget = thisView.controller.getChannelStackButtonsWidget();
-					buttonsWidget.setVisible(!buttonsWidget.isVisible());
+			var input = $("<input>").attr("type", "text").addClass("form-control");
+			var formField = new FormFieldWidget();
+			formField.setWidget(input);
+			formField.setButton({
+				"name" : "toggle",
+				"action" : function() {
+					if (thisView.controller.getChannelStacks().length > 1) {
+						var buttonsWidget = thisView.controller.getChannelStackButtonsWidget();
+						buttonsWidget.setVisible(!buttonsWidget.isVisible());
+					}
 				}
-			}).appendTo(labelContainer)
+			});
+
+			var widget = $("<div>").addClass("sliderWidget").addClass("form-group");
+			widget.data("formField", formField);
+			widget.append(formField.render());
 
 			input.slider({
 				"min" : 0,

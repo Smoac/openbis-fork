@@ -1,4 +1,4 @@
-define([ "jquery", "components/imageviewer/AbstractView" ], function($, AbstractView) {
+define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewer/FormFieldWidget" ], function($, AbstractView, FormFieldWidget) {
 
 	//
 	// TRANSFORMATION CHOOSER VIEW
@@ -124,15 +124,46 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 
 		renderChannelParameters : function(channel, parameters) {
 			var thisView = this;
-			var widget = $("<div>").addClass("transformationParameter").addClass("form-group");
 
 			var channelObject = this.controller.getChannelsMap()[channel];
+			var input = $("<input>").attr("type", "text").addClass("form-control");
 
-			var label = $("<label>").text(channelObject.label + " (" + parameters.blackpoint + ", " + parameters.whitepoint + ")");
-			var input = $("<input>").attr("type", "text").attr("channel", channel).addClass("form-control");
+			var formField = new FormFieldWidget();
+			formField.setWidget(input);
+			formField.setLabel(channelObject.label + " (" + parameters.blackpoint + ", " + parameters.whitepoint + ")");
+			formField.setButton({
+				"name" : "rescale",
+				"text" : "Rescale",
+				"action" : function() {
+					var value = input.slider("getValue");
 
-			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
-			var inputContainer = $("<div>").addClass("inputContainer").append(input).appendTo(widget);
+					thisView.controller.setUserDefinedTransformationParameters(channel, {
+						"min" : value[0],
+						"max" : value[1],
+						"blackpoint" : value[0],
+						"whitepoint" : value[1]
+					});
+				}
+			});
+			formField.setButton({
+				"name" : "reset",
+				"text" : "Reset",
+				"action" : function() {
+					var value = input.slider("getValue");
+
+					thisView.controller.setUserDefinedTransformationParameters(channel, {
+						"min" : 0,
+						"max" : 65535,
+						"blackpoint" : 0,
+						"whitepoint" : 65535,
+					});
+				}
+			});
+
+			var widget = $("<div>").addClass("transformationParameter").addClass("form-group");
+			widget.data("channel", channel);
+			widget.data("formField", formField);
+			widget.append(formField.render());
 
 			input.slider({
 				"min" : parameters.min,
@@ -151,28 +182,6 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 				});
 			});
 
-			var reset = $("<a>").text("Reset").click(function() {
-				var value = input.slider("getValue");
-
-				thisView.controller.setUserDefinedTransformationParameters(channel, {
-					"min" : 0,
-					"max" : 65535,
-					"blackpoint" : 0,
-					"whitepoint" : 65535,
-				});
-			}).appendTo(labelContainer);
-
-			var rescale = $("<a>").text("Rescale").click(function() {
-				var value = input.slider("getValue");
-
-				thisView.controller.setUserDefinedTransformationParameters(channel, {
-					"min" : value[0],
-					"max" : value[1],
-					"blackpoint" : value[0],
-					"whitepoint" : value[1],
-				});
-			}).appendTo(labelContainer);
-
 			return widget;
 		},
 
@@ -180,15 +189,14 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var thisView = this;
 
 			this.panel.find(".transformationParameter").each(function() {
-				var label = $(this).find("label");
-				var input = $(this).find("input");
-
-				var channel = input.attr("channel");
+				var widget = $(this);
+				var channel = widget.data("channel");
 				var channelObject = thisView.controller.getChannelsMap()[channel];
 				var channelParameters = thisView.controller.getUserDefinedTransformationParameters(channel);
 
-				label.text(channelObject.label + " (" + channelParameters.blackpoint + ", " + channelParameters.whitepoint + ")");
-				input.slider("setValue", [ channelParameters.blackpoint, channelParameters.whitepoint ]);
+				var formField = $(this).data("formField");
+				formField.setLabel(channelObject.label + " (" + channelParameters.blackpoint + ", " + channelParameters.whitepoint + ")");
+				formField.getWidget().slider("setValue", [ channelParameters.blackpoint, channelParameters.whitepoint ]);
 			});
 		}
 

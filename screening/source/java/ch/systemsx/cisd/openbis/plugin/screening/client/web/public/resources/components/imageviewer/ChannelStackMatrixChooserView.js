@@ -1,4 +1,5 @@
-define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView" ], function($, bootstrap, bootstrapSlider, AbstractView) {
+define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/AbstractView", "components/imageviewer/FormFieldWidget" ], function($,
+		bootstrap, bootstrapSlider, AbstractView, FormFieldWidget) {
 
 	//
 	// CHANNEL STACK MATRIX CHOOSER VIEW
@@ -30,68 +31,71 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 		refresh : function() {
 			var time = this.controller.getSelectedTimePoint();
-			var timeWidget = this.panel.find(".timePointWidget");
-			var timeLabel = this.panel.find(".timePointWidget label");
-			var timeInput = this.panel.find(".timePointWidget input");
-			var timeToggle = this.panel.find(".timePointWidget a")
+			var timeField = this.panel.find(".timePointWidget").data("formField");
 
 			if (time != null) {
 				var timeCount = this.controller.getTimePoints().length;
 				var timeIndex = this.controller.getTimePoints().indexOf(time);
 
-				timeLabel.text("Time: " + time + " sec (" + (timeIndex + 1) + "/" + timeCount + ")");
-				timeToggle.text(this.controller.getTimePointButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons");
-				timeInput.slider("setValue", time);
+				timeField.setLabel("Time: " + time + " sec (" + (timeIndex + 1) + "/" + timeCount + ")");
+				timeField.getWidget().slider("setValue", time);
+
+				var timeToggle = timeField.getButton("toggle");
+				timeToggle.text = this.controller.getTimePointButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons";
+				timeField.setButton(timeToggle);
 
 				if (timeCount <= 1) {
-					timeWidget.addClass("disabled");
-					timeInput.slider("disable");
+					timeField.setEnabled(false);
+					timeField.getWidget().slider("disable");
 				} else {
-					timeWidget.removeClass("disabled");
-					timeInput.slider("enable");
+					timeField.setEnabled(true);
+					timeField.getWidget().slider("enable");
 				}
 			}
 
 			var depth = this.controller.getSelectedDepth();
-			var depthWidget = this.panel.find(".depthWidget");
-			var depthLabel = this.panel.find(".depthWidget label");
-			var depthInput = this.panel.find(".depthWidget input");
-			var depthToggle = this.panel.find(".depthWidget a");
+			var depthField = this.panel.find(".depthWidget").data("formField");
 
 			if (depth != null) {
 				var depthCount = this.controller.getDepths().length;
 				var depthIndex = this.controller.getDepths().indexOf(depth);
 
-				depthLabel.text("Depth: " + depth + " (" + (depthIndex + 1) + "/" + depthCount + ")");
-				depthToggle.text(this.controller.getDepthButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons");
-				depthInput.slider("setValue", depthIndex);
+				depthField.setLabel("Depth: " + depth + " (" + (depthIndex + 1) + "/" + depthCount + ")");
+				depthField.getWidget().slider("setValue", depthIndex);
+
+				var depthToggle = depthField.getButton("toggle");
+				depthToggle.text = this.controller.getDepthButtonsWidget().isVisible() ? "Hide Buttons" : "Show Buttons";
+				depthField.setButton(depthToggle);
 
 				if (depthCount <= 1) {
-					depthWidget.addClass("disabled");
-					depthInput.slider("disable");
+					depthField.setEnabled(false);
+					depthField.getWidget().slider("disable");
 				} else {
-					depthWidget.removeClass("disabled");
-					depthInput.slider("enable");
+					depthField.setEnabled(true);
+					depthField.getWidget().slider("enable");
 				}
 			}
 		},
 
 		createTimePointWidget : function() {
 			var thisView = this;
-			var widget = $("<div>").addClass("timePointWidget").addClass("form-group");
 
-			var label = $("<label>").attr("for", "timePointInput");
-			var input = $("<input>").attr("id", "timePointInput").attr("type", "text").addClass("form-control");
-
-			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
-			var inputContainer = $("<div>").addClass("inputContainer").append(input).appendTo(widget);
-
-			$("<a>").click(function() {
-				if (thisView.controller.getTimePoints().length > 1) {
-					var buttonsWidget = thisView.controller.getTimePointButtonsWidget();
-					buttonsWidget.setVisible(!buttonsWidget.isVisible());
+			var input = $("<input>").attr("type", "text").addClass("form-control");
+			var formField = new FormFieldWidget();
+			formField.setWidget(input);
+			formField.setButton({
+				"name" : "toggle",
+				"action" : function() {
+					if (thisView.controller.getTimePoints().length > 1) {
+						var buttonsWidget = thisView.controller.getTimePointButtonsWidget();
+						buttonsWidget.setVisible(!buttonsWidget.isVisible());
+					}
 				}
-			}).appendTo(labelContainer)
+			});
+
+			var widget = $("<div>").addClass("timePointWidget").addClass("form-group");
+			widget.data("formField", formField);
+			widget.append(formField.render());
 
 			input.slider({
 				"min" : 0,
@@ -111,20 +115,23 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 
 		createDepthWidget : function() {
 			var thisView = this;
-			var widget = $("<div>").addClass("depthWidget").addClass("form-group");
 
-			var label = $("<label>").attr("for", "depthInput");
-			var input = $("<input>").attr("id", "depthInput").attr("type", "text").addClass("form-control");
-
-			var labelContainer = $("<div>").addClass("labelContainer").append(label).appendTo(widget);
-			var inputContainer = $("<div>").addClass("inputContainer").append(input).appendTo(widget);
-
-			$("<a>").click(function() {
-				if (thisView.controller.getDepths().length > 1) {
-					var buttonsWidget = thisView.controller.getDepthButtonsWidget();
-					buttonsWidget.setVisible(!buttonsWidget.isVisible());
+			var input = $("<input>").attr("type", "text").addClass("form-control");
+			var formField = new FormFieldWidget();
+			formField.setWidget(input);
+			formField.setButton({
+				"name" : "toggle",
+				"action" : function() {
+					if (thisView.controller.getDepths().length > 1) {
+						var buttonsWidget = thisView.controller.getDepthButtonsWidget();
+						buttonsWidget.setVisible(!buttonsWidget.isVisible());
+					}
 				}
-			}).appendTo(labelContainer)
+			});
+
+			var widget = $("<div>").addClass("depthWidget").addClass("form-group");
+			widget.data("formField", formField);
+			widget.append(formField.render());
 
 			input.slider({
 				"min" : 0,

@@ -72,10 +72,12 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			var thisView = this;
 			var widget = $("<div>").addClass("mergedChannelsWidget").addClass("form-group");
 
-			var checkboxes = $("<div>").appendTo(widget);
+			var table = $("<table>").appendTo(widget);
+			var row = $("<tr>").appendTo(table);
 
 			this.controller.getChannels().forEach(function(channel) {
-				var checkbox = $("<label>").addClass("checkbox-inline").appendTo(checkboxes);
+				var cell = $("<td>").appendTo(row);
+				var checkbox = $("<label>").addClass("checkbox-inline").appendTo(cell);
 				$("<input>").attr("type", "checkbox").attr("value", channel.code).appendTo(checkbox);
 				checkbox.append(channel.label);
 			});
