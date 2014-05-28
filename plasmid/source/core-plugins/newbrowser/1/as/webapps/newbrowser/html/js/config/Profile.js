@@ -180,7 +180,7 @@ $.extend(DefaultProfile.prototype, {
 		// Utility methods used to navigate the configuration easily
 		//
 		this.isELNExperiment = function(sampleTypeCode) {
-			return $.inArray(sampleTypeCode, this.ELNExperiments) !== -1;
+			return false; //$.inArray(sampleTypeCode, this.ELNExperiments) !== -1;
 		}
 	
 		this.getPropertyType = function(propertyTypeCode) {

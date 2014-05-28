@@ -65,27 +65,42 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
 	
+	this.listSamplesForExperiments = function(experiments, callbackFunction) {
+		var experimentsMatchClauses = []
+		
+		experiments.forEach(function(experiment){
+			experimentsMatchClauses.push({
+				"@type":"AttributeMatchClause",
+				fieldType : "ATTRIBUTE",			
+				attribute : "PERM_ID",
+				desiredValue : experiment.permId
+			});
+		});
+		
+		var experimentCriteria = {
+				matchClauses : experimentsMatchClauses,
+				operator : "MATCH_ANY_CLAUSES"
+		}
+		
+		var experimentSubCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "EXPERIMENT",	
+				"criteria" : experimentCriteria
+		}
+
+		var sampleCriteria = 
+		{
+			subCriterias : [ experimentSubCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		this.openbisServer.searchForSamples(sampleCriteria, callbackFunction)
+	}
+	
 	this.listPropertyTypes = function(callbackFunction) {
 		if(this.openbisServer.listPropertyTypes) { //If not present will not break, but annotations should not be used.
 			this.openbisServer.listPropertyTypes(false, callbackFunction);
 		}
-	}
-	
-	this.getELNExperimentSampleIdForExperiment = function(experimentIdentifier, callbackFunction) {
-		this.openbisServer.listSamplesForExperiment(experimentIdentifier, function(data) {
-			var permId = null;
-			if(data.result) {
-				var experimentIdentifierParts = experimentIdentifier.split("/");
-				for(var i = 0; i < data.result.length; i++) {
-					var sample = data.result[i];
-					var sampleIdentifierParts = sample.identifier.split("/");
-					if(sampleIdentifierParts[2] == experimentIdentifierParts[3]) {
-						permId = sample.permId;
-					}
-				}
-			}
-			callbackFunction(permId);
-		});
 	}
 	
 	//

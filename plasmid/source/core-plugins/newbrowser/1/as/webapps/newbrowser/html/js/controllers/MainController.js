@@ -194,16 +194,6 @@ function MainController(profile) {
 					}
 				});
 				break;
-			case "showViewExperiment":
-				var _this = this;
-				this.serverFacade.getELNExperimentSampleIdForExperiment(arg, function(permId) {
-					if(!permId) {
-						Util.showError("1:1 Relation between experiment and sample missing. Probably not created with the ELN UI.");
-					} else {
-						_this.changeView("showViewSamplePageFromPermId", permId);
-					}
-				});
-				break;
 			case "showViewSamplePageFromPermId":
 				var _this = this;
 				this.serverFacade.searchWithUniqueId(arg, function(data) {

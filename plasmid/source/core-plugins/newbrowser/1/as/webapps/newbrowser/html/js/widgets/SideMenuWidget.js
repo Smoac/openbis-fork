@@ -49,6 +49,18 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		return null;
 	}
 	
+	this._getExperimentNodeForCode = function(projectCode, experimentCode) {
+		var projectNode = this._getProjectNodeForCode(projectCode);
+		var experimentsFromProject = projectNode.newMenuIfSelected.children;
+		for(var eIdx = 0; eIdx < experimentsFromProject.length; eIdx++) {
+			var experimentNode = experimentsFromProject[eIdx];
+			if(experimentNode.displayName === experimentCode) {
+				return experimentNode;
+			}
+		}
+		return null;
+	}
+	
 	this.init = function() {
 		var _this = this;
 		
@@ -85,54 +97,82 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			//Fill Experiments
 			_this._serverFacade.listExperiments(projectsToAskForExperiments, function(experiments) {
+				var experimentsToAskForSamples = [];
 				for(var i = 0; i < experiments.result.length; i++) {
 					var experiment = experiments.result[i];
+					experimentsToAskForSamples.push(experiment);
 					var projectCode = experiment.identifier.split("/")[2];
 					var projectNode = _this._getProjectNodeForCode(projectCode);
 					
-					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, null, "showViewExperiment", experiment.identifier);
+					var newMenuIfSelectedExperiment = {
+							children : []
+					}
+					
+					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, newMenuIfSelectedExperiment, null, null);
 					projectNode.newMenuIfSelected.children.push(menuItemExperiment);
 				}
 				
-				//Fill Inventory
-				_this._menuStructure.newMenuIfSelected.children.push(
-						new SideMenuWidgetComponent(false, true, "Inventory", _this._menuStructure, null, null, null)
-				);
-				
-				var profile = _this._mainController.profile;
-				var typeGroups = _this._mainController.profile.typeGroups;
-				for(typeGroupCode in typeGroups) {
-					var newMenuIfSelectedTypeGroup = {
-							children : []
-					}
-				
-					for(var i = 0; i < typeGroups[typeGroupCode]["LIST"].length; i++) {
-						var sampleType = profile.getTypeForTypeCode(typeGroups[typeGroupCode]["LIST"][i]);
-					
-						if(sampleType !== null) {
-							var description = Util.getEmptyIfNull(sampleType.description);
-							if(description === "") {
-								description = sampleType.code;
-							}
+				//Fill Sub Experiments
+				_this._serverFacade.listSamplesForExperiments(experimentsToAskForSamples, function(subExperiments) {
+					var a = 0;
+					for(var i = 0; i < subExperiments.result.length; i++) {
+						var subExperiment = subExperiments.result[i];
+						if(subExperiment.experimentIdentifierOrNull) {
+							var projectCode = subExperiment.experimentIdentifierOrNull.split("/")[2];
+							var experimentCode = subExperiment.experimentIdentifierOrNull.split("/")[3];
+							var experimentNode = _this._getExperimentNodeForCode(projectCode, experimentCode);
 							
-							var menuItemSampleType = new SideMenuWidgetComponent(true, false, description, _this._menuStructure, null, "showSamplesPage", sampleType.code)
-							newMenuIfSelectedTypeGroup.children.push(menuItemSampleType);
+							var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, subExperiment.code, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId);
+							experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
 						}
 					}
 					
+					//Fill Inventory
 					_this._menuStructure.newMenuIfSelected.children.push(
-							new SideMenuWidgetComponent(true, false, typeGroups[typeGroupCode]["DISPLAY_NAME"], _this._menuStructure, newMenuIfSelectedTypeGroup, null, null)
+							new SideMenuWidgetComponent(false, true, "Inventory", _this._menuStructure, null, null, null)
 					);
-				}
-				
-				_this._repaint();
+					
+					var profile = _this._mainController.profile;
+					var typeGroups = _this._mainController.profile.typeGroups;
+					for(typeGroupCode in typeGroups) {
+						var newMenuIfSelectedTypeGroup = {
+								children : []
+						}
+					
+						for(var i = 0; i < typeGroups[typeGroupCode]["LIST"].length; i++) {
+							var sampleType = profile.getTypeForTypeCode(typeGroups[typeGroupCode]["LIST"][i]);
+						
+							if(sampleType !== null) {
+								var description = Util.getEmptyIfNull(sampleType.description);
+								if(description === "") {
+									description = sampleType.code;
+								}
+								
+								var menuItemSampleType = new SideMenuWidgetComponent(true, false, description, _this._menuStructure, null, "showSamplesPage", sampleType.code)
+								newMenuIfSelectedTypeGroup.children.push(menuItemSampleType);
+							}
+						}
+						
+						_this._menuStructure.newMenuIfSelected.children.push(
+								new SideMenuWidgetComponent(true, false, typeGroups[typeGroupCode]["DISPLAY_NAME"], _this._menuStructure, newMenuIfSelectedTypeGroup, null, null)
+						);
+					}
+					
+					_this._repaint();
+				});
+
 			});
 		});
 		
 		$(window).scroll(function(event){
-			var $element = $("#sideMenu");
-			var scrollTop = $(document).scrollTop();
-			$element.css('top', scrollTop + "px"); 
+			var sideMenuWidth = $("#sideMenu").width();
+			var windowWidth = $(window).width();
+			var ratio = sideMenuWidth / windowWidth;
+			if(ratio < 0.9) { //For small screens where the menu takes all the screen, we don't move it
+				var $element = $("#sideMenu");
+				var scrollTop = $(document).scrollTop();
+				$element.css('top', scrollTop + "px"); 
+			}
 		});
 		
 		$(window).resize(function(event){
