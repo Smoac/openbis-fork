@@ -138,23 +138,6 @@ h1, h2, legend {
 }
 
 /* 
- * Navigation bar - Quick Menu
- */
-.quickMenu {
-	height:40px !important;
-	margin-top:0 !important;
-	
-	-moz-box-shadow: 0 0px #000 inset;
-	-webkit-box-shadow: 0 0px #000 inset;
-	box-shadow: 0 0px #000 inset;
-	
-	border-bottom-left-radius: 0px !important;
-	border-top-left-radius: 0px !important;
-	border-bottom-right-radius: 0px !important;
-	border-top-right-radius: 0px !important;
-}
-
-/* 
  * Navigation bar - Search
  */
  
@@ -265,17 +248,17 @@ h1, h2, legend {
 /*
  * Sample Table - Inspector Previews
  */
-.navbar-wrapper > .tooltip.in {
+#sideMenu > div > .tooltip.in {
 	opacity: 1;
 	filter: alpha(opacity=100);
 }
 
-.navbar-wrapper > .tooltip.bottom.in > .tooltip-inner {
+#sideMenu > div > .tooltip.bottom.in > .tooltip-inner {
 	max-width:600px;
 	background-color: transparent;
 }
 
-.navbar-wrapper > .tooltip.bottom .tooltip-arrow {
+#sideMenu > div > .tooltip.bottom .tooltip-arrow {
     border-bottom-color: transparent;
 }
 

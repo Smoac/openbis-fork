@@ -618,7 +618,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		document.getElementById(attachTo).onmouseover = function(event){
 			var content = localInstance.inspector.getInspectorTable(sample, false, true, false);
 			
-			$("#navbar").tooltip({
+			$("#sideMenuHeader").tooltip({
 				html: true,
 				placement: 'bottom',
 				title: content,
@@ -626,11 +626,11 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				animation: false
 			});
 		
-			$("#navbar").tooltip('toggle');
+			$("#sideMenuHeader").tooltip('toggle');
 		};
 		
 		document.getElementById(attachTo).onmouseout = function() {
-			$("#navbar").tooltip('destroy');
+			$("#sideMenuHeader").tooltip('destroy');
 		}
 		
 		document.getElementById(attachTo).onclick = function() {
