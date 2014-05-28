@@ -63,6 +63,20 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 				resolutions = [];
 			}
 
+			resolutions.sort(function(o1, o2) {
+				var compare = function(v1, v2) {
+					if (v1 > v2) {
+						return 1;
+					} else if (v1 < v2) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+
+				return compare(o1.width, o2.width) * 10 + compare(o1.height, o2.height);
+			});
+
 			if (this.getResolutions().toString() != resolutions.toString()) {
 				this.resolutions = resolutions;
 				this.refresh();
