@@ -481,7 +481,7 @@ class OpenbisController(_Controller):
         """
         count = 0
         for dataSet in dataSets:
-            if dataSet.dataStore != self.getDataStoreServerCode():
+            if dataSet.dataStore != self.getDataStoreServerCode() or dataSet.location == '':
                 continue
             count += 1
             self.assertFileExist("data/store/1/%s" % dataSet.location)
@@ -631,6 +631,10 @@ class OpenbisController(_Controller):
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
         monitor.addNotificationCondition(util.RegexCondition('post-registration'))
         monitor.waitUntilEvent(condition)
+        
+    def assertFeatureVectorLabel(self, featureCode, expectedFeatureLabel):
+        data = self.queryDatabase('imaging',  "select distinct label from feature_defs where code = '%s'" % featureCode);
+        self.testCase.assertEquals("label of feature %s" % featureCode, [[expectedFeatureLabel]], data)
         
     def _applyCorePlugins(self):
         corePluginsFolder = "%s/servers/core-plugins" % self.installPath

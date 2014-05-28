@@ -18,8 +18,8 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.assertEmptyFolder('data/incoming-images-split-channels');
         openbisController.assertNumberOfDataSets(3, openbisController.getDataSets())
         self.assertSpotSizes(openbisController, [['24', '16'], ['24', '16']])
-        self.assertFeatureVectorLabel(openbisController, 'HITRATE', 'Hit Rate')
-        self.assertFeatureVectorLabel(openbisController, 'CELLNUMBER', 'cellNumber')
+        openbisController.assertFeatureVectorLabel('HITRATE', 'Hit Rate')
+        openbisController.assertFeatureVectorLabel('CELLNUMBER', 'cellNumber')
         client = self.installScreeningTestClient()
         log = '\n'.join(client.run())
         self.assertPatternInLog(log, "Experiments: \[/DEMO/DEMO_PROJECT/DEMO_EXPERIMENT \[20100623121102843-1\]\]")
@@ -53,11 +53,6 @@ class TestCase(systemtest.testcase.TestCase):
         actual = openbisController.queryDatabase('imaging', 
                             'select spots_width,spots_height from containers order by spots_width')
         self.assertEquals('spot sizes', expected, actual)
-        
-    def assertFeatureVectorLabel(self, openbisController, featureCode, expectedFeatureLabel):
-        data = openbisController.queryDatabase('imaging', 
-                                               "select distinct label from feature_defs where code = '%s'" % featureCode);
-        self.assertEquals("label of feature %s" % featureCode, [[expectedFeatureLabel]], data)
 
 TestCase(settings, __file__).runTest()
 
