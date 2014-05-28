@@ -141,8 +141,13 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.append($filtersFormSampleTypes)
 			.append("<span style='position:absolute; left:30px; top:80px;'><svg height='100' width='100'><g id='svgControls'/></svg></span>");
 		
-		$('#'+this.containerId).append($filtersForm);
-		$('#'+this.containerId).append($('<div>', { 'id' : 'graphContainer' }));
+		var $form = $("<div>", { "class" : "row", "style" : "margin-top: 20px;"});
+		var $formColumn = $("<div>", { "class" : "col-md-12"});	
+		$form.append($formColumn);
+		$formColumn.append($filtersForm);
+		$formColumn.append($('<div>', { 'id' : 'graphContainer' }));
+		
+		$('#'+this.containerId).append($form);
 		$('#graphContainer').append("<svg id='svgMapContainer'><g id='svgMap' transform='translate(20,20) scale(1)'/></svg>");
 		
 		$('#childrenLimit').slider();
@@ -186,8 +191,9 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			.append(rect3);
 		
 		//Centers SVG image if is smaller than the max size of the container.
-		var containerWidth = $(document).width() - 30;
+		var containerWidth = $(document).width() - $("#sideMenu").width() - 20;
 		var containerHeight = $(document).height() - 120;
+		
 		var realWidth = $('#svgMap')[0].getBoundingClientRect().width;
 		var realHeight = $('#svgMap')[0].getBoundingClientRect().height;
 		
@@ -515,7 +521,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 							.rankDir("TB");
 		
 		//VMG Map container max size on screen
-		var containerWidth = $(document).width() - 30;
+		var containerWidth = $(document).width() - $("#sideMenu").width() - 20;
 		var containerHeight = $(document).height() - 120;
 		
 		//Render Layout

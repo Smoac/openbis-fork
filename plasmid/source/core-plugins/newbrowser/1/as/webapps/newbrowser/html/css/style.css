@@ -290,9 +290,11 @@ h1, h2, legend {
 
 .inspectorsContainer div {
 	float:left;
-	margin-left: 20px;
 }
 
+.inspector {
+	margin: 10px 10px 10px 10px;	
+}
 
 div.inspectorCondensed {
 	text-decoration: none;
