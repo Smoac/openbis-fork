@@ -65,6 +65,10 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
 	
+	this.listExperimentsForIdentifiers = function(experimentsIdentifiers, callbackFunction) {
+		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, callbackFunction);
+	}
+	
 	this.listSamplesForExperiments = function(experiments, callbackFunction) {
 		var experimentsMatchClauses = []
 		

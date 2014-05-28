@@ -125,6 +125,7 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleSpace = parameters.get("sampleSpace"); #String
 	sampleProject = parameters.get("sampleProject"); #String
+	sampleExperiment = parameters.get("sampleExperiment"); #String
 	sampleCode = parameters.get("sampleCode"); #String
 	sampleType = parameters.get("sampleType"); #String
 	sampleProperties = parameters.get("sampleProperties"); #java.util.LinkedHashMap<String, String> where the key is the name
@@ -134,11 +135,6 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	sampleChildrenNew = parameters.get("sampleChildrenNew"); #List<java.util.LinkedHashMap<String, String>>
 	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
 	sampleChildrenRemoved = parameters.get("sampleChildrenRemoved"); #List<String> Identifiers are in SPACE/CODE format
-	
-	#Used to create the experiment if doesn't exist already
-	sampleExperimentCode = parameters.get("sampleExperimentCode"); #String
-	sampleExperimentType = parameters.get("sampleExperimentType"); #String
-	sampleExperimentProject = parameters.get("sampleExperimentProject"); #String
 	
 	#Create/Get for update sample	
 	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode;
@@ -156,28 +152,16 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		space = tr.getSpace(sampleSpace);
 		if space == None:
 			space = tr.createNewSpace(sampleSpace, None);
-			
-	#Obtain project
-	project = None;
-	if sampleSpace != None and sampleExperimentProject != None:
-		projectIdentifier = '/' +sampleSpace+ '/' + sampleExperimentProject;
-		project = tr.getProject(projectIdentifier);
-		if project == None:
-			project = tr.createNewProject(projectIdentifier);
 	
 	#Obtain experiment
 	experiment = None;
-	if sampleSpace != None and sampleExperimentProject != None and sampleExperimentCode != None:
-		experimentIdentifier = '/' +sampleSpace+ '/' + sampleExperimentProject + '/' +sampleExperimentCode;
+	if sampleSpace != None and sampleProject != None and sampleExperiment != None:
+		experimentIdentifier = "/" + sampleSpace + "/" + sampleProject + "/" + sampleExperiment;
 		experiment = tr.getExperiment(experimentIdentifier);
-		if experiment == None:
-			experiment = tr.createNewExperiment(experimentIdentifier, sampleExperimentType);
 	
 	#Assign experiment
 	if experiment != None:
 		sample.setExperiment(experiment);
-	elif sample.getExperiment() != None:
-		sample.setExperiment(None);
 	
 	#Assign sample properties
 	for key in sampleProperties.keySet():

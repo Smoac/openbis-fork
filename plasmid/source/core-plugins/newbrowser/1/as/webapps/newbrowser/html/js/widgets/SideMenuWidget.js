@@ -108,7 +108,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 							children : []
 					}
 					
-					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, newMenuIfSelectedExperiment, null, null);
+					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier);
 					projectNode.newMenuIfSelected.children.push(menuItemExperiment);
 				}
 				

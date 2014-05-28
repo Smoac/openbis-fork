@@ -30,17 +30,18 @@ SampleFormMode = {
  * @param {string} containerId The Container where the Inspector DOM will be atached.
  * @param {Profile} profile The profile to be used, typicaly, the global variable that holds the configuration for the application.
  * @param {string} sampleTypeCode The sample type code that will be used as template for the form.
- * @param {boolean} isELNExperiment If the for should treat the sample type as an ELN Experiment, linking during creation an experiment with the same type and code.
+ * @param {boolean} isELNSubExperiment If the for should treat the sample type as an ELN Experiment, linking during creation an experiment
  * @param {SampleFormMode} mode The form accepts CREATE/EDIT/VIEW modes for common samples and ELNExperiment samples
  * @param {Sample} sample The sample that will be used to populate the form if the mode is EDIT/VIEW, null can be provided for CREATE since is ignored.
+ * @param {String} experimentIdentifier The experiment of a subexperiment, only used for creation
  */
-function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCode, isELNExperiment, mode, sample) {
+function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCode, isELNSubExperiment, mode, sample, experimentIdentifier) {
 	this.serverFacade = serverFacade;
 	this.inspector = inspector;
 	this.containerId = containerId;
 	this.profile = profile;
 	this.sampleTypeCode = sampleTypeCode;
-	this.isELNExperiment = isELNExperiment;
+	this.isELNSubExperiment = isELNSubExperiment;
 	this.projects = [];
 	this.projectsObj = [];
 	this.spaces = [];
@@ -48,6 +49,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.sampleLinksChildren = null;
 	this.mode = mode;
 	this.sample = sample;
+	this.experimentIdentifier = experimentIdentifier;
 	this.storages = [];
 	this.dataSetViewer = null;
 	this.isFormDirty = false;
@@ -81,12 +83,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				if(localReference.mode === SampleFormMode.CREATE) {
 						//Set the default space or project if available
 						$("#sampleSpaceProject").val();
-						if(localReference.isELNExperiment) {
-							//Check if default project is available
-							var defaultProject = localReference.profile.displaySettings.projectCode;
-							if(defaultProject !== null) {
-								$("#sampleSpaceProject").val(defaultProject);
-							}
+						if(localReference.isELNSubExperiment) {
+						$("#sampleSpaceProject").val(localReference.experimentIdentifier);
+//							//Check if default project is available
+//							var defaultProject = localReference.profile.displaySettings.projectCode;
+//							if(defaultProject !== null) {
+//								$("#sampleSpaceProject").val(defaultProject);
+//							}
 						} else {
 							//Check if default space is available
 							var defaultSpace = localReference.profile.displaySettings.spaceCode;
@@ -113,10 +116,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						
 						var sample = localReference.sample;
 						//Populate Project/Space and Code
-						if(localReference.isELNExperiment) {
-							var spaceCode = sample.experimentIdentifierOrNull.split("/")[1];
-							var projectCode = sample.experimentIdentifierOrNull.split("/")[2];
-							$("#sampleSpaceProject").val("/" + spaceCode + "/" + projectCode);
+						if(localReference.isELNSubExperiment) {
+							$("#sampleSpaceProject").val(sample.experimentIdentifierOrNull);
+//							var spaceCode = sample.experimentIdentifierOrNull.split("/")[1];
+//							var projectCode = sample.experimentIdentifierOrNull.split("/")[2];
+//							$("#sampleSpaceProject").val("/" + spaceCode + "/" + projectCode);
 						} else {
 							$("#sampleSpaceProject").val(sample.spaceCode);
 						}
@@ -327,6 +331,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				sampleTypeDisplayName = sample.code;
 			}
 			
+			if(this.isELNSubExperiment) {
+				message += " Sub Experiment"; 
+			}
 			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + hierarchyButton + " " + editButton + "</h2>";
 			
 			if (this.mode !== SampleFormMode.CREATE) {
@@ -343,7 +350,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "<legend>Identification Info</legend>";
 			//Space/Project
 			var spaceSelectEnabled = true;
-			if(!this.isELNExperiment && 
+			if(!this.isELNSubExperiment && 
 					this.mode === SampleFormMode.CREATE && 
 					this.profile.getSpaceForSampleType(this.sampleTypeCode) !== null) {
 				spaceSelectEnabled = false;
@@ -351,20 +358,22 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 			if(spaceSelectEnabled) {
 				component += "<div class='form-group'>";
-				if(this.isELNExperiment) {
-					component += "<label class='control-label " + this.labelColumnClass+ "'>Project&nbsp;(*):</label>";
+				if(this.isELNSubExperiment) {
+					component += "<label class='control-label " + this.labelColumnClass+ "'>Experiment&nbsp;(*):</label>";
 				} else {
 					component += "<label class='control-label " + this.labelColumnClass+ "'>Space&nbsp;(*):</label>";
 				}
 				
 				component += "<div class='" + this.controlColumnClass + "'>";
-				if(this.isELNExperiment) {
-					component += "<select class='form-control' id='sampleSpaceProject' required>";
-					component += "<option disabled=\"disabled\" selected></option>";
-					for(var i = 0; i < this.projects.length; i++) {
-						component += "<option value='"+this.projects[i]+"'>"+this.projects[i]+"</option>";
-					}
-					component += "</select>";
+				if(this.isELNSubExperiment) {
+					component += "<input class='form-control' type='text' id='sampleSpaceProject' alt='Experiment Identifier' required>";
+					
+//					component += "<select class='form-control' id='sampleSpaceProject' required>";
+//					component += "<option disabled=\"disabled\" selected></option>";
+//					for(var i = 0; i < this.projects.length; i++) {
+//						component += "<option value='"+this.projects[i]+"'>"+this.projects[i]+"</option>";
+//					}
+//					component += "</select>";
 				} else {
 					component += "<select class='form-control' id='sampleSpaceProject' required>";
 					component += "<option disabled=\"disabled\" selected></option>";
@@ -668,24 +677,27 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		//Identification Info
 		var sampleCode = $("#sampleCode")[0].value;
 		
+		var experimentIdentifier = null;
 		var sampleSpace = null;
 		var sampleProject = null;
 		var sampleExperiment = null;
-		if(this.isELNExperiment) {
-			sampleSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
-			sampleProject = $("#sampleSpaceProject")[0].value.split("/")[2];
-			sampleExperiment = sampleCode;
+		
+		if(this.sample !== null) {
+			experimentIdentifier = this.sample.experimentIdentifierOrNull;
+		} else if(this.isELNSubExperiment) {
+			experimentIdentifier = $("#sampleSpaceProject").val();
 		} else {
 			sampleSpace = $("#sampleSpaceProject").val();
 			if(!sampleSpace) {
 				sampleSpace = this.profile.getSpaceForSampleType(this.sampleTypeCode);
 			}
-			var experimentIdentifier = this.profile.getExperimentIdentifierForSample(this.sampleTypeCode, sampleCode, properties);
-			if(experimentIdentifier) {
-				sampleSpace = experimentIdentifier.split("/")[1];
-				sampleProject = experimentIdentifier.split("/")[2];
-				sampleExperiment = experimentIdentifier.split("/")[3];
-			}
+			experimentIdentifier = this.profile.getExperimentIdentifierForSample(this.sampleTypeCode, sampleCode, properties);
+		}
+		
+		if(experimentIdentifier != null) {
+			sampleSpace = experimentIdentifier.split("/")[1];
+			sampleProject = experimentIdentifier.split("/")[2];
+			sampleExperiment = experimentIdentifier.split("/")[3];
 		}
 		
 		//Children to create
@@ -710,6 +722,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				//Identification Info
 				"sampleSpace" : sampleSpace,
 				"sampleProject" : sampleProject,
+				"sampleExperiment" : sampleExperiment,
 				"sampleCode" : sampleCode,
 				"sampleType" : this.sampleTypeCode,
 				//Other Properties
@@ -720,10 +733,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				"sampleChildren": sampleChildrenFinal,
 				"sampleChildrenNew": samplesToCreate,
 				"sampleChildrenRemoved": sampleChildrenRemovedFinal,
-				//Experiment parameters
-				"sampleExperimentProject": sampleProject,
-				"sampleExperimentType": (isELNExperiment)?this.sampleTypeCode:"ELN_FOLDER",
-				"sampleExperimentCode": sampleExperiment
+//				//Experiment parameters
+//				"sampleExperimentProject": sampleProject,
+//				"sampleExperimentType": (this.isELNSubExperiment)?this.sampleTypeCode:"ELN_FOLDER",
+//				"sampleExperimentCode": sampleExperiment
 		};
 		
 		var localReference = this;
@@ -770,7 +783,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			
 			var callbackOk = function() {
-				mainController.changeView('showSamplesPage', localReference.sampleTypeCode);
+				Util.unblockUI();
 //				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
 //				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
 //					mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
@@ -872,7 +885,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		var $generateButton = $("<a>", { "class" : "btn btn-default" }).append("Generate!");
 		$generateButton.click(function(event) { 
 			var generatedChildrenSpace = null;
-			if(_this.isELNExperiment) {
+			if(_this.isELNSubExperiment) {
 				generatedChildrenSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
 			} else {
 				generatedChildrenSpace = $("#sampleSpaceProject").val();

@@ -171,8 +171,23 @@ function MainController(profile) {
 				document.title = "Search";
 				this._showSearchPage(arg);
 				break;
+			case "showExperimentPageFromIdentifier":
+				var _this = this;
+				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
+					document.title = "Experiment " + arg;
+					_this._showExperimentPageFromIdentifier(data.result[0]);
+				});
+				break;
+			case "showCreateSubExperimentPage":
+				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+				var argsMap = JSON.parse(cleanText);
+				var sampleTypeCode = argsMap["sampleTypeCode"];
+				var experimentIdentifier = argsMap["experimentIdentifier"];
+				document.title = "Create Sample " + arg;
+				this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
+				break;
 			case "showSamplesPage":
-				document.title = "Samples " + arg;
+				document.title = arg + " List";
 				this._showSamplesPage(arg);
 				break;
 			case "showSampleHierarchyPage":
@@ -271,6 +286,19 @@ function MainController(profile) {
 		});
 	}
 	
+	this._showCreateSubExperimentPage = function(sampleTypeCode, experimentIdentifier) {
+		//Update menu
+		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
+		if(sampleTypeDisplayName === null) {
+			sampleTypeDisplayName = sampleTypeCode;
+		}
+		
+		//Show Form
+		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, true, SampleFormMode.CREATE, null, experimentIdentifier);
+		sampleForm.init();
+		this.currentView = sampleForm;
+	}
+	
 	this._showCreateSamplePage = function(sampleTypeCode) {
 		//Update menu
 		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
@@ -279,8 +307,7 @@ function MainController(profile) {
 		}
 		
 		//Show Form
-		var isELNExperiment = this.profile.isELNExperiment(sampleTypeCode);
-		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, isELNExperiment, SampleFormMode.CREATE, null);
+		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sampleTypeCode, false, SampleFormMode.CREATE, null, null);
 		sampleForm.init();
 		this.currentView = sampleForm;
 	}
@@ -290,12 +317,19 @@ function MainController(profile) {
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
 			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
-			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0]);
+			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0], null);
 			sampleForm.init();
 			localInstance.currentView = sampleForm;
 		});
 	}
 
+	this._showExperimentPageFromIdentifier = function(experiment) {
+		//Show Form
+		var experimentForm = new ExperimentForm("mainContainer", this, experiment);
+		experimentForm.init();
+		this.currentView = experimentForm;
+	}
+	
 	this._showViewSamplePage = function(sample) {
 		//Show Form
 		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
