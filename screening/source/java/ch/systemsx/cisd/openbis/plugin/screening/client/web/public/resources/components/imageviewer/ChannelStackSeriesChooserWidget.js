@@ -1,6 +1,7 @@
-define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ChannelStackSeriesChooserView",
-		"components/imageviewer/MovieButtonsWidget", "components/imageviewer/ChannelStackManager" ], function($, AbstractWidget,
-		ChannelStackSeriesChooserView, MovieButtonsWidget, ChannelStackManager) {
+define([ "jquery", "components/common/DelayedExecutor", "components/imageviewer/AbstractWidget",
+		"components/imageviewer/ChannelStackSeriesChooserView", "components/imageviewer/MovieButtonsWidget",
+		"components/imageviewer/ChannelStackManager" ], function($, DelayedExecutor, AbstractWidget, ChannelStackSeriesChooserView,
+		MovieButtonsWidget, ChannelStackManager) {
 
 	//
 	// CHANNEL STACK SERIES CHOOSER WIDGET
@@ -15,6 +16,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		init : function(channelStacks) {
 			AbstractWidget.prototype.init.call(this, new ChannelStackSeriesChooserView(this));
 			this.channelStackManager = new ChannelStackManager(channelStacks);
+			this.delayedExecutor = new DelayedExecutor(500);
 
 			if (channelStacks && channelStacks.length > 0) {
 				this.setSelectedChannelStackId(channelStacks[0].id);
@@ -79,7 +81,9 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
-		setSelectedChannelStackId : function(channelStackId) {
+		setSelectedChannelStackId : function(channelStackId, delayed) {
+			var thisWidget = this;
+
 			var channelStack = this.channelStackManager.getChannelStackById(channelStackId);
 			var channelStackId = null;
 
@@ -93,7 +97,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 				this.selectedChannelStackId = channelStackId;
 				this.getChannelStackButtonsWidget().setSelectedFrame(this.getSelectedChannelStackIndex());
 				this.refresh();
-				this.notifyChangeListeners();
+
+				if (delayed) {
+					this.delayedExecutor.execute(function() {
+						thisWidget.notifyChangeListeners();
+					});
+				} else {
+					thisWidget.notifyChangeListeners();
+				}
 			}
 		},
 

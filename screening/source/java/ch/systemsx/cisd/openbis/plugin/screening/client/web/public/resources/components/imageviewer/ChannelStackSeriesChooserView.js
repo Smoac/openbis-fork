@@ -90,7 +90,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 				if (!$.isArray(event.value) && !isNaN(event.value)) {
 					var index = parseInt(event.value);
 					var channelStack = thisView.controller.getChannelStacks()[index];
-					thisView.controller.setSelectedChannelStackId(channelStack.id);
+					thisView.controller.setSelectedChannelStackId(channelStack.id, true);
 				}
 			});
 

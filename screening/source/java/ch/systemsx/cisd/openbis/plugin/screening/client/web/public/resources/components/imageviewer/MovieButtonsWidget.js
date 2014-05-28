@@ -122,7 +122,9 @@ define([ "jquery", "components/common/ChangeEvent", "components/imageviewer/Movi
 			if (this.getSelectedFrame() != frame) {
 				var event = new ChangeEvent(this.getSelectedFrame(), frame, "frame");
 				this.selectedFrame = frame;
-				this.getFrameContentLoader()(frame, callback);
+				if (callback) {
+					this.getFrameContentLoader()(frame, callback);
+				}
 				this.refresh();
 				this.notifyChangeListeners(event);
 			}

@@ -106,7 +106,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 				if (!$.isArray(event.value) && !isNaN(event.value)) {
 					var timeIndex = parseInt(event.value);
 					var time = thisView.controller.getTimePoints()[timeIndex];
-					thisView.controller.setSelectedTimePoint(time);
+					thisView.controller.setSelectedTimePoint(time, true);
 				}
 			});
 
@@ -142,7 +142,7 @@ define([ "jquery", "bootstrap", "bootstrap-slider", "components/imageviewer/Abst
 				if (!$.isArray(event.value) && !isNaN(event.value)) {
 					var depthIndex = parseInt(event.value);
 					var depth = thisView.controller.getDepths()[depthIndex];
-					thisView.controller.setSelectedDepth(depth);
+					thisView.controller.setSelectedDepth(depth, true);
 				}
 			});
 

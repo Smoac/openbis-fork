@@ -179,7 +179,7 @@ define([ "jquery", "components/imageviewer/AbstractView", "components/imageviewe
 					"max" : parameters.max,
 					"blackpoint" : value[0],
 					"whitepoint" : value[1],
-				});
+				}, true);
 			});
 
 			return widget;

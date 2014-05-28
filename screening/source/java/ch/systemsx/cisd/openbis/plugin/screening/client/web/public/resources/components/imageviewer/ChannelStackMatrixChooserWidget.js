@@ -1,6 +1,7 @@
-define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/ChannelStackMatrixChooserView",
-		"components/imageviewer/MovieButtonsWidget", "components/imageviewer/ChannelStackManager" ], function($, AbstractWidget,
-		ChannelStackMatrixChooserView, MovieButtonsWidget, ChannelStackManager) {
+define([ "jquery", "components/common/DelayedExecutor", "components/imageviewer/AbstractWidget",
+		"components/imageviewer/ChannelStackMatrixChooserView", "components/imageviewer/MovieButtonsWidget",
+		"components/imageviewer/ChannelStackManager" ], function($, DelayedExecutor, AbstractWidget, ChannelStackMatrixChooserView,
+		MovieButtonsWidget, ChannelStackManager) {
 
 	//
 	// CHANNEL STACK MATRIX CHOOSER WIDGET
@@ -15,6 +16,7 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		init : function(channelStacks) {
 			AbstractWidget.prototype.init.call(this, new ChannelStackMatrixChooserView(this));
 			this.channelStackManager = new ChannelStackManager(channelStacks);
+			this.delayedExecutor = new DelayedExecutor(500);
 
 			if (channelStacks && channelStacks.length > 0) {
 				this.setSelectedChannelStackId(channelStacks[0].id);
@@ -86,7 +88,9 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
-		setSelectedTimePoint : function(timePoint) {
+		setSelectedTimePoint : function(timePoint, delayed) {
+			var thisWidget = this;
+
 			if ($.inArray(timePoint, this.getTimePoints()) == -1) {
 				timePoint = this.getTimePoints().length > 0 ? this.getTimePoints()[0] : null;
 			}
@@ -95,7 +99,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 				this.selectedTimePoint = timePoint;
 				this.getTimePointButtonsWidget().setSelectedFrame(this.getTimePoints().indexOf(timePoint));
 				this.refresh();
-				this.notifyChangeListeners();
+
+				if (delayed) {
+					this.delayedExecutor.execute(function() {
+						thisWidget.notifyChangeListeners();
+					});
+				} else {
+					thisWidget.notifyChangeListeners();
+				}
 			}
 		},
 
@@ -107,7 +118,9 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			}
 		},
 
-		setSelectedDepth : function(depth) {
+		setSelectedDepth : function(depth, delayed) {
+			var thisWidget = this;
+
 			if ($.inArray(depth, this.getDepths()) == -1) {
 				depth = this.getDepths().length > 0 ? this.getDepths()[0] : null;
 			}
@@ -115,7 +128,14 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 			if (this.getSelectedDepth() != depth) {
 				this.selectedDepth = depth;
 				this.refresh();
-				this.notifyChangeListeners();
+
+				if (delayed) {
+					this.delayedExecutor.execute(function() {
+						thisWidget.notifyChangeListeners();
+					});
+				} else {
+					thisWidget.notifyChangeListeners();
+				}
 			}
 		},
 
