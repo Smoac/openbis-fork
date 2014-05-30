@@ -37,8 +37,6 @@ public class DBConnectionValidator extends AbstractDataValidator
 
     private static final String CONNECTION_STRING = "jdbc:postgresql://localhost/template1";
 
-    private static final String POSTGRES_USER = "postgres";
-
     private static final String NO_PASSWORD = "";
 
     @Override
@@ -72,14 +70,8 @@ public class DBConnectionValidator extends AbstractDataValidator
         {
             return Status.OK;
         }
-        String admin = getAdmin();
-        String adminPassword = getAdminPassword();
         String owner = getOwner();
         String ownerPassword = getOwnerPassword();
-        if (testConnectionOK(admin, adminPassword, "database.admin-user") == false)
-        {
-            return Status.ERROR;
-        }
         if (testConnectionOK(owner, ownerPassword, "database.owner") == false)
         {
             return Status.ERROR;
@@ -114,33 +106,6 @@ public class DBConnectionValidator extends AbstractDataValidator
                 Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
                         "database.owner-password");
         return password == null ? "" : password;
-    }
-
-    private String getAdmin()
-    {
-        String defaultAdmin = POSTGRES_USER;
-        if (GlobalInstallationContext.isFirstTimeInstallation)
-        {
-            return defaultAdmin;
-        }
-        String admin =
-                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
-                        "database.admin-user");
-        if (admin != null && admin.length() > 0)
-        {
-            return admin;
-        }
-        return defaultAdmin;
-    }
-
-    private String getAdminPassword()
-    {
-        if (GlobalInstallationContext.isFirstTimeInstallation)
-        {
-            return NO_PASSWORD;
-        }
-        return Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
-                "database.admin-password");
     }
 
     private boolean testConnectionOK(String username, String password, String messagePostfix)

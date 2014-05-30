@@ -19,7 +19,9 @@ package ch.systemsx.cisd.openbis.installer.izpack;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
@@ -93,7 +95,18 @@ public class SetDatabasesToBackupAction extends AbstractScriptExecutor implement
             return true;
         }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        executeAdminScript(null, outputStream, outputStream, scriptFile.getAbsolutePath(), database);
+
+        String owner =
+                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                        "database.owner");
+        String password =
+                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                        "database.owner-password");
+        
+        Map<String, String> env = new HashMap<String, String>();
+        env.put("PGPASSWORD", password);
+        
+        executeAdminScript(env, outputStream, outputStream, scriptFile.getAbsolutePath(), database, owner);
         return outputStream.toString().trim().equals("FALSE") == false;
 
     }

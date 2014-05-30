@@ -50,7 +50,8 @@ contains()
 databaseExist()
 {
   local database=$1
-  if [ `exe_psql -U postgres -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
+  local owner=$2
+  if [ `exe_psql -U $owner -l | eval "awk '/$database /'" | wc -l` -gt 0 ]; then
     echo "TRUE"
   else
     echo "FALSE"

@@ -60,7 +60,9 @@ function backupDatabase() {
   if [ $(checkForBackup $database) == "FALSE" ]; then
     return
   fi
-  if [ $(databaseExist $database) == "TRUE" ]; then
+
+  local user_name_for_check=$(getProperty $DB_PROPS "username")
+  if [ $(databaseExist $database $user_name_for_check) == "TRUE" ]; then
     username=$(getProperty $DB_PROPS "username")
   
     local dumpDir=$BACKUP_DIR/$database
