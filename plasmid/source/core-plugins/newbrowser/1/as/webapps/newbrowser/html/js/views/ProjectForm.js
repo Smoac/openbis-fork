@@ -26,7 +26,7 @@ function ProjectForm(containerId, mainController, project) {
 		var _this = this;
 		$("#" + this._containerId).empty();
 		
-		var $form = $("<div>", { "class" : "row"});
+		var $form = $("<div>", { "class" : "form-horizontal row"});
 		var $formColumn = $("<div>", { "class" : "col-md-12"});
 			
 		$form.append($formColumn);
@@ -39,7 +39,16 @@ function ProjectForm(containerId, mainController, project) {
 		//
 		// Metadata Fields
 		//
+		$formColumn.append($("<legend>").append("Identification Info"));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._project.spaceCode));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._project.spaceCode));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Description", this._project.description));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._project.registrationDetails.userId));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", this._project.registrationDetails.registrationDate));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", this._project.registrationDetails.modificationDate));
 		
 		$("#" + this._containerId).append($form);
 	}
+	
+	
 }

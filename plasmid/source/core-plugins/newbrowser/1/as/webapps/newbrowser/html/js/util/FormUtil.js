@@ -52,6 +52,24 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
+	this.getFieldForLabelWithText = function(label, text) {
+		var $fieldset = $('<fieldset>');
+		
+		var $controlGroup = $('<div>', {class : 'control-group'});
+		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass}).text(label + ":");
+		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
+			
+		$controlGroup.append($controlLabel);
+		$controlGroup.append($controls);
+		$fieldset.append($controlGroup);
+		
+		var $component = $("<span>", {'class' : 'form-control', 'style' : 'border:none; box-shadow:none;'});
+		$component.append(text);
+		$controls.append($component);
+		
+		return $fieldset;
+	}
+	
 	this.getFieldForPropertyTypeWithLabel = function(propertyType) {
 		var $fieldset = $('<fieldset>');
 		
