@@ -285,6 +285,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		return "<a id='pinButton' class='btn btn-default " + inspectedClass + "'><img src='./img/pin-icon.png' style='width:16px; height:16px;' /></a>";
 	}
 	
+	this.getCopyButton = function() {
+		return "<a id='copyButton' class='btn btn-default'><img src='./img/copy-icon.png' style='width:16px; height:16px;' /></a>";
+	}
+	
 	this.enablePINButtonEvent = function() {
 		var localReference = this;
 		$( "#pinButton" ).click(function() {
@@ -294,6 +298,49 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			} else {
 				$('#pinButton').removeClass('inspectorClicked');
 			}
+		});
+	}
+	
+	this.enableCopyButtonEvent = function() {
+		var localReference = this;
+		$( "#copyButton" ).click(function() {
+			var component = "<div class='form-horizontal'>"
+				component += "Input a new code for the duplicate, the duplicate will not have parents or children: <br><br>";
+				component += "<div class='form-group col-md-9'>";
+				component += "<label class='control-label  " + localReference.labelColumnClass+ "'>Code&nbsp;(*):</label>";
+				component += "<div class='" + localReference.controlColumnClass + "'>";
+				component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
+				component += "</div>";
+				component += "<div class='" + localReference.controlColumnClass + "'>";
+				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
+				component += "</div>";
+				component += "</div>";
+				
+			var css = {
+					'text-align' : 'left',
+					'top' : '15%',
+					'width' : '70%',
+					'left' : '15%',
+					'right' : '20%',
+					'overflow' : 'auto'
+			};
+			
+			Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+				
+			$("#copyAccept").on("click", function(event) {
+				var newSampleCodeForCopy = $("#newSampleCodeForCopy");
+				var isValid = newSampleCodeForCopy[0].checkValidity();
+				if(isValid) {
+					var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
+					localReference.createSample(newSampleCodeForCopyValue);
+					Util.unblockUI();
+				}
+			});
+			
+			$("#copyCancel").on("click", function(event) { 
+				Util.unblockUI();
+			});
+			
 		});
 	}
 	
@@ -315,6 +362,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			var pinButton = "";
 			var editButton = "";
 			var hierarchyButton = "";
+			var copyButton = "";
 			
 			if (this.mode === SampleFormMode.CREATE) {
 				message = "Create";
@@ -322,19 +370,21 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				message = "Update";
 				pinButton = this.getPINButton();
 				hierarchyButton = this.getHierarchyButton();
+				copyButton = this.getCopyButton();
 				sampleTypeDisplayName = sample.code;
 			} else if (this.mode === SampleFormMode.VIEW) {
 				message = "View";
 				pinButton = this.getPINButton();
-				hierarchyButton = this.getHierarchyButton();
 				editButton = this.getEditButton();
+				hierarchyButton = this.getHierarchyButton();
+				copyButton = this.getCopyButton();
 				sampleTypeDisplayName = sample.code;
 			}
 			
 			if(this.isELNSubExperiment) {
 				message += " Sub Experiment"; 
 			}
-			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + hierarchyButton + " " + editButton + "</h2>";
+			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + copyButton + " " + hierarchyButton + " " + editButton + "</h2>";
 			
 			if (this.mode !== SampleFormMode.CREATE) {
 				component += "<img data-preview-loaded='false' class='zoomableImage' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px;'></img>"
@@ -558,6 +608,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		if (this.mode !== SampleFormMode.CREATE) {
 			this.enablePINButtonEvent();
+			this.enableCopyButtonEvent();
 		}
 		
 		if (this.mode === SampleFormMode.VIEW) {
@@ -608,7 +659,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 	}
 	
-	this.createSample = function() {
+	this.createSample = function(isCopyWithNewCode) {
 		Util.blockUI();
 		
 		//Other properties
@@ -739,11 +790,20 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 //				"sampleExperimentCode": sampleExperiment
 		};
 		
+		if(isCopyWithNewCode) {
+			parameters["method"] = "insertSample";
+			parameters["sampleCode"] = isCopyWithNewCode;
+			parameters["sampleParents"] = [];
+			parameters["sampleChildren"] = [];
+			parameters["sampleChildrenNew"] = [];
+			parameters["sampleChildrenRemoved"] = [];
+		}
+		
 		var localReference = this;
 		
 		if(this.profile.allDataStores.length > 0) {
 			this.serverFacade.createReportFromAggregationService(this.profile.allDataStores[0].code, parameters, function(response) {
-				localReference.createSampleCallback(response, localReference);
+				localReference.createSampleCallback(response, localReference, isCopyWithNewCode);
 			});
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
@@ -752,7 +812,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		return false;
 	}
 
-	this.createSampleCallback = function(response, localReference) {
+	this.createSampleCallback = function(response, localReference, isCopyWithNewCode) {
 		if(response.error) { //Error Case 1
 			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") { //Error Case 2
@@ -780,6 +840,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				message = "Created.";
 			} else if(this.mode === SampleFormMode.EDIT) {
 				message = "Updated.";
+			} else if(isCopyWithNewCode) {
+				message = "copied with new code: " + isCopyWithNewCode + ".";
 			}
 			
 			var callbackOk = function() {
