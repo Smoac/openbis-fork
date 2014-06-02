@@ -305,7 +305,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		var localReference = this;
 		$( "#copyButton" ).click(function() {
 			var component = "<div class='form-horizontal'>"
-				component += "<span class='glyphicon glyphicon-warning-sign'></span> Input a new code for the duplicate, the duplicate will not have parents or children: <br><br>";
+				component += "<legend>Duplicate entiy</legend>";
+				component += "<span class='glyphicon glyphicon-warning-sign'></span> The duplicate will not have parents or children: <br><br>";
 				component += "<div class='form-group col-md-9'>";
 				component += "<label class='control-label  " + localReference.labelColumnClass+ "'>Code&nbsp;(*):</label>";
 				component += "<div class='" + localReference.controlColumnClass + "'>";
