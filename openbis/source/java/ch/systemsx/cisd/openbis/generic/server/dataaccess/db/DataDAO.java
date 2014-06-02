@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -297,6 +298,24 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
             operationLog.debug(String.format("%s(%s): '%s'.", methodName, dataSetCode, entity));
         }
         return entity;
+    }
+
+    @Override
+    public TechId tryToFindDataSetIdByCode(String dataSetCode)
+    {
+        SQLQuery query =
+                getSession().createSQLQuery(
+                        "select id from data_all where code = :code");
+        query.setString("code", CodeConverter.tryToDatabase(dataSetCode));
+        Object uniqueResult = query.uniqueResult();
+        if (uniqueResult != null)
+        {
+            return new TechId((BigInteger) uniqueResult);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     @Override
@@ -1059,7 +1078,6 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         return findRelatedIds("data_id_child", "data_id_parent", dataSetIds, relationshipTypeId);
     }
 
-    @SuppressWarnings("unchecked")
     private Set<TechId> findRelatedIds(String side1, String side2, final Collection<TechId> dataSetIds, final long relationshipTypeId)
     {
         // Native SQL query is used to be able to query on 'many-to-many association table -
