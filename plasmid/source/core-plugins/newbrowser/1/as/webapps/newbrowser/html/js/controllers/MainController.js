@@ -171,6 +171,13 @@ function MainController(profile) {
 				document.title = "Search";
 				this._showSearchPage(arg);
 				break;
+			case "showProjectPageFromPermId":
+				var _this = this;
+				this.serverFacade.getProjectFromPermId(arg, function(project) {
+					document.title = "Project " + project.code;
+					_this._showProjectPageFromPermId(project);
+				});
+				break;
 			case "showExperimentPageFromIdentifier":
 				var _this = this;
 				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
@@ -323,9 +330,16 @@ function MainController(profile) {
 		});
 	}
 
+	this._showProjectPageFromPermId = function(project) {
+		//Show Form
+		var projectForm = new ProjectForm("mainContainer", this, project);
+		projectForm.init();
+		this.currentView = projectForm;
+	}
+	
 	this._showExperimentPageFromIdentifier = function(experiment) {
 		//Show Form
-		var experimentForm = new ExperimentForm("mainContainer", this, experiment);
+		var experimentForm = new ExperimentForm("mainContainer", this, experiment, ExperimentFormMode.VIEW);
 		experimentForm.init();
 		this.currentView = experimentForm;
 	}

@@ -90,7 +90,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 					var newMenuIfSelectedProject = {
 							children : []
 					}
-					var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, menuItemSpace, newMenuIfSelectedProject, null, null);
+					var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId);
 					newMenuIfSelectedSpace.children.push(menuItemProject);
 				}
 			}

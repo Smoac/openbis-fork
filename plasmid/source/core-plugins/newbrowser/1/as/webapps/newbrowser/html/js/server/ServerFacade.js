@@ -65,6 +65,17 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
 	
+	this.getProjectFromPermId = function(permId, callbackFunction) {
+		this.openbisServer.listProjects(function(data) {
+			data.result.forEach(function(project){
+				if(project.permId === permId) {
+					callbackFunction(project);
+					return;
+				}
+			});
+		});
+	}
+	
 	this.listExperimentsForIdentifiers = function(experimentsIdentifiers, callbackFunction) {
 		this.openbisServer.listExperimentsForIdentifiers(experimentsIdentifiers, callbackFunction);
 	}

@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-function ExperimentForm(containerId, mainController, experiment) {
+ExperimentFormMode = {
+    CREATE : 0,
+    EDIT : 1,
+    VIEW : 2
+}
+
+function ExperimentForm(containerId, mainController, experiment, mode) {
 	this._containerId = containerId;
 	this._mainController = mainController;
 	this._experiment = experiment;
+	this._mode = mode;
 	
 	this.init = function() {
 		this.repaint();
@@ -31,30 +38,45 @@ function ExperimentForm(containerId, mainController, experiment) {
 		var $formColumn = $("<div>", { "class" : "col-md-12"});
 			
 		$form.append($formColumn);
-		$formColumn.append($("<h1>").append("Experiment " + this._experiment.identifier));
 		
-		var $createSubExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Sub Experiment");
-		$createSubExpBtn.click(function() {
-			var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
-			Util.blockUI("Select the type for the sub Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeDropdownCancel'>Cancel</a>");
-			
-			$("#sampleTypeDropdown").on("change", function(event) {
-				var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
-				var argsMap = {
-						"sampleTypeCode" : sampleTypeCode,
-						"experimentIdentifier" : _this._experiment.identifier
-				}
-				var argsMapStr = JSON.stringify(argsMap);
+		//
+		// Title
+		//
+		if(this._mode === ExperimentFormMode.VIEW || this._mode === ExperimentFormMode.EDIT) {
+			$formColumn.append($("<h1>").append("Experiment " + this._experiment.identifier));
+		}
+		
+		//
+		// Metadata Fields
+		//
+		
+		
+		//
+		// Create Sub Experiment
+		//
+		if(this._mode === ExperimentFormMode.VIEW) {
+			var $createSubExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Sub Experiment");
+			$createSubExpBtn.click(function() {
+				var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
+				Util.blockUI("Select the type for the sub Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeDropdownCancel'>Cancel</a>");
 				
-				_this._mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+				$("#sampleTypeDropdown").on("change", function(event) {
+					var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
+					var argsMap = {
+							"sampleTypeCode" : sampleTypeCode,
+							"experimentIdentifier" : _this._experiment.identifier
+					}
+					var argsMapStr = JSON.stringify(argsMap);
+					
+					_this._mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+				});
+				
+				$("#sampleTypeDropdownCancel").on("click", function(event) { 
+					Util.unblockUI();
+				});
 			});
-			
-			$("#sampleTypeDropdownCancel").on("click", function(event) { 
-				Util.unblockUI();
-			});
-		});
-		
-		$formColumn.append($createSubExpBtn);
+			$formColumn.append($createSubExpBtn);
+		}
 		$("#" + this._containerId).append($form);
 	}
 }
