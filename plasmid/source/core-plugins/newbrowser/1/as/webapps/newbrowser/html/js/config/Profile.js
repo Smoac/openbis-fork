@@ -33,6 +33,7 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
+		this.inventorySpaces = [];
 		
 		this.sampleTypeDefinitionsExtension = {
 		}
@@ -180,7 +181,7 @@ $.extend(DefaultProfile.prototype, {
 		// Utility methods used to navigate the configuration easily
 		//
 		this.isELNExperiment = function(sampleTypeCode) {
-			return false; //$.inArray(sampleTypeCode, this.ELNExperiments) !== -1;
+			return false;
 		}
 	
 		this.getPropertyType = function(propertyTypeCode) {
@@ -1075,6 +1076,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
+		this.inventorySpaces = ["BODENMILLER_LAB"];
 		
 		//For testing	
 //		this.sampleTypeDefinitionsExtension = {

@@ -74,6 +74,11 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			var projectsToAskForExperiments = [];
 			for(var i = 0; i < spaces.length; i++) {
 				var space = spaces[i];
+				
+				if($.inArray(space.code, _this._mainController.profile.inventorySpaces) !== -1) {
+					continue;
+				}
+				
 				var newMenuIfSelectedSpace = {
 						children : []
 				}
