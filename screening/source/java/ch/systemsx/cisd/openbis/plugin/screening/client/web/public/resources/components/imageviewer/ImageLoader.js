@@ -26,11 +26,16 @@ define([ "jquery" ], function($) {
 				url += "&channel=" + channel;
 			});
 
+			var width = 480;
+			var height = 480;
+
 			if (imageData.resolution) {
-				url += "&mode=thumbnail" + imageData.resolution;
-			} else {
-				url += "&mode=thumbnail480x480";
+				var index = imageData.resolution.indexOf("x");
+				width = imageData.resolution.substring(0, index);
+				height = imageData.resolution.substring(index + 1);
 			}
+
+			url += "&mode=thumbnail" + width + "x" + height;
 
 			if (imageData.transformation) {
 
@@ -66,7 +71,7 @@ define([ "jquery" ], function($) {
 			var timeoutConfig = {};
 			var timeout = function() {
 
-				$("<img>").attr("src", timeoutConfig.url).load(function() {
+				$("<img>").attr("width", width).attr("src", timeoutConfig.url).load(function() {
 					if (thisLoader.timeoutConfig && thisLoader.timeoutConfig.id === timeoutConfig.id) {
 						var thisImage = this;
 

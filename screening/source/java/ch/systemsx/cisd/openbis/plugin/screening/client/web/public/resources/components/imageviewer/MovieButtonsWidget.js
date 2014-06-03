@@ -107,7 +107,9 @@ define([ "jquery", "components/common/ChangeEvent", "components/imageviewer/Movi
 
 		setSelectedDelay : function(delay) {
 			if (this.selectedDelay != delay) {
-				this.selectedDelay = delay;
+				if (!isNaN(delay) && parseInt(delay) > 0) {
+					this.selectedDelay = parseInt(delay);
+				}
 				this.refresh();
 			}
 		},

@@ -37,6 +37,10 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 					existingButton.text = button.text;
 					changed = true;
 				}
+				if (existingButton.tooltip != button.tooltip) {
+					existingButton.tooltip = button.tooltip;
+					changed = true;
+				}
 				if (existingButton.action != button.action) {
 					existingButton.action = button.action;
 					changed = true;

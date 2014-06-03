@@ -65,7 +65,11 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 			for (name in map) {
 				var button = map[name];
 				var cell = $("<td>").appendTo(row);
-				$("<a>").text(button.text).click(button.action).appendTo(cell);
+				var link = $("<a>").text(button.text).click(button.action).appendTo(cell);
+
+				if (button.tooltip) {
+					link.attr("title", button.tooltip);
+				}
 			}
 
 			return table;
