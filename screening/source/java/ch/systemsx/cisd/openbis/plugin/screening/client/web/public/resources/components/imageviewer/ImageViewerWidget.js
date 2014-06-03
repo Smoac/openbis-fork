@@ -1,8 +1,8 @@
-define([ "jquery", "components/common/CallbackManager", "components/imageviewer/AbstractWidget", "components/imageviewer/ImageViewerView",
-		"components/imageviewer/DataSetChooserWidget", "components/imageviewer/ImageParametersWidget", "components/imageviewer/ImageWidget",
-		"components/imageviewer/ImageLoader", "components/imageviewer/ImageData", "components/imageviewer/OpenbisFacade" ], function($,
-		CallbackManager, AbstractWidget, ImageViewerView, DataSetChooserWidget, ImageParametersWidget, ImageWidget, ImageLoader, ImageData,
-		OpenbisFacade) {
+define([ "jquery", "components/common/Logger", "components/common/CallbackManager", "components/imageviewer/AbstractWidget",
+		"components/imageviewer/ImageViewerView", "components/imageviewer/DataSetChooserWidget", "components/imageviewer/ImageParametersWidget",
+		"components/imageviewer/ImageWidget", "components/imageviewer/ImageLoader", "components/imageviewer/ImageData",
+		"components/imageviewer/OpenbisFacade" ], function($, Logger, CallbackManager, AbstractWidget, ImageViewerView, DataSetChooserWidget,
+		ImageParametersWidget, ImageWidget, ImageLoader, ImageData, OpenbisFacade) {
 
 	//
 	// IMAGE VIEWER WIDGET
@@ -26,20 +26,56 @@ define([ "jquery", "components/common/CallbackManager", "components/imageviewer/
 				var thisViewer = this;
 
 				var manager = new CallbackManager(function() {
+					var correctDataSetCodes = [];
+
+					thisViewer.getDataSetCodes().forEach(function(dataSetCode) {
+						var correct = true;
+
+						if (!thisViewer.getDataStoreUrl(dataSetCode)) {
+							Logger.log("Ignoring data set: " + dataSetCode + " - could not get data store url");
+							correct = false;
+						}
+						if (!thisViewer.getImageInfo(dataSetCode)) {
+							Logger.log("Ignoring data set: " + dataSetCode + " - could not get image info");
+							correct = false;
+						}
+						if (!thisViewer.getImageResolutions(dataSetCode)) {
+							Logger.log("Ignoring data set: " + dataSetCode + " - could not get image resolutions");
+							correct = false;
+						}
+
+						if (correct) {
+							correctDataSetCodes.push(dataSetCode);
+						}
+					});
+
+					thisViewer.dataSetCodes = correctDataSetCodes;
 					thisViewer.loaded = true;
 					callback();
 				});
 
 				this.facade.getDataStoreBaseURLs(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
-					thisViewer.dataSetCodeToDataStoreUrlMap = response.result;
+					if (response.error) {
+						alert("Could not load data store urls: " + JSON.stringify(response.error));
+					} else {
+						thisViewer.dataSetCodeToDataStoreUrlMap = response.result;
+					}
 				}));
 
 				this.facade.getImageInfo(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
-					thisViewer.dataSetCodeToImageInfoMap = response.result;
+					if (response.error) {
+						alert("Could not load image info: " + JSON.stringify(response.error));
+					} else {
+						thisViewer.dataSetCodeToImageInfoMap = response.result;
+					}
 				}));
 
 				this.facade.getImageResolutions(thisViewer.dataSetCodes, manager.registerCallback(function(response) {
-					thisViewer.dataSetCodeToImageResolutionsMap = response.result;
+					if (response.error) {
+						alert("Could not load image resolution: " + JSON.stringify(response.error));
+					} else {
+						thisViewer.dataSetCodeToImageResolutionsMap = response.result;
+					}
 				}));
 			}
 		},
