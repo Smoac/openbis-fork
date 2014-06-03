@@ -29,7 +29,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._serverFacade = serverFacade;
 	this._menuDOMTitle = null;
 	this._menuDOMBody = null;
-	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showHelloPage', null);
+	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showHelloPage', null, "");
 	this._pointerToMenuNode = this._menuStructure;
 	
 	this._getProjectNodeForCode = function(projectCode) {
@@ -65,7 +65,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		var _this = this;
 		
 		this._menuStructure.newMenuIfSelected.children.push(
-			new SideMenuWidgetComponent(false, true, "Lab Notebook", this._menuStructure, null, null, null)
+			new SideMenuWidgetComponent(false, true, "Lab Notebook", this._menuStructure, null, null, null, "")
 		);
 		
 		this._serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(dataWithSpacesAndProjects) {
@@ -77,7 +77,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				var newMenuIfSelectedSpace = {
 						children : []
 				}
-				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, null, null);
+				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, null, null, "(Space)");
 				_this._menuStructure.newMenuIfSelected.children.push(menuItemSpace);
 				
 				//Fill Projects
@@ -90,7 +90,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 					var newMenuIfSelectedProject = {
 							children : []
 					}
-					var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId);
+					var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
 					newMenuIfSelectedSpace.children.push(menuItemProject);
 				}
 			}
@@ -108,7 +108,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 							children : []
 					}
 					
-					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier);
+					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier, "(Experiment)");
 					projectNode.newMenuIfSelected.children.push(menuItemExperiment);
 				}
 				
@@ -122,14 +122,14 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 							var experimentCode = subExperiment.experimentIdentifierOrNull.split("/")[3];
 							var experimentNode = _this._getExperimentNodeForCode(projectCode, experimentCode);
 							
-							var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, subExperiment.code, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId);
+							var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, subExperiment.code, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
 							experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
 						}
 					}
 					
 					//Fill Inventory
 					_this._menuStructure.newMenuIfSelected.children.push(
-							new SideMenuWidgetComponent(false, true, "Inventory", _this._menuStructure, null, null, null)
+							new SideMenuWidgetComponent(false, true, "Inventory", _this._menuStructure, null, null, null, "")
 					);
 					
 					var profile = _this._mainController.profile;
@@ -148,13 +148,13 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 									description = sampleType.code;
 								}
 								
-								var menuItemSampleType = new SideMenuWidgetComponent(true, false, description, _this._menuStructure, null, "showSamplesPage", sampleType.code)
+								var menuItemSampleType = new SideMenuWidgetComponent(true, false, description, _this._menuStructure, null, "showSamplesPage", sampleType.code, "(Inventory)");
 								newMenuIfSelectedTypeGroup.children.push(menuItemSampleType);
 							}
 						}
 						
 						_this._menuStructure.newMenuIfSelected.children.push(
-								new SideMenuWidgetComponent(true, false, typeGroups[typeGroupCode]["DISPLAY_NAME"], _this._menuStructure, newMenuIfSelectedTypeGroup, null, null)
+								new SideMenuWidgetComponent(true, false, typeGroups[typeGroupCode]["DISPLAY_NAME"], _this._menuStructure, newMenuIfSelectedTypeGroup, null, null, "(Inventory)")
 						);
 					}
 					
@@ -298,7 +298,8 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			this._menuDOMTitle.append(backButton);
 		}
 		
-		var $mainTitle = $("<span>").append(menuToPaint.displayName);
+		var $mainTitle = $("<span>").append(menuToPaint.displayName + " " + menuToPaint.contextTitle);
+		
 		if(isBackButtonShown) {
 			$mainTitle.css({
 				"margin-left" : "-24px"
@@ -354,10 +355,11 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	
 }
 
-function SideMenuWidgetComponent(isSelectable, isTitle, displayName, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData) {
+function SideMenuWidgetComponent(isSelectable, isTitle, displayName, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {
 	this.isSelectable = isSelectable;
 	this.isTitle = isTitle;
 	this.displayName = displayName;
+	this.contextTitle = contextTitle;
 	this.parent = parent;
 	this.newMenuIfSelected = newMenuIfSelected;
 	this.newViewIfSelected = newViewIfSelected;

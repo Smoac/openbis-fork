@@ -162,27 +162,32 @@ function MainController(profile) {
 			case "showInspectors":
 				document.title = "Show Inspectors";
 				this._showInspectors();
+				window.scrollTo(0,0);
 				break;
 			case "showHelloPage":
 				document.title = "Main Menu";
 				this._showHelloPage();
+				window.scrollTo(0,0);
 				break;
 			case "showSearchPage":
 				document.title = "Search";
 				this._showSearchPage(arg);
+				window.scrollTo(0,0);
 				break;
 			case "showProjectPageFromPermId":
 				var _this = this;
 				this.serverFacade.getProjectFromPermId(arg, function(project) {
 					document.title = "Project " + project.code;
-					_this._showProjectPageFromPermId(project);
+					_this._showProjectPage(project);
+					window.scrollTo(0,0);
 				});
 				break;
 			case "showExperimentPageFromIdentifier":
 				var _this = this;
 				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
 					document.title = "Experiment " + arg;
-					_this._showExperimentPageFromIdentifier(data.result[0]);
+					_this._showExperimentPage(data.result[0]);
+					window.scrollTo(0,0);
 				});
 				break;
 			case "showCreateSubExperimentPage":
@@ -192,18 +197,22 @@ function MainController(profile) {
 				var experimentIdentifier = argsMap["experimentIdentifier"];
 				document.title = "Create Sample " + arg;
 				this._showCreateSubExperimentPage(sampleTypeCode, experimentIdentifier);
+				window.scrollTo(0,0);
 				break;
 			case "showSamplesPage":
 				document.title = arg + " List";
 				this._showSamplesPage(arg);
+				window.scrollTo(0,0);
 				break;
 			case "showSampleHierarchyPage":
 				document.title = "Hierarchy " + arg;
 				this._showSampleHierarchyPage(arg);
+				window.scrollTo(0,0);
 				break;
 			case "showCreateSamplePage":
 				document.title = "Create Sample " + arg;
 				this._showCreateSamplePage(arg);
+				window.scrollTo(0,0);
 				break;
 			case "showEditSamplePageFromPermId":
 				var _this = this;
@@ -213,6 +222,7 @@ function MainController(profile) {
 					} else {
 						document.title = data[0].code;
 						_this._showEditSamplePage(data[0]);
+						window.scrollTo(0,0);
 					}
 				});
 				break;
@@ -224,6 +234,7 @@ function MainController(profile) {
 					} else {
 						document.title = data[0].code;
 						_this._showViewSamplePage(data[0]);
+						window.scrollTo(0,0);
 					}
 				});
 				break;
@@ -235,6 +246,7 @@ function MainController(profile) {
 					} else {
 						document.title = "Create Data Set for " + data[0].code;
 						_this._showCreateDataSetPage(data[0]);
+						window.scrollTo(0,0);
 					}
 				});
 				break;
@@ -330,14 +342,14 @@ function MainController(profile) {
 		});
 	}
 
-	this._showProjectPageFromPermId = function(project) {
+	this._showProjectPage = function(project) {
 		//Show Form
 		var projectForm = new ProjectForm("mainContainer", this, project);
 		projectForm.init();
 		this.currentView = projectForm;
 	}
 	
-	this._showExperimentPageFromIdentifier = function(experiment) {
+	this._showExperimentPage = function(experiment) {
 		//Show Form
 		var experimentForm = new ExperimentForm("mainContainer", this, experiment, ExperimentFormMode.VIEW);
 		experimentForm.init();
