@@ -178,10 +178,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		return passes;
 	}
 	
-	this.repaintImages = function() {
-		var $container = $("#"+this.containerIdContent);
-		$container.empty();
-		
+	this._repaintTestsPassed = function($container) {
 		//
 		// No data store URL
 		//
@@ -189,6 +186,31 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			$container.append($("<p>")
 					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
 					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
+			return false;
+		}
+		
+		//
+		// Don't paint data sets for entities that don't have
+		//
+		var numberOfDatasets = 0;
+		for(var datasetCode in this.sampleDataSets) {
+			numberOfDatasets++;
+		}
+		
+		if(numberOfDatasets === 0) {
+			$container.append($("<p>")
+								.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
+								.append(" No datasets found."));
+			return false;
+		}
+		
+		return true;
+	}
+	this.repaintImages = function() {
+		var $container = $("#"+this.containerIdContent);
+		$container.empty();
+		
+		if(!this._repaintTestsPassed($container)) {
 			return;
 		}
 		
@@ -227,28 +249,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		var $container = $("#"+this.containerIdContent);
 		$container.empty();
 		
-		//
-		// No data store URL
-		//
-		if(datastoreDownloadURL === null) {
-			$container.append($("<p>")
-					.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
-					.append(" Please configure properly your DSS server properly, looks like is not reachable."));
-			return;
-		}
-		
-		//
-		// Don't paint data sets for entities that don't have
-		//
-		var numberOfDatasets = 0;
-		for(var datasetCode in this.sampleDataSets) {
-			numberOfDatasets++;
-		}
-		
-		if(numberOfDatasets === 0) {
-			$container.append($("<p>")
-								.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
-								.append(" No datasets found."));
+		if(!this._repaintTestsPassed($container)) {
 			return;
 		}
 		
