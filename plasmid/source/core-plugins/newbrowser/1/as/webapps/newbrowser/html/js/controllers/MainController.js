@@ -221,7 +221,8 @@ function MainController(profile) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
 						document.title = data[0].code;
-						_this._showEditSamplePage(data[0]);
+						var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1;
+						_this._showEditSamplePage(data[0], isELNSubExperiment);
 						window.scrollTo(0,0);
 					}
 				});
@@ -233,7 +234,8 @@ function MainController(profile) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
 						document.title = data[0].code;
-						_this._showViewSamplePage(data[0]);
+						var isELNSubExperiment = $.inArray(data[0].spaceCode, _this.profile.inventorySpaces) === -1;
+						_this._showViewSamplePage(data[0], isELNSubExperiment);
 						window.scrollTo(0,0);
 					}
 				});
@@ -331,12 +333,11 @@ function MainController(profile) {
 		this.currentView = sampleForm;
 	}
 
-	this._showEditSamplePage = function(sample) {
+	this._showEditSamplePage = function(sample, isELNSubExperiment) {
 		//Show Form
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(sample.permId, function(data) {
-			var isELNExperiment = localInstance.profile.isELNExperiment(data[0].sampleTypeCode);
-			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNExperiment, SampleFormMode.EDIT, data[0], null);
+			var sampleForm = new SampleForm(localInstance.serverFacade, localInstance.inspector, "mainContainer", localInstance.profile, data[0].sampleTypeCode, isELNSubExperiment, SampleFormMode.EDIT, data[0], null);
 			sampleForm.init();
 			localInstance.currentView = sampleForm;
 		});
@@ -356,10 +357,9 @@ function MainController(profile) {
 		this.currentView = experimentForm;
 	}
 	
-	this._showViewSamplePage = function(sample) {
+	this._showViewSamplePage = function(sample, isELNSubExperiment) {
 		//Show Form
-		var isELNExperiment = this.profile.isELNExperiment(sample.sampleTypeCode);
-		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNExperiment, SampleFormMode.VIEW, sample);
+		var sampleForm = new SampleForm(this.serverFacade, this.inspector, "mainContainer", this.profile, sample.sampleTypeCode, isELNSubExperiment, SampleFormMode.VIEW, sample);
 		sampleForm.init();
 		this.currentView = sampleForm;
 	}

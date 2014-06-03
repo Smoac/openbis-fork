@@ -83,29 +83,19 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				if(localReference.mode === SampleFormMode.CREATE) {
 						//Set the default space or project if available
 						$("#sampleSpaceProject").val();
-						if(localReference.isELNSubExperiment) {
-						$("#sampleSpaceProject").val(localReference.experimentIdentifier);
-//							//Check if default project is available
-//							var defaultProject = localReference.profile.displaySettings.projectCode;
-//							if(defaultProject !== null) {
-//								$("#sampleSpaceProject").val(defaultProject);
-//							}
-						} else {
-							//Check if default space is available
-							var defaultSpace = localReference.profile.displaySettings.spaceCode;
-							if(defaultSpace !== null) {
-								$("#sampleSpaceProject").val(defaultSpace);
-							}
-							//Check if assigned space is available
-							var spaceForSampleType = this.profile.getSpaceForSampleType(this.sampleTypeCode);
-							if(spaceForSampleType !== null) {
-								$("#sampleSpaceProject").val(spaceForSampleType);
-							}
+						//Check if default space is available
+						var defaultSpace = localReference.profile.displaySettings.spaceCode;
+						if(defaultSpace !== null) {
+							$("#sampleSpaceProject").val(defaultSpace);
+						}
+						//Check if assigned space is available
+						var spaceForSampleType = this.profile.getSpaceForSampleType(this.sampleTypeCode);
+						if(spaceForSampleType !== null) {
+							$("#sampleSpaceProject").val(spaceForSampleType);
 						}
 						localReference.serverFacade.generateCode(sampleType.codePrefix, function(data) {
 							$("#sampleCode").val(data.result);
 						});
-						
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
 						var dataStoreURL = null;
 						if(localReference.profile.allDataStores.length > 0) {
@@ -118,9 +108,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						//Populate Project/Space and Code
 						if(localReference.isELNSubExperiment) {
 							$("#sampleSpaceProject").val(sample.experimentIdentifierOrNull);
-//							var spaceCode = sample.experimentIdentifierOrNull.split("/")[1];
-//							var projectCode = sample.experimentIdentifierOrNull.split("/")[2];
-//							$("#sampleSpaceProject").val("/" + spaceCode + "/" + projectCode);
 						} else {
 							$("#sampleSpaceProject").val(sample.spaceCode);
 						}
@@ -420,13 +407,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				component += "<div class='" + this.controlColumnClass + "'>";
 				if(this.isELNSubExperiment) {
 					component += "<input class='form-control' type='text' id='sampleSpaceProject' alt='Experiment Identifier' required>";
-					
-//					component += "<select class='form-control' id='sampleSpaceProject' required>";
-//					component += "<option disabled=\"disabled\" selected></option>";
-//					for(var i = 0; i < this.projects.length; i++) {
-//						component += "<option value='"+this.projects[i]+"'>"+this.projects[i]+"</option>";
-//					}
-//					component += "</select>";
 				} else {
 					component += "<select class='form-control' id='sampleSpaceProject' required>";
 					component += "<option disabled=\"disabled\" selected></option>";
@@ -489,7 +469,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			//
 			// GENERATE CHILDREN
 			//
-			if(!(this.mode === SampleFormMode.VIEW)) {
+			if((this.mode !== SampleFormMode.VIEW) && this.isELNSubExperiment) {
 				component += "<div>";
 				component += "<div class='form-group'>";
 				component += "<a class='btn btn-default' style='margin-left:25px;' id='generate_children'>Generate Children</a>";
@@ -786,11 +766,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				//Children links
 				"sampleChildren": sampleChildrenFinal,
 				"sampleChildrenNew": samplesToCreate,
-				"sampleChildrenRemoved": sampleChildrenRemovedFinal,
-//				//Experiment parameters
-//				"sampleExperimentProject": sampleProject,
-//				"sampleExperimentType": (this.isELNSubExperiment)?this.sampleTypeCode:"ELN_FOLDER",
-//				"sampleExperimentCode": sampleExperiment
+				"sampleChildrenRemoved": sampleChildrenRemovedFinal
 		};
 		
 		if(isCopyWithNewCode) {
