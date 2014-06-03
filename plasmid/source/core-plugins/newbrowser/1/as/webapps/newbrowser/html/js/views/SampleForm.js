@@ -80,9 +80,13 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				localReference.repaint();
 						
 				//Check Mode
-				if(localReference.mode === SampleFormMode.CREATE) {
-						//Set the default space or project if available
-						$("#sampleSpaceProject").val();
+				if(localReference.mode === SampleFormMode.CREATE) {	
+					//Set the default space or project if available
+					$("#sampleSpaceProject").val();
+					
+					if(localReference.isELNSubExperiment) {
+						$("#sampleSpaceProject").val(localReference.experimentIdentifier);
+					} else {
 						//Check if default space is available
 						var defaultSpace = localReference.profile.displaySettings.spaceCode;
 						if(defaultSpace !== null) {
@@ -93,9 +97,11 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						if(spaceForSampleType !== null) {
 							$("#sampleSpaceProject").val(spaceForSampleType);
 						}
-						localReference.serverFacade.generateCode(sampleType.codePrefix, function(data) {
-							$("#sampleCode").val(data.result);
-						});
+					}
+					
+					localReference.serverFacade.generateCode(sampleType.codePrefix, function(data) {
+						$("#sampleCode").val(data.result);
+					});
 				} else if(localReference.mode === SampleFormMode.EDIT || localReference.mode === SampleFormMode.VIEW) {
 						var dataStoreURL = null;
 						if(localReference.profile.allDataStores.length > 0) {
