@@ -389,7 +389,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var imageOnClick = "javascript:Util.showImage($('#preview"+sample.identifier.replace(/\//g,'-')+"').attr('src')); event.stopPropagation();";
 				var url = document.location.href;
 					url = url.substring(0,url.lastIndexOf("/") + 1);
-				var sampleLink = "<a href='"+url+"?viewName=showSamplesPage&viewData=" + sample.permId + "' target='_blank'>" + sample.code + "</a>";
+				var sampleLink = "<a href='"+url+"?viewName=showViewSamplePageFromPermId&viewData=" + sample.permId + "' target='_blank'>" + sample.code + "</a>";
 				
 				if(localReference.isSearch) {
 					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample.properties, sample.properties ];
