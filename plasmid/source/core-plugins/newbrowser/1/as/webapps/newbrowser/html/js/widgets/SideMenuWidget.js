@@ -31,6 +31,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._menuDOMBody = null;
 	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showHelloPage', null, "");
 	this._pointerToMenuNode = this._menuStructure;
+	this.isHidden = false;
 	
 	this._getProjectNodeForCode = function(projectCode) {
 		for(var sIdx = 0; sIdx < this._menuStructure.newMenuIfSelected.children.length; sIdx++) {
@@ -206,6 +207,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 								.append($("<span>", { "class" : "glyphicon glyphicon-resize-horizontal" }));
 		
 		$("#main").append($toggleButtonShow);
+		this.isHidden = true;
 	}
 	
 	this.showSideMenu = function() {
@@ -213,6 +215,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		$("#toggleButtonShow").remove();
 		$("#mainContainer").removeClass("col-md-12");
 		$("#mainContainer").addClass("col-md-10");
+		this.isHidden = false;
 	}
 	
 	this._repaint = function() {

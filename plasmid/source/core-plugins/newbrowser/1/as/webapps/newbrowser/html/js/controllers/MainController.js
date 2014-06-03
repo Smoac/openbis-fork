@@ -109,9 +109,13 @@ function MainController(profile) {
 					//Page reload using the URL info
 					var queryString = Util.queryString();
 					var viewName = queryString.viewName;
-					var viewData = queryString.viewData
+					var viewData = queryString.viewData;
+					var hideMenu = queryString.hideMenu;
 					if(viewName && viewData) {
 						localReference.changeView(viewName, viewData);
+						if(hideMenu === "true") {
+							localReference.sideMenu.hideSideMenu();
+						}
 					} else {
 						localReference.changeView("showHelloPage", null);
 					}
