@@ -33,6 +33,31 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._pointerToMenuNode = this._menuStructure;
 	this.isHidden = false;
 	
+	this.refreshSubExperiment = function(experimentIdentifierToAskForSamples) {
+		var _this = this;
+		_this._serverFacade.listExperimentsForIdentifiers([experimentIdentifierToAskForSamples], function(data) {
+			var experimentToAskForSamples = data.result[0];
+			_this._serverFacade.listSamplesForExperiments([experimentToAskForSamples], function(subExperiments) {
+				var nodeCleared = false;
+				for(var i = 0; i < subExperiments.result.length; i++) {
+					var subExperiment = subExperiments.result[i];
+					if(subExperiment.experimentIdentifierOrNull) {
+						var projectCode = subExperiment.experimentIdentifierOrNull.split("/")[2];
+						var experimentCode = subExperiment.experimentIdentifierOrNull.split("/")[3];
+						var experimentNode = _this._getExperimentNodeForCode(projectCode, experimentCode);
+						if(!nodeCleared) {
+							experimentNode.newMenuIfSelected.children = [];
+							nodeCleared = true;
+						}
+						var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, subExperiment.code, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
+						experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
+					}
+				}
+				_this.repaint();
+			});
+		});
+	}
+	
 	this._getProjectNodeForCode = function(projectCode) {
 		for(var sIdx = 0; sIdx < this._menuStructure.newMenuIfSelected.children.length; sIdx++) {
 			var spaceNode = this._menuStructure.newMenuIfSelected.children[sIdx];

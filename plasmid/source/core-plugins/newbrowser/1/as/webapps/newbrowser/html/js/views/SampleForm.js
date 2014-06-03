@@ -831,6 +831,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 			var callbackOk = function() {
 				Util.unblockUI();
+				if(localReference.experimentIdentifier) {
+					mainController.sideMenu.refreshSubExperiment(localReference.experimentIdentifier);
+				}
 //				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
 //				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
 //					mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
