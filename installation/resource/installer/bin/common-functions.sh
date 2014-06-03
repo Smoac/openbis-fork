@@ -45,7 +45,7 @@ contains()
 #
 # This function should be used as follows:
 #
-# if [ $(databaseExist "openbis_prod") == "TRUE" ]; then doBackup; fi
+# if [ $(databaseExist "openbis_prod" $owner) == "TRUE" ]; then doBackup; fi
 #
 databaseExist()
 {
