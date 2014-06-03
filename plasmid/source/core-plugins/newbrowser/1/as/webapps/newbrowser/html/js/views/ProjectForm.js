@@ -17,6 +17,7 @@ function ProjectForm(containerId, mainController, project) {
 	this._containerId = containerId;
 	this._mainController = mainController;
 	this._project = project;
+	this._formColumClass = 'col-md-12'
 	
 	this.init = function() {
 		this.repaint();
@@ -27,7 +28,7 @@ function ProjectForm(containerId, mainController, project) {
 		$("#" + this._containerId).empty();
 		
 		var $form = $("<div>", { "class" : "form-horizontal row"});
-		var $formColumn = $("<div>", { "class" : "col-md-12"});
+		var $formColumn = $("<div>", { "class" : this._formColumClass });
 			
 		$form.append($formColumn);
 		
