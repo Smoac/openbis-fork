@@ -77,7 +77,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				var newMenuIfSelectedSpace = {
 						children : []
 				}
-				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, null, null, "(Space)");
+				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, 'showHelloPage', null, "(Space)");
 				_this._menuStructure.newMenuIfSelected.children.push(menuItemSpace);
 				
 				//Fill Projects
@@ -290,8 +290,13 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			var backButton = $("<a>", { "id" : "back-button", "href" : "javascript:void(0);", "style" : "float:left; color:black; padding-left:10px;" }).append($("<span>", { "class" : "glyphicon glyphicon-arrow-left"}));
 			var backButtonClick = function(menuItem) {
 				return function() {
-						_this._pointerToMenuNode = menuItem.parent;
+						var parent = menuItem.parent;
+						_this._pointerToMenuNode = parent;
 						_this.repaint();
+						
+						if(parent.newViewIfSelected !== null) {
+							_this._mainController.changeView(parent.newViewIfSelected, parent.newViewIfSelectedData);
+						}
 				}
 			};
 			backButton.click(backButtonClick(menuToPaint));
