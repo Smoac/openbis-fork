@@ -32,11 +32,14 @@ function Inspector(serverFacade, containerId, profile) {
 	this.repaint = function() {
 		$("#"+containerId).empty();
 		var allInspectors = ""
+		allInspectors += "<div class='row'>";
+		allInspectors += "<div class='col-md-12' style='margin-top: 10px;'>";
 		allInspectors += "<a class='btn btn-default' href='javascript:mainController.inspector.printInspectors()'><span class='glyphicon glyphicon-print'></span></a>";
 		allInspectors += "<div id='inspectorsContainer' class='inspectorsContainer'>";
 		allInspectors += this.getAllInspectors(false, true, true, true);
 		allInspectors += "</div>";
-		
+		allInspectors += "</div>";
+		allInspectors += "</div>";	
 		$("#"+containerId).append(allInspectors);
 	}
 	
