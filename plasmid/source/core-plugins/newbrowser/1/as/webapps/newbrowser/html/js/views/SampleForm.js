@@ -383,7 +383,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			component += "<h2>" + message + " " + sampleTypeDisplayName + " " + pinButton + " " + copyButton + " " + hierarchyButton + " " + editButton + "</h2>";
 			
 			if (this.mode !== SampleFormMode.CREATE) {
-				component += "<img data-preview-loaded='false' class='zoomableImage' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px;'></img>"
+				component += "<img data-preview-loaded='false' class='zoomableImage' id='preview-image' src='./img/image_loading.gif' style='height:300px; margin-right:20px; display:none;'></img>";
 			}
 			
 			component += "<form class='form-horizontal' role='form' action='javascript:void(0);' onsubmit='mainController.currentView.createSample();'>";
@@ -868,6 +868,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 								var img = $("#" + elementId);
 								img.attr('src', downloadUrl);
 								img.attr('data-preview-loaded', 'true');
+								img.show();
 							}
 						};
 					_this.serverFacade.listFilesForDataSet(data.result[0].code, "/", true, listFilesForDataSetCallback);
