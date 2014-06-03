@@ -517,9 +517,24 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		$("#paginationContainerTop").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
 		if (!this.isEmbedded && !this.isSearch) {
 			$("#paginationContainerTop").append("<span class='toolBox' id='toolBoxContainer'></span>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToRegister' style='display:none;' /><a class='btn btn-default' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\"><span class='glyphicon glyphicon-upload'></span>r</a>");
-			$("#toolBoxContainer").append("<input type='file' id='fileToUpdate' style='display:none;' /><a class='btn btn-default' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\"><span class='glyphicon glyphicon-upload'></span>u</a>");
-			$("#toolBoxContainer").append("<a class='btn btn-default' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\"><span class='glyphicon glyphicon-plus-sign'></span></a>");
+			
+			var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+			var sampleTypeDisplayName = Util.getEmptyIfNull(sampleType.description);
+			if(sampleTypeDisplayName === "") {
+				sampleTypeDisplayName = sampleType.code;
+			}
+			
+			var dropDownMenu = "";
+			dropDownMenu += "<div class='dropdown'>";
+			dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
+			dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
+			dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToRegister' style='display:none;' /><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Register " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToUpdate' style='display:none;' /><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Update " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "</ul>";
+			dropDownMenu += "</div>";
+			
+			$("#toolBoxContainer").append(dropDownMenu);
 		}
 		$("#paginationContainerBottom").empty();
 		$("#paginationContainerBottom").append(this._getPaginationComponent(this._filteredSamples.length, this._start, this._limit, this._adjacentPages));
