@@ -56,7 +56,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.isFormLoaded = false;
 	
 	this.formColumClass = 'col-md-12'
-	this.labelColumnClass = 'col-md-1';
+	this.labelColumnClass = 'col-md-2';
 	this.controlColumnClass = 'col-md-5';
 	
 	this.isDirty = function() {

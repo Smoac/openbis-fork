@@ -29,8 +29,8 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 	this.isFormDirty = false;
 	
 	this.formColumClass = 'col-md-12'
-	this.labelColumnClass = 'col-md-1';
-	this.controlColumnClass = 'col-md-5';
+	this.labelColumnClass = 'col-md-2';
+	this.controlColumnClass = 'col-md-6';
 		
 	this.isDirty = function() {
 		return this.isFormDirty;
