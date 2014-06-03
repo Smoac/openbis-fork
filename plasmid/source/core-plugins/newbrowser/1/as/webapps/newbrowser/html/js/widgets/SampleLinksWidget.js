@@ -37,6 +37,10 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.samplesRemoved = {};
 	this.stateObj = {};
 	
+	this.formColumnClass = 'col-md-12';
+	this.labelColumnClass = 'col-md-2';
+	this.dataColumnClass = 'col-md-6';
+		
 	this._lastUsedId = null;
 	this._lastIndex = 0;
 	
@@ -185,8 +189,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var _this = this;
 		var tableId = id + "-table";
 		var sampleId = id + "-sample";
-		var $component = $("<div>", {"id" : id , "class" : "control-group", "sample-type-code" : sampleTypeHint["TYPE"], "sample-min-count" : sampleTypeHint["MIN_COUNT"] } );
-		$component.css({"border-radius" : "10px", "padding-left" : "10px"});
+		var $component = $("<div>", {"id" : id , "class" : "control-group row", "sample-type-code" : sampleTypeHint["TYPE"], "sample-min-count" : sampleTypeHint["MIN_COUNT"] } );
+		$component.css({"border-radius" : "10px", "padding-left" : "10px", "margin-top" : "10px"});
 		
 		var requiredText = "";
 		if(sampleTypeHint["MIN_COUNT"] > 0) {
@@ -197,8 +201,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		if(sampleTypeHint["LABEL"] === null) {
 			labelText = "";
 		}
-		var $label = $("<label>", { "class" : "control-label" }).text(labelText);	
-		var $controls = $("<div>", { "class" : "controls"});
+		var $label = $("<label>", { "class" : "control-label " + this.labelColumnClass }).text(labelText);	
+		var $controls = $("<div>", { "class" : "controls " + this.dataColumnClass});
 			
 			var $buttonTextField = $("<a>", {"class" : "btn btn-default", "type" : "button", "id" : sampleId});
 			$buttonTextField.css({
@@ -239,12 +243,12 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					annotationComponents.push($propertyField);
 			}
 			
-			var $buttonPlusOne = $("<a>", {"class" : "btn btn-default" });
+			var $buttonPlusOne = $("<a>", {"class" : "btn btn-default"});
 			$buttonPlusOne.append($("<span>", { "class" : "glyphicon glyphicon-plus-sign"}));
 			$controls.append($buttonPlusOne);
 			$controls.append(" ");
 			
-			var $buttonDelete = $("<a>", {"class" : "btn btn-default" });
+			var $buttonDelete = $("<a>", {"class" : "btn btn-default"});
 			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
 			$controls.append($buttonDelete);
 			

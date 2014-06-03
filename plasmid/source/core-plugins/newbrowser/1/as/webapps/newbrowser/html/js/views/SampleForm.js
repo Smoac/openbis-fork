@@ -55,7 +55,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
 	
-	this.formColumClass = 'col-md-12'
+	this.formColumnClass = 'col-md-12'
 	this.labelColumnClass = 'col-md-2';
 	this.controlColumnClass = 'col-md-5';
 	
@@ -352,7 +352,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		var component = "";
 		
 			component += "<div class='row'>";
-			component += "<div class='" + this.formColumClass + "'>";
+			component += "<div class='" + this.formColumnClass + "'>";
 			
 			var message = null;
 			var pinButton = "";
