@@ -84,7 +84,6 @@ class TestCase(object):
         except:
             traceback.print_exc()
             success = False
-            raise Exception("%s failed" % self.name)
         finally:
             duration = util.renderDuration(time.time() - startTime)
             if not self.devMode:
@@ -93,6 +92,7 @@ class TestCase(object):
                 util.printAndFlush("\...........SUCCESS: %s executed in %s .........." % (self.name, duration))
             else:
                 util.printAndFlush("\............FAILED: %s executed in %s .........." % (self.name, duration))
+                raise Exception("%s failed" % self.name)
         
     def execute(self):
         """
