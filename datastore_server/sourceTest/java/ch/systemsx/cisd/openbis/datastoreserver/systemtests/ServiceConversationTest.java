@@ -16,10 +16,15 @@
 
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -49,6 +54,8 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.base.exceptions.TimeoutExceptionUnchecked;
 import ch.systemsx.cisd.common.concurrent.ConcurrencyUtilities;
 import ch.systemsx.cisd.common.concurrent.MessageChannel;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.serviceconversation.client.ServiceExecutionException;
 import ch.systemsx.cisd.common.test.RetryTen;
@@ -68,21 +75,11 @@ import ch.systemsx.cisd.openbis.common.spring.WaitAction;
 public class ServiceConversationTest
 {
 
-    private static final int SERVER_PORT = 9000;
+    private static final Logger logger = LogFactory.getLogger(LogCategory.OPERATION, ServiceConversationTest.class);
 
     private static final String SERVER_PATH = "/conversationServer";
 
-    private static final String SERVER_URL = "http://localhost:" + SERVER_PORT + SERVER_PATH;
-
-    private static final int CLIENT_PORT_1 = 9001;
-
-    private static final int CLIENT_PORT_2 = 9002;
-
     private static final String CLIENT_PATH = "/conversationClient";
-
-    private static final String CLIENT_URL_1 = "http://localhost:" + CLIENT_PORT_1 + CLIENT_PATH;
-
-    private static final String CLIENT_URL_2 = "http://localhost:" + CLIENT_PORT_2 + CLIENT_PATH;
 
     private static final String SESSION_TOKEN_1 = "test-session-token-1";
 
@@ -102,6 +99,12 @@ public class ServiceConversationTest
 
     private TestServiceWrapper2 serviceOnServerSideWrapper2;
 
+    private Integer clientPort1;
+
+    private Integer clientPort2;
+
+    private Integer serverPort;
+
     private BaseServiceConversationClientManager clientManager1;
 
     private BaseServiceConversationClientManager clientManager2;
@@ -119,6 +122,11 @@ public class ServiceConversationTest
     {
         LogInitializer.init();
 
+        Integer[] ports = getPorts(3);
+        clientPort1 = ports[0];
+        clientPort2 = ports[1];
+        serverPort = ports[2];
+
         serviceOnServerSideWrapper1 = new TestServiceWrapper1();
         serviceOnServerSideWrapper2 = new TestServiceWrapper2();
 
@@ -126,8 +134,8 @@ public class ServiceConversationTest
         clientManager2 = createClientManager();
         serverManager = createServerManager();
 
-        clientExporter1 = createClientExporter(CLIENT_PORT_1, clientManager1);
-        clientExporter2 = createClientExporter(CLIENT_PORT_2, clientManager2);
+        clientExporter1 = createClientExporter(getClientPort1(), clientManager1);
+        clientExporter2 = createClientExporter(getClientPort2(), clientManager2);
         serverExporter = createServerExporter(serverManager);
 
         clientExporter1.getServer().start();
@@ -135,12 +143,12 @@ public class ServiceConversationTest
         serverExporter.getServer().start();
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void afterClass() throws Exception
     {
-        clientExporter1.getServer().stop();
-        clientExporter2.getServer().stop();
-        serverExporter.getServer().stop();
+        stopServer(clientExporter1, getClientPort1());
+        stopServer(clientExporter2, getClientPort2());
+        stopServer(serverExporter, getServerPort());
     }
 
     @BeforeMethod(alwaysRun = true)
@@ -152,15 +160,115 @@ public class ServiceConversationTest
         serviceOnServerSideWrapper2.setService(context.mock(TestService2.class));
     }
 
+    private Integer[] getPorts(int portCount)
+    {
+        Set<Integer> ports = new HashSet<Integer>();
+
+        ports: for (int i = 0; i < portCount; i++)
+        {
+            int attemptCounter = 0;
+
+            while (attemptCounter < 10)
+            {
+                Integer port = 10000 + (int) (Math.random() * 10000);
+
+                Socket s = null;
+                try
+                {
+                    s = new Socket("localhost", port);
+                    logger.info("Cannot pick port: " + port + " - it is already used.");
+                } catch (IOException e)
+                {
+                    if (ports.contains(port))
+                    {
+                        logger.info("Cannot pick port: " + port + " - it is already used.");
+                    } else
+                    {
+                        logger.info("Picking port: " + port + " - it is still unused.");
+                        ports.add(port);
+                        continue ports;
+                    }
+
+                } finally
+                {
+                    if (s != null)
+                    {
+                        try
+                        {
+                            s.close();
+                        } catch (IOException e)
+                        {
+                            throw new RuntimeException("Could not find an unused port", e);
+                        }
+                    }
+                }
+
+                attemptCounter++;
+            }
+
+            throw new RuntimeException("Could not find an unused port after 10 attempts");
+        }
+
+        return ports.toArray(new Integer[] {});
+    }
+
+    private void stopServer(ServiceExporter<?> exporter, Integer port)
+    {
+        if (exporter != null && exporter.getServer().isStarted())
+        {
+            try
+            {
+                exporter.getServer().stop();
+                logger.info("Stopped a service on port: " + port);
+            } catch (Exception e)
+            {
+                logger.warn("Could not stop a service on port: " + port, e);
+            }
+        } else
+        {
+            logger.info("Didn't have to stop a service on port: " + port + " as it wasn't running.");
+        }
+    }
+
+    private Integer getClientPort1()
+    {
+        return clientPort1;
+    }
+
+    private Integer getClientPort2()
+    {
+        return clientPort2;
+    }
+
+    private Integer getServerPort()
+    {
+        return serverPort;
+    }
+
+    private String getClientUrl1()
+    {
+        return "http://localhost:" + getClientPort1() + CLIENT_PATH;
+    }
+
+    private String getClientUrl2()
+    {
+        return "http://localhost:" + getClientPort2() + CLIENT_PATH;
+    }
+
+    private String getServerUrl()
+    {
+        return "http://localhost:" + getServerPort() + SERVER_PATH;
+    }
+
     private <S> S getServiceOnClientSide1(Class<S> serviceInterface)
     {
-        return clientManager1.getService(SERVER_URL, serviceInterface, SESSION_TOKEN_1,
+        return clientManager1.getService(getServerUrl(), serviceInterface, SESSION_TOKEN_1,
                 CLIENT_ID_1, TIMEOUT);
     }
 
     private <S> S getServiceOnClientSide2(Class<S> serviceInterface)
     {
-        return clientManager2.getService(SERVER_URL, serviceInterface, SESSION_TOKEN_2,
+        return clientManager2.getService(getServerUrl(), serviceInterface, SESSION_TOKEN_2,
                 CLIENT_ID_2, TIMEOUT);
     }
 
@@ -345,7 +453,7 @@ public class ServiceConversationTest
     }
 
     @Test(retryAnalyzer = RetryTen.class)
-    public void testMethodWithManualProgressShouldNotTimeoutWhenProgressIsReported()
+    public void testMethodWithManualProgressShouldNotTimeoutWhenProgressIsReported() throws InterruptedException
     {
         context.checking(new Expectations()
             {
@@ -375,6 +483,7 @@ public class ServiceConversationTest
                         });
                 }
             });
+
         getServiceOnClientSide1(TestService1.class).methodWithManualProgress();
         assertNoMoreConversations(5 * TIMEOUT);
     }
@@ -392,7 +501,7 @@ public class ServiceConversationTest
                 });
 
             TestService1 service =
-                    clientManager1.getService(SERVER_URL, TestService1.class, SESSION_TOKEN_1,
+                    clientManager1.getService(getServerUrl(), TestService1.class, SESSION_TOKEN_1,
                             UNKNOWN_CLIENT_ID, TIMEOUT);
             service.methodWithoutReturnValue();
         } finally
@@ -527,10 +636,10 @@ public class ServiceConversationTest
                 {
                     if (clientId.equals(CLIENT_ID_1))
                     {
-                        return new ServiceConversationClientDetails(CLIENT_URL_1, TIMEOUT);
+                        return new ServiceConversationClientDetails(getClientUrl1(), TIMEOUT);
                     } else if (clientId.equals(CLIENT_ID_2))
                     {
-                        return new ServiceConversationClientDetails(CLIENT_URL_2, TIMEOUT);
+                        return new ServiceConversationClientDetails(getClientUrl2(), TIMEOUT);
                     } else
                     {
                         throw new IllegalArgumentException("Unknown client");
@@ -560,7 +669,7 @@ public class ServiceConversationTest
         try
         {
             ServiceExporter<IServiceConversationServerManagerRemote> exporter =
-                    new ServiceExporter<IServiceConversationServerManagerRemote>(SERVER_PORT,
+                    new ServiceExporter<IServiceConversationServerManagerRemote>(getServerPort(),
                             SERVER_PATH, IServiceConversationServerManagerRemote.class, manager);
             return exporter;
         } catch (Exception e)
