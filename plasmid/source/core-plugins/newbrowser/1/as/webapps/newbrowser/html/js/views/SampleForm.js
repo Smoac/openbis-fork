@@ -833,6 +833,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				Util.unblockUI();
 				if(localReference.experimentIdentifier) {
 					mainController.sideMenu.refreshSubExperiment(localReference.experimentIdentifier);
+				} else if(isCopyWithNewCode && localReference.isELNSubExperiment) {
+					mainController.sideMenu.refreshSubExperiment(localReference.sample.experimentIdentifierOrNull);
 				}
 //				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
 //				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
