@@ -5,7 +5,7 @@ import settings
 import systemtest.testcase
 import systemtest.util as util
 
-NOTIFICATION_TEMPLATE = "storage_provider.storage.status = STORAGE_SUCCESSFUL;storage_provider.dataset.id = ${data-set-code};ibrain2.dataset.id = ${property:ibrain2.dataset.id}"
+NOTIFICATION_TEMPLATE = "storage_provider.storage.status = STORAGE_SUCCESSFUL;storage_provider.dataset.id = ${data-set-code};ibrain2.dataset.id = ${property.ibrain2.dataset.id}"
 
 class TestCase(systemtest.testcase.TestCase):
 
@@ -21,7 +21,7 @@ class TestCase(systemtest.testcase.TestCase):
         openbisController.dssProperties['post-registration.eager-shuffling.share-finder.class'] = "ch.systemsx.cisd.etlserver.postregistration.SimpleShareFinder"
         openbisController.dssProperties['post-registration.notifying.class'] = "ch.systemsx.cisd.etlserver.postregistration.NotifyingTask"
         openbisController.dssProperties['post-registration.notifying.message-template'] = NOTIFICATION_TEMPLATE
-        openbisController.dssProperties['post-registration.notifying.destination-path-template'] = '${root-dir}/../registration-status/ibrain2_dataset_id2_${property:ibrain2.dataset.id}.properties'
+        openbisController.dssProperties['post-registration.notifying.destination-path-template'] = '${root-dir}/../registration-status/ibrain2_dataset_id2_${property.ibrain2.dataset.id}.properties'
         openbisController.createTestDatabase('openbis')
         registrationStatusFolder = "%s/registration-status" % openbisController.installPath
         os.makedirs(registrationStatusFolder)
