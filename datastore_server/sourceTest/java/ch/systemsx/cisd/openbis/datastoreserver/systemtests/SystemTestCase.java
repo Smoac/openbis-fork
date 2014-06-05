@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -53,6 +54,8 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
@@ -67,6 +70,8 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
+    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
+
     private static final Pattern PATTERN = Pattern.compile("::(\\d+-\\d+);.*");
 
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
@@ -319,6 +324,26 @@ public abstract class SystemTestCase extends AssertJUnit
         }
     }
 
+    protected void waitUntilIndexedByLucene(Class<?> entityPeClass, Long entityId) throws Exception
+    {
+        operationLog.info("Waiting for " + entityPeClass.getName() + " with id: " + entityId + " to be indexed by Lucene");
+
+        final int maxLoops = indexByLuceneWaitDurationInSeconds();
+
+        for (int loops = 0; loops < maxLoops; loops++)
+        {
+            Thread.sleep(1000);
+
+            if (getLogAppender().getLogContent().contains("REINDEX " + entityPeClass.getName() + ": [" + entityId + "]"))
+            {
+                operationLog.info("Stopped waiting for " + entityPeClass.getName() + " with id: " + entityId + " to be indexed by Lucene");
+                return;
+            }
+        }
+
+        fail("Failed to determine whether enity: " + entityPeClass.getName() + " with id: " + entityId + " was indexed by Lucene");
+    }
+
     private Set<String> extractDataSetCodes(String logLineExtract)
     {
         Set<String> result = new HashSet<String>();
@@ -338,6 +363,11 @@ public abstract class SystemTestCase extends AssertJUnit
      * Time to wait to determine if a data set has been registered or not. Subclasses may override.
      */
     protected int dataSetImportWaitDurationInSeconds()
+    {
+        return 20;
+    }
+
+    protected int indexByLuceneWaitDurationInSeconds()
     {
         return 20;
     }
