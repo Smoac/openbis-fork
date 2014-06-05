@@ -122,7 +122,9 @@ function ServerFacade(openbisServer) {
 	// Others
 	//
 	this.generateCode = function(prefix, action) {
-		this.openbisServer.generateCode(prefix, "SAMPLE", action);
+		if(this.openbisServer.generateCode) { //Old instances can't auto generate the code
+			this.openbisServer.generateCode(prefix, "SAMPLE", action);
+		}
 	}
 	
 	//
