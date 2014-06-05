@@ -42,7 +42,7 @@ class TestCase(systemtest.testcase.TestCase):
                                      + "\[20100624113759640-7\]\) has \[\[DAPI, GFP\]\] channels, 9 tiles\. "
                                      + "Image resolution: 720x468")
         openbisController.dropAndWait('PLATE1', 'incoming-hcs', numberOfDataSets = 3)
-        openbisController.assertNumberOfDataSets(7, openbisController.getDataSets())
+        openbisController.assertNumberOfDataSets(6, openbisController.getDataSets())
         self.assertSpotSizes(openbisController, [['24', '16']]*3)
     
     def executeInDevMode(self):

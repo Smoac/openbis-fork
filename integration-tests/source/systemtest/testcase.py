@@ -140,7 +140,7 @@ class TestCase(object):
         Prints specified error message and mark test case as failed.
         """
         self.numberOfFailures += 1
-        util.printAndFlush("ERROR: %s" % errorMessage)
+        util.printAndFlush("ERROR causing test failure: %s" % errorMessage)
         
     def installScriptBasedServer(self, templateName, instanceName, 
                                  startCommand = ['./start.sh'], stopCommand = ['./stop.sh']):
