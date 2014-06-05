@@ -33,7 +33,7 @@ class TestCase(systemtest.testcase.TestCase):
         self.dropDataSucessfully(openbisController, 'real-data-small', 4, 13)
         self.dropDataSucessfully(openbisController, 'sample-code-with-experiment', 1, 14)
         self.dropDataSucessfully(openbisController, 'upload-mzxml-to-db', 1, 15)
-        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.eicML', 1, 17, 'incoming-eicml')
+        self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.eicML', 1, 16, 'incoming-eicml')
         self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.20090925182754736-36.fiaML', 1, 17, 'incoming-fiaml')
         self.dropDataSucessfully(openbisController, 'TEST&TEST_PROJECT&EXP_TEST.anyText123', 1, 18, 'incoming-quantml')
         self.assertNumberOfFiles(openbisController, 'eicml', 6)
