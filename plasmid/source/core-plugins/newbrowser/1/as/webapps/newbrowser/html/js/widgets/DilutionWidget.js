@@ -131,6 +131,15 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 			if(proteinPermId !== "") {
 				_this._updateConjugatedClone(rowNumber, proteinPermId);
 			}
+			
+			//Alert if needed
+			var proteinsToRowsMap = _this._getProteinRowsMap();
+			var proteinRows = proteinsToRowsMap[proteinPermId];
+			if(proteinRows.length > 1) {
+				Util.showInfo("You have selected " + this[this.selectedIndex].label + ": " + proteinRows.length + " times.");
+			}
+			//Update everything
+			_this._updateCalculatedValues();
 		});
 		if(!_this._isEnabled) {
 			$component.attr('disabled', true)
@@ -275,7 +284,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		}
 	}
 	
-	this._updateProteinRowsByAntibody = function() {
+	this._getProteinRowsMap = function() {
 		var proteinsToRowsMap = {};
 		var tBody = $("#" + this._widgetTableId).children()[1];
 		for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
@@ -295,6 +304,11 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 				rows.push(row);
 			}
 		}
+		return proteinsToRowsMap;
+	}
+	
+	this._updateProteinRowsByAntibody = function() {
+		var proteinsToRowsMap = this._getProteinRowsMap();
 		
 		var colours = ["#F0E890", "#B0F0F0", "#90F790", "#F08080", "#B0C0E0", "#00F890", "#D0C0D0", "#FFE0B0", "#90C830", "#B02020"];
 		var coloursUsed = 0;
