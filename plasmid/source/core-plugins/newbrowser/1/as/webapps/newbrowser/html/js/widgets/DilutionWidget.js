@@ -271,6 +271,44 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 			}
 			
 			$("#DILUTION_STATE").val(JSON.stringify(state));
+			this._updateProteinRowsByAntibody();
+		}
+	}
+	
+	this._updateProteinRowsByAntibody = function() {
+		var proteinsToRowsMap = {};
+		var tBody = $("#" + this._widgetTableId).children()[1];
+		for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
+			var row = $(tBody.rows[rowNum]);
+			row.css({
+				"background-color" : "transparent"
+			});
+			
+			var antibodyDropDown = $($(row.children()[2]).children()[0]);
+			var antibodyVal = antibodyDropDown.val();
+			if(antibodyVal) {
+				var rows = proteinsToRowsMap[antibodyVal];
+				if(!rows) {
+					rows = [];
+					proteinsToRowsMap[antibodyVal] = rows;
+				}
+				rows.push(row);
+			}
+		}
+		
+		var colours = ["#F0E890", "#B0F0F0", "#90F790", "#F08080", "#B0C0E0", "#00F890", "#D0C0D0", "#FFE0B0", "#90C830", "#B02020"];
+		var coloursUsed = 0;
+		for(var proteinKey in proteinsToRowsMap) {
+			var rows = proteinsToRowsMap[proteinKey];
+			if(rows.length > 1 && coloursUsed < colours.length) {
+				for(var rowNum = 0; rowNum < rows.length; rowNum++) {
+					var row = rows[rowNum];
+					row.css({
+						"background-color" : colours[coloursUsed]
+					});
+				}
+				coloursUsed++;
+			}
 		}
 	}
 	
