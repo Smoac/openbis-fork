@@ -283,29 +283,56 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		var $legend = $("<legend>");
 		$legend.append("Dilution Calculator ");
 		
-		var $printButton = $("<a>", { class: "btn btn-default" }).append($("<i>", { class: "icon-print" }));
+		var $printButton = $("<a>", { class: "btn btn-default" }).append($("<i>", { class: "glyphicon glyphicon-print" }));
 		$printButton.click(function() { 
 			var tableWidget = $("#" + _this._widgetTableId);
 			var clonedWidget = tableWidget.clone();
+			clonedWidget.css({
+				"border" : "1px solid #DDDDDD",
+				"border-collapse" : "collapse",
+				"border-spacing" : "0"
+			});
 			
 			//FIX Selected values
+			var tHeadClone = clonedWidget.children()[0];
+			var headerRowClone = $(tHeadClone.rows[0]);
+			for(var colNum = 0; colNum < headerRowClone.children().length; colNum++) {
+				var col = $(headerRowClone.children()[colNum]);
+				col.css({
+					"border" : "1px solid #DDDDDD"
+				});
+			}
+			
 			var tBody = tableWidget.children()[1];
 			var tBodyClone = clonedWidget.children()[1];
 			for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
 				var row = $(tBody.rows[rowNum]);
 				var antibodyDropDown = $($(row.children()[2]).children()[0]);
 				var antibody = antibodyDropDown.val();
+				
+				var rowClone = $(tBodyClone.rows[rowNum]);
+				var antibodyDropDownClone = $($(rowClone.children()[2]).children()[0]);
+				antibodyDropDownClone.remove();
+				
+				var conjugatedCloneDropDown = $($(row.children()[3]).children()[0]);
+				var conjugatedClone = conjugatedCloneDropDown.val();
+				
+				var conjugatedCloneDropDownClone = $($(rowClone.children()[3]).children()[0]);
+				conjugatedCloneDropDownClone.remove();
+				
 				if(antibody !== "") {
-					var rowClone = $(tBodyClone.rows[rowNum]);
-					var antibodyDropDownClone = $($(rowClone.children()[2]).children()[0]);
-					antibodyDropDownClone.val(antibody);
-
-					var conjugatedCloneDropDown = $($(row.children()[3]).children()[0]);
-					var conjugatedClone = conjugatedCloneDropDown.val();
-					if(conjugatedClone !== "") {
-						var conjugatedCloneDropDownClone = $($(rowClone.children()[3]).children()[0]);
-						conjugatedCloneDropDownClone.val(conjugatedClone);
-					}
+					$(rowClone.children()[2]).append(antibody);
+				}
+			
+				if(conjugatedClone !== "") {
+					$(rowClone.children()[3]).append(conjugatedClone);
+				}
+				
+				for(var colNum = 0; colNum < rowClone.children().length; colNum++) {
+					var col = $(rowClone.children()[colNum]);
+					col.css({
+						"border" : "1px solid #DDDDDD"
+					});
 				}
 			}
 			
