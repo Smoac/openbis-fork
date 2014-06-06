@@ -267,6 +267,40 @@ public class EntityExistenceCheckerTest extends AssertJUnit
     }
 
     @Test
+    public void testCheckNewSamplesWithManagedProperty()
+    {
+        SampleType sampleType = new SampleType();
+        sampleType.setCode("T1");
+        prepareForAssertSampleTypeExists(sampleType.getCode(), sampleType("ALPHA"));
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    ProjectPE project = new ProjectPE();
+                    project.setCode("P1");
+                    SpacePE space = new SpacePE();
+                    space.setCode("S1");
+                    project.setSpace(space);
+                    will(returnValue(project));
+
+                    one(experimentDAO).tryFindByCodeAndProject(project, "E1");
+                    will(returnValue(new ExperimentPE()));
+
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE", databaseInstance);
+                    SamplePE sample = new SamplePE();
+                    sample.setCode("PLATE");
+                    will(returnValue(sample));
+                }
+            });
+
+        checker.checkNewSamples(Arrays.asList(new NewSamplesWithTypes(sampleType, Arrays.asList(
+                sample("A", "/S1/P1/E1", "/PLATE", "alpha:f1:12", "alpha:f2:42")))));
+
+        assertEquals("[]", checker.getErrors().toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testCheckNewSamplesWithContainerAndContainedSamples()
     {
         SampleType containerType = new SampleType();
@@ -659,12 +693,15 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         IEntityProperty[] entityProperties = new IEntityProperty[properties.length];
         for (int i = 0; i < properties.length; i++)
         {
-            String[] keyAndValue = properties[i].split(":");
+            String prop = properties[i];
+            int lastIndexOfColon = prop.lastIndexOf(':');
+            String key = prop.substring(0, lastIndexOfColon);
+            String value = prop.substring(lastIndexOfColon + 1);
             EntityProperty property = new EntityProperty();
             PropertyType propertyType = new PropertyType();
-            propertyType.setCode(keyAndValue[0]);
+            propertyType.setCode(key);
             property.setPropertyType(propertyType);
-            property.setValue(keyAndValue[1]);
+            property.setValue(value);
             entityProperties[i] = property;
         }
         return entityProperties;

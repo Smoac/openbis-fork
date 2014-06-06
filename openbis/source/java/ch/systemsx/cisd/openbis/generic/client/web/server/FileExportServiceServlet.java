@@ -35,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
  */
 @Controller
 @RequestMapping(
-    { "/export-file-downloader", "/openbis/export-file-downloader" })
+{ "/export-file-downloader", "/openbis/export-file-downloader" })
 public class FileExportServiceServlet extends AbstractFileDownloadServlet
 {
     @Resource(name = ResourceNames.COMMON_SERVICE)
@@ -53,8 +53,8 @@ public class FileExportServiceServlet extends AbstractFileDownloadServlet
             String lineSeparator = osKind.getLineSeparator();
             String fileContent = service.getExportTable(exportDataKey, lineSeparator);
             byte[] value = fileContent.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET);
-            String fileName = "exportedData.txt";
-            return new FileContent(value, fileName);
+            String fileName = request.getParameter(GenericConstants.EXPORT_FILE_NAME);
+            return new FileContent(value, fileName == null ? "exportedData.txt" : fileName);
         } else
         {
             return null;

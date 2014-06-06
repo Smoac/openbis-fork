@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -266,8 +265,8 @@ class EntityExistenceChecker
      * <li>a sample has an unknown property of data type MATERAL,
      * <li>a one sample is linked to an unknown experiment or an unknown container.
      * </ul>
-     * Note, that the new samples are stored in the cache as known samples. Thus, they can be
-     * referred as container samples in a second call of this method.
+     * Note, that the new samples are stored in the cache as known samples. Thus, they can be referred as container samples in a second call of this
+     * method.
      */
     void checkNewSamples(List<NewSamplesWithTypes> newSamplesWithType)
     {
@@ -345,8 +344,7 @@ class EntityExistenceChecker
         }
         for (IEntityProperty property : properties)
         {
-            PropertyType propertyType = property.getPropertyType();
-            String propertyTypeCode = propertyType.getCode().toUpperCase();
+            String propertyTypeCode = getPropertyTypeCode(property);
             PropertyTypePE propertyTypePE = propertyTypes.get(propertyTypeCode);
             if (propertyTypePE == null)
             {
@@ -375,6 +373,13 @@ class EntityExistenceChecker
                 }
             }
         }
+    }
+
+    private String getPropertyTypeCode(IEntityProperty property)
+    {
+        String code = property.getPropertyType().getCode().toUpperCase();
+        int indexOfColon = code.indexOf(':');
+        return indexOfColon < 0 ? code : code.substring(0, indexOfColon);
     }
 
 }

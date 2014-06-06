@@ -720,6 +720,34 @@ openbis.prototype.listVocabularies = function(action) {
 }
 
 /**
+ * @see IGeneralInformationService.listPropertyTypes(String, boolean withRelations)
+ * @method
+ */
+openbis.prototype.listPropertyTypes = function(withRelations, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listPropertyTypes",
+				"params" : [ this.getSession() , withRelations] 
+		},
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationService.generateCode(String, String prefix, EntityKind entityKind);
+ * @method
+ */
+openbis.prototype.generateCode = function(prefix, entityKind, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "generateCode",
+				"params" : [ this.getSession() , prefix, entityKind] 
+		},
+		success: action
+	});
+}
+
+/**
  * @see IGeneralInformationService.listDataSets(String, List<Sample>, EnumSet<Connections>)
  * @method
  */

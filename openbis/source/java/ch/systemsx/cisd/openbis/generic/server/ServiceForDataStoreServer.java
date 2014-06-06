@@ -107,6 +107,8 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
@@ -2661,6 +2663,13 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             throw new UserFailureException("Storage confirmation for a dataset: " + dataSetCode
                     + " failed because the data set has been already deleted.");
         }
+
+        IFullTextIndexUpdateScheduler indexUpdater =
+                daoFactory.getPersistencyResources().getIndexUpdateScheduler();
+
+        Long id = daoFactory.getDataDAO().tryToFindDataSetIdByCode(dataSetCode).getId();
+        indexUpdater.scheduleUpdate(IndexUpdateOperation.reindex(DataPE.class,
+                Collections.singletonList(id)));
     }
 
     @Override

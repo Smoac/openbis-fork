@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperim
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 
@@ -523,4 +524,13 @@ public interface IGeneralInformationService extends IRpcService
             boolean allVersions);
 
     public Map<String, String> getUserDisplaySettings(final String sessionToken);
+    
+    /**
+     * Generate Code.
+     * 
+     * @param prefix
+     * @param entityKind
+     * @since 1.28
+     */
+    public String generateCode(String sessionToken, String prefix, String entityKind);
 }

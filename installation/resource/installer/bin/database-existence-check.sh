@@ -10,5 +10,6 @@ fi
 source $BASE/common-functions.sh
 
 DATABASE="$1"
+OWNER="$2"
 
-databaseExist "$DATABASE"
+databaseExist "$DATABASE" "$OWNER"

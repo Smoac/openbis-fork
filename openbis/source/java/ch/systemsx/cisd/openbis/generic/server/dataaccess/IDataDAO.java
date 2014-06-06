@@ -196,4 +196,9 @@ public interface IDataDAO extends IGenericDAO<DataPE>
      * @return true if last access time field is available for data sets
      */
     boolean isAccessTimestampEnabled();
+
+    /**
+     * @return the id of the data set with given code
+     */
+    TechId tryToFindDataSetIdByCode(String dataSetCode);
 }

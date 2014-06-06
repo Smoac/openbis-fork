@@ -58,6 +58,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectBy
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.EntityCodeGenerator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IProjectBO;
@@ -132,6 +133,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -1269,4 +1271,15 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
         return userSettings;
     }
+	
+    @Override
+	@Transactional
+	@RolesAllowed(RoleWithHierarchy.SPACE_USER)
+	// this is not a readOnly transaction - uses nextVal()
+	public String generateCode(String sessionToken, String prefix,
+			String entityKind) {
+		checkSession(sessionToken);
+		return new EntityCodeGenerator(getDAOFactory()).generateCode(prefix,
+				EntityKind.valueOf(entityKind));
+	}    
 }

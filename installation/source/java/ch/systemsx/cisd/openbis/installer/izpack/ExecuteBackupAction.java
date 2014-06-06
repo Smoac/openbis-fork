@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.installer.izpack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.izforge.izpack.api.data.AutomatedInstallData;
 import com.izforge.izpack.api.data.PanelActionConfiguration;
 import com.izforge.izpack.api.handler.AbstractUIHandler;
@@ -40,23 +43,31 @@ public class ExecuteBackupAction extends AbstractScriptExecutor implements Panel
         String backupFolder = data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME);
         String dataBasesToBackup = data.getVariable(SetDatabasesToBackupAction.DATABASES_TO_BACKUP_VARNAME);
         String console = data.getVariable("SYSTEM_CONSOLE");
+
+        String password =
+                Utils.tryToGetServicePropertyOfAS(GlobalInstallationContext.installDir,
+                        "database.owner-password");
+        
+        Map<String, String> env = new HashMap<String, String>();
+        env.put("PGPASSWORD", password);
+
         if (dataBasesToBackup == null)
         {
             if (console == null)
             {
-                executeAdminScript(null, script, backupFolder);
+                executeAdminScript(env, script, backupFolder);
             } else
             {
-                executeAdminScript(null, script, backupFolder, "", console);
+                executeAdminScript(env, script, backupFolder, "", console);
             }
         } else
         {
             if (console == null)
             {
-                executeAdminScript(null, script, backupFolder, dataBasesToBackup);
+                executeAdminScript(env, script, backupFolder, dataBasesToBackup);
             } else
             {
-                executeAdminScript(null, script, backupFolder, dataBasesToBackup, console);
+                executeAdminScript(env, script, backupFolder, dataBasesToBackup, console);
             }
         }
     }

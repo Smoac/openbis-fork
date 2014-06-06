@@ -463,4 +463,11 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "getUserDisplaySettings", "sessionToken(%s)", sessionToken);
         return null;
     }
+
+    @Override
+    public String generateCode(String sessionToken, String prefix, String entityKind)
+    {
+        logAccess(sessionToken, "generateCode", "sessionToken(%s) prefix(%s) entityKind(%s)", sessionToken, prefix, entityKind);
+        return null;
+    }
 }
