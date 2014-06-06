@@ -32,8 +32,9 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 	
 	this._antColIdx = 2;
 	this._conColIdx = 3;
-	this._dilColIdx = 6;
-	this._volColIdx = 7;
+	this._cloColInx = 4;
+	this._dilColIdx = 7;
+	this._volColIdx = 8;
 	
 	this.init = function() {
 		$("#"+this._containerId).append("Loading data for Dilution Widget.");
@@ -131,6 +132,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 			_this._updateCell(rowNumber,5, "");
 			_this._updateCell(rowNumber,6, "");
 			_this._updateCell(rowNumber,7, "");
+			_this._updateCell(rowNumber,8, "");
 			_this._updateCalculatedValues();
 			//Update row
 			if(proteinPermId !== "") {
@@ -225,10 +227,12 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 					_this._updateCell(rowNumber,5, "");
 					_this._updateCell(rowNumber,6, "");
 					_this._updateCell(rowNumber,7, "");
+					_this._updateCell(rowNumber,8, "");
 				} else {
-					_this._updateCell(rowNumber,4, data["clone"].properties["REACTIVITY"]);
-					_this._updateCell(rowNumber,5, data["lot"].properties["SUPPLIER"]);
-					_this._updateCell(rowNumber,6, dilutionVolume);
+					_this._updateCell(rowNumber,4, data["clone"].code);
+					_this._updateCell(rowNumber,5, data["clone"].properties["REACTIVITY"]);
+					_this._updateCell(rowNumber,6, data["lot"].properties["SUPPLIER"]);
+					_this._updateCell(rowNumber,7, dilutionVolume);
 
 				}
 			_this._updateCalculatedValues();
@@ -414,6 +418,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 			.append("<th><center>Metal Mass</center></th>")
 			.append("<th><center>Antibody</center></th>")
 			.append("<th><center>Conjugated Clone</center></th>")
+			.append("<th><center>Clone</center></th>")
 			.append("<th><center>Reactivity</center></th>")
 			.append("<th><center>Supplier</center></th>")
 			.append("<th><center>Dilution Factor</center></th>")
@@ -429,6 +434,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 				.append("<td>" + (i+1) + "</td>")
 				.append("<td>" + this._predefinedMass[i] +"</td>")
 				.append($proteinSelectionTD)
+				.append("<td></td>")
 				.append("<td></td>")
 				.append("<td></td>")
 				.append("<td></td>")
@@ -472,18 +478,18 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		
 				
 		var $tableRowTrF1 = $("<tr>");
-		$tableRowTrF1.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
+		$tableRowTrF1.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
 		.append("<td><b>Total Volume Needed</b></td>")
 		.append($tableRowTrF1TextBoxLastTD);
 		
 		$tableBody.append($tableRowTrF1);
 		var $tableRowTrF2 = $("<tr>");
-		$tableRowTrF2.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
+		$tableRowTrF2.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
 		.append("<td><b>Buffer Volume</b></td>")
 		.append("<td style='text-align : center;'>" + this._totalVolume + "</td>");
 		$tableBody.append($tableRowTrF2);
 		var $tableRowTrF3 = $("<tr>");
-		$tableRowTrF3.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
+		$tableRowTrF3.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
 		.append("<td><b>Total Antibody</b></td>")
 		.append("<td style='text-align : center;'>0</td>");
 		$tableBody.append($tableRowTrF3);
