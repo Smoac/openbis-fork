@@ -53,7 +53,7 @@ public class NamingThreadPoolExecutorTest
     public void testNamedPool() throws Throwable
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(2, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new Runnable()
@@ -87,7 +87,7 @@ public class NamingThreadPoolExecutorTest
     public void testSetNamedThreadFactory()
     {
         final NamingThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final NamingThreadFactory factory = new NamingThreadFactory("name");
         eservice.setThreadFactory(factory);
         assertEquals(factory, eservice.getThreadFactory());
@@ -97,7 +97,7 @@ public class NamingThreadPoolExecutorTest
     public void testSetThreadFactory()
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final ThreadFactory factory = new NamingThreadFactory("name");
         eservice.setThreadFactory(factory);
         assertEquals(factory, eservice.getThreadFactory());
@@ -107,7 +107,7 @@ public class NamingThreadPoolExecutorTest
     public void testSetThreadFactoryFailed()
     {
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(2).daemonize();
         final ThreadFactory factory = new ThreadFactory()
             {
                 @Override
@@ -125,7 +125,7 @@ public class NamingThreadPoolExecutorTest
     {
         final int max = 10;
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(max).maximumPoolSize(max);
+                new NamingThreadPoolExecutor(name).corePoolSize(max).maximumPoolSize(max).daemonize();
         assertEquals(max, eservice.getCorePoolSize());
         assertEquals(max, eservice.getMaximumPoolSize());
         final Set<String> expectedThreadNameSet = new HashSet<String>();
@@ -171,7 +171,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String runnableName = "This is the special runnable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new NamedRunnable()
@@ -202,7 +202,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String runnableName = "This is the special runnable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Semaphore sem = new Semaphore(0);
@@ -233,7 +233,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String runnableName = "This is the special runnable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Semaphore sem = new Semaphore(0);
@@ -260,7 +260,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String callableName = "This is the special callable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new NamedCallable<Object>()
@@ -296,7 +296,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String callableName = "This is the special callable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future = eservice.submit(new MyCallable()
@@ -328,7 +328,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String callableName1 = "This is the first special callable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future1 = eservice.submit(new NamedCallable<Object>()
@@ -386,7 +386,7 @@ public class NamingThreadPoolExecutorTest
     {
         final String callableName1 = "This is the first special callable name";
         final ThreadPoolExecutor eservice =
-                new NamingThreadPoolExecutor(name, 1).corePoolSize(1).maximumPoolSize(1);
+                new NamingThreadPoolExecutor(name, 1).corePoolSize(1).maximumPoolSize(1).daemonize();
         assertEquals(1, eservice.getCorePoolSize());
         assertEquals(1, eservice.getMaximumPoolSize());
         final Future<?> future1 = eservice.submit(new NamedCallable<Object>()
