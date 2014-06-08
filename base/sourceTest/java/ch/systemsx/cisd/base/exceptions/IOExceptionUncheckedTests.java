@@ -64,7 +64,7 @@ public class IOExceptionUncheckedTests
         {
             final Exception ex = CheckedExceptionTunnel.unwrapIfNecessary(e);
             assertTrue(ex instanceof FileNotFoundException);
-            assertEquals("doesnt.exist (No such file or directory)", ex.getMessage());
+            assertTrue(ex.getMessage().startsWith("doesnt.exist"));
         }
     }
     

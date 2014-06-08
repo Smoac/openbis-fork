@@ -53,6 +53,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         assertEquals(-3, raf.readByte());
         assertEquals(4096 - 509 - 1, raf.skip(4096));
         assertEquals(4096, raf.getFilePointer());
+        raf.close();
     }
 
     @Test
@@ -74,6 +75,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         raf.read(buf);
         assertEquals(1, buf[0]);
         assertEquals(0, buf[7]);
+        raf.close();
     }
 
     @Test
@@ -98,6 +100,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         raf.read();
         raf.reset();
         assertEquals(3, raf.getFilePointer());
+        raf.close();
     }
 
     @Test
@@ -111,6 +114,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         assertEquals(254, raf.read());
         raf.seek(0);
         assertEquals(254, raf.readUnsignedByte());
+        raf.close();
     }
 
     @Test
@@ -122,6 +126,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         assertEquals(-2, raf.readShort());
         raf.seek(0);
         assertEquals(65534, raf.readUnsignedShort());
+        raf.close();
     }
 
     @Test
@@ -132,6 +137,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         raf.writeDouble(5.5);
         raf.seek(0);
         assertEquals(8, raf.available());
+        raf.close();
     }
 
     @Test
@@ -145,6 +151,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         final byte[] buf = new byte[raf.available()];
         raf.read(buf);
         assertEquals(s, new String(buf));
+        raf.close();
     }
 
     @Test
@@ -161,6 +168,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
                 s,
                 new String(NativeData.byteToChar(buf,
                         ch.systemsx.cisd.base.convert.NativeData.ByteOrder.BIG_ENDIAN)));
+        raf.close();
     }
 
     @Test
@@ -171,6 +179,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         final AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(raf);
 
         assertEquals("[hello world]", IOUtils.readLines(is).toString());
+        raf.close();
     }
 
     @Test
@@ -181,6 +190,7 @@ public abstract class IRandomAccessFileTests extends AbstractFileSystemTestCase
         final AdapterIInputStreamToInputStream is = new AdapterIInputStreamToInputStream(raf);
 
         assertEquals(bytes, IOUtils.toByteArray(is));
+        raf.close();
     }
 
 }
