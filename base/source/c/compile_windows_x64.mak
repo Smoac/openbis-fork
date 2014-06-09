@@ -8,8 +8,8 @@
 # Visual C++ directory, for example
 VCPPDIR=C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC
 
-# Directory where JDK is installed (We require JDK 1.5 or above), for example
-JAVADIR=C:\Program Files\Java\jdk1.5.0_22
+# Directory where JDK is installed (We require JDK 1.6)
+JAVADIR=C:\Program Files\Java\jdk1.6.0_37
 
 # Common parent directory
 PARENTDIR=C:\nativeData

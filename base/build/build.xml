@@ -14,8 +14,7 @@
 	<property name="src.zip.file" value="${dist}/cisd-base-src.zip" />
 	<property name="javadoc.zip.file" value="${dist}/cisd-base-javadoc.zip" />
 	<property name="original.dist" value="../${ant.project.name}/dist" />
-	<property name="nativesrc1" value="${lib}/unix/native" />
-	<property name="nativesrc2" value="${lib}/nativedata/native" />
+	<property name="nativesrc" value="libs/native" />
 	<property name="nativeroot" value="${targets}/ant" />
 	<property name="native" value="${nativeroot}/native" />
 
@@ -30,13 +29,13 @@
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
-			<fileset dir="${nativesrc1}">
+			<fileset dir="${nativesrc}">
 				<include name="**/libunix.so" />
 				<include name="**/libunix.jnilib" />
 			</fileset>
 		</copy>
 		<copy todir="${native}">
-			<fileset dir="${nativesrc2}">
+			<fileset dir="${nativesrc}">
 				<include name="**/libnativedata.so" />
 				<include name="**/libnativedata.jnilib" />
 				<include name="**/nativedata.dll" />
@@ -67,13 +66,13 @@
 		<build-info revision="revision.number" version="version.number" clean="clean.flag" />
 		<echo file="${build.info.file}">${version.number}:${revision.number}:${clean.flag}</echo>
 		<copy todir="${native}">
-			<fileset dir="${nativesrc1}">
+			<fileset dir="${nativesrc}">
 				<include name="**/libunix.so" />
 				<include name="**/libunix.jnilib" />
 			</fileset>
 		</copy>
 		<copy todir="${native}">
-			<fileset dir="${nativesrc2}">
+			<fileset dir="${nativesrc}">
 				<include name="**/libnativedata.so" />
 				<include name="**/libnativedata.jnilib" />
 				<include name="**/nativedata.dll" />

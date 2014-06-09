@@ -10,7 +10,7 @@ dependencies {
 } 
 
 tasks.withType(Test) {
-    systemProperty "java.library.path", "../libraries/unix/native/unix/amd64-Linux:../libraries/nativedata/native/nativedata/amd64-Linux:../libraries/unix/native/unix/x86_64-Mac OS X:../libraries/nativedata/native/nativedata/x86_64-Mac OS X"
+    systemProperty "java.library.path", "libs/native/unix/amd64-Linux:libs/native/nativedata/amd64-Linux:libs/native/unix/x86_64-Mac OS X:libs/native/nativedata/x86_64-Mac OS X"
 }
 
 new ByteArrayOutputStream().withStream { os ->
@@ -36,16 +36,14 @@ new ByteArrayOutputStream().withStream { os ->
 sourceSets {
   test {
     resources {
-      srcDir "../libraries"
-      include "nativedata/**"
-      include "unix/**"
+      srcDir "libs"
+      include "**"
     }
   }
 }
 
 jar {
-    from fileTree("../libraries/nativedata/")
-    from fileTree("../libraries/unix/")	
+    from fileTree("libs/")
 }
 
 task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
@@ -53,8 +51,7 @@ task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from files(sourceSets.test.output.classesDir)
-    from files("../libraries/nativedata")
-    from files("../libraries/unix")
+    from files("libs")
  
     from {configurations.testRuntime.collect {zipTree(it)}}
  
