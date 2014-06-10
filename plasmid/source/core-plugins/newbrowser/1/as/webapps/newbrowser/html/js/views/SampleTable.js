@@ -529,8 +529,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
 			dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
 			dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create " + sampleTypeDisplayName + "</a></li>";
-			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToRegister' style='display:none;' /><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Register " + sampleTypeDisplayName + "</a></li>";
-			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToUpdate' style='display:none;' /><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Update " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToRegister' style='display:none;' /><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Batch Register " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToUpdate' style='display:none;' /><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Batch Update " + sampleTypeDisplayName + "</a></li>";
 			dropDownMenu += "</ul>";
 			dropDownMenu += "</div>";
 			
