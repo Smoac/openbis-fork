@@ -398,6 +398,7 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		} );
 		
 		$legend.append($printButton);
+		
 		//Defining containers
 		var $wrapper = $("<div>");
 		$wrapper.append($legend);
@@ -497,5 +498,31 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		//
 		$wrapper.append();
 		$("#"+this._containerId).append($wrapper);
+		
+		//
+		// Add Show / Hide Columns Filter
+		//
+		var	$filterColumsToShow = $('<select>', { 'id' : 'filterColumsToPrint' , class : 'multiselect' , 'multiple' : 'multiple'});
+		var columns = $tableHeadTr.children();
+		for(var i = 0; i < columns.length; i++) {
+			$filterColumsToShow.append($('<option>', { 'value' : i , 'selected' : ''}).text(columns[i].textContent));
+		}
+		$filterColumsToShow.change(function(event){
+			var columnsToShow = $(this).val();
+			var hardCodedNumberOfColumns = 9; //TO-DO Fix this to get it from DOM
+			for(var i = 0; i < hardCodedNumberOfColumns; i++) {
+				var $column = $('#dillution-widget-table td:nth-child(' + (i + 1) + '), #dillution-widget-table th:nth-child(' + (i + 1) + ')');
+				if($.inArray("" + i, columnsToShow) !== -1) {
+					$column.show();
+				} else {
+					$column.hide();
+				}
+				
+			}
+		});
+		
+		$legend.append("&nbsp;");
+		$legend.append($filterColumsToShow);
+		$('#filterColumsToPrint').multiselect();
 	}
 }
