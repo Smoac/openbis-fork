@@ -70,7 +70,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.sampleli
 import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -118,7 +117,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -223,7 +221,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
 
         Map<String, List<RoleAssignmentPE>> roleAssignmentsPerSpace = getRoleAssignmentsPerSpace();
         List<RoleAssignmentPE> instanceRoleAssignments = roleAssignmentsPerSpace.get(null);
-        List<SpacePE> spaces = listSpaces(databaseInstanceCodeOrNull);
+        List<SpacePE> spaces = listSpaces();
         List<SpaceWithProjectsAndRoleAssignments> result =
                 new ArrayList<SpaceWithProjectsAndRoleAssignments>();
         for (SpacePE space : spaces)
@@ -275,17 +273,10 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         return roleAssignmentsPerSpace;
     }
 
-    private List<SpacePE> listSpaces(String databaseInstanceCodeOrNull)
+    private List<SpacePE> listSpaces()
     {
         IDAOFactory daoFactory = getDAOFactory();
-        DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        if (databaseInstanceCodeOrNull != null)
-        {
-            IDatabaseInstanceDAO databaseInstanceDAO = daoFactory.getDatabaseInstanceDAO();
-            databaseInstance =
-                    databaseInstanceDAO.tryFindDatabaseInstanceByCode(databaseInstanceCodeOrNull);
-        }
-        return daoFactory.getSpaceDAO().listSpaces(databaseInstance);
+        return daoFactory.getSpaceDAO().listSpaces();
     }
 
     private void addProjectsTo(SpaceWithProjectsAndRoleAssignments fullSpace, SpacePE space)

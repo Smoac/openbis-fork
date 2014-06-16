@@ -31,8 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class RoleAssignmentProviderTest extends AbstractProviderTest
@@ -64,17 +62,17 @@ public class RoleAssignmentProviderTest extends AbstractProviderTest
                     will(returnValue(Arrays.asList(r1, r2)));
                 }
             });
-        
+
         RoleAssignmentProvider provider = new RoleAssignmentProvider(server, SESSION_TOKEN);
         TypedTableModel<RoleAssignment> model = provider.createTableModel();
-        
-        assertEquals("[PERSON, AUTHORIZATION_GROUP, SPACE, ROLE, DATABASE_INSTANCE]",
+
+        assertEquals("[PERSON, AUTHORIZATION_GROUP, SPACE, ROLE]",
                 getHeaderIDs(model).toString());
         List<TableModelRowWithObject<RoleAssignment>> rows = model.getRows();
         assertSame(r1, rows.get(0).getObjectOrNull());
-        assertEquals("[, , , r1, db]", rows.get(0).getValues().toString());
+        assertEquals("[, , , r1]", rows.get(0).getValues().toString());
         assertSame(r2, rows.get(1).getObjectOrNull());
-        assertEquals("[user, UG, s1, r2, db]", rows.get(1).getValues().toString());
+        assertEquals("[user, UG, s1, r2]", rows.get(1).getValues().toString());
         assertEquals(2, rows.size());
         context.assertIsSatisfied();
     }

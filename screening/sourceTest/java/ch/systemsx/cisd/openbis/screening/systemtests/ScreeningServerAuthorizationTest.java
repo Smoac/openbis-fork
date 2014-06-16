@@ -80,7 +80,7 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
     private boolean hasSpace(String sessionToken, String spaceCode)
     {
         List<Space> spaces =
-                commonServer.listSpaces(sessionToken, DatabaseInstanceIdentifier.HOME_INSTANCE);
+                commonServer.listSpaces(sessionToken);
         for (Space space : spaces)
         {
             if (space.getCode().equals(spaceCode))

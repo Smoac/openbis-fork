@@ -111,8 +111,7 @@ public final class GridCustomExpressionTranslator
         result.setRegistrator(PersonTranslator.translate(expression.getRegistrator()));
         result.setRegistrationDate(expression.getRegistrationDate());
         result.setModificationDate(expression.getModificationDate());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(expression
-                .getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setPublic(expression.isPublic());
     }
 }

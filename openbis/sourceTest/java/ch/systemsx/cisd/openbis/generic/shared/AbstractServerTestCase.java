@@ -418,9 +418,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     {
         final SpacePE groupPE = new SpacePE();
         groupPE.setCode(groupCode);
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("DB");
-        groupPE.setDatabaseInstance(databaseInstancePE);
         return groupPE;
     }
 
@@ -445,7 +442,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         externalData.setCode(code);
         DataSetTypePE dataSetType = new DataSetTypePE();
         dataSetType.setCode(type);
-        dataSetType.setDatabaseInstance(homeDatabaseInstance);
         externalData.setDataSetType(dataSetType);
         externalData.setDataStore(new DataStorePE());
         return externalData;

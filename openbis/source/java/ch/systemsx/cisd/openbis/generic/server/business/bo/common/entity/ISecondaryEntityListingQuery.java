@@ -20,7 +20,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
@@ -28,14 +27,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 
 /**
- * Interfaces to query basic information about samples and experiments referenced from other
- * objects. Note that this interface is not intended to be used to fetch primary entities.
+ * Interfaces to query basic information about samples and experiments referenced from other objects. Note that this interface is not intended to be
+ * used to fetch primary entities.
  * 
  * @author Tomasz Pylak
  */
 @Private
 @Friend(toClasses =
-    { SampleReferenceRecord.class })
+{ SampleReferenceRecord.class })
 public interface ISecondaryEntityListingQuery extends BaseQuery
 {
     public static final int FETCH_SIZE = 1000;
@@ -50,7 +49,7 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
      * @param experimentId The id of the experiment to get the code for.
      */
     @Select("select e.code as e_code, e.perm_id as e_permid, e.del_id as del_id, et.code as et_code, "
-            + "p.code as p_code, p.id as p_id, p.perm_id as p_perm_id, g.code as spc_code, g.dbin_id as dbin_id from experiments e "
+            + "p.code as p_code, p.id as p_id, p.perm_id as p_perm_id, g.code as spc_code from experiments e "
             + "join experiment_types et on e.exty_id=et.id join projects p on e.proj_id=p.id "
             + "join spaces g on p.space_id=g.id where e.id=?{1}")
     public ExperimentProjectSpaceCodeRecord getExperimentAndProjectAndGroupCodeForId(
@@ -69,7 +68,7 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
             + "                  join spaces g on s.space_id=g.id "
             + "                  left join samples c on s.samp_id_part_of=c.id "
             + "        where s.id = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<SampleReferenceRecord> getSamples(LongSet sampleIds);
 
     /**
@@ -77,7 +76,7 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
      */
     @Select(sql = "SELECT sample_id_child FROM sample_relationships "
             + "    WHERE sample_id_parent = any(?{1})", parameterBindings =
-        { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
     public DataIterator<Long> getChildrenIds(LongSet parentSampleIds);
 
     //
@@ -97,8 +96,8 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
      * 
      * @param databaseInstanceId The id of the database to get the spaces for.
      */
-    @Select("select id, code from spaces where dbin_id=?{1}")
-    public Space[] getAllSpaces(long databaseInstanceId);
+    @Select("select id, code from spaces")
+    public Space[] getAllSpaces();
 
     /**
      * Returns the technical id of a group for given <var>spaceCode</code>.
@@ -107,10 +106,9 @@ public interface ISecondaryEntityListingQuery extends BaseQuery
     public long getGroupIdForCode(String spaceCode);
 
     /**
-     * Returns the technical id of a sample type for given <var>sampleTypeCode</code> or
-     * <code>null</code> if such sample type doesn't exist.
+     * Returns the technical id of a sample type for given <var>sampleTypeCode</code> or <code>null</code> if such sample type doesn't exist.
      */
-    @Select("select id from sample_types where code=?{1} and dbin_id=?{2}")
-    public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode, long dbInstanceId);
+    @Select("select id from sample_types where code=?{1}")
+    public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode);
 
 }

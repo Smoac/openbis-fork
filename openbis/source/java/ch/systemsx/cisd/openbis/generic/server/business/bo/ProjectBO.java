@@ -161,7 +161,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
 
     private ProjectPE tryFindByIdentifier(ProjectIdentifier identifier)
     {
-        return getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+        return getProjectDAO().tryFindProject(
                 identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
@@ -177,10 +177,9 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     @Override
     public void loadByProjectIdentifier(ProjectIdentifier identifier)
     {
-        String databaseInstanceCode = identifier.getDatabaseInstanceCode();
         String spaceCode = identifier.getSpaceCode();
         String projectCode = identifier.getProjectCode();
-        project = getProjectDAO().tryFindProject(databaseInstanceCode, spaceCode, projectCode);
+        project = getProjectDAO().tryFindProject(spaceCode, projectCode);
         if (project == null)
         {
             throw new UserFailureException(
@@ -335,8 +334,7 @@ public final class ProjectBO extends AbstractBusinessObject implements IProjectB
     private SpacePE findGroup(String groupCode)
     {
         SpacePE group =
-                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
-                        project.getSpace().getDatabaseInstance());
+                getSpaceDAO().tryFindSpaceByCode(groupCode);
         if (group == null)
         {
             throw UserFailureException

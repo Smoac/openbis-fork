@@ -74,7 +74,6 @@ public final class SpaceBOTest extends AbstractBOTest
         instance.setOriginalSource(true);
         final SpacePE groupDTO = new SpacePE();
         groupDTO.setCode("MY_CODE");
-        groupDTO.setDatabaseInstance(instance);
         context.checking(new Expectations()
             {
                 {

@@ -442,7 +442,7 @@ public class EntityOperationTest extends SystemTestCase
 
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_A + "' does not have enough privileges "
-                + "to modify database instance 'CISD'.\".");
+                + "to modify instance level entities.\".");
     }
 
     @Test
@@ -573,7 +573,7 @@ public class EntityOperationTest extends SystemTestCase
 
         performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
                 + "\"User '" + SPACE_ETL_SERVER_FOR_A
-                + "' does not have enough privileges to modify database instance 'CISD'.\".");
+                + "' does not have enough privileges to modify instance level entities.\".");
     }
 
     @Test

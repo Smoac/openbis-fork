@@ -26,14 +26,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IExpressionUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractExpressionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractGridExpressionPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
- * An <code>IPredicate</code> implementation based on {@link AbstractGridExpressionPE} of a grid
- * custom filter or column. Public internal class provide predicates for deletions based on
- * {@link TechId} and updates base on {@link IExpressionUpdates}.
+ * An <code>IPredicate</code> implementation based on {@link AbstractGridExpressionPE} of a grid custom filter or column. Public internal class
+ * provide predicates for deletions based on {@link TechId} and updates base on {@link IExpressionUpdates}.
  * 
  * @author Piotr Buczek
  * @author Tomasz Pylak
@@ -105,7 +103,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     }
 
     abstract protected AbstractExpressionPE<?> convert(T value);
-    
+
     private final String description;
 
     protected IAuthorizationDataProvider authorizationDataProvider;
@@ -132,8 +130,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     }
 
     @Override
-    protected
-    final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
+    protected final Status doEvaluation(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
             final T value)
     {
         AbstractExpressionPE<?> gridExpression = convert(value);
@@ -149,8 +146,7 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
     private static boolean isMatching(PersonPE person, AbstractExpressionPE<?> gridExpression)
     {
         // needs to be an instance admin in filter database instance or registrator of a filter
-        return isRegistrator(person, gridExpression)
-                || isInstanceAdmin(person, gridExpression.getDatabaseInstance());
+        return isInstanceAdmin(person) || isRegistrator(person, gridExpression);
     }
 
     private String createErrorMsg(AbstractExpressionPE<?> gridExpression, String userId)
@@ -167,14 +163,12 @@ abstract public class AbstractExpressionPredicate<T> extends AbstractPredicate<T
         return person.equals(gridExpression.getRegistrator());
     }
 
-    private static boolean isInstanceAdmin(final PersonPE person,
-            final DatabaseInstancePE databaseInstance)
+    private static boolean isInstanceAdmin(final PersonPE person)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final DatabaseInstancePE roleInstance = roleAssignment.getDatabaseInstance();
-            if (databaseInstance.equals(roleInstance))
+            if (roleAssignment.getSpace() == null)
             {
                 return true;
             }

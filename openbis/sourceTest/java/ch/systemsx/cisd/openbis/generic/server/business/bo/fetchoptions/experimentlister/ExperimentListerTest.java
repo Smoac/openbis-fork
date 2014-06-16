@@ -34,7 +34,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.EntityListingTestUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
@@ -51,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  * @author Piotr Kupczyk
  */
 @Test(groups =
-    { "db", "dataset" })
+{ "db", "dataset" })
 public class ExperimentListerTest extends AbstractDAOTest
 {
 
@@ -97,8 +96,8 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForExistingExperimentIdentifiersShouldReturnExperiments()
     {
         List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
-        identifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP-TEST-1"));
-        identifiers.add(new ExperimentIdentifier("CISD", "CISD", "NOE", "EXP-TEST-2"));
+        identifiers.add(new ExperimentIdentifier(null, "CISD", "NEMO", "EXP-TEST-1"));
+        identifiers.add(new ExperimentIdentifier(null, "CISD", "NOE", "EXP-TEST-2"));
 
         List<Experiment> result = lister.listExperiments(identifiers, new ExperimentFetchOptions());
 
@@ -109,8 +108,8 @@ public class ExperimentListerTest extends AbstractDAOTest
     public void testListExperimentsForExistingAndNotExistingExperimentIdentifiersShouldReturnExistingExperiments()
     {
         List<ExperimentIdentifier> identifiers = new ArrayList<ExperimentIdentifier>();
-        identifiers.add(new ExperimentIdentifier("CISD", "CISD", "NEMO", "EXP-TEST-1"));
-        identifiers.add(new ExperimentIdentifier("CISD", "CISD", "NOE", "EXP-TEST-10"));
+        identifiers.add(new ExperimentIdentifier(null, "CISD", "NEMO", "EXP-TEST-1"));
+        identifiers.add(new ExperimentIdentifier(null, "CISD", "NOE", "EXP-TEST-10"));
 
         List<Experiment> result = lister.listExperiments(identifiers, new ExperimentFetchOptions());
 
@@ -227,7 +226,6 @@ public class ExperimentListerTest extends AbstractDAOTest
     {
         assertEquals(expected.getCode(), actual.getCode());
         assertEquals(expected.getDescription(), actual.getDescription());
-        assertEqualsToDatabaseInstance(expected.getDatabaseInstance(), actual.getDatabaseInstance());
     }
 
     private void assertEqualsToProject(Project expected, Project actual)
@@ -248,7 +246,6 @@ public class ExperimentListerTest extends AbstractDAOTest
         assertEquals(expected.getLastName(), actual.getLastName());
         assertEquals(expected.getRegistrationDate(), actual.getRegistrationDate());
         assertEquals(expected.getUserId(), actual.getUserId());
-        assertEqualsToDatabaseInstance(expected.getDatabaseInstance(), actual.getDatabaseInstance());
     }
 
     private void assertEqualsToSpace(Space expected, Space actual)
@@ -258,15 +255,5 @@ public class ExperimentListerTest extends AbstractDAOTest
         assertEquals(expected.getCode(), actual.getCode());
         assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getRegistrationDate(), actual.getRegistrationDate());
-        assertEqualsToDatabaseInstance(expected.getInstance(), actual.getInstance());
     }
-
-    private void assertEqualsToDatabaseInstance(DatabaseInstance expected, DatabaseInstance actual)
-    {
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getIdentifier(), actual.getIdentifier());
-        assertEquals(expected.getCode(), actual.getCode());
-        assertEquals(expected.getUuid(), actual.getUuid());
-    }
-
 }

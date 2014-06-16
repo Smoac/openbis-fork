@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.fetchoptions.experim
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
-
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 
 /**
@@ -31,7 +30,6 @@ public interface IExperimentListingQuery extends BaseQuery
     public static final String LIST_EXPERIMENTS =
             " SELECT e.id as e_id, e.perm_id as e_perm_id, e.code as e_code, e.registration_timestamp as e_registration_timestamp, e.modification_timestamp as e_modification_timestamp,"
                     + "      et.id as et_id, et.code as et_code, et.description as et_description,"
-                    + "      d.id as d_id, d.code as d_code, d.is_original_source as d_is_original_source, d.registration_timestamp as d_registration_timestamp, d.uuid as d_uuid,"
                     + "      s.id as s_id, s.code as s_code, s.description as s_description, s.registration_timestamp as s_registration_timestamp,"
                     + "      pr.id as pr_id, pr.perm_id as pr_perm_id, pr.code as pr_code, pr.registration_timestamp as pr_registration_timestamp, pr.description as pr_description, pr.modification_timestamp as pr_modification_timestamp,"
                     + "      pe.id as pe_id, pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.user_id as pe_user_id, pe.email as pe_email, pe.registration_timestamp as pe_registration_timestamp,"
@@ -40,21 +38,18 @@ public interface IExperimentListingQuery extends BaseQuery
                     + "      JOIN experiment_types AS et ON e.exty_id = et.id"
                     + "      JOIN projects AS pr ON e.proj_id = pr.id"
                     + "      JOIN spaces AS s ON pr.space_id = s.id"
-                    + "      JOIN database_instances AS d ON s.dbin_id = d.id"
                     + "      JOIN persons AS pe ON e.pers_id_registerer = pe.id"
                     + "      LEFT JOIN persons AS mod ON e.pers_id_modifier = mod.id WHERE ";
 
     @Select(sql = LIST_EXPERIMENTS
-            + " d.code = any(?{1}) AND s.code = any(?{2}) AND pr.code = any(?{3}) AND e.code = any(?{4})", parameterBindings =
-        { StringArrayMapper.class, StringArrayMapper.class, StringArrayMapper.class,
-                StringArrayMapper.class })
-    public DataIterator<ExperimentRecord> listExperiments(String[] databaseInstanceCodes,
-            String[] spaceCodes, String[] projectCodes, String[] experimentCodes);
+            + " s.code = any(?{1}) AND pr.code = any(?{2}) AND e.code = any(?{3})", parameterBindings =
+    { StringArrayMapper.class, StringArrayMapper.class,
+            StringArrayMapper.class })
+    public DataIterator<ExperimentRecord> listExperiments(String[] spaceCodes, String[] projectCodes, String[] experimentCodes);
 
     @Select(sql = LIST_EXPERIMENTS
-            + " d.code = any(?{1}) AND s.code = any(?{2}) AND pr.code = any(?{3})", parameterBindings =
-        { StringArrayMapper.class, StringArrayMapper.class, StringArrayMapper.class })
-    public DataIterator<ExperimentRecord> listExperimentsForProjects(
-            String[] databaseInstanceCodes, String[] spaceCodes, String[] projectCodes);
+            + " s.code = any(?{1}) AND pr.code = any(?{2})", parameterBindings =
+    { StringArrayMapper.class, StringArrayMapper.class })
+    public DataIterator<ExperimentRecord> listExperimentsForProjects(String[] spaceCodes, String[] projectCodes);
 
 }

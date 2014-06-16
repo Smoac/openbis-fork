@@ -38,14 +38,13 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * Utility methods for {@link AuthorizationAdvisor}. Can be used to test authorization of concrete
- * methods.
+ * Utility methods for {@link AuthorizationAdvisor}. Can be used to test authorization of concrete methods.
  * 
  * @author Tomasz Pylak
  */
@@ -143,7 +142,7 @@ public final class AuthorizationTestUtil
                         throws BeansException
                 {
                     return new Object[]
-                        { advisor };
+                    { advisor };
                 }
             };
         final Object proxy =
@@ -153,8 +152,7 @@ public final class AuthorizationTestUtil
     }
 
     /**
-     * Use this method to create a mock of an interface when you do not want to specify which
-     * methods are expected to be called.
+     * Use this method to create a mock of an interface when you do not want to specify which methods are expected to be called.
      */
     private final static <T> T createUncheckedMock(final Class<T> mockInterface)
     {
@@ -173,7 +171,7 @@ public final class AuthorizationTestUtil
                 }
             };
         final Class<?>[] interfaces = new Class<?>[]
-            { mockInterface };
+        { mockInterface };
         return cast(Proxy
                 .newProxyInstance(mockInterface.getClassLoader(), interfaces, emptyHandler));
     }
@@ -272,7 +270,6 @@ public final class AuthorizationTestUtil
     {
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(roleCode);
-        roleAssignment.setDatabaseInstance(createDatabaseInstance(instanceCode));
         return roleAssignment;
     }
 
@@ -299,7 +296,6 @@ public final class AuthorizationTestUtil
     {
         final SpacePE group = new SpacePE();
         group.setCode(CodeConverter.tryToDatabase(groupCode));
-        group.setDatabaseInstance(createDatabaseInstance(dbCode));
         return group;
     }
 

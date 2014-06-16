@@ -350,7 +350,6 @@ public class UploadingCommandTest extends AssertJUnit
         DatabaseInstancePE instance = new DatabaseInstancePE();
         instance.setCode("instance");
         instance.setOriginalSource(true);
-        group.setDatabaseInstance(instance);
         project.setSpace(group);
         experiment.setProject(project);
         LinkedHashSet<EntityPropertyPE> properties = new LinkedHashSet<EntityPropertyPE>();

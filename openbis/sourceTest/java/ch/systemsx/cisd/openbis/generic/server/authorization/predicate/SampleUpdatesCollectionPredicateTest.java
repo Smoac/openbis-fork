@@ -100,7 +100,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
                         sampleWithIdAndExperiment, sampleWithIdAndIdentifer));
 
         assertEquals("ERROR: \"User 'megapixel' does not have enough privileges to modify "
-                + "database instance 'DB2'.\"", result.toString());
+                + "instance level entities.\"", result.toString());
         context.assertIsSatisfied();
     }
 

@@ -50,7 +50,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.MaterialConfigurationProvide
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "material" })
+{ "db", "material" })
 @SuppressWarnings("deprecation")
 public final class MaterialDAOTest extends AbstractDAOTest
 {
@@ -157,7 +157,7 @@ public final class MaterialDAOTest extends AbstractDAOTest
 
         // Assert that BACTERIUM-X has been used as a property value
         SamplePE sample =
-                daoFactory.getSampleDAO().tryFindByCodeAndSpace("CP-TEST-1", createSpace("CISD"));
+                daoFactory.getSampleDAO().tryFindByCodeAndSpace("CP-TEST-1", daoFactory.getSpaceDAO().tryFindSpaceByCode("CISD"));
         assertNotNull(sample);
         boolean bacteriumFound = false;
         for (SamplePropertyPE property : sample.getProperties())

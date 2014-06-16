@@ -202,7 +202,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    one(projectDAO).tryFindProject("S1", "P1");
                     ProjectPE project = new ProjectPE();
                     project.setCode("P1");
                     SpacePE space = new SpacePE();
@@ -213,7 +213,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                     one(experimentDAO).tryFindByCodeAndProject(project, "E1");
                     will(returnValue(new ExperimentPE()));
 
-                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance("S1", databaseInstance);
+                    one(spaceDAO).tryFindSpaceByCode("S1");
                     will(returnValue(space));
 
                     one(sampleDAO).tryFindByCodeAndSpace("PLATE", space);
@@ -240,7 +240,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    one(projectDAO).tryFindProject("S1", "P1");
                     ProjectPE project = new ProjectPE();
                     project.setCode("P1");
                     SpacePE space = new SpacePE();
@@ -275,7 +275,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    one(projectDAO).tryFindProject("S1", "P1");
                     ProjectPE project = new ProjectPE();
                     project.setCode("P1");
                     SpacePE space = new SpacePE();
@@ -312,7 +312,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    one(projectDAO).tryFindProject("S1", "P1");
                     ProjectPE project = new ProjectPE();
                     project.setCode("P1");
                     SpacePE space = new SpacePE();
@@ -361,7 +361,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    one(projectDAO).tryFindProject("S1", "P1");
                     ProjectPE project = new ProjectPE();
                     project.setCode("P1");
                     SpacePE space = new SpacePE();
@@ -389,7 +389,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(DATABASE_INSTANCE_CODE, "S1", "P1");
+                    one(projectDAO).tryFindProject("S1", "P1");
                 }
             });
 
@@ -410,7 +410,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance("S1", databaseInstance);
+                    one(spaceDAO).tryFindSpaceByCode("S1");
                 }
             });
 

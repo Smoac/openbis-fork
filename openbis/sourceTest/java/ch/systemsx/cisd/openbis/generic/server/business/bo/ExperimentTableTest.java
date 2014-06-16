@@ -26,7 +26,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -117,7 +116,7 @@ public final class ExperimentTableTest extends AbstractBOTest
         } catch (UserFailureException e)
         {
             context.assertIsSatisfied();
-            assertEquals("Projects '[HOME_DATABASE:/HOME_GROUP/PROJECT_EVOLUTION]' unknown.", e.getMessage());
+            assertEquals("Projects '[/HOME_GROUP/PROJECT_EVOLUTION]' unknown.", e.getMessage());
         }
     }
 
@@ -142,13 +141,8 @@ public final class ExperimentTableTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(experimentType.getCode());
                     will(returnValue(experimentType));
 
-                    DatabaseInstancePE dbInstance = CommonTestUtils.createHomeDatabaseInstance();
-
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(dbInstance));
-
-                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            spaceIdentifier.getSpaceCode(), dbInstance);
+                    one(spaceDAO).tryFindSpaceByCode(
+                            spaceIdentifier.getSpaceCode());
                     will(returnValue(space));
 
                     one(experimentDAO).listExperimentsWithProperties(experimentType, null, space);

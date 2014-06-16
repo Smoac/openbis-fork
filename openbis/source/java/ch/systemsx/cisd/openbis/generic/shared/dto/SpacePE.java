@@ -27,8 +27,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -59,8 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.SPACES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN }) })
 public final class SpacePE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
         Comparable<SpacePE>, Serializable
 {
@@ -73,8 +71,6 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     private String code;
 
     private String description;
-
-    private DatabaseInstancePE databaseInstance;
 
     // null if unknown
     private Boolean home;
@@ -101,19 +97,6 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     public final void setId(final Long id)
     {
         this.id = id;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public final DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @Transient
@@ -181,7 +164,6 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
         final SpacePE that = (SpacePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -190,7 +172,6 @@ public final class SpacePE extends HibernateAbstractRegistrationHolder implement
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

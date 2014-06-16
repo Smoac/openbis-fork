@@ -41,11 +41,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOptions;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EntityHelper;
  * @author pkupczyk
  */
 @Test(groups =
-    { "db", "dataset" })
+{ "db", "dataset" })
 public class ETLServiceDatabaseTest extends AbstractDAOTest
 {
     @Autowired
@@ -191,7 +191,6 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         performSampleUpdate(Arrays.asList(sampleUpdate), 1);
     }
 
-    @SuppressWarnings("null")
     @Test
     public void testPerformEntityOperationsCreateSample()
     {
@@ -207,10 +206,10 @@ public class ETLServiceDatabaseTest extends AbstractDAOTest
         String comment = "This is a comment.";
         IEntityProperty commentProperty = EntityHelper.createNewProperty("COMMENT", comment);
         sampleToCreate.setProperties(new IEntityProperty[]
-            { commentProperty });
+        { commentProperty });
 
         sampleToCreate.setParentsOrNull(new String[]
-            { parent.getIdentifier() });
+        { parent.getIdentifier() });
 
         performSampleCreation(sampleToCreate);
 

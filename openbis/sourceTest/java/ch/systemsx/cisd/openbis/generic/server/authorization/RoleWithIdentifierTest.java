@@ -24,8 +24,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
-import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessController;
-import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
@@ -107,22 +105,12 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
             fail = false;
         }
         assertFalse(fail);
-        fail = true;
-        try
-        {
-            RoleWithIdentifier.createRole(new RoleAssignmentPE());
-        } catch (final AssertionError e)
-        {
-            fail = false;
-        }
-        assertFalse(fail);
     }
 
     @Test
     public final void testCreateRoleFromRoleAssignmentDbLevel()
     {
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
-        roleAssignment.setDatabaseInstance(new DatabaseInstancePE());
         roleAssignment.setRole(RoleCode.ADMIN);
         RoleWithIdentifier role = RoleWithIdentifier.createRole(roleAssignment);
         assertEquals(role.getRoleLevel(), RoleLevel.INSTANCE);
@@ -134,7 +122,6 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     {
         final RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         SpacePE group = new SpacePE();
-        group.setDatabaseInstance(new DatabaseInstancePE());
         roleAssignment.setSpace(group);
         roleAssignment.setRole(RoleCode.OBSERVER);
         RoleWithIdentifier role = RoleWithIdentifier.createRole(roleAssignment);

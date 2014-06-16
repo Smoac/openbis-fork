@@ -48,13 +48,12 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { SampleReferenceRecord.class, ExperimentProjectSpaceCodeRecord.class,
-            ISecondaryEntityListingQuery.class })
+{ SampleReferenceRecord.class, ExperimentProjectSpaceCodeRecord.class,
+        ISecondaryEntityListingQuery.class })
 public class SecondaryEntityDAO
 {
     /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
+     * Creates a new instance based on {@link PersistencyResources} and home {@link DatabaseInstancePE} of specified DAO factory.
      */
     public static SecondaryEntityDAO create(IDAOFactory daoFactory)
     {
@@ -78,7 +77,7 @@ public class SecondaryEntityDAO
             final DatabaseInstancePE databaseInstancePE)
     {
         this.query = query;
-        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstancePE);
+        this.databaseInstance = DatabaseInstanceTranslator.translate();
     }
 
     public Experiment tryGetExperiment(final long experimentId)
@@ -95,10 +94,6 @@ public class SecondaryEntityDAO
     private Experiment tryCreateExperiment(final long experimentId,
             final ExperimentProjectSpaceCodeRecord record)
     {
-        if (record.dbin_id.equals(databaseInstance.getId()) == false)
-        {
-            return null; // experiment is connected (through group) with different db instance
-        }
         final Space space = new Space();
         space.setCode(record.spc_code);
         space.setInstance(databaseInstance);
@@ -140,7 +135,7 @@ public class SecondaryEntityDAO
 
     public Long getSampleTypeIdForSampleTypeCode(String sampleTypeCode)
     {
-        Long id = query.getSampleTypeIdForSampleTypeCode(sampleTypeCode, databaseInstance.getId());
+        Long id = query.getSampleTypeIdForSampleTypeCode(sampleTypeCode);
         if (id == null)
         {
             throw UserFailureException
@@ -152,7 +147,7 @@ public class SecondaryEntityDAO
 
     public Space[] getAllSpaces(long databaseInstanceId)
     {
-        return query.getAllSpaces(databaseInstanceId);
+        return query.getAllSpaces();
     }
 
     public long getGroupIdForCode(String groupCode)

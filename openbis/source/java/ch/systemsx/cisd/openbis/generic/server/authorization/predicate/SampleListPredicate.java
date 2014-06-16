@@ -26,7 +26,6 @@ import java.util.Set;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.Select;
-
 import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -40,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFa
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
- * A predicate for lists of entities of {@link Sample}s. This predicate authorizes for read-only
- * access, i.e. it will allow access to shared samples for all users.
+ * A predicate for lists of entities of {@link Sample}s. This predicate authorizes for read-only access, i.e. it will allow access to shared samples
+ * for all users.
  * <p>
  * <i>This is an internal class. Do not use it as a user of the API.</i>
  * 
@@ -56,7 +55,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
     {
         @Select(sql = "select distinct space_id from samples where id = any(?{1}) "
                 + "union select distinct space_id from samples where perm_id = any(?{2})", parameterBindings =
-            { LongArrayMapper.class, StringArrayMapper.class })
+        { LongArrayMapper.class, StringArrayMapper.class })
         public List<Long> getSampleSpaceIds(long[] sampleIds, String[] samplePermIds);
     }
 
@@ -114,8 +113,7 @@ public class SampleListPredicate extends AbstractSpacePredicate<List<Sample>>
             if (sample.getSpaceCode() != null) // == null represents a shared sample
             {
                 final Status status =
-                        evaluate(person, allowedRoles, authorizationDataProvider
-                                .getHomeDatabaseInstance(), sample.getSpaceCode());
+                        evaluate(allowedRoles, person, sample.getSpaceCode());
                 if (Status.OK.equals(status) == false)
                 {
                     return status;

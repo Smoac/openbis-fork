@@ -472,7 +472,6 @@ public class DataSetTranslator
         description.setProjectCode(project.getCode());
         SpacePE group = project.getSpace();
         description.setSpaceCode(group.getCode());
-        description.setDatabaseInstanceCode(group.getDatabaseInstance().getCode());
         DataSetTypePE dataSetType = dataSet.getDataSetType();
         description.setMainDataSetPath(dataSetType.getMainDataSetPath());
         description.setMainDataSetPattern(dataSetType.getMainDataSetPattern());

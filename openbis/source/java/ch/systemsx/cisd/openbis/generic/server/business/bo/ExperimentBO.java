@@ -219,7 +219,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
 
     private ProjectPE tryGetProject(final ExperimentIdentifier identifier)
     {
-        return getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+        return getProjectDAO().tryFindProject(
                 identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
@@ -579,7 +579,7 @@ public final class ExperimentBO extends AbstractBusinessObject implements IExper
     private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)
     {
         ProjectPE project =
-                getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
+                getProjectDAO().tryFindProject(
                         newProjectIdentifier.getSpaceCode(), newProjectIdentifier.getProjectCode());
         if (project == null)
         {

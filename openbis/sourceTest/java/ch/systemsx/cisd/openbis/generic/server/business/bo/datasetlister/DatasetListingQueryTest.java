@@ -112,7 +112,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDatasets()
     {
-        List<DatasetRecord> datasets = asList(query.getDatasets(dbInstanceId));
+        List<DatasetRecord> datasets = asList(query.getDatasets());
         assertTrue(datasets.size() > 0);
         assertEqualWithFetchedById(datasets.get(0));
         assertEqualWithFetchedById(datasets.get(datasets.size() - 1));
@@ -169,7 +169,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
             String expCode, IDAOFactory daoFactory)
     {
         ProjectPE project =
-                daoFactory.getProjectDAO().tryFindProject(dbInstanceCode, groupCode, projectCode);
+                daoFactory.getProjectDAO().tryFindProject(groupCode, projectCode);
         assertNotNull(project);
         ExperimentPE experiment =
                 daoFactory.getExperimentDAO().tryFindByCodeAndProject(project, expCode);
@@ -183,8 +183,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
         DatabaseInstancePE dbInstancePE = new DatabaseInstancePE();
         dbInstancePE.setId(dbInstanceId);
         SpacePE group =
-                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
-                        dbInstancePE);
+                daoFactory.getSpaceDAO().tryFindSpaceByCode(groupCode);
         assertNotNull(group);
         SamplePE sample = daoFactory.getSampleDAO().tryFindByCodeAndSpace(sampleCode, group);
         assertNotNull(sample);
@@ -211,7 +210,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDatasetTypes()
     {
-        CodeRecord[] datasetTypes = query.getDatasetTypes(dbInstanceId);
+        CodeRecord[] datasetTypes = query.getDatasetTypes();
         assertEqualsOrGreater(3, datasetTypes.length);
         findCode(Arrays.asList(datasetTypes), "UNKNOWN");
     }

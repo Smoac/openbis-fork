@@ -32,22 +32,15 @@ public interface ISpaceDAO extends IGenericDAO<SpacePE>
 {
 
     /**
-     * Returns a list of {@link SpacePE}s (independent of {@link DatabaseInstancePE} each space
-     * belongs to).
+     * Returns a list of {@link SpacePE}s (independent of {@link DatabaseInstancePE} each space belongs to).
      */
     public List<SpacePE> listSpaces() throws DataAccessException;
-
-    /** Lists all spaces which belong to the specified database instance. */
-    public List<SpacePE> listSpaces(final DatabaseInstancePE databaseInstance)
-            throws DataAccessException;
 
     /** Creates a new space in the database. */
     public void createSpace(final SpacePE spaceDTO) throws DataAccessException;
 
     /**
-     * Returns space identified by given <var>spaceCode</var> and given
-     * <var>databaseInstanceId</var> or <code>null</code> if such a space does not exist.
+     * Returns space identified by given <var>spaceCode</var> or <code>null</code> if such a space does not exist.
      */
-    public SpacePE tryFindSpaceByCodeAndDatabaseInstance(final String spaceCode,
-            final DatabaseInstancePE databaseInstance) throws DataAccessException;
+    public SpacePE tryFindSpaceByCode(final String spaceCode) throws DataAccessException;
 }

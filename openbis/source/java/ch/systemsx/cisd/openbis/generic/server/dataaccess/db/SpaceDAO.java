@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -44,8 +43,8 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
 {
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SpaceDAO.class);
@@ -60,22 +59,19 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
     //
 
     @Override
-    public final SpacePE tryFindSpaceByCodeAndDatabaseInstance(final String spaceCode,
-            final DatabaseInstancePE databaseInstance) throws DataAccessException
+    public final SpacePE tryFindSpaceByCode(final String spaceCode) throws DataAccessException
     {
         assert spaceCode != null : "Unspecified space code.";
-        assert databaseInstance != null : "Unspecified database instance.";
 
         final List<SpacePE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("select g from %s g where g.code = ? "
-                                + "and g.databaseInstance = ?", getEntityClass().getSimpleName()),
-                        toArray(CodeConverter.tryToDatabase(spaceCode), databaseInstance)));
+                        String.format("select g from %s g where g.code = ?", getEntityClass().getSimpleName()),
+                        toArray(CodeConverter.tryToDatabase(spaceCode))));
         final SpacePE entity = tryFindEntity(list, "space");
         if (operationLog.isDebugEnabled())
         {
-            operationLog.debug(String.format("%s(%s, %s): '%s'.", MethodUtils.getCurrentMethod()
-                    .getName(), spaceCode, databaseInstance, entity));
+            operationLog.debug(String.format("%s(%s): '%s'.", MethodUtils.getCurrentMethod()
+                    .getName(), spaceCode, entity));
         }
         return entity;
     }
@@ -90,24 +86,6 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
         {
             operationLog.debug(String.format("%s(): %d space(s) have been found.", MethodUtils
                     .getCurrentMethod().getName(), list.size()));
-        }
-        return list;
-    }
-
-    @Override
-    public final List<SpacePE> listSpaces(final DatabaseInstancePE databaseInstance)
-            throws DataAccessException
-    {
-        assert databaseInstance != null : "Unspecified database instance.";
-
-        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.setFetchMode("registrator", FetchMode.JOIN);
-        criteria.add(Restrictions.eq("databaseInstance", databaseInstance));
-        final List<SpacePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug(String.format("%s(%s): %d space(s) have been found.", MethodUtils
-                    .getCurrentMethod().getName(), databaseInstance, list.size()));
         }
         return list;
     }

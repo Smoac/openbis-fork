@@ -120,7 +120,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
         
         assertEquals("P1", sample.getCode());
         assertEquals(PERM_ID, sample.getPermId());
-        assertEquals("DB:/S1/P1", sample.getIdentifier());
+        assertEquals("/S1/P1", sample.getIdentifier());
         assertEquals("ABC", sample.getSampleTypeCode());
         assertEquals(new Long(1), sample.getSampleTypeId());
         assertEquals(null, sample.getExperimentIdentifierOrNull());
@@ -150,7 +150,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
 
         assertEquals("P1", sample.getCode());
         assertEquals(PERM_ID, sample.getPermId());
-        assertEquals("DB:/S1/P1", sample.getIdentifier());
+        assertEquals("/S1/P1", sample.getIdentifier());
         assertEquals("ABC", sample.getSampleTypeCode());
         assertEquals(new Long(1), sample.getSampleTypeId());
         assertEquals(null, sample.getExperimentIdentifierOrNull());

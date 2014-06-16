@@ -124,7 +124,6 @@ public final class EntityTypeDAOTest extends AbstractDAOTest
         MaterialTypePE entityType = new MaterialTypePE();
         entityType.setCode(code);
         entityType.setDescription("We are living in a material world.");
-        entityType.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         return entityType;
     }
 

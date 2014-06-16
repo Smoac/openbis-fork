@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PersonRoles;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
@@ -67,21 +66,16 @@ public class PersonRolesTranslator
 
         RoleWithHierarchy role;
 
-        if (roleAssignment.getDatabaseInstance() != null)
+        if (roleAssignment.getSpace() == null)
         {
             role = RoleWithHierarchy.valueOf(RoleLevel.INSTANCE, roleAssignment.getRole());
-        } else if (roleAssignment.getSpace() != null)
-        {
-            role = RoleWithHierarchy.valueOf(RoleLevel.SPACE, roleAssignment.getRole());
         } else
         {
-            throw new IllegalArgumentException("Database instance and space cannot be both null");
+            role = RoleWithHierarchy.valueOf(RoleLevel.SPACE, roleAssignment.getRole());
         }
 
-        DatabaseInstance databaseInstance =
-                DatabaseInstanceTranslator.translate(roleAssignment.getDatabaseInstance());
         Space space = SpaceTranslator.translate(roleAssignment.getSpace());
 
-        return new PersonRole(role, databaseInstance, space);
+        return new PersonRole(role, space);
     }
 }

@@ -25,7 +25,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -61,8 +60,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
                 authorizationDataProvider.getDeletedExperimentCollectionAccessData(singletonList);
         for (ExperimentAccessPE experimentAccessDatum : experimentAccessData)
         {
-            if (verifySpace(person, experimentAccessDatum.getSpaceCode(),
-                    experimentAccessDatum.getDatabaseInstanceCode()))
+            if (verifySpace(person, experimentAccessDatum.getSpaceCode()))
             {
                 return true;
             }
@@ -78,7 +76,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
                 case SPACE:
                     SpaceIdentifier si =
                             new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(), ownerCode);
-                    if (verifySpace(person, si.getSpaceCode(), si.getDatabaseInstanceCode()))
+                    if (verifySpace(person, si.getSpaceCode()))
                     {
                         return true;
                     }
@@ -97,8 +95,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
                 authorizationDataProvider.getDeletedDatasetCollectionAccessData(singletonList);
         for (DataSetAccessPE datasetAccessDatum : datasets)
         {
-            if (verifySpace(person, datasetAccessDatum.getSpaceCode(),
-                    datasetAccessDatum.getDatabaseInstanceCode()))
+            if (verifySpace(person, datasetAccessDatum.getSpaceCode()))
             {
                 return true;
             }
@@ -112,8 +109,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final SpacePE space = roleAssignment.getSpace();
-            if (space != null && roleAssignment.getRole().equals(RoleCode.ADMIN)
-                    && space.getDatabaseInstance().getCode().equals(databaseInstanceCode))
+            if (space == null && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;
             }
@@ -121,7 +117,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
         return false;
     }
 
-    private boolean verifySpace(PersonPE person, String spaceCode, String dbInstanceCode)
+    private boolean verifySpace(PersonPE person, String spaceCode)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
@@ -129,8 +125,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
             final SpacePE space = roleAssignment.getSpace();
             if (space != null && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
-                if (space.getCode().equals(spaceCode)
-                        && space.getDatabaseInstance().getCode().equals(dbInstanceCode))
+                if (space.getCode().equals(spaceCode))
                 {
                     return true;
                 }
@@ -152,13 +147,11 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final DatabaseInstancePE roleInstance = roleAssignment.getDatabaseInstance();
-            if (roleInstance != null && roleAssignment.getRole().equals(RoleCode.ADMIN))
+            if (roleAssignment.getSpace() == null && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;
             }
         }
         return false;
     }
-
 }

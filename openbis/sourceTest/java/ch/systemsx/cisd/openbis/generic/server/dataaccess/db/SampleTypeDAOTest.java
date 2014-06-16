@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
-import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -44,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "sampleType" })
+{ "db", "sampleType" })
 @Friend(toClasses = SampleTypeDAO.class)
 public final class SampleTypeDAOTest extends AbstractDAOTest
 {
@@ -106,10 +105,6 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
                 }
             }
         }
-        // Change database instance id.
-        changeDatabaseInstanceId(sampleTypeDAO);
-        assertEquals(0, sampleTypeDAO.listSampleTypes().size());
-        resetDatabaseInstanceId(sampleTypeDAO);
     }
 
     @Test
@@ -129,10 +124,6 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         sampleType = sampleTypeDAO.tryFindSampleTypeByCode("doesNotExist");
         assertNull(sampleType);
         checkSampleType(sampleTypeDAO.tryFindSampleTypeByCode(DEFAULT_SAMPLE_TYPE));
-        // Change database instance id.
-        changeDatabaseInstanceId(sampleTypeDAO);
-        assertNull(sampleTypeDAO.tryFindSampleTypeByCode(DEFAULT_SAMPLE_TYPE));
-        resetDatabaseInstanceId(sampleTypeDAO);
     }
 
     @Test
@@ -155,10 +146,10 @@ public final class SampleTypeDAOTest extends AbstractDAOTest
         checkSampleType(sampleType);
         String expectedLogContent =
                 "tryFindSampleTypeByExample(SampleTypePE{"
-                        + "code=MASTER_PLATE,description=<null>,databaseInstance=<null>,listable=<null>,"
+                        + "code=MASTER_PLATE,description=<null>,listable=<null>,"
                         + "containerHierarchyDepth=<null>,generatedFromHierarchyDepth=<null>}): Sample type "
                         + "'SampleTypePE{code=MASTER_PLATE,description=Master Plate,"
-                        + "databaseInstance=DatabaseInstancePE{code=CISD},listable=true,"
+                        + "listable=true,"
                         + "containerHierarchyDepth=0,generatedFromHierarchyDepth=0}' found.";
         assertTrue("Expected content wasn't found in log:\n\n" + logRecorder.getLogContent(),
                 logRecorder.getLogContent().contains(expectedLogContent));

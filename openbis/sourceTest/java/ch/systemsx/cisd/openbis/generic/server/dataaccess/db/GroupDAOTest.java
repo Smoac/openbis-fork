@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author Franz-Josef Elmer
  */
 @Test(groups =
-    { "db", "group" })
+{ "db", "group" })
 @Friend(toClasses = SpacePE.class)
 public final class GroupDAOTest extends AbstractDAOTest
 {
@@ -55,8 +55,7 @@ public final class GroupDAOTest extends AbstractDAOTest
 
         final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
         final SpacePE retrievedGroup =
-                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
-                        databaseInstance);
+                daoFactory.getSpaceDAO().tryFindSpaceByCode(groupCode);
         AssertJUnit.assertNotNull(retrievedGroup);
         assertEquals(group.getRegistrator(), retrievedGroup.getRegistrator());
     }
@@ -76,7 +75,7 @@ public final class GroupDAOTest extends AbstractDAOTest
     public void testListGroupsOfHomeDatabaseInstance()
     {
         final List<SpacePE> groups =
-                daoFactory.getSpaceDAO().listSpaces(daoFactory.getHomeDatabaseInstance());
+                daoFactory.getSpaceDAO().listSpaces();
         Collections.sort(groups);
         assertEquals("CISD", groups.get(0).getCode());
         assertEquals("TEST-SPACE", groups.get(1).getCode());
@@ -90,7 +89,7 @@ public final class GroupDAOTest extends AbstractDAOTest
         final DatabaseInstancePE databaseInstance = createDatabaseInstance("another-db");
         databaseInstance.setOriginalSource(true); // to cheat GroupDAO
         createSpace("test-group", databaseInstance);
-        final List<SpacePE> groups = daoFactory.getSpaceDAO().listSpaces(databaseInstance);
+        final List<SpacePE> groups = daoFactory.getSpaceDAO().listSpaces();
         assertEquals("TEST-GROUP", groups.get(0).getCode());
         assertEquals(1, groups.size());
     }
@@ -131,9 +130,7 @@ public final class GroupDAOTest extends AbstractDAOTest
     private final SpacePE findGroup(String code)
     {
         final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
-        final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        final SpacePE group =
-                groupDAO.tryFindSpaceByCodeAndDatabaseInstance(code, databaseInstance);
+        final SpacePE group = groupDAO.tryFindSpaceByCode(code);
         assertNotNull(group);
 
         return group;

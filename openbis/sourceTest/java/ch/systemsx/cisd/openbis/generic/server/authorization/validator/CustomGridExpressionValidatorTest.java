@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -60,20 +59,6 @@ public final class CustomGridExpressionValidatorTest extends AuthorizationTestCa
     }
 
     @Test
-    public final void testWithTheWrongRegistrator()
-    {
-        // registrators that have the same userId BUT different db instance are not the same
-        final DatabaseInstancePE instance = createDatabaseInstance();
-        final DatabaseInstancePE anotherInstance = createAnotherDatabaseInstance();
-        final PersonPE person = createPerson("A", anotherInstance);
-        final PersonPE registrator = createPerson("A", instance);
-        final boolean isPublic = false;
-        final GridCustomFilterPE filter = createFilter(instance, registrator, isPublic);
-        final ExpressionValidator validator = new ExpressionValidator();
-        assertEquals(false, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
-    }
-
-    @Test
     public final void testWithTheRightInstanceAdmin()
     {
         final DatabaseInstancePE instance = createDatabaseInstance();
@@ -85,19 +70,4 @@ public final class CustomGridExpressionValidatorTest extends AuthorizationTestCa
         final ExpressionValidator validator = new ExpressionValidator();
         assertEquals(true, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
     }
-
-    @Test
-    public final void testWithTheWrongInstanceAdmin()
-    {
-        final DatabaseInstancePE instance = createDatabaseInstance();
-        final DatabaseInstancePE anotherInstance = createAnotherDatabaseInstance();
-        final PersonPE person = createPerson("A", instance);
-        assignRoles(person);
-        final PersonPE registrator = createPerson("B", anotherInstance);
-        final boolean isPublic = false;
-        final GridCustomFilterPE filter = createFilter(anotherInstance, registrator, isPublic);
-        final ExpressionValidator validator = new ExpressionValidator();
-        assertEquals(false, validator.isValid(person, GridCustomFilterTranslator.translate(filter)));
-    }
-
 }

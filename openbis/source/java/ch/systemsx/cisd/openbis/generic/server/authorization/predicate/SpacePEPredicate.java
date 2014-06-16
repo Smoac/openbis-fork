@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -28,11 +27,5 @@ public class SpacePEPredicate extends PersistentEntityPredicate<SpacePE>
     public SpacePE getSpace(SpacePE value)
     {
         return value;
-    }
-
-    @Override
-    public DatabaseInstancePE getInstance(SpacePE value)
-    {
-        return value.getDatabaseInstance();
     }
 }

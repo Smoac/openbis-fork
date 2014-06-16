@@ -254,7 +254,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
             final PersonPE person, final RoleCode roleCode)
     {
         final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
-        roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         roleAssignmentPE.setRegistrator(registrator);
         roleAssignmentPE.setRole(roleCode);
         person.addRoleAssignment(roleAssignmentPE);

@@ -39,7 +39,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.displaysettings.ColumnDisplaySettingsUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -132,7 +131,7 @@ public class SessionUpdateTest extends SystemTestCase
 
         String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate(TEST_SPACE_USER, "a").getSessionToken();
 
-        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.HOME_INSTANCE);
+        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin);
         Space space = findSpace(spaces, "TEST_SPACE_1");
 
         commonServer.deleteSpaces(sessionTokenForInstanceAdmin, Arrays.asList(new TechId(space.getId())), "no reason");
@@ -167,14 +166,14 @@ public class SessionUpdateTest extends SystemTestCase
         String sessionTokenForInstanceAdmin = commonServer.tryAuthenticate("test", "a").getSessionToken();
         String sessionTokenForSpaceAdmin = commonServer.tryAuthenticate(TEST_SPACE_USER, "a").getSessionToken();
 
-        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
+        List<Space> spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin);
         boolean matchingSpaces = containsSpace(spaces, spaceCode);
         AssertJUnit.assertFalse(spaceCode + " should not be in test_space user groups before the role assignment" + spaces, matchingSpaces);
 
         commonServer.registerSpaceRole(sessionTokenForInstanceAdmin, RoleCode.ADMIN,
                 new SpaceIdentifier(spaceCode), Grantee.createPerson(TEST_SPACE_USER));
 
-        spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin, DatabaseInstanceIdentifier.createHome());
+        spaces = commonServer.listSpaces(sessionTokenForSpaceAdmin);
         matchingSpaces = containsSpace(spaces, spaceCode);
         AssertJUnit.assertTrue("Couldn't find " + spaceCode + " space in spaces of test_space user. Found only " + spaces, matchingSpaces);
 
@@ -187,14 +186,14 @@ public class SessionUpdateTest extends SystemTestCase
 
     void assertUserCanAccessSpace(String sessionToken, String spaceCode)
     {
-        List<Space> spaces = commonServer.listSpaces(sessionToken, DatabaseInstanceIdentifier.HOME_INSTANCE);
+        List<Space> spaces = commonServer.listSpaces(sessionToken);
         boolean foundSpace = containsSpace(spaces, spaceCode);
         AssertJUnit.assertTrue(spaceCode + " should be in test_space user." + spaces, foundSpace);
     }
 
     void assertUserCantAccessSpace(String sessionToken, String spaceCode)
     {
-        List<Space> spaces = commonServer.listSpaces(sessionToken, DatabaseInstanceIdentifier.HOME_INSTANCE);
+        List<Space> spaces = commonServer.listSpaces(sessionToken);
         boolean foundSpace = containsSpace(spaces, spaceCode);
         AssertJUnit.assertFalse(spaceCode + " should not be in test_space user." + spaces, foundSpace);
     }

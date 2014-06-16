@@ -19,8 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ProjectTranslator;
 
@@ -45,15 +43,5 @@ public class ProjectValidatorTest extends AuthorizationTestCase
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, ProjectTranslator
                 .translate(createProject(createSpace()))));
-    }
-
-    @Test
-    public void testIsValidWithProjectInTheWrongGroup()
-    {
-        ProjectValidator validator = new ProjectValidator();
-        PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, ProjectTranslator
-                .translate(createProject(group))));
     }
 }

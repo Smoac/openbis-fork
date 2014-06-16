@@ -140,7 +140,7 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
     {
         assert identifier != null : "Experiment identifier unspecified.";
         final ProjectPE project =
-                getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+                getProjectDAO().tryFindProject(
                         identifier.getSpaceCode(), identifier.getProjectCode());
         if (project == null)
         {

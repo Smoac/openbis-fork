@@ -27,10 +27,9 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.plugin.query.server.authorization.QueryAccessController;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for {@link QueryAccessController}
@@ -48,9 +47,6 @@ public class QueryAccessControllerTest
 
         final SpacePE groupPE = new SpacePE();
         groupPE.setCode(groupCode);
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode(DB_INSTANCE);
-        groupPE.setDatabaseInstance(databaseInstancePE);
         groupRole.setSpace(groupPE);
         groupRole.setRole(role);
 
@@ -61,10 +57,6 @@ public class QueryAccessControllerTest
     {
         final SpacePE groupPE = new SpacePE();
         groupPE.setCode(groupCode);
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode(DB_INSTANCE);
-        groupPE.setDatabaseInstance(databaseInstancePE);
-
         return groupPE;
     }
 
@@ -74,7 +66,6 @@ public class QueryAccessControllerTest
 
         final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode(DB_INSTANCE);
-        instanceRole.setDatabaseInstance(databaseInstance);
         instanceRole.setRole(role);
 
         return instanceRole;

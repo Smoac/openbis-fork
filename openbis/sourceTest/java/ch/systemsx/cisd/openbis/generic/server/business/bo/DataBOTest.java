@@ -901,13 +901,7 @@ public class DataBOTest extends AbstractBOTest
                             null, ManagerTestTool.EXAMPLE_PERSON, Collections.<String> emptySet());
                     will(returnValue(Collections.emptySet()));
 
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                            DATABASE_INSTANCE_IDENTIFIER.getDatabaseInstanceCode());
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
-                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            SPACE_IDENTIFIER.getSpaceCode(),
-                            ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
+                    one(spaceDAO).tryFindSpaceByCode(SPACE_IDENTIFIER.getSpaceCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_GROUP));
 
                     one(sampleDAO).tryFindByCodeAndSpace(SAMPLE_IDENTIFIER.getSampleCode(),
@@ -928,7 +922,7 @@ public class DataBOTest extends AbstractBOTest
 
                     ExperimentIdentifier identifier = EXPERIMENT_IDENTIFIER;
 
-                    one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
+                    one(projectDAO).tryFindProject(
                             identifier.getSpaceCode(), identifier.getProjectCode());
                     will(returnValue(ManagerTestTool.EXAMPLE_PROJECT));
 
@@ -968,7 +962,6 @@ public class DataBOTest extends AbstractBOTest
         dataSetType.setCode(DATA_SET_TYPE.getCode());
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("db");
-        dataSetType.setDatabaseInstance(databaseInstance);
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
         return dataSet;
@@ -993,7 +986,6 @@ public class DataBOTest extends AbstractBOTest
         dataSetType.setCode(DATA_SET_TYPE.getCode());
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("db");
-        dataSetType.setDatabaseInstance(databaseInstance);
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
         return dataSet;
@@ -1140,7 +1132,6 @@ public class DataBOTest extends AbstractBOTest
     {
         final DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
         dataSetType.setCode("data-set-type-code");
-        dataSetType.setDatabaseInstance(new DatabaseInstancePE());
         return dataSetType;
     }
 
@@ -1164,9 +1155,6 @@ public class DataBOTest extends AbstractBOTest
         project.setCode("P");
         SpacePE space = new SpacePE();
         space.setCode(spaceCode);
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode("DB");
-        space.setDatabaseInstance(databaseInstance);
         project.setSpace(space);
         experiment.setProject(project);
         return experiment;

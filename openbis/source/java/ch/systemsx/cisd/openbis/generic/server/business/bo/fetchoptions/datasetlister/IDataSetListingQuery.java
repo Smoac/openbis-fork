@@ -22,7 +22,6 @@ import java.util.List;
 
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.Select;
-
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 
@@ -46,7 +45,6 @@ public interface IDataSetListingQuery extends BaseQuery
             + " pe.first_name as pe_first_name, pe.last_name as pe_last_name, pe.email as pe_email, pe.user_id as pe_user_id,"
             + " mod.first_name as mod_first_name, mod.last_name as mod_last_name, mod.email as mod_email, mod.user_id as mod_user_id,"
             + " pre.code as pre_code, spe.code as spe_code, sps.code as sps_code,"
-            + " die.id as die_id, die.code as die_code, die.uuid as die_uuid, die.is_original_source as die_is_original_source,"
             + " ld.external_code as ld_external_code, edms.id as edms_id, edms.code as edms_code, edms.label as edms_label, edms.url_template as edms_url_template, edms.is_openbis as edms_is_openbis"
             + " from data ds inner join data_set_types dt on ds.dsty_id = dt.id"
             + " inner join experiments ex on ds.expe_id = ex.id"
@@ -58,7 +56,6 @@ public interface IDataSetListingQuery extends BaseQuery
             + " left outer join persons mod on ds.pers_id_modifier = mod.id"
             + " inner join projects pre on ex.proj_id = pre.id"
             + " inner join spaces spe on pre.space_id = spe.id"
-            + " inner join database_instances die on spe.dbin_id = die.id"
             + " left outer join spaces sps on sa.space_id = sps.id"
             + " left outer join samples sac on sa.samp_id_part_of = sac.id"
             + " where ds.code = any(?{1})", parameterBindings =

@@ -52,175 +52,139 @@ import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
  */
 
 @Entity
-@Check(constraints = "((DBIN_ID IS NOT NULL AND SPACE_ID IS NULL) OR (DBIN_ID IS NULL AND SPACE_ID IS NOT NULL))"
-        + " AND "
-        + "((AG_ID_GRANTEE IS NOT NULL AND PERS_ID_GRANTEE IS NULL) OR (AG_ID_GRANTEE IS NULL AND PERS_ID_GRANTEE IS NOT NULL))")
+@Check(constraints = "((AG_ID_GRANTEE IS NOT NULL AND PERS_ID_GRANTEE IS NULL) OR (AG_ID_GRANTEE IS NULL AND PERS_ID_GRANTEE IS NOT NULL))")
 @Table(name = TableNames.ROLE_ASSIGNMENTS_TABLE)
-public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder implements
-        IIdHolder, Serializable
-{
+public final class RoleAssignmentPE extends HibernateAbstractRegistrationHolder
+		implements IIdHolder, Serializable {
 
-    private static final long serialVersionUID = IServer.VERSION;
+	private static final long serialVersionUID = IServer.VERSION;
 
-    public static final RoleAssignmentPE[] EMPTY_ARRAY = new RoleAssignmentPE[0];
+	public static final RoleAssignmentPE[] EMPTY_ARRAY = new RoleAssignmentPE[0];
 
-    private transient Long id;
+	private transient Long id;
 
-    private DatabaseInstancePE databaseInstance;
+	// private DatabaseInstancePE databaseInstance;
 
-    private SpacePE space;
+	private SpacePE space;
 
-    private PersonPE person;
+	private PersonPE person;
 
-    private AuthorizationGroupPE authorizationGroup;
+	private AuthorizationGroupPE authorizationGroup;
 
-    private RoleCode role;
+	private RoleCode role;
 
-    @NotNull(message = ValidationMessages.ROLE_NOT_NULL_MESSAGE)
-    @Column(name = ColumnNames.ROLE_COLUMN)
-    @Enumerated(EnumType.STRING)
-    public final RoleCode getRole()
-    {
-        return role;
-    }
+	@NotNull(message = ValidationMessages.ROLE_NOT_NULL_MESSAGE)
+	@Column(name = ColumnNames.ROLE_COLUMN)
+	@Enumerated(EnumType.STRING)
+	public final RoleCode getRole() {
+		return role;
+	}
 
-    public final void setRole(final RoleCode role)
-    {
-        this.role = role;
-    }
+	public final void setRole(final RoleCode role) {
+		this.role = role;
+	}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.PERSON_GRANTEE_COLUMN, updatable = false)
-    @Private
-    public final PersonPE getPersonInternal()
-    {
-        return person;
-    }
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = ColumnNames.PERSON_GRANTEE_COLUMN, updatable = false)
+	@Private
+	public final PersonPE getPersonInternal() {
+		return person;
+	}
 
-    @Private
-    public final void setPersonInternal(final PersonPE person)
-    {
-        this.person = person;
-    }
+	@Private
+	public final void setPersonInternal(final PersonPE person) {
+		this.person = person;
+	}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.AUTHORIZATION_GROUP_ID_GRANTEE_COLUMN, updatable = false)
-    @Private
-    public final AuthorizationGroupPE getAuthorizationGroupInternal()
-    {
-        return authorizationGroup;
-    }
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = ColumnNames.AUTHORIZATION_GROUP_ID_GRANTEE_COLUMN, updatable = false)
+	@Private
+	public final AuthorizationGroupPE getAuthorizationGroupInternal() {
+		return authorizationGroup;
+	}
 
-    @Private
-    public final void setAuthorizationGroupInternal(final AuthorizationGroupPE authorizationGroup)
-    {
-        this.authorizationGroup = authorizationGroup;
-    }
+	@Private
+	public final void setAuthorizationGroupInternal(
+			final AuthorizationGroupPE authorizationGroup) {
+		this.authorizationGroup = authorizationGroup;
+	}
 
-    @Transient
-    public final PersonPE getPerson()
-    {
-        return getPersonInternal();
-    }
+	@Transient
+	public final PersonPE getPerson() {
+		return getPersonInternal();
+	}
 
-    @Transient
-    public final AuthorizationGroupPE getAuthorizationGroup()
-    {
-        return getAuthorizationGroupInternal();
-    }
+	@Transient
+	public final AuthorizationGroupPE getAuthorizationGroup() {
+		return getAuthorizationGroupInternal();
+	}
 
-    public final void setId(final Long id)
-    {
-        this.id = id;
-    }
+	public final void setId(final Long id) {
+		this.id = id;
+	}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = false)
-    public final SpacePE getSpace()
-    {
-        return space;
-    }
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = ColumnNames.SPACE_COLUMN, updatable = false)
+	public final SpacePE getSpace() {
+		return space;
+	}
 
-    public final void setSpace(final SpacePE space)
-    {
-        this.space = space;
-    }
+	public final void setSpace(final SpacePE space) {
+		this.space = space;
+	}
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public final DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
+	//
+	// IIdHolder
+	//
 
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
+	@Override
+	@SequenceGenerator(name = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE, sequenceName = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE, allocationSize = 1)
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE)
+	public final Long getId() {
+		return id;
+	}
 
-    //
-    // IIdHolder
-    //
+	//
+	// Object
+	//
 
-    @Override
-    @SequenceGenerator(name = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE, sequenceName = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE, allocationSize = 1)
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SequenceNames.ROLE_ASSIGNMENT_SEQUENCE)
-    public final Long getId()
-    {
-        return id;
-    }
+	@Override
+	public final boolean equals(final Object obj) {
+		EqualsHashUtils.assertDefined(getRole(), "role");
+		if (getPerson() == null) {
+			EqualsHashUtils.assertDefined(getAuthorizationGroupInternal(),
+					"authorization group");
+		}
 
-    //
-    // Object
-    //
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof RoleAssignmentPE == false) {
+			return false;
+		}
+		final RoleAssignmentPE that = (RoleAssignmentPE) obj;
+		final EqualsBuilder builder = new EqualsBuilder();
+		builder.append(getRole(), that.getRole());
+		builder.append(getPerson(), that.getPerson());
+		builder.append(getAuthorizationGroup(), that.getAuthorizationGroup());
+		builder.append(getSpace(), that.getSpace());
+		return builder.isEquals();
+	}
 
-    @Override
-    public final boolean equals(final Object obj)
-    {
-        EqualsHashUtils.assertDefined(getRole(), "role");
-        if (getPerson() == null)
-        {
-            EqualsHashUtils.assertDefined(getAuthorizationGroupInternal(), "authorization group");
-        }
-        if (getSpace() == null)
-        {
-            EqualsHashUtils.assertDefined(getDatabaseInstance(), "db");
-        }
-        if (obj == this)
-        {
-            return true;
-        }
-        if (obj instanceof RoleAssignmentPE == false)
-        {
-            return false;
-        }
-        final RoleAssignmentPE that = (RoleAssignmentPE) obj;
-        final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getRole(), that.getRole());
-        builder.append(getPerson(), that.getPerson());
-        builder.append(getAuthorizationGroup(), that.getAuthorizationGroup());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
-        builder.append(getSpace(), that.getSpace());
-        return builder.isEquals();
-    }
+	@Override
+	public final int hashCode() {
+		final HashCodeBuilder builder = new HashCodeBuilder();
+		builder.append(getRole());
+		builder.append(getPerson());
+		builder.append(getSpace());
+		return builder.toHashCode();
+	}
 
-    @Override
-    public final int hashCode()
-    {
-        final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getRole());
-        builder.append(getPerson());
-        builder.append(getDatabaseInstance());
-        builder.append(getSpace());
-        return builder.toHashCode();
-    }
-
-    @Override
-    public final String toString()
-    {
-        return ToStringBuilder.reflectionToString(this,
-                ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
-    }
+	@Override
+	public final String toString() {
+		return ToStringBuilder.reflectionToString(this,
+				ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
+	}
 
 }

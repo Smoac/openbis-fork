@@ -124,7 +124,6 @@ public final class GenericServerTest extends AbstractServerTestCase
         experimentTypePE.setCode(code);
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("DB");
-        experimentTypePE.setDatabaseInstance(databaseInstance);
         return experimentTypePE;
     }
 
@@ -361,7 +360,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         sampleIdentifier2WithGroup.getSpaceLevel().setSpaceCode(spaceCode);
         final SampleIdentifier sampleIdentifier1 = SampleIdentifierFactory.parse(sample1);
         final String[] samples =
-            { sample1, sampleIdentifier2 };
+        { sample1, sampleIdentifier2 };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, spaceCode);
         final Long id = 1L;
@@ -406,7 +405,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         String sample1Code = "SAMPLE1";
         final String sample1 = createSampleIdentifier("NOT_" + spaceCode, sample1Code);
         final String[] samples =
-            { sample1 };
+        { sample1 };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, spaceCode);
         final NewExperiment newExperiment =
@@ -446,7 +445,7 @@ public final class GenericServerTest extends AbstractServerTestCase
         final String spaceCode = "CISD";
         final String sample1Code = "SAMPLE1";
         final String[] samples =
-            { sample1Code };
+        { sample1Code };
         final ExperimentPE experimentPE =
                 createExperiment(experimentTypeCode, experimentCode, spaceCode);
         final NewExperiment newExperiment =

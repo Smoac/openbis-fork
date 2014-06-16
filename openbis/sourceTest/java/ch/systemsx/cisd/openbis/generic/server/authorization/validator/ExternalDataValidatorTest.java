@@ -55,13 +55,4 @@ public class ExternalDataValidatorTest extends AuthorizationTestCase
         assertEquals(true, validator.isValid(person, createData(createSpace())));
     }
 
-    @Test
-    public void testIsValidWithDataInTheWrongGroup()
-    {
-        ExternalDataValidator validator = new ExternalDataValidator();
-        PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, createData(group)));
-    }
-
 }

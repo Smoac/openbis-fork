@@ -23,7 +23,6 @@ import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -69,7 +68,6 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
     public final <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         final String entityKindName = entityKind.getLabel();
         criteria.setFetchMode(entityKindName + "TypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);

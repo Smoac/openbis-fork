@@ -56,7 +56,7 @@ public final class SpaceTranslator
         result.setId(HibernateUtils.getId(space));
         result.setCode(space.getCode());
         result.setDescription(space.getDescription());
-        result.setInstance(DatabaseInstanceTranslator.translate(space.getDatabaseInstance()));
+        result.setInstance(DatabaseInstanceTranslator.translate());
         result.setRegistrationDate(space.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(space.getRegistrator()));
         result.setModificationDate(space.getModificationDate());

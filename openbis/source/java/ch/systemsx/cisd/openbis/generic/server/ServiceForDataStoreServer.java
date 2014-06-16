@@ -355,7 +355,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public DatabaseInstance getHomeDatabaseInstance(final String sessionToken)
     {
-        return DatabaseInstanceTranslator.translate(getHomeDatabaseInstance());
+        return DatabaseInstanceTranslator.translate();
     }
 
     private DatabaseInstancePE getHomeDatabaseInstance()
@@ -1429,7 +1429,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         {
             for (final RoleAssignmentPE roleAssigment : person.getRoleAssignments())
             {
-                if (roleAssigment.getDatabaseInstance() != null
+                if (roleAssigment.getSpace() == null
                         && roleAssigment.getRole().equals(RoleCode.ADMIN))
                 {
                     admins.add(person);
@@ -2031,7 +2031,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                     boolean isInstanceAdmin = false;
                     for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
                     {
-                        if (roleAssigment.getDatabaseInstance() != null
+                        if (roleAssigment.getSpace() == null
                                 && roleAssigment.getRole().equals(RoleCode.ADMIN))
                         {
                             isInstanceAdmin = true;

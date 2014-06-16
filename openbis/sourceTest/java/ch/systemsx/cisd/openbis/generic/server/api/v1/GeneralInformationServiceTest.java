@@ -187,7 +187,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             createUserAssignment("user1", "s1", RoleCode.USER);
                     will(returnValue(Arrays.asList(assignment1, assignment2, assignment3)));
 
-                    one(groupDAO).listSpaces(daoFactory.getHomeDatabaseInstance());
+                    one(groupDAO).listSpaces();
                     List<SpacePE> spaces = createSpaces("s1", "s2", "s3");
                     will(returnValue(spaces));
 
@@ -558,7 +558,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                             createUserAssignment("user1", "SPACE-2", RoleCode.ADMIN);
                     will(returnValue(Arrays.asList(assignment0, assignment1, assignment2)));
 
-                    one(groupDAO).listSpaces(daoFactory.getHomeDatabaseInstance());
+                    one(groupDAO).listSpaces();
                     List<SpacePE> spaces = createSpaces("SPACE-1", "SPACE-2");
                     will(returnValue(spaces));
 
@@ -667,7 +667,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
         assertEquals("ds1", dataSets.get(0).getCode());
         assertEquals("T1", dataSets.get(0).getDataSetTypeCode());
-        assertEquals("DB1:/S/P/E1", dataSets.get(0).getExperimentIdentifier());
+        assertEquals("/S/P/E1", dataSets.get(0).getExperimentIdentifier());
         assertEquals(null, dataSets.get(0).getSampleIdentifierOrNull());
         HashMap<String, String> properties = dataSets.get(0).getProperties();
         assertEquals("3.14159", properties.get("ALPHA"));
@@ -678,7 +678,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
 
         assertEquals("ds2", dataSets.get(1).getCode());
         assertEquals("T2", dataSets.get(1).getDataSetTypeCode());
-        assertEquals("DB1:/S/P/E1", dataSets.get(1).getExperimentIdentifier());
+        assertEquals("/S/P/E1", dataSets.get(1).getExperimentIdentifier());
         assertEquals(null, dataSets.get(1).getSampleIdentifierOrNull());
         assertEquals("{STATUS=low}", dataSets.get(1).getProperties().toString());
         assertEquals("[]", dataSets.get(1).getChildrenCodes().toString());

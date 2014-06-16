@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
@@ -34,9 +33,6 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
     public void testTranslatePEtoDTO()
     {
         ExternalDataManagementSystemPE edmsPE = new ExternalDataManagementSystemPE();
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("my-instance");
-        edmsPE.setDatabaseInstance(databaseInstancePE);
         edmsPE.setId(Math.round(10000.0d * Math.random()));
         edmsPE.setCode("TEST_EDMS");
         edmsPE.setLabel("This is only a test");
@@ -46,8 +42,6 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
         ExternalDataManagementSystem edms =
                 ExternalDataManagementSystemTranslator.translate(edmsPE);
 
-        assertNotNull(edms.getDatabaseInstance());
-        assertEquals(edmsPE.getDatabaseInstance().getCode(), edms.getDatabaseInstance().getCode());
         assertEquals(edmsPE.getId(), edms.getId());
         assertEquals(edmsPE.getCode(), edms.getCode());
         assertEquals(edmsPE.getLabel(), edms.getLabel());
@@ -59,9 +53,6 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
     public void testTranslateDTOtoPE()
     {
         ExternalDataManagementSystemPE edmsPE = new ExternalDataManagementSystemPE();
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("my-instance");
-        edmsPE.setDatabaseInstance(databaseInstancePE);
 
         ExternalDataManagementSystem edms = new ExternalDataManagementSystem();
         DatabaseInstance dbin = new DatabaseInstance();
@@ -75,8 +66,6 @@ public class ExternalDataManagementSystemTranslatorTest extends AssertJUnit
 
         ExternalDataManagementSystemTranslator.translate(edms, edmsPE);
 
-        assertNotNull(edmsPE.getDatabaseInstance());
-        assertEquals(databaseInstancePE.getCode(), edmsPE.getDatabaseInstance().getCode());
         assertNull(edmsPE.getId());
         assertEquals(edms.getCode(), edmsPE.getCode());
         assertEquals(edms.getLabel(), edmsPE.getLabel());

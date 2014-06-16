@@ -49,8 +49,7 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
     /**
      * Returns project for given database instance code, space code and project code or null if such a project does not exist.
      */
-    public ProjectPE tryFindProject(String databaseInstanceCode, String spaceCode,
-            String projectCode);
+    public ProjectPE tryFindProject(String spaceCode, String projectCode);
 
     /**
      * Returns projects for the given project identifiers or an empty list if none of the projects exists.

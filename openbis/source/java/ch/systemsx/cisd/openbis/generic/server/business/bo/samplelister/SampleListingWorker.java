@@ -73,8 +73,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { ExperimentProjectSpaceCodeRecord.class, SampleRecord.class, SampleRelationRecord.class,
-            ISampleListingQuery.class })
+{ ExperimentProjectSpaceCodeRecord.class, SampleRecord.class, SampleRelationRecord.class,
+        ISampleListingQuery.class })
 final class SampleListingWorker extends AbstractLister
 {
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
@@ -340,7 +340,7 @@ final class SampleListingWorker extends AbstractLister
         final SampleType sampleTypeOrNull = tryGetSingleModeSampleType();
         this.singleSampleTypeMode = (sampleTypeOrNull != null);
         // all sample types are needed for parents
-        for (SampleType type : query.getSampleTypes(databaseInstanceId))
+        for (SampleType type : query.getSampleTypes())
         {
             sampleTypes.put(type.getId(), type);
             if (singleSampleTypeMode == false)
@@ -478,9 +478,9 @@ final class SampleListingWorker extends AbstractLister
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllListableSpaceSamples(databaseInstanceId);
+            return query.getAllListableSpaceSamples();
         }
-        return query.getListableSpaceSamples(databaseInstanceId, groupCode);
+        return query.getListableSpaceSamples(groupCode);
     }
 
     private Iterable<SampleRecord> getSpaceSamplesForSampleType()
@@ -489,9 +489,9 @@ final class SampleListingWorker extends AbstractLister
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllSpaceSamplesForSampleType(databaseInstanceId, sampleTypeId);
+            return query.getAllSpaceSamplesForSampleType(sampleTypeId);
         }
-        return query.getSpaceSamplesForSampleType(databaseInstanceId, groupCode, sampleTypeId);
+        return query.getSpaceSamplesForSampleType(groupCode, sampleTypeId);
     }
 
     private DataIterator<SampleRecord> getSpaceSamplesWithExperiment()
@@ -499,9 +499,9 @@ final class SampleListingWorker extends AbstractLister
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllSpaceSamplesWithExperiment(databaseInstanceId);
+            return query.getAllSpaceSamplesWithExperiment();
         }
-        return query.getSpaceSamplesWithExperiment(databaseInstanceId, groupCode);
+        return query.getSpaceSamplesWithExperiment(groupCode);
     }
 
     private DataIterator<SampleRecord> getSpaceSampleForSampleTypeWithExperiment()
@@ -510,10 +510,10 @@ final class SampleListingWorker extends AbstractLister
         String groupCode = criteria.getSpaceCode();
         if (groupCode == null)
         {
-            return query.getAllSpaceSamplesForSampleTypeWithExperiment(databaseInstanceId,
+            return query.getAllSpaceSamplesForSampleTypeWithExperiment(
                     sampleTypeId);
         }
-        return query.getSpaceSamplesForSampleTypeWithExperiment(databaseInstanceId, groupCode,
+        return query.getSpaceSamplesForSampleTypeWithExperiment(groupCode,
                 sampleTypeId);
     }
 

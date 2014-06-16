@@ -29,8 +29,8 @@ import org.springframework.stereotype.Component;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.dbmigration.SimpleDatabaseConfigurationContext;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -117,8 +117,8 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
             if (dataSpaceOrNullString != null)
             {
                 dataSpaceOrNull =
-                        daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
-                                dataSpaceOrNullString, daoFactory.getHomeDatabaseInstance());
+                        daoFactory.getSpaceDAO().tryFindSpaceByCode(
+                                dataSpaceOrNullString);
                 if (dataSpaceOrNull == null)
                 {
                     throw new UnsupportedOperationException("Query database '" + databaseKey

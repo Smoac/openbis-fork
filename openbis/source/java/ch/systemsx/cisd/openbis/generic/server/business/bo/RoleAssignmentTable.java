@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
- * The only productive implementation of {@link IRoleAssignmentTable}. We are using an interface
- * here to keep the system testable.
+ * The only productive implementation of {@link IRoleAssignmentTable}. We are using an interface here to keep the system testable.
  * 
  * @author Christian Ribeaud
  */
@@ -111,7 +110,6 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
         {
             final DatabaseInstancePE databaseInstance =
                     SpaceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, this);
-            roleAssignment.setDatabaseInstance(databaseInstance);
         } else
         {
             final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();

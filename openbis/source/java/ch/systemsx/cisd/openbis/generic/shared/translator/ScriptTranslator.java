@@ -62,12 +62,11 @@ public final class ScriptTranslator
         result.setScriptType(script.getScriptType());
         result.setPluginType(script.getPluginType());
         result.setEntityKind(script.getEntityKind() == null ? null : new EntityKind[]
-            { script.getEntityKind() });
+        { script.getEntityKind() });
         result.setName(script.getName());
         result.setDescription(script.getDescription());
         result.setScript(script.getScript());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(script
-                .getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setRegistrationDate(script.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(script.getRegistrator()));
         result.setModificationDate(script.getModificationDate());

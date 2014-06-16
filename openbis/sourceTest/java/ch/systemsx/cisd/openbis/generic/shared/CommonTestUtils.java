@@ -224,7 +224,6 @@ public class CommonTestUtils
     {
         final SpacePE space = new SpacePE();
         space.setCode(groupCode);
-        space.setDatabaseInstance(databaseInstance);
         return space;
     }
 
@@ -238,21 +237,20 @@ public class CommonTestUtils
     {
         final ExperimentTypePE sampleTypePE = new ExperimentTypePE();
         sampleTypePE.setCode(EXPERIMENT_TYPE);
-        sampleTypePE.setDatabaseInstance(createHomeDatabaseInstance());
         return sampleTypePE;
     }
 
     public static final SpaceIdentifier createSpaceIdentifier()
     {
         final SpaceIdentifier identifier =
-                new SpaceIdentifier(HOME_DATABASE_INSTANCE_CODE, HOME_GROUP_CODE);
+                new SpaceIdentifier(HOME_GROUP_CODE);
         return identifier;
     }
 
     public static final ProjectIdentifier createProjectIdentifier()
     {
         final ProjectIdentifier identifier =
-                new ProjectIdentifier(HOME_DATABASE_INSTANCE_CODE, HOME_GROUP_CODE, PROJECT_CODE);
+                new ProjectIdentifier(HOME_GROUP_CODE, PROJECT_CODE);
         return identifier;
     }
 
@@ -317,7 +315,6 @@ public class CommonTestUtils
     {
         final SampleTypePE sampleTypePE = new SampleTypePE();
         sampleTypePE.setId(1234567890123456L);
-        sampleTypePE.setDatabaseInstance(createHomeDatabaseInstance());
         sampleTypePE.setCode(CommonTestUtils.SAMPLE_TYPE);
         sampleTypePE.setGeneratedFromHierarchyDepth(0);
         sampleTypePE.setContainerHierarchyDepth(0);
@@ -373,7 +370,6 @@ public class CommonTestUtils
         final ExperimentPE exp = new ExperimentPE();
         final ExperimentTypePE expType = new ExperimentTypePE();
         expType.setCode("TEST-EXP-TYPE");
-        expType.setDatabaseInstance(new DatabaseInstancePE());
         exp.setId(42L);
         exp.setExperimentType(expType);
         exp.setCode(ei.getExperimentCode());
@@ -417,7 +413,6 @@ public class CommonTestUtils
     {
         final MaterialTypePE type = new MaterialTypePE();
         type.setCode(typeCode);
-        type.setDatabaseInstance(createHomeDatabaseInstance());
         return type;
     }
 

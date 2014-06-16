@@ -79,7 +79,6 @@ public class ProjectIdentifier extends SpaceIdentifier
         }
         final ProjectIdentifier that = (ProjectIdentifier) obj;
         final EqualsBuilder builder = new EqualsBuilder();
-        builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
         builder.append(getSpaceCode(), that.getSpaceCode());
         builder.append(getProjectCode(), that.getProjectCode());
         return builder.isEquals();
@@ -89,7 +88,6 @@ public class ProjectIdentifier extends SpaceIdentifier
     public int hashCode()
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
-        builder.append(getDatabaseInstanceCode());
         builder.append(getSpaceCode());
         builder.append(getProjectCode());
         return builder.toHashCode();

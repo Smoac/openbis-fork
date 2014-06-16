@@ -69,11 +69,8 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
 
         for (ExperimentAccessPE accessDatum : experiments)
         {
-            String dbInstanceUUID = accessDatum.getDatabaseInstanceUuid();
-            String dbInstanceCode = accessDatum.getDatabaseInstanceCode();
             String spaceCode = accessDatum.getSpaceCode();
-            Status result =
-                    evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, spaceCode);
+            Status result = evaluate(allowedRoles, person, spaceCode);
             if (result != Status.OK)
             {
                 return result;
@@ -112,11 +109,9 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
 
         for (DataSetAccessPE accessDatum : datasets)
         {
-            String dbInstanceUUID = accessDatum.getDatabaseInstanceUuid();
-            String dbInstanceCode = accessDatum.getDatabaseInstanceCode();
             String spaceCode = accessDatum.getSpaceCode();
             Status result =
-                    evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, spaceCode);
+                    evaluate(allowedRoles, person, spaceCode);
             if (result != Status.OK)
             {
                 return result;

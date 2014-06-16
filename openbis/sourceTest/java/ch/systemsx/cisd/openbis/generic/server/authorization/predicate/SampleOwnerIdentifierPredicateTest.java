@@ -62,7 +62,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
 
         assertEquals(true, status.isError());
         assertEquals("User 'megapixel' does not have enough privileges to modify "
-                + "database instance 'DB1'.", status.tryGetErrorMessage());
+                + "instance level entities.", status.tryGetErrorMessage());
         context.assertIsSatisfied();
     }
 

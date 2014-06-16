@@ -120,7 +120,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -153,7 +152,7 @@ public interface ICommonServer extends IServer
      * @return a sorted list of {@link Space}.
      */
     @Transactional(readOnly = true)
-    public List<Space> listSpaces(String sessionToken, DatabaseInstanceIdentifier identifier);
+    public List<Space> listSpaces(String sessionToken);
 
     /**
      * Registers a new space with specified code and optional description.

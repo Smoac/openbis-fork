@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
  * A {@link DatabaseInstance} &lt;---&gt; {@link DatabaseInstancePE} translator.
@@ -34,19 +32,14 @@ public final class DatabaseInstanceTranslator
         // Can not be instantiated.
     }
 
-    public final static DatabaseInstance translate(final DatabaseInstancePE databaseInstance)
+    public final static DatabaseInstance translate()
     {
-        if (databaseInstance == null)
-        {
-            return null;
-        }
         final DatabaseInstance result = new DatabaseInstance();
-        result.setId(HibernateUtils.getId(databaseInstance));
-        result.setCode(databaseInstance.getCode());
-        result.setUuid(databaseInstance.getUuid());
-        result.setHomeDatabase(databaseInstance.isOriginalSource());
-        result.setIdentifier(IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstance)
-                .toString());
+        result.setId(1L);
+        result.setCode("CISD");
+        result.setUuid("");
+        result.setHomeDatabase(true);
+        result.setIdentifier("");
         return result;
     }
 

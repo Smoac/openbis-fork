@@ -132,7 +132,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SearchableEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermWithStats;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -166,17 +165,10 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<Space> listSpaces(final String sessionToken,
-            final DatabaseInstanceIdentifier identifier)
+    public List<Space> listSpaces(final String sessionToken)
     {
         final String command = "list_spaces";
-        if (identifier == null || identifier.getDatabaseInstanceCode() == null)
-        {
-            logAccess(sessionToken, command);
-        } else
-        {
-            logAccess(sessionToken, command, "DATABASE-INSTANCE(%s)", identifier);
-        }
+        logAccess(sessionToken, command);
         return null;
     }
 

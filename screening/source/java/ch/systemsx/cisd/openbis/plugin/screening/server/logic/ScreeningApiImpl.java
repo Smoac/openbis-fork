@@ -695,7 +695,7 @@ public class ScreeningApiImpl
                                 + "use null to denote your home space.");
             }
             final ProjectPE projectPE =
-                    daoFactory.getProjectDAO().tryFindProject(null, spaceCode,
+                    daoFactory.getProjectDAO().tryFindProject(spaceCode,
                             experimentIdentifierFromUser.getProjectCode());
             if (projectPE == null)
             {
@@ -742,7 +742,7 @@ public class ScreeningApiImpl
                                 + "use null to denote your home space.");
             }
             final ProjectPE projectPE =
-                    daoFactory.getProjectDAO().tryFindProject(null, spaceCode,
+                    daoFactory.getProjectDAO().tryFindProject(spaceCode,
                             experimentIdentifierFromUser.getProjectCode());
             if (projectPE == null)
             {

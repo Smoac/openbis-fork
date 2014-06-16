@@ -108,8 +108,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
         dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group =
-                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(DEFAULT_SPACE_CODE,
-                        dbInstance);
+                daoFactory.getSpaceDAO().tryFindSpaceByCode(DEFAULT_SPACE_CODE);
         groupId = group.getId();
         groupCode = group.getCode();
         masterPlateType =
@@ -133,7 +132,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleCount()
     {
-        assertEquals(700, query.getSampleCount(dbInstanceId)); // without deleted
+        assertEquals(700, query.getSampleCount()); // without deleted
     }
 
     @Test
@@ -201,10 +200,10 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test(groups = "slow")
     public void testQuerySamples()
     {
-        final long listableSamplesInTestDB = query.getSampleCount(dbInstanceId);
+        final long listableSamplesInTestDB = query.getSampleCount();
         assertTrue(listableSamplesInTestDB > 0);
         int sampleCount = 0;
-        for (SampleRecord sample : query.getSamples(dbInstanceId))
+        for (SampleRecord sample : query.getSamples())
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -248,7 +247,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQueryGroupSamples()
     {
         int sampleCount = 0;
-        for (SampleRecord sample : query.getListableSpaceSamples(dbInstanceId, groupCode))
+        for (SampleRecord sample : query.getListableSpaceSamples(groupCode))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -264,7 +263,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     {
         long sampleTypeId = getSampleTypeId(SAMPLE_TYPE_CODE_CELL_PLATE);
         List<SampleRecord> samples =
-                asList(query.getSpaceSamplesForSampleType(dbInstanceId, groupCode, sampleTypeId));
+                asList(query.getSpaceSamplesForSampleType(groupCode, sampleTypeId));
         assertTrue(samples.size() >= 11);
         SampleRecord sample = findCode(samples, "CP-TEST-1");
         assertEquals(18, sample.expe_id.longValue());
@@ -303,7 +302,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQueryGroupWithExperimentSamples()
     {
         int sampleCount = 0;
-        for (SampleRecord sample : query.getSpaceSamplesWithExperiment(dbInstanceId, groupCode))
+        for (SampleRecord sample : query.getSpaceSamplesWithExperiment(groupCode))
         {
             final String msg = "id: " + sample.id;
             final SampleRecord sample2 = query.getSample(sample.id);
@@ -354,14 +353,14 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleType()
     {
-        SampleType sampleType = query.getSampleType(dbInstanceId, SAMPLE_TYPE_CODE_MASTER_PLATE);
+        SampleType sampleType = query.getSampleType(SAMPLE_TYPE_CODE_MASTER_PLATE);
         assertEquals(SAMPLE_TYPE_CODE_MASTER_PLATE, sampleType.getCode());
     }
 
     @Test
     public void testSampleTypes()
     {
-        List<SampleType> sampleTypes = Arrays.asList(query.getSampleTypes(dbInstanceId));
+        List<SampleType> sampleTypes = Arrays.asList(query.getSampleTypes());
         findCode(sampleTypes, SAMPLE_TYPE_CODE_MASTER_PLATE);
         findCode(sampleTypes, SAMPLE_TYPE_CODE_CELL_PLATE);
     }

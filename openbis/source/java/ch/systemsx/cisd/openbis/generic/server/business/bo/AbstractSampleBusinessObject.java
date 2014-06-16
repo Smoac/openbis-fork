@@ -425,7 +425,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         String projectCode = projectIdentifier.getProjectCode();
         String databaseInstanceCode = projectIdentifier.getDatabaseInstanceCode();
         ProjectPE project =
-                getProjectDAO().tryFindProject(databaseInstanceCode, spaceCode, projectCode);
+                getProjectDAO().tryFindProject(spaceCode, projectCode);
         if (project == null)
         {
             throw UserFailureException.fromTemplate(

@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
- * An abstract extension of <code>HibernateAbstractDAO</code> suitable for tables that contains
- * <i>type</i> information. <br>
+ * An abstract extension of <code>HibernateAbstractDAO</code> suitable for tables that contains <i>type</i> information. <br>
  * 
  * @author Izabela Adamczyk
  */
@@ -45,8 +44,8 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
     /**
      * The <code>Logger</code> of this class.
      * <p>
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}.
      * </p>
      */
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
@@ -69,10 +68,6 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
-        if (appendDatabaseInstance)
-        {
-            criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
-        }
         final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
         final T entity = tryFindEntity(list, "type");
         if (operationLog.isDebugEnabled())

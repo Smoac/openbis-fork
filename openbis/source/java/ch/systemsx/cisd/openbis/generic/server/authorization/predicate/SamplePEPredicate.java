@@ -16,13 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
- * This predicate by default authenticates for write access, i.e. it will allow not access to shared
- * samples for all users.
+ * This predicate by default authenticates for write access, i.e. it will allow not access to shared samples for all users.
  * 
  * @author anttil
  */
@@ -44,11 +42,4 @@ public class SamplePEPredicate extends PersistentEntityPredicate<SamplePE>
     {
         return value.getSpace();
     }
-
-    @Override
-    public DatabaseInstancePE getInstance(SamplePE value)
-    {
-        return value.getDatabaseInstance();
-    }
-
 }

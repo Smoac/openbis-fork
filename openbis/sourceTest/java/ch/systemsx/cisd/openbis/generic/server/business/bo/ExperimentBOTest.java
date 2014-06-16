@@ -69,7 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  * @author Izabela Adamczyk
  */
 @Friend(toClasses =
-    { ExperimentPE.class, ExperimentBO.class })
+{ ExperimentPE.class, ExperimentBO.class })
 public final class ExperimentBOTest extends AbstractBOTest
 {
 
@@ -160,7 +160,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
+                    one(projectDAO).tryFindProject(
                             identifier.getSpaceCode(), identifier.getProjectCode());
                     will(Expectations.returnValue(foundProject));
                 }
@@ -182,7 +182,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(identifier.getDatabaseInstanceCode(),
+                    one(projectDAO).tryFindProject(
                             identifier.getSpaceCode(), identifier.getProjectCode());
                     will(returnValue(project));
 
@@ -246,7 +246,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
 
-                    one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
+                    one(projectDAO).tryFindProject(groupCode, projectCode);
                     will(returnValue(project));
 
                     one(permIdDAO).createPermId();
@@ -329,7 +329,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
 
-                    one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
+                    one(projectDAO).tryFindProject(groupCode, projectCode);
                     will(returnValue(null));
 
                     exactly(2).of(entityPropertyTypeDAO).listEntityPropertyTypes(type);
@@ -385,7 +385,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                     one(entityTypeDAO).tryToFindEntityTypeByCode(expTypeCode);
                     will(returnValue(type));
 
-                    one(projectDAO).tryFindProject(dbCode, groupCode, projectCode);
+                    one(projectDAO).tryFindProject(groupCode, projectCode);
                     will(returnValue(project));
 
                     one(permIdDAO).createPermId();
@@ -737,7 +737,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
-            { "S1", "S2" });
+        { "S1", "S2" });
         prepareAddSamplesToExperiment(experiment, false, "S2");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
@@ -756,7 +756,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
-            { "S1", "S2" });
+        { "S1", "S2" });
         prepareAddSamplesToExperiment(experiment, true, "S2");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
@@ -776,7 +776,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
-            { "S1", "S2" });
+        { "S1", "S2" });
         context.checking(new Expectations()
             {
                 {
@@ -802,7 +802,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
-            { "S3", "S2" });
+        { "S3", "S2" });
         prepareRemoveSamplesFromExperiment(experiment, false, "S1");
         prepareAddSamplesToExperiment(experiment, false, "S3");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
@@ -823,7 +823,7 @@ public final class ExperimentBOTest extends AbstractBOTest
         prepareLoadingExperiment(identifier, experiment);
         ExperimentUpdatesDTO update = createDefaultUpdateObject(experiment);
         update.setSampleCodes(new String[]
-            { "S2" });
+        { "S2" });
         prepareRemoveSamplesFromExperiment(experiment, true, "S1");
         ExperimentBO experimentBO = loadExperiment(identifier, experiment);
 
@@ -853,8 +853,7 @@ public final class ExperimentBOTest extends AbstractBOTest
                 {
                     ProjectPE projectPE = experiment.getProject();
                     SpacePE space = projectPE.getSpace();
-                    one(projectDAO).tryFindProject(space.getDatabaseInstance().getCode(),
-                            space.getCode(), projectPE.getCode());
+                    one(projectDAO).tryFindProject(space.getCode(), projectPE.getCode());
                     will(returnValue(projectPE));
                 }
             });
@@ -996,7 +995,6 @@ public final class ExperimentBOTest extends AbstractBOTest
         group.setCode(groupCode);
         final DatabaseInstancePE db = new DatabaseInstancePE();
         db.setCode(dbCode);
-        group.setDatabaseInstance(db);
         project.setSpace(group);
         return project;
     }
@@ -1004,7 +1002,6 @@ public final class ExperimentBOTest extends AbstractBOTest
     private static ExperimentTypePE createExperimentType(final String expTypeCode)
     {
         ExperimentTypePE experimentType = new ExperimentTypePE();
-        experimentType.setDatabaseInstance(new DatabaseInstancePE());
         experimentType.setCode(expTypeCode);
         return experimentType;
     }

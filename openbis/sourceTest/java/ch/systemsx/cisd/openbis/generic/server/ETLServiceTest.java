@@ -123,7 +123,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -849,7 +848,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         } catch (UserFailureException e)
         {
             assertEquals(
-                    "Data set can not be registered because experiment 'DB:/G1/P/EXP1' is in trash.",
+                    "Data set can not be registered because experiment '/G1/P/EXP1' is in trash.",
                     e.getMessage());
         }
 
@@ -1061,8 +1060,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         material.setCode("new-material");
         final MaterialTypePE materialType = new MaterialTypePE();
         materialType.setCode("new-material-type");
-        materialType.setDatabaseInstance(new DatabaseInstancePEBuilder().code("DB")
-                .getDatabaseInstance());
         final NewMaterial newMaterial = new NewMaterial(material.getCode());
         Map<String, List<NewMaterial>> materialRegistrations =
                 new HashMap<String, List<NewMaterial>>();
@@ -1326,8 +1323,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         material.setCode("new-material");
         final MaterialTypePE materialType = new MaterialTypePE();
         materialType.setCode("new-material-type");
-        materialType.setDatabaseInstance(new DatabaseInstancePEBuilder().code("DB")
-                .getDatabaseInstance());
         final NewMaterial newMaterial = new NewMaterial(material.getCode());
         Map<String, List<NewMaterial>> materialRegistrations =
                 new HashMap<String, List<NewMaterial>>();
@@ -1642,7 +1637,6 @@ public class ETLServiceTest extends AbstractServerTestCase
         // Database assignment
         RoleAssignmentPE assignment = new RoleAssignmentPE();
         assignment.setRole(RoleCode.ADMIN);
-        assignment.setDatabaseInstance(person.getDatabaseInstance());
         person.addRoleAssignment(assignment);
         list.add(assignment);
         person.setRoleAssignments(list);

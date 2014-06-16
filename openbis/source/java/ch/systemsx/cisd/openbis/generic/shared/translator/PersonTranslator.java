@@ -63,8 +63,7 @@ public class PersonTranslator
         result.setLastName(person.getLastName());
         result.setEmail(person.getEmail());
         result.setUserId(person.getUserId());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(person
-                .getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setRegistrationDate(person.getRegistrationDate());
         result.setActive(person.isActive());
         if (recursively)

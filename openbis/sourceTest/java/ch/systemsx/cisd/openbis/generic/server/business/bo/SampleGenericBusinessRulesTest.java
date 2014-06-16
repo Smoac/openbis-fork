@@ -57,7 +57,6 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     {
         SpacePE g = new SpacePE();
         g.setCode(code);
-        g.setDatabaseInstance(db);
         return g;
     }
 

@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate.ExperimentTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -45,8 +44,6 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
     private final SampleTechIdCollectionPredicate sampleTechIdCollectionPredicate =
             new SampleTechIdCollectionPredicate();
 
-    private DatabaseInstancePE homeDatabase;
-
     public ListSampleCriteriaPredicate()
     {
         super(true);
@@ -62,7 +59,6 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
     public final void init(IAuthorizationDataProvider provider)
     {
         super.init(provider);
-        homeDatabase = provider.getHomeDatabaseInstance();
         experimentTechIdPredicate.init(provider);
         sampleTechIdPredicate.init(provider);
         sampleTechIdCollectionPredicate.init(provider);
@@ -96,7 +92,7 @@ public class ListSampleCriteriaPredicate extends AbstractSpacePredicate<ListSamp
         }
         if (value.isIncludeSpace() && status == Status.OK)
         {
-            status = evaluate(person, allowedRoles, homeDatabase, value.getSpaceCode());
+            status = evaluate(allowedRoles, person, value.getSpaceCode());
         }
         return status;
     }

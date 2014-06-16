@@ -18,11 +18,10 @@ package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * A {@link IValidator} implementation suitable for {@link Space}.
@@ -31,12 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  */
 public final class SpaceValidator extends AbstractValidator<Space>
 {
-    private final IValidator<DatabaseInstance> databaseInstanceValidator;
-
-    public SpaceValidator()
-    {
-        databaseInstanceValidator = new DatabaseInstanceValidator();
-    }
 
     //
     // AbstractValidator
@@ -49,12 +42,16 @@ public final class SpaceValidator extends AbstractValidator<Space>
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
             final SpacePE group = roleAssignment.getSpace();
-            if (group != null && group.getCode().equals(value.getCode())
-                    && group.getDatabaseInstance().getUuid().equals(value.getInstance().getUuid()))
+            if (group == null)
+            {
+                return true;
+            }
+
+            if (group != null && group.getCode().equals(value.getCode()))
             {
                 return true;
             }
         }
-        return databaseInstanceValidator.isValid(person, value.getInstance());
+        return false;
     }
 }

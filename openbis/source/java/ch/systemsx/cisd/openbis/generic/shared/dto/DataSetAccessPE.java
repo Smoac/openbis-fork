@@ -27,38 +27,33 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * A PE for retrieving only the information necessary to determine if a user/person can access a
- * data set.
+ * A PE for retrieving only the information necessary to determine if a user/person can access a data set.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
 @Entity
 @SqlResultSetMapping(name = "dataset_access_implicit", entities = @EntityResult(entityClass = DataSetAccessPE.class))
 @NamedNativeQueries(
-    {
-            @NamedNativeQuery(name = "dataset_access", query = "select "
-                    + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-                    + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
-                    + " g, " + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
-                    + "(select e.proj_id from " + TableNames.DATA_VIEW + " ds, "
-                    + TableNames.EXPERIMENTS_VIEW + " e "
-                    + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
-                    + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "dataset_access_implicit"),
-            @NamedNativeQuery(name = "deleted_dataset_access", query = "select "
-                    + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-                    + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
-                    + " g, " + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
-                    + "(select e.proj_id from " + TableNames.DELETED_DATA_VIEW + " ds, "
-                    + TableNames.EXPERIMENTS_ALL_TABLE + " e "
-                    + "where ds.del_id in (:del_ids) and ds.expe_id = e.id group by e.proj_id) "
-                    + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "dataset_access_implicit") })
+{
+        @NamedNativeQuery(name = "dataset_access", query = "select "
+                + "g.code as spaceCode "
+                + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
+                + " g where p.id in "
+                + "(select e.proj_id from " + TableNames.DATA_VIEW + " ds, "
+                + TableNames.EXPERIMENTS_VIEW + " e "
+                + "where ds.code in (:codes) and ds.expe_id = e.id group by e.proj_id) "
+                + "and p.space_id = g.id", resultSetMapping = "dataset_access_implicit"),
+        @NamedNativeQuery(name = "deleted_dataset_access", query = "select "
+                + "g.code as spaceCode "
+                + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE
+                + " g where p.id in "
+                + "(select e.proj_id from " + TableNames.DELETED_DATA_VIEW + " ds, "
+                + TableNames.EXPERIMENTS_ALL_TABLE + " e "
+                + "where ds.del_id in (:del_ids) and ds.expe_id = e.id group by e.proj_id) "
+                + "and p.space_id = g.id", resultSetMapping = "dataset_access_implicit") })
 public class DataSetAccessPE
 {
     private String spaceCode;
-
-    private String databaseInstanceUuid;
-
-    private String databaseInstanceCode;
 
     public final static String DATASET_ACCESS_QUERY_NAME = "dataset_access";
 
@@ -77,8 +72,6 @@ public class DataSetAccessPE
     {
         DataSetAccessPE newMe = new DataSetAccessPE();
         newMe.setSpaceCode(groupCode);
-        newMe.setDatabaseInstanceUuid(databaseInstanceUuid);
-        newMe.setDatabaseInstanceCode(databaseInstanceCode);
         return newMe;
     }
 
@@ -87,30 +80,10 @@ public class DataSetAccessPE
         this.spaceCode = spaceCode;
     }
 
-    void setDatabaseInstanceUuid(String databaseInstanceUuid)
-    {
-        this.databaseInstanceUuid = databaseInstanceUuid;
-    }
-
-    void setDatabaseInstanceCode(String databaseInstanceCode)
-    {
-        this.databaseInstanceCode = databaseInstanceCode;
-    }
-
     @Id
     public String getSpaceCode()
     {
         return spaceCode;
-    }
-
-    public String getDatabaseInstanceUuid()
-    {
-        return databaseInstanceUuid;
-    }
-
-    public String getDatabaseInstanceCode()
-    {
-        return databaseInstanceCode;
     }
 
     //
@@ -131,8 +104,6 @@ public class DataSetAccessPE
         final DataSetAccessPE that = (DataSetAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getSpaceCode(), that.getSpaceCode());
-        builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
-        builder.append(getDatabaseInstanceUuid(), that.getDatabaseInstanceUuid());
         return builder.isEquals();
     }
 
@@ -141,8 +112,6 @@ public class DataSetAccessPE
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getSpaceCode());
-        builder.append(getDatabaseInstanceCode());
-        builder.append(getDatabaseInstanceUuid());
         return builder.toHashCode();
     }
 }

@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.StringTableCell;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -98,7 +97,6 @@ public class QueryApiServerTest extends AbstractServerTestCase
 
                     RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
                     roleAssignment.setRole(RoleCode.ADMIN);
-                    roleAssignment.setDatabaseInstance(new DatabaseInstancePE());
 
                     PersonPE person = new PersonPE();
                     person.setUserId("Albert");

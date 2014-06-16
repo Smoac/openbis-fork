@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
 /**
- * The only productive implementation of {@link ISpaceBO}. We are using an interface here to keep
- * the system testable.
+ * The only productive implementation of {@link ISpaceBO}. We are using an interface here to keep the system testable.
  * 
  * @author Christian Ribeaud
  */
@@ -65,11 +64,6 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
         assert space != null : "Space not defined";
         try
         {
-            if (space.getDatabaseInstance().isOriginalSource() == false)
-            {
-                throw new UserFailureException("Registration of space " + space
-                        + " on a non-home database is not allowed.");
-            }
             getSpaceDAO().createSpace(space);
         } catch (final DataAccessException e)
         {
@@ -106,7 +100,6 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
                 new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
         final DatabaseInstancePE databaseInstance =
                 SpaceIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
-        space.setDatabaseInstance(databaseInstance);
         space.setCode(groupIdentifier.getSpaceCode());
         space.setDescription(descriptionOrNull);
         space.setRegistrator(findPerson());

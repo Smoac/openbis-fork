@@ -78,7 +78,7 @@ public class CreateUserRmi implements Command<User>
                     commonServer.tryAuthenticate(userName, "pwd").getSessionToken();
 
             for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space space : commonServer
-                    .listSpaces(session, new DatabaseInstanceIdentifier("CISD")))
+                    .listSpaces(session))
             {
                 if (space.getCode().equalsIgnoreCase(homeSpace.getCode()))
                 {

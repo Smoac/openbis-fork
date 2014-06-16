@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 /**
  * Some useful identifier methods on the <i>server</i> side.
  * <p>
- * This class is the only place which provides the correct way to resolve
- * {@link DatabaseInstanceIdentifier} into a {@link DatabaseInstancePE}!
+ * This class is the only place which provides the correct way to resolve {@link DatabaseInstanceIdentifier} into a {@link DatabaseInstancePE}!
  * </p>
  * 
  * @author Franz-Josef Elmer
@@ -52,9 +51,8 @@ public final class SpaceIdentifierHelper
     }
 
     /**
-     * Class which transforms identifiers to the canonical form. Normalized database identifier
-     * always has a code, never UUID. Normalized space identifier has always space code, even when
-     * it is a home space. It also has normalized database identifier.
+     * Class which transforms identifiers to the canonical form. Normalized database identifier always has a code, never UUID. Normalized space
+     * identifier has always space code, even when it is a home space. It also has normalized database identifier.
      */
     public static class SpaceIdentifierNormalizer
     {
@@ -175,8 +173,7 @@ public final class SpaceIdentifierHelper
     }
 
     /**
-     * Creates database instance finder which checks the database everytime when the instance is
-     * searched.
+     * Creates database instance finder which checks the database everytime when the instance is searched.
      */
     private final static IDatabaseInstanceFinder createInstanceFinder(
             final IAuthorizationDAOFactory daoFactory)
@@ -212,10 +209,8 @@ public final class SpaceIdentifierHelper
             final PersonPE person, final IAuthorizationDAOFactory daoFactory)
     {
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
-        final DatabaseInstancePE databaseInstance =
-                getDatabaseInstance(spaceIdentifier, daoFactory);
         final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
-        return groupDAO.tryFindSpaceByCodeAndDatabaseInstance(spaceCode, databaseInstance);
+        return groupDAO.tryFindSpaceByCode(spaceCode);
     }
 
     public final static DatabaseInstancePE getDatabaseInstance(

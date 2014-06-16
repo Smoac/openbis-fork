@@ -114,7 +114,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         groupPE.setCode("my-group");
         DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("my-instance");
-        groupPE.setDatabaseInstance(databaseInstancePE);
         projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         externalDataPE.setExperiment(experimentPE);
@@ -183,9 +182,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         projectPE.setCode("my-project");
         SpacePE groupPE = new SpacePE();
         groupPE.setCode("my-group");
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("my-instance");
-        groupPE.setDatabaseInstance(databaseInstancePE);
         projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         externalDataPE.setExperiment(experimentPE);
@@ -223,7 +219,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         groupPE.setCode("my-group");
         DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("my-instance");
-        groupPE.setDatabaseInstance(databaseInstancePE);
         projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         linkDataPE.setExperiment(experimentPE);

@@ -560,8 +560,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     private SpacePE findSpace(String spaceCode)
     {
         SpacePE space =
-                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
-                        daoFactory.getHomeDatabaseInstance());
+                daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
         assert space != null : "space not found: " + spaceCode;
         return space;
     }

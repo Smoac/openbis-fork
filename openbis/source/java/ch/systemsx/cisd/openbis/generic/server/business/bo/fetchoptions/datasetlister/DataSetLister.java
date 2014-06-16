@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementSystem;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSetUrl;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -216,12 +215,8 @@ public class DataSetLister implements IDataSetLister
 
     private DataSetInitializer createDataSetInitializer(DataSetRecord dataSet)
     {
-        DatabaseInstanceIdentifier experimentDatabaseIdentifier =
-                new DatabaseInstanceIdentifier(dataSet.die_is_original_source, dataSet.die_code);
-
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(experimentDatabaseIdentifier.getDatabaseInstanceCode(),
-                        dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
+                new ExperimentIdentifier(null, dataSet.spe_code, dataSet.pre_code, dataSet.ex_code);
 
         DataSetInitializer initializer = new DataSetInitializer();
         initializer.setId(dataSet.ds_id);
@@ -247,7 +242,6 @@ public class DataSetLister implements IDataSetLister
             db.setId(dataSet.die_id);
             db.setCode(dataSet.die_code);
             db.setUuid(dataSet.die_uuid);
-            db.setHomeDatabase(dataSet.die_is_original_source);
 
             ExternalDataManagementSystem edms = new ExternalDataManagementSystem();
             edms.setId(dataSet.edms_id);
@@ -263,26 +257,18 @@ public class DataSetLister implements IDataSetLister
 
         if (dataSet.sa_code != null)
         {
-            DatabaseInstanceIdentifier sampleDatabaseIdentifier = null;
-            if (dataSet.sa_dbin_id != null)
-            {
-                // we can reuse the database identifier because
-                // all related objects should belong to the same database
-                sampleDatabaseIdentifier = experimentDatabaseIdentifier;
-            }
-
             SpaceIdentifier sampleSpaceIdentifier = null;
             if (dataSet.sps_code != null)
             {
                 // we can reuse the database identifier because
                 // all related objects should belong to the same database
                 sampleSpaceIdentifier =
-                        new SpaceIdentifier(experimentDatabaseIdentifier.getDatabaseInstanceCode(),
+                        new SpaceIdentifier(
                                 dataSet.sps_code);
             }
 
             SampleIdentifier sampleIdentifier =
-                    IdentifierHelper.createSampleIdentifier(sampleDatabaseIdentifier,
+                    IdentifierHelper.createSampleIdentifier(null,
                             sampleSpaceIdentifier, dataSet.sa_code, dataSet.sac_code);
 
             initializer.setSampleIdentifierOrNull(sampleIdentifier.toString());

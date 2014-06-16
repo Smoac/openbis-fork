@@ -126,7 +126,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
     {
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(sampleTypeCode);
-        sampleType.setDatabaseInstance(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE);
         return sampleType;
     }
 
@@ -285,7 +284,6 @@ public final class EntityPropertiesConverterTest extends AbstractBOTest
                 "[SamplePropertyPE{entityTypePropertyType="
                         + "SampleTypePropertyTypePE{managedInternally=false,mandatory=true,"
                         + "propertyType=COLOR,entityType=SampleTypePE{code=MASTER_PLATE,description=<null>,"
-                        + "databaseInstance=DatabaseInstancePE{code=MY_DATABASE_INSTANCE},"
                         + "listable=<null>,containerHierarchyDepth=<null>,"
                         + "generatedFromHierarchyDepth=<null>},ordinal=<null>,"
                         + "section=<null>,dynamic=false,managed=true},value=Hello alpha}]",

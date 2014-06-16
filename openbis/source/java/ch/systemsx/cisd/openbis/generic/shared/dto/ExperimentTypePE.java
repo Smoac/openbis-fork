@@ -42,8 +42,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 @Entity
 @Table(name = TableNames.EXPERIMENT_TYPES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN }) })
 public final class ExperimentTypePE extends EntityTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;

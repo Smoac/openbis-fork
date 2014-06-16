@@ -135,17 +135,17 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
         table.load(experimentID, proteinReferenceID, "abcdefabcab");
 
         List<ProteinRelatedSample> samples = table.getSamples();
-        assertEquals("1:s-1:S1:MY-DB:/s/S1:SAMPLE:my-type:[A: hello]:0.25::null:null:null",
+        assertEquals("1:s-1:S1:/s/S1:SAMPLE:my-type:[A: hello]:0.25::null:null:null",
                 render(samples.get(0)));
-        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:1:21.5:0.25",
+        assertEquals("2:s-2:S2:/s/S2:SAMPLE:my-type:[]:0.75:a:1:21.5:0.25",
                 render(samples.get(1)));
-        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:7:21.5:0.25",
+        assertEquals("2:s-2:S2:/s/S2:SAMPLE:my-type:[]:0.75:a:7:21.5:0.25",
                 render(samples.get(2)));
-        assertEquals("2:s-2:S2:MY-DB:/s/S2:SAMPLE:my-type:[]:0.75:a:10:21.5:0.25",
+        assertEquals("2:s-2:S2:/s/S2:SAMPLE:my-type:[]:0.75:a:10:21.5:0.25",
                 render(samples.get(3)));
-        assertEquals("3:s-3:S3:MY-DB:/s/S3:SAMPLE:my-type:[]:null:d:4:12.375:0.5",
+        assertEquals("3:s-3:S3:/s/S3:SAMPLE:my-type:[]:null:d:4:12.375:0.5",
                 render(samples.get(4)));
-        assertEquals("3:s-3:S3:MY-DB:/s/S3:SAMPLE:my-type:[]:null:f:6:-1.5:0.75",
+        assertEquals("3:s-3:S3:/s/S3:SAMPLE:my-type:[]:null:f:6:-1.5:0.75",
                 render(samples.get(5)));
         assertEquals(6, samples.size());
         context.assertIsSatisfied();

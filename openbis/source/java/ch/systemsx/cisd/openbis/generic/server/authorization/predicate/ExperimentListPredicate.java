@@ -26,7 +26,6 @@ import java.util.Set;
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
 import net.lemnik.eodsql.Select;
-
 import ch.systemsx.cisd.common.db.mapper.LongArrayMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
@@ -34,7 +33,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -56,7 +54,7 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
                 + "where e.id = any(?{1}) union "
                 + "select distinct space_id from projects p left join experiments e on e.proj_id = p.id "
                 + "where e.perm_id = any(?{2})", parameterBindings =
-            { LongArrayMapper.class, StringArrayMapper.class })
+        { LongArrayMapper.class, StringArrayMapper.class })
         public List<Long> getExperimentSpaceIds(long[] experimentIds, String[] experimentPermIds);
     }
 
@@ -101,9 +99,8 @@ public class ExperimentListPredicate extends AbstractSpacePredicate<List<Experim
             final SpaceIdentifier spaceIdentifier =
                     new ExperimentIdentifierFactory(experiment.getIdentifier()).createIdentifier();
             final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
-            final DatabaseInstancePE databaseInstance = getDatabaseInstance(spaceIdentifier);
             final Status status =
-                    evaluate(person, allowedRoles, databaseInstance, spaceCode);
+                    evaluate(allowedRoles, person, spaceCode);
             if (Status.OK.equals(status) == false)
             {
                 return status;

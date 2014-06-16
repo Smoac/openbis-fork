@@ -20,8 +20,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExternalDataManagementS
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
- * Translator for {@link ExternalDataManagementSystemPE} into {@link ExternalDataManagementSystem}
- * and other way around.
+ * Translator for {@link ExternalDataManagementSystemPE} into {@link ExternalDataManagementSystem} and other way around.
  * 
  * @author Pawel Glyzewski
  */
@@ -38,7 +37,7 @@ public class ExternalDataManagementSystemTranslator
 
         result.setId(edms.getId());
         result.setCode(edms.getCode());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(edms.getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setLabel(edms.getLabel());
         result.setUrlTemplate(edms.getUrlTemplate());
         result.setOpenBIS(edms.isOpenBIS());

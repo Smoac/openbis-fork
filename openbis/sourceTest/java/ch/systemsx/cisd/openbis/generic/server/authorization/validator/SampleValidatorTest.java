@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 
@@ -55,16 +54,6 @@ public class SampleValidatorTest extends AuthorizationTestCase
     }
 
     @Test
-    public void testIsValidSharedWithTheWrongInstance()
-    {
-        SampleValidator validator = new SampleValidator();
-        PersonPE person = createPersonWithRoleAssignments();
-        assertEquals(false, validator.isValid(person, SampleTranslator.translate(
-                createSample(createDatabaseInstance("blabla")), BASE_URL, null,
-                new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
-    }
-
-    @Test
     public void testIsValidWithTheRightDatabaseInstance()
     {
         SampleValidator validator = new SampleValidator();
@@ -72,15 +61,5 @@ public class SampleValidatorTest extends AuthorizationTestCase
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
                 createSample(createSpace()), BASE_URL, null, new ManagedPropertyEvaluatorFactory(
                         null, new TestJythonEvaluatorPool()))));
-    }
-
-    @Test
-    public void testIsValidWithTheWrongGroup()
-    {
-        SampleValidator validator = new SampleValidator();
-        PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        assertEquals(false, validator.isValid(person, SampleTranslator.translate(
-                createSample(group), BASE_URL, null, new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 }

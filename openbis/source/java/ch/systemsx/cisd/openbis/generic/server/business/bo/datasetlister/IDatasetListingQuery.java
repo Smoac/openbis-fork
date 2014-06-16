@@ -26,7 +26,6 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
@@ -197,12 +196,11 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     /**
      * Returns all datasets in the database.
      */
-    @Select(sql = SELECT_ALL
-            + " where (select dbin_id from data_set_types t where t.id = data.dsty_id) = ?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<DatasetRecord> getDatasets(long dbInstanceId);
+    @Select(sql = SELECT_ALL, fetchSize = FETCH_SIZE)
+    public DataIterator<DatasetRecord> getDatasets();
 
-    @Select(sql = "select id, code, data_set_kind from data_set_types where dbin_id=?{1}")
-    public DataSetTypeRecord[] getDatasetTypes(long databaseInstanceId);
+    @Select(sql = "select id, code, data_set_kind from data_set_types")
+    public DataSetTypeRecord[] getDatasetTypes();
 
     @Select(sql = "select id, code, download_url from data_stores where dbin_id=?{1}")
     public DataStoreRecord[] getDataStores(long databaseInstanceId);

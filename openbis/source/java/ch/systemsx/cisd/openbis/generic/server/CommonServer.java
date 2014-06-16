@@ -144,7 +144,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEnt
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
-import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -271,7 +270,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -423,7 +421,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final PersonPE systemUser = getSystemUser();
         HibernateUtils.initialize(systemUser.getAllPersonRoles());
         RoleAssignmentPE role = new RoleAssignmentPE();
-        role.setDatabaseInstance(getDAOFactory().getHomeDatabaseInstance());
         role.setRole(RoleCode.ADMIN);
         systemUser.addRoleAssignment(role);
         String sessionToken =
@@ -441,12 +438,10 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SpaceValidator.class)
-    public List<Space> listSpaces(String sessionToken, DatabaseInstanceIdentifier identifier)
+    public List<Space> listSpaces(String sessionToken)
     {
         final Session session = getSession(sessionToken);
-        final DatabaseInstancePE databaseInstance =
-                SpaceIdentifierHelper.getDatabaseInstance(identifier, getDAOFactory());
-        final List<SpacePE> spaces = getDAOFactory().getSpaceDAO().listSpaces(databaseInstance);
+        final List<SpacePE> spaces = getDAOFactory().getSpaceDAO().listSpaces();
         final SpacePE homeSpaceOrNull = session.tryGetHomeGroup();
         for (final SpacePE space : spaces)
         {
@@ -587,7 +582,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             boolean isInstanceAdmin = false;
             for (final RoleAssignmentPE roleAssigment : personPE.getRoleAssignments())
             {
-                if (roleAssigment.getDatabaseInstance() != null
+                if (roleAssigment.getSpace() == null
                         && roleAssigment.getRole().equals(RoleCode.ADMIN))
                 {
                     isInstanceAdmin = true;
@@ -618,7 +613,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (roleAssignment.getPerson() != null
                 && roleAssignment.getPerson().equals(session.tryGetPerson())
                 && roleAssignment.getRole().equals(RoleCode.ADMIN)
-                && roleAssignment.getDatabaseInstance() != null)
+                && roleAssignment.getSpace() == null)
         {
             throw new UserFailureException(
                     "For safety reason you cannot give away your own omnipotence. "

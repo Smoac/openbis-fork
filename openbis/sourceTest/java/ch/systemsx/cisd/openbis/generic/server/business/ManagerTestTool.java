@@ -106,8 +106,8 @@ public class ManagerTestTool
                 EXAMPLE_DATABASE_INSTANCE.getCode().toUpperCase());
         expectations.will(Expectations.returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-        expectations.allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                EXAMPLE_GROUP.getCode().toUpperCase(), EXAMPLE_DATABASE_INSTANCE);
+        expectations.allowing(groupDAO).tryFindSpaceByCode(
+                EXAMPLE_GROUP.getCode().toUpperCase());
         expectations.will(Expectations.returnValue(EXAMPLE_GROUP));
     }
 
@@ -124,14 +124,14 @@ public class ManagerTestTool
         exp.allowing(daoFactory).getSpaceDAO();
         exp.will(Expectations.returnValue(groupDAO));
 
-        exp.allowing(groupDAO).tryFindSpaceByCodeAndDatabaseInstance(groupCode.toUpperCase(), db);
+        exp.allowing(groupDAO).tryFindSpaceByCode(groupCode.toUpperCase());
         exp.will(Expectations.returnValue(ManagerTestTool.EXAMPLE_GROUP));
         return ManagerTestTool.EXAMPLE_GROUP;
     }
 
     /**
-     * Prepares the mock PersonDAO for a single {@link IPersonDAO#tryFindPersonByUserId(String)}
-     * invocation which delivers the id of {@link #EXAMPLE_PERSON}.
+     * Prepares the mock PersonDAO for a single {@link IPersonDAO#tryFindPersonByUserId(String)} invocation which delivers the id of
+     * {@link #EXAMPLE_PERSON}.
      */
     public final static void prepareFindOrCreateRegistratorId(final Expectations expectations,
             final IPersonDAO personDAO, final Session session)
@@ -141,8 +141,7 @@ public class ManagerTestTool
     }
 
     /**
-     * Prepares the mock PersonDAO for a single {@link IPersonDAO#listPersons()} invocation which
-     * delivers {@link #EXAMPLE_PERSON}.
+     * Prepares the mock PersonDAO for a single {@link IPersonDAO#listPersons()} invocation which delivers {@link #EXAMPLE_PERSON}.
      */
     public final static void prepareListPersons(final Expectations expectations,
             final IPersonDAO personDAO)
@@ -191,7 +190,6 @@ public class ManagerTestTool
     public final static SpacePE createGroup()
     {
         final SpacePE group = new SpacePE();
-        group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
         group.setCode("MY_GROUP");
         group.setId(4242L);
         return group;
@@ -200,7 +198,6 @@ public class ManagerTestTool
     public final static SpacePE createGroup2()
     {
         final SpacePE group = new SpacePE();
-        group.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
         group.setCode("MY_GROUP2");
         group.setId(1984L);
         return group;

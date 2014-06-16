@@ -56,8 +56,8 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}.
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RoleAssignmentDAO.class);
@@ -77,10 +77,7 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
         // returns roles connected directly or indirectly (through space) to current db instance
         final List<RoleAssignmentPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("select r from %s r left join r.databaseInstance ri"
-                                + " left join r.space g left join g.databaseInstance gi"
-                                + " where ri = ? or (ri is null and gi = ?)", TABLE_NAME),
-                        toArray(getDatabaseInstance(), getDatabaseInstance())));
+                        String.format("select r from %s r", TABLE_NAME)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d role assignment(s) have been found.",

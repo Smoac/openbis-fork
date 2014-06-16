@@ -257,7 +257,6 @@ public abstract class AbstractDAOWithoutContextTest extends
     {
         final SpacePE space = new SpacePE();
         space.setCode(spaceCode);
-        space.setDatabaseInstance(databaseInstance);
         space.setRegistrator(getSystemPerson());
         daoFactory.getSpaceDAO().createSpace(space);
         return space;
@@ -307,7 +306,7 @@ public abstract class AbstractDAOWithoutContextTest extends
 
     protected ProjectPE findProject(String db, String group, String project)
     {
-        return daoFactory.getProjectDAO().tryFindProject(db, group, project);
+        return daoFactory.getProjectDAO().tryFindProject(group, project);
     }
 
     protected ExperimentTypePE findExperimentType(String expType)

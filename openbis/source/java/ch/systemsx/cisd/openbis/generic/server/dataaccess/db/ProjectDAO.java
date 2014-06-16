@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
@@ -102,8 +101,7 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
     }
 
     @Override
-    public ProjectPE tryFindProject(final String databaseInstanceCode, final String spaceCode,
-            final String projectCode)
+    public ProjectPE tryFindProject(final String spaceCode, final String projectCode)
     {
         assert projectCode != null : "Unspecified project code.";
         assert spaceCode != null : "Unspecified space code.";
@@ -112,14 +110,6 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(projectCode)));
         final Criteria spaceCriteria = criteria.createCriteria("space");
         spaceCriteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(spaceCode)));
-        if (StringUtils.isBlank(databaseInstanceCode))
-        {
-            spaceCriteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
-        } else
-        {
-            spaceCriteria.createCriteria("databaseInstance").add(
-                    Restrictions.eq("code", CodeConverter.tryToDatabase(databaseInstanceCode)));
-        }
 
         return (ProjectPE) criteria.uniqueResult();
     }
@@ -133,12 +123,12 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         Set<ProjectIdentifier> projectIdentifiersSet = new HashSet<ProjectIdentifier>();
         for (ProjectIdentifier projectIdentifier : projectIdentifiers)
         {
-            projectIdentifiersSet.add(IdentifierHelper.createFullProjectIdentifier(projectIdentifier, getDatabaseInstance()));
+            projectIdentifiersSet.add(projectIdentifier);
         }
 
         for (ProjectPE project : allProjects)
         {
-            if (projectIdentifiersSet.contains(IdentifierHelper.createFullProjectIdentifier(project)))
+            if (projectIdentifiersSet.contains(IdentifierHelper.createProjectIdentifier(project)))
             {
                 matchingProjects.add(project);
             }

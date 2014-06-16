@@ -16,14 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import java.util.Set;
-
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * A {@link IValidator} implementation suitable for {@link Sample}.
@@ -34,12 +30,9 @@ public final class SampleValidator extends AbstractValidator<Sample>
 {
     private final IValidator<Space> spaceValidator;
 
-    private final IValidator<DatabaseInstance> databaseInstanceValidator;
-
     public SampleValidator()
     {
         spaceValidator = new SpaceValidator();
-        databaseInstanceValidator = new DatabaseInstanceValidator();
     }
 
     //
@@ -56,40 +49,20 @@ public final class SampleValidator extends AbstractValidator<Sample>
             return matchesSpace(person, space);
         } else
         {
-            DatabaseInstance databaseInstance = value.getDatabaseInstance();
 
-            return matchesDatabaseInstanceOfRoleAssignment(person, databaseInstance)
-                    || matchesDatabaseInstanceOfRoleAssignmentSpace(person, databaseInstance);
+            for (RoleAssignmentPE assignment : person.getRoleAssignments())
+            {
+                if (assignment.getSpace() == null)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
     private boolean matchesSpace(PersonPE person, Space space)
     {
         return spaceValidator.isValid(person, space);
-    }
-
-    private boolean matchesDatabaseInstanceOfRoleAssignment(PersonPE person,
-            DatabaseInstance databaseInstance)
-    {
-        return databaseInstanceValidator.isValid(person, databaseInstance);
-    }
-
-    private boolean matchesDatabaseInstanceOfRoleAssignmentSpace(PersonPE person,
-            DatabaseInstance databaseInstance)
-    {
-        final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
-
-        for (final RoleAssignmentPE roleAssignment : roleAssignments)
-        {
-            final SpacePE space = roleAssignment.getSpace();
-
-            if (space != null && databaseInstance != null
-                    && space.getDatabaseInstance().getUuid().equals(databaseInstance.getUuid()))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

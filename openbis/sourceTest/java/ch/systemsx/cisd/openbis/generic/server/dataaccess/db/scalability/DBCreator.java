@@ -52,37 +52,31 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * This class has one test method called main that can be run as a TestNG test using
- * "create scalability DB" run configuration in eclipse and creates a DB for scalability testing.
- * The test is in "scalability" group which is included in nightly builds. No rollback is done after
- * this test. <br>
+ * This class has one test method called main that can be run as a TestNG test using "create scalability DB" run configuration in eclipse and creates
+ * a DB for scalability testing. The test is in "scalability" group which is included in nightly builds. No rollback is done after this test. <br>
  * <br>
- * At the beginning it creates a TSV file with materials in a given TSV directory that will be used
- * in the next step. Then the DB is created from scratch (with new materials added from the TSV
- * file). Afterwards it:
+ * At the beginning it creates a TSV file with materials in a given TSV directory that will be used in the next step. Then the DB is created from
+ * scratch (with new materials added from the TSV file). Afterwards it:
  * <ul>
- * <li>doesn't create any new properties nor attaches properties to any created entity because it
- * can be easily done by GUI to a certain EntityType
+ * <li>doesn't create any new properties nor attaches properties to any created entity because it can be easily done by GUI to a certain EntityType
  * <li>creates Experiments of one new ExperimentType
- * <li>creates Samples of one new SampleType - these samples are connected to an experiment created
- * in the previous step. Each experiment will have one or more samples connected to it.
- * <li>creates DataSets of one new DataSetType - these data sets are connected to a sample and an
- * experiment created in previous steps. Each sample will have one or more data sets connected to
- * it.
+ * <li>creates Samples of one new SampleType - these samples are connected to an experiment created in the previous step. Each experiment will have
+ * one or more samples connected to it.
+ * <li>creates DataSets of one new DataSetType - these data sets are connected to a sample and an experiment created in previous steps. Each sample
+ * will have one or more data sets connected to it.
  * </ul>
  * <br>
  * IMPORTANT - to make it faster try:
  * <ul>
  * <li>commenting out flush() in create methods for in {@link IDataDAO} and {@link SampleDAO}
- * <li>turning off logging (doesn't make a big difference) - change root logging priority in log.xml
- * from "info" to "error".
+ * <li>turning off logging (doesn't make a big difference) - change root logging priority in log.xml from "info" to "error".
  * </ul>
  * To log the current state of particular entity creation change static LOG variable value to true.
  * 
  * @author Piotr Buczek
  */
 @Test(groups =
-    { "scalability" })
+{ "scalability" })
 public final class DBCreator extends AbstractDAOTest
 {
     /** a sufix that will be used in the created DB name */
@@ -214,7 +208,6 @@ public final class DBCreator extends AbstractDAOTest
         final IEntityTypeDAO entityTypeDAO = daoFactory.getEntityTypeDAO(entityKind);
         final T entityType = newEntityType;
         entityType.setCode(CodeGenerator.generateDefaultCode(createdEntityTypeKind));
-        entityType.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         entityTypeDAO.createOrUpdateEntityType(entityType);
 
         return entityType;
@@ -398,8 +391,7 @@ public final class DBCreator extends AbstractDAOTest
     }
 
     /**
-     * A helper class which counts how many big Experiments/Samples has been created and returns
-     * sizes for the new ones.
+     * A helper class which counts how many big Experiments/Samples has been created and returns sizes for the new ones.
      * 
      * @author Piotr Buczek
      */
@@ -463,8 +455,7 @@ public final class DBCreator extends AbstractDAOTest
         private static final String MODIFICATION_TIMESTAMP = "2008-12-04 15:50:54.111";
 
         /**
-         * Creates a temporary TSV file with given number of materials in given directory. The file
-         * is deleted automatically on JVM exit.
+         * Creates a temporary TSV file with given number of materials in given directory. The file is deleted automatically on JVM exit.
          */
         public static void createMaterialsTSVFile(String directory, int size)
         {

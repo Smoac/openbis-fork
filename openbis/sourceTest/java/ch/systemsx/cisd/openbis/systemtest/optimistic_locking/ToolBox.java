@@ -31,12 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.FileFormatType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -61,7 +61,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
@@ -252,8 +251,7 @@ public class ToolBox
 
     public Space tryToFindSpace(String spaceCode)
     {
-        DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
-        List<Space> spaces = commonServer.listSpaces(systemSessionToken, identifier);
+        List<Space> spaces = commonServer.listSpaces(systemSessionToken);
         for (Space space : spaces)
         {
             if (space.getCode().equals(spaceCode))
@@ -271,7 +269,7 @@ public class ToolBox
                         EXPERIMENT_TYPE_CODE);
         experiment.setAttachments(Collections.<NewAttachment> emptyList());
         experiment.setProperties(new IEntityProperty[]
-            { new PropertyBuilder("DESCRIPTION").value("hello " + number).getProperty() });
+        { new PropertyBuilder("DESCRIPTION").value("hello " + number).getProperty() });
         return experiment;
     }
 

@@ -104,15 +104,10 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
                         new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()));
         experimentType = new ExperimentTypePE();
         experimentType.setCode(EXPERIMENT_TYPE);
-        experimentType.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         PersonPE person = new PersonPE();
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         SpacePE group = new SpacePE();
         group.setCode("Space-0");
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode("db");
-        databaseInstance.setUuid("UUID-db");
-        group.setDatabaseInstance(databaseInstance);
         roleAssignment.setSpace(group);
         person.setRoleAssignments(Collections.singleton(roleAssignment));
         session.setPerson(person);
@@ -153,10 +148,10 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
 
         List<Experiment> list = service.listExperiments(SESSION_TOKEN, EXPERIMENT_TYPE);
 
-        assertEquals("HOME_DATABASE:/G/P/e1", list.get(0).getIdentifier());
+        assertEquals("/G/P/e1", list.get(0).getIdentifier());
         assertEquals(1, list.get(0).getRegistrationDate().getTime());
         assertEquals(0, list.get(0).getProperties().size());
-        assertEquals("HOME_DATABASE:/G/P/e2", list.get(1).getIdentifier());
+        assertEquals("/G/P/e2", list.get(1).getIdentifier());
         assertEquals(4, list.get(1).getRegistrationDate().getTime());
         assertEquals("A", list.get(1).getProperties().get(0).getPropertyType().getCode());
         assertEquals("a-value", list.get(1).getProperties().get(0).getValue());
@@ -259,7 +254,6 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
         SpacePE group = new SpacePE();
         group.setCode(spaceCode);
-        group.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         roleAssignmentPE.setSpace(group);
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignmentPE)));
         testSession.setPerson(person);

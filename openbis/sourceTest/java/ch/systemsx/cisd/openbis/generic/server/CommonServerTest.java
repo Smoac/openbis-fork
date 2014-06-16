@@ -108,7 +108,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExperimentTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ScriptPEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
@@ -333,7 +332,6 @@ public final class CommonServerTest extends AbstractServerTestCase
 
                     // assign instance admin role
                     final RoleAssignmentPE roleAssignmentPE = new RoleAssignmentPE();
-                    roleAssignmentPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
                     roleAssignmentPE.setRegistrator(systemPerson);
                     roleAssignmentPE.setRole(RoleCode.ADMIN);
                     person.addRoleAssignment(roleAssignmentPE);
@@ -429,12 +427,12 @@ public final class CommonServerTest extends AbstractServerTestCase
                 {
                     allowing(sessionManager).getSession(SESSION_TOKEN);
                     will(returnValue(mySession));
-                    one(groupDAO).listSpaces(homeDatabaseInstance);
+                    one(groupDAO).listSpaces();
                     will(returnValue(Arrays.asList(g1, g2)));
                 }
             });
 
-        final List<Space> groups = createServer().listSpaces(SESSION_TOKEN, identifier);
+        final List<Space> groups = createServer().listSpaces(SESSION_TOKEN);
 
         assertEquals(SpaceTranslator.translate(g1), groups.get(0));
         assertEquals(SpaceTranslator.translate(g2), groups.get(1));
@@ -455,8 +453,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         final PersonPE person = CommonTestUtils.createPersonFromPrincipal(PRINCIPAL);
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(RoleCode.OBSERVER);
-        roleAssignment.setDatabaseInstance(new DatabaseInstancePEBuilder().code("DB")
-                .getDatabaseInstance());
         person.addRoleAssignment(roleAssignment);
         final RecordingMatcher<NewRoleAssignment> assignmentMatcher =
                 new RecordingMatcher<NewRoleAssignment>();
@@ -556,7 +552,6 @@ public final class CommonServerTest extends AbstractServerTestCase
     private RoleAssignmentPE createRoleAssignment()
     {
         RoleAssignmentPE assignment = new RoleAssignmentPE();
-        assignment.setDatabaseInstance(new DatabaseInstancePE());
         assignment.setRole(RoleCode.USER);
         assignment.setPersonInternal(new PersonPE());
         return assignment;
@@ -669,7 +664,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         Set<RoleAssignmentPE> rolesAssignments = new HashSet<RoleAssignmentPE>();
         RoleAssignmentPE roleAssignment = new RoleAssignmentPE();
         roleAssignment.setRole(RoleCode.ADMIN);
-        roleAssignment.setDatabaseInstance(new DatabaseInstancePE());
         rolesAssignments.add(roleAssignment);
         person.setRoleAssignments(rolesAssignments);
     }
@@ -712,7 +706,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         prepareGetSession();
         final RoleAssignmentPE rolePE = new RoleAssignmentPE();
         rolePE.setRole(RoleCode.ETL_SERVER);
-        rolePE.setDatabaseInstance(new DatabaseInstancePE());
         context.checking(new Expectations()
             {
                 {
@@ -1415,7 +1408,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         type.setModificationDate(new Date(42));
         final MaterialTypePE typePE = new MaterialTypePE();
         typePE.setCode(type.getCode());
-        typePE.setDatabaseInstance(new DatabaseInstancePE());
         typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
@@ -1469,7 +1461,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         type.setModificationDate(new Date(42));
         final SampleTypePE typePE = new SampleTypePE();
         typePE.setCode(type.getCode());
-        typePE.setDatabaseInstance(new DatabaseInstancePE());
         typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
@@ -1523,7 +1514,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         type.setModificationDate(new Date(42));
         final ExperimentTypePE typePE = new ExperimentTypePE();
         typePE.setCode(type.getCode());
-        typePE.setDatabaseInstance(new DatabaseInstancePE());
         typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()
@@ -1579,7 +1569,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         type.setModificationDate(new Date(42));
         final DataSetTypePE typePE = new DataSetTypePE();
         typePE.setCode(type.getCode());
-        typePE.setDatabaseInstance(new DatabaseInstancePE());
         typePE.setModificationDate(type.getModificationDate());
         prepareGetSession();
         context.checking(new Expectations()

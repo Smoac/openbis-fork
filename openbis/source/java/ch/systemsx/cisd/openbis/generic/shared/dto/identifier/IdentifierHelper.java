@@ -54,10 +54,7 @@ public final class IdentifierHelper
     public final static SpaceIdentifier createGroupIdentifier(final SpacePE groupPE)
     {
         assert groupPE != null : "Unspecified space";
-        assert groupPE.getDatabaseInstance() != null : "Any space must "
-                + "be attached to a database instance";
-        return new SpaceIdentifier(createDatabaseInstanceIdentifier(groupPE.getDatabaseInstance()),
-                groupPE.getCode());
+        return new SpaceIdentifier(groupPE.getCode());
     }
 
     /**
@@ -99,8 +96,7 @@ public final class IdentifierHelper
         } else
         {
             sampleId =
-                    new SampleIdentifier(new SpaceIdentifier(new DatabaseInstanceIdentifier(sample
-                            .getSpace().getDatabaseInstance().getCode()), sample.getSpace()
+                    new SampleIdentifier(new SpaceIdentifier(sample.getSpace()
                             .getCode()), sample.getCode());
         }
 
@@ -114,8 +110,7 @@ public final class IdentifierHelper
 
     public static final SpaceIdentifier space(final SpacePE space)
     {
-        return new SpaceIdentifier(new DatabaseInstanceIdentifier(space.getDatabaseInstance()
-                .getCode()), space.getCode());
+        return new SpaceIdentifier(space.getCode());
     }
 
     /**
@@ -257,11 +252,8 @@ public final class IdentifierHelper
     {
         assert project != null : "Unspecified project";
         final SpacePE group = project.getSpace();
-        final DatabaseInstancePE databaseInstance = group.getDatabaseInstance();
-        String instanceCode =
-                databaseInstance.isOriginalSource() ? null : databaseInstance.getCode();
         final ProjectIdentifier identifier =
-                new ProjectIdentifier(instanceCode, group.getCode(), project.getCode());
+                new ProjectIdentifier(group.getCode(), project.getCode());
         return identifier;
     }
 
@@ -272,7 +264,7 @@ public final class IdentifierHelper
     public final static ProjectIdentifier createFullProjectIdentifier(final ProjectPE project)
     {
         assert project != null : "Unspecified project";
-        return new ProjectIdentifier(project.getSpace().getDatabaseInstance().getCode(), project.getSpace().getCode(), project.getCode());
+        return new ProjectIdentifier(project.getSpace().getCode(), project.getCode());
     }
 
     /**

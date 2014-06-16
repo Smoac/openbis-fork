@@ -126,17 +126,6 @@ public class RawDataSampleValidatorTest extends AssertJUnit
     }
 
     @Test
-    public void testUserWithRightsForGroupG1ButWrongInstance()
-    {
-        PersonPE person = createPersonWithRoles(createRole("G1", "X"));
-
-        assertEquals(false, validator.isValid(person, NO_PARENT));
-        assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
-        assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G1));
-        assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G2));
-    }
-
-    @Test
     public void testUserWithRightsForForInstanceT()
     {
         PersonPE person = createPersonWithRoles(createRole(null, "T"));
@@ -145,17 +134,6 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G1));
         assertEquals(true, validator.isValid(person, WITH_PARENT_IN_G2));
-    }
-
-    @Test
-    public void testUserWithRightsForForInstanceX()
-    {
-        PersonPE person = createPersonWithRoles(createRole(null, "X"));
-
-        assertEquals(false, validator.isValid(person, NO_PARENT));
-        assertEquals(true, validator.isValid(person, WITH_INSTANCE_PARENT));
-        assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G1));
-        assertEquals(false, validator.isValid(person, WITH_PARENT_IN_G2));
     }
 
     private PersonPE createPersonWithRoles(RoleAssignmentPE... roles)
@@ -172,14 +150,10 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         {
             DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
             databaseInstance.setUuid(dataBaseInstanceUUID);
-            role.setDatabaseInstance(databaseInstance);
         } else
         {
             SpacePE group = new SpacePE();
             group.setCode(groupCodeOrNull);
-            DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-            databaseInstance.setUuid(dataBaseInstanceUUID);
-            group.setDatabaseInstance(databaseInstance);
             role.setSpace(group);
         }
         return role;

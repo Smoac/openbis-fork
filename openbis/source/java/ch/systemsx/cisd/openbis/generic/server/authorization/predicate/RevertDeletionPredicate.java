@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -47,7 +46,8 @@ public class RevertDeletionPredicate extends AbstractPredicate<List<TechId>>
     }
 
     @Override
-    public void init(@SuppressWarnings("hiding") IAuthorizationDataProvider provider)
+    public void init(@SuppressWarnings("hiding")
+    IAuthorizationDataProvider provider)
     {
         this.provider = provider;
         deletionTechIdCollectionPredicate.init(provider);
@@ -100,8 +100,7 @@ public class RevertDeletionPredicate extends AbstractPredicate<List<TechId>>
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final DatabaseInstancePE roleInstance = roleAssignment.getDatabaseInstance();
-            if (roleInstance != null && roleAssignment.getRole().equals(RoleCode.ADMIN))
+            if (roleAssignment.getSpace() == null && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;
             }

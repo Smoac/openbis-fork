@@ -29,7 +29,6 @@ import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
 import net.lemnik.eodsql.spi.util.NonUpdateCapableDataObjectBinding;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
@@ -67,8 +66,8 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     /**
      * Returns the total number of all samples in the database.
      */
-    @Select(sql = "select count(*) from samples s left join spaces g on s.space_id=g.id where s.dbin_id=?{1} or g.dbin_id=?{1}")
-    public long getSampleCount(long dbInstanceId);
+    @Select(sql = "select count(*) from samples s")
+    public long getSampleCount();
 
     // relationships
 
@@ -138,9 +137,8 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     /**
      * Returns all samples in the database.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " left join spaces g on s.space_id=g.id"
-            + " where s.dbin_id=?{1} or g.dbin_id=?{1}", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSamples(long dbInstanceId);
+    @Select(sql = SELECT_FROM_SAMPLES_S, fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getSamples();
 
     //
     // Samples for group
@@ -151,34 +149,33 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join sample_types st on s.saty_id=st.id"
             + " join spaces g on s.space_id=g.id "
-            + " where st.is_listable and g.dbin_id=?{1} and g.code=?{2} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getListableSpaceSamples(long dbInstanceId, String groupCode);
+            + " where st.is_listable and g.code=?{1} order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getListableSpaceSamples(String groupCode);
 
     /**
      * Returns the samples for the given <var>groupCode</var> that are assigned to an experiment.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
-            + " where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} "
+            + " where s.expe_id is not null and g.code=?{1} "
             + " order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSpaceSamplesWithExperiment(long dbInstanceId,
-            String groupCode);
+    public DataIterator<SampleRecord> getSpaceSamplesWithExperiment(String groupCode);
 
     /**
      * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var>
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id  "
-            + " where g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3}       "
+            + " where g.code=?{1} and s.saty_id=?{2}       "
             + " order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSpaceSamplesForSampleType(long dbInstanceId,
+    public DataIterator<SampleRecord> getSpaceSamplesForSampleType(
             String groupCode, long sampleTypeId);
 
     /**
      * Returns the samples for the given <var>groupCode</var> and <var>sampleTypeId</var> that are assigned to an experiment.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
-            + " where s.expe_id is not null and g.dbin_id=?{1} and g.code=?{2} and s.saty_id=?{3} "
+            + " where s.expe_id is not null and g.code=?{1} and s.saty_id=?{2} "
             + " order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSpaceSamplesForSampleTypeWithExperiment(long dbInstanceId,
+    public DataIterator<SampleRecord> getSpaceSamplesForSampleTypeWithExperiment(
             String groupCode, long sampleTypeId);
 
     /**
@@ -186,34 +183,32 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join sample_types st on s.saty_id=st.id"
             + " join spaces g on s.space_id=g.id "
-            + " where st.is_listable and g.dbin_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getAllListableSpaceSamples(long dbInstanceId);
+            + " where st.is_listable order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getAllListableSpaceSamples();
 
     /**
      * Returns the samples for all spaces that are assigned to an experiment.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
-            + " where s.expe_id is not null and g.dbin_id=?{1}                 "
+            + " where s.expe_id is not null "
             + " order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getAllSpaceSamplesWithExperiment(long dbInstanceId);
+    public DataIterator<SampleRecord> getAllSpaceSamplesWithExperiment();
 
     /**
      * Returns the samples for all spaces and <var>sampleTypeId</var>
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
-            + " where g.dbin_id=?{1} and s.saty_id=?{2}                        "
+            + " where s.saty_id=?{1}                        "
             + " order by s.code", fetchSize = FETCH_SIZE, rubberstamp = true)
-    public DataIterator<SampleRecord> getAllSpaceSamplesForSampleType(long dbInstanceId,
-            long sampleTypeId);
+    public DataIterator<SampleRecord> getAllSpaceSamplesForSampleType(long sampleTypeId);
 
     /**
      * Returns the samples for all spaces and <var>sampleTypeId</var> that are assigned to an experiment.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join spaces g on s.space_id=g.id "
-            + " where s.expe_id is not null and g.dbin_id=?{1} and s.saty_id=?{2} "
+            + " where s.expe_id is not null and s.saty_id=?{1} "
             + " order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getAllSpaceSamplesForSampleTypeWithExperiment(
-            long dbInstanceId, long sampleTypeId);
+    public DataIterator<SampleRecord> getAllSpaceSamplesForSampleTypeWithExperiment(long sampleTypeId);
 
     //
     // Samples for experiment
@@ -359,14 +354,14 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the sample type for the given <code>sampleCode</code>. Note that the code of the result is already HTML escaped.
      */
     @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types"
-            + "      where code=?{2} and dbin_id=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
-    public SampleType getSampleType(long dbInstanceId, String sampleCode);
+            + "      where code=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
+    public SampleType getSampleType(String sampleCode);
 
     /**
      * Returns all sample types.
      */
-    @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types where dbin_id=?{1}", resultSetBinding = SampleTypeDataObjectBinding.class)
-    public SampleType[] getSampleTypes(long dbInstanceId);
+    @Select(sql = "select id, code, generated_from_depth, part_of_depth from sample_types", resultSetBinding = SampleTypeDataObjectBinding.class)
+    public SampleType[] getSampleTypes();
 
     //
     // Samples

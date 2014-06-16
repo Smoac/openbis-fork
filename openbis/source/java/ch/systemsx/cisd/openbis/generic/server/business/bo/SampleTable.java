@@ -164,8 +164,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     private SpacePE findGroup(String groupCode)
     {
         SpacePE group =
-                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(groupCode,
-                        getHomeDatabaseInstance());
+                getSpaceDAO().tryFindSpaceByCode(groupCode);
         if (group == null)
         {
             throw UserFailureException
@@ -312,9 +311,8 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
     }
 
     /**
-     * Prepare a batch update using the SampleUpdatesDTO, not the SampleBatchUpdatesDTO. This
-     * version assumes that all the properties are provided in the updates object, not just those
-     * that should explicitly be updated.
+     * Prepare a batch update using the SampleUpdatesDTO, not the SampleBatchUpdatesDTO. This version assumes that all the properties are provided in
+     * the updates object, not just those that should explicitly be updated.
      */
     private void prepareBatchUpdate(SamplePE sample, List<AttachmentPE> attachments,
             SampleUpdatesDTO updates, Map<SampleOwnerIdentifier, SampleOwner> sampleOwnerCache,

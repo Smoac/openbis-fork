@@ -26,11 +26,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 
 /**
- * Stores the {@link RoleWithHierarchy} and the "owner" to which this role is connected: database
- * instance or a space.
+ * Stores the {@link RoleWithHierarchy} and the "owner" to which this role is connected: database instance or a space.
  * <p>
- * Note that {@link #equals(Object)} resp. {@link #hashCode()} are not overridden and so do not
- * consider the <code>owner</code>.
+ * Note that {@link #equals(Object)} resp. {@link #hashCode()} are not overridden and so do not consider the <code>owner</code>.
  * </p>
  * 
  * @author Christian Ribeaud
@@ -39,8 +37,6 @@ public final class RoleWithIdentifier
 {
 
     RoleWithHierarchy role;
-
-    private final DatabaseInstancePE databaseInstanceOrNull;
 
     private final SpacePE spaceOrNull;
 
@@ -56,21 +52,8 @@ public final class RoleWithIdentifier
         } else
         {
             assert spaceOrNull == null;
-            assert databaseInstanceOrNull != null : "Unspecified identifier";
         }
-        this.databaseInstanceOrNull = databaseInstanceOrNull;
         this.spaceOrNull = spaceOrNull;
-    }
-
-    /**
-     * This method can be called only if role is defined on the database instance level.
-     * 
-     * @return database instance to which the role is assigned
-     */
-    public final DatabaseInstancePE getAssignedDatabaseInstance()
-    {
-        assert databaseInstanceOrNull != null;
-        return databaseInstanceOrNull;
     }
 
     /**
@@ -92,18 +75,14 @@ public final class RoleWithIdentifier
         assert roleAssignment != null : "Unspecified role assignment";
         final RoleLevel roleLevel = figureRoleLevel(roleAssignment);
         final RoleCode roleName = roleAssignment.getRole();
-        final DatabaseInstancePE databaseInstance = roleAssignment.getDatabaseInstance();
         final SpacePE space = roleAssignment.getSpace();
-        return new RoleWithIdentifier(roleLevel, roleName, databaseInstance, space);
+        return new RoleWithIdentifier(roleLevel, roleName, null, space);
     }
 
     private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)
     {
-        assert roleAssignment.getDatabaseInstance() == null || roleAssignment.getSpace() == null : "Either the space or the database instance must be null";
         final RoleLevel roleLevel =
-                roleAssignment.getDatabaseInstance() != null ? RoleLevel.INSTANCE : roleAssignment
-                        .getSpace() != null ? RoleLevel.SPACE : null;
-        assert roleLevel != null : "Either the space or the database instance must not be null";
+                roleAssignment.getSpace() != null ? RoleLevel.SPACE : RoleLevel.INSTANCE;
         return roleLevel;
     }
 
@@ -121,14 +100,7 @@ public final class RoleWithIdentifier
 
     private String createOwnerDescription()
     {
-        if (databaseInstanceOrNull != null)
-        {
-            return IdentifierHelper.createDatabaseInstanceIdentifier(databaseInstanceOrNull)
-                    .toString();
-        } else
-        {
-            return IdentifierHelper.createGroupIdentifier(spaceOrNull).toString();
-        }
+        return IdentifierHelper.createGroupIdentifier(spaceOrNull).toString();
     }
 
     public RoleLevel getRoleLevel()

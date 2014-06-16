@@ -54,7 +54,7 @@ public final class AuthorizationGroupTranslator
         result.setId(HibernateUtils.getId(group));
         result.setCode(group.getCode());
         result.setDescription(group.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(group.getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setRegistrationDate(group.getRegistrationDate());
         result.setRegistrator(PersonTranslator.translate(group.getRegistrator()));
         result.setModificationDate(group.getModificationDate());

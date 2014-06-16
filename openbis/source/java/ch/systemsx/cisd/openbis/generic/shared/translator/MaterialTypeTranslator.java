@@ -77,8 +77,7 @@ public class MaterialTypeTranslator
         result.setId(HibernateUtils.getId(entityTypeOrNull));
         result.setCode(entityTypeOrNull.getCode());
         result.setDescription(entityTypeOrNull.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(entityTypeOrNull
-                .getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         return result;
     }
 

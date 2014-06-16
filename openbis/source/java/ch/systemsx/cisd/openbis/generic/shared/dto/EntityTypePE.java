@@ -25,7 +25,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -53,24 +52,9 @@ public abstract class EntityTypePE extends AbstractTypePE
     @Transient
     public abstract EntityKind getEntityKind();
 
-    private DatabaseInstancePE databaseInstance;
-
     private Date modificationDate;
 
     private ScriptPE validationScript;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
 
     @Version
     @Column(name = ColumnNames.MODIFICATION_TIMESTAMP_COLUMN, nullable = false)
@@ -113,7 +97,6 @@ public abstract class EntityTypePE extends AbstractTypePE
     ToStringBuilder createStringBuilder()
     {
         final ToStringBuilder builder = super.createStringBuilder();
-        builder.append("databaseInstance", getDatabaseInstance());
         return builder;
     }
 
@@ -125,7 +108,6 @@ public abstract class EntityTypePE extends AbstractTypePE
     public boolean equals(final Object obj)
     {
         EqualsHashUtils.assertDefined(getCode(), "code");
-        EqualsHashUtils.assertDefined(getDatabaseInstance(), "database instance");
         if (obj == this)
         {
             return true;
@@ -137,7 +119,6 @@ public abstract class EntityTypePE extends AbstractTypePE
         final EntityTypePE that = (EntityTypePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -146,7 +127,6 @@ public abstract class EntityTypePE extends AbstractTypePE
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 }

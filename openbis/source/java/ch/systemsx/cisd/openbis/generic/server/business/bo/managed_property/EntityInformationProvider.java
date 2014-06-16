@@ -111,8 +111,7 @@ public class EntityInformationProvider implements IEntityInformationProvider
     {
         DatabaseInstancePE homeInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
         SpacePE space =
-                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
-                        homeInstance);
+                daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
         if (space == null)
         {
             throw UserFailureException.fromTemplate("space '%s' doesn't exist ", spaceCode);

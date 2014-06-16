@@ -289,7 +289,6 @@ public class DataSetListerTest extends AbstractDAOTest
         dms1.setLabel("Test EDMS");
         dms1.setOpenBIS(false);
         dms1.setUrlTemplate("http://example.edms.pl/code=${code}");
-        dms1.setDatabaseInstance(db);
 
         ExternalDataManagementSystem dms2 = new ExternalDataManagementSystem();
         dms2.setId(2L);
@@ -297,7 +296,6 @@ public class DataSetListerTest extends AbstractDAOTest
         dms2.setLabel("Test External openBIS instance");
         dms2.setOpenBIS(true);
         dms2.setUrlTemplate("http://www.openbis.ch/perm_id=${code}");
-        dms2.setDatabaseInstance(db);
 
         assertEqualsToExternalDMS(dms1, results.get(0).getExternalDataManagementSystem());
         assertEqualsToExternalDMS(dms1, results.get(1).getExternalDataManagementSystem());
@@ -406,22 +404,6 @@ public class DataSetListerTest extends AbstractDAOTest
             assertEquals(expected.getLabel(), actual.getLabel());
             assertEquals(expected.getUrlTemplate(), actual.getUrlTemplate());
             assertEquals(expected.isOpenBIS(), actual.isOpenBIS());
-            assertEqualsToDatabaseInstance(expected.getDatabaseInstance(),
-                    actual.getDatabaseInstance());
         }
     }
-
-    private void assertEqualsToDatabaseInstance(DatabaseInstance expected, DatabaseInstance actual)
-    {
-        assertFalse(expected == null ^ actual == null);
-
-        if (expected != null && actual != null)
-        {
-            assertEquals(expected.getId(), actual.getId());
-            assertEquals(expected.getCode(), actual.getCode());
-            assertEquals(expected.getIdentifier(), actual.getIdentifier());
-            assertEquals(expected.getUuid(), actual.getUuid());
-        }
-    }
-
 }

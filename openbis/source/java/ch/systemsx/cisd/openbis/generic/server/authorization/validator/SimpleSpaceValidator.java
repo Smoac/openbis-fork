@@ -37,7 +37,7 @@ public class SimpleSpaceValidator extends AbstractValidator<ICodeHolder>
         {
             final SpacePE space = roleAssignment.getSpace();
             if ((space != null && space.getCode().equals(value.getCode()))
-                    || roleAssignment.getDatabaseInstance() != null)
+                    || space == null)
             {
                 return true;
             }

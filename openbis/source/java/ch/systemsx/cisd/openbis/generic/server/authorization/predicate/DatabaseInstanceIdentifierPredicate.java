@@ -21,7 +21,6 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 
@@ -42,8 +41,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
         this.isReadAccess = isReadAccess;
     }
 
-    private final static boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final boolean isReadAccess)
+    private final static boolean isMatching(final List<RoleWithIdentifier> allowedRoles, final boolean isReadAccess)
     {
         if (isReadAccess)
         {
@@ -52,8 +50,7 @@ public final class DatabaseInstanceIdentifierPredicate extends
         for (final RoleWithIdentifier role : allowedRoles)
         {
             final RoleLevel roleGroup = role.getRoleLevel();
-            if (roleGroup.equals(RoleLevel.INSTANCE)
-                    && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
+            if (roleGroup.equals(RoleLevel.INSTANCE))
             {
                 return true;
             }
@@ -77,20 +74,18 @@ public final class DatabaseInstanceIdentifierPredicate extends
             final DatabaseInstanceIdentifier databaseInstanceIdentifier)
     {
         assert initialized : "Predicate has not been initialized";
-        DatabaseInstancePE databaseInstance = getDatabaseInstance(databaseInstanceIdentifier);
-        final boolean matching = isMatching(allowedRoles, databaseInstance.getUuid(), isReadAccess);
+        final boolean matching = isMatching(allowedRoles, isReadAccess);
         if (matching)
         {
             return Status.OK;
         }
         String userId = person.getUserId();
-        return Status.createError(createErrorMsg(databaseInstance, userId));
+        return Status.createError(createErrorMsg(userId));
     }
 
-    private String createErrorMsg(DatabaseInstancePE databaseInstance, String userId)
+    private String createErrorMsg(String userId)
     {
         String accessType = isReadAccess ? "read from" : "modify";
-        return String.format(STATUS_MESSAGE_PREFIX_FORMAT + "%s database instance '%s'.", userId,
-                accessType, databaseInstance.getCode());
+        return String.format(STATUS_MESSAGE_PREFIX_FORMAT + "%s instance level entities.", userId, accessType);
     }
 }

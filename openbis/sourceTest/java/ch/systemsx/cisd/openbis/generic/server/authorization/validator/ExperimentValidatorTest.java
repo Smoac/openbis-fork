@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.TestJythonEvaluatorPool;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 
@@ -52,16 +51,5 @@ public class ExperimentValidatorTest extends AuthorizationTestCase
         assertEquals(true, validator.isValid(person, ExperimentTranslator.translate(
                 createExperiment(createSpace()), BASE_URL, null,
                 new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
-    }
-
-    @Test
-    public void testIsValidWithExperimentInTheWrongGroup()
-    {
-        ExperimentValidator validator = new ExperimentValidator();
-        PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        assertEquals(false,
-                validator.isValid(person, ExperimentTranslator.translate(createExperiment(group),
-                        BASE_URL, null, new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 }

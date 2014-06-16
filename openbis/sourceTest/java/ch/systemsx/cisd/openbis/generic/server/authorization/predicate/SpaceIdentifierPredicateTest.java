@@ -23,9 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.SpaceIdentifierPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -52,17 +50,6 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
             fail = false;
         }
         assertFalse(fail);
-        context.assertIsSatisfied();
-    }
-
-    @Test(expectedExceptions = UserFailureException.class)
-    public final void testExceptionBecauseInstanceDoesNotExist()
-    {
-        final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, null, Collections.<SpacePE> emptyList());
-        predicate.init(provider);
-        predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
-                INSTANCE_CODE, SPACE_CODE)).isError();
         context.assertIsSatisfied();
     }
 

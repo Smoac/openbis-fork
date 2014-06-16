@@ -90,8 +90,7 @@ public class ScreeningPlateListReadOnlyPredicate extends
             if (spaceCodeOrNull != null && plate.isSharedPlate() == false)
             {
                 final Status status =
-                        evaluate(person, allowedRoles, authorizationDataProvider
-                                .getHomeDatabaseInstance(), spaceCodeOrNull);
+                        evaluate(allowedRoles, person, spaceCodeOrNull);
                 if (Status.OK.equals(status) == false)
                 {
                     return status;

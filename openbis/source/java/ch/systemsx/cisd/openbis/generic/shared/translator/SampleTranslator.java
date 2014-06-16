@@ -139,8 +139,7 @@ public final class SampleTranslator
         if (withDetails)
         {
             result.setSpace(SpaceTranslator.translate(samplePE.getSpace()));
-            result.setDatabaseInstance(DatabaseInstanceTranslator.translate(samplePE
-                    .getDatabaseInstance()));
+            result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
             result.setRegistrator(PersonTranslator.translate(samplePE.getRegistrator()));
             result.setModifier(PersonTranslator.translate(samplePE.getModifier()));
             result.setRegistrationDate(samplePE.getRegistrationDate());

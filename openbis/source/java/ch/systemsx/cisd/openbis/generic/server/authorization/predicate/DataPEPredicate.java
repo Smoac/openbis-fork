@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -32,9 +31,4 @@ public class DataPEPredicate extends PersistentEntityPredicate<DataPE>
         return value.getExperiment().getProject().getSpace();
     }
 
-    @Override
-    public DatabaseInstancePE getInstance(DataPE value)
-    {
-        return value.getExperiment().getProject().getSpace().getDatabaseInstance();
-    }
 }

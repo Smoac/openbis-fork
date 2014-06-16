@@ -85,8 +85,7 @@ public class SampleLoader implements ISampleLoader
         }
         final Long sampleTypeID = sampleTypePE.getId();
         SpacePE space =
-                daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
-                        daoFactory.getHomeDatabaseInstance());
+                daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
         if (space == null)
         {
             return Collections.emptySet();

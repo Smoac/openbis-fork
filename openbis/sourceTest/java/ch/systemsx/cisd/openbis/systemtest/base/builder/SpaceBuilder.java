@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.systemtest.base.builder;
 
 import ch.systemsx.cisd.openbis.generic.server.ICommonServerForInternalUse;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 
 public class SpaceBuilder extends Builder<Space>
@@ -48,8 +47,7 @@ public class SpaceBuilder extends Builder<Space>
 
     private Space getSpace(String spaceCode)
     {
-        for (Space space : commonServer.listSpaces(systemSession, new DatabaseInstanceIdentifier(
-                "CISD")))
+        for (Space space : commonServer.listSpaces(systemSession))
         {
             if (space.getCode().equalsIgnoreCase(spaceCode))
             {

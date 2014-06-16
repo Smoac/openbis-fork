@@ -21,20 +21,18 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
- * 
- *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public abstract class AbstractDAO
 {
     private final long databaseInstanceId;
 
     private final DatabaseInstance databaseInstance;
-    
+
     protected AbstractDAO(final DatabaseInstancePE databaseInstance)
     {
         this.databaseInstanceId = databaseInstance.getId();
-        this.databaseInstance = DatabaseInstanceTranslator.translate(databaseInstance);
+        this.databaseInstance = DatabaseInstanceTranslator.translate();
     }
 
     public final long getDatabaseInstanceId()

@@ -19,8 +19,8 @@ package ch.systemsx.cisd.openbis.generic.shared.translator;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleAssignment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
@@ -54,7 +54,6 @@ public final class RoleAssignmentTranslator
         }
         final RoleAssignment result = new RoleAssignment();
         result.setSpace(SpaceTranslator.translate(role.getSpace()));
-        result.setInstance(DatabaseInstanceTranslator.translate(role.getDatabaseInstance()));
         result.setPerson(PersonTranslator.translate(role.getPerson()));
         result.setAuthorizationGroup(AuthorizationGroupTranslator.translate(role
                 .getAuthorizationGroup()));
@@ -68,8 +67,7 @@ public final class RoleAssignmentTranslator
         if (role.getSpace() != null)
         {
             roleLevel = RoleLevel.SPACE;
-        }
-        if (role.getDatabaseInstance() != null)
+        } else
         {
             roleLevel = RoleLevel.INSTANCE;
         }

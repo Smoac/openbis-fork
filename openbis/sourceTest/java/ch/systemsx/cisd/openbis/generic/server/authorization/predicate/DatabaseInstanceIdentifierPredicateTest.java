@@ -16,12 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
-import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -68,24 +66,6 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     }
 
     @Test
-    public final void testFailedEvaluation()
-    {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(false);
-        final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        prepareProvider(ANOTHER_INSTANCE_CODE, databaseInstance);
-        predicate.init(provider);
-        final PersonPE person = createPerson();
-        final Status evaluation =
-                predicate.doEvaluation(person, createRoles(false),
-                        new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE));
-        assertEquals(StatusFlag.ERROR, evaluation.getFlag());
-        assertEquals(
-                "User 'megapixel' does not have enough privileges to modify database instance 'DB2'.",
-                evaluation.tryGetErrorMessage());
-        context.assertIsSatisfied();
-    }
-
-    @Test
     public final void testEveryoneCanReadDatabaseEntities()
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
@@ -104,31 +84,12 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     public final void testSuccessfulEvaluationWithHomeDatabaseInstance()
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
-        final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        context.checking(new Expectations()
-            {
-                {
-                    one(provider).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-                }
-            });
         predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createRoles(true), DatabaseInstanceIdentifier
                         .createHome());
         assertEquals(Status.OK, evaluation);
-        context.assertIsSatisfied();
-    }
-
-    @Test(expectedExceptions = UserFailureException.class)
-    public final void testExceptionBecauseInstanceDoesNotExist()
-    {
-        final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
-        prepareProvider(INSTANCE_CODE, null);
-        predicate.init(provider);
-        predicate.doEvaluation(createPerson(), createRoles(false), new DatabaseInstanceIdentifier(
-                INSTANCE_CODE));
         context.assertIsSatisfied();
     }
 

@@ -21,7 +21,6 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
@@ -65,7 +64,6 @@ public class SpaceIdentifierPredicate extends AbstractSpacePredicate<SpaceIdenti
 
         assert initialized : "Predicate has not been initialized";
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceIdentifier);
-        final DatabaseInstancePE databaseInstance = getDatabaseInstance(spaceIdentifier);
-        return evaluate(person, allowedRoles, databaseInstance, spaceCode);
+        return evaluate(allowedRoles, person, spaceCode);
     }
 }

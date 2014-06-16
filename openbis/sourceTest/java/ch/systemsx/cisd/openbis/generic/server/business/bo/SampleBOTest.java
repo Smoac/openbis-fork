@@ -107,7 +107,6 @@ public final class SampleBOTest extends AbstractBOTest
         sampleType.setCode(typeCode);
         DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode(DB);
-        sampleType.setDatabaseInstance(databaseInstance);
         sampleType.setSampleTypePropertyTypes(new HashSet<SampleTypePropertyTypePE>());
         return sampleType;
     }
@@ -162,10 +161,9 @@ public final class SampleBOTest extends AbstractBOTest
         final SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(MASTER_PLATE);
         sampleType.setId(new Long(21L));
-        sampleType.setDatabaseInstance(new DatabaseInstancePE());
         final IEntityProperty sampleProperty = createSampleProperty();
         newSample.setProperties(new IEntityProperty[]
-            { sampleProperty });
+        { sampleProperty });
         final SamplePropertyPE samplePropertyPE = new SamplePropertyPE();
         samplePropertyPE.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
         final SampleTypePropertyTypePE sampleTypePropertyType = new SampleTypePropertyTypePE();
@@ -479,8 +477,6 @@ public final class SampleBOTest extends AbstractBOTest
         experimentIdentifier.setExperimentCode("exp1");
         experimentIdentifier.setProjectCode(project.getCode());
         experimentIdentifier.setSpaceCode(project.getSpace().getCode());
-        experimentIdentifier.setDatabaseInstanceCode(project.getSpace().getDatabaseInstance()
-                .getCode());
 
         // create a sample already attached to an experiment
         final ExperimentPE sampleExperiment = new ExperimentPE();
@@ -501,7 +497,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(projectDAO).tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
+                    one(projectDAO).tryFindProject(
                             experimentIdentifier.getSpaceCode(),
                             experimentIdentifier.getProjectCode());
                     will(returnValue(project));
@@ -543,8 +539,8 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            parent.getSpace().getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(spaceDAO).tryFindSpaceByCode(
+                            parent.getSpace().getCode());
                     will(returnValue(EXAMPLE_GROUP));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(parent.getCode(), EXAMPLE_GROUP);
@@ -570,7 +566,7 @@ public final class SampleBOTest extends AbstractBOTest
             });
         assertNull(sample.getGeneratedFrom());
         String[] modifiedParents = new String[]
-            { parent.getIdentifier() };
+        { parent.getIdentifier() };
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
@@ -603,12 +599,12 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getHomeDatabaseInstance();
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            EXAMPLE_GROUP.getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(spaceDAO).tryFindSpaceByCode(
+                            EXAMPLE_GROUP.getCode());
                     will(returnValue(EXAMPLE_GROUP));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            EXAMPLE_GROUP2.getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(spaceDAO).tryFindSpaceByCode(
+                            EXAMPLE_GROUP2.getCode());
                     will(returnValue(EXAMPLE_GROUP2));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(parent1Group1.getCode(),
@@ -645,8 +641,8 @@ public final class SampleBOTest extends AbstractBOTest
         assertEquals(0, sample.getParents().size());
         String[] modifiedParents =
                 new String[]
-                    { parent1Group1.getIdentifier(), parent2Group1.getCode(),
-                            parent3Group2.getIdentifier() };
+                { parent1Group1.getIdentifier(), parent2Group1.getCode(),
+                        parent3Group2.getIdentifier() };
         createSampleBO().update(
                 new SampleUpdatesDTO(SAMPLE_TECH_ID, null, null, Collections
                         .<NewAttachment> emptyList(), VERSION, IdentifierHelper.sample(sample),
@@ -682,8 +678,8 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            container.getSpace().getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(spaceDAO).tryFindSpaceByCode(
+                            container.getSpace().getCode());
                     will(returnValue(EXAMPLE_GROUP));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(container.getCode(), EXAMPLE_GROUP);
@@ -695,8 +691,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(relationshipService).unassignSampleFromExperiment(
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(with("MY_GROUP"),
-                            with(any(DatabaseInstancePE.class)));
+                    allowing(spaceDAO).tryFindSpaceByCode(with("MY_GROUP"));
                     will(returnValue(EXAMPLE_GROUP));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(with("sampleCode"),
@@ -734,8 +729,8 @@ public final class SampleBOTest extends AbstractBOTest
                             EXAMPLE_DATABASE_INSTANCE.getCode());
                     will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            container.getSpace().getCode(), EXAMPLE_DATABASE_INSTANCE);
+                    allowing(spaceDAO).tryFindSpaceByCode(
+                            container.getSpace().getCode());
                     will(returnValue(EXAMPLE_GROUP2));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(container.getCode(), EXAMPLE_GROUP2);
@@ -751,8 +746,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(relationshipService).unassignSampleFromExperiment(
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
 
-                    allowing(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(with("MY_GROUP"),
-                            with(any(DatabaseInstancePE.class)));
+                    allowing(spaceDAO).tryFindSpaceByCode(with("MY_GROUP"));
                     will(returnValue(EXAMPLE_GROUP));
 
                     allowing(sampleDAO).tryFindByCodeAndSpace(with("sampleCode"),
@@ -950,7 +944,7 @@ public final class SampleBOTest extends AbstractBOTest
         } catch (final UserFailureException ex)
         {
             assertEquals("No sample could be found for identifier "
-                    + "'MY_DATABASE_INSTANCE:/MY_GROUP/DOES_NOT_EXIST'.", ex.getMessage());
+                    + "'/MY_GROUP/DOES_NOT_EXIST'.", ex.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -994,7 +988,7 @@ public final class SampleBOTest extends AbstractBOTest
         } catch (final UserFailureException ex)
         {
             assertEquals("No sample could be found for identifier "
-                    + "'MY_DATABASE_INSTANCE:/MY_GROUP/DOES_NOT_EXIST'.", ex.getMessage());
+                    + "'/MY_GROUP/DOES_NOT_EXIST'.", ex.getMessage());
         }
         context.assertIsSatisfied();
     }
@@ -1098,13 +1092,8 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode("MY_DATABASE_INSTANCE");
-                    DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-                    databaseInstance.setCode("MY_DATABASE_INSTANCE");
-                    will(returnValue(databaseInstance));
-
-                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(
-                            sampleIdentifier.getSpaceLevel().getSpaceCode(), databaseInstance);
+                    one(spaceDAO).tryFindSpaceByCode(
+                            sampleIdentifier.getSpaceLevel().getSpaceCode());
                     SpacePE group = new SpacePE();
                     will(returnValue(group));
 

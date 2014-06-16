@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
@@ -57,19 +56,9 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         spaces = provider.listSpaces();
     }
 
-    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final DatabaseInstancePE databaseInstance, final String spaceCodeOrNull)
+    protected Status evaluate(final List<RoleWithIdentifier> allowedRoles, final PersonPE person, final String spaceCodeOrNull)
     {
-        final String databaseInstanceUUID = databaseInstance.getUuid();
-        return evaluate(person, allowedRoles, databaseInstanceUUID, databaseInstance.getCode(),
-                spaceCodeOrNull);
-    }
-
-    protected Status evaluate(final PersonPE person, final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final String databaseInstanceCode,
-            final String spaceCodeOrNull)
-    {
-        if (tryFindSpace(databaseInstanceUUID, spaceCodeOrNull) == null)
+        if (tryFindSpace(spaceCodeOrNull) == null)
         {
             if (okForNonExistentSpaces)
             {
@@ -80,7 +69,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
             }
         }
 
-        final boolean matching = isMatching(allowedRoles, databaseInstanceUUID, spaceCodeOrNull);
+        final boolean matching = isMatching(allowedRoles, spaceCodeOrNull);
         if (matching)
         {
             return Status.OK;
@@ -104,7 +93,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         }
 
         final boolean matching =
-                isMatching(allowedRoles, space.getDatabaseInstance().getId(), spaceTechId);
+                isMatching(allowedRoles, spaceTechId);
         if (matching)
         {
             return Status.OK;
@@ -118,11 +107,11 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
                 person.getUserId()));
     }
 
-    private SpacePE tryFindSpace(final String databaseInstanceUUID, final String spaceCode)
+    private SpacePE tryFindSpace(final String spaceCode)
     {
         for (final SpacePE space : spaces)
         {
-            if (equalIdentifier(space, databaseInstanceUUID, spaceCode))
+            if (space.getCode().equals(spaceCode))
             {
                 return space;
             }
@@ -142,19 +131,16 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         return null;
     }
 
-    private boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
-            final String databaseInstanceUUID, final String spaceCodeOrNull)
+    private boolean isMatching(final List<RoleWithIdentifier> allowedRoles, final String spaceCodeOrNull)
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
             final RoleLevel roleLevel = role.getRoleLevel();
             if (roleLevel.equals(RoleLevel.SPACE)
-                    && equalIdentifier(role.getAssignedSpace(), databaseInstanceUUID,
-                            spaceCodeOrNull))
+                    && role.getAssignedSpace().getCode().equals(spaceCodeOrNull))
             {
                 return true;
-            } else if (roleLevel.equals(RoleLevel.INSTANCE)
-                    && role.getAssignedDatabaseInstance().getUuid().equals(databaseInstanceUUID))
+            } else if (roleLevel.equals(RoleLevel.INSTANCE))
             {
                 // permissions on the database instance level allow to access all spaces in this
                 // instance
@@ -164,8 +150,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         return false;
     }
 
-    private boolean isMatching(final List<RoleWithIdentifier> allowedRoles,
-            final long databaseTechId, final long spaceTechId)
+    private boolean isMatching(final List<RoleWithIdentifier> allowedRoles, final long spaceTechId)
     {
         for (final RoleWithIdentifier role : allowedRoles)
         {
@@ -174,8 +159,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
                     && equalIdentifier(role.getAssignedSpace(), spaceTechId))
             {
                 return true;
-            } else if (roleLevel.equals(RoleLevel.INSTANCE)
-                    && role.getAssignedDatabaseInstance().getId() == databaseTechId)
+            } else if (roleLevel.equals(RoleLevel.INSTANCE))
             {
                 // permissions on the database instance level allow to access all spaces in this
                 // instance
@@ -183,13 +167,6 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
             }
         }
         return false;
-    }
-
-    private boolean equalIdentifier(final SpacePE space, final String databaseInstanceUUID,
-            final String spaceCodeOrNull)
-    {
-        return (spaceCodeOrNull == null || space.getCode().equals(spaceCodeOrNull))
-                && space.getDatabaseInstance().getUuid().equals(databaseInstanceUUID);
     }
 
     private boolean equalIdentifier(final SpacePE space, final long spaceTechId)
@@ -207,8 +184,7 @@ public abstract class AbstractSpacePredicate<T> extends AbstractDatabaseInstance
         }
 
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, spaceOrNull);
-        final DatabaseInstancePE databaseInstance = spaceOrNull.getDatabaseInstance();
-        return evaluate(person, allowedRoles, databaseInstance, spaceCode);
+        return evaluate(allowedRoles, person, spaceCode);
     }
 
 }

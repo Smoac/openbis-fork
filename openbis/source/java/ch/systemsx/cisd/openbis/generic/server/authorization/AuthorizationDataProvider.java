@@ -71,8 +71,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     @Override
     public SpacePE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode)
     {
-        return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceCode,
-                homeDatabaseInstance);
+        return daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
     }
 
     @Override
@@ -114,7 +113,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     @Override
     public ProjectPE tryGetProjectByIdentifier(ProjectIdentifier identifier)
     {
-        return daoFactory.getProjectDAO().tryFindProject(identifier.getDatabaseInstanceCode(),
+        return daoFactory.getProjectDAO().tryFindProject(
                 identifier.getSpaceCode(), identifier.getProjectCode());
     }
 
@@ -481,12 +480,11 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     /**
      * Casts given <var>list</var> to specified type.
      * <p>
-     * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in calling
-     * methods.
+     * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in calling methods.
      * </p>
      */
     @SuppressWarnings(
-        { "unchecked", "rawtypes" })
+    { "unchecked", "rawtypes" })
     private static final <T> List<T> cast(final List list)
     {
         return list;

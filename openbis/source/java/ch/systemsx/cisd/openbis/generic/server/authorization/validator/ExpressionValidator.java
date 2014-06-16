@@ -20,16 +20,14 @@ import java.util.Set;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExpression;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
 /**
- * A {@link IValidator} implementation for grid custom filter or column. Public internal class
- * provide predicates for updates and deletions based on {@link TechId}.
+ * A {@link IValidator} implementation for grid custom filter or column. Public internal class provide predicates for updates and deletions based on
+ * {@link TechId}.
  * 
  * @author Izabela Adamczyk
  */
@@ -43,26 +41,22 @@ public final class ExpressionValidator extends AbstractValidator<AbstractExpress
     public final boolean doValidation(final PersonPE person, final AbstractExpression value)
     {
         return value.isPublic() || isRegistrator(person, value)
-                || isInstanceAdmin(person, value.getDatabaseInstance());
+                || isInstanceAdmin(person);
 
     }
 
     private boolean isRegistrator(final PersonPE person, final AbstractExpression value)
     {
         Person registrator = value.getRegistrator();
-        return person.getUserId().equals(registrator.getUserId())
-                && person.getDatabaseInstance().getCode().equals(
-                        registrator.getDatabaseInstance().getCode());
+        return person.getUserId().equals(registrator.getUserId());
     }
 
-    private static boolean isInstanceAdmin(final PersonPE person, final DatabaseInstance databaseInstance)
+    private static boolean isInstanceAdmin(final PersonPE person)
     {
         final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
         for (final RoleAssignmentPE roleAssignment : roleAssignments)
         {
-            final DatabaseInstancePE roleInstance = roleAssignment.getDatabaseInstance();
-            if (roleInstance != null && roleInstance.getUuid().equals(databaseInstance.getUuid())
-                    && roleAssignment.getRole().equals(RoleCode.ADMIN))
+            if (roleAssignment.getSpace() == null && roleAssignment.getRole().equals(RoleCode.ADMIN))
             {
                 return true;
             }

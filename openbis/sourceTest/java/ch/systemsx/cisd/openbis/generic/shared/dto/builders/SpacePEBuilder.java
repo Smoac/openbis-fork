@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Builder of objects of type {@link SpacePE}.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class SpacePEBuilder
@@ -32,13 +32,12 @@ public class SpacePEBuilder
     {
         return space;
     }
-    
+
     public SpacePEBuilder databaseInstance(DatabaseInstancePE databaseInstance)
     {
-        space.setDatabaseInstance(databaseInstance);
         return this;
     }
-    
+
     public SpacePEBuilder code(String code)
     {
         space.setCode(code);

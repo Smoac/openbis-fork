@@ -26,7 +26,6 @@ import java.util.List;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TypedTableModel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.util.TypedTableModelBuilder;
 
 /**
@@ -42,8 +41,7 @@ public class SpacesProvider extends AbstractCommonTableModelProvider<Space>
     @Override
     protected TypedTableModel<Space> createTableModel()
     {
-        DatabaseInstanceIdentifier identifier = new DatabaseInstanceIdentifier(null);
-        List<Space> spaces = commonServer.listSpaces(sessionToken, identifier);
+        List<Space> spaces = commonServer.listSpaces(sessionToken);
         TypedTableModelBuilder<Space> builder = new TypedTableModelBuilder<Space>();
         builder.addColumn(CODE);
         builder.addColumn(DESCRIPTION).withDefaultWidth(200);

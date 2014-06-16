@@ -168,7 +168,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
             final SpacePE space =
                     SpaceIdentifierHelper.tryGetSpace(spaceIdentifier, findPerson(), this);
             checkNotNull(spaceIdentifier, space);
-            spaceIdentifier.setDatabaseInstanceCode(space.getDatabaseInstance().getCode());
             spaceIdentifier.setSpaceCode(space.getCode());
         }
     }

@@ -20,14 +20,13 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IMatchingEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 
@@ -40,8 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.SpaceTranslator;
 public final class MatchingEntityValidatorTest extends AuthorizationTestCase
 {
     /**
-     * Returns a stub of {@link MatchingEntity} with all information needed by
-     * {@link MatchingEntityValidator} set - currently only with {@link Space}.
+     * Returns a stub of {@link MatchingEntity} with all information needed by {@link MatchingEntityValidator} set - currently only with {@link Space}
+     * .
      */
     private static MatchingEntity asMatchingEntityStub(IMatchingEntity matchingEntity)
     {
@@ -99,32 +98,12 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     }
 
     @Test
-    public final void testWithExperimentInTheWrongGroup()
-    {
-        final PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        final ExperimentPE experiment = createExperiment(group);
-        final MatchingEntityValidator validator = new MatchingEntityValidator();
-        assertEquals(false, validator.isValid(person, asMatchingEntityStub(experiment)));
-    }
-
-    @Test
     public final void testWithSampleInTheRightGroup()
     {
         final PersonPE person = createPersonWithRoleAssignments();
         final SamplePE sample = createSample(createSpace());
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asMatchingEntityStub(sample)));
-    }
-
-    @Test
-    public final void testWithSampleInTheWrongGroup()
-    {
-        final PersonPE person = createPersonWithRoleAssignments();
-        SpacePE group = createSpace("blabla", createAnotherDatabaseInstance());
-        final SamplePE sample = createSample(group);
-        final MatchingEntityValidator validator = new MatchingEntityValidator();
-        assertEquals(false, validator.isValid(person, asMatchingEntityStub(sample)));
     }
 
     @Test

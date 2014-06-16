@@ -118,13 +118,9 @@ public class ProjectDAOTest extends AbstractDAOTest
         assertEquals(templateProject.getCode(), TESTPROJ);
 
         ProjectPE found =
-                daoFactory.getProjectDAO().tryFindProject(
-                        templateProject.getSpace().getDatabaseInstance().getCode(),
-                        templateProject.getSpace().getCode(), templateProject.getCode());
+                daoFactory.getProjectDAO().tryFindProject(templateProject.getSpace().getCode(), templateProject.getCode());
         assertEquals(TESTPROJ, found.getCode());
         assertEquals(templateProject.getSpace().getCode(), found.getSpace().getCode());
-        assertEquals(templateProject.getSpace().getDatabaseInstance().getCode(), found.getSpace()
-                .getDatabaseInstance().getCode());
     }
 
     @Test
@@ -136,15 +132,10 @@ public class ProjectDAOTest extends AbstractDAOTest
         assertEquals(templateProject.getCode(), TESTPROJ);
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getSpace().getDatabaseInstance().getCode(),
                 templateProject.getSpace().getCode(), NONEXISTENT));
 
-        AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getSpace().getDatabaseInstance().getCode(), NONEXISTENT,
-                templateProject.getCode()));
-
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(NONEXISTENT,
-                templateProject.getSpace().getCode(), templateProject.getCode()));
+                templateProject.getCode()));
     }
 
     @Test
@@ -208,7 +199,6 @@ public class ProjectDAOTest extends AbstractDAOTest
         final ProjectPE templateProject = allProjects.get(5);
         assertEquals(templateProject.getCode(), TESTPROJ);
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
-                templateProject.getSpace().getDatabaseInstance().getCode(),
                 templateProject.getSpace().getCode(), NONEXISTENT));
         final ProjectPE newProject =
                 prepareProject(templateProject.getSpace(), NONEXISTENT, DESCRIPTION_NEW_PROJECT,
@@ -216,7 +206,6 @@ public class ProjectDAOTest extends AbstractDAOTest
         daoFactory.getProjectDAO().createProject(newProject, getTestPerson());
         final ProjectPE registeredProject =
                 daoFactory.getProjectDAO().tryFindProject(
-                        templateProject.getSpace().getDatabaseInstance().getCode(),
                         templateProject.getSpace().getCode(), NONEXISTENT);
         AssertJUnit.assertNotNull(registeredProject);
         assertEquals(registeredProject.getDescription(), DESCRIPTION_NEW_PROJECT);
@@ -277,8 +266,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     private final ProjectPE findProject(String projectCode, String groupCode)
     {
         final IProjectDAO projectDAO = daoFactory.getProjectDAO();
-        final String dbInstanceCode = daoFactory.getHomeDatabaseInstance().getCode();
-        final ProjectPE project = projectDAO.tryFindProject(dbInstanceCode, groupCode, projectCode);
+        final ProjectPE project = projectDAO.tryFindProject(groupCode, projectCode);
         assertNotNull(project);
 
         return project;

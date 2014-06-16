@@ -31,18 +31,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 @Entity
 @SqlResultSetMapping(name = "experiment_access_implicit", entities = @EntityResult(entityClass = ExperimentAccessPE.class))
 @NamedNativeQuery(name = "deleted_experiment_access", query = "select "
-        + "g.code as spaceCode, dbi.uuid as databaseInstanceUuid, dbi.code as databaseInstanceCode "
-        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE + " g, "
-        + TableNames.DATABASE_INSTANCES_TABLE + " dbi " + "where p.id in "
+        + "g.code as spaceCode "
+        + "from " + TableNames.PROJECTS_TABLE + " p, " + TableNames.SPACES_TABLE + " g where p.id in "
         + "(select e.proj_id from " + TableNames.DELETED_EXPERIMENTS_VIEW + " e "
-        + "where e.del_id in (:del_ids)) " + "and p.space_id = g.id and dbi.id = g.dbin_id", resultSetMapping = "experiment_access_implicit")
+        + "where e.del_id in (:del_ids)) " + "and p.space_id = g.id", resultSetMapping = "experiment_access_implicit")
 public class ExperimentAccessPE
 {
     private String spaceCode;
-
-    private String databaseInstanceUuid;
-
-    private String databaseInstanceCode;
 
     public final static String DELETED_EXPERIMENT_ACCESS_QUERY_NAME = "deleted_experiment_access";
 
@@ -53,30 +48,10 @@ public class ExperimentAccessPE
         this.spaceCode = spaceCode;
     }
 
-    void setDatabaseInstanceUuid(String databaseInstanceUuid)
-    {
-        this.databaseInstanceUuid = databaseInstanceUuid;
-    }
-
-    void setDatabaseInstanceCode(String databaseInstanceCode)
-    {
-        this.databaseInstanceCode = databaseInstanceCode;
-    }
-
     @Id
     public String getSpaceCode()
     {
         return spaceCode;
-    }
-
-    public String getDatabaseInstanceUuid()
-    {
-        return databaseInstanceUuid;
-    }
-
-    public String getDatabaseInstanceCode()
-    {
-        return databaseInstanceCode;
     }
 
     //
@@ -97,8 +72,6 @@ public class ExperimentAccessPE
         final ExperimentAccessPE that = (ExperimentAccessPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getSpaceCode(), that.getSpaceCode());
-        builder.append(getDatabaseInstanceCode(), that.getDatabaseInstanceCode());
-        builder.append(getDatabaseInstanceUuid(), that.getDatabaseInstanceUuid());
         return builder.isEquals();
     }
 
@@ -107,8 +80,6 @@ public class ExperimentAccessPE
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getSpaceCode());
-        builder.append(getDatabaseInstanceCode());
-        builder.append(getDatabaseInstanceUuid());
         return builder.toHashCode();
     }
 }

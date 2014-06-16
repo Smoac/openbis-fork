@@ -1211,7 +1211,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
     private void loadSmallConnectedTables()
     {
         dataSetTypes.clear();
-        for (DataSetTypeRecord code : query.getDatasetTypes(databaseInstanceId))
+        for (DataSetTypeRecord code : query.getDatasetTypes())
         {
             dataSetTypes.put(code.id, createDataSetType(code));
         }

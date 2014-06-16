@@ -46,10 +46,8 @@ public class DataSetCodePredicate extends AbstractSpacePredicate<String>
 
         if (accessData != null)
         {
-            String dbInstanceUUID = accessData.getDatabaseInstanceUuid();
-            String dbInstanceCode = accessData.getDatabaseInstanceCode();
             String spaceCode = accessData.getSpaceCode();
-            return evaluate(person, allowedRoles, dbInstanceUUID, dbInstanceCode, spaceCode);
+            return evaluate(allowedRoles, person, spaceCode);
         }
         return Status.OK;
     }

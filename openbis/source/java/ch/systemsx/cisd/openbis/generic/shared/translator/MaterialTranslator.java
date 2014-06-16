@@ -88,8 +88,7 @@ public final class MaterialTranslator
         result.setModificationDate(materialPE.getModificationDate());
         result.setMaterialType(MaterialTypeTranslator.translate(materialPE.getMaterialType(),
                 new HashMap<PropertyTypePE, PropertyType>()));
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(materialPE
-                .getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setRegistrator(PersonTranslator.translate(materialPE.getRegistrator()));
         result.setRegistrationDate(materialPE.getRegistrationDate());
         if (withProperties)

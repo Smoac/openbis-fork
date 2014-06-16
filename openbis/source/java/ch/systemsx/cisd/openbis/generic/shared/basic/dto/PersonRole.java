@@ -38,22 +38,21 @@ public class PersonRole implements Serializable
     {
     }
 
-    public PersonRole(RoleWithHierarchy role, DatabaseInstance databaseInstance, Space space)
+    public PersonRole(RoleWithHierarchy role, Space space)
     {
         if (role == null)
         {
             throw new IllegalArgumentException("Role cannot be null");
         }
-        if (role.isInstanceLevel() && databaseInstance == null)
+        if (role.isInstanceLevel() && space != null)
         {
-            throw new IllegalArgumentException("Database instance cannot be null for instance role");
+            throw new IllegalArgumentException("Space cannot be specified for instance role");
         }
         if (role.isSpaceLevel() && space == null)
         {
             throw new IllegalArgumentException("Space cannot be null for space role");
         }
         this.role = role;
-        this.databaseInstance = databaseInstance;
         this.space = space;
     }
 

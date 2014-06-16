@@ -26,12 +26,8 @@ import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.QueryTool;
-
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentFetchOption;
@@ -40,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -103,7 +98,7 @@ public class ExperimentLister implements IExperimentLister
         ExperimentIdentifiers identifiers = new ExperimentIdentifiers(experimentIdentifiers);
 
         DataIterator<ExperimentRecord> iterator =
-                query.listExperiments(identifiers.getDatabaseInstanceCodes(),
+                query.listExperiments(
                         identifiers.getSpaceCodes(), identifiers.getProjectCodes(),
                         identifiers.getExperimentCodes());
 
@@ -131,7 +126,7 @@ public class ExperimentLister implements IExperimentLister
         ProjectIdentifiers identifiers = new ProjectIdentifiers(projectIdentifiers);
 
         DataIterator<ExperimentRecord> iterator =
-                query.listExperimentsForProjects(identifiers.getDatabaseInstanceCodes(),
+                query.listExperimentsForProjects(
                         identifiers.getSpaceCodes(), identifiers.getProjectCodes());
 
         return handleResults(iterator, identifiers);
@@ -182,8 +177,7 @@ public class ExperimentLister implements IExperimentLister
     private Experiment createExperiment(ExperimentRecord record)
     {
         ExperimentIdentifier experimentIdentifier =
-                new ExperimentIdentifier(createDatabaseInstanceIdentifier(record)
-                        .getDatabaseInstanceCode(), record.s_code, record.pr_code, record.e_code);
+                new ExperimentIdentifier(null, record.s_code, record.pr_code, record.e_code);
 
         Experiment experiment = new Experiment();
         experiment.setFetchOptions(new ExperimentFetchOptions());
@@ -208,37 +202,18 @@ public class ExperimentLister implements IExperimentLister
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode(record.et_code);
         experimentType.setDescription(record.et_description);
-        experimentType.setDatabaseInstance(createDatabaseInstance(record));
         return experimentType;
-    }
-
-    private DatabaseInstanceIdentifier createDatabaseInstanceIdentifier(ExperimentRecord record)
-    {
-        return new DatabaseInstanceIdentifier(record.d_is_original_source, record.d_code);
-    }
-
-    private DatabaseInstance createDatabaseInstance(ExperimentRecord record)
-    {
-        DatabaseInstance instance = new DatabaseInstance();
-        instance.setId(record.d_id);
-        instance.setCode(record.d_code);
-        instance.setUuid(record.d_uuid);
-        instance.setHomeDatabase(record.d_is_original_source);
-        instance.setIdentifier(createDatabaseInstanceIdentifier(record).toString());
-        return instance;
     }
 
     private Space createSpace(ExperimentRecord record)
     {
         SpaceIdentifier spaceIdentifier =
-                new SpaceIdentifier(createDatabaseInstanceIdentifier(record)
-                        .getDatabaseInstanceCode(), record.s_code);
+                new SpaceIdentifier(record.s_code);
 
         Space space = new Space();
         space.setId(record.s_id);
         space.setCode(record.s_code);
         space.setDescription(record.s_description);
-        space.setInstance(createDatabaseInstance(record));
         space.setRegistrationDate(record.s_registration_timestamp);
         space.setIdentifier(spaceIdentifier.toString());
         return space;
@@ -251,7 +226,6 @@ public class ExperimentLister implements IExperimentLister
         person.setLastName(record.pe_last_name);
         person.setEmail(record.pe_email);
         person.setUserId(record.pe_user_id);
-        person.setDatabaseInstance(createDatabaseInstance(record));
         person.setRegistrationDate(record.pe_registration_timestamp);
         return person;
     }
@@ -263,7 +237,6 @@ public class ExperimentLister implements IExperimentLister
         person.setLastName(record.mod_last_name);
         person.setEmail(record.mod_email);
         person.setUserId(record.mod_user_id);
-        person.setDatabaseInstance(createDatabaseInstance(record));
         person.setRegistrationDate(record.mod_registration_timestamp);
         return person;
     }
@@ -271,8 +244,7 @@ public class ExperimentLister implements IExperimentLister
     private Project createProject(ExperimentRecord record)
     {
         ProjectIdentifier projectIdentifier =
-                new ProjectIdentifier(createDatabaseInstanceIdentifier(record)
-                        .getDatabaseInstanceCode(), record.s_code, record.pr_code);
+                new ProjectIdentifier(record.s_code, record.pr_code);
 
         Project project = new Project();
         project.setId(record.pr_id);
@@ -291,8 +263,6 @@ public class ExperimentLister implements IExperimentLister
     {
         private Set<ProjectIdentifier> identifiersSet;
 
-        private Set<String> databaseInstanceCodes;
-
         private Set<String> spaceCodes;
 
         private Set<String> projectCodes;
@@ -300,27 +270,15 @@ public class ExperimentLister implements IExperimentLister
         public ProjectIdentifiers(List<? extends ProjectIdentifier> identifiers)
         {
             identifiersSet = new HashSet<ProjectIdentifier>(identifiers.size());
-            databaseInstanceCodes = new HashSet<String>(identifiers.size());
             spaceCodes = new HashSet<String>(identifiers.size());
             projectCodes = new HashSet<String>(identifiers.size());
 
             for (ProjectIdentifier identifier : identifiers)
             {
-                if (StringUtils.isBlank(identifier.getDatabaseInstanceCode()))
-                {
-                    identifier.setDatabaseInstanceCode(daoFactory.getHomeDatabaseInstance()
-                            .getCode());
-                }
                 identifiersSet.add(identifier);
-                databaseInstanceCodes.add(identifier.getDatabaseInstanceCode());
                 spaceCodes.add(identifier.getSpaceCode());
                 projectCodes.add(identifier.getProjectCode());
             }
-        }
-
-        public String[] getDatabaseInstanceCodes()
-        {
-            return databaseInstanceCodes.toArray(new String[databaseInstanceCodes.size()]);
         }
 
         public String[] getSpaceCodes()
@@ -350,7 +308,7 @@ public class ExperimentLister implements IExperimentLister
             {
                 ExperimentRecord record = iterator.next();
                 ProjectIdentifier identifier =
-                        new ProjectIdentifier(record.d_code, record.s_code, record.pr_code);
+                        new ProjectIdentifier(record.s_code, record.pr_code);
                 if (!contains(identifier))
                 {
                     iterator.remove();

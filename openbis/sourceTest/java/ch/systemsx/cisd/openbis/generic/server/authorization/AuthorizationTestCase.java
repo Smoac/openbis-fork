@@ -73,21 +73,17 @@ public class AuthorizationTestCase extends AssertJUnit
     protected IAuthorizationDataProvider provider;
 
     /**
-     * Creates a role with level {@link RoleLevel#SPACE} with specified role code for specified
-     * space.
+     * Creates a role with level {@link RoleLevel#SPACE} with specified role code for specified space.
      */
     protected RoleWithIdentifier createSpaceRole(RoleCode roleCode, SpaceIdentifier spaceIdentifier)
     {
         SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceIdentifier.getSpaceCode());
-        DatabaseInstancePE instance = createDatabaseInstancePE(spaceIdentifier);
-        groupPE.setDatabaseInstance(instance);
         return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, null, groupPE);
     }
 
     /**
-     * Creates a role with level {@link RoleLevel#INSTANCE} with specified role code for specified
-     * database instance.
+     * Creates a role with level {@link RoleLevel#INSTANCE} with specified role code for specified database instance.
      */
     protected RoleWithIdentifier createInstanceRole(RoleCode roleCode,
             DatabaseInstanceIdentifier instanceIdentifier)
@@ -97,8 +93,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} for the specified identifier. Shortcut
-     * for <code>createDatabaseInstance(instanceIdentifier.getDatabaseInstanceCode())</code>.
+     * Creates a new instance of {@link DatabaseInstancePE} for the specified identifier. Shortcut for
+     * <code>createDatabaseInstance(instanceIdentifier.getDatabaseInstanceCode())</code>.
      */
     protected DatabaseInstancePE createDatabaseInstancePE(
             DatabaseInstanceIdentifier instanceIdentifier)
@@ -107,8 +103,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #INSTANCE_CODE}.
-     * Shortcut for <code>createDatabaseInstance(INSTANCE_CODE)</code>.
+     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #INSTANCE_CODE}. Shortcut for
+     * <code>createDatabaseInstance(INSTANCE_CODE)</code>.
      */
     protected final DatabaseInstancePE createDatabaseInstance()
     {
@@ -116,8 +112,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} for the specified code. Only code and
-     * UUID will be set.
+     * Creates a new instance of {@link DatabaseInstancePE} for the specified code. Only code and UUID will be set.
      */
     protected DatabaseInstancePE createDatabaseInstance(String code)
     {
@@ -128,8 +123,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #ANOTHER_INSTANCE_CODE}
-     * . Shortcut for <code>createDatabaseInstance(ANOTHER_INSTANCE_CODE)</code>.
+     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #ANOTHER_INSTANCE_CODE} . Shortcut for
+     * <code>createDatabaseInstance(ANOTHER_INSTANCE_CODE)</code>.
      */
     protected DatabaseInstancePE createAnotherDatabaseInstance()
     {
@@ -154,8 +149,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of spaces which contains {@link #createSpace()} and
-     * {@link #createAnotherSpace()}.
+     * Creates a list of spaces which contains {@link #createSpace()} and {@link #createAnotherSpace()}.
      */
     protected List<SpacePE> createSpaces()
     {
@@ -166,8 +160,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a group with code {@link #SPACE_CODE} and database instance with code
-     * {@link AuthorizationTestCase#INSTANCE_CODE}.
+     * Creates a group with code {@link #SPACE_CODE} and database instance with code {@link AuthorizationTestCase#INSTANCE_CODE}.
      */
     protected SpacePE createSpace()
     {
@@ -175,8 +168,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a space with code {@link #ANOTHER_SPACE_CODE} and database instance with code
-     * {@link #ANOTHER_INSTANCE_CODE}.
+     * Creates a space with code {@link #ANOTHER_SPACE_CODE} and database instance with code {@link #ANOTHER_INSTANCE_CODE}.
      */
     protected SpacePE createAnotherSpace()
     {
@@ -201,13 +193,12 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final SpacePE space = new SpacePE();
         space.setCode(spaceCode);
-        space.setDatabaseInstance(databaseInstancePE);
         return space;
     }
 
     /**
-     * Creates a person with two {@link RoleAssignmentPE} instances. One ADMIN role for database
-     * instance {@link #INSTANCE_CODE} and a USER role for the group {@link #createAnotherSpace()}.
+     * Creates a person with two {@link RoleAssignmentPE} instances. One ADMIN role for database instance {@link #INSTANCE_CODE} and a USER role for
+     * the group {@link #createAnotherSpace()}.
      */
     protected PersonPE createPersonWithRoleAssignments()
     {
@@ -217,9 +208,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Assigns two {@link RoleAssignmentPE} instances to specified person. One ADMIN role for
-     * database instance {@link #INSTANCE_CODE} and a USER role for the group
-     * {@link #createAnotherSpace()}.
+     * Assigns two {@link RoleAssignmentPE} instances to specified person. One ADMIN role for database instance {@link #INSTANCE_CODE} and a USER role
+     * for the group {@link #createAnotherSpace()}.
      */
     protected void assignRoles(PersonPE person)
     {
@@ -227,7 +217,6 @@ public class AuthorizationTestCase extends AssertJUnit
         // Database assignment
         RoleAssignmentPE assignment = new RoleAssignmentPE();
         assignment.setRole(RoleCode.ADMIN);
-        assignment.setDatabaseInstance(createDatabaseInstance());
         person.addRoleAssignment(assignment);
         list.add(assignment);
         // Group assignment
@@ -323,8 +312,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains an instance admin role for database instance
-     * {@link AuthorizationTestCase#ANOTHER_INSTANCE_CODE}.
+     * Creates a list of roles which contains an instance admin role for database instance {@link AuthorizationTestCase#ANOTHER_INSTANCE_CODE}.
      */
     protected List<RoleWithIdentifier> createAnotherInstanceAdminRole()
     {
@@ -337,8 +325,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains a space admin role for space
-     * {@link AuthorizationTestCase#ANOTHER_SPACE_CODE}.
+     * Creates a list of roles which contains a space admin role for space {@link AuthorizationTestCase#ANOTHER_SPACE_CODE}.
      */
     protected List<RoleWithIdentifier> createAnotherSpaceAdminRole()
     {
@@ -351,9 +338,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Creates a list of roles which contains a space role for a USER and group defined by code
-     * {@link #SPACE_CODE} and database instance {@link AuthorizationTestCase#INSTANCE_CODE}. If
-     * <code>withInstanceRole == true</code> the list contains in addition an instance role for a
+     * Creates a list of roles which contains a space role for a USER and group defined by code {@link #SPACE_CODE} and database instance
+     * {@link AuthorizationTestCase#INSTANCE_CODE}. If <code>withInstanceRole == true</code> the list contains in addition an instance role for a
      * ADMIN and database instance defined by {@link #ANOTHER_INSTANCE_CODE}.
      */
     protected List<RoleWithIdentifier> createRoles(final boolean withInstanceRole)
@@ -391,8 +377,7 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Prepares {@link #provider} to expect a query for the specified database instance code and to
-     * return the specified database instance.
+     * Prepares {@link #provider} to expect a query for the specified database instance code and to return the specified database instance.
      */
     protected final void prepareProvider(final String databaseInstanceCode,
             final DatabaseInstancePE databaseInstance)
@@ -407,9 +392,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Prepares {@link #provider} to expect a query for the specified database instance code and to
-     * return the specified database instance and to list spaces which will return the specified
-     * list of spaces.
+     * Prepares {@link #provider} to expect a query for the specified database instance code and to return the specified database instance and to list
+     * spaces which will return the specified list of spaces.
      */
     protected final void prepareProvider(final String databaseInstanceCode,
             final DatabaseInstancePE databaseInstance, final List<SpacePE> spaces)
@@ -425,9 +409,8 @@ public class AuthorizationTestCase extends AssertJUnit
     }
 
     /**
-     * Prepares {@link #provider} to expect a query to list spaces which will return the specified
-     * list of spaces and a query for the specified entity kind and technical id which will return
-     * the specifier space.
+     * Prepares {@link #provider} to expect a query to list spaces which will return the specified list of spaces and a query for the specified entity
+     * kind and technical id which will return the specifier space.
      */
     protected final void prepareProvider(final List<SpacePE> spaces, final SpacePE spacePE,
             final SpaceOwnerKind entityKind, final TechId techId)

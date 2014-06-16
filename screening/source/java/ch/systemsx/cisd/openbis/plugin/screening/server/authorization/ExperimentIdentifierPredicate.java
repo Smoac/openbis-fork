@@ -57,12 +57,11 @@ public class ExperimentIdentifierPredicate extends AbstractSpacePredicate<Experi
                         "User '%s' does not have enough privileges.", person.getUserId()));
             }
             final SpacePE space = experimentOrNull.getProject().getSpace();
-            return evaluate(person, allowedRoles, space.getDatabaseInstance(), space.getCode());
+            return evaluate(allowedRoles, person, space.getCode());
         }
 
         final String spaceCode = SpaceCodeHelper.getSpaceCode(person, value.getSpaceCode());
-        return evaluate(person, allowedRoles, authorizationDataProvider.getHomeDatabaseInstance(),
-                spaceCode);
+        return evaluate(allowedRoles, person, spaceCode);
     }
 
 }

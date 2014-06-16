@@ -138,8 +138,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
         checkNotNull(experimentTypeCode, spaceIdentifier);
         fillSpaceIdentifier(spaceIdentifier);
         final SpacePE space =
-                getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(spaceIdentifier.getSpaceCode(),
-                        getHomeDatabaseInstance());
+                getSpaceDAO().tryFindSpaceByCode(spaceIdentifier.getSpaceCode());
         checkNotNull(spaceIdentifier, space);
         if (EntityType.isAllTypesCode(experimentTypeCode))
         {
@@ -183,7 +182,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             {
                 if (projectIdentifier != null)
                 {
-                    unknownProjectIdentifiers.add(IdentifierHelper.createFullProjectIdentifier(projectIdentifier, getHomeDatabaseInstance()));
+                    unknownProjectIdentifiers.add(projectIdentifier);
                 }
             }
         }
@@ -329,7 +328,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     private ProjectPE findProject(ProjectIdentifier newProjectIdentifier)
     {
         ProjectPE project =
-                getProjectDAO().tryFindProject(newProjectIdentifier.getDatabaseInstanceCode(),
+                getProjectDAO().tryFindProject(
                         newProjectIdentifier.getSpaceCode(), newProjectIdentifier.getProjectCode());
         if (project == null)
         {
@@ -411,7 +410,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             final ExperimentIdentifier experimentIdentifier)
     {
         ProjectPE project =
-                getProjectDAO().tryFindProject(experimentIdentifier.getDatabaseInstanceCode(),
+                getProjectDAO().tryFindProject(
                         experimentIdentifier.getSpaceCode(), experimentIdentifier.getProjectCode());
         if (project == null)
         {

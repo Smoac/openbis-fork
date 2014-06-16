@@ -897,17 +897,13 @@ public class RelationshipServiceAuthorizationTest extends BaseTest
 
     ProjectPE pe(Project project)
     {
-        return daoFactory.getProjectDAO().tryFindProject(
-                project.getSpace().getInstance().getCode(), project.getSpace().getCode(),
+        return daoFactory.getProjectDAO().tryFindProject(project.getSpace().getCode(),
                 project.getCode());
     }
 
     SpacePE pe(Space space)
     {
-        return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
-                space.getCode(),
-                daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByCode(
-                        space.getInstance().getCode()));
+        return daoFactory.getSpaceDAO().tryFindSpaceByCode(space.getCode());
     }
 
     SamplePE pe(Sample sample)

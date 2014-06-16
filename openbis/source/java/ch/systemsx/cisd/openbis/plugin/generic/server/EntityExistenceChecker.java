@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -150,7 +149,6 @@ class EntityExistenceChecker
                         {
                             ProjectPE project =
                                     daoFactory.getProjectDAO().tryFindProject(
-                                            daoFactory.getHomeDatabaseInstance().getCode(),
                                             identifier.getSpaceCode(), identifier.getProjectCode());
                             if (project == null)
                             {
@@ -202,10 +200,7 @@ class EntityExistenceChecker
                         @Override
                         protected SpacePE tryGetEntity(SpaceIdentifier identifier)
                         {
-                            DatabaseInstancePE homeDatabaseInstance =
-                                    daoFactory.getHomeDatabaseInstance();
-                            return daoFactory.getSpaceDAO().tryFindSpaceByCodeAndDatabaseInstance(
-                                    identifier.getSpaceCode(), homeDatabaseInstance);
+                            return daoFactory.getSpaceDAO().tryFindSpaceByCode(identifier.getSpaceCode());
                         }
                     };
     }

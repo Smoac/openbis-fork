@@ -23,7 +23,6 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -66,16 +65,12 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
         {
             return Status.OK;
         }
-        @SuppressWarnings("null")
-        final DatabaseInstancePE instance =
-                isInstanceEntity ? getInstance(value) : space.getDatabaseInstance();
 
         for (RoleWithIdentifier allowed : allowedRoles)
         {
             RoleLevel level = allowed.getRoleLevel();
 
-            if (level.equals(RoleLevel.INSTANCE)
-                    && allowed.getAssignedDatabaseInstance().equals(instance))
+            if (level.equals(RoleLevel.INSTANCE))
             {
                 return Status.OK;
             }
@@ -89,8 +84,6 @@ public abstract class PersistentEntityPredicate<T> implements IPredicate<T>
     }
 
     public abstract SpacePE getSpace(T value);
-
-    public abstract DatabaseInstancePE getInstance(T value);
 
     @Override
     public void init(IAuthorizationDataProvider provider)

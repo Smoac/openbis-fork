@@ -28,7 +28,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewETPTAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePropertyTypePE;
@@ -221,7 +220,6 @@ public final class EntityTypePropertyTypeBOTest extends AbstractBOTest
     {
         final ExperimentTypePE experimentType = new ExperimentTypePE();
         experimentType.setCode("ARCHERY");
-        experimentType.setDatabaseInstance(new DatabaseInstancePE());
         return experimentType;
     }
 

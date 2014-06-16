@@ -404,8 +404,6 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("EXP-TEST-1", dataSet.getExperiment().getCode());
         assertEquals("NEMO", dataSet.getExperiment().getProject().getCode());
         assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getCode());
-        assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getInstance()
-                .getCode());
         assertEquals("CP-TEST-1", dataSet.getSample().getCode());
         assertEquals("CISD", dataSet.getSample().getSpace().getCode());
         assertEquals(
@@ -451,8 +449,6 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("EXP1", dataSet.getExperiment().getCode());
         assertEquals("NEMO", dataSet.getExperiment().getProject().getCode());
         assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getCode());
-        assertEquals("CISD", dataSet.getExperiment().getProject().getSpace().getInstance()
-                .getCode());
         assertNull(dataSet.getSample());
         assertEquals("[COMMENT: no comment]",
                 dataSet.getProperties().toString());

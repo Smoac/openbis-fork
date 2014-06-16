@@ -83,7 +83,6 @@ public final class DefaultAccessControllerTest
         groupPE.setCode("CISD");
         final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
         databaseInstancePE.setCode("DB2");
-        groupPE.setDatabaseInstance(databaseInstancePE);
         groupRole.setSpace(groupPE);
         groupRole.setRole(RoleCode.USER);
         roleAssignments.add(groupRole);
@@ -92,7 +91,6 @@ public final class DefaultAccessControllerTest
 
         final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("DB1");
-        instanceRole.setDatabaseInstance(databaseInstance);
         instanceRole.setRole(RoleCode.OBSERVER);
         roleAssignments.add(instanceRole);
 
@@ -225,7 +223,7 @@ public final class DefaultAccessControllerTest
         public void myMethodWithOtherRolesOverridden();
 
         @RolesAllowed(
-            { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_OBSERVER })
+        { RoleWithHierarchy.SPACE_ETL_SERVER, RoleWithHierarchy.SPACE_OBSERVER })
         public void myMethodWithTwoRoles();
     }
 }

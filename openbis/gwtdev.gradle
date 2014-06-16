@@ -44,13 +44,6 @@ task prepareGWT(type:Copy, dependsOn: [deleteGWT, compileJava]) {
         exclude 'openbis_api-*'
     }
     
-    from (sourceSets.main.output.plus
-    	 (project(':common').sourceSets.main.output).plus
-    	 (project(':openbis-common').sourceSets.main.output).plus
-    	 (project(':openbis_api').sourceSets.main.output)) {
-       		into 'classes'
-   	}
-   	
    	doLast {
         file("targets/www/WEB-INF/gwt.xml").createNewFile()
     }

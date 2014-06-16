@@ -183,8 +183,7 @@ public final class ExperimentTranslator
         final ExperimentType result = new ExperimentType();
         result.setCode(experimentType.getCode());
         result.setDescription(experimentType.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
-                .getDatabaseInstance()));
+        result.setDatabaseInstance(DatabaseInstanceTranslator.translate());
         result.setModificationDate(experimentType.getModificationDate());
         result.setValidationScript(ScriptTranslator.translate(experimentType.getValidationScript()));
 
@@ -199,8 +198,6 @@ public final class ExperimentTranslator
         final ExperimentTypePE result = new ExperimentTypePE();
         result.setCode(experimentType.getCode());
         result.setDescription(experimentType.getDescription());
-        result.setDatabaseInstance(DatabaseInstanceTranslator.translate(experimentType
-                .getDatabaseInstance()));
 
         return result;
     }

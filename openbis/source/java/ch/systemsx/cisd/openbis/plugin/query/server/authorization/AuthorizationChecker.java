@@ -23,8 +23,8 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.DefaultAccessContro
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Default implementation of {@link IAuthorizationChecker}.
@@ -70,9 +70,7 @@ public class AuthorizationChecker implements IAuthorizationChecker
             if (roleGroup.equals(RoleLevel.SPACE) && role.getAssignedSpace().equals(requiredSpace))
             {
                 return true;
-            } else if (roleGroup.equals(RoleLevel.INSTANCE)
-                    && role.getAssignedDatabaseInstance().equals(
-                            requiredSpace.getDatabaseInstance()))
+            } else if (roleGroup.equals(RoleLevel.INSTANCE))
             {
                 // permissions on the database instance level allow to access all groups in this
                 // instance

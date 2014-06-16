@@ -70,13 +70,9 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
                 {
                     one(personDAO).listPersons();
                     will(returnValue(Arrays.asList(new PersonPE[]
-                        { personPE })));
+                    { personPE })));
 
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(databaseInstanceCode);
-                    will(returnValue(databaseInstancePE));
-
-                    one(spaceDAO).tryFindSpaceByCodeAndDatabaseInstance(groupCode.toUpperCase(),
-                            databaseInstancePE);
+                    one(spaceDAO).tryFindSpaceByCode(groupCode.toUpperCase());
                     will(returnValue(groupPE));
                 }
             });

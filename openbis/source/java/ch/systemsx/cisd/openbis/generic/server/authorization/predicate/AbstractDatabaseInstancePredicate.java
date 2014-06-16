@@ -17,9 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization.predicate;
 
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
 
 /**
  * An {@link AbstractPredicate} extension which works with database instances.
@@ -34,12 +31,6 @@ abstract class AbstractDatabaseInstancePredicate<T> extends AbstractPredicate<T>
     protected IAuthorizationDataProvider authorizationDataProvider;
 
     boolean initialized;
-
-    protected DatabaseInstancePE getDatabaseInstance(final DatabaseInstanceIdentifier identifier)
-    {
-        return DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier,
-                authorizationDataProvider);
-    }
 
     //
     // AbstractPredicate
