@@ -27,6 +27,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -42,6 +43,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
  */
 public class MetaDataBuilder
 {
+    private static final String CONTAINER = "container";
+    
     private static final String DATA_SET = "data_set";
 
     private static final String SAMPLE = "sample";
@@ -121,6 +124,18 @@ public class MetaDataBuilder
         builder.experiment("registration_timestamp", experiment.getRegistrationDate());
         builder.experiment("registrator", experiment.getRegistrator());
         builder.experimentProperties(experiment.getProperties());
+        
+        for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
+            ContainerDataSet container = dataSet.getContainerDataSets().get(i);
+            builder.container("container[" + i + "].code", container.getCode());
+            builder.container("container[" + i + "].permId", container.getPermId());
+            builder.container("container[" + i + "].identifier", container.getIdentifier());
+            if(container.getSample() != null) {
+                builder.container("container[" + i + "].sample_code", container.getSample().getCode());
+                builder.container("container[" + i + "].sample_permId", container.getSample().getPermId());
+                builder.container("container[" + i + "].sample_identifier", container.getSample().getIdentifier());
+            }
+        }
         return builder.getRenderedMetaData();
     }
 
@@ -156,6 +171,11 @@ public class MetaDataBuilder
         }
     }
 
+    private void container(String key, String value)
+    {
+        addRow(CONTAINER, key, value);
+    }
+    
     private void dataSet(String key, String value)
     {
         addRow(DATA_SET, key, value);
