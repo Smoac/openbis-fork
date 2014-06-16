@@ -21,7 +21,7 @@ dependencies {
 			'google:gwt-debug-panel:1.0',
 			'google:gwt-user:2.4',
 			'reveregroup:gwt-image-loader:+',
-			'springframework:spring-orm:2.5.6.SEC01',
+			'springframework:spring-orm:+',
 			'cisd:cisd-hotdeploy:13.01.0',
 			'apache:poi-ooxml:3.8-20120326',
 			'hibernate:hibernate-validator:4.2.0.Final',
@@ -30,7 +30,7 @@ dependencies {
 
 	testCompile project(path: ':common', configuration: 'tests'),
 				project(path: ':dbmigration', configuration: 'tests'),
-				'springframework:spring-test:2.5.6.SEC01'
+				'springframework:spring-test:+'
 
 	testRuntime project(path: ':common', configuration: 'tests'),
 				project(path: ':dbmigration', configuration: 'tests'), 
