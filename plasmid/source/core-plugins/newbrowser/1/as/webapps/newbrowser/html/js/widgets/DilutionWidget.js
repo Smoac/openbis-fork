@@ -322,16 +322,28 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		var colours = ["#F0E890", "#B0F0F0", "#90F790", "#F08080", "#B0C0E0", "#00F890", "#D0C0D0", "#FFE0B0", "#90C830", "#B02020"];
 		var coloursUsed = 0;
 		for(var proteinKey in proteinsToRowsMap) {
-			var rows = proteinsToRowsMap[proteinKey];
-			if(rows.length > 1 && coloursUsed < colours.length) {
-				for(var rowNum = 0; rowNum < rows.length; rowNum++) {
-					var row = rows[rowNum];
-					row.css({
+			var tBody = $("#" + this._widgetTableId).children()[1];
+			var rowsWithThatAntibody = [];
+			for(var rowNum = 0; rowNum < (tBody.rows.length - 3); rowNum++) {
+				var $row = $(tBody.rows[rowNum]);
+				var $antibodyDropDown = $($($row.children()[this._antColIdx]).children()[0]);
+				var antibodyDropDownValues = [];
+				for(var opNum = 0; opNum < $antibodyDropDown[0].options.length; opNum++) {
+					var valueToTest = $antibodyDropDown[0].options[opNum].value;
+					if(valueToTest === proteinKey) {
+						rowsWithThatAntibody.push($row);
+					}
+				}
+			}
+			
+			if(rowsWithThatAntibody.length > 1 && coloursUsed < colours.length) {
+				for(var rowFound = 0; rowFound < rowsWithThatAntibody.length; rowFound++) {
+					rowsWithThatAntibody[rowFound].css({
 						"background-color" : colours[coloursUsed]
 					});
 				}
 				coloursUsed++;
-			}
+			}			
 		}
 	}
 	
