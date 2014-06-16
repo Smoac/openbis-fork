@@ -125,17 +125,20 @@ public class MetaDataBuilder
         builder.experiment("registrator", experiment.getRegistrator());
         builder.experimentProperties(experiment.getProperties());
         
-        for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
-            ContainerDataSet container = dataSet.getContainerDataSets().get(i);
-            builder.container("container[" + i + "].code", container.getCode());
-            builder.container("container[" + i + "].permId", container.getPermId());
-            builder.container("container[" + i + "].identifier", container.getIdentifier());
-            if(container.getSample() != null) {
-                builder.container("container[" + i + "].sample_code", container.getSample().getCode());
-                builder.container("container[" + i + "].sample_permId", container.getSample().getPermId());
-                builder.container("container[" + i + "].sample_identifier", container.getSample().getIdentifier());
+        if(dataSet.getContainerDataSets() != null) {
+            for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
+                ContainerDataSet container = dataSet.getContainerDataSets().get(i);
+                builder.container("container[" + i + "].code", container.getCode());
+                builder.container("container[" + i + "].permId", container.getPermId());
+                builder.container("container[" + i + "].identifier", container.getIdentifier());
+                if(container.getSample() != null) {
+                    builder.container("container[" + i + "].sample_code", container.getSample().getCode());
+                    builder.container("container[" + i + "].sample_permId", container.getSample().getPermId());
+                    builder.container("container[" + i + "].sample_identifier", container.getSample().getIdentifier());
+                }
             }
         }
+        
         return builder.getRenderedMetaData();
     }
 
