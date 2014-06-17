@@ -249,6 +249,10 @@ public class MetaDataBuilder
     
     private void containerProperties(int number, String subCategory, List<IEntityProperty> properties)
     {
+        if(properties == null) {
+            properties = new ArrayList<IEntityProperty>();
+        }
+        
         if(subCategory != null) {
             addProperties(CONTAINER + "[" + number + "]." + subCategory, properties);
         } else {
