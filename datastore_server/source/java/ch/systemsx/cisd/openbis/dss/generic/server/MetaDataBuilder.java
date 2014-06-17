@@ -145,6 +145,22 @@ public class MetaDataBuilder
                 
                 builder.containerProperties(i, null, container.getProperties());
                 
+                StringBuilder containerStringBuilder = new StringBuilder();
+                List<AbstractExternalData> containerParents = getParents(container);
+                if (containerParents.isEmpty() == false)
+                {
+                    Collections.sort(containerParents, DATA_SET_COMPARATOR);
+                    for (AbstractExternalData containerParent : containerParents)
+                    {
+                        if (containerStringBuilder.length() > 0)
+                        {
+                            containerStringBuilder.append(',');
+                        }
+                        containerStringBuilder.append(containerParent.getCode());
+                    }
+                }
+                builder.container(i, null, "parent_codes", containerStringBuilder.toString());
+                
                 //Container Experiment
                 builder.container(i, EXPERIMENT , "code", container.getExperiment().getCode());
                 builder.container(i, EXPERIMENT , "permId", container.getExperiment().getPermId());
