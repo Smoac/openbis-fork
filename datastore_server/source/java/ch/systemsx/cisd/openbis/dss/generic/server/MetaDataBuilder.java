@@ -127,14 +127,58 @@ public class MetaDataBuilder
         
         if(dataSet.getContainerDataSets() != null) {
             for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
+                //Container
                 ContainerDataSet container = dataSet.getContainerDataSets().get(i);
-                builder.container("container[" + i + "].code", container.getCode());
-                builder.container("container[" + i + "].permId", container.getPermId());
-                builder.container("container[" + i + "].identifier", container.getIdentifier());
+                builder.container("[" + i + "].code", container.getCode());
+                builder.container("[" + i + "].permId", container.getPermId());
+                builder.container("[" + i + "].identifier", container.getIdentifier());
+                if(container.getDataSetType() != null) {
+                    builder.container("[" + i + "].type", container.getDataSetType().getCode());
+                }
+                if(container.getRegistrator() != null) {
+                    builder.container("[" + i + "].registrator", container.getRegistrator().getUserId());
+                }
+                if(container.getRegistrationDate() != null) {
+                    builder.container("[" + i + "].registration_date", container.getRegistrationDate().toString());
+                }
+                if(container.getModificationDate() != null) {
+                    builder.container("[" + i + "].modification_date", container.getModificationDate().toString());
+                }
+                //Container Experiment
+                if(container.getExperiment() != null) {
+                    builder.container("[" + i + "].experiment_code", container.getExperiment().getCode());
+                    builder.container("[" + i + "].experiment_permId", container.getExperiment().getPermId());
+                    builder.container("[" + i + "].experiment_identifier", container.getExperiment().getIdentifier());
+                    if(container.getExperiment().getExperimentType() != null) {
+                        builder.container("[" + i + "].experiment_type", container.getExperiment().getExperimentType().getCode());
+                    }
+                    if(container.getExperiment().getRegistrator() != null) {
+                        builder.container("[" + i + "].experiment_registrator", container.getExperiment().getRegistrator().getUserId());
+                    }
+                    if(container.getExperiment().getRegistrationDate() != null) {
+                        builder.container("[" + i + "].experiment_registration_date", container.getExperiment().getRegistrationDate().toString());
+                    }
+                    if(container.getExperiment().getModificationDate() != null) {
+                        builder.container("[" + i + "].experiment_modification_date", container.getExperiment().getModificationDate().toString());
+                    }
+                }
+                //Container Sample
                 if(container.getSample() != null) {
-                    builder.container("container[" + i + "].sample_code", container.getSample().getCode());
-                    builder.container("container[" + i + "].sample_permId", container.getSample().getPermId());
-                    builder.container("container[" + i + "].sample_identifier", container.getSample().getIdentifier());
+                    builder.container("[" + i + "].sample_code", container.getSample().getCode());
+                    builder.container("[" + i + "].sample_permId", container.getSample().getPermId());
+                    builder.container("[" + i + "].sample_identifier", container.getSample().getIdentifier());
+                    if(container.getSample().getSampleType() != null) {
+                        builder.container("[" + i + "].sample_type", container.getSample().getSampleType().getCode());
+                    }
+                    if(container.getSample().getRegistrator() != null) {
+                        builder.container("[" + i + "].sample_registrator", container.getSample().getRegistrator().getUserId());
+                    }
+                    if(container.getSample().getRegistrationDate() != null) {
+                        builder.container("[" + i + "].sample_registration_date", container.getSample().getRegistrationDate().toString());
+                    }
+                    if(container.getSample().getModificationDate() != null) {
+                        builder.container("[" + i + "].sample_modification_date", container.getSample().getModificationDate().toString());
+                    }
                 }
             }
         }
