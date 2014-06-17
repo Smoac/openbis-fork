@@ -27,7 +27,7 @@ public final class ScreeningPlateValidator extends AbstractValidator<Plate>
             final Set<RoleAssignmentPE> roleAssignments = person.getAllPersonRoles();
             for (final RoleAssignmentPE roleAssignment : roleAssignments)
             {
-                if (roleAssignment.getSpace() != null)
+                if (roleAssignment.getSpace() == null)
                 {
                     // all roles on db level allow full read access (we assume that we operate on
                     // home db always)
