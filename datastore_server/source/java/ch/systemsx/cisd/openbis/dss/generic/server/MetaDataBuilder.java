@@ -133,9 +133,7 @@ public class MetaDataBuilder
                 builder.container(i, null, "permId", container.getPermId());
                 builder.container(i, null, "identifier", container.getIdentifier());
                 builder.container(i, null, "type", container.getDataSetType().getCode());
-                if(container.getRegistrator() != null) {
-                    builder.container(i, null, "registrator", container.getRegistrator().getUserId());
-                }
+                builder.container(i, null, "registrator", container.getRegistrator());
                 builder.container(i, null, "registration_timestamp", container.getRegistrationDate().toString());
                 
                 builder.container(i, null, "is_measured", Boolean.toString(container.isDerived() == false));
@@ -145,7 +143,6 @@ public class MetaDataBuilder
                     builder.container(i, null, "is_complete", Boolean.toString(BooleanOrUnknown.T.equals(containerCompleteFlag)));
                 }
                 
-                
                 builder.containerProperties(i, null, container.getProperties());
                 
                 //Container Experiment
@@ -153,8 +150,8 @@ public class MetaDataBuilder
                 builder.container(i, EXPERIMENT , "permId", container.getExperiment().getPermId());
                 builder.container(i, EXPERIMENT , "identifier", container.getExperiment().getIdentifier());
                 builder.container(i, EXPERIMENT , "type", container.getExperiment().getExperimentType().getCode());
-                builder.container(i, EXPERIMENT , "registrator", container.getExperiment().getRegistrator().getUserId());
-                builder.container(i, EXPERIMENT , "registration_timestamp", container.getExperiment().getRegistrationDate().toString());
+                builder.container(i, EXPERIMENT , "registrator", container.getExperiment().getRegistrator());
+                builder.container(i, EXPERIMENT , "registration_timestamp", container.getExperiment().getRegistrationDate());
                 builder.container(i, EXPERIMENT, "space_code", container.getExperiment().getProject().getSpace().getCode());
                 builder.container(i, EXPERIMENT, "project_code", container.getExperiment().getProject().getCode());
                 builder.containerProperties(i, EXPERIMENT, container.getProperties());
@@ -165,8 +162,8 @@ public class MetaDataBuilder
                     builder.container(i, SAMPLE , "permId", container.getSample().getPermId());
                     builder.container(i, SAMPLE , "identifier", container.getSample().getIdentifier());
                     builder.container(i, SAMPLE , "type", container.getSample().getSampleType().getCode());
-                    builder.container(i, SAMPLE , "registrator", container.getSample().getRegistrator().getUserId());
-                    builder.container(i, SAMPLE , "registration_timestamp", container.getSample().getRegistrationDate().toString());
+                    builder.container(i, SAMPLE , "registrator", container.getSample().getRegistrator());
+                    builder.container(i, SAMPLE , "registration_timestamp", container.getSample().getRegistrationDate());
                     builder.containerProperties(i, SAMPLE, container.getSample().getProperties());
                 }
             }
@@ -213,6 +210,24 @@ public class MetaDataBuilder
             addRow(CONTAINER + "[" + number + "]." + subCategory, key, value);
         } else {
             addRow(CONTAINER + "[" + number + "]", key, value);
+        }
+    }
+    
+    private void container(int number, String subCategory, String key, Person person)
+    {
+        if(subCategory != null) {
+            addRow(CONTAINER + "[" + number + "]." + subCategory, key, person);
+        } else {
+            addRow(CONTAINER + "[" + number + "]", key, person);
+        }
+    }
+
+    private void container(int number, String subCategory, String key, Date date)
+    {
+        if(subCategory != null) {
+            addRow(CONTAINER + "[" + number + "]." + subCategory, key, date);
+        } else {
+            addRow(CONTAINER + "[" + number + "]", key, date);
         }
     }
     
