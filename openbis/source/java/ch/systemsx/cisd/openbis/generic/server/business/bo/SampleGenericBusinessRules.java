@@ -42,13 +42,9 @@ public class SampleGenericBusinessRules
         if (parent == null || child == null)
             return;
 
-        SampleIdentifier parentId = parent.getSampleIdentifier();
-        // new identifier of a child is needed for comparison
-        SampleIdentifier childId = IdentifierHelper.createSampleIdentifier(child);
-
-        if (parentId.isSpaceLevel())
+        if (parent.getSpace() != null)
         {
-            if (childId.isDatabaseInstanceLevel())
+            if (child.getSpace() == null)
             {
                 throwUserFailureException("The database instance sample '%s' "
                         + "can not be %s the space sample '%s'.", child, parent, childRelationName);
