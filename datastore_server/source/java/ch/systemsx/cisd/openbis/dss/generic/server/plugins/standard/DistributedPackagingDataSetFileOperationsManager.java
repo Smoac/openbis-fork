@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IdentifierAttributeMappingManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
@@ -331,6 +332,26 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         if (sampleIdentifier != null)
         {
             dataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier)));
+        }
+        if(dataSet.getContainerDataSets() != null) {
+            for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
+                //Container
+                ContainerDataSet container = dataSet.getContainerDataSets().get(i);
+                AbstractExternalData containerDataSet = getService().tryGetDataSet(container.getCode());
+                dataSet.getContainerDataSets().set(i, (ContainerDataSet) containerDataSet);
+                //Container Experiment
+                String containerExperimentIdentifier = datasetDescription.getExperimentIdentifier();
+                if (containerExperimentIdentifier != null)
+                {
+                    container.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(containerExperimentIdentifier)));
+                }
+                //Container Sample
+                String containerSampleIdentifier = container.getSampleIdentifier();
+                if (containerSampleIdentifier != null)
+                {
+                    container.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(containerSampleIdentifier)));
+                }
+            }
         }
         return dataSet;
     }
