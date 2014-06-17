@@ -147,16 +147,13 @@ public final class IdentifierHelper
     private static SampleIdentifier createSampleIdentifier(
             final DatabaseInstancePE databaseInstance, final SpacePE group, final String sampleCode)
     {
-        if (databaseInstance != null)
-        {
-            return new SampleIdentifier(createDatabaseInstanceIdentifier(databaseInstance),
-                    sampleCode);
-        } else if (group != null)
+        if (group != null)
         {
             return new SampleIdentifier(createGroupIdentifier(group), sampleCode);
         } else
         {
-            return SampleIdentifier.createHomeGroup(sampleCode);
+            return new SampleIdentifier(DatabaseInstanceIdentifier.createHome(),
+                    sampleCode);
         }
     }
 
