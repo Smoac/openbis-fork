@@ -43,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
  */
 public class MetaDataBuilder
 {
-    private static final String CONTAINER = "container";
-    
     private static final String DATA_SET = "data_set";
 
     private static final String SAMPLE = "sample";
@@ -76,7 +74,23 @@ public class MetaDataBuilder
 
     public static String createMetaData(AbstractExternalData dataSet)
     {
-        MetaDataBuilder builder = new MetaDataBuilder();
+        StringBuilder builder = new StringBuilder();
+        builder.append(createMetData("", dataSet));
+        List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+        if (containerDataSets != null)
+        {
+            for (int i = 0; i < containerDataSets.size(); i++)
+            {
+                ContainerDataSet containerDataSet = containerDataSets.get(i);
+                builder.append(createMetData("container[" + i + "].", containerDataSet));
+            }
+        }
+        return builder.toString();
+    }
+
+    private static String createMetData(String prefix, AbstractExternalData dataSet)
+    {
+        MetaDataBuilder builder = new MetaDataBuilder(prefix);
         builder.dataSet("code", dataSet.getCode());
         builder.dataSet("production_timestamp", dataSet.getProductionDate());
         builder.dataSet("producer_code", dataSet.getDataProducerCode());
@@ -124,67 +138,6 @@ public class MetaDataBuilder
         builder.experiment("registration_timestamp", experiment.getRegistrationDate());
         builder.experiment("registrator", experiment.getRegistrator());
         builder.experimentProperties(experiment.getProperties());
-        
-        if(dataSet.getContainerDataSets() != null) {
-            for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
-                //Container
-                ContainerDataSet container = dataSet.getContainerDataSets().get(i);
-                builder.container(i, null, "code", container.getCode());
-                builder.container(i, null, "permId", container.getPermId());
-                builder.container(i, null, "identifier", container.getIdentifier());
-                builder.container(i, null, "type", container.getDataSetType().getCode());
-                builder.container(i, null, "registrator", container.getRegistrator());
-                builder.container(i, null, "registration_timestamp", container.getRegistrationDate().toString());
-                
-                builder.container(i, null, "is_measured", Boolean.toString(container.isDerived() == false));
-                if (container.tryGetAsDataSet() != null)
-                {
-                    final Boolean containerCompleteFlag = container.tryGetAsDataSet().getComplete();
-                    builder.container(i, null, "is_complete", Boolean.toString(BooleanOrUnknown.T.equals(containerCompleteFlag)));
-                }
-                
-                builder.containerProperties(i, null, container.getProperties());
-                
-                StringBuilder containerStringBuilder = new StringBuilder();
-                List<AbstractExternalData> containerParents = getParents(container);
-                if (containerParents.isEmpty() == false)
-                {
-                    Collections.sort(containerParents, DATA_SET_COMPARATOR);
-                    for (AbstractExternalData containerParent : containerParents)
-                    {
-                        if (containerStringBuilder.length() > 0)
-                        {
-                            containerStringBuilder.append(',');
-                        }
-                        containerStringBuilder.append(containerParent.getCode());
-                    }
-                }
-                builder.container(i, null, "parent_codes", containerStringBuilder.toString());
-                
-                //Container Experiment
-                builder.container(i, EXPERIMENT , "code", container.getExperiment().getCode());
-                builder.container(i, EXPERIMENT , "permId", container.getExperiment().getPermId());
-                builder.container(i, EXPERIMENT , "identifier", container.getExperiment().getIdentifier());
-                builder.container(i, EXPERIMENT , "type", container.getExperiment().getExperimentType().getCode());
-                builder.container(i, EXPERIMENT , "registrator", container.getExperiment().getRegistrator());
-                builder.container(i, EXPERIMENT , "registration_timestamp", container.getExperiment().getRegistrationDate());
-                builder.container(i, EXPERIMENT, "space_code", container.getExperiment().getProject().getSpace().getCode());
-                builder.container(i, EXPERIMENT, "project_code", container.getExperiment().getProject().getCode());
-                builder.containerProperties(i, EXPERIMENT, container.getProperties());
-                    
-                //Container Sample
-                if(container.getSample() != null) {
-                    builder.container(i, SAMPLE , "code", container.getSample().getCode());
-                    builder.container(i, SAMPLE , "permId", container.getSample().getPermId());
-                    builder.container(i, SAMPLE , "identifier", container.getSample().getIdentifier());
-                    builder.container(i, SAMPLE , "type", container.getSample().getSampleType().getCode());
-                    builder.container(i, SAMPLE , "registrator", container.getSample().getRegistrator());
-                    builder.container(i, SAMPLE , "registration_timestamp", container.getSample().getRegistrationDate());
-                    builder.containerProperties(i, SAMPLE, container.getSample().getProperties());
-                }
-            }
-        }
-        
         return builder.getRenderedMetaData();
     }
 
@@ -195,6 +148,13 @@ public class MetaDataBuilder
     }
 
     private final StringBuilder builder = new StringBuilder();
+    private final String prefix;
+    
+    private MetaDataBuilder(String prefix)
+    {
+        this.prefix = prefix;
+        
+    }
 
     private void dataSetProperties(List<IEntityProperty> properties)
     {
@@ -217,46 +177,6 @@ public class MetaDataBuilder
         for (IEntityProperty property : properties)
         {
             addRow(category, property.getPropertyType().getCode(), property.tryGetAsString());
-        }
-    }
-    
-    private void container(int number, String subCategory, String key, String value)
-    {
-        if(subCategory != null) {
-            addRow(CONTAINER + "[" + number + "]." + subCategory, key, value);
-        } else {
-            addRow(CONTAINER + "[" + number + "]", key, value);
-        }
-    }
-    
-    private void container(int number, String subCategory, String key, Person person)
-    {
-        if(subCategory != null) {
-            addRow(CONTAINER + "[" + number + "]." + subCategory, key, person);
-        } else {
-            addRow(CONTAINER + "[" + number + "]", key, person);
-        }
-    }
-
-    private void container(int number, String subCategory, String key, Date date)
-    {
-        if(subCategory != null) {
-            addRow(CONTAINER + "[" + number + "]." + subCategory, key, date);
-        } else {
-            addRow(CONTAINER + "[" + number + "]", key, date);
-        }
-    }
-    
-    private void containerProperties(int number, String subCategory, List<IEntityProperty> properties)
-    {
-        if(properties == null) {
-            properties = new ArrayList<IEntityProperty>();
-        }
-        
-        if(subCategory != null) {
-            addProperties(CONTAINER + "[" + number + "]." + subCategory, properties);
-        } else {
-            addProperties(CONTAINER + "[" + number + "]", properties);
         }
     }
     
@@ -340,7 +260,7 @@ public class MetaDataBuilder
 
     private void addRow(String category, String key, String value)
     {
-        builder.append(category).append(DELIM).append(key).append(DELIM);
+        builder.append(prefix).append(category).append(DELIM).append(key).append(DELIM);
         builder.append(value == null ? "" : value).append('\n');
     }
 
