@@ -241,7 +241,6 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.AuthorizationGroupTran
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypePropertyTypeTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTypeTranslator;
-import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.EntityPropertyTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator.LoadableFields;
@@ -355,7 +354,14 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
     public DatabaseInstance getHomeDatabaseInstance(final String sessionToken)
     {
-        return DatabaseInstanceTranslator.translate();
+        final DatabaseInstance result = new DatabaseInstance();
+        DatabaseInstancePE hdb = getHomeDatabaseInstance();
+        result.setCode(hdb.getCode());
+        result.setHomeDatabase(true);
+        result.setId(hdb.getId());
+        result.setIdentifier(hdb.getUuid());
+        result.setUuid(hdb.getUuid());
+        return result;
     }
 
     private DatabaseInstancePE getHomeDatabaseInstance()
