@@ -173,6 +173,10 @@ public class MetaDataBuilder
 
     private void addProperties(String category, List<IEntityProperty> properties)
     {
+        if (properties == null)
+        {
+            return;
+        }
         Collections.sort(properties, PROPERTIES_COMPARATOR);
         for (IEntityProperty property : properties)
         {
