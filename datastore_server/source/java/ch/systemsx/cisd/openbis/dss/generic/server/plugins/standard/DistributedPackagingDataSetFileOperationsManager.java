@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -45,6 +46,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -333,23 +335,25 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         {
             dataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier)));
         }
-        if(dataSet.getContainerDataSets() != null) {
-            for(int i = 0; i < dataSet.getContainerDataSets().size(); i++) {
-                //Container
-                ContainerDataSet container = dataSet.getContainerDataSets().get(i);
-                AbstractExternalData containerDataSet = getService().tryGetDataSet(container.getCode());
-                dataSet.getContainerDataSets().set(i, (ContainerDataSet) containerDataSet);
-                //Container Experiment
-                String containerExperimentIdentifier = datasetDescription.getExperimentIdentifier();
-                if (containerExperimentIdentifier != null)
+        List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+        if (containerDataSets != null)
+        {
+            for (ContainerDataSet containerDataSet : containerDataSets)
+            {
+                // Inject container properties
+                if (containerDataSet.getProperties() == null)
                 {
-                    container.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(containerExperimentIdentifier)));
+                    containerDataSet.setDataSetProperties(getService().tryGetDataSet(containerDataSet.getCode()).getProperties());
                 }
-                //Container Sample
-                String containerSampleIdentifier = container.getSampleIdentifier();
-                if (containerSampleIdentifier != null)
+                // Inject full container experiment with properties
+                String containerExperimentIdentifier = containerDataSet.getExperiment().getIdentifier();
+                containerDataSet.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(containerExperimentIdentifier)));
+                // Inject full container sample with properties
+                Sample sample = containerDataSet.getSample();
+                if (sample != null)
                 {
-                    container.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(containerSampleIdentifier)));
+                    String containerSampleIdentifier = sample.getIdentifier();
+                    containerDataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(containerSampleIdentifier)));
                 }
             }
         }
