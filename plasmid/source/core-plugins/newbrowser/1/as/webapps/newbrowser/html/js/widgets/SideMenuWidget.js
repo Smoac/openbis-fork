@@ -29,7 +29,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._serverFacade = serverFacade;
 	this._menuDOMTitle = null;
 	this._menuDOMBody = null;
-	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showHelloPage', null, "");
+	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showBlancPage', null, "");
 	this._pointerToMenuNode = this._menuStructure;
 	this.isHidden = false;
 	
@@ -108,7 +108,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				var newMenuIfSelectedSpace = {
 						children : []
 				}
-				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, 'showHelloPage', null, "(Space)");
+				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, 'showBlancPage', null, "(Space)");
 				_this._menuStructure.newMenuIfSelected.children.push(menuItemSpace);
 				
 				//Fill Projects
@@ -336,7 +336,22 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			this._menuDOMTitle.append(backButton);
 		}
 		
-		var $mainTitle = $("<span>").append(menuToPaint.displayName + " " + menuToPaint.contextTitle);
+		var $titleAsTextOrLink = null;
+		if(menuToPaint.newViewIfSelected && menuToPaint.newViewIfSelected != "showBlancPage") {
+			$titleAsTextOrLink = $("<a>", { "href" : "javascript:void(0);" }).append(menuToPaint.displayName + " " + menuToPaint.contextTitle)
+			
+			var clickFunction = function(menuToPaint) {
+				return function() {
+					_this._mainController.changeView(menuToPaint.newViewIfSelected, menuToPaint.newViewIfSelectedData);
+				}
+			};
+			
+			$titleAsTextOrLink.click(clickFunction(menuToPaint));
+		} else {
+			$titleAsTextOrLink = menuToPaint.displayName + " " + menuToPaint.contextTitle;
+		}
+		
+		var $mainTitle = $("<span>").append($titleAsTextOrLink);
 		
 		if(isBackButtonShown) {
 			$mainTitle.css({

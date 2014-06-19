@@ -117,7 +117,7 @@ function MainController(profile) {
 							localReference.sideMenu.hideSideMenu();
 						}
 					} else {
-						localReference.changeView("showHelloPage", null);
+						localReference.changeView("showBlancPage", null);
 					}
 					Util.unblockUI();
 					
@@ -168,9 +168,9 @@ function MainController(profile) {
 				this._showInspectors();
 				window.scrollTo(0,0);
 				break;
-			case "showHelloPage":
-				document.title = "Main Menu";
-				this._showHelloPage();
+			case "showBlancPage":
+				document.title = "";
+				this._showBlancPage();
 				window.scrollTo(0,0);
 				break;
 			case "showSearchPage":
@@ -279,7 +279,7 @@ function MainController(profile) {
 		this.inspector.repaint();
 	}
 	
-	this._showHelloPage = function() {
+	this._showBlancPage = function() {
 		//Show Hello Page
 		$("#mainContainer").empty();
 		this.currentView = null;
