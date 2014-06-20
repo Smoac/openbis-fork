@@ -30,7 +30,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 	this.serverFacade = serverFacade;
 	this.containerId = containerId;
 	this.profile = profile;
-	this.sampleType = profile.getTypeForTypeCode(sampleTypeCode);
+	this.sampleType = profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 	this.isStorageAvailable = false;
 	this.sample = sample; // Needed for edit mode
 	this.isDisabled = isDisabled; //Needed for view mode

@@ -71,7 +71,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			Util.blockUI();
 			var localReference = this;
 			this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
-				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+				var sampleType = localReference.profile.getSampleTypeForSampleTypeCode(localReference.sampleTypeCode);
 				
 				//Collection information
 				localReference.listSpacesWithProjectsAndRoleAssignmentsCallback(data);
@@ -123,7 +123,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						$("#sampleCode").prop('disabled', true);
 				
 						//Populate fields
-						var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+						var sampleType = localReference.profile.getSampleTypeForSampleTypeCode(localReference.sampleTypeCode);
 						for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 							var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 							for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
@@ -342,7 +342,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
-		var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
+		var sampleType = profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 		var sampleTypeDisplayName = sampleType.description;
 		
 		if(!sampleTypeDisplayName) {
@@ -640,7 +640,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	
 	this.showSamplesWithoutPage = function(event) {
 		var sampleTypeCode = event.target.value;
-		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
+		var sampleType = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
 		if(sampleType !== null) {
 			sampleTable = new SampleTable(this.serverFacade,"sampleSearchContainer", this.profile, sampleTypeCode, false, false, true, false, true);
@@ -654,7 +654,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		//Other properties
 		var properties = {};
 		
-		var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
+		var sampleType = profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 		for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
@@ -815,7 +815,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			var errorMessage = stacktrace.substring(startIndex, endIndex).trim();
 			Util.showError(errorMessage, function() {Util.unblockUI();});
 		} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
-			var sampleType = profile.getTypeForTypeCode(this.sampleTypeCode);
+			var sampleType = profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 			var sampleTypeDisplayName = sampleType.description;
 			if(!sampleTypeDisplayName) {
 				sampleTypeDisplayName = this.sampleTypeCode;

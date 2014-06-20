@@ -212,7 +212,7 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 		
-		this.getTypeForTypeCode = function(typeCode) {
+		this.getSampleTypeForSampleTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allSampleTypes.length; i++) {
 				if(this.allSampleTypes[i].code === typeCode) {
 					return this.allSampleTypes[i];
@@ -235,7 +235,7 @@ $.extend(DefaultProfile.prototype, {
 	
 		this.getAllPropertiCodesForTypeCode = function(typeCode) {
 			var allPropertiCodes = new Array();
-			var sampleType = this.getTypeForTypeCode(typeCode);
+			var sampleType = this.getSampleTypeForSampleTypeCode(typeCode);
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
 				for(var j = 0; j < propertyGroup.length; j++) {
@@ -248,7 +248,7 @@ $.extend(DefaultProfile.prototype, {
 	
 		this.getPropertyDisplayNamesForTypeCode = function(sampleTypeCode, propertyTypeCode) {
 			var propertyDisplayName = "";
-			var sampleType = this.getTypeForTypeCode(sampleTypeCode);
+			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
 			for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 				var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
@@ -265,7 +265,7 @@ $.extend(DefaultProfile.prototype, {
 	
 		this.getPropertiesDisplayNamesForTypeCode = function(sampleTypeCode, propertiesTypeCode) {
 			var allPropertiDisplayNames = new Array();
-			var sampleType = this.getTypeForTypeCode(sampleTypeCode);
+			var sampleType = this.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		
 			for(var i = 0; i < propertiesTypeCode.length; i++) {
 				var propertyTypeCode = propertiesTypeCode[i];
@@ -1057,7 +1057,7 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 				groupOfMenuItems = new GroupOfMenuItems(typeGroupCode,this.typeGroups[typeGroupCode]["DISPLAY_NAME"],[]);
 			
 				for(var i = 0; i < this.typeGroups[typeGroupCode]["LIST"].length; i++) {
-					var sampleType = this.getTypeForTypeCode(this.typeGroups[typeGroupCode]["LIST"][i]);
+					var sampleType = this.getSampleTypeForSampleTypeCode(this.typeGroups[typeGroupCode]["LIST"][i]);
 				
 					if(sampleType !== null) {
 						var description = sampleType.code;

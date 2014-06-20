@@ -206,7 +206,7 @@ function Inspector(serverFacade, containerId, profile) {
 		var allParentCodesAsText = "";
 		
 		for(var sampleType in allParentCodesByType) {
-			var displayName = profile.getTypeForTypeCode(sampleType).description;
+			var displayName = profile.getSampleTypeForSampleTypeCode(sampleType).description;
 			if(displayName === null) {
 				displayName = sampleType;
 			}
@@ -288,7 +288,7 @@ function Inspector(serverFacade, containerId, profile) {
 				//
 				// Fix to show vocabulary labels instead of codes
 				//
-				var sampleType = this.profile.getTypeForTypeCode(entity.sampleTypeCode);
+				var sampleType = this.profile.getSampleTypeForSampleTypeCode(entity.sampleTypeCode);
 				var propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode);
 				if(propertyType && propertyType.dataType === "CONTROLLEDVOCABULARY") {
 					var vocabulary = null;

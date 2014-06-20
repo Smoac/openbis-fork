@@ -171,7 +171,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 						}
 					
 						for(var i = 0; i < typeGroups[typeGroupCode]["LIST"].length; i++) {
-							var sampleType = profile.getTypeForTypeCode(typeGroups[typeGroupCode]["LIST"][i]);
+							var sampleType = profile.getSampleTypeForSampleTypeCode(typeGroups[typeGroupCode]["LIST"][i]);
 						
 							if(sampleType !== null) {
 								var description = Util.getEmptyIfNull(sampleType.description);

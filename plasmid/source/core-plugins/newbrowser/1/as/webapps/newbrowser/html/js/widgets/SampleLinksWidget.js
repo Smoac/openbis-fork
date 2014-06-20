@@ -170,7 +170,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var _this = this;
 		$("#sampleTypeSelector").on("change", function(event) {
 			var sampleTypeCode = $("#sampleTypeSelector")[0].value;
-			var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
+			var sampleType = _this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 			
 			if(sampleType !== null) {
 				if(_this._lastUsedId) {
@@ -263,7 +263,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				$buttonTextField.click(function(elem) {
 					var $buttonClicked = $(elem);
 					var sampleTypeCode = sampleTypeHint["TYPE"];
-					var sampleType = _this.profile.getTypeForTypeCode(sampleTypeCode);
+					var sampleType = _this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 					
 					if(sampleType !== null) {
 						//Clear last state

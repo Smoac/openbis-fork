@@ -169,7 +169,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			if(this.isSearch) {
 				component += "<h1>Search Results</h1>";
 			} else {
-				var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+				var sampleType = this.profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 				var sampleTypeDisplayName = Util.getEmptyIfNull(sampleType.description);
 				if(sampleTypeDisplayName === "") {
 					sampleTypeDisplayName = sampleType.code;
@@ -256,7 +256,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				//
 				// Fix to use vocabulary labels instead of codes
 				//
-				var sampleType = localReference.profile.getTypeForTypeCode(localReference.sampleTypeCode);
+				var sampleType = localReference.profile.getSampleTypeForSampleTypeCode(localReference.sampleTypeCode);
 				var propertyType = localReference.profile.getPropertyTypeFrom(sampleType, propertyCode);
 				if(!propertyType) {
 					propertyType = localReference.profile.getPropertyTypeFrom(sampleType, propertyCode.replace('$',''));
@@ -374,7 +374,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var searchText = $('#search').val();
 		var searchRegexpText = ("*" + searchText + "*").replace(/\*/g, ".*");
 		var searchRegexp = new RegExp(searchRegexpText, "i");
-		var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+		var sampleType = this.profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 		
 		var localReference = this;
 		selection.enter()
@@ -518,7 +518,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		if (!this.isEmbedded && !this.isSearch) {
 			$("#paginationContainerTop").append("<span class='toolBox' id='toolBoxContainer'></span>");
 			
-			var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+			var sampleType = this.profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 			var sampleTypeDisplayName = Util.getEmptyIfNull(sampleType.description);
 			if(sampleTypeDisplayName === "") {
 				sampleTypeDisplayName = sampleType.code;
@@ -710,7 +710,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 						//
 						// Fix to use vocabulary labels instead of codes
 						//
-						var sampleType = this.profile.getTypeForTypeCode(this.sampleTypeCode);
+						var sampleType = this.profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 						var propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode);
 						if(!propertyType) {
 							propertyType = this.profile.getPropertyTypeFrom(sampleType, propertyCode.replace('$',''));

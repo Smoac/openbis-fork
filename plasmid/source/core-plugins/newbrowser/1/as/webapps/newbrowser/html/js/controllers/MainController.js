@@ -290,7 +290,7 @@ function MainController(profile) {
 	
 	this._showSamplesPage = function(sampleTypeCode) {
 		//Update menu
-		var sampleType = this.profile.getTypeForTypeCode(sampleTypeCode);
+		var sampleType = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 		var sampleTypeDisplayName = sampleType.description;
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
@@ -316,7 +316,7 @@ function MainController(profile) {
 	
 	this._showCreateSubExperimentPage = function(sampleTypeCode, experimentIdentifier) {
 		//Update menu
-		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
+		var sampleTypeDisplayName = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode).description;
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
@@ -329,7 +329,7 @@ function MainController(profile) {
 	
 	this._showCreateSamplePage = function(sampleTypeCode) {
 		//Update menu
-		var sampleTypeDisplayName = this.profile.getTypeForTypeCode(sampleTypeCode).description;
+		var sampleTypeDisplayName = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode).description;
 		if(sampleTypeDisplayName === null) {
 			sampleTypeDisplayName = sampleTypeCode;
 		}
