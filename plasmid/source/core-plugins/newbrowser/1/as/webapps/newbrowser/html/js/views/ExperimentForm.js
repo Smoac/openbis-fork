@@ -146,7 +146,10 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 					//Update values if is into edit mode
 					if(this._mode === FormMode.EDIT) {
 						if(propertyType.dataType === "BOOLEAN") {
-							$component.prop('checked', this._experiment.properties[propertyType.code] === "true");
+							$($component.children()[0]).prop('checked', this._experiment.properties[propertyType.code] === "true");
+						} else if(propertyType.dataType === "TIMESTAMP") {
+							var value = this._experiment.properties[propertyType.code];
+							$($($component.children()[0]).children()[0]).val(value);
 						} else {
 							var value = this._experiment.properties[propertyType.code];
 							if(!value && propertyType.code.charAt(0) === '$') {
@@ -201,9 +204,9 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 		var experimentSpace = projectIdentifier[1];
 		var experimentProject = projectIdentifier[2];
 		var experimentCode = $("#CODE").val();
-		
+		var experimentIdentifier = "/" + experimentSpace + "/" + experimentProject + "/" + experimentCode;
 		//Properties
-		var properties = {};
+		var experimentProperties = {};
 		
 		for(var i = 0; i < experimentType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = experimentType.propertyTypeGroups[i];
@@ -217,7 +220,7 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 					value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val());
 				}
 				
-				properties[propertyType.code] = value;
+				experimentProperties[propertyType.code] = value;
 			}
 		}
 		
@@ -232,11 +235,13 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 				//API Method
 				"method" : method,
 				//Identification Info
+				"experimentType" : this._experiment.experimentTypeCode,
+				"experimentIdentifier" : experimentIdentifier,
 				"experimentSpace" : experimentSpace,
 				"experimentProject" : experimentProject,
 				"experimentCode" : experimentCode,
 				//Properties
-				"properties" : properties
+				"experimentProperties" : experimentProperties
 		};
 		
 		var _this = this;
@@ -244,6 +249,8 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 		if(this._mainController.profile.allDataStores.length > 0) {
 			this._mainController.serverFacade.createReportFromAggregationService(this._mainController.profile.allDataStores[0].code, parameters, function(response) {
 				Util.unblockUI();
+				_this._isFormDirty = false;
+				_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
 			});
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});

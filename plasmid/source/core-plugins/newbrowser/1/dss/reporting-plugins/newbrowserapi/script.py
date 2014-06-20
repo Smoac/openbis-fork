@@ -30,6 +30,10 @@ def process(tr, parameters, tableBuilder):
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
+	if method == "insertExperiment":
+		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
+	if method == "updateExperiment":
+		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	if method == "insertDataSet":
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 
@@ -197,4 +201,30 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 			child.setParentSampleIdentifiers(childParents);
 
 	#Return from the call
+	return True;
+	
+def insertUpdateExperiment(tr, parameters, tableBuilder):
+	
+	#Mandatory parameters
+	experimentType = parameters.get("experimentType"); #String
+	experimentSpace = parameters.get("experimentSpace"); #String
+	experimentProject = parameters.get("experimentProject"); #String
+	experimentCode = parameters.get("experimentCode"); #String
+	experimentIdentifier = parameters.get("experimentIdentifier"); #String
+	experimentProperties = parameters.get("experimentProperties"); #java.util.LinkedHashMap<String, String> where the key is the name
+	
+	experiment = None;
+	method = parameters.get("method");
+	if method == "insertExperiment":
+		experiment = tr.createNewExperiment(experimentIdentifier, experimentType); #Create Experiment given his id
+	if method == "updateExperiment":
+		experiment = tr.getExperimentForUpdate(experimentIdentifier); #Retrieve Experiment
+	
+	for key in experimentProperties.keySet():
+		propertyValue = unicode(experimentProperties[key]);
+		if propertyValue == "":
+			propertyValue = None;
+		
+		experiment.setPropertyValue(key,propertyValue);
+	
 	return True;
