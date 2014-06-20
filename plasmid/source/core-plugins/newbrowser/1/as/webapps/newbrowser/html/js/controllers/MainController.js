@@ -96,7 +96,7 @@ function MainController(profile) {
 			function(result) {
 			
 				//Load Sample Types
-				localReference.profile.allTypes = result.result;
+				localReference.profile.allSampleTypes = result.result;
 			
 				//Init profile
 				localReference.profile.init(function() {

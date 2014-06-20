@@ -44,7 +44,7 @@ $.extend(DefaultProfile.prototype, {
 			"SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field"],	
 		};
 		
-		this.allTypes = [];
+		this.allSampleTypes = [];
 		this.allVocabularies = [];
 		this.allDataStores = [];
 		this.allPropertyTypes = [];
@@ -203,9 +203,9 @@ $.extend(DefaultProfile.prototype, {
 		}
 	
 		this.getTypeForTypeCode = function(typeCode) {
-			for(var i = 0; i < this.allTypes.length; i++) {
-				if(this.allTypes[i].code === typeCode) {
-					return this.allTypes[i];
+			for(var i = 0; i < this.allSampleTypes.length; i++) {
+				if(this.allSampleTypes[i].code === typeCode) {
+					return this.allSampleTypes[i];
 				}
 			}
 			return null;
@@ -281,8 +281,8 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.getAllSampleTypes = function() {
 			var sampleTypes = [];
-			for(var i = 0; i < this.allTypes.length; i++) {
-				var sampleType = this.allTypes[i];
+			for(var i = 0; i < this.allSampleTypes.length; i++) {
+				var sampleType = this.allSampleTypes[i];
 				if($.inArray(sampleType.code, this.notShowTypes) === -1) {
 					sampleTypes.push(sampleType);
 				}
@@ -299,8 +299,8 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.initVocabulariesForSampleTypes = function() {
 			//Build Vocabularies from sample types
-			for(var sampleTypeIdx = 0; sampleTypeIdx < this.allTypes.length; sampleTypeIdx++) {
-				var sampleType = this.allTypes[sampleTypeIdx];
+			for(var sampleTypeIdx = 0; sampleTypeIdx < this.allSampleTypes.length; sampleTypeIdx++) {
+				var sampleType = this.allSampleTypes[sampleTypeIdx];
 				for(var i = 0; i < sampleType.propertyTypeGroups.length; i++) {
 					var propertyGroup = sampleType.propertyTypeGroups[i].propertyTypes;
 					for(var j = 0; j < propertyGroup.length; j++) {
@@ -335,8 +335,8 @@ $.extend(DefaultProfile.prototype, {
 		// Initializes the Others list with all sampleType codes that are neither in typeGroups or notShowTypes
 		//
 		this.init = function(callbackWhenDone) {
-			for(var i = 0; i < this.allTypes.length; i++) {
-				var sampleType = this.allTypes[i];
+			for(var i = 0; i < this.allSampleTypes.length; i++) {
+				var sampleType = this.allSampleTypes[i];
 				if($.inArray(sampleType.code, this.notShowTypes) === -1) {
 					if(this.getGroupTypeCodeForTypeCode(sampleType.code) === null) {
 						this.typeGroups["OTHERS"]["LIST"].push(sampleType.code);
@@ -361,7 +361,8 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
 		this.notShowTypes = ["SYSTEM_EXPERIMENT", "ILLUMINA_FLOW_CELL", "ILLUMINA_FLOW_LANE", "LIBRARY", "LIBRARY_POOL", "MASTER_SAMPLE","MS_INJECTION","RAW_SAMPLE","TEMPLATE_SAMPLE", "SEARCH"];
-	
+		this.inventorySpaces = ["YEAST_LAB"];
+		this.isShowUnavailablePreviewOnSampleTable = false;
 		this.typeGroups = {
 			"METHODS" : {
 				"TYPE" : "METHODS",
@@ -1232,7 +1233,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		 * Used by Sample Form
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			if(sampleTypeCode == "ANTIBODY_PANEL") {
+			if(sampleTypeCode === "ANTIBODY_PANEL") {
 				var isEnabled = mainController.currentView.mode !== SampleFormMode.VIEW;
 				var dilutionWidget = new DilutionWidget(containerId, this.serverFacade, isEnabled);
 				dilutionWidget.init();
