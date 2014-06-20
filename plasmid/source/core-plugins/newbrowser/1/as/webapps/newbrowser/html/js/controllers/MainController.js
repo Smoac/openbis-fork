@@ -359,7 +359,7 @@ function MainController(profile) {
 	
 	this._showExperimentPage = function(experiment) {
 		//Show Form
-		var experimentForm = new ExperimentForm("mainContainer", this, experiment, ExperimentFormMode.VIEW);
+		var experimentForm = new ExperimentForm("mainContainer", this, experiment, FormMode.VIEW);
 		experimentForm.init();
 		this.currentView = experimentForm;
 	}

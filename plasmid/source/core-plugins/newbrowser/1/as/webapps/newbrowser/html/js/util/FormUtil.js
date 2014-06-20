@@ -1,5 +1,15 @@
+var FormMode = {
+    CREATE : 0,
+    EDIT : 1,
+    VIEW : 2
+}
+
 var FormUtil = new function() {
 	this.profile = null;
+	
+	//
+	// Form css classes
+	//
 	this.formColumClass = 'col-md-12'
 	this.labelColumnClass = 'col-md-2';
 	this.controlColumnClass = 'col-md-6';
@@ -30,6 +40,9 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	//
+	// Get Field with container to obtain a correct layout
+	//
 	this.getFieldForComponentWithLabel = function($component, label) {
 		var $fieldset = $('<div>');
 		
@@ -53,7 +66,7 @@ var FormUtil = new function() {
 	}
 	
 	this.getFieldForLabelWithText = function(label, text) {
-		var $fieldset = $('<fieldset>');
+		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass}).text(label + ":");
@@ -69,7 +82,10 @@ var FormUtil = new function() {
 		
 		return $fieldset;
 	}
-	
+
+	//
+	// Get Field from property
+	//
 	this.getFieldForPropertyType = function(propertyType) {
 		var $component = null;
 		if (propertyType.dataType === "BOOLEAN") {
@@ -107,6 +123,9 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	//
+	// Form Fields
+	//
 	this._getBooleanField = function(id, alt) {
 		return $('<div>', {'class' : 'checkbox'}).append($('<input>', {'type' : 'checkbox', 'id' : id, 'alt' : alt, 'placeholder' : alt }));
 	}
