@@ -32,6 +32,56 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._menuStructure = new SideMenuWidgetComponent(false, true, "Main Menu", null, { children : [] }, 'showBlancPage', null, "");
 	this._pointerToMenuNode = this._menuStructure;
 	this.isHidden = false;
+
+	this.refreshExperiment = function(projectIdentifierToAskForExperiments) {
+		var _this = this;
+		
+		//Clean node
+		var projectNode = _this._getProjectNodeForCode(projectIdentifierToAskForExperiments.split("/")[2]);
+		projectNode.newMenuIfSelected.children = [];
+		
+		//Rebuild node
+		this._serverFacade.getProjectFromIdentifier(projectIdentifierToAskForExperiments, function(project) {
+			delete project["@id"];
+			delete project["@type"];
+			
+			//Fill Experiments
+			_this._serverFacade.listExperiments([project], function(experiments) {
+				var experimentsToAskForSamples = [];
+				for(var i = 0; i < experiments.result.length; i++) {
+					var experiment = experiments.result[i];
+					experimentsToAskForSamples.push(experiment);
+					var projectCode = experiment.identifier.split("/")[2];
+					var projectNode = _this._getProjectNodeForCode(projectCode);
+					
+					var newMenuIfSelectedExperiment = {
+							children : []
+					}
+					
+					var menuItemExperiment = new SideMenuWidgetComponent(true, false, experiment.code, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier, "(Experiment)");
+					projectNode.newMenuIfSelected.children.push(menuItemExperiment);
+				}
+					
+				//Fill Sub Experiments
+				_this._serverFacade.listSamplesForExperiments(experimentsToAskForSamples, function(subExperiments) {
+					var a = 0;
+					for(var i = 0; i < subExperiments.result.length; i++) {
+						var subExperiment = subExperiments.result[i];
+						if(subExperiment.experimentIdentifierOrNull) {
+							var projectCode = subExperiment.experimentIdentifierOrNull.split("/")[2];
+							var experimentCode = subExperiment.experimentIdentifierOrNull.split("/")[3];
+							var experimentNode = _this._getExperimentNodeForCode(projectCode, experimentCode);
+							
+							var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, subExperiment.code, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
+							experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
+						}
+					}
+					
+					_this.repaint();
+				});
+			});
+		});
+	}
 	
 	this.refreshSubExperiment = function(experimentIdentifierToAskForSamples) {
 		var _this = this;

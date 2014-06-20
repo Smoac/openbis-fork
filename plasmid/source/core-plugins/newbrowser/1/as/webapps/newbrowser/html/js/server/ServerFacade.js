@@ -69,6 +69,18 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
 	
+	this.getProjectFromIdentifier = function(identifier, callbackFunction) {
+		this.openbisServer.listProjects(function(data) {
+			data.result.forEach(function(project){
+				var projIden = "/" + project.spaceCode + "/" + project.code;
+				if(projIden === identifier) {
+					callbackFunction(project);
+					return;
+				}
+			});
+		});
+	}
+	
 	this.getProjectFromPermId = function(permId, callbackFunction) {
 		this.openbisServer.listProjects(function(data) {
 			data.result.forEach(function(project){

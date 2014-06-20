@@ -251,6 +251,7 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 			this._mainController.serverFacade.createReportFromAggregationService(this._mainController.profile.allDataStores[0].code, parameters, function(response) {
 				Util.unblockUI();
 				_this._isFormDirty = false;
+				_this._mainController.sideMenu.refreshExperiment($("#PROJECT").val());
 				_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
 			});
 		} else {
