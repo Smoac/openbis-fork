@@ -802,18 +802,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			Util.showError(response.error.message, function() {Util.unblockUI();});
 		} else if (response.result.columns[1].title === "Error") { //Error Case 2
 			var stacktrace = response.result.rows[0][1].value;
-			var isUserFailureException = stacktrace.indexOf("ch.systemsx.cisd.common.exceptions.UserFailureException") === 0;
-			var startIndex = null;
-			var endIndex = null;
-			if(isUserFailureException) {
-				startIndex = "ch.systemsx.cisd.common.exceptions.UserFailureException".length + 2;
-				endIndex = stacktrace.indexOf("at ch.systemsx");
-			} else {
-				startIndex = 0;
-				endIndex = stacktrace.length;
-			}
-			var errorMessage = stacktrace.substring(startIndex, endIndex).trim();
-			Util.showError(errorMessage, function() {Util.unblockUI();});
+			Util.showStacktraceAsError(stacktrace);
 		} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 			var sampleType = profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 			var sampleTypeDisplayName = sampleType.description;

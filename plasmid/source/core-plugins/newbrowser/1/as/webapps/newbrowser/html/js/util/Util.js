@@ -75,6 +75,20 @@ var Util = new function() {
 	//
 	// Methods to show messages as pop ups
 	//
+	this.showStacktraceAsError = function(stacktrace) {
+		var isUserFailureException = stacktrace.indexOf("ch.systemsx.cisd.common.exceptions.UserFailureException") === 0;
+		var startIndex = null;
+		var endIndex = null;
+		if(isUserFailureException) {
+			startIndex = "ch.systemsx.cisd.common.exceptions.UserFailureException".length + 2;
+			endIndex = stacktrace.indexOf("at ch.systemsx");
+		} else {
+			startIndex = 0;
+			endIndex = stacktrace.length;
+		}
+		var errorMessage = stacktrace.substring(startIndex, endIndex).trim();
+		Util.showError(errorMessage, function() {Util.unblockUI();});
+	}
 	
 	this.showError = function(withHTML, andCallback, noBlock) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;

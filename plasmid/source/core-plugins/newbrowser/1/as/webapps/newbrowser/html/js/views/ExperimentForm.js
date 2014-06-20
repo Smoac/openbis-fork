@@ -34,7 +34,12 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 		$("#" + this._containerId).empty();
 		
 		var $form = $("<div>", { "class" : "row"});
-		var $formColumn = $("<div>", { "class" : FormUtil.formColumClass + " form-horizontal", 'role' : "form"});
+		var $formColumn = $("<form>", { 
+			"class" : FormUtil.formColumClass + " form-horizontal", 
+			'role' : "form", 
+			"action" : "javascript:void(0);", 
+			"onsubmit" : "mainController.currentView._updateExperiment();"
+		});
 			
 		$form.append($formColumn);
 		
@@ -186,9 +191,6 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 									.append($('<div>', {class: FormUtil.controlColumnClass})
 									.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : label})));
 			
-			$submitButton.click(function() {
-				_this._updateExperiment();
-			});
 			$formColumn.append($submitButton);
 		}
 		
@@ -249,10 +251,37 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 		
 		if(this._mainController.profile.allDataStores.length > 0) {
 			this._mainController.serverFacade.createReportFromAggregationService(this._mainController.profile.allDataStores[0].code, parameters, function(response) {
-				Util.unblockUI();
-				_this._isFormDirty = false;
-				_this._mainController.sideMenu.refreshExperiment($("#PROJECT").val());
-				_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
+				if(response.error) { //Error Case 1
+					Util.showError(response.error.message, function() {Util.unblockUI();});
+				} else if (response.result.columns[1].title === "Error") { //Error Case 2
+					var stacktrace = response.result.rows[0][1].value;
+					Util.showStacktraceAsError(stacktrace);
+				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
+					var experimentType = profile.getExperimentTypeForExperimentTypeCode(_this._experiment.experimentTypeCode);
+					var experimentTypeDisplayName = experimentType.description;
+					if(!experimentTypeDisplayName) {
+						experimentTypeDisplayName = _this._experiment.experimentTypeCode;
+					}
+					
+					var message = "";
+					if(_this._mode === FormMode.CREATE) {
+						message = "Created.";
+					} else if(_this._mode === FormMode.EDIT) {
+						message = "Updated.";
+					}
+					
+					var callbackOk = function() {
+						_this._mainController.sideMenu.refreshExperiment($("#PROJECT").val());
+						_this._isFormDirty = false;
+						_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
+						Util.unblockUI();
+					}
+					
+					Util.showSuccess(experimentTypeDisplayName + " " + message, callbackOk);
+				} else { //This should never happen
+					Util.showError("Unknown Error.", function() {Util.unblockUI();});
+				}
+				
 			});
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
