@@ -49,6 +49,10 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listSampleTypes(callbackFunction);
 	}
 	
+	this.listExperimentTypes = function(callbackFunction) {
+		this.openbisServer.listExperimentTypes(callbackFunction);
+	}
+	
 	this.listVocabularies = function(callbackFunction) {
 		this.openbisServer.listVocabularies(callbackFunction);
 	}

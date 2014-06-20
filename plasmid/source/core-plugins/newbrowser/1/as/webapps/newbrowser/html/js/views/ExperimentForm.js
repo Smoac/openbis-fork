@@ -42,14 +42,18 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 		//
 		// Title
 		//
+		var $formTitle = null;
 		if(this._mode === ExperimentFormMode.VIEW || this._mode === ExperimentFormMode.EDIT) {
-			$formColumn.append($("<h1>").append("Experiment " + this._experiment.identifier));
+			$formTitle = $("<h1>").append("Experiment " + this._experiment.identifier);
+		} else {
+			$formTitle = $("<h1>").append("Create " + this._experiment.experimentTypeCode);
 		}
+		$formColumn.append($formTitle);
 		
 		//
 		// Metadata Fields
 		//
-		
+		var experimentType = this._mainController.profile.getExperimentTypeForExperimentTypeCode(this._experiment.experimentTypeCode);
 		
 		//
 		// Create Sub Experiment

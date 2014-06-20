@@ -45,6 +45,7 @@ $.extend(DefaultProfile.prototype, {
 		};
 		
 		this.allSampleTypes = [];
+		this.allExperimentTypes = [];
 		this.allVocabularies = [];
 		this.allDataStores = [];
 		this.allPropertyTypes = [];
@@ -202,6 +203,15 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 	
+		this.getExperimentTypeForExperimentTypeCode = function(typeCode) {
+			for(var i = 0; i < this.allExperimentTypes.length; i++) {
+				if(this.allExperimentTypes[i].code === typeCode) {
+					return this.allExperimentTypes[i];
+				}
+			}
+			return null;
+		}
+		
 		this.getTypeForTypeCode = function(typeCode) {
 			for(var i = 0; i < this.allSampleTypes.length; i++) {
 				if(this.allSampleTypes[i].code === typeCode) {

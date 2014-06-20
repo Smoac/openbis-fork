@@ -94,47 +94,50 @@ function MainController(profile) {
 		
 		this.serverFacade.listSampleTypes (
 			function(result) {
-			
 				//Load Sample Types
 				localReference.profile.allSampleTypes = result.result;
-			
-				//Init profile
-				localReference.profile.init(function() {
-					//Start App
-					localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
 				
-					localReference.sideMenu = new SideMenuWidget(localReference, "sideMenu", localReference.serverFacade);
-					localReference.sideMenu.init();
-					
-					//Page reload using the URL info
-					var queryString = Util.queryString();
-					var viewName = queryString.viewName;
-					var viewData = queryString.viewData;
-					var hideMenu = queryString.hideMenu;
-					if(viewName && viewData) {
-						localReference.changeView(viewName, viewData);
-						if(hideMenu === "true") {
-							localReference.sideMenu.hideSideMenu();
-						}
-					} else {
-						localReference.changeView("showBlancPage", null);
-					}
-					Util.unblockUI();
-					
-					
-					//Get datastores for automatic DSS configuration, the first one will be used
-					localReference.serverFacade.listDataStores(
-						function(dataStores) {
-							localReference.profile.allDataStores = dataStores.result;
-						}
-					);
-					
-					//Get display settings
-					localReference.serverFacade.getUserDisplaySettings( function(response) {
-						if(response.result) {
-							localReference.profile.displaySettings = response.result;
-						}
-					});
+				//Load datastores for automatic DSS configuration, the first one will be used
+				localReference.serverFacade.listDataStores(function(dataStores) {
+						localReference.profile.allDataStores = dataStores.result;
+				
+						//Load display settings
+						localReference.serverFacade.getUserDisplaySettings( function(response) {
+							if(response.result) {
+								localReference.profile.displaySettings = response.result;
+							}
+							
+							//Load Experiment Types
+							localReference.serverFacade.listExperimentTypes(function(experiments) {
+								localReference.profile.allExperimentTypes = experiments.result;
+								
+								
+								//Init profile
+								localReference.profile.init(function() {
+									//Start App
+									localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
+								
+									localReference.sideMenu = new SideMenuWidget(localReference, "sideMenu", localReference.serverFacade);
+									localReference.sideMenu.init();
+									
+									//Page reload using the URL info
+									var queryString = Util.queryString();
+									var viewName = queryString.viewName;
+									var viewData = queryString.viewData;
+									var hideMenu = queryString.hideMenu;
+									if(viewName && viewData) {
+										localReference.changeView(viewName, viewData);
+										if(hideMenu === "true") {
+											localReference.sideMenu.hideSideMenu();
+										}
+									} else {
+										localReference.changeView("showBlancPage", null);
+									}
+									Util.unblockUI();
+								});
+								
+							});
+						});
 				});
 			}
 		);
