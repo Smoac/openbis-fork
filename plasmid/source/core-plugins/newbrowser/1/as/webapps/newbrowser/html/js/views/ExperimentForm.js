@@ -26,6 +26,7 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 	
 	this.init = function() {
 		this.repaint();
+		Util.unblockUI();
 	}
 	
 	this.repaint = function() {
