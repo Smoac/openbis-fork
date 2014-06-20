@@ -55,7 +55,7 @@ var FormUtil = new function() {
 	this.getFieldForLabelWithText = function(label, text) {
 		var $fieldset = $('<fieldset>');
 		
-		var $controlGroup = $('<div>', {class : 'control-group'});
+		var $controlGroup = $('<div>', {class : 'form-group'});
 		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass}).text(label + ":");
 		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
 			
@@ -66,27 +66,6 @@ var FormUtil = new function() {
 		var $component = $("<span>", {'class' : 'form-control', 'style' : 'border:none; box-shadow:none;'});
 		$component.append(text);
 		$controls.append($component);
-		
-		return $fieldset;
-	}
-	
-	this.getFieldForPropertyTypeWithLabel = function(propertyType) {
-		var $fieldset = $('<fieldset>');
-		
-		var $controlGroup = $('<div>', {class : 'control-group'});
-		var $controlLabel = $('<label>', {class : 'control-label'}).text(propertyType.label + ":");
-		var $controls = $('<div>', {class : 'controls'});
-			
-		$controlGroup.append($controlLabel);
-		$controlGroup.append($controls);
-		$fieldset.append($controlGroup);
-			
-		var $component = this.getFieldForPropertyType(propertyType);
-			
-		$controls.append($component);
-		if(propertyType.mandatory) {
-			$controls.append(' (Required)')
-		}
 		
 		return $fieldset;
 	}
