@@ -40,6 +40,28 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getExperimentTypeDropdown = function(id, isRequired) {
+		var experimentTypes = this.profile.allExperimentTypes;
+		
+		var $component = $("<select>", {"id" : id, class : 'form-control'});
+		if (isRequired) {
+			$component.attr('required', '');
+		}
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		for(var i = 0; i < experimentTypes.length; i++) {
+			var experimentType = experimentTypes[i];
+			var label = Util.getEmptyIfNull(experimentType.description);
+			if(label === "") {
+				label = experimentType.code;
+			}
+			
+			$component.append($("<option>").attr('value',experimentType.code).text(label));
+		}
+		
+		return $component;
+	}
+	
 	//
 	// Get Field with container to obtain a correct layout
 	//

@@ -35,7 +35,31 @@ function ProjectForm(containerId, mainController, project) {
 		//
 		// Title
 		//
-		$formColumn.append($("<h1>").append("Project /" + this._project.spaceCode + "/" + this._project.code));
+		var $formTitle = $("<h2>").append("Project /" + this._project.spaceCode + "/" + this._project.code);
+		$formColumn.append($formTitle);
+		
+		var $createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
+		$createExpBtn.click(function() {
+			var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
+			Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
+			
+			$("#experimentTypeDropdown").on("change", function(event) {
+				var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
+				var argsMap = {
+						"experimentTypeCode" : experimentTypeCode,
+						"projectIdentifier" : "/" + _this._project.spaceCode + "/" + _this._project.code
+				}
+				var argsMapStr = JSON.stringify(argsMap);
+				
+				_this._mainController.changeView("showCreateExperimentPage", argsMapStr);
+			});
+			
+			$("#experimentTypeDropdownCancel").on("click", function(event) { 
+				Util.unblockUI();
+			});
+		});
+		$formTitle.append(" ");
+		$formTitle.append($createExpBtn);
 		
 		//
 		// Metadata Fields

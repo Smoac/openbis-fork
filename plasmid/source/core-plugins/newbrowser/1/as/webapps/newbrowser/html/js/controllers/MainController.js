@@ -189,6 +189,20 @@ function MainController(profile) {
 					window.scrollTo(0,0);
 				});
 				break;
+				
+			case "showCreateExperimentPage":
+				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+				var argsMap = JSON.parse(cleanText);
+				var experimentTypeCode = argsMap["experimentTypeCode"];
+				var projectIdentifier = argsMap["projectIdentifier"];
+				document.title = "Create Experiment " + experimentTypeCode;
+				var experiment = {
+						experimentTypeCode : experimentTypeCode,
+						identifier : projectIdentifier
+				}
+				this._showExperimentPage(experiment, FormMode.CREATE);
+				window.scrollTo(0,0);
+				break;
 			case "showExperimentPageFromIdentifier":
 				var _this = this;
 				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
