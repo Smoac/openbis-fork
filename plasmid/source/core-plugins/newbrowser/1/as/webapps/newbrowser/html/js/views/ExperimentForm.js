@@ -18,7 +18,11 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 	this._mainController = mainController;
 	this._experiment = experiment;
 	this._mode = mode;
-	this.isFormDirty = false;
+	this._isFormDirty = false;
+	
+	this.isDirty = function() {
+		return this._isFormDirty;
+	}
 	
 	this.init = function() {
 		this.repaint();
@@ -70,6 +74,13 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 			});
 			$formTitle.append(" ");
 			$formTitle.append($createSubExpBtn);
+			
+			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
+			$editBtn.click(function() {
+				_this._mainController.changeView("showEditExperimentPageFromIdentifier", _this._experiment.identifier);
+			});
+			$formTitle.append(" ");
+			$formTitle.append($editBtn);
 		}
 		
 		//
@@ -81,14 +92,24 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 		var identifierParts = this._experiment.identifier.split("/");
 		
 		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._experiment.experimentTypeCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Project", identifierParts[2]));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Project", identifierParts[0] + "/" + identifierParts[1] + "/" + identifierParts[2]));
+		var $projectField = FormUtil._getInputField("text", "PROJECT", "project", null, true);
+		$projectField.val(identifierParts[0] + "/" + identifierParts[1] + "/" + identifierParts[2]);
+		$projectField.hide();
+		$formColumn.append($projectField);
 		
 		if(this._mode === FormMode.VIEW || this._mode === FormMode.EDIT) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", identifierParts[3]));
+			
+			var $codeField = FormUtil._getInputField("text", "CODE", "code", null, true);
+			$codeField.val(identifierParts[3]);
+			$codeField.hide();
+			$formColumn.append($codeField);
+			
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Registrator", this._experiment.registrationDetails.userId));
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", (new Date(this._experiment.registrationDetails.registrationDate)).toLocaleString()));
 		} else if(this._mode === FormMode.CREATE){
-			var $codeField = FormUtil._getInputField("text", "code", "code", null, true);
+			var $codeField = FormUtil._getInputField("text", "CODE", "code", null, true);
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($codeField, "Code"));
 		}
 		
@@ -117,12 +138,26 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 				
 				var $controlGroup =  null;
 				
-				if(this._mode === FormMode.VIEW) {
+				if(this._mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
 					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, this._experiment.properties[propertyType.code]);
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
+					
+					//Update values if is into edit mode
+					if(this._mode === FormMode.EDIT) {
+						if(propertyType.dataType === "BOOLEAN") {
+							$component.prop('checked', this._experiment.properties[propertyType.code] === "true");
+						} else {
+							var value = this._experiment.properties[propertyType.code];
+							if(!value && propertyType.code.charAt(0) === '$') {
+								value = this._experiment.properties[propertyType.code.substr(1)];
+							}
+							$component.val(value);
+						}
+					}
+					
 					$component.change(function(event) {
-						localInstance.isFormDirty = true;
+						_this._isFormDirty = true;
 					});
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
@@ -133,6 +168,85 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 			$formColumn.append($fieldset);
 		}
 		
+		if(this._mode === FormMode.EDIT || this._mode === FormMode.CREATE) {
+			var label = "";
+			
+			if(this._mode === FormMode.EDIT) {
+				label = "Update Experiment " + this._experiment.code;
+			} else if(this._mode === FormMode.CREATE) {
+				label = "Create Experiment";
+			}
+			
+			var $submitButton = $('<fieldset>')
+									.append($('<div>', { class : "form-group"}))
+									.append($('<div>', {class: FormUtil.controlColumnClass})
+									.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : label})));
+			
+			$submitButton.click(function() {
+				_this._updateExperiment();
+			});
+			$formColumn.append($submitButton);
+		}
+		
 		$("#" + this._containerId).append($form);
+	}
+	
+	this._updateExperiment = function() {
+		Util.blockUI();
+		
+		var experimentType = this._mainController.profile.getExperimentTypeForExperimentTypeCode(this._experiment.experimentTypeCode);
+		
+		//Identification Info
+		var projectIdentifier = $("#PROJECT").val().split("/");
+		var experimentSpace = projectIdentifier[1];
+		var experimentProject = projectIdentifier[2];
+		var experimentCode = $("#CODE").val();
+		
+		//Properties
+		var properties = {};
+		
+		for(var i = 0; i < experimentType.propertyTypeGroups.length; i++) {
+			var propertyTypeGroup = experimentType.propertyTypeGroups[i];
+			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
+				var propertyType = propertyTypeGroup.propertyTypes[j];
+				var value = null;
+				
+				if (propertyType.dataType === "BOOLEAN") {
+					value = $("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')+":checked").val() === "on";
+				} else {
+					value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val());
+				}
+				
+				properties[propertyType.code] = value;
+			}
+		}
+		
+		var method = "";
+		if(this._mode === FormMode.CREATE) {
+			method = "insertExperiment";
+		} else if(this._mode === FormMode.EDIT) {
+			method = "updateExperiment";
+		}
+		
+		var parameters = {
+				//API Method
+				"method" : method,
+				//Identification Info
+				"experimentSpace" : experimentSpace,
+				"experimentProject" : experimentProject,
+				"experimentCode" : experimentCode,
+				//Properties
+				"properties" : properties
+		};
+		
+		var _this = this;
+		
+		if(this._mainController.profile.allDataStores.length > 0) {
+			this._mainController.serverFacade.createReportFromAggregationService(this._mainController.profile.allDataStores[0].code, parameters, function(response) {
+				Util.unblockUI();
+			});
+		} else {
+			Util.showError("No DSS available.", function() {Util.unblockUI();});
+		}
 	}
 }

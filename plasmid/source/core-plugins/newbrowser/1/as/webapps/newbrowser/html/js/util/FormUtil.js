@@ -101,23 +101,24 @@ var FormUtil = new function() {
 			} else {
 				vocabulary = this.profile.getVocabularyById(propertyType.vocabulary);
 			}
-			$component = this._getDropDownFieldForVocabulary(propertyType.code, vocabulary.terms, propertyType.description, propertyType.mandatory);
+			var codeWithoutSimbols = propertyType.code.replace('$','\\$').replace(/\./g,'\\.');
+			$component = this._getDropDownFieldForVocabulary(codeWithoutSimbols, vocabulary.terms, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "HYPERLINK") {
-			$component = this._getInputField("url", propertyType.code, propertyType.description, null, propertyType.mandatory);
+			$component = this._getInputField("url", codeWithoutSimbols, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "INTEGER") {
-			$component = this._getInputField("number", propertyType.code, propertyType.description, '1', propertyType.mandatory);
+			$component = this._getInputField("number", codeWithoutSimbols, propertyType.description, '1', propertyType.mandatory);
 		} else if (propertyType.dataType === "MATERIAL") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+			$component = this._getInputField("text", codeWithoutSimbols, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "MULTILINE_VARCHAR") {
-			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = this._getTextBox(codeWithoutSimbols, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "REAL") {
-			$component = this._getInputField("number", propertyType.code, propertyType.description, 'any', propertyType.mandatory);
+			$component = this._getInputField("number", codeWithoutSimbols, propertyType.description, 'any', propertyType.mandatory);
 		} else if (propertyType.dataType === "TIMESTAMP") {
-			$component = this._getDatePickerField(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = this._getDatePickerField(codeWithoutSimbols, propertyType.description, propertyType.mandatory);
 		} else if (propertyType.dataType === "VARCHAR") {
-			$component = this._getInputField("text", propertyType.code, propertyType.description, null, propertyType.mandatory);
+			$component = this._getInputField("text", codeWithoutSimbols, propertyType.description, null, propertyType.mandatory);
 		} else if (propertyType.dataType === "XML") {
-			$component = this._getTextBox(propertyType.code, propertyType.description, propertyType.mandatory);
+			$component = this._getTextBox(codeWithoutSimbols, propertyType.description, propertyType.mandatory);
 		}
 		
 		return $component;

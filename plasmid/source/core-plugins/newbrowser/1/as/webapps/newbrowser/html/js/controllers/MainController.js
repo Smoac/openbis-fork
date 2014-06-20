@@ -193,7 +193,15 @@ function MainController(profile) {
 				var _this = this;
 				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
 					document.title = "Experiment " + arg;
-					_this._showExperimentPage(data.result[0]);
+					_this._showExperimentPage(data.result[0], FormMode.VIEW);
+					window.scrollTo(0,0);
+				});
+				break;
+			case "showEditExperimentPageFromIdentifier":
+				var _this = this;
+				this.serverFacade.listExperimentsForIdentifiers([arg], function(data) {
+					document.title = "Experiment " + arg;
+					_this._showExperimentPage(data.result[0], FormMode.EDIT);
 					window.scrollTo(0,0);
 				});
 				break;
@@ -357,9 +365,9 @@ function MainController(profile) {
 		this.currentView = projectForm;
 	}
 	
-	this._showExperimentPage = function(experiment) {
+	this._showExperimentPage = function(experiment, mode) {
 		//Show Form
-		var experimentForm = new ExperimentForm("mainContainer", this, experiment, FormMode.VIEW);
+		var experimentForm = new ExperimentForm("mainContainer", this, experiment, mode);
 		experimentForm.init();
 		this.currentView = experimentForm;
 	}
