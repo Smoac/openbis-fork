@@ -114,7 +114,7 @@ public class ProjectImmutable implements IProjectImmutable
         {
             return false;
         }
-        if (getClass().isAssignableFrom(obj.getClass()) == false)
+        if (false == (obj instanceof ProjectImmutable))
         {
             return false;
         }
@@ -131,5 +131,4 @@ public class ProjectImmutable implements IProjectImmutable
         }
         return true;
     }
-
 }

@@ -114,7 +114,7 @@ public class ExperimentImmutable implements IExperimentImmutable
         {
             return false;
         }
-        if (getClass().isAssignableFrom(obj.getClass()) == false)
+        if (false == (obj instanceof ExperimentImmutable))
         {
             return false;
         }
@@ -125,11 +125,11 @@ public class ExperimentImmutable implements IExperimentImmutable
             {
                 return false;
             }
-        } else if (getExperimentIdentifier().equals(other.getExperimentIdentifier()) == false)
+        } else if (getExperimentIdentifier().equals(
+                other.getExperimentIdentifier()) == false)
         {
             return false;
         }
         return true;
     }
-
 }

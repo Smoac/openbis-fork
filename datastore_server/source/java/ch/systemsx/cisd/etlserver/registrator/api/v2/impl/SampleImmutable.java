@@ -222,7 +222,7 @@ public class SampleImmutable implements ISampleImmutable
             return true;
         if (obj == null)
             return false;
-        if (getClass().isAssignableFrom(obj.getClass()) == false)
+        if (false == (obj instanceof SampleImmutable))
             return false;
         SampleImmutable other = (SampleImmutable) obj;
         if (getSampleIdentifier() == null)
@@ -233,5 +233,4 @@ public class SampleImmutable implements ISampleImmutable
             return false;
         return true;
     }
-
 }

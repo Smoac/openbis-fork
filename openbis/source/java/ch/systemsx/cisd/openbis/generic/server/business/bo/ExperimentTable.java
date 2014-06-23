@@ -65,8 +65,6 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 {
     private List<ExperimentPE> experiments;
 
-    private List<List<AttachmentPE>> attachmentListsOrNull;
-
     private boolean dataChanged = false;
 
     private IRelationshipService relationshipService;
@@ -129,7 +127,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
                             projects, null, onlyHavingSamples, onlyHavingDataSets);
         }
-        attachmentListsOrNull = null;
+        attachmentHolderPermIdToAttachmentsMap = null;
     }
 
     @Override
@@ -153,7 +151,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                     getExperimentDAO().listExperimentsWithProperties((ExperimentTypePE) entityType,
                             null, space);
         }
-        attachmentListsOrNull = null;
+        attachmentHolderPermIdToAttachmentsMap = null;
     }
 
     @Override
@@ -161,7 +159,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     {
         checkNotEmpty(identifiers);
         experiments = listExperimentsByIdentifiers(identifiers);
-        attachmentListsOrNull = null;
+        attachmentHolderPermIdToAttachmentsMap = null;
     }
 
     private void checkNotNull(final SpaceIdentifier spaceIdentifier, final SpacePE space)
@@ -257,7 +255,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
     public void add(List<NewBasicExperiment> entities, ExperimentTypePE experimentTypePE)
     {
         experiments = new ArrayList<ExperimentPE>();
-        attachmentListsOrNull = null;
+        attachmentHolderPermIdToAttachmentsMap = null;
         setBatchUpdateMode(true);
         for (NewBasicExperiment ne : entities)
         {
@@ -274,7 +272,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
 
         setBatchUpdateMode(true);
         experiments = loadExperiments(updates);
-        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(experiments.size());
+        attachmentHolderPermIdToAttachmentsMap = new HashMap<String, List<AttachmentPE>>(experiments.size());
         final Map<String, ExperimentPE> experimentsByIdentifier =
                 new HashMap<String, ExperimentPE>();
         for (ExperimentPE experiment : experiments)
@@ -288,7 +286,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
                             .toString());
             final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
             prepareBatchUpdate(experiment, attachments, experimentUpdates);
-            attachmentListsOrNull.add(attachments);
+            putAttachments(experiment.getPermId(), attachments);
         }
 
         dataChanged = true;
@@ -449,7 +447,7 @@ public final class ExperimentTable extends AbstractBusinessObject implements IEx
             }
             dataChanged = false;
         }
-        saveAttachments(experiments, attachmentListsOrNull);
+        saveAttachments(experiments, attachmentHolderPermIdToAttachmentsMap);
     }
 
     private void checkBusinessRules()

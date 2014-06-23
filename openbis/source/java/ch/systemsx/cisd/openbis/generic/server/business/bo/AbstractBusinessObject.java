@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,6 +108,8 @@ abstract class AbstractBusinessObject implements IDAOFactory
     protected final IEntityPropertiesConverter entityPropertiesConverter;
 
     protected final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+
+    protected Map<String, List<AttachmentPE>> attachmentHolderPermIdToAttachmentsMap;
 
     AbstractBusinessObject(final IDAOFactory daoFactory, final Session session,
             IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory)
@@ -655,6 +658,24 @@ abstract class AbstractBusinessObject implements IDAOFactory
         }
     }
 
+    protected void putAttachments(String attachmentHolderPermId, List<AttachmentPE> attachments)
+    {
+        if (attachments == null || attachments.isEmpty())
+        {
+            return;
+        }
+
+        List<AttachmentPE> currentAttachments = attachmentHolderPermIdToAttachmentsMap.get(attachmentHolderPermId);
+
+        if (currentAttachments == null)
+        {
+            currentAttachments = new LinkedList<AttachmentPE>();
+            attachmentHolderPermIdToAttachmentsMap.put(attachmentHolderPermId, currentAttachments);
+        }
+
+        currentAttachments.addAll(attachments);
+    }
+
     protected void saveAttachment(final AttachmentHolderPE attachmentHolder,
             List<AttachmentPE> attachments)
     {
@@ -682,17 +703,20 @@ abstract class AbstractBusinessObject implements IDAOFactory
     }
 
     protected void saveAttachments(List<? extends AttachmentHolderPE> holders,
-            List<List<AttachmentPE>> attachmentListsOrNull)
+            Map<String, List<AttachmentPE>> holderPermIdToAttachmentsMapOrNull)
     {
-        if (attachmentListsOrNull == null)
+        if (holderPermIdToAttachmentsMapOrNull == null)
         {
             return;
         }
-        int idx = 0;
-        for (List<AttachmentPE> attachments : attachmentListsOrNull)
+
+        for (AttachmentHolderPE holder : holders)
         {
-            saveAttachment(holders.get(idx), attachments);
-            ++idx;
+            List<AttachmentPE> attachments = holderPermIdToAttachmentsMapOrNull.get(holder.getPermId());
+            if (attachments != null)
+            {
+                saveAttachment(holder, attachments);
+            }
         }
     }
 }

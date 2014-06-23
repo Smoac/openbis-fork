@@ -41,8 +41,7 @@ public class SampleImmutable implements ISampleImmutable
     private final boolean existingSample;
 
     /**
-     * Creates a new object that wraps the sample, which is assumed be an existing sample with all
-     * fetch options retrieved.
+     * Creates a new object that wraps the sample, which is assumed be an existing sample with all fetch options retrieved.
      * 
      * @param sample The sample to wrap.
      */
@@ -64,8 +63,7 @@ public class SampleImmutable implements ISampleImmutable
     }
 
     /**
-     * Creates a new object that wraps the sample, which is assumed to have all fetch options
-     * retrieved.
+     * Creates a new object that wraps the sample, which is assumed to have all fetch options retrieved.
      * 
      * @param sample The sample to wrap.
      * @param existingSample True if the sample exists in the DB.
@@ -219,7 +217,7 @@ public class SampleImmutable implements ISampleImmutable
             return true;
         if (obj == null)
             return false;
-        if (getClass().isAssignableFrom(obj.getClass()) == false)
+        if (false == (obj instanceof SampleImmutable))
             return false;
         SampleImmutable other = (SampleImmutable) obj;
         if (getSampleIdentifier() == null)

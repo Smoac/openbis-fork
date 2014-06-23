@@ -42,7 +42,7 @@ public class MaterialImmutable implements IMaterialImmutable
         this.material = material;
         this.existingMaterial = existingMaterial;
     }
-    
+
     @Override
     public String getMaterialIdentifier()
     {
@@ -97,6 +97,26 @@ public class MaterialImmutable implements IMaterialImmutable
     public String getPropertyValue(String propertyCode)
     {
         return EntityHelper.tryFindPropertyValue(material, propertyCode);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (false == (obj instanceof MaterialImmutable))
+            return false;
+        MaterialImmutable other = (MaterialImmutable) obj;
+        if (getMaterialIdentifier() == null)
+        {
+            if (other.getMaterialIdentifier() != null)
+                return false;
+        } else if (!getMaterialIdentifier().equals(
+                other.getMaterialIdentifier()))
+            return false;
+        return true;
     }
 
 }

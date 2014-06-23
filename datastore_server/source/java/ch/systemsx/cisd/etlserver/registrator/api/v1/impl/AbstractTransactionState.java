@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.lemnik.eodsql.DynamicTransactionQuery;
+
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.exceptions.InterruptedExceptionUnchecked;
@@ -465,7 +466,7 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             // This is a slow implementation. Could be sped up by using a hashmap in the future.
             for (DataSetUpdatable dataSet : dataSetsToBeUpdated)
             {
-                if (dataSet.getDataSetCode().equals(dataSetCode))
+                if (dataSet.getDataSetCode().equalsIgnoreCase(dataSetCode))
                 {
                     return dataSet;
                 }
@@ -602,10 +603,16 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             ExperimentIdentifier identifier =
                     ExperimentIdentifierFactory.parse(experimentIdentifierString);
 
+            // Check if we already have an updatable experiment for this one
+            ExperimentUpdatable result = findExperimentLocally(identifier);
+            if (result != null)
+            {
+                return result;
+            }
+
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment experimentOrNull =
                     openBisService.tryGetExperiment(identifier);
 
-            ExperimentUpdatable result = null;
             if (experimentOrNull != null)
             {
                 result = new ExperimentUpdatable(experimentOrNull);
@@ -636,6 +643,20 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 return result;
             }
 
+            return null;
+        }
+
+        private ExperimentUpdatable findExperimentLocally(ExperimentIdentifier experimentIdentifier)
+        {
+            String experimentIdentifierString = experimentIdentifier.toString();
+            // This is a slow implementation. Could be sped up by using a hashmap in the future.
+            for (ExperimentUpdatable experiment : experimentsToBeUpdated)
+            {
+                if (experiment.getExperimentIdentifier().equalsIgnoreCase(experimentIdentifierString))
+                {
+                    return experiment;
+                }
+            }
             return null;
         }
 
@@ -679,10 +700,16 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
         {
             final ProjectIdentifier identifier = ProjectIdentifierFactory.parse(projectIdentifier);
 
+            // Check if we already have an updatable project for this one
+            Project result = findProjectLocally(identifier);
+            if (result != null)
+            {
+                return result;
+            }
+
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project projectOrNull =
                     openBisService.tryGetProject(identifier);
 
-            Project result = null;
             if (projectOrNull != null)
             {
                 result = new Project(projectOrNull);
@@ -715,6 +742,20 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
             return null;
         }
 
+        private Project findProjectLocally(ProjectIdentifier projectIdentifier)
+        {
+            String projectIdentifierString = projectIdentifier.toString();
+            // This is a slow implementation. Could be sped up by using a hashmap in the future.
+            for (Project project : projectsToBeUpdated)
+            {
+                if (project.getProjectIdentifier().equalsIgnoreCase(projectIdentifierString))
+                {
+                    return project;
+                }
+            }
+            return null;
+        }
+
         private Project findProjectLocally(IProjectImmutable projectToFind)
         {
             for (Project project : projectsToBeUpdated)
@@ -739,10 +780,17 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
 
             MaterialIdentifier materialIdentifier =
                     new MaterialIdentifier(materialCode, materialType);
+
+            // Check if we already have an updatable material for this one
+            Material result = findMaterialLocally(materialIdentifier);
+            if (result != null)
+            {
+                return result;
+            }
+
             ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material materialOrNull =
                     openBisService.tryGetMaterial(materialIdentifier);
 
-            Material result = null;
             if (materialOrNull != null)
             {
                 result = new Material(materialOrNull);
@@ -772,6 +820,20 @@ public abstract class AbstractTransactionState<T extends DataSetInformation>
                 return result;
             }
 
+            return null;
+        }
+
+        private Material findMaterialLocally(MaterialIdentifier materialIdentifier)
+        {
+            String materialIdentifierString = materialIdentifier.toString();
+            // This is a slow implementation. Could be sped up by using a hashmap in the future.
+            for (Material material : materialsToBeUpdated)
+            {
+                if (material.getMaterialIdentifier().equalsIgnoreCase(materialIdentifierString))
+                {
+                    return material;
+                }
+            }
             return null;
         }
 

@@ -39,7 +39,7 @@ public class ProjectImmutable implements IProjectImmutable
         this.project = project;
         this.isExistingProject = isExistingProject;
     }
-    
+
     public Long getId()
     {
         return project.getId();
@@ -114,7 +114,7 @@ public class ProjectImmutable implements IProjectImmutable
         {
             return false;
         }
-        if (getClass().isAssignableFrom(obj.getClass()) == false)
+        if (false == (obj instanceof ProjectImmutable))
         {
             return false;
         }

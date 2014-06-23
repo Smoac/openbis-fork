@@ -68,8 +68,6 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 {
     private List<SamplePE> samples;
 
-    private List<List<AttachmentPE>> attachmentListsOrNull;
-
     private boolean dataChanged;
 
     private boolean businessRulesChecked;
@@ -111,7 +109,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             }
         }
         samples = foundSamples;
-        attachmentListsOrNull = null;
+        attachmentHolderPermIdToAttachmentsMap = null;
     }
 
     private List<SamplePE> filterSamplesByExperiment(List<SamplePE> foundSamples,
@@ -187,7 +185,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
 
         onlyNewSamples = true;
         samples = new ArrayList<SamplePE>(newSamples.size());
-        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(newSamples.size());
+        attachmentHolderPermIdToAttachmentsMap = new HashMap<String, List<AttachmentPE>>(samples.size());
 
         setBatchUpdateMode(true);
 
@@ -215,7 +213,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         samples.add(samplePE);
         final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
         addAttachments(samplePE, newSample.getAttachments(), attachments);
-        attachmentListsOrNull.add(attachments);
+        putAttachments(samplePE.getPermId(), attachments);
         dataChanged = true;
     }
 
@@ -247,7 +245,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             businessRulesChecked = false;
             onlyNewSamples = false;
         }
-        saveAttachments(samples, attachmentListsOrNull);
+        saveAttachments(samples, attachmentHolderPermIdToAttachmentsMap);
     }
 
     private void checkAllBusinessRules()
@@ -441,7 +439,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamples(updates, sampleOwnerCache);
-        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(samples.size());
+        attachmentHolderPermIdToAttachmentsMap = new HashMap<String, List<AttachmentPE>>(samples.size());
 
         assertInstanceSampleUpdateAllowed(samples);
 
@@ -458,7 +456,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
             prepareBatchUpdate(sample, attachments, sampleUpdates, sampleOwnerCache,
                     experimentCache, propertiesCache);
-            attachmentListsOrNull.add(attachments);
+            putAttachments(sample.getPermId(), attachments);
         }
 
         dataChanged = true;
@@ -523,7 +521,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
         final Map<EntityTypePE, List<EntityTypePropertyTypePE>> propertiesCache =
                 new HashMap<EntityTypePE, List<EntityTypePropertyTypePE>>();
         samples = loadSamplesByTechId(updates);
-        attachmentListsOrNull = new ArrayList<List<AttachmentPE>>(samples.size());
+        attachmentHolderPermIdToAttachmentsMap = new HashMap<String, List<AttachmentPE>>(samples.size());
 
         assertInstanceSampleUpdateAllowed(samples);
 
@@ -552,7 +550,7 @@ public final class SampleTable extends AbstractSampleBusinessObject implements I
             final List<AttachmentPE> attachments = new ArrayList<AttachmentPE>();
             prepareBatchUpdate(sample, attachments, sampleUpdates, sampleOwnerCache,
                     experimentCache, propertiesCache);
-            attachmentListsOrNull.add(attachments);
+            putAttachments(sample.getPermId(), attachments);
         }
 
         dataChanged = true;
