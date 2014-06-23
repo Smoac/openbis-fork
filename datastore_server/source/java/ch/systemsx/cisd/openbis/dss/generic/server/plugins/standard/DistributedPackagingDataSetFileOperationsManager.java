@@ -43,7 +43,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IdentifierAttributeMappingManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
@@ -331,6 +333,28 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         if (sampleIdentifier != null)
         {
             dataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier)));
+        }
+        ContainerDataSet containerDataSet = dataSet.tryGetAsContainerDataSet();
+        if (containerDataSet != null)
+        {
+            // Inject container properties
+            if (containerDataSet.getProperties() == null)
+            {
+                containerDataSet.setDataSetProperties(getService().tryGetDataSet(
+                        containerDataSet.getCode()).getProperties());
+            }
+            // Inject full container experiment with properties
+            String containerExperimentIdentifier = containerDataSet.getExperiment().getIdentifier();
+            containerDataSet.setExperiment(getService().tryGetExperiment(
+                    ExperimentIdentifierFactory.parse(containerExperimentIdentifier)));
+            // Inject full container sample with properties
+            Sample sample = containerDataSet.getSample();
+            if (sample != null)
+            {
+                String containerSampleIdentifier = sample.getIdentifier();
+                containerDataSet.setSample(getService().tryGetSampleWithExperiment(
+                        SampleIdentifierFactory.parse(containerSampleIdentifier)));
+            }
         }
         return dataSet;
     }

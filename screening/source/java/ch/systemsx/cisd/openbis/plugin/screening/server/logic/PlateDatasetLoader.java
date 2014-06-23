@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.openbis.plugin.screening.server.logic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,6 +65,8 @@ class PlateDatasetLoader
 
     private HashMap<Long, Sample> samplesById;
 
+    private Set<Long> initialSampleIds;
+
     private boolean loaded = false;
 
     PlateDatasetLoader(Session session, IScreeningBusinessObjectFactory businessObjectFactory,
@@ -114,9 +117,8 @@ class PlateDatasetLoader
 
     private void loadDatasets()
     {
-        Set<Long> sampleIds = extractSampleIds();
         IDatasetLister datasetLister = businessObjectFactory.createDatasetLister(session);
-        datasets = datasetLister.listBySampleIds(sampleIds);
+        datasets = datasetLister.listBySampleIds(initialSampleIds);
         datasets =
                 ScreeningUtils.filterExternalDataByTypePattern(datasets, datasetTypeCodePatterns);
     }
@@ -130,6 +132,7 @@ class PlateDatasetLoader
             samplesByIdentifier.put(createSampleIdentifier(sample), sample);
             samplesById.put(sample.getId(), sample);
         }
+        initialSampleIds = new HashSet<Long>(samplesById.keySet());
     }
 
     /**
@@ -249,9 +252,26 @@ class PlateDatasetLoader
         // Sample may be NULL even though the selector does not begin with try
         Sample sample = dataset.getSample();
         assert sample != null : "dataset not connected to a sample: " + dataset;
-
+        if (sample == null)
+        {
+            throw new IllegalStateException("dataset not connected to a sample: " + dataset);
+        }
         // The dataset's reference to the sample is not complete, get the one from the map
-        return samplesById.get(sample.getId());
+        Sample result = samplesById.get(sample.getId());
+
+        // if the sample is not found in cache - it means it is a sample related via parent dataset
+        // we can fetch and cache it now
+        if (result == null)
+        {
+            ListOrSearchSampleCriteria criteria =
+                    new ListOrSearchSampleCriteria(Collections.singletonList(sample.getId()));
+            ISampleLister sampleLister = businessObjectFactory.createSampleLister(session);
+            samples = sampleLister.list(criteria);
+            assert samples.size() == 1;
+            result = samples.get(0);
+            samplesById.put(sample.getId(), result);
+        }
+        return result;
     }
 
     private String[] extractSampleCodes()
@@ -286,11 +306,6 @@ class PlateDatasetLoader
         samplePermIds.toArray(sampleCodesArray);
 
         return sampleCodesArray;
-    }
-
-    private Set<Long> extractSampleIds()
-    {
-        return samplesById.keySet();
     }
 
     protected static String getDataStoreUrlFromDataStore(DataStore dataStore)

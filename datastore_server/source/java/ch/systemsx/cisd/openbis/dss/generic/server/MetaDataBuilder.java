@@ -27,6 +27,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
@@ -73,7 +74,19 @@ public class MetaDataBuilder
 
     public static String createMetaData(AbstractExternalData dataSet)
     {
-        MetaDataBuilder builder = new MetaDataBuilder();
+        StringBuilder builder = new StringBuilder();
+        builder.append(createMetData("", dataSet));
+        ContainerDataSet containerDataSet = dataSet.tryGetContainer();
+        if (containerDataSet != null)
+        {
+            builder.append(createMetData("container[0].", containerDataSet));
+        }
+        return builder.toString();
+    }
+
+    private static String createMetData(String prefix, AbstractExternalData dataSet)
+    {
+        MetaDataBuilder builder = new MetaDataBuilder(prefix);
         builder.dataSet("code", dataSet.getCode());
         builder.dataSet("production_timestamp", dataSet.getProductionDate());
         builder.dataSet("producer_code", dataSet.getDataProducerCode());
@@ -131,6 +144,13 @@ public class MetaDataBuilder
     }
 
     private final StringBuilder builder = new StringBuilder();
+    private final String prefix;
+    
+    private MetaDataBuilder(String prefix)
+    {
+        this.prefix = prefix;
+        
+    }
 
     private void dataSetProperties(List<IEntityProperty> properties)
     {
@@ -149,13 +169,17 @@ public class MetaDataBuilder
 
     private void addProperties(String category, List<IEntityProperty> properties)
     {
+        if (properties == null)
+        {
+            return;
+        }
         Collections.sort(properties, PROPERTIES_COMPARATOR);
         for (IEntityProperty property : properties)
         {
             addRow(category, property.getPropertyType().getCode(), property.tryGetAsString());
         }
     }
-
+    
     private void dataSet(String key, String value)
     {
         addRow(DATA_SET, key, value);
@@ -236,7 +260,7 @@ public class MetaDataBuilder
 
     private void addRow(String category, String key, String value)
     {
-        builder.append(category).append(DELIM).append(key).append(DELIM);
+        builder.append(prefix).append(category).append(DELIM).append(key).append(DELIM);
         builder.append(value == null ? "" : value).append('\n');
     }
 

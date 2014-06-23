@@ -40,6 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
@@ -467,7 +468,16 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     @Override
     public String generateCode(String sessionToken, String prefix, String entityKind)
     {
-        logAccess(sessionToken, "generateCode", "sessionToken(%s) prefix(%s) entityKind(%s)", sessionToken, prefix, entityKind);
+        logAccess(sessionToken, "generateCode", "sessionToken(%s) prefix(%s) entityKind(%s)",
+                sessionToken, prefix, entityKind);
+        return null;
+    }
+
+    @Override
+    public List<PropertyType> listPropertyTypes(String sessionToken, boolean withRelations)
+    {
+        logAccess(sessionToken, "listPropertyTypes", "sessionToken(%s) withRelations(%s)",
+                sessionToken, withRelations);
         return null;
     }
 }

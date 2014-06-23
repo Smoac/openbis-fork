@@ -106,6 +106,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
@@ -133,7 +134,6 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.translator.MetaprojectTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
  * @author Franz-Josef Elmer
@@ -142,7 +142,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 25;
+    public static final int MINOR_VERSION = 26;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -370,7 +370,8 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
                         .searchForSampleIDs(userId, detailedSearchCriteria);
 
         SampleByIdentiferValidator filter = new SampleByIdentiferValidator();
-        List<Sample> results = createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
+        List<Sample> results =
+                createSampleLister(user).getSamples(sampleIDs, sampleFetchOptions, filter);
 
         return new SampleSearchResultSorter().sort(results, detailedSearchCriteria);
     }
@@ -549,8 +550,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         } else
         {
             basicExperiments =
-                    commonServer.listExperiments(sessionToken, experimentType,
-                            projectIdentifiers);
+                    commonServer.listExperiments(sessionToken, experimentType, projectIdentifiers);
         }
 
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment basicExperiment : basicExperiments)
@@ -632,7 +632,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public String tryGetDataStoreBaseURL(String sessionToken, String dataSetCode)
     {
         Session session = getSession(sessionToken);
@@ -650,7 +650,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(value =
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+        { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<DataStoreURLForDataSets> getDataStoreBaseURLs(String sessionToken,
             List<String> dataSetCodes)
     {
@@ -1271,15 +1271,36 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
         return userSettings;
     }
-	
+
     @Override
-	@Transactional
-	@RolesAllowed(RoleWithHierarchy.SPACE_USER)
-	// this is not a readOnly transaction - uses nextVal()
-	public String generateCode(String sessionToken, String prefix,
-			String entityKind) {
-		checkSession(sessionToken);
-		return new EntityCodeGenerator(getDAOFactory()).generateCode(prefix,
-				EntityKind.valueOf(entityKind));
-	}    
+    @Transactional
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    // this is not a readOnly transaction - uses nextVal()
+    public String generateCode(String sessionToken, String prefix, String entityKind)
+    {
+        checkSession(sessionToken);
+        return new EntityCodeGenerator(getDAOFactory()).generateCode(prefix,
+                EntityKind.valueOf(entityKind));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType> listPropertyTypes(
+            String sessionToken, boolean withRelations)
+    {
+        HashMap<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary, List<ControlledVocabularyPropertyType.VocabularyTerm>> vocabTerms =
+                getVocabularyTermsMap(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType> basic =
+                commonServer.listPropertyTypes(sessionToken, withRelations);
+
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType> api =
+                new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType>();
+
+        for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType propertyType : basic)
+        {
+            api.add(Translator.translate(propertyType, vocabTerms));
+        }
+        return api;
+    }
 }
