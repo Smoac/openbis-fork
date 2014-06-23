@@ -161,9 +161,13 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         }
         final Set<DataPE> newComponents = findDataSetsByCodes(asSet(modifiedContainedCodesOrNull));
 
-        for (DataPE dataPE : container.getContainedDataSets())
+        List<DataPE> oldComponents = container.getContainedDataSets();
+        for (DataPE dataPE : oldComponents)
         {
-            relationshipService.removeDataSetFromContainer(session, dataPE, container);
+            if (newComponents.remove(dataPE) == false)
+            {
+                relationshipService.removeDataSetFromContainer(session, dataPE, container);
+            }
         }
 
         for (DataPE dataPE : newComponents)

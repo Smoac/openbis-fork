@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.systemtest.perform_entity_operations;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -38,11 +39,13 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.Metapro
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentWithContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetails;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -55,18 +58,46 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.AtomicEntityOperationDetailsBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleUpdatesDTOBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
+import ch.systemsx.cisd.openbis.systemtest.optimistic_locking.ToolBox;
 
 /**
  * @author Franz-Josef Elmer
  */
 public class RegistrationTest extends SystemTestCase
 {
+    @Test
+    public void testAddAndRemoveDataSetFromContainer()
+    {
+        AtomicEntityOperationDetailsBuilder builder = new AtomicEntityOperationDetailsBuilder();
+        ToolBox toolBox = new ToolBox(commonServer, genericServer, etlService, systemSessionToken);
+        Experiment experiment = commonServer.getExperimentInfo(systemSessionToken, new TechId(8L));
+        builder.dataSet(toolBox.dataSet("NEW_DATA_SET", experiment));
+        DataSetBatchUpdatesDTO dataSetUpdate = new DataSetBatchUpdatesDTO();
+        dataSetUpdate.setDatasetCode("ROOT_CONTAINER");
+        dataSetUpdate.setDatasetId(new TechId(29));
+        dataSetUpdate.setProperties(Collections.<IEntityProperty> emptyList());
+        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[] { "NEW_DATA_SET", "CONTAINER_2" });
+        DataSetBatchUpdateDetails details = new DataSetBatchUpdateDetails();
+        details.setContainerUpdateRequested(true);
+        dataSetUpdate.setDetails(details);
+        builder.dataSetUpdate(dataSetUpdate);
+
+        etlService.performEntityOperations(systemSessionToken, builder.getDetails());
+
+        ContainerDataSet rootContainer = commonServer.getDataSetInfo(systemSessionToken, new TechId(29)).tryGetAsContainerDataSet();
+        assertNotNull(rootContainer);
+        List<String> componentCodes = toolBox.extractCodes(rootContainer.getContainedDataSets());
+        Collections.sort(componentCodes);
+        assertEquals("[CONTAINER_2, NEW_DATA_SET]", componentCodes.toString());
+    }
+
     @Test
     public void testCreateChildrenForAnExistingSampleWithBatchSize1()
     {
@@ -278,7 +309,7 @@ public class RegistrationTest extends SystemTestCase
         property.setPropertyType(propertyType);
         property.setValue("hello");
         experiment.setProperties(new IEntityProperty[]
-            { property });
+        { property });
         builder.experiment(experiment);
         String sampleIdentifier = "/TEST-SPACE/PLATE-1";
         builder.sample(new NewSampleBuilder(sampleIdentifier).experiment(identifier)
@@ -305,7 +336,7 @@ public class RegistrationTest extends SystemTestCase
     protected Object[][] getMappingTypes()
     {
         return new Object[][]
-            {
+        {
                 { "/SHARED_TEST_SAMPLE", systemSessionToken, false },
                 { "/SHARED_TEST_SAMPLE", authenticateAs("test_role"), true },
                 { "/CISD/TEST_SAMPLE", authenticateAs("test_role"), false } };
