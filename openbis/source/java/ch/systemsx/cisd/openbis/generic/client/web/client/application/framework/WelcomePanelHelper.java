@@ -43,6 +43,7 @@ public class WelcomePanelHelper
         final LayoutContainer layoutContainer = new LayoutContainer(new BorderLayout());
         layoutContainer.setStyleAttribute("background-color", "white");
         layoutContainer.setId(idPrefix + "welcome");
+        layoutContainer.addStyleName("welcomePageContainer");
         DisplaySettingsManager displaySettingsManager = viewContext.getDisplaySettingsManager();
         if (displaySettingsManager.getPortletConfigurations().containsKey(HISTORY)
                 && displaySettingsManager.getVisits().isEmpty() == false)
