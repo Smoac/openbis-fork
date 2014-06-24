@@ -910,15 +910,33 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				
 				generatedChildren = newGeneratedChildren;
 			}
-			return generatedChildren;
+			
+			//Number of Replicas
+			var numberOfReplicas = parseInt($("#childrenReplicas").val());
+			if(isNaN(numberOfReplicas) || numberOfReplicas < 0 || numberOfReplicas > 1000) {
+				Util.showError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
+				return;
+			}
+			
+			var generatedChildrenWithReplicas = [];
+			for(var i = 0; i < generatedChildren.length; i++) {
+				for(var j = 0; j < numberOfReplicas; j++) {
+					generatedChildrenWithReplicas.push(generatedChildren[i] + "_" + (j + 1));
+				}
+			}
+			
+			return generatedChildrenWithReplicas;
 		}
 		
 		var showPreview = function() {
+			$("#previewChildrenGenerator").empty();
+			
 			var generatedChildren = getGeneratedChildrenCodes();
 			//Show generated children
-			$("#previewChildrenGenerator").empty();
-			for(var i = 0; i < generatedChildren.length; i++) {
-				$("#previewChildrenGenerator").append(generatedChildren[i] + "<br />");
+			if(generatedChildren) {
+				for(var i = 0; i < generatedChildren.length; i++) {
+					$("#previewChildrenGenerator").append(generatedChildren[i] + "<br />");
+				}
 			}
 		}
 		
@@ -931,6 +949,12 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				generatedChildrenSpace = $("#sampleSpaceProject")[0].value.split("/")[1];
 			} else {
 				generatedChildrenSpace = $("#sampleSpaceProject").val();
+			}
+			
+			var numberOfReplicas = parseInt($("#childrenReplicas").val());
+			if(isNaN(numberOfReplicas) || numberOfReplicas < 0 || numberOfReplicas > 1000) {
+				Util.showError("The number of children replicas should be an integer number bigger than 0 and lower than 1000.", function() {}, true);
+				return;
 			}
 			var generatedChildrenCodes = getGeneratedChildrenCodes();
 			var generatedChildrenType = $("#childrenTypeSelector").val();
@@ -948,6 +972,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					
 				Util.unblockUI();
 			}
+			
+			
 		});
 		
 		var $cancelButton = $("<a>", { "class" : "btn btn-default" }).append("<span class='glyphicon glyphicon-remove'></span>");
@@ -1027,11 +1053,21 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		$parentsComponent.append($parents);
 		
 		// Children
-		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
-		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		var $childrenComponent = $("<div>");
 		$childrenComponent.append($("<legend>").text("Children"))
+		
+		var $childrenTypeDropdown = FormUtil.getSampleTypeDropdown('childrenTypeSelector', true);
+		var $childrenTypeDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenTypeDropdown, 'Type');
 		$childrenComponent.append($childrenTypeDropdownWithLabel);
+		
+		var $childrenReplicas = FormUtil._getInputField('number', 'childrenReplicas', 'Children Replicas', '1', true);
+		$childrenReplicas.val("1");
+		$childrenReplicas.keyup(function() { 
+			showPreview();
+		});
+		
+		var $childrenReplicasWithLabel = FormUtil.getFieldForComponentWithLabel($childrenReplicas, 'Children Replicas');
+		$childrenComponent.append($childrenReplicasWithLabel);
 		
 		// Preview
 		var $previewComponent = $("<div>");
