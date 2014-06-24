@@ -24,8 +24,6 @@ print "###################################################"
 tz=localtime()[3]-gmtime()[3]
 d=datetime.now()
 
-print "d is: ", d
-print "tz", tz
 print d.strftime("%Y-%m-%d %H:%M:%S GMT"+"%+.2d" % tz+":00")
 
 fileList=[]
@@ -118,19 +116,17 @@ def process(transaction):
 			shutil.move(mtTrackerCovMatrix, create_dir(incoming))
 			
 
-		  	tokens = re.split('_', item)
-		  	print "item ", item
-		  	
-	 	  	dateExp = tokens[0]
-	 	  	cellNum = tokens[1]
-	 	  	day = dateExp[:2]
-	 	  	month = dateExp[2:4]
-	 	  	year =  "20" + dateExp[4:6]
-	 	  	date = year + "-" + month + "-" + day + " 12:00:00 GMT+02:00" # the provided date is day-month-year it should be month-day-year
-	 	  	print date
-	 	  	
+		  tokens = re.split('_', item)
+			  	
+	 	  dateExp = tokens[0]
+	 	 	cellNum = tokens[1]
+	 	 	day = dateExp[:2]
+	 	  month = dateExp[2:4]
+	 	 	year =  "20" + dateExp[4:6]
+	 	  date = year + "-" + month + "-" + day + " 12:00:00 GMT+02:00" # the provided date is day-month-year it should be month-day-year
+	 	 	 	  	
 	
-	 	  	dateExpSample = transaction.createNewSample("/TUBEX/" + dateExp,'DATE_EXPERIMENT')
+	 	  dateExpSample = transaction.createNewSample("/TUBEX/" + dateExp,'DATE_EXPERIMENT')
 			dateExpSample.setExperiment(exp)
 			dateExpSample.setPropertyValue("DATE", date)
 			
