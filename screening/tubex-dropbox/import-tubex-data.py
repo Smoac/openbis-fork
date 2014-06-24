@@ -9,6 +9,8 @@ from java.io import File
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig, ImageMetadata, Location
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageContainerDataConfig, ChannelColor
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchCriteria
+from ch.systemsx.cisd.openbis.generic.shared.api.v1.dto import SearchSubCriteria
 from loci.formats import ImageReader
 
 
@@ -21,12 +23,16 @@ from datetime import *
 print "###################################################"
 tz=localtime()[3]-gmtime()[3]
 d=datetime.now()
+
+print "d is: ", d
+print "tz", tz
 print d.strftime("%Y-%m-%d %H:%M:%S GMT"+"%+.2d" % tz+":00")
 
 fileList=[]
 axisList=[]
 neckList=[]
-
+dateExpSampleList=[]
+cellSampleList=[]
 
 def process(transaction):
 	incoming = transaction.getIncoming()
@@ -56,55 +62,7 @@ def process(transaction):
 	extract_file_start(incoming.getPath())
 
 
-	#create a directory where to move all mtTracker files
-	# def create_mtTrackerdir(incoming, fileList):
-	# 	mtTrackerDir = incoming + "/mtTrackerDir" 
-	# 	if not os.path.exists(mtTrackerDir):
-	# 		os.makedirs(mtTrackerDir)
-	# 	for item in fileList:
-	# 		print "item", item
-	# 		mtTrackerSphere = incoming + "/" +item + "_mtTracker_sphereCovMatrix.txt"
-	# 		mtTrackerResults = incoming + "/" +item + "_mtTracker_results.txt"
-	# 		mtTrackerParams = incoming + "/" +item + "_mtTracker_params.txt"
-	# 		mtTrackerInitVal = incoming + "/" +item + "_mtTracker_initValues.txt"
-	# 		mtTrackerCovMatrix = incoming + "/" +item + "_mtTracker_covMatrix.txt"
 
-	# 		shutil.move(mtTrackerSphere,  mtTrackerDir)
-	# 		shutil.move(mtTrackerResults, mtTrackerDir)
-	# 		shutil.move(mtTrackerParams, mtTrackerDir)			
-	# 		shutil.move(mtTrackerInitVal, mtTrackerDir)
-	# 		shutil.move(mtTrackerCovMatrix, mtTrackerDir)
-			
-	# 		print "incoming", incoming
-	# 		print "test", mtTrackerParams
-	# 		print "trackerdir", mtTrackerDir
-
-	# 	return mtTrackerDir
-
-
-	# create_mtTrackerdir(incoming.getPath(), fileList)
-
-#	print "3333333333333", create_mtTrackerdir(incoming.getPath(), fileList)
-		
-
-	#move mtTracker text files into the mtTracker directory
-	# def move_mtTracker_files(incoming):
-	# 	for item in fileList:
-	# 		mtTrackerSphere = item + "_mtTracker_sphereCovMatrix.txt"
-	# 		mtTrackerResults = item + "_mtTracker_results.txt"
-	# 		mtTrackerParams = item + "_mtTracker_params.txt"
-	# 		mtTrackerInitVal = item + "_mtTracker_initValues.txt"
-	# 		mtTrackerCovMatrix = item + "_mtTracker_covMatrix.txt"
-
-	# 		shutil.move(incoming + "/" + mtTrackerSphere,  create_mtTrackerdir(incoming))
-	# 		shutil.move(incoming + "/" + mtTrackerResults, create_mtTrackerdir(incoming))
-	# 		shutil.move(incoming + "/" + mtTrackerParams, create_mtTrackerdir(incoming))			
-	# 		shutil.move(incoming + "/" + mtTrackerInitVal, create_mtTrackerdir(incoming))
-	# 		shutil.move(incoming + "/" + mtTrackerCovMatrix, create_mtTrackerdir(incoming))	
-	# 		test = incoming + "/" + mtTrackerCovMatrix
-	# 		print "test", test
-
-	# move_mtTracker_files(incoming.getPath())
 
 	#from the axis files, extract the part of the name that contains date, experiment and cell number
 	def extract_axis_file_name(incoming):
@@ -133,67 +91,66 @@ def process(transaction):
 		return neckList
 
 	extract_neck_file_name(incoming.getPath())	
+
+	#create a directory where to move all the .txt files 
+	def create_dir(incoming):
+		directory =  incoming + '/text_files'
+		if not os.path.exists(directory):
+	  		os.makedirs(directory)
+	  	return directory
 	
 
 	#create a sample for each date and experiment number. Create a sample for each cell of each date and experiment number and set it as contained sample.
-	# extract data from the Neck and Axis files and set them as properties of the cell sample
-	# import the tif files as image dataset. Import the mtTracker files in the same dataset.
+	# import the tif files as image dataset. Import the mtTracker files and the neck and axis files in a "TEXT_FILES" dataset, which is a child of the image dataset.
 	def import_files(incoming):
 		for item, axisFile, neckFile in zip(fileList, axisList, neckList):
 			tifFile = item + ".tif"
 	
 			mtTrackerSphere = incoming + "/" +item + "_mtTracker_sphereCovMatrix.txt"
+			shutil.move(mtTrackerSphere, create_dir(incoming))
 			mtTrackerResults = incoming + "/" +item + "_mtTracker_results.txt"
+			shutil.move(mtTrackerResults, create_dir(incoming))
 			mtTrackerParams = incoming + "/" +item + "_mtTracker_params.txt"
+			shutil.move(mtTrackerParams, create_dir(incoming))
 			mtTrackerInitVal = incoming + "/" +item + "_mtTracker_initValues.txt"
-			mtTrackerCovMatrix = incoming + "/" +item + "_mtTracker_covMatrix.txt"			
+			shutil.move(mtTrackerInitVal, create_dir(incoming))
+			mtTrackerCovMatrix = incoming + "/" +item + "_mtTracker_covMatrix.txt"	
+			shutil.move(mtTrackerCovMatrix, create_dir(incoming))
+			
 
 		  	tokens = re.split('_', item)
+		  	print "item ", item
+		  	
 	 	  	dateExp = tokens[0]
 	 	  	cellNum = tokens[1]
-			dateExpSample = transaction.createNewSample("/TUBEX/" + dateExp,'DATE_EXPERIMENT_NUM')
-			dateExpSample.setExperiment(exp) 
-			cellSample = transaction.createNewSample("/TUBEX/" + item,'CELL_NUMBER' )
-			cellSample.setContainer(dateExpSample)
-			cellSample.setExperiment(exp)
+	 	  	day = dateExp[:2]
+	 	  	month = dateExp[2:4]
+	 	  	year =  "20" + dateExp[4:6]
+	 	  	date = year + "-" + month + "-" + day + " 12:00:00 GMT+02:00" # the provided date is day-month-year it should be month-day-year
+	 	  	print date
+	 	  	
+	
+	 	  	dateExpSample = transaction.createNewSample("/TUBEX/" + dateExp,'DATE_EXPERIMENT')
+			dateExpSample.setExperiment(exp)
+			dateExpSample.setPropertyValue("DATE", date)
+			
 
+			cellSample = transaction.createNewSample("/TUBEX/" +  dateExp + ":" + cellNum,'CELL_NUMBER' )
+			cellSample.setExperiment(exp)
+			cellSample.setContainer(dateExpSample)
+			
+	
 		
 			if (axisFile == item):
 				axisFilePath = incoming + "/AxisData/Axis_"+ axisFile + ".txt"
-				f = open(axisFilePath, 'r')		
-				lines=f.readlines()
-				for line in lines:
-					if re.match('^1', line):
-						fields = re.split("\t", line)
-						budEnd_x_coordinate= fields[3]
-						budEnd_y_coordinate = fields[4]
-						cellSample.setPropertyValue('BUDEND_X_COORDINATE', str(budEnd_x_coordinate))
-			 			cellSample.setPropertyValue('BUDEND_Y_COORDINATE', str(budEnd_y_coordinate))
-			 		if re.match('^2', line):
-		 				fields = re.split("\t", line)
-		 				motherEnd_x_coordinate= fields[3]
-		 				motherEnd_y_coordinate = fields[4]
-						cellSample.setPropertyValue('MOTHEREND_X_COORDINATE', str(motherEnd_x_coordinate))
-			 			cellSample.setPropertyValue('MOTHEREND_Y_COORDINATE', str(motherEnd_y_coordinate))	
-
+				shutil.move(axisFilePath, create_dir(incoming))
 
 			if (neckFile == item):
 				neckFilePath = incoming + "/NeckData/Neck_"+ neckFile + ".txt"
-				f1 = open(neckFilePath, 'r')		
-				lines1=f1.readlines()
-				for line in lines1:
-					if re.match('^1', line):
-						fields = re.split("\t", line)
-						neck1_x_coordinate= fields[3]
-						neck1_y_coordinate = fields[4]
-						cellSample.setPropertyValue('NECK1_X_COORDINATE', str(neck1_x_coordinate))
-			 			cellSample.setPropertyValue('NECK1_Y_COORDINATE', str(neck1_y_coordinate))
-			 		if re.match('^2', line):
-		 				fields = re.split("\t", line)
-		 				neck2_x_coordinate= fields[3]
-		 				neck2_y_coordinate = fields[4]
-						cellSample.setPropertyValue('NECK2_X_COORDINATE', str(neck2_x_coordinate))
-			 			cellSample.setPropertyValue('NECK2_Y_COORDINATE', str(neck2_y_coordinate))	
+				shutil.move(neckFilePath, create_dir(incoming))
+
+			
+
 
 			imageDataset = SimpleImageContainerDataConfig()
 			imageDataset.setMicroscopyData(True)
@@ -208,24 +165,23 @@ def process(transaction):
 
 	 	 	dataSet = transaction.createNewImageDataSet(imageDataset, File(sampleNamePath))
 			dataSet.setSample(cellSample)
+			dataSetCode = dataSet.getDataSetCode()
 			
 			transaction.moveFile(sampleNamePath, dataSet)
-			transaction.moveFile(mtTrackerSphere, dataSet)
-			transaction.moveFile(mtTrackerResults, dataSet)
-			transaction.moveFile(mtTrackerParams, dataSet)
-			transaction.moveFile(mtTrackerInitVal, dataSet)
-			transaction.moveFile(mtTrackerCovMatrix, dataSet)
+
+			dataSetTXT = transaction.createNewDataSet()
+			dataSetTXT.setDataSetType("TEXT_FILES")
+			dataSetTXT.setSample(cellSample)
+			dataSetTXT.setParentDatasets([dataSetCode])
 
 
-			#transaction.moveFile(incoming, dataSet)
-			#transaction.moveFile(create_mtTrackerdir(incoming, fileList), dataSet)
+			transaction.moveFile(create_dir(incoming), dataSetTXT)
 	
-
 
 	import_files(incoming.getPath())
 
 
-
+		
 
 	
 
