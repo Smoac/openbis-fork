@@ -148,7 +148,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this._addAny = function(id, tableId, sampleId) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
-		var component = "<select id='sampleTypeSelector' required>";
+		var component = "<select id='sampleTypeSelector' class='form-control' required>";
 		component += "<option disabled=\"disabled\" selected></option>";
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
