@@ -576,7 +576,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 									spaces.push(data.result[i].code);
 								}
 								
-								var component = "<select id='sampleSpaceSelector' required>";
+								var component = "<select id='sampleSpaceSelector' class='form-control' required>";
 								component += "<option disabled=\"disabled\" selected></option>";
 								for(var i = 0; i < spaces.length; i++) {
 									component += "<option value='"+spaces[i]+"'>"+spaces[i]+"</option>";
