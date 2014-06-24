@@ -1138,7 +1138,12 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 				"TYPE" : "ANTIBODY_PANEL",
 				"DISPLAY_NAME" : "Antibody panels",
 				"LIST" : ["ANTIBODY_PANEL"]
-			},						
+			},	
+			"TUMORS" : {
+				"TYPE" : "TUMORS",
+				"DISPLAY_NAME" : "Tumors",
+				"LIST" : ["TUMOR", "REGIONS", "ALIQUOT"]
+			},								
 			"OTHERS" : {
 				"TYPE" : "OTHERS",
 				"DISPLAY_NAME" : "Others",
