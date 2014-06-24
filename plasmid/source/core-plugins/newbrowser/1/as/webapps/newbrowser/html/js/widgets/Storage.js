@@ -36,7 +36,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 	this.isDisabled = isDisabled; //Needed for view mode
 	this.selectedStorageCache = null;
 	this.selectedPropertyGroup = null;
-	
+	this.userId = serverFacade.openbisServer.getSession().split("-")[0];
+
 	//
 	// Private utility methods used to check if a storage is properly configured for certain entity type.
 	//
@@ -177,7 +178,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			if(storageIndex === null) {
 				$('#' + propertyTypeCode).val("");
 			} else {
-				$('#' + propertyTypeCode).val(storageIndex);
+				var $component = $('#' + propertyTypeCode);
+				$component.val(storageIndex);
 			}
 		}
 	}
@@ -221,6 +223,14 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			
 			var propertyTypeCodes = [storageNamePropertyCode, storageRowPropertyCode, storageColPropertyCode, storageBoxPropertyCode];
 			var propertyValues = ["'" + selectedStorage + "'", "?*", "?*", "?*"];
+			
+			//When saving on the Bench, only the stuff saved by the user putting it there is seen
+			if(selectedStorage === "USER_BENCH") {
+				var storageUserPropertyCode = this.selectedPropertyGroup["USER_PROPERTY"];
+				propertyTypeCodes.push(storageUserPropertyCode);
+				var storageUserPropertyValue = this.userId;
+				propertyValues.push(storageUserPropertyValue);
+			}
 			
 			var localReference = this;
 			 
@@ -284,6 +294,9 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 		var storageBoxPropertyCode = this.selectedPropertyGroup["BOX_PROPERTY"];
 		var selectedBox = this._getSelectedValue(storageBoxPropertyCode, false, this.sample);
 		
+		var storageUserPropertyCode = this.selectedPropertyGroup["USER_PROPERTY"];
+		var selectedUser = this._getSelectedValue(storageUserPropertyCode, false, this.sample);
+		
 		var localReference = this;
 		var $container = $("#"+this.containerId);
 		$container.empty();
@@ -295,6 +308,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 		//Drop Down
 		//Create and set the field
 		var $storageNameDropDown = this._getComponent(this._getPropertyFromType(storageNamePropertyCode), false, null);
+		
 		$storageNameDropDown.val(selectedStorage);
 		
 		$storageNameDropDown.change(
@@ -302,6 +316,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 				localReference._setSelectedValue(storageRowPropertyCode, null);
 				localReference._setSelectedValue(storageColPropertyCode, null);
 				localReference._setSelectedValue(storageBoxPropertyCode, null);
+				localReference._setSelectedValue(storageUserPropertyCode, null);
 				localReference.repaint();
 			}
 		);
@@ -315,7 +330,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 		//
 		var $propertyTypeRowComponent = null;
 		var $propertyTypeColComponent = null;
-
+		var $propertyTypeUserComponent = null;
+		
 		//Generate virtual storage representation after the storage has been selected
 		var storageConfig = null;
 		if(selectedStorage !== null && selectedStorage !== "") {
@@ -325,13 +341,15 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 				Util.showError("Storage configuration missing, visual storage can't be displayed.", function() { Util.unblockUI(); });
 			} else {
 
-			//Attach row and column hidden fields
+			//Attach row, column and user hidden fields
 			$propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(storageRowPropertyCode), true, null);
 			$propertyTypeColComponent = this._getComponent(this._getPropertyFromType(storageColPropertyCode), true, null);
+			$propertyTypeUserComponent = this._getComponent(this._getPropertyFromType(storageUserPropertyCode), true, null);
 			
 			$container
 				.append($propertyTypeRowComponent)
-				.append($propertyTypeColComponent);
+				.append($propertyTypeColComponent)
+				.append($propertyTypeUserComponent);
 			}
 		}
 		
@@ -344,7 +362,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			var $virtualStorageRow = $("<tr>");
 			for(var i = 0; i <= storageConfig["COLUMN_NUM"]; i++) {
 				var $rackHeader = $("<th>");
-				var rackId = "rack_0_" + i;
+				var rackId = this.containerId + "_rack_0_" + i;
 				$rackHeader.attr("id", rackId);
 				
 				if(i == 0) {
@@ -361,7 +379,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 				for(var j = 0; j <= storageConfig["COLUMN_NUM"]; j++) {
 					if(j == 0) {
 						var $rackHeader = $("<th>");
-						var rackId = "rack_" + (i+1) + "_" + j;
+						var rackId = this.containerId + "_rack_" + (i+1) + "_" + j;
 						$rackHeader.attr("id", rackId);
 						$virtualStorageRow.append($rackHeader.append(i+1));
 					} else {
@@ -393,7 +411,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 						}
 						
 						//Atributes
-						var rackId = "rack_" + (i+1) + "_" + j;
+						var rackId = this.containerId + "_rack_" + (i+1) + "_" + j;
 						$rack.attr("id", rackId);
 						$rack.attr("rowNum", i+1);
 						$rack.attr("colNum", j);
@@ -411,7 +429,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 							}
 							
 							//Clean the whole storage
-							$(".storageSelectedRack").removeClass("storageSelectedRack");
+							$("#" + localReference.containerId + " .storageSelectedRack").removeClass("storageSelectedRack");
 							
 							//Select current spot
 							$(this).addClass('storageSelectedRack');
@@ -419,7 +437,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 							//Set the hidden fields
 							localReference._setSelectedValue(storageRowPropertyCode, $(this).attr("rowNum"));
 							localReference._setSelectedValue(storageColPropertyCode, $(this).attr("colNum"));
-							
+							localReference._setSelectedValue(storageUserPropertyCode, localReference.userId);
 							localReference._repaint();
 						});
 						
@@ -429,13 +447,13 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 							var rowNum = $(this).attr("rowNum");
 							var colNum = $(this).attr("colNum");
 							
-							var rackIdRow = "#rack_" + rowNum + "_" + 0;
+							var rackIdRow = "#" + localReference.containerId + "_rack_" + rowNum + "_" + 0;
 							$(rackIdRow).addClass('storageSelectedCorner');
 							
-							var rackIdCol = "#rack_" + 0 + "_" + colNum;
+							var rackIdCol = "#" + localReference.containerId + "_rack_" + 0 + "_" + colNum;
 							$(rackIdCol).addClass('storageSelectedCorner');
 							
-							var rackId = "#rack_" + rowNum + "_" + colNum;
+							var rackId = "#" + localReference.containerId + "_rack_" + rowNum + "_" + colNum;
 							$(rackId).addClass('storageSelectedCorner');
 						});
 						
@@ -454,11 +472,12 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 				
 				if(selectedRow && selectedCol) {
 					//Set the visual storage
-					var rackId = "#rack_" + selectedRow + "_" + selectedCol;
+					var rackId = "#" + localReference.containerId + "_rack_" + selectedRow + "_" + selectedCol;
 					$(rackId).addClass('storageSelectedRack');
 					//Set the hidden fields
 					localReference._setSelectedValue(storageRowPropertyCode, selectedRow);
 					localReference._setSelectedValue(storageColPropertyCode, selectedCol);
+					localReference._setSelectedValue(storageUserPropertyCode, selectedUser);
 				}
 			}
 			
@@ -473,11 +492,12 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 						$(this).val($(this).val().toUpperCase()); //Box Names can only be upper case
 					}
 				);
-
 				
 				$propertyTypeBoxComponent.val(selectedBox);
 				$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeBoxComponent, "Box Name"));
-			} if(storageConfig) {
+			}
+			
+			if(storageConfig) {
 				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), true, null);
 				$container.append($propertyTypeBoxComponent);
 			}
@@ -494,6 +514,10 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), false, null);
 			$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeBoxComponent, "Box Name"));
 			localReference._setSelectedValue(storageBoxPropertyCode, selectedBox);
+			
+			var $propertyTypeUserComponent = this._getComponent(this._getPropertyFromType(storageUserPropertyCode), false, null);
+			$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeUserComponent, "User Id"));
+			localReference._setSelectedValue(storageUserPropertyCode, selectedUser);
 		}
 
 		//
@@ -504,6 +528,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			$("#"+storageRowPropertyCode).prop('disabled', true);
 			$("#"+storageColPropertyCode).prop('disabled', true);
 			$("#"+storageBoxPropertyCode).prop('disabled', true);
+			$("#"+storageUserPropertyCode).prop('disabled', true);
 		}
 	}
 }
