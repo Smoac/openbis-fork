@@ -67,6 +67,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 		
 		if(isHidden) {
 			$component.attr('class', 'hiddenInput');
+		} else {
+			$component.attr('class', 'form-control');
 		}
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
@@ -97,6 +99,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 		
 		if(isHidden) {
 			$component.attr('class', 'hiddenInput');
+		} else {
+			$component.attr('class', 'form-control');
 		}
 		
 		return $component;
@@ -303,12 +307,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 		);
 		
 		//Component with Dropdown
-		$container
-			.append($("<div>")
-						.append($("<i>", { class: "icon-info-sign" }))
-						.append(" 1. Select a storage: ")
-						.append($storageNameDropDown)
-			);
+		
+		$container.append(FormUtil.getFieldForComponentWithLabel($storageNameDropDown, "Storage"));
 		
 		//
 		// 2. Build a table to select the row and column.
@@ -450,14 +450,8 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 				$virtualStorage.mouseleave(function() {
 					$(".storageSelectedCorner").removeClass("storageSelectedCorner");
 				});
+				$container.append(FormUtil.getFieldForComponentWithLabel($virtualStorage, "Rack"));
 				
-				$container
-					.append($("<div>")
-								.append($("<i>", { class: "icon-info-sign" }))
-								.append(" 2. Select a rack: ")
-								.append($virtualStorage)
-					)
-			
 				if(selectedRow && selectedCol) {
 					//Set the visual storage
 					var rackId = "#rack_" + selectedRow + "_" + selectedCol;
@@ -482,13 +476,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 
 				
 				$propertyTypeBoxComponent.val(selectedBox);
-				$container
-					.append($("<br>"))
-					.append($("<div>")
-								.append($("<i>", { class: "icon-info-sign" }))
-								.append(" 3. Input the box name or number: ")
-								.append($propertyTypeBoxComponent)
-					);
+				$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeBoxComponent, "Box Name"));
 			} if(storageConfig) {
 				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), true, null);
 				$container.append($propertyTypeBoxComponent);
@@ -496,30 +484,15 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			
 		} else if(selectedStorage){ //Configuration don´t exists
 			$propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(storageRowPropertyCode), false, null);
-			$container
-				.append($("<div>")
-					.append($("<i>", { class: "icon-info-sign" }))
-					.append(" 2. Select Row: ")
-					.append($propertyTypeRowComponent)
-				);
+			$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeRowComponent, "Row"));
 			localReference._setSelectedValue(storageRowPropertyCode, selectedRow);
 
 			$propertyTypeColComponent = this._getComponent(this._getPropertyFromType(storageColPropertyCode), false, null);
-			$container
-				.append($("<div>")
-					.append($("<i>", { class: "icon-info-sign" }))
-					.append(" 3. Select Column: ")
-					.append($propertyTypeColComponent)
-				);
+			$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeColComponent, "Column"));
 			localReference._setSelectedValue(storageColPropertyCode, selectedCol);
 
 			var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), false, null);
-			$container
-				.append($("<div>")
-							.append($("<i>", { class: "icon-info-sign" }))
-							.append(" 4. Input the box name or number: ")
-							.append($propertyTypeBoxComponent)
-				);
+			$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeBoxComponent, "Box Name"));
 			localReference._setSelectedValue(storageBoxPropertyCode, selectedBox);
 		}
 
