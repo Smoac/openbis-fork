@@ -28,6 +28,8 @@ dependencies {
 			'unimi:fastutil:5.1.5',
 			'apache:commons-collections:+'
 
+    runtime 'slf4j:slf4j-log4j12:+'
+
 	testCompile project(path: ':common', configuration: 'tests'),
 				project(path: ':dbmigration', configuration: 'tests'),
 				'springframework:spring-test:+'
@@ -37,6 +39,7 @@ dependencies {
 				'apache:commons-fileupload:1.2.1'
 
 	testRuntimeFirst 'javax:servlet-api:+'
+	
 }
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + sourceSets.test.runtimeClasspath
