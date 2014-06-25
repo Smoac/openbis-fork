@@ -118,7 +118,6 @@ task(listVersions) << {
         println "subproject: ${p.name} [${p.version}]"
     }
 }
-
 task(compileInstaller) << {
     def compression = 'default'
     def kind = 'standard'
@@ -135,7 +134,7 @@ task(compileInstaller) << {
     def propertyManager = compilerContainer.getComponent(com.izforge.izpack.compiler.data.PropertyManager.class)
     propertyManager.addProperty('installer.dist.dir', '../installation/' + installerDistDir)
     propertyManager.addProperty('version.number', versionNumber)
-    propertyManager.addProperty('revision.number', revisionNumber)
+    propertyManager.addProperty('revision.number', Integer.toString(revisionNumber))
     compilerConfig.executeCompiler()
     fixJarFile(izPackJar)
 }
