@@ -17,6 +17,19 @@ var FormUtil = new function() {
 	//
 	// Standard Form Fields
 	//
+	
+	this.getDefaultBenchDropDown = function(id, isRequired) {
+		var $storageDropDown = this.getDefaultStoragesDropDown(id, isRequired);
+		for(var i = $storageDropDown.children().length -1; i >= 0 ; i--){
+			var isEmpty = $storageDropDown.children()[i].value === "";
+			var isBench = $storageDropDown.children()[i].value.startsWith("USER_BENCH");
+			if(!isEmpty && !isBench){
+				$storageDropDown.children()[i].remove();
+		    }
+		}
+		return $storageDropDown;
+	}
+	
 	this.getDefaultStoragesDropDown = function(id, isRequired) {
 		if(!this.profile.storagesConfiguration["isEnabled"]) {
 			return null;

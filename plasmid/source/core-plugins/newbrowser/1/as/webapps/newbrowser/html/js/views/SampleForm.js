@@ -341,7 +341,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	}
 	
 	this.childrenAdded = function() {
-		var $childrenStorageDropdown = FormUtil.getDefaultStoragesDropDown('childrenStorageSelector', true);
+		var $childrenStorageDropdown = FormUtil.getDefaultBenchDropDown('childrenStorageSelector', true);
 		if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
 			var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
 			$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
