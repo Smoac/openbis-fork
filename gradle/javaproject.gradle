@@ -101,11 +101,11 @@ def findMaximum(lines, key) {
 
 def calculateBuildInfo() {
     def output = executeSVN(['info', '-R', '../' + project.name])
-    project.ext.revisionNumber = findMaximum(output, 'Revision:')
-    def maxLastChangedRev = findMaximum(output, 'Last Changed Rev:')
-    if (project.ext.revisionNumber < maxLastChangedRev) {
-        throw new GradleException("Maximum revision (${project.ext.revisionNumber}) is less than the maximum "
-                  + "last changed revision ($maxLastChangedRev).")
+    def maxRevisionNumber = findMaximum(output, 'Revision:')
+    project.ext.revisionNumber = findMaximum(output, 'Last Changed Rev:')
+    if (maxRevisionNumber < project.ext.revisionNumber) {
+        throw new GradleException("Maximum revision ($maxRevisionNumber) is less than the maximum "
+                  + "last changed revision ($project.ext.revisionNumber).")
     }
     project.ext.versionNumber = 'SNAPSHOT'
     def url = output.findAll({ it.startsWith('URL:')})[0].split('URL:')[1].trim()
