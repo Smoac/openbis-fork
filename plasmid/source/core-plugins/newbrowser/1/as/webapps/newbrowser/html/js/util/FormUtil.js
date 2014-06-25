@@ -17,6 +17,18 @@ var FormUtil = new function() {
 	//
 	// Standard Form Fields
 	//
+	this.getDefaultStoragesDropDown = function(id, isRequired) {
+		if(!this.profile.storagesConfiguration["isEnabled"]) {
+			return null;
+		}
+		var storageVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]);
+		var $storageDropDown = this.getFieldForPropertyType(storageVocabularyProp);
+		$storageDropDown.attr('id', id);
+		if (isRequired) {
+			$storageDropDown.attr('required', '');
+		}
+		return $storageDropDown;
+	}
 	
 	this.getSampleTypeDropdown = function(id, isRequired) {
 		var sampleTypes = this.profile.getAllSampleTypes();

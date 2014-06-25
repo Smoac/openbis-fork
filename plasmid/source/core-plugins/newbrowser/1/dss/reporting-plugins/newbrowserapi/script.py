@@ -183,6 +183,12 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	for newSampleChild in sampleChildrenNew:
 		child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
 		child.setParentSampleIdentifiers([sampleIdentifier]);
+		for key in newSampleChild["properties"].keySet():
+			propertyValue = unicode(newSampleChild["properties"][key]);
+			if propertyValue == "":
+				propertyValue = None;
+			
+			child.setPropertyValue(key,propertyValue);
 		
 	#Add sample children
 	for sampleChildIdentifier in sampleChildren:

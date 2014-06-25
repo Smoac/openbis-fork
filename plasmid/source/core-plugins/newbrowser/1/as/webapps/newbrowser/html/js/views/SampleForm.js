@@ -340,6 +340,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		});
 	}
 	
+	this.childrenAdded = function() {
+		var $childrenStorageDropdown = FormUtil.getDefaultStoragesDropDown('childrenStorageSelector', true);
+		if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
+			var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
+			$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
+		}
+	}
+	
 	this.repaint = function() {
 		$("#"+this.containerId).empty();
 		var sampleType = profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
@@ -481,6 +489,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				component += "<a class='btn btn-default' style='margin-left:25px;' id='generate_children'>Generate Children</a>";
 				component += "</div>";
 				component += "</div>";
+				component += "<div id='newChildrenOnBenchDropDown'></div>";
 			}
 			
 			
@@ -650,6 +659,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 	
 	this.createSample = function(isCopyWithNewCode) {
 		Util.blockUI();
+		var localReference = this;
 		
 		//Other properties
 		var properties = {};
@@ -744,6 +754,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		var samplesToCreate = [];
 		this.sampleLinksChildren.getSamples().forEach(function(child) {
 			if(child.newSample) {
+				if(this.profile.storagesConfiguration["isEnabled"]) {
+					child.properties = {};
+					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
+					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
+					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
+					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["BOX_PROPERTY"]] = $("#sampleSpaceProject").val().replace(/\//g,'\/') + "_" + $("#sampleCode").val() + "_EXP_RESULTS";
+					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["USER_PROPERTY"]] = localReference.serverFacade.openbisServer.getSession().split("-")[0];
+				}
 				samplesToCreate.push(child);
 			}
 		});
@@ -783,8 +801,6 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			parameters["sampleChildrenNew"] = [];
 			parameters["sampleChildrenRemoved"] = [];
 		}
-		
-		var localReference = this;
 		
 		if(this.profile.allDataStores.length > 0) {
 			this.serverFacade.createReportFromAggregationService(this.profile.allDataStores[0].code, parameters, function(response) {
@@ -969,7 +985,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					virtualSample.sampleTypeCode = generatedChildrenType;
 					_this.sampleLinksChildren.addSample(virtualSample);
 				}
-					
+				
+				_this.childrenAdded();
 				Util.unblockUI();
 			}
 			
