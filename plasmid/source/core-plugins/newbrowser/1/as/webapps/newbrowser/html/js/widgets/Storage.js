@@ -224,9 +224,16 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			var propertyTypeCodes = [storageNamePropertyCode, storageRowPropertyCode, storageColPropertyCode, storageBoxPropertyCode];
 			var propertyValues = ["'" + selectedStorage + "'", "?*", "?*", "?*"];
 			
+			//We don't show other user bench
+			var storageUserPropertyCode = this.selectedPropertyGroup["USER_PROPERTY"];
+			if(this.sample && this.sample.properties[storageUserPropertyCode] && this.sample.properties[storageUserPropertyCode] !== this.userId) {
+				this.selectedStorageCache = [];
+				this._repaint();
+				return;
+			}
+			
 			//When saving on the Bench, only the stuff saved by the user putting it there is seen
 			if(selectedStorage.startsWith("USER_BENCH")) {
-				var storageUserPropertyCode = this.selectedPropertyGroup["USER_PROPERTY"];
 				propertyTypeCodes.push(storageUserPropertyCode);
 				var storageUserPropertyValue = this.userId;
 				propertyValues.push(storageUserPropertyValue);
@@ -241,6 +248,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 							.append($("<i>", { class: "icon-info-sign" }))
 							.append(" Loading... ")
 				);
+			
 			
 			this.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
 				function(samples) {
