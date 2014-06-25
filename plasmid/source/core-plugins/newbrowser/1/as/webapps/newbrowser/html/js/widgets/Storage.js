@@ -225,7 +225,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			var propertyValues = ["'" + selectedStorage + "'", "?*", "?*", "?*"];
 			
 			//When saving on the Bench, only the stuff saved by the user putting it there is seen
-			if(selectedStorage === "USER_BENCH") {
+			if(selectedStorage.startsWith("USER_BENCH")) {
 				var storageUserPropertyCode = this.selectedPropertyGroup["USER_PROPERTY"];
 				propertyTypeCodes.push(storageUserPropertyCode);
 				var storageUserPropertyValue = this.userId;
@@ -344,13 +344,16 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			//Attach row, column and user hidden fields
 			$propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(storageRowPropertyCode), true, null);
 			$propertyTypeColComponent = this._getComponent(this._getPropertyFromType(storageColPropertyCode), true, null);
-			$propertyTypeUserComponent = this._getComponent(this._getPropertyFromType(storageUserPropertyCode), true, null);
-			
+			$propertyTypeUserComponent = this._getComponent(this._getPropertyFromType(storageUserPropertyCode), !selectedStorage.startsWith("USER_BENCH"), null);
+			$propertyTypeUserComponent.prop('disabled', true);
 			$container
 				.append($propertyTypeRowComponent)
 				.append($propertyTypeColComponent)
-				.append($propertyTypeUserComponent);
+				.append(FormUtil.getFieldForComponentWithLabel($propertyTypeUserComponent, "User Id"));
 			}
+			
+			
+			
 		}
 		
 		var $virtualStorage = null;
@@ -530,5 +533,6 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			$("#"+storageBoxPropertyCode).prop('disabled', true);
 			$("#"+storageUserPropertyCode).prop('disabled', true);
 		}
+		
 	}
 }
