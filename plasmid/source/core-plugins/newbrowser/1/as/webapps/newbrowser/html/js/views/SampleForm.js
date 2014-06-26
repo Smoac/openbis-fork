@@ -1000,11 +1000,17 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		});
 		
 		var $selectAllButton = $("<a>", { "class" : "btn btn-default" }).append("Enable/Disable All");
-		$selectAllButton.click(function(event) { 
+		$selectAllButton.attr("ison", "false");
+		
+		$selectAllButton.click(function(event) {
+			var $button = $(this);
+			var isOn = !($button.attr("ison") === "true");
+			$button.attr("ison", isOn);
+			
 			var $parentsFields = $("#parentsToGenerateChildren").find("input");
 			for(var i = 0; i < $parentsFields.length; i++) {
 				var $parentField = $parentsFields[i];
-				$parentField.checked = !$parentField.checked;
+				$parentField.checked = isOn;
 			}
 			
 			showPreview();
