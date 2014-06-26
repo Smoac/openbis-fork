@@ -18,12 +18,15 @@ function StorageView(storageModel) {
 	this._storageModel = storageModel;
 	
 	this.defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
+	this.userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
 	
 	this.repaint = function($container) {
 		$container.empty();
 		$container.append("<h2>Storage Widget Test</h2>");
-		var $controlGroup = FormUtil.getFieldForComponentWithLabel(this.defaultStoragesDropDown, "Storage");
-		$container.append($controlGroup);
+		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this.defaultStoragesDropDown, "Storage");
+		$container.append($controlGroupStorages);
+		var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this.userIdFilter, "User Id Filter");
+		$container.append($controlGroupUserId);
 	}
 	
 	//
