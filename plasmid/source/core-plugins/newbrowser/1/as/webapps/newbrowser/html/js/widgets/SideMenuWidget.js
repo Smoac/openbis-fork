@@ -239,6 +239,14 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 						);
 					}
 					
+					//Fill Utils
+					_this._menuStructure.newMenuIfSelected.children.push(
+							new SideMenuWidgetComponent(false, true, "Utils", _this._menuStructure, null, null, null, "")
+					);
+					_this._menuStructure.newMenuIfSelected.children.push(
+							new SideMenuWidgetComponent(true, false, "Storage Manager", _this._menuStructure, null, "showStorageManager", null, "")
+					);
+					
 					_this._repaint();
 				});
 

@@ -166,8 +166,13 @@ function MainController(profile) {
 		//
 		
 		switch (newViewChange) {
+			case "showStorageManager":
+				document.title = "Storage Manager";
+				this._showStorageManager();
+				window.scrollTo(0,0);
+				break;
 			case "showInspectors":
-				document.title = "Show Inspectors";
+				document.title = "Inspectors";
 				this._showInspectors();
 				window.scrollTo(0,0);
 				break;
@@ -299,6 +304,11 @@ function MainController(profile) {
 	//
 	// Functions that trigger view changes, should only be called from the main controller changeView method
 	//
+	this._showStorageManager = function() {
+		var storageManagerController = new StorageManagerController(this);
+		storageManagerController.init($("#mainContainer"));
+	}
+	
 	this._showInspectors = function() {
 		//Show Inspectors
 		this.inspector.repaint();

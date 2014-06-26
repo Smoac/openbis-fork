@@ -300,14 +300,15 @@ $.extend(DefaultProfile.prototype, {
 			return sampleTypes;
 		}
 		
-		this.initPropertyTypes = function() {
+		this.initPropertyTypes = function(callback) {
 			var _this = this; 
 			this.serverFacade.listPropertyTypes(function(data) {
 				_this.allPropertyTypes = data.result;
+				callback();
 			});
 		}
 		
-		this.initVocabulariesForSampleTypes = function() {
+		this.initVocabulariesForSampleTypes = function(callback) {
 			//Build Vocabularies from sample types
 			for(var sampleTypeIdx = 0; sampleTypeIdx < this.allSampleTypes.length; sampleTypeIdx++) {
 				var sampleType = this.allSampleTypes[sampleTypeIdx];
@@ -337,6 +338,7 @@ $.extend(DefaultProfile.prototype, {
 							}
 						}
 					}
+					callback();
 				}
 			);
 		}
@@ -345,6 +347,8 @@ $.extend(DefaultProfile.prototype, {
 		// Initializes the Others list with all sampleType codes that are neither in typeGroups or notShowTypes
 		//
 		this.init = function(callbackWhenDone) {
+			var _this = this;
+			
 			for(var i = 0; i < this.allSampleTypes.length; i++) {
 				var sampleType = this.allSampleTypes[i];
 				if($.inArray(sampleType.code, this.notShowTypes) === -1) {
@@ -354,9 +358,11 @@ $.extend(DefaultProfile.prototype, {
 				}
 			}
 		
-			this.initPropertyTypes();
-			this.initVocabulariesForSampleTypes();
-			callbackWhenDone();
+			this.initPropertyTypes(function(){
+				_this.initVocabulariesForSampleTypes(function() {
+					callbackWhenDone();
+				});
+			});
 		}
 	}
 });
@@ -1085,7 +1091,7 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
-		this.notShowTypes = ["ANTIBODY_PANEL", "SYSTEM_EXPERIMENT"];
+		this.notShowTypes = ["ANTIBODY_PANEL"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
 		this.inventorySpaces = ["BODENMILLER_LAB"];
 		
@@ -1172,25 +1178,27 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 //					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
 //					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
 //					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
-//					"BOX_PROPERTY" : "BOX_NUMBER" //Should be text.
+//					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
+//					"USER_PROPERTY" : "USER_PROPERTY"
 //				},
 //				{
 //					"STORAGE_PROPERTY_GROUP" : "Storage information 2", //Where the storage will be painted.
 //					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
 //					"ROW_PROPERTY" : "ROW_2", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
 //					"COLUMN_PROPERTY" : "COLUMN_2", //Integer on YeastLab, can be (Vocabulary, text and integer).
-//					"BOX_PROPERTY" : "BOX_NUMBER_2" //Should be text.
+//					"BOX_PROPERTY" : "BOX_NUMBER_2", //Should be text.
+//					"USER_PROPERTY" : "USER_PROPERTY_2"
 //				}],
 //				/*
 //				 * Storages map, can hold configurations for several storages.
 //				*/
 //				"STORAGE_CONFIGS": {
 //					"TESTFREEZER" : { //Freezer name given by the NAME_PROPERTY
-//									"ROW_NUM" : 3, //Number of rows
-//									"COLUMN_NUM" : 3, //Number of columns
+//									"ROW_NUM" : 13, //Number of rows
+//									"COLUMN_NUM" : 13, //Number of columns
 //									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 //								},
-//					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+//					"USER_BENCH" : { //Freezer name given by the NAME_PROPERTY
 //									"ROW_NUM" : 1, //Number of rows
 //									"COLUMN_NUM" : 1, //Number of columns
 //									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
