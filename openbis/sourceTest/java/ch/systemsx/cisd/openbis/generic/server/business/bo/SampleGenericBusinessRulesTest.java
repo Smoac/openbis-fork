@@ -72,7 +72,6 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     {
         SamplePE s = new SamplePE();
         s.setCode(code);
-        s.setDatabaseInstance(db);
         return s;
     }
 

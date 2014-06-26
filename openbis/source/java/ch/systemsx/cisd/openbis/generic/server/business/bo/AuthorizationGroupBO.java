@@ -87,7 +87,6 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
             AuthorizationGroupPE authorizationGroup = new AuthorizationGroupPE();
             authorizationGroup.setCode(newAuthorizationGroup.getCode());
             authorizationGroup.setDescription(newAuthorizationGroup.getDescription());
-            authorizationGroup.setDatabaseInstance(homeDBInstance);
             authorizationGroup.setRegistrator(registrator);
             return authorizationGroup;
         }

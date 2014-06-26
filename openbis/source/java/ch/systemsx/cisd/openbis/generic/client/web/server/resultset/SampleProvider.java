@@ -108,13 +108,13 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             {
                 builder.column(CODE).addEntityLink(sample, sample.getCode());
                 builder.column(SUBCODE).addEntityLink(sample, sample.getSubCode());
-                builder.column(DATABASE_INSTANCE).addString(getDatabaseInstance(sample).getCode());
+                builder.column(DATABASE_INSTANCE).addString("");
                 builder.column(SPACE).addString(
                         sample.getSpace() == null ? "" : sample.getSpace().getCode());
                 builder.column(SAMPLE_IDENTIFIER).addEntityLink(sample, sample.getIdentifier());
                 builder.column(SAMPLE_TYPE).addString(sample.getSampleType().getCode());
                 builder.column(IS_INSTANCE_SAMPLE).addString(
-                        SimpleYesNoRenderer.render(sample.getDatabaseInstance() != null));
+                        SimpleYesNoRenderer.render(sample.getSpace() == null));
                 builder.column(IS_DELETED).addString(
                         SimpleYesNoRenderer.render(DeletionUtils.isDeleted(sample)));
                 builder.column(REGISTRATOR).addPerson(sample.getRegistrator());

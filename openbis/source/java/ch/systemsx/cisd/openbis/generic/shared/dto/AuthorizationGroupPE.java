@@ -27,9 +27,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -68,8 +66,6 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
 
     private Long id;
 
-    private DatabaseInstancePE databaseInstance;
-
     private String code;
 
     private String description;
@@ -96,19 +92,6 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     public final void setId(final Long id)
     {
         this.id = id;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @Override
@@ -243,7 +226,6 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
         final AuthorizationGroupPE that = (AuthorizationGroupPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -252,7 +234,6 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 
@@ -263,7 +244,6 @@ public class AuthorizationGroupPE extends HibernateAbstractRegistrationHolder im
                 new ToStringBuilder(this,
                         ModifiedShortPrefixToStringStyle.MODIFIED_SHORT_PREFIX_STYLE);
         builder.append("code", getCode());
-        builder.append("dbInstance", getDatabaseInstance());
         return builder.toString();
     }
 

@@ -336,7 +336,6 @@ public abstract class AbstractDAOWithoutContextTest extends
         material.setMaterialType(type);
         material.setRegistrationDate(new Date());
         material.setRegistrator(getSystemPerson());
-        material.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         return material;
     }
 
@@ -417,7 +416,6 @@ public abstract class AbstractDAOWithoutContextTest extends
         AuthorizationGroupPE result = new AuthorizationGroupPE();
         result.setCode(code);
         result.setDescription(desc);
-        result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         result.setRegistrator(getSystemPerson());
         return result;
     }

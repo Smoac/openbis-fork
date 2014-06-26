@@ -58,8 +58,7 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
     {
         final List<AuthorizationGroupPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s a where a.databaseInstance = ?", TABLE_NAME),
-                        toArray(getDatabaseInstance())));
+                        String.format("from %s a", TABLE_NAME)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d authorization group(s) have been found.",
@@ -89,7 +88,6 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", CodeConverter.tryToDatabase(code)));
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         return (AuthorizationGroupPE) criteria.uniqueResult();
     }
 

@@ -381,7 +381,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
     {
         final PersonPE systemPerson = new PersonPE();
         systemPerson.setUserId(PersonPE.SYSTEM_USER_ID);
-        systemPerson.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         systemPerson.setDisplaySettings(createDefaultSettings());
         systemPerson.setActive(true);
         return systemPerson;

@@ -82,12 +82,6 @@ public class SampleBuilder
             databaseInstance.setCode(spaceLevel.getDatabaseInstanceCode());
             space.setInstance(databaseInstance);
             sample.setSpace(space);
-        } else
-        {
-            DatabaseInstance databaseInstance = new DatabaseInstance();
-            databaseInstance.setCode(sampleIdentifier.getDatabaseInstanceLevel()
-                    .getDatabaseInstanceCode());
-            sample.setDatabaseInstance(databaseInstance);
         }
         return this;
     }

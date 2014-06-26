@@ -38,7 +38,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate(false);
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(true);
-        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(ANOTHER_INSTANCE_IDENTIFIER);
+        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier();
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
@@ -54,7 +54,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate(false);
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
-        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(INSTANCE_IDENTIFIER);
+        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
@@ -72,7 +72,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate();
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
-        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(INSTANCE_IDENTIFIER);
+        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier();
         prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
         predicate.init(provider);
 
@@ -88,7 +88,7 @@ public class SampleOwnerIdentifierPredicateTest extends AuthorizationTestCase
         SampleOwnerIdentifierPredicate predicate = new SampleOwnerIdentifierPredicate();
         PersonPE person = createPerson();
         List<RoleWithIdentifier> roles = createRoles(false);
-        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier(ANOTHER_INSTANCE_IDENTIFIER);
+        SampleOwnerIdentifier identifier = new SampleOwnerIdentifier();
         prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
         predicate.init(provider);
 

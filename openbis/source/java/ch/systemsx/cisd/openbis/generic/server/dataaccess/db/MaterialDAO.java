@@ -130,7 +130,6 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
     private void internalCreateMaterial(MaterialPE material, HibernateTemplate hibernateTemplate)
     {
-        assert material.getDatabaseInstance().isOriginalSource() : "Registration on a non-home database is not allowed";
         validatePE(material);
         validateMaterialCode(material);
         hibernateTemplate.saveOrUpdate(material);
@@ -187,7 +186,6 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
 
         final Criteria criteria = session.createCriteria(ENTITY_CLASS);
         criteria.add(Restrictions.eq("code", code));
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.createCriteria("materialType").add(Restrictions.eq("code", typeCode));
         final MaterialPE material = (MaterialPE) criteria.uniqueResult();
         if (operationLog.isDebugEnabled())

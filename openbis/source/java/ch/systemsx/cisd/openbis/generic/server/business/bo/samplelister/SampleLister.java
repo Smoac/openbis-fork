@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.lemnik.eodsql.DataIterator;
-
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.collection.IValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.entity.SecondaryEntityDAO;
@@ -99,7 +98,6 @@ public class SampleLister implements ISampleLister
             sampleSkeleton.setExperimentID(sampleRecord.expe_id);
             sampleSkeleton.setSpaceID(sampleRecord.space_id);
             sampleSkeleton.setTypeID(sampleRecord.saty_id);
-            sampleSkeleton.setDatabaseInstanceID(sampleRecord.dbin_id);
             if (criteria.isValid(sampleSkeleton))
             {
                 result.add(sampleSkeleton);

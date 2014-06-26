@@ -27,8 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 
 /**
- * Parses the given text in the constructor to extract the database instance, the group and the
- * sample code.
+ * Parses the given text in the constructor to extract the database instance, the group and the sample code.
  * 
  * <pre>
  * [[&lt;database instance code&gt;:][/&lt;group code&gt;]/]&lt;sample code&gt;
@@ -223,7 +222,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         if (tokens.length == 1)
         {
             // case: originalText is e.g. "db:/CP1" or "/CP1"
-            return new SampleOwnerIdentifier(dbIdent);
+            return new SampleOwnerIdentifier();
         } else if (tokens.length == 2)
         {
             // case: originalText is e.g. "db:/space/CP1" or "/space/CP1"

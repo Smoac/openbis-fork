@@ -269,7 +269,6 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
         person.setRegistrator(registrator);
-        person.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         person.setDisplaySettings(defaultDisplaySettings);
         person.setActive(true);
         try

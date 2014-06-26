@@ -90,9 +90,7 @@ public class RevertDeletionPredicate extends AbstractPredicate<List<TechId>>
     private boolean isRegistrator(final PersonPE person, final DeletionPE value)
     {
         PersonPE registrator = value.getRegistrator();
-        return person.getUserId().equals(registrator.getUserId())
-                && person.getDatabaseInstance().getCode()
-                        .equals(registrator.getDatabaseInstance().getCode());
+        return person.getUserId().equals(registrator.getUserId());
     }
 
     private static boolean isInstanceAdmin(final PersonPE person)

@@ -263,13 +263,11 @@ public class DataSetInformation implements Serializable
         {
             return null;
         }
-        final DatabaseInstanceIdentifier databaseInstanceIdentifier =
-                new DatabaseInstanceIdentifier(instanceCode);
         if (spaceCode == null)
         {
-            return new SampleIdentifier(databaseInstanceIdentifier, sampleCode);
+            return new SampleIdentifier(sampleCode);
         }
-        return new SampleIdentifier(new SpaceIdentifier(databaseInstanceIdentifier, spaceCode),
+        return new SampleIdentifier(new SpaceIdentifier(spaceCode),
                 sampleCode);
     }
 

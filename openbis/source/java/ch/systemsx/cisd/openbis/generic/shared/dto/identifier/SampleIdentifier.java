@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.identifier;
 
-import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
 /**
@@ -39,10 +38,9 @@ public class SampleIdentifier extends SampleOwnerIdentifier
 
     private String containerCodeOrNull;
 
-    private SampleIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentOrNull,
-            final SpaceIdentifier spaceIdentOrNull, final String sampleCode)
+    public SampleIdentifier(final SpaceIdentifier spaceIdentOrNull, final String sampleCode)
     {
-        super(databaseInstanceIdentOrNull, spaceIdentOrNull);
+        super(spaceIdentOrNull);
         setSampleCode(sampleCode);
     }
 
@@ -51,27 +49,18 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     {
         if (owner.isDatabaseInstanceLevel())
         {
-            return new SampleIdentifier(owner.getDatabaseInstanceLevel(), sampleCode);
-        } else if (owner.isSpaceLevel())
-        {
-            return new SampleIdentifier(owner.getSpaceLevel(), sampleCode);
+            return new SampleIdentifier(sampleCode);
         } else
         {
-            throw InternalErr.error();
+            return new SampleIdentifier(owner.getSpaceLevel(), sampleCode);
         }
     }
 
     /** Database-instance level {@link SampleIdentifier}. */
-    public SampleIdentifier(final DatabaseInstanceIdentifier instanceIdentifier,
-            final String sampleCode)
+    public SampleIdentifier(final String sampleCode)
     {
-        this(instanceIdentifier, null, sampleCode);
-    }
-
-    /** Space level {@link SampleIdentifier}. */
-    public SampleIdentifier(final SpaceIdentifier spaceIdentifier, final String sampleCode)
-    {
-        this(null, spaceIdentifier, sampleCode);
+        super();
+        setSampleCode(sampleCode);
     }
 
     /** Space level {@link SampleIdentifier} in home database instance. */
@@ -102,12 +91,18 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     }
 
     /**
-     * Returns an object that only contains the owner information of this sample identifier.
-     * {@link #hashCode()} will be the same when called on two different samples with same owner.
+     * Returns an object that only contains the owner information of this sample identifier. {@link #hashCode()} will be the same when called on two
+     * different samples with same owner.
      */
     public SampleOwnerIdentifier createSampleOwnerIdentifier()
     {
-        return new SampleOwnerIdentifier(getDatabaseInstanceLevel(), getSpaceLevel());
+        if (getSpaceLevel() != null)
+        {
+            return new SampleOwnerIdentifier(getSpaceLevel());
+        } else
+        {
+            return new SampleOwnerIdentifier();
+        }
     }
 
     /**
@@ -149,7 +144,7 @@ public class SampleIdentifier extends SampleOwnerIdentifier
     @Deprecated
     public SampleIdentifier()
     {
-        super(null, null);
+        super();
     }
 
     //

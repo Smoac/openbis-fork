@@ -37,8 +37,8 @@ public class SampleIdentifierPattern extends AbstractHashable implements Seriali
     private final String sampleCodePattern;
 
     /**
-     * Matches samples from the specified group and the database instance to which this group
-     * belongs. Only samples with the code matching sampleCodePattern will be selected.
+     * Matches samples from the specified group and the database instance to which this group belongs. Only samples with the code matching
+     * sampleCodePattern will be selected.
      */
     public static SampleIdentifierPattern[] createGroupVisible(SpaceIdentifier groupIdentifier,
             String sampleCodePattern)
@@ -48,16 +48,15 @@ public class SampleIdentifierPattern extends AbstractHashable implements Seriali
                 new SampleIdentifierPattern(sampleCodePattern, groupOwner);
 
         SampleOwnerIdentifier dbOwner =
-                new SampleOwnerIdentifier((DatabaseInstanceIdentifier) groupIdentifier);
+                new SampleOwnerIdentifier(groupIdentifier);
         SampleIdentifierPattern dbPattern = new SampleIdentifierPattern(sampleCodePattern, dbOwner);
 
         return new SampleIdentifierPattern[]
-            { groupPattern, dbPattern };
+        { groupPattern, dbPattern };
     }
 
     /**
-     * Matches samples owned by the specified owner. Only samples with the code matching
-     * sampleCodePattern will be selected.
+     * Matches samples owned by the specified owner. Only samples with the code matching sampleCodePattern will be selected.
      */
     public static SampleIdentifierPattern createOwnedBy(SampleOwnerIdentifier owner,
             String sampleCodePattern)

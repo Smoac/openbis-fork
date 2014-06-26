@@ -230,7 +230,7 @@ public class EntityOperationTest extends SystemTestCase
         String sessionToken = authenticateAs(SPACE_ETL_SERVER_FOR_A);
         AtomicEntityOperationDetails eo = new EntityOperationBuilder().space("TEST_SPACE").create();
 
-        performFailungEntityOperations(sessionToken, eo,
+        performFailingEntityOperations(sessionToken, eo,
                 "Authorization failure: ERROR: \"None of method roles "
                         + "'[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' "
                         + "could be found in roles of user '" + SPACE_ETL_SERVER_FOR_A + "'.\".");
@@ -279,7 +279,7 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder().material("GENE",
                         new MaterialBuilder().code("ALPHA").getMaterial()).create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: "
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: "
                 + "ERROR: \"None of method roles '[INSTANCE_ETL_SERVER, INSTANCE_ADMIN]' "
                 + "could be found in roles of user '" + SPACE_ETL_SERVER_FOR_A + "'.\".");
     }
@@ -321,7 +321,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().project(SPACE_B, "P1").create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_A + "' does not have enough privileges.\".");
     }
 
@@ -383,7 +383,7 @@ public class EntityOperationTest extends SystemTestCase
                         new ExperimentBuilder().identifier("/CISD/NEMO/E1").type("SIRNA_HCS")
                                 .getExperiment()).create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
     }
 
@@ -440,7 +440,7 @@ public class EntityOperationTest extends SystemTestCase
                         new SampleBuilder().identifier("/S1").type("MASTER_PLATE")
                                 .property("$PLATE_GEOMETRY", "96_WELLS_8X12").getSample()).create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_A + "' does not have enough privileges "
                 + "to modify instance level entities.\".");
     }
@@ -509,7 +509,7 @@ public class EntityOperationTest extends SystemTestCase
                         new SampleBuilder().identifier("/CISD/S1").type("CELL_PLATE").getSample())
                         .create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
     }
 
@@ -571,7 +571,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sampleUpdate(sample).create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: "
                 + "\"User '" + SPACE_ETL_SERVER_FOR_A
                 + "' does not have enough privileges to modify instance level entities.\".");
     }
@@ -633,7 +633,7 @@ public class EntityOperationTest extends SystemTestCase
         AtomicEntityOperationDetails eo =
                 new EntityOperationBuilder().sampleUpdate(sample).create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
     }
 
@@ -706,7 +706,7 @@ public class EntityOperationTest extends SystemTestCase
                                                         "/CISD/NEMO/EXP1").getExperiment())
                                         .getDataSet()).create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
     }
 
@@ -755,7 +755,7 @@ public class EntityOperationTest extends SystemTestCase
                 new EntityOperationBuilder().user(SPACE_ETL_SERVER_FOR_B).dataSetUpdate(dataSet)
                         .create();
 
-        performFailungEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
+        performFailingEntityOperations(sessionToken, eo, "Authorization failure: ERROR: \"User '"
                 + SPACE_ETL_SERVER_FOR_B + "' does not have enough privileges.\".");
     }
 
@@ -809,7 +809,7 @@ public class EntityOperationTest extends SystemTestCase
         assertEquals("There should be more than 5 role assignments", true, roleAssignments.size() > 5);
     }
 
-    private void performFailungEntityOperations(String sessionToken,
+    private void performFailingEntityOperations(String sessionToken,
             AtomicEntityOperationDetails eo, String expectedMessage)
     {
         try

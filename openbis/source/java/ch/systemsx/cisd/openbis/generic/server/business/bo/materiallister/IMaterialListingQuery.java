@@ -25,7 +25,6 @@ import net.lemnik.eodsql.DataIterator;
 import net.lemnik.eodsql.Select;
 import net.lemnik.eodsql.TransactionQuery;
 import net.lemnik.eodsql.TypeMapper;
-
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.db.mapper.LongSetMapper;
 import ch.systemsx.cisd.common.db.mapper.StringArrayMapper;
@@ -48,7 +47,7 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
 {
     public static final int FETCH_SIZE = 1000;
 
-    public static final String SELECT_MATERIALS = "select m.id, m.code, m.dbin_id, m.maty_id, "
+    public static final String SELECT_MATERIALS = "select m.id, m.code, m.maty_id, "
             + "m.registration_timestamp, m.modification_timestamp, m.pers_id_registerer "
             + "from materials m";
 
@@ -64,33 +63,29 @@ public interface IMaterialListingQuery extends BaseQuery, IPropertyListingQuery
     /**
      * Returns the materials for the given <var>materialTypeId</var>
      */
-    @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.maty_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialRecord> getMaterialsForMaterialType(long dbInstanceId,
-            long materialTypeId);
+    @Select(sql = SELECT_MATERIALS_WHERE + " m.maty_id=?{1} order by m.code", fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMaterialType(long materialTypeId);
 
     /**
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
-    @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.id = any(?{2}) order by m.code", parameterBindings =
-    { TypeMapper.class/* default */, LongSetMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(long dbInstanceId,
-            LongSet materialIds);
+    @Select(sql = SELECT_MATERIALS_WHERE + " m.id = any(?{1}) order by m.code", parameterBindings =
+    { LongSetMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMaterialTypeWithIds(LongSet materialIds);
 
     /**
      * Returns the materials for the given <var>materialTypeId</var> and <var>materialIds</var>
      */
-    @Select(sql = SELECT_MATERIALS_WHERE + " m.dbin_id=?{1} and m.code = any(?{2}) order by m.code", parameterBindings =
-    { TypeMapper.class/* default */, StringArrayMapper.class }, fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialRecord> getMaterialsForMaterialCodes(long dbInstanceId,
-            String[] codes);
+    @Select(sql = SELECT_MATERIALS_WHERE + " m.code = any(?{1}) order by m.code", parameterBindings =
+    { StringArrayMapper.class }, fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMaterialCodes(String[] codes);
 
     /**
      * Returns the materials for the given <var>metaprojectId</var>
      */
     @Select(sql = SELECT_MATERIALS
-            + " JOIN metaproject_assignments ma ON m.id=ma.mate_id WHERE m.dbin_id=?{1} AND ma.mepr_id=?{2} order by m.code", fetchSize = FETCH_SIZE)
-    public DataIterator<MaterialRecord> getMaterialsForMetaprojectId(long dbInstanceId,
-            long metaprojectId);
+            + " JOIN metaproject_assignments ma ON m.id=ma.mate_id WHERE ma.mepr_id=?{1} order by m.code", fetchSize = FETCH_SIZE)
+    public DataIterator<MaterialRecord> getMaterialsForMetaprojectId(long metaprojectId);
 
     //
     // Entity Properties

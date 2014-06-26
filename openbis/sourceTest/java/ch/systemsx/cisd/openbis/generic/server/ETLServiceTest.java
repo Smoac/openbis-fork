@@ -101,6 +101,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
@@ -123,7 +124,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
@@ -504,7 +504,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryGetSampleWithExperimentForAnUnknownSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         prepareTryToLoadSample(sampleIdentifier, null);
 
         Sample sample = createService().tryGetSampleWithExperiment(SESSION_TOKEN, sampleIdentifier);
@@ -517,7 +517,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryGetSampleWithExperimentForSampleWithNoValidProcedure()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         SamplePE samplePE = createSample();
 
         prepareTryToLoadSampleWithMetaProjects(sampleIdentifier, samplePE);
@@ -534,7 +534,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testGetSampleWithExperimentWithoutAttachment()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
         prepareTryToLoadSampleWithMetaProjects(sampleIdentifier, sample);
@@ -566,7 +566,7 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         SampleIdentifier identifier = createService().tryGetSampleIdentifier(SESSION_TOKEN, "abc");
 
-        assertEquals("S42", identifier.toString());
+        assertEquals("/S42", identifier.toString());
         context.assertIsSatisfied();
     }
 
@@ -605,7 +605,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSampleForAnUnknownSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         prepareLoadSample(sampleIdentifier, null);
 
         IEntityProperty[] properties =
@@ -619,7 +619,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSampleForAToplessSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         SamplePE toplessSample = new SamplePE();
         SamplePropertyPE property = setAnyProperty(toplessSample);
         prepareLoadSample(sampleIdentifier, toplessSample);
@@ -636,7 +636,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfTopSampleWhichHasNoProperties()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         SamplePE sample = createSample("S1");
         SamplePE top = createSample("S2");
         SamplePE parent = createSample("S3");
@@ -658,7 +658,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testTryToGetPropertiesOfSample()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         SamplePE sample = createSample("S1");
         SamplePE top = createSample("S2");
         SamplePE parent = createSample("S3");
@@ -817,7 +817,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSetForUnknownExperiment()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         prepareLoadSample(sampleIdentifier, new SamplePE());
 
         try
@@ -826,7 +826,7 @@ public class ETLServiceTest extends AbstractServerTestCase
             fail("UserFailureException expected");
         } catch (UserFailureException e)
         {
-            assertEquals("No experiment found for sample DB:/S1", e.getMessage());
+            assertEquals("No experiment found for sample /S1", e.getMessage());
         }
 
         context.assertIsSatisfied();
@@ -836,7 +836,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSetForInvalidExperiment()
     {
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         experiment.setDeletion(new DeletionPE());
         prepareLoadSample(sampleIdentifier, createSampleWithExperiment(experiment));
@@ -859,7 +859,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     public void testRegisterDataSet()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "S1");
+                new SampleIdentifier("S1");
         final ExperimentPE experiment = createExperiment("TYPE", "EXP1", "G1");
         SamplePE sample = createSampleWithExperiment(experiment);
         prepareGetSession();
@@ -1207,7 +1207,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                             Collections.<NewExperiment> emptyList());
 
                     List<NewSample> sampleList = Arrays.asList(newSample);
-                    one(entityOperationChecker).assertSpaceSampleCreationAllowed(userSession,
+                    allowing(entityOperationChecker).assertSpaceSampleCreationAllowed(userSession,
                             sampleList);
 
                     one(boFactory).createSampleTable(userSession);
@@ -1220,9 +1220,9 @@ public class ETLServiceTest extends AbstractServerTestCase
                     will(returnValue(sampleTable));
 
                     List<SampleUpdatesDTO> sampleUpdateList = Arrays.asList(sampleUpdate);
-                    one(entityOperationChecker).assertSpaceSampleUpdateAllowed(userSession,
+                    allowing(entityOperationChecker).assertSpaceSampleUpdateAllowed(userSession,
                             sampleUpdateList);
-                    one(sampleTable).checkBeforeUpdate(sampleUpdateList);
+                    allowing(sampleTable).checkBeforeUpdate(sampleUpdateList);
                     one(sampleTable).prepareForUpdateWithSampleUpdates(sampleUpdateList);
                     one(sampleTable).save();
 
@@ -1269,6 +1269,8 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(metaprojectBO).removeMaterials(metaprojectUpdates.getRemovedMaterials());
                     one(metaprojectBO).save();
 
+                    allowing(entityOperationChecker).assertInstanceSampleCreationAllowed(with(any(IAuthSession.class)), with(any(List.class)));
+                    allowing(entityOperationChecker).assertInstanceSampleUpdateAllowed(with(any(IAuthSession.class)), with(any(List.class)));
                 }
             });
 
@@ -1378,6 +1380,8 @@ public class ETLServiceTest extends AbstractServerTestCase
             {
                 {
                     one(entityOperationsLogDAO).addLogEntry(new Long(1));
+                    allowing(entityOperationChecker).assertInstanceSampleCreationAllowed(with(any(IAuthSession.class)), with(any(List.class)));
+                    allowing(entityOperationChecker).assertInstanceSampleUpdateAllowed(with(any(IAuthSession.class)), with(any(List.class)));
 
                 }
             });

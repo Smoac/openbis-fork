@@ -334,7 +334,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testQuerySharedSamples()
     {
-        List<SampleRecord> samples = asList(query.getListableSharedSamples(dbInstanceId));
+        List<SampleRecord> samples = asList(query.getListableSharedSamples());
         assertTrue(samples.size() > 0);
         SampleRecord sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
         assertEquals(SHARED_MASTER_PLATE_ID, sample.id);
@@ -344,7 +344,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     public void testQuerySharedSamplesBySampleType()
     {
         List<SampleRecord> samples =
-                asList(query.getSharedSamplesForSampleType(dbInstanceId, masterPlateType.getId()));
+                asList(query.getSharedSamplesForSampleType(masterPlateType.getId()));
         assertTrue(samples.size() > 0);
         SampleRecord sample = findCode(samples, SHARED_MASTER_PLATE_CODE);
         assertEquals(SHARED_MASTER_PLATE_ID, sample.id);

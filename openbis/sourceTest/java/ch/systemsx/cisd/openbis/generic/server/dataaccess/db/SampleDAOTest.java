@@ -576,7 +576,6 @@ public final class SampleDAOTest extends AbstractDAOTest
         samplePE.setSampleType(daoFactory.getSampleTypeDAO()
                 .tryFindSampleTypeByCode(DILUTION_PLATE));
         final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        samplePE.setDatabaseInstance(homeDatabaseInstance);
         samplePE.setRegistrator(getSystemPerson());
         sampleDAO.createOrUpdateSample(samplePE, getTestPerson());
         // Following line throws a NonUniqueResultException if sample code not unique.
@@ -626,7 +625,7 @@ public final class SampleDAOTest extends AbstractDAOTest
     private final SamplePE createSample(final SampleTypePE type, final String code)
     {
         final SampleOwner owner =
-                SampleOwner.createDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+                SampleOwner.createDatabaseInstance();
         return createSample(type, code, null, null, owner);
     }
 
@@ -634,7 +633,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             final SamplePE containerOrNull)
     {
         final SampleOwner owner =
-                SampleOwner.createDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+                SampleOwner.createDatabaseInstance();
         return createSample(type, code, null, containerOrNull, owner);
     }
 
@@ -642,7 +641,7 @@ public final class SampleDAOTest extends AbstractDAOTest
             final SamplePE generatorOrNull)
     {
         final SampleOwner owner =
-                SampleOwner.createDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+                SampleOwner.createDatabaseInstance();
         return createSample(type, code, generatorOrNull, null, owner);
     }
 
@@ -655,7 +654,6 @@ public final class SampleDAOTest extends AbstractDAOTest
         sample.setCode(code);
         sample.setPermId(daoFactory.getPermIdDAO().createPermId());
         sample.setSampleType(type);
-        sample.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         sample.setSpace(sampleOwner.tryGetSpace());
         if (generatorOrNull != null)
         {

@@ -480,7 +480,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         if (sample.getSpace() == null)
         {
-            return new SampleIdentifier(id(sample.getDatabaseInstance()), sample.getCode());
+            return new SampleIdentifier(sample.getCode());
         } else
         {
             return new SampleIdentifier(id(sample.getSpace()), sample.getCode());

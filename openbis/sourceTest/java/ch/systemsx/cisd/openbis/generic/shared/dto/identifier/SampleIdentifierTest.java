@@ -35,8 +35,8 @@ public final class SampleIdentifierTest
     public final void testToStringDbLevel()
     {
         final SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("DB"), "SAMP");
-        assertEquals(sampleIdentifier.toString(), "DB:/SAMP");
+                new SampleIdentifier("SAMP");
+        assertEquals(sampleIdentifier.toString(), "/SAMP");
     }
 
     @Test
@@ -75,14 +75,14 @@ public final class SampleIdentifierTest
         String c2 = "B";
         SampleIdentifier[] expectedOrder =
                 new SampleIdentifier[]
-                    { SampleIdentifier.createHomeGroup(c1), SampleIdentifier.createHomeGroup(c2),
-                            new SampleIdentifier(new SpaceIdentifier(homeDb, g1), c1),
-                            new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c1),
-                            new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c2),
-                            new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c1),
-                            new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c2),
-                            new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c1),
-                            new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c2) };
+                { SampleIdentifier.createHomeGroup(c1), SampleIdentifier.createHomeGroup(c2),
+                        new SampleIdentifier(new SpaceIdentifier(homeDb, g1), c1),
+                        new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c1),
+                        new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c2),
+                        new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c1),
+                        new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c2),
+                        new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c1),
+                        new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c2) };
 
         SampleIdentifier[] idents = revert(expectedOrder);
         Arrays.sort(idents);

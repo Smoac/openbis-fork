@@ -107,9 +107,7 @@ public final class SpaceIdentifierHelper
     {
         if (sampleIdentifier.isDatabaseInstanceLevel())
         {
-            final DatabaseInstanceIdentifier instanceIdentifier =
-                    normalize(sampleIdentifier.getDatabaseInstanceLevel(), instanceFinder);
-            return new SampleIdentifier(instanceIdentifier, sampleIdentifier.getSampleCode());
+            return new SampleIdentifier(sampleIdentifier.getSampleCode());
         } else if (sampleIdentifier.isSpaceLevel())
         {
             final SpaceIdentifier spaceIdentifier =

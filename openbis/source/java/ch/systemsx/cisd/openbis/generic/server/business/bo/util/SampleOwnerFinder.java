@@ -20,11 +20,9 @@ import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.exception.UndefinedSpaceException;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -63,9 +61,7 @@ public class SampleOwnerFinder
     {
         if (owner.isDatabaseInstanceLevel())
         {
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier =
-                    owner.getDatabaseInstanceLevel();
-            return tryFigureSampleDatabaseOwner(databaseInstanceIdentifier);
+            return tryFigureSampleDatabaseOwner();
         } else if (owner.isSpaceLevel())
         {
             return tryFigureSampleGroupOwner(owner);
@@ -85,17 +81,9 @@ public class SampleOwnerFinder
         }
     }
 
-    private SampleOwner tryFigureSampleDatabaseOwner(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier)
+    private SampleOwner tryFigureSampleDatabaseOwner()
     {
-        final DatabaseInstancePE databaseInstance =
-                SpaceIdentifierHelper
-                        .tryGetDatabaseInstance(databaseInstanceIdentifier, daoFactory);
-        if (databaseInstance == null)
-        {
-            return null;
-        }
-        return SampleOwner.createDatabaseInstance(databaseInstance);
+        return SampleOwner.createDatabaseInstance();
     }
 
     private SampleOwner tryFindAbsoluteGroupOwner(final SpaceIdentifier spaceIdentifier)

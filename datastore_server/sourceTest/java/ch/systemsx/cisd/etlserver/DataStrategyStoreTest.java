@@ -260,7 +260,7 @@ public final class DataStrategyStoreTest extends AbstractFileSystemTestCase
         assertEquals(dataStoreStrategy.getKey(), DataStoreStrategyKey.UNIDENTIFIED);
         final String logContent = logRecorder.getLogContent();
         assertEquals("ERROR NOTIFY.DataStrategyStore - "
-                + "Data set for sample 'MY-INSTANCE:/S' can not be registered "
+                + "Data set for sample '/S' can not be registered "
                 + "because experiment 'E' has been deleted.", logContent);
 
         context.assertIsSatisfied();

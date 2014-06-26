@@ -34,8 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedProperty
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
- * An <i>abstract</i> {@link AbstractBusinessObject} extension for <i>Business Object</i> which uses
- * {@link SampleIdentifier}.
+ * An <i>abstract</i> {@link AbstractBusinessObject} extension for <i>Business Object</i> which uses {@link SampleIdentifier}.
  * 
  * @author Christian Ribeaud
  */
@@ -68,8 +67,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     /**
      * Finds a sample with the given identifier.<br>
-     * Note: this method will never return samples which are contained (part-of relation) in another
-     * sample.
+     * Note: this method will never return samples which are contained (part-of relation) in another sample.
      * 
      * @return never <code>null</code> and prefers to throw an exception.
      */
@@ -102,8 +100,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
             if (sampleOwner.isDatabaseInstanceLevel())
             {
                 result =
-                        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode,
-                                sampleOwner.tryGetDatabaseInstance());
+                        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, null);
             } else
             {
                 assert sampleOwner.isSpaceLevel() : "Must be of space level.";
@@ -120,8 +117,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
 
     /**
      * Finds a sample with the given technical identifier.<br>
-     * Note: this method will never return samples which are contained (part-of relation) in another
-     * sample.
+     * Note: this method will never return samples which are contained (part-of relation) in another sample.
      * 
      * @return never <code>null</code> and prefers to throw an exception.
      */
@@ -143,7 +139,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
     protected SamplePE tryToGetSampleByTechId(final TechId sampleId)
     {
         String[] connections =
-            { PROPERTY_TYPES, EXPERIMENT };
+        { PROPERTY_TYPES, EXPERIMENT };
         return getSampleDAO().tryGetByTechId(sampleId, connections);
     }
 }

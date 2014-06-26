@@ -21,9 +21,9 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for {@link RoleAssignmentDAO}.
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "role_assignment" })
+{ "db", "role_assignment" })
 public class RoleAssignmentDAOTest extends AbstractDAOTest
 {
 
@@ -85,7 +85,6 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
     {
         AuthorizationGroupPE group = new AuthorizationGroupPE();
         group.setCode(authGroupCode);
-        group.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         group.setDescription("Rivia users");
         group.setRegistrator(getSystemPerson());
         daoFactory.getAuthorizationGroupDAO().create(group);
@@ -95,7 +94,6 @@ public class RoleAssignmentDAOTest extends AbstractDAOTest
     private PersonPE createUserInDB(String userId)
     {
         PersonPE person = new PersonPE();
-        person.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         person.setRegistrator(getSystemPerson());
         person.setUserId(userId);
         person.setEmail("geralt@rivia.net");

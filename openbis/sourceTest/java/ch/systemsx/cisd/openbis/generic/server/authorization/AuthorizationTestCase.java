@@ -144,7 +144,6 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         final PersonPE personPE = new PersonPE();
         personPE.setUserId(userId);
-        personPE.setDatabaseInstance(instance);
         return personPE;
     }
 
@@ -292,7 +291,6 @@ public class AuthorizationTestCase extends AssertJUnit
     protected SamplePE createSample(DatabaseInstancePE databaseInstance)
     {
         final SamplePE sample = new SamplePE();
-        sample.setDatabaseInstance(databaseInstance);
         sample.setSampleType(createSampleType());
         return sample;
     }

@@ -580,10 +580,10 @@ final class SampleListingWorker extends AbstractLister
         if (singleSampleTypeMode)
         {
             final long sampleTypeId = getSampleTypeId();
-            return query.getSharedSamplesForSampleType(databaseInstanceId, sampleTypeId);
+            return query.getSharedSamplesForSampleType(sampleTypeId);
         } else
         {
-            return query.getListableSharedSamples(databaseInstanceId);
+            return query.getListableSharedSamples();
         }
     }
 
@@ -663,14 +663,7 @@ final class SampleListingWorker extends AbstractLister
         // set group or instance
         if (row.space_id == null)
         {
-            if (row.dbin_id.equals(databaseInstanceId))
-            {
-                setDatabaseInstance(sample);
-            } else
-            // different db instance
-            {
-                return null;
-            }
+            setDatabaseInstance(sample);
         } else
         {
             final Space spaceOrNull = spaceMap.get(row.space_id);
@@ -746,7 +739,7 @@ final class SampleListingWorker extends AbstractLister
 
     private void setDatabaseInstance(final Sample sample)
     {
-        sample.setDatabaseInstance(databaseInstance);
+        // sample.setDatabaseInstance(databaseInstance);
         // final DatabaseInstanceIdentifier dbId =
         // databaseInstance.isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
         // : new DatabaseInstanceIdentifier(databaseInstance.getCode());

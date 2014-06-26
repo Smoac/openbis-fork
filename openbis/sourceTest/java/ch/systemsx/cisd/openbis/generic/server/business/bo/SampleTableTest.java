@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 
 /**
@@ -92,7 +91,7 @@ public final class SampleTableTest extends AbstractBOTest
 
     private final static SampleIdentifier getSharedSampleIdentifier(final String code)
     {
-        return new SampleIdentifier(new DatabaseInstanceIdentifier(DB), code);
+        return new SampleIdentifier(code);
     }
 
 }

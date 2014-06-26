@@ -35,33 +35,16 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     // if not null, sample is defined on the space level
     private SpaceIdentifier spaceIdentOrNull;
 
-    // if not null, sample is defined on the database instance level
-    private DatabaseInstanceIdentifier databaseInstanceIdentOrNull;
-
-    protected SampleOwnerIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentOrNull,
-            final SpaceIdentifier spaceIdentOrNull)
-    {
-        this.databaseInstanceIdentOrNull = databaseInstanceIdentOrNull;
-        this.spaceIdentOrNull = spaceIdentOrNull;
-    }
-
     /** Database-instance level {@link SampleOwnerIdentifier}. */
-    public SampleOwnerIdentifier(final DatabaseInstanceIdentifier instanceIdentifier)
+    public SampleOwnerIdentifier()
     {
-        this(checkNotNull(instanceIdentifier), null);
-    }
-
-    private static DatabaseInstanceIdentifier checkNotNull(
-            final DatabaseInstanceIdentifier identifier)
-    {
-        assert identifier != null : "database identifier cannot be null";
-        return identifier;
     }
 
     /** Space level {@link SampleOwnerIdentifier}. */
     public SampleOwnerIdentifier(final SpaceIdentifier groupIdentifier)
     {
-        this(null, checkNotNull(groupIdentifier));
+        checkNotNull(groupIdentifier);
+        this.spaceIdentOrNull = groupIdentifier;
     }
 
     private static SpaceIdentifier checkNotNull(final SpaceIdentifier identifier)
@@ -77,8 +60,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     }
 
     /**
-     * true if sample belongs to a space. {@link #isDatabaseInstanceLevel()} will return false in
-     * such a case.
+     * true if sample belongs to a space. {@link #isDatabaseInstanceLevel()} will return false in such a case.
      */
     public boolean isSpaceLevel()
     {
@@ -86,12 +68,11 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     }
 
     /**
-     * true if sample belongs to the database instance. {@link #isSpaceLevel()} will return false in
-     * such a case.
+     * true if sample belongs to the database instance. {@link #isSpaceLevel()} will return false in such a case.
      */
     public boolean isDatabaseInstanceLevel()
     {
-        return databaseInstanceIdentOrNull != null;
+        return this.spaceIdentOrNull == null;
     }
 
     /**
@@ -111,14 +92,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
             }
         } else if (isDatabaseInstanceLevel())
         {
-            if (databaseInstanceIdentOrNull.isHomeDatabase())
-            {
-                return "" + Constants.IDENTIFIER_SEPARATOR;
-            } else
-            {
-                return databaseInstanceIdentOrNull.getDatabaseInstanceCode()
-                        + Constants.DATABASE_INSTANCE_SEPARATOR + Constants.IDENTIFIER_SEPARATOR;
-            }
+            return "" + Constants.IDENTIFIER_SEPARATOR;
         } else
         {
             throw new IllegalStateException("sample owner is unknown");
@@ -126,21 +100,9 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
     }
 
     /**
-     * It is a good pattern to use {@link #isDatabaseInstanceLevel()} before calling this method.
-     * 
-     * @return The database instance which is the owner or null if the owner is not a database
-     *         instance but a group.
-     */
-    public DatabaseInstanceIdentifier getDatabaseInstanceLevel()
-    {
-        return databaseInstanceIdentOrNull;
-    }
-
-    /**
      * It is a good pattern to use {@link #isSpaceLevel()} before calling this method.
      * 
-     * @return The space which is the owner or null if the owner is not a space, but database
-     *         instance.
+     * @return The space which is the owner or null if the owner is not a space, but database instance.
      */
     public SpaceIdentifier getSpaceLevel()
     {
@@ -170,7 +132,7 @@ public class SampleOwnerIdentifier extends AbstractHashable implements Serializa
                 return -1;
             } else
             {
-                return getDatabaseInstanceLevel().compareTo(other.getDatabaseInstanceLevel());
+                return 0;
             }
         } else
             throw new IllegalStateException("sample owner is unknown");

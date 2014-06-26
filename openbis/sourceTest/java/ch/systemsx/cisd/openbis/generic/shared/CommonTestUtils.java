@@ -53,7 +53,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -213,7 +212,6 @@ public class CommonTestUtils
         person.setFirstName(principal.getFirstName());
         person.setLastName(principal.getLastName());
         person.setEmail(principal.getEmail());
-        person.setDatabaseInstance(createHomeDatabaseInstance());
         person.setActive(true);
 
         return person;
@@ -306,8 +304,7 @@ public class CommonTestUtils
     public static final SampleIdentifier createSampleIdentifier()
     {
         final SampleIdentifier identifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(
-                        CommonTestUtils.HOME_DATABASE_INSTANCE_CODE), CommonTestUtils.SAMPLE_CODE);
+                new SampleIdentifier(CommonTestUtils.SAMPLE_CODE);
         return identifier;
     }
 
@@ -400,7 +397,6 @@ public class CommonTestUtils
         final MaterialPE material = new MaterialPE();
         material.setCode(code);
         material.setMaterialType(materialType);
-        material.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         return material;
     }
 

@@ -58,7 +58,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     public static final int FETCH_SIZE = 1000;
 
     static final String SELECT_FROM_SAMPLES_S =
-            "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, s.dbin_id, "
+            "           SELECT s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, "
                     + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
                     + "   s.pers_id_modifier, s.del_id, s.samp_id_part_of, s.version                                              "
                     + " FROM samples s";
@@ -111,7 +111,7 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<SampleRelationRecord> getChildrenRelations(long relationshipId,
             LongSet parentSampleIds);
 
-    @Select(sql = "select id, saty_id, space_id, dbin_id, expe_id from samples", fetchSize = FETCH_SIZE)
+    @Select(sql = "select id, saty_id, space_id, expe_id from samples", fetchSize = FETCH_SIZE)
     public DataIterator<SampleRecord> getSampleSkeletons();
 
     @Select(sql = "select * from sample_relationships", fetchSize = FETCH_SIZE)
@@ -222,12 +222,12 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
     public DataIterator<SampleRecord> getListableSamplesForExperiment(long experimentId);
 
     @Select(sql = "with recursive connected_samples as ("
-            + "select s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, s.dbin_id, "
+            + "select s.id, s.perm_id, s.code, s.expe_id, s.space_id, s.saty_id, "
             + "   s.registration_timestamp, s.modification_timestamp, s.pers_id_registerer, "
             + "   s.del_id, s.samp_id_part_of "
             + "from samples as s join sample_types as st on s.saty_id = st.id "
             + "where st.is_listable and s.expe_id = ?{1} "
-            + "union select s2.id, s2.perm_id, s2.code, s2.expe_id, s2.space_id, s2.saty_id, s2.dbin_id, "
+            + "union select s2.id, s2.perm_id, s2.code, s2.expe_id, s2.space_id, s2.saty_id, "
             + "    s2.registration_timestamp, s2.modification_timestamp, s2.pers_id_registerer, "
             + "    s2.del_id, s2.samp_id_part_of "
             + "from connected_samples as s left join sample_relationships as sr on sr.sample_id_parent = s.id "
@@ -320,16 +320,15 @@ public interface ISampleListingQuery extends BaseQuery, IPropertyListingQuery
      * Returns the shared samples for the given <var>dbInstanceId</var>.
      */
     @Select(sql = SELECT_FROM_SAMPLES_S + " join sample_types st on s.saty_id=st.id "
-            + "   where st.is_listable and s.dbin_id=?{1} order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getListableSharedSamples(long dbInstanceId);
+            + "   where st.is_listable and s.space_id is null order by s.code", fetchSize = FETCH_SIZE)
+    public DataIterator<SampleRecord> getListableSharedSamples();
 
     /**
      * Returns the shared samples for the given <var>dbInstanceId</var> and <var>sampleTypeId</var>.
      */
-    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.dbin_id=?{1} and s.saty_id=?{2}"
+    @Select(sql = SELECT_FROM_SAMPLES_S + " where s.saty_id=?{1} and s.space_id is null"
             + " order by s.code", fetchSize = FETCH_SIZE)
-    public DataIterator<SampleRecord> getSharedSamplesForSampleType(long dbInstanceId,
-            long sampleTypeId);
+    public DataIterator<SampleRecord> getSharedSamplesForSampleType(long sampleTypeId);
 
     //
     // Types

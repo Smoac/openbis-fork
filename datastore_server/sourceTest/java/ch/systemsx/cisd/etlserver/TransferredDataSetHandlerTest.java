@@ -529,7 +529,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         }
         assertLog("INFO  OPERATION.DataStrategyStore - "
                 + "Identified that database knows experiment '/GROUP1/PROJECT1/EXPERIMENT1' "
-                + "and sample 'MY-INSTANCE:/sample1'.");
+                + "and sample '/sample1'.");
         context.assertIsSatisfied();
     }
 
@@ -661,7 +661,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         assertEquals(false, isFinishedData1.exists());
         assertLog("ERROR OPERATION.DataStrategyStore - "
                 + "Incoming data set '<wd>/data1' claims to belong to experiment "
-                + "'/GROUP1/PROJECT1/EXPERIMENT1' and sample identifier 'MY-INSTANCE:/"
+                + "'/GROUP1/PROJECT1/EXPERIMENT1' and sample identifier '/"
                 + SAMPLE_CODE
                 + "', "
                 + "but according to the openBIS server there is no such sample for this experiment "

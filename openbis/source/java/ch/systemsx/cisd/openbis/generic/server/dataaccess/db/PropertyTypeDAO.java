@@ -23,7 +23,6 @@ import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.CriteriaSpecification;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.support.JdbcAccessor;
@@ -49,8 +48,8 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
 {
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}.
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PropertyTypeDAO.class);
@@ -75,9 +74,9 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
         final List<PropertyTypePE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select pt from %s pt where pt.simpleCode = ? "
-                                + "and pt.databaseInstance = ? and pt.internalNamespace = ?",
+                                + "and pt.internalNamespace = ?",
                                 PropertyTypePE.class.getSimpleName()),
-                        toArray(mangledCode, getDatabaseInstance(), internalNamespace)));
+                        toArray(mangledCode, internalNamespace)));
         final PropertyTypePE entity = tryFindEntity(list, "property type", code);
         if (operationLog.isDebugEnabled())
         {
@@ -91,7 +90,6 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     public List<PropertyTypePE> listAllPropertyTypes()
     {
         final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<PropertyTypePE> list = cast(criteria.list());
         if (operationLog.isDebugEnabled())
@@ -106,7 +104,6 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     public List<PropertyTypePE> listAllPropertyTypesWithRelations()
     {
         final Criteria criteria = getSession().createCriteria(PropertyTypePE.class);
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("materialTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode("sampleTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.setFetchMode("experimentTypePropertyTypesInternal", FetchMode.JOIN);
@@ -126,9 +123,8 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     {
         final List<PropertyTypePE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s v where v.managedInternally = false"
-                                + " and v.databaseInstance = ?", PropertyTypePE.class
-                                .getSimpleName()), toArray(getDatabaseInstance())));
+                        String.format("from %s v where v.managedInternally = false", PropertyTypePE.class
+                                .getSimpleName())));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d property types(s) have been found.",

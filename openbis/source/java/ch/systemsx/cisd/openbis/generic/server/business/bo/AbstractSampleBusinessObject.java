@@ -151,7 +151,6 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
         samplePE.setRegistrator(registrator);
         samplePE.setSampleType(sampleTypePE);
         samplePE.setSpace(sampleOwner.tryGetSpace());
-        samplePE.setDatabaseInstance(sampleOwner.tryGetDatabaseInstance());
         RelationshipUtils.updateModificationDateAndModifier(samplePE, registrator);
         defineSampleProperties(samplePE, newSample.getProperties());
         String containerIdentifier = newSample.getContainerIdentifierForNewSample();
@@ -698,8 +697,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             if (sampleOwner.isDatabaseInstanceLevel())
             {
                 samples =
-                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes, containerCodeOrNull,
-                                sampleOwner.tryGetDatabaseInstance());
+                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes, containerCodeOrNull, null);
             } else
             {
                 assert sampleOwner.isSpaceLevel() : "Must be of space level.";

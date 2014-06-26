@@ -243,23 +243,23 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
     private DataIterator<MaterialRecord> getIteratorByType(MaterialType materialType)
     {
         assert materialType != null;
-        return query.getMaterialsForMaterialType(databaseInstanceId, materialType.getId());
+        return query.getMaterialsForMaterialType(materialType.getId());
     }
 
     private DataIterator<MaterialRecord> getIteratorByIds(Collection<Long> materialIds)
     {
-        return query.getMaterialsForMaterialTypeWithIds(databaseInstanceId, new LongOpenHashSet(
+        return query.getMaterialsForMaterialTypeWithIds(new LongOpenHashSet(
                 materialIds));
     }
 
     private DataIterator<MaterialRecord> getIteratorByCodes(String[] materialCodes)
     {
-        return query.getMaterialsForMaterialCodes(databaseInstanceId, materialCodes);
+        return query.getMaterialsForMaterialCodes(materialCodes);
     }
 
     private DataIterator<MaterialRecord> getIteratorByMetaprojectId(Long metaprojectId)
     {
-        return query.getMaterialsForMetaprojectId(databaseInstanceId, metaprojectId);
+        return query.getMaterialsForMetaprojectId(metaprojectId);
     }
 
     //
@@ -303,7 +303,6 @@ public class MaterialLister extends AbstractLister implements IMaterialLister
                 materialTypeOrNull != null ? materialTypeOrNull : materialTypesOrNull
                         .get(record.maty_id);
         material.setMaterialType(materialType);
-        assert record.dbin_id == databaseInstanceId;
         material.setDatabaseInstance(databaseInstance);
 
         material.setRegistrator(getOrCreateActor(record.pers_id_registerer));

@@ -85,7 +85,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
     {
         this.experimentId = null;
         this.sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier("CISD"), this.sampleCode);
+                new SampleIdentifier(this.sampleCode);
         return this;
     }
 
@@ -129,9 +129,8 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
     }
 
     /*
-     * public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties,
-     * ExperimentIdentifier experimentIdentifierOrNull, Collection<NewAttachment> attachments, Date
-     * version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull, String[]
+     * public SampleUpdatesDTO(TechId sampleId, List<IEntityProperty> properties, ExperimentIdentifier experimentIdentifierOrNull,
+     * Collection<NewAttachment> attachments, Date version, SampleIdentifier sampleIdentifier, String containerIdentifierOrNull, String[]
      * modifiedParentCodesOrNull)
      */
 

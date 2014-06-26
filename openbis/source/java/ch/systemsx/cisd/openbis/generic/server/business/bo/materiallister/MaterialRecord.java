@@ -11,13 +11,11 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.CodeRecord;
 @Private
 public class MaterialRecord extends CodeRecord
 {
-    public Long dbin_id;
-
     public long maty_id;
 
     public long pers_id_registerer;
 
     public Date registration_timestamp;
-    
+
     public Date modification_timestamp;
 }

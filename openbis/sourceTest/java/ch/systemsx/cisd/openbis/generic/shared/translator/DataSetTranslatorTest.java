@@ -130,7 +130,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         deletionPE.setRegistrationDate(new Date(3));
         PersonPE personPE = new PersonPE();
         personPE.setUserId("user");
-        personPE.setDatabaseInstance(databaseInstancePE);
         deletionPE.setRegistrator(personPE);
         externalDataPE.setDeletion(deletionPE);
         externalDataPE.setSampleAcquiredFrom(samplePE);
@@ -158,7 +157,7 @@ public class DataSetTranslatorTest extends AssertJUnit
         assertEquals("my-experiment", translated.getExperiment().getCode());
         assertEquals(1, translated.getProductionDate().getTime());
         assertEquals(2, translated.getRegistrationDate().getTime());
-        assertEquals("sample", translated.getSampleIdentifier());
+        assertEquals("/sample", translated.getSampleIdentifier());
         assertEquals("sampleTypeCode", translated.getSampleType().getCode());
         assertEquals("sampleTypeDescription", translated.getSampleType().getDescription());
         assertEquals(false, translated.isDerived());

@@ -333,7 +333,7 @@ class PlateDatasetLoader
         {
             if (spaceCode == null)
             {
-                owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
+                owner = new SampleOwnerIdentifier();
             } else
             {
                 if (homeSpaceCodeOrNull == null)
@@ -359,7 +359,7 @@ class PlateDatasetLoader
             owner = new SampleOwnerIdentifier(space);
         } else
         {
-            owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
+            owner = new SampleOwnerIdentifier();
         }
         return SampleIdentifier.createOwnedBy(owner, sample.getCode());
     }

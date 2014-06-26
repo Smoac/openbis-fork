@@ -30,8 +30,6 @@ public class SampleRecord extends CodeRecord
 
     public Long space_id;
 
-    public Long dbin_id;
-
     public Long samp_id_part_of;
 
     public Date registration_timestamp;

@@ -137,9 +137,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
     private boolean isRegistrator(final PersonPE person, final Deletion value)
     {
         Person registrator = value.getRegistrator();
-        return person.getUserId().equals(registrator.getUserId())
-                && person.getDatabaseInstance().getCode()
-                        .equals(registrator.getDatabaseInstance().getCode());
+        return person.getUserId().equals(registrator.getUserId());
     }
 
     private static boolean isInstanceAdmin(final PersonPE person)

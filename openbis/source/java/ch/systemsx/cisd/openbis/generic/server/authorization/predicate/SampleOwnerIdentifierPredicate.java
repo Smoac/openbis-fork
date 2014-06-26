@@ -22,6 +22,7 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.IAuthorizationDataProvider;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
 /**
@@ -80,8 +81,7 @@ public class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwne
     }
 
     /**
-     * @deprecated exposed only for usage in screening api authorization - use 'doEvaluation()' in
-     *             other places
+     * @deprecated exposed only for usage in screening api authorization - use 'doEvaluation()' in other places
      */
     @Deprecated
     public Status performEvaluation(final PersonPE person,
@@ -95,8 +95,7 @@ public class SampleOwnerIdentifierPredicate extends AbstractPredicate<SampleOwne
 
         if (value.isDatabaseInstanceLevel())
         {
-            return databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles,
-                    value.getDatabaseInstanceLevel());
+            return databaseInstanceIdentifierPredicate.doEvaluation(person, allowedRoles, new DatabaseInstanceIdentifier(""));
         } else
         {
             return spacePredicate.doEvaluation(person, allowedRoles, value.getSpaceLevel());

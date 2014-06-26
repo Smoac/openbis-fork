@@ -498,7 +498,7 @@ public class ScreeningApiImpl
             owner = new SampleOwnerIdentifier(space);
         } else
         {
-            owner = new SampleOwnerIdentifier(DatabaseInstanceIdentifier.createHome());
+            owner = new SampleOwnerIdentifier();
         }
         return SampleIdentifier.createOwnedBy(owner, plate.getPlateCode());
     }

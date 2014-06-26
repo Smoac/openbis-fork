@@ -64,9 +64,6 @@ public final class MaterialTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
-
                     one(daoFactory).setBatchUpdateMode(true);
                     one(daoFactory).setBatchUpdateMode(false);
                 }
@@ -104,7 +101,6 @@ public final class MaterialTableTest extends AbstractBOTest
         final MaterialPE material = new MaterialPE();
         material.setCode(code);
         material.setMaterialType(materialType);
-        material.setDatabaseInstance(CommonTestUtils.createHomeDatabaseInstance());
         material.setRegistrator(EXAMPLE_SESSION.tryGetPerson());
         return material;
     }

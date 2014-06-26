@@ -68,12 +68,6 @@ public class Sample extends SampleImmutable implements ISample
             databaseInstance.setCode(spaceLevel.getDatabaseInstanceCode());
             space.setInstance(databaseInstance);
             sample.setSpace(space);
-        } else
-        {
-            DatabaseInstance databaseInstance = new DatabaseInstance();
-            databaseInstance.setCode(sampleIdentifier.getDatabaseInstanceLevel()
-                    .getDatabaseInstanceCode());
-            sample.setDatabaseInstance(databaseInstance);
         }
         return sample;
     }

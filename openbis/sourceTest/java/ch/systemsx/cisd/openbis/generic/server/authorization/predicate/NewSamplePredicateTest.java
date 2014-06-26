@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCa
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -41,7 +40,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(ANOTHER_INSTANCE_CODE), "s1");
+                new SampleIdentifier("s1");
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
@@ -60,7 +59,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSamplePredicate predicate = new NewSamplePredicate();
         SampleType sampleType = new SampleType();
         SampleIdentifier sampleIdentifier =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "s1");
+                new SampleIdentifier("s1");
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");

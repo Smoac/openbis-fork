@@ -65,8 +65,7 @@ public class SampleTechIdCollectionPredicate extends
                             DatabaseInstanceIdentifier.createHome(), ownerCode)));
                     break;
                 case DATABASE_INSTANCE:
-                    ownerIds.add(new SampleOwnerIdentifier(
-                            new DatabaseInstanceIdentifier(ownerCode)));
+                    ownerIds.add(new SampleOwnerIdentifier());
                     break;
             }
         }

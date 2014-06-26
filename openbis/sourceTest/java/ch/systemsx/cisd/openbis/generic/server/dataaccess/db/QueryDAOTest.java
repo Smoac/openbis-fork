@@ -118,7 +118,6 @@ public class QueryDAOTest extends AbstractDAOTest
         assertEquals(expectedQuery.getQueryType(), actualQuery.getQueryType());
         assertEquals(expectedQuery.getEntityTypeCodePattern(),
                 actualQuery.getEntityTypeCodePattern());
-        assertEquals(getTestPerson().getDatabaseInstance(), actualQuery.getDatabaseInstance());
     }
 
     private QueryPE createQuery(String name, String description, String expression,

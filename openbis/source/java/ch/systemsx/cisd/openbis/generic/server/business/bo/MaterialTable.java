@@ -149,7 +149,6 @@ public final class MaterialTable extends AbstractMaterialBusinessObject implemen
         material.setCode(newMaterial.getCode());
         material.setRegistrator(findPerson());
         material.setMaterialType(materialTypePE);
-        material.setDatabaseInstance(getHomeDatabaseInstance());
         if (newMaterial.getProperties().length > 0)
         {
             defineMaterialProperties(material, newMaterial.getProperties());

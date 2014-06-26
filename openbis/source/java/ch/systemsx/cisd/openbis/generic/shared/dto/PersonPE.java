@@ -63,8 +63,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstant
  */
 @Entity
 @Table(name = TableNames.PERSONS_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.USER_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.USER_COLUMN }) })
 @Friend(toClasses = RoleAssignmentPE.class)
 public final class PersonPE extends HibernateAbstractRegistrationHolder implements
         Comparable<PersonPE>, IIdHolder, Serializable
@@ -92,8 +92,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     private String email;
 
     private boolean systemUser;
-
-    private DatabaseInstancePE databaseInstance;
 
     private Set<RoleAssignmentPE> roleAssignments = new HashSet<RoleAssignmentPE>();
 
@@ -172,19 +170,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     public final void setId(final Long id)
     {
         this.id = id;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public final DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -278,8 +263,8 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = TableNames.AUTHORIZATION_GROUP_PERSONS_TABLE, joinColumns =
-        { @JoinColumn(name = ColumnNames.PERSON_ID_COLUMN, updatable = false) }, inverseJoinColumns =
-        { @JoinColumn(name = ColumnNames.AUTHORIZATION_GROUP_ID_COLUMN, updatable = false) })
+    { @JoinColumn(name = ColumnNames.PERSON_ID_COLUMN, updatable = false) }, inverseJoinColumns =
+    { @JoinColumn(name = ColumnNames.AUTHORIZATION_GROUP_ID_COLUMN, updatable = false) })
     final Set<AuthorizationGroupPE> getAuthorizationGroupsInternal()
     {
         return authorizationGroups;
@@ -346,7 +331,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
         final PersonPE that = (PersonPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getUserId(), that.getUserId());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -355,7 +339,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getUserId());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 
@@ -375,7 +358,6 @@ public final class PersonPE extends HibernateAbstractRegistrationHolder implemen
             builder.append("displaySettings", "<"
                     + getPersonDisplaySettings().getDisplaySettingsSize() + " bytes>");
         }
-        builder.append(getDatabaseInstance());
         return builder.toString();
     }
 

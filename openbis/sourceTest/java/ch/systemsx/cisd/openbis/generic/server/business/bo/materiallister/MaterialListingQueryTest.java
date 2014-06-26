@@ -50,9 +50,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { MaterialRecord.class, IMaterialListingQuery.class, MaterialListerDAO.class })
+{ MaterialRecord.class, IMaterialListingQuery.class, MaterialListerDAO.class })
 @Test(groups =
-    { "db", "material" })
+{ "db", "material" })
 public class MaterialListingQueryTest extends AbstractDAOTest
 {
 
@@ -149,12 +149,11 @@ public class MaterialListingQueryTest extends AbstractDAOTest
     public void testListMaterialsByType()
     {
         Iterable<MaterialRecord> materials =
-                query.getMaterialsForMaterialType(dbInstanceId, BACTERIUM_MATERIAL_TYPE);
+                query.getMaterialsForMaterialType(BACTERIUM_MATERIAL_TYPE);
         Set<String> remainingBacteriumCodes = new HashSet<String>(Arrays.asList(new String[]
-            { "BACTERIUM-X", "BACTERIUM-Y", "BACTERIUM1", "BACTERIUM2" }));
+        { "BACTERIUM-X", "BACTERIUM-Y", "BACTERIUM1", "BACTERIUM2" }));
         for (MaterialRecord materialRecord : materials)
         {
-            assertEquals(dbInstanceId, materialRecord.dbin_id);
             assertEquals(BACTERIUM_MATERIAL_TYPE, materialRecord.maty_id);
             if (false == remainingBacteriumCodes.remove(materialRecord.code))
             {
@@ -167,14 +166,13 @@ public class MaterialListingQueryTest extends AbstractDAOTest
     public void testListMaterialsByTypeAndId()
     {
         LongSet materialIds = new LongOpenHashSet(new long[]
-            { 34L, 22L });
+        { 34L, 22L });
         Iterable<MaterialRecord> materials =
-                query.getMaterialsForMaterialTypeWithIds(dbInstanceId, materialIds);
+                query.getMaterialsForMaterialTypeWithIds(materialIds);
         Set<String> remainingBacteriumCodes = new HashSet<String>(Arrays.asList(new String[]
-            { "BACTERIUM-X", "BACTERIUM1" }));
+        { "BACTERIUM-X", "BACTERIUM1" }));
         for (MaterialRecord materialRecord : materials)
         {
-            assertEquals(dbInstanceId, materialRecord.dbin_id);
             assertEquals(BACTERIUM_MATERIAL_TYPE, materialRecord.maty_id);
             if (false == remainingBacteriumCodes.remove(materialRecord.code))
             {

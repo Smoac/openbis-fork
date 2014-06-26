@@ -71,14 +71,6 @@ public class RawDataSampleValidatorTest extends AssertJUnit
                 space.setInstance(createDatabaseInstance(spaceLevel.getDatabaseInstanceCode()));
                 parent.setSpace(space);
             }
-            DatabaseInstanceIdentifier databaseInstanceLevel =
-                    identifier.getDatabaseInstanceLevel();
-            if (databaseInstanceLevel != null)
-            {
-                String code = databaseInstanceLevel.getDatabaseInstanceCode();
-                DatabaseInstance databaseInstance = createDatabaseInstance(code);
-                parent.setDatabaseInstance(databaseInstance);
-            }
             sample.setGeneratedFrom(parent);
         }
         return new MsInjectionSample(sample, Arrays.<AbstractExternalData>asList());

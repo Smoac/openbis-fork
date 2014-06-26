@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 import static org.testng.AssertJUnit.fail;
 
@@ -44,7 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "person" })
+{ "db", "person" })
 public final class PersonDAOTest extends AbstractDAOTest
 {
     public final static String getTestUserId()
@@ -66,20 +65,6 @@ public final class PersonDAOTest extends AbstractDAOTest
         person.setEmail("christian.ribeaud@systemsx.ch");
         person.setUserId(userId);
         return person;
-    }
-
-    @Test
-    public final void testCreatePersonWithAnotherDatabaseInstance()
-    {
-        final IPersonDAO personDAO = daoFactory.getPersonDAO();
-        final PersonPE testPerson = createPerson();
-        // Change database instance id.
-        changeDatabaseInstanceId(personDAO);
-        testPerson.setUserId("NOT_RIBOSE");
-        personDAO.createPerson(testPerson);
-        resetDatabaseInstanceId(personDAO);
-        final PersonPE person = personDAO.tryFindPersonByUserId(testPerson.getUserId());
-        assertNull(person);
     }
 
     @Test
@@ -164,11 +149,6 @@ public final class PersonDAOTest extends AbstractDAOTest
         // exactly
         final PersonPE person2 = personDAO.tryFindPersonByUserId(testPerson.getUserId());
         assertNotNull(person2.getId());
-        // Change database instance id.
-        changeDatabaseInstanceId(personDAO);
-        assertNull(personDAO.tryFindPersonByUserId(testPerson.getUserId()));
-        resetDatabaseInstanceId(personDAO);
-
     }
 
     @Test(dependsOnMethods = "testCreatePerson")
@@ -193,16 +173,9 @@ public final class PersonDAOTest extends AbstractDAOTest
     @Test
     public final void testListPersons()
     {
-        testCreatePersonWithAnotherDatabaseInstance();
         final IPersonDAO personDAO = daoFactory.getPersonDAO();
         final List<PersonPE> list = personDAO.listPersons();
         assertTrue(list.size() > 0);
-        final PersonPE personPE = list.get(0);
-        personPE.getRoleAssignments();
-        // Change database instance id.
-        changeDatabaseInstanceId(personDAO);
-        assertEquals(1, personDAO.listPersons().size());
-        resetDatabaseInstanceId(personDAO);
     }
 
     @Test

@@ -28,42 +28,41 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
- * A PE for retrieving only the information necessary to determine if a user/person can access a
- * sample.
+ * A PE for retrieving only the information necessary to determine if a user/person can access a sample.
  * 
  * @author Piotr Buczek
  */
 @Entity
 @SqlResultSetMapping(name = "sample_access_implicit", entities = @EntityResult(entityClass = SampleAccessPE.class))
 @NamedNativeQueries(value =
-    {
-            @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
-                    + "FROM "
-                    + TableNames.SAMPLES_VIEW
-                    + " s, "
-                    + TableNames.SPACES_TABLE
-                    + " g "
-                    + "WHERE s.id in (:ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
-            @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as ownerCode, 'DATABASE_INSTANCE' as ownerType "
-                    + "FROM "
-                    + TableNames.SAMPLES_VIEW
-                    + " s, "
-                    + TableNames.DATABASE_INSTANCES_TABLE
-                    + " dbi "
-                    + "WHERE s.id in (:ids) and s.dbin_id = dbi.id", resultSetMapping = "sample_access_implicit"),
-            @NamedNativeQuery(name = "deleted_space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
-                    + "FROM "
-                    + TableNames.DELETED_SAMPLES_VIEW
-                    + " s, "
-                    + TableNames.SPACES_TABLE
-                    + " g " + "WHERE s.del_id in (:del_ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
-            @NamedNativeQuery(name = "deleted_shared_sample_access", query = "SELECT DISTINCT dbi.code as ownerCode, 'DATABASE_INSTANCE' as ownerType "
-                    + "FROM "
-                    + TableNames.DELETED_SAMPLES_VIEW
-                    + " s, "
-                    + TableNames.DATABASE_INSTANCES_TABLE
-                    + " dbi "
-                    + "WHERE s.del_id in (:del_ids) and s.dbin_id = dbi.id", resultSetMapping = "sample_access_implicit") })
+{
+        @NamedNativeQuery(name = "space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
+                + "FROM "
+                + TableNames.SAMPLES_VIEW
+                + " s, "
+                + TableNames.SPACES_TABLE
+                + " g "
+                + "WHERE s.id in (:ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
+        @NamedNativeQuery(name = "shared_sample_access", query = "SELECT DISTINCT dbi.code as ownerCode, 'DATABASE_INSTANCE' as ownerType "
+                + "FROM "
+                + TableNames.SAMPLES_VIEW
+                + " s, "
+                + TableNames.DATABASE_INSTANCES_TABLE
+                + " dbi "
+                + "WHERE s.id in (:ids)", resultSetMapping = "sample_access_implicit"),
+        @NamedNativeQuery(name = "deleted_space_sample_access", query = "SELECT DISTINCT g.code as ownerCode, 'SPACE' as ownerType "
+                + "FROM "
+                + TableNames.DELETED_SAMPLES_VIEW
+                + " s, "
+                + TableNames.SPACES_TABLE
+                + " g " + "WHERE s.del_id in (:del_ids) and s.space_id = g.id", resultSetMapping = "sample_access_implicit"),
+        @NamedNativeQuery(name = "deleted_shared_sample_access", query = "SELECT DISTINCT dbi.code as ownerCode, 'DATABASE_INSTANCE' as ownerType "
+                + "FROM "
+                + TableNames.DELETED_SAMPLES_VIEW
+                + " s, "
+                + TableNames.DATABASE_INSTANCES_TABLE
+                + " dbi "
+                + "WHERE s.del_id in (:del_ids)", resultSetMapping = "sample_access_implicit") })
 public class SampleAccessPE
 {
 

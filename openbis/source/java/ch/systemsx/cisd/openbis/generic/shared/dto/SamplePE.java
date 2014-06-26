@@ -49,7 +49,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Generated;
@@ -84,9 +83,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Entity
 @Table(name = TableNames.SAMPLES_VIEW)
-@Check(constraints = "(" + ColumnNames.DATABASE_INSTANCE_COLUMN + " IS NOT NULL AND "
-        + ColumnNames.SPACE_COLUMN + " IS NULL) OR (" + ColumnNames.DATABASE_INSTANCE_COLUMN
-        + " IS NULL AND " + ColumnNames.SPACE_COLUMN + " IS NOT NULL)")
 @Indexed(index = "SamplePE")
 public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Comparable<SamplePE>,
         IEntityInformationWithPropertiesHolder, IMatchingEntity, IDeletablePE,
@@ -103,8 +99,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private String code;
 
     private SampleTypePE sampleType;
-
-    private DatabaseInstancePE databaseInstance;
 
     private SpacePE space;
 
@@ -227,8 +221,8 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     private DeletionPE deletion;
 
     /**
-     * If not null than this object has been originally trashed. (As oposed to the entities which
-     * were trashed as being dependent on other trashed entity)
+     * If not null than this object has been originally trashed. (As oposed to the entities which were trashed as being dependent on other trashed
+     * entity)
      */
     private Integer originalDeletion;
 
@@ -337,18 +331,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
             sampleIdentifier = IdentifierHelper.createSampleIdentifier(this);
         }
         return sampleIdentifier;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = true)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -627,7 +609,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         final SamplePE that = (SamplePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         builder.append(getSpace(), that.getSpace());
         return builder.isEquals();
     }
@@ -637,7 +618,6 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
-        builder.append(getDatabaseInstance());
         builder.append(getSpace());
         return builder.toHashCode();
     }

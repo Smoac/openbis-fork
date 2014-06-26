@@ -68,8 +68,8 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     private final static Class<SamplePE> ENTITY_CLASS = SamplePE.class;
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
@@ -209,14 +209,15 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
             final DatabaseInstancePE databaseInstance)
     {
         assert sampleCode != null : "Unspecified sample code.";
-        assert databaseInstance != null : "Unspecified database instance.";
 
-        Criteria criteria = createDatabaseInstanceCriteria(databaseInstance);
+        Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         addSampleCodeCriterion(criteria, sampleCode);
+        criteria.add(Restrictions.isNull("space"));
         SamplePE sample = (SamplePE) criteria.uniqueResult();
         if (sample == null && isFullCode(sampleCode) == false)
         {
-            criteria = createDatabaseInstanceCriteria(databaseInstance);
+            criteria = getSession().createCriteria(ENTITY_CLASS);
+            criteria.add(Restrictions.isNull("space"));
             sample = tryFindContainedSampleWithUniqueSubcode(criteria, sampleCode);
         }
         if (operationLog.isDebugEnabled())

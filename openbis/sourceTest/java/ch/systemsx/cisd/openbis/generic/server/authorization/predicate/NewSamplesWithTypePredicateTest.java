@@ -26,13 +26,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.RoleWithIdentifier;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.NewSamplesWithTypePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 
@@ -73,9 +70,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> roles = createRoles(true);
         final SampleIdentifier sampleIdentifier1 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S1");
+                new SampleIdentifier("S1");
         final SampleIdentifier sampleIdentifier2 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S2");
+                new SampleIdentifier("S2");
         context.checking(new Expectations()
             {
                 {
@@ -107,9 +104,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> roles = createRoles(true);
         final SampleIdentifier sampleIdentifier1 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S1");
+                new SampleIdentifier("S1");
         final SampleIdentifier sampleIdentifier2 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S2");
+                new SampleIdentifier("S2");
         context.checking(new Expectations()
             {
                 {
@@ -139,9 +136,9 @@ public class NewSamplesWithTypePredicateTest extends AuthorizationTestCase
         final PersonPE person = createPerson();
         final List<RoleWithIdentifier> roles = createRoles(true);
         final SampleIdentifier sampleIdentifier1 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S1");
+                new SampleIdentifier("S1");
         final SampleIdentifier sampleIdentifier2 =
-                new SampleIdentifier(new DatabaseInstanceIdentifier(INSTANCE_CODE), "S2");
+                new SampleIdentifier("S2");
         context.checking(new Expectations()
             {
                 {

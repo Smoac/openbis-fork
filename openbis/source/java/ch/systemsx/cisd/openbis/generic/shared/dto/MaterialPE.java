@@ -73,8 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  */
 @Entity
 @Table(name = TableNames.MATERIALS_TABLE, uniqueConstraints = @UniqueConstraint(columnNames =
-    { ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN,
-            ColumnNames.DATABASE_INSTANCE_COLUMN }))
+{ ColumnNames.CODE_COLUMN, ColumnNames.MATERIAL_TYPE_COLUMN }))
 @Indexed(index = "MaterialPE")
 public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
         IEntityInformationWithPropertiesHolder, Serializable, IMatchingEntity,
@@ -89,8 +88,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     private MaterialTypePE materialType;
 
     private String code;
-
-    private DatabaseInstancePE databaseInstance;
 
     private Set<MaterialPropertyPE> properties = new HashSet<MaterialPropertyPE>();
 
@@ -199,19 +196,6 @@ public class MaterialPE implements IIdAndCodeHolder, Comparable<MaterialPE>,
     public void setCode(final String code)
     {
         this.code = code;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)

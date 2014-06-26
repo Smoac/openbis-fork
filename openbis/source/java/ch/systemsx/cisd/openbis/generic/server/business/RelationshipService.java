@@ -122,7 +122,6 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void assignSampleToSpace(IAuthSession session, SamplePE sample, SpacePE space)
     {
-        sample.setDatabaseInstance(null);
         sample.setSpace(space);
         RelationshipUtils.updateModificationDateAndModifier(sample, session);
     }

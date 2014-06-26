@@ -2,7 +2,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.util;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -16,25 +15,19 @@ public final class SampleOwner
     // if filled, databaseInstanceOrNull must be null
     private SpacePE spaceOrNull;
 
-    // if filled, spaceOrNull must be null
-    private DatabaseInstancePE databaseInstanceOrNull;
-
-    public SampleOwner(final SpacePE spaceOrNull, final DatabaseInstancePE databaseInstanceOrNull)
+    public SampleOwner(final SpacePE spaceOrNull)
     {
-        assert spaceOrNull == null || databaseInstanceOrNull == null;
-        assert spaceOrNull != null || databaseInstanceOrNull != null;
         this.spaceOrNull = spaceOrNull;
-        this.databaseInstanceOrNull = databaseInstanceOrNull;
     }
 
     public static SampleOwner createSpace(final SpacePE group)
     {
-        return new SampleOwner(group, null);
+        return new SampleOwner(group);
     }
 
-    public static SampleOwner createDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    public static SampleOwner createDatabaseInstance()
     {
-        return new SampleOwner(null, databaseInstance);
+        return new SampleOwner(null);
     }
 
     public boolean isSpaceLevel()
@@ -44,17 +37,12 @@ public final class SampleOwner
 
     public boolean isDatabaseInstanceLevel()
     {
-        return databaseInstanceOrNull != null;
+        return spaceOrNull == null;
     }
 
     public SpacePE tryGetSpace()
     {
         return spaceOrNull;
-    }
-
-    public DatabaseInstancePE tryGetDatabaseInstance()
-    {
-        return databaseInstanceOrNull;
     }
 
     //
@@ -69,7 +57,7 @@ public final class SampleOwner
             return "space: " + spaceOrNull;
         } else
         {
-            return "db instance: " + databaseInstanceOrNull;
+            return "db instance";
         }
     }
 
@@ -90,7 +78,7 @@ public final class SampleOwner
             return this.spaceOrNull.equals(that.spaceOrNull);
         } else
         {
-            return this.databaseInstanceOrNull.equals(that.databaseInstanceOrNull);
+            return that.isDatabaseInstanceLevel();
         }
     }
 
@@ -99,7 +87,6 @@ public final class SampleOwner
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(spaceOrNull);
-        builder.append(databaseInstanceOrNull);
         return builder.toHashCode();
     }
 }

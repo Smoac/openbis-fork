@@ -221,7 +221,6 @@ public class AbstractServerTest extends AssertJUnit
 
                     PersonPE person = new PersonPE();
                     person.setUserId(username);
-                    person.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
                     one(personDAO).createPerson(person);
 
                     allowing(personDAO).tryFindPersonByUserId(PersonPE.SYSTEM_USER_ID);

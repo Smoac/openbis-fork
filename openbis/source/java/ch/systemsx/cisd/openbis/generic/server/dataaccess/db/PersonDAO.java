@@ -87,10 +87,6 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     public final void createPerson(final PersonPE person) throws DataAccessException
     {
         assert person != null : "Given person can not be null.";
-        if (person.getDatabaseInstance() == null)
-        {
-            person.setDatabaseInstance(getDatabaseInstance());
-        }
         person.setEmail(StringUtils.trim(person.getEmail()));
         person.setActive(true);
         validatePE(person);
@@ -152,9 +148,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
 
         final List<PersonPE> persons =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s p where lower(p.userId) = ? "
-                                + "and p.databaseInstance = ?", TABLE_NAME),
-                        toArray(userId.toLowerCase(), getDatabaseInstance())));
+                        String.format("from %s p where lower(p.userId) = ? ", TABLE_NAME),
+                        toArray(userId.toLowerCase())));
         final PersonPE person = tryFindPerson(persons, userId);
         if (operationLog.isDebugEnabled())
         {
@@ -205,8 +200,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
         final List<PersonPE> persons =
                 cast(getHibernateTemplate().find(
                         String.format(
-                                "from %s p where p.email = ? " + "and p.databaseInstance = ?",
-                                TABLE_NAME), toArray(emailAddress, getDatabaseInstance())));
+                                "from %s p where p.email = ?",
+                                TABLE_NAME), toArray(emailAddress)));
         int numberOfResults = persons.size();
         final PersonPE person;
         // Take the first result
@@ -230,8 +225,7 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     {
         final List<PersonPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s p where p.databaseInstance = ?", TABLE_NAME),
-                        toArray(getDatabaseInstance())));
+                        String.format("from %s p", TABLE_NAME)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d person(s) have been found.", MethodUtils
@@ -245,8 +239,8 @@ public final class PersonDAO extends AbstractGenericEntityDAO<PersonPE> implemen
     {
         final List<PersonPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s p where p.databaseInstance = ? and p.active = true",
-                                TABLE_NAME), toArray(getDatabaseInstance())));
+                        String.format("from %s p where p.active = true",
+                                TABLE_NAME)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%s(): %d person(s) have been found.", MethodUtils

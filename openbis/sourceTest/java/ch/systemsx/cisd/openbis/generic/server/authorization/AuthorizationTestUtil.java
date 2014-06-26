@@ -237,7 +237,6 @@ public final class AuthorizationTestUtil
         final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
         databaseInstance.setCode("my database instance");
         databaseInstance.setId(841L);
-        person.setDatabaseInstance(databaseInstance);
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignments)));
         return new IAuthSession()
             {

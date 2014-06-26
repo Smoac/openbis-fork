@@ -79,10 +79,9 @@ public final class IdentifierHelper
     public final static SampleIdentifier createSampleIdentifier(final SamplePE samplePE)
     {
         assert samplePE != null : "Unspecified sample";
-        final DatabaseInstancePE databaseInstance = samplePE.getDatabaseInstance();
         final SpacePE group = samplePE.getSpace();
         final String sampleCode = extractCode(samplePE);
-        return createSampleIdentifier(databaseInstance, group, sampleCode);
+        return createSampleIdentifier(group, sampleCode);
     }
 
     public static final SampleIdentifier sample(final SamplePE sample)
@@ -91,8 +90,7 @@ public final class IdentifierHelper
         if (sample.getSpace() == null)
         {
             sampleId =
-                    new SampleIdentifier(new DatabaseInstanceIdentifier(sample
-                            .getDatabaseInstance().getCode()), sample.getCode());
+                    new SampleIdentifier(sample.getCode());
         } else
         {
             sampleId =
@@ -120,10 +118,9 @@ public final class IdentifierHelper
             final DeletedSamplePE deletedSamplePE)
     {
         assert deletedSamplePE != null : "Unspecified sample";
-        final DatabaseInstancePE databaseInstance = deletedSamplePE.getDatabaseInstance();
         final SpacePE group = deletedSamplePE.getSpace();
         final String sampleCode = deletedSamplePE.getCode();
-        return createSampleIdentifier(databaseInstance, group, sampleCode);
+        return createSampleIdentifier(group, sampleCode);
     }
 
     public final static SampleIdentifier createSampleIdentifier(
@@ -132,31 +129,23 @@ public final class IdentifierHelper
     {
         String fullSampleCode = convertCode(sampleCode, sampleContainerCode);
 
-        if (databaseInstanceIdentifier != null)
+        if (spaceIdentifier == null)
         {
-            return new SampleIdentifier(databaseInstanceIdentifier, fullSampleCode);
-        } else if (spaceIdentifier != null)
-        {
-            return new SampleIdentifier(spaceIdentifier, fullSampleCode);
+            return new SampleIdentifier(fullSampleCode);
         } else
         {
-            return SampleIdentifier.createHomeGroup(fullSampleCode);
+            return new SampleIdentifier(spaceIdentifier, fullSampleCode);
         }
     }
 
-    private static SampleIdentifier createSampleIdentifier(
-            final DatabaseInstancePE databaseInstance, final SpacePE group, final String sampleCode)
+    private static SampleIdentifier createSampleIdentifier(final SpacePE group, final String sampleCode)
     {
-        if (databaseInstance != null)
+        if (group == null)
         {
-            return new SampleIdentifier(createDatabaseInstanceIdentifier(databaseInstance),
-                    sampleCode);
-        } else if (group != null)
-        {
-            return new SampleIdentifier(createGroupIdentifier(group), sampleCode);
+            return new SampleIdentifier(sampleCode);
         } else
         {
-            return SampleIdentifier.createHomeGroup(sampleCode);
+            return new SampleIdentifier(createGroupIdentifier(group), sampleCode);
         }
     }
 
@@ -179,10 +168,7 @@ public final class IdentifierHelper
             return new SampleIdentifier(groupIdentifier, sample.getCode());
         } else
         {
-            DatabaseInstanceIdentifier instanceIdentifier =
-                    (sample.getDatabaseInstance().isHomeDatabase()) ? DatabaseInstanceIdentifier.HOME_INSTANCE
-                            : new DatabaseInstanceIdentifier(sample.getDatabaseInstance().getCode());
-            return new SampleIdentifier(instanceIdentifier, sample.getCode());
+            return new SampleIdentifier(sample.getCode());
         }
     }
 

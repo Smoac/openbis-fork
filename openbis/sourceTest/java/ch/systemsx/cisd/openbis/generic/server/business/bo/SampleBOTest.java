@@ -58,7 +58,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -96,8 +95,6 @@ public final class SampleBOTest extends AbstractBOTest
         sample.setCode(DEFAULT_SAMPLE_CODE);
         sample.setModificationDate(new Date());
         sample.setSampleType(createSampleTypePE(SAMPLE_TYPE));
-        sample.setDatabaseInstance(new DatabaseInstancePE());
-        sample.getDatabaseInstance().setCode("code");
         return sample;
     }
 
@@ -147,7 +144,7 @@ public final class SampleBOTest extends AbstractBOTest
 
     private final static SampleIdentifier getSharedSampleIdentifier(final String code)
     {
-        return new SampleIdentifier(new DatabaseInstanceIdentifier(DB), code);
+        return new SampleIdentifier(code);
     }
 
     @Test
@@ -210,7 +207,6 @@ public final class SampleBOTest extends AbstractBOTest
                                 }
                                 final SamplePE sample = (SamplePE) item;
                                 assertEquals(EXAMPLE_SESSION.tryGetHomeGroup(), sample.getSpace());
-                                assertNull(sample.getDatabaseInstance());
                                 assertEquals(newSample.getIdentifier(), sample
                                         .getSampleIdentifier().toString());
                                 assertEquals(EXAMPLE_PERSON, sample.getRegistrator());
@@ -335,7 +331,6 @@ public final class SampleBOTest extends AbstractBOTest
         database.setCode(DB);
 
         final SamplePE sample = createSample("sampleCode", (SpacePE) null);
-        sample.setDatabaseInstance(database);
 
         prepareTryToLoadOfSampleWithId(sample);
 
@@ -383,8 +378,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(entityOperationChecker).assertInstanceSampleUpdateAllowed(
-                            with(any(IAuthSession.class)), with(any(List.class)));
+                    one(entityOperationChecker).assertInstanceSampleUpdateAllowed(with(any(IAuthSession.class)), with(any(List.class)));
                     one(relationshipService).unassignSampleFromExperiment(
                             with(any(IAuthSession.class)), with(any(SamplePE.class)));
                 }
@@ -409,15 +403,15 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(dataDAO).hasDataSet(with(sample));
-                    will(returnValue(true));
                     one(entityOperationChecker).assertInstanceSampleUpdateAllowed(
                             with(any(IAuthSession.class)), with(any(List.class)));
+                    allowing(dataDAO).hasDataSet(with(sample));
+                    will(returnValue(true));
                 }
             });
         ExperimentIdentifier experimentIdentifier = null;
         String errorMsg =
-                "Cannot detach the sample 'CODE:/XX' from the experiment because there are already datasets attached to the sample.";
+                "Cannot detach the sample '/XX' from the experiment because there are already datasets attached to the sample.";
         try
         {
             updateSampleExperiment(SAMPLE_TECH_ID, sample, experimentIdentifier);
@@ -809,6 +803,7 @@ public final class SampleBOTest extends AbstractBOTest
         SamplePE sample = new SamplePE();
         sample.setVersion(VERSION - 1);
         sample.setId(SAMPLE_TECH_ID.getId());
+        sample.setSpace(EXAMPLE_GROUP);
 
         prepareTryToLoadOfSampleWithId(sample);
         try
@@ -1110,18 +1105,14 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(DB);
-                    DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-                    databaseInstance.setCode(DB);
-                    will(returnValue(databaseInstance));
-
                     String sampleCode = sampleIdentifier.getSampleCode();
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, databaseInstance);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, null);
                     will(returnValue(sample));
                 }
             });
     }
 
+    @SuppressWarnings("unchecked")
     private void prepareTryToLoadOfSampleWithId(final SamplePE sample)
     {
         context.checking(new Expectations()

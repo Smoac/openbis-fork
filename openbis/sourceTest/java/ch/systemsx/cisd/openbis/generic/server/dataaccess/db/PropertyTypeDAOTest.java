@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db", "propertyType" })
+{ "db", "propertyType" })
 public final class PropertyTypeDAOTest extends AbstractDAOTest
 {
 
@@ -76,10 +76,6 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
             assertFalse(CodeConverter.isInternalNamespace(propertyTypeDTO.getCode()));
         }
         assertTrue(list.size() > 0);
-        // Change database instance id.
-        changeDatabaseInstanceId(propertyTypeDAO);
-        assertEquals(0, propertyTypeDAO.listPropertyTypes().size());
-        resetDatabaseInstanceId(propertyTypeDAO);
     }
 
     @Test
@@ -115,12 +111,12 @@ public final class PropertyTypeDAOTest extends AbstractDAOTest
     private final Object[][] getEntityDataType()
     {
         return new Object[][]
-            {
-                    { DataTypeCode.BOOLEAN },
-                    { DataTypeCode.INTEGER },
-                    { DataTypeCode.REAL },
-                    { DataTypeCode.TIMESTAMP },
-                    { DataTypeCode.VARCHAR }, };
+        {
+                { DataTypeCode.BOOLEAN },
+                { DataTypeCode.INTEGER },
+                { DataTypeCode.REAL },
+                { DataTypeCode.TIMESTAMP },
+                { DataTypeCode.VARCHAR }, };
     }
 
     @Test(dataProvider = "getEntityDataType")

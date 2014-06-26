@@ -183,7 +183,6 @@ public class ManagerTestTool
         person.setLastName("Doe");
         person.setEmail("John.Doe@group.org");
         person.setId(new Long(42));
-        person.setDatabaseInstance(EXAMPLE_DATABASE_INSTANCE);
         return person;
     }
 

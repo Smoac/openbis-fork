@@ -75,8 +75,6 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
 
     private SampleTypePE sampleType;
 
-    private DatabaseInstancePE databaseInstance;
-
     private SpacePE space;
 
     private Set<DeletedSampleRelationshipPE> parentRelationships;
@@ -150,18 +148,6 @@ public class DeletedSamplePE extends AbstractDeletedEntityPE
     public void setSampleType(final SampleTypePE sampleType)
     {
         this.sampleType = sampleType;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = true)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @ManyToOne(fetch = FetchType.EAGER)
