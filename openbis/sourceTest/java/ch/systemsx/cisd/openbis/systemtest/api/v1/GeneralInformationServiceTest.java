@@ -111,13 +111,13 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
     private String sessionToken;
 
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void beforeMethod()
     {
         sessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "a");
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void afterMethod()
     {
         generalInformationService.logout(sessionToken);

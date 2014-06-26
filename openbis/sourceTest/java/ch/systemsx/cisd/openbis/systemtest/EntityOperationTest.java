@@ -85,6 +85,7 @@ public class EntityOperationTest extends SystemTestCase
     @BeforeClass
     public void createTestUsers()
     {
+        systemSessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_A), RoleCode.ETL_SERVER, SPACE_A);
         assignSpaceRole(registerPerson(SPACE_ETL_SERVER_FOR_B), RoleCode.ETL_SERVER, SPACE_B);
         assignSpaceRole(registerPerson(SPACE_ADMIN_USER), RoleCode.ADMIN, SPACE_A);
