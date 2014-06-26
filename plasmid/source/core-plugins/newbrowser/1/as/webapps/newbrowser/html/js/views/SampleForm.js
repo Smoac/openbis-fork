@@ -86,6 +86,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 					
 					if(localReference.isELNSubExperiment) {
 						$("#sampleSpaceProject").val(localReference.experimentIdentifier);
+						$("#sampleSpaceProject").prop('disabled', true);
 					} else {
 						//Check if default space is available
 						var defaultSpace = localReference.profile.displaySettings.spaceCode;
