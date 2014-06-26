@@ -14,11 +14,13 @@ import org.apache.commons.lang.StringUtils;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.datasetlister.IDatasetLister;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleLister;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListOrSearchSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -194,15 +196,38 @@ class PlateDatasetLoader
 
     protected static ExperimentIdentifier createExperimentIdentifier(AbstractExternalData parentDataset)
     {
-        return asExperimentIdentifier(parentDataset.getExperiment());
-    }
-
-    private static ExperimentIdentifier asExperimentIdentifier(Experiment experiment)
-    {
-        final ExperimentIdentifier experimentId =
-                new ExperimentIdentifier(experiment.getCode(), experiment.getProject().getCode(),
-                        experiment.getProject().getSpace().getCode(), experiment.getPermId());
-        return experimentId;
+        Experiment experiment = parentDataset.getExperiment();
+        if (experiment == null)
+        {
+            return null;
+        }
+        String code = experiment.getCode();
+        String permId = experiment.getPermId();
+        String projectCode = null;
+        String spaceCode = null;
+        Project project = experiment.getProject();
+        if (project != null)
+        {
+            projectCode = project.getCode();
+            Space space = project.getSpace();
+            if (space != null)
+            {
+                spaceCode = space.getCode();
+            }
+        }
+        if (spaceCode == null)
+        {
+            Sample sample = parentDataset.getSample();
+            if (sample != null)
+            {
+                Space space = sample.getSpace();
+                if (space != null)
+                {
+                    spaceCode = space.getCode();
+                }
+            }
+        }
+        return new ExperimentIdentifier(code, projectCode, spaceCode, permId);
     }
 
     protected Geometry extractPlateGeometry(AbstractExternalData dataSet)
@@ -251,10 +276,11 @@ class PlateDatasetLoader
     {
         // Sample may be NULL even though the selector does not begin with try
         Sample sample = dataset.getSample();
-        assert sample != null : "dataset not connected to a sample: " + dataset;
         if (sample == null)
         {
-            throw new IllegalStateException("dataset not connected to a sample: " + dataset);
+            DataSetType dataSetType = dataset.getDataSetType();
+            throw new IllegalStateException("dataset not connected to a sample: " + dataset.getCode() 
+                    + (dataSetType == null ? "" : " [" + dataSetType.getCode() + "]"));
         }
         // The dataset's reference to the sample is not complete, get the one from the map
         Sample result = samplesById.get(sample.getId());

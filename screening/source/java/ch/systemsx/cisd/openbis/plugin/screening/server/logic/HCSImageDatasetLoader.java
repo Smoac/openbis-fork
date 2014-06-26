@@ -296,7 +296,9 @@ class HCSImageDatasetLoader extends PlateDatasetLoader
 
     protected ImageDatasetReference tryAsImageDataset(AbstractExternalData externalData)
     {
-        if (externalData == null || ScreeningUtils.isHcsImageDataset(externalData) == false)
+        if (externalData == null 
+                || ScreeningUtils.isTypeMatching(externalData, ScreeningConstants.ANY_HCS_IMAGE_DATASET_TYPE_PATTERN) == false 
+                || externalData.getSample() == null)
         {
             return null;
         }
