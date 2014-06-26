@@ -38,11 +38,10 @@
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="/ch.systemsx.cisd.openbis.OpenBIS/resources/js/openbis-login.js"></script>
 	
-	<!-- For production ussage	
+	<!-- For production ussage -->
 	<script type="text/javascript" src="/openbis/resources/js/jquery.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis.js"></script>
 	<script type="text/javascript" src="/openbis/resources/js/openbis-login.js"></script>
-	-->
 	
 	<!-- Third party libraries -->
 	<script type="text/javascript" src="./lib/bootstrap-datetimepicker/js/moment.js"></script>
@@ -63,6 +62,13 @@
 	<script type="text/javascript" src="./js/controllers/MainController.js"></script>
 	
 	<script type="text/javascript" src="./js/config/Profile.js"></script>
+	<script type="text/javascript" src="./js/config/BioATProfile.js"></script>
+	<script type="text/javascript" src="./js/config/BodenmillerLabProfile.js"></script>
+	<script type="text/javascript" src="./js/config/ExampleProfile.js"></script>
+	<script type="text/javascript" src="./js/config/LSILabProfile.js"></script>
+	<script type="text/javascript" src="./js/config/PhosphoProfile.js"></script>
+	<script type="text/javascript" src="./js/config/TestProfile.js"></script>
+	<script type="text/javascript" src="./js/config/YeastLabProfile.js"></script>
 	
 	<script type="text/javascript" src="./js/server/ServerFacade.js"></script>
 	
@@ -92,11 +98,13 @@
 	
 	<script type="text/javascript">
 	//
-	// Configurations Available (enable one)
+	// Configurations Available (Available under the js/config folder)
+	// Use DefaultProfile as a standard default for new installations.
+	// Use ExampleProfile as a start point to develop new profiles.
 	//
-	//var profile = new ExampleProfile();
-	var profile = new BodenmillerLabProfile();
-	//var profile = new BioATProfile();
+	
+	//var profile = new DefaultProfile();
+	var profile = new TestProfile();
 
 	//
 	// Global variables
