@@ -93,7 +93,7 @@ var Util = new function() {
 	this.showError = function(withHTML, andCallback, noBlock) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>Accept</a>";
+			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
 		}
 		
 		if(!noBlock) {
@@ -124,7 +124,7 @@ var Util = new function() {
 	this.showSuccess = function(withHTML, andCallback) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>Accept</a>";
+			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
 		}
 		
 		this.blockUINoMessage();
@@ -152,7 +152,7 @@ var Util = new function() {
 	this.showInfo = function(withHTML, andCallback) {
 		var isiPad = navigator.userAgent.match(/iPad/i) != null;
 		if(!isiPad) {
-			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>Accept</a>";
+			withHTML = withHTML + "<br>" + "<a class='btn btn-default'>OK</a>";
 		}
 		
 		this.blockUINoMessage();
