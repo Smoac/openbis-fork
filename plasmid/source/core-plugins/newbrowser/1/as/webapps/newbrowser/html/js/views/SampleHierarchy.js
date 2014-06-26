@@ -278,7 +278,7 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 	this._addChildFor = function(permId) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
-		var component = "<select id='sampleTypeSelector' required>";
+		var component = "<select id='sampleTypeSelector' class='form-control' required>";
 		component += "<option disabled=\"disabled\" selected></option>";
 		for(var i = 0; i < sampleTypes.length; i++) {
 			var sampleType = sampleTypes[i];
