@@ -18,6 +18,7 @@ function StorageView(storageModel, gridView) {
 	this._storageModel = storageModel;
 	this._gridView = gridView;
 	
+	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
 	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
 	this._userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
 	this._gridContainer = $("<div>");
@@ -26,6 +27,9 @@ function StorageView(storageModel, gridView) {
 		var _this = this;
 		$container.empty();
 		$container.append("<h2>" + this._storageModel.config.title + "</h2>");
+		
+		var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
+		$container.append($controlGroupStoragesGroups);
 		
 		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
 		$container.append($controlGroupStorages);
@@ -41,6 +45,10 @@ function StorageView(storageModel, gridView) {
 	//
 	this.getModel = function() {
 		return this._storageModel;
+	}
+	
+	this.getSelectStorageGroupDropdown = function() {
+		return this._storageGroupsDropDown;
 	}
 	
 	this.getSelectStorageDropdown = function() {

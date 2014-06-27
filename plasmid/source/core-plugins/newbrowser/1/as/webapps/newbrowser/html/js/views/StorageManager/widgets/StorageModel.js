@@ -28,6 +28,7 @@ function StorageModel(configOverride) {
 		};
 	}
 	
+	this.storagePropertyGroup = null; //Selected Storage Property Group
 	this.storageName = null; //Selected Storage
 	this.userId = null; //Selected user Being filtered (creator or latest modifier of the box)
 	this.column = null; //Selected Column

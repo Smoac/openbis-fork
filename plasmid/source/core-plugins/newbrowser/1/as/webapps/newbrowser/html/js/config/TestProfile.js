@@ -91,6 +91,7 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 				*/
 				"STORAGE_PROPERTIES": [{
 					"STORAGE_PROPERTY_GROUP" : "Storage information", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Group 1", //Storage Group Name
 					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
 					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
 					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
@@ -99,6 +100,7 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 				},
 				{
 					"STORAGE_PROPERTY_GROUP" : "Storage information 2", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Group 2", //Storage Group Name
 					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
 					"ROW_PROPERTY" : "ROW_2", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
 					"COLUMN_PROPERTY" : "COLUMN_2", //Integer on YeastLab, can be (Vocabulary, text and integer).

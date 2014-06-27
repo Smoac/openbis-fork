@@ -17,13 +17,17 @@
 function GridModel() {
 	this.numRows = null;
 	this.numColumns = null;
+	this.labels = null;
+	
 	this.selectedRow = null;
 	this.selectedColumn = null;
 	this.selectedLabel = null;
 	
-	this.reset = function(numRows, numColumns) {
+	this.reset = function(numRows, numColumns, labels) {
 		this.numRows = numRows;
 		this.numColumns = numColumns;
+		this.labels = labels;
+		
 		this.selectedRow = null;
 		this.selectedColumn = null;
 		this.selectedLabel = null;

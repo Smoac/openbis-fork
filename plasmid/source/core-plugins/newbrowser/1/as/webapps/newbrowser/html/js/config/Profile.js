@@ -68,6 +68,55 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.getStoragePropertyGroup = function(storagePropertyGroupDisplayName) {
+			if(!this.storagesConfiguration["isEnabled"]) {
+				return null;
+			}
+			
+			var storagePropertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
+			if(!storagePropertyGroups) {
+				return null;
+			}
+			
+			for(var i = 0; i < storagePropertyGroups.length; i++) {
+				if(storagePropertyGroupDisplayName === storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"]) {
+					propertyGroup = {};
+					propertyGroup.groupDisplayName = storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"];
+					propertyGroup.nameProperty = storagePropertyGroups[i]["NAME_PROPERTY"];
+					propertyGroup.rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
+					propertyGroup.columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
+					propertyGroup.boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
+					propertyGroup.userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
+					return propertyGroup;
+				}
+			}
+			
+			return null;
+		}
+		
+		this.getStoragePropertyGroups = function() {
+			if(!this.storagesConfiguration["isEnabled"]) {
+				return null;
+			}
+			
+			var storagePropertyGroups = this.storagesConfiguration["STORAGE_PROPERTIES"];
+			if(!storagePropertyGroups) {
+				return null;
+			}
+			
+			var propertyGroups = [];
+			for(var i = 0; i < storagePropertyGroups.length; i++) {
+				propertyGroups[i] = {};
+				propertyGroups[i].groupDisplayName = storagePropertyGroups[i]["STORAGE_GROUP_DISPLAY_NAME"];
+				propertyGroups[i].nameProperty = storagePropertyGroups[i]["NAME_PROPERTY"];
+				propertyGroups[i].rowProperty = storagePropertyGroups[i]["ROW_PROPERTY"];
+				propertyGroups[i].columnProperty = storagePropertyGroups[i]["COLUMN_PROPERTY"];
+				propertyGroups[i].boxProperty = storagePropertyGroups[i]["BOX_PROPERTY"];
+				propertyGroups[i].userProperty = storagePropertyGroups[i]["USER_PROPERTY"];
+			}
+			return propertyGroups;
+		}
+		
 		this.getStorageConfiguation = function(storageCode) {
 			if(!this.storagesConfiguration["isEnabled"]) {
 				return null;

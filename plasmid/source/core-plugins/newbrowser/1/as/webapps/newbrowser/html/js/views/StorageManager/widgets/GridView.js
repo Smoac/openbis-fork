@@ -66,9 +66,6 @@ function GridView(gridModel) {
 	//
 	//
 	//
-	this.addLabelsToGrid = function($grid, posX, posY, boxes) {
-		
-	}
 	
 	this._posClicked = function(posX, posY) {
 		alert(posX + " " + posY);

@@ -46,6 +46,23 @@ var FormUtil = new function() {
 		return $storageDropDown;
 	}
 	
+	this.getStoragePropertyGroupsDropdown = function(id, isRequired) {
+		var propertyGroups = this.profile.getStoragePropertyGroups();
+		
+		var $component = $("<select>", {"id" : id, class : 'form-control'});
+		if (isRequired) {
+			$component.attr('required', '');
+		}
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		for(var i = 0; i < propertyGroups.length; i++) {
+			var propertyGroup = propertyGroups[i];
+			$component.append($("<option>").attr('value',propertyGroup.groupDisplayName).text(propertyGroup.groupDisplayName));
+		}
+		
+		return $component;
+	}
+	
 	this.getSampleTypeDropdown = function(id, isRequired) {
 		var sampleTypes = this.profile.getAllSampleTypes();
 		
