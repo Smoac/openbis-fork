@@ -30,10 +30,17 @@ function StorageModel(configOverride) {
 	}
 	
 	this.storagePropertyGroup = null; //Selected Storage Property Group
-	this.storageName = null; //Selected Storage
+	this.storageCode = null; //Selected Storage
 	this.userId = null; //Selected user Being filtered (creator or latest modifier of the box)
-	this.column = null; //Selected Column
 	this.row = null; //Selected Row
+	this.column = null; //Selected Column
 	this.boxName = //Selected Box
 	this.boxContents = null; //Selected Box contents (samples)
+	
+	this.resetBoxInfo = function() {
+		this.row = null; //Selected Row
+		this.column = null; //Selected Column
+		this.boxName = //Selected Box
+		this.boxContents = null; //Selected Box contents (samples)
+	}
 }

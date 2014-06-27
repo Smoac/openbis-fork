@@ -24,27 +24,52 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.boxSelector === "on") {
 		this._gridController.getView().setLabelClickedEventHandler(function(posX, posY, label) {
-			alert(posX + " " + posY + " " + label);
+			_this._storageModel.row = posX;
+			_this._storageModel.column = posY;
+			_this._storageModel.boxName = label;
+			
+			_this._storageView.getBoxField().val(label);
+			_this._storageView.getBoxField().attr("disabled", "");
+			_this._storageView.getBoxField().show();
+			
+			if(this._storageModel.config.contentsSelector === "on") {
+				
+			}
 		}); 
 	}
 	
 	if(this._storageModel.config.rackSelector === "on") {
 		this._gridController.getView().setPosClickedEventHandler(function(posX, posY) {
-			alert(posX + " " + posY);
+			_this._storageModel.row = posX;
+			_this._storageModel.column = posY;
+			_this._storageModel.boxName = "";
+			
+			_this._storageView.getBoxField().val("");
+			_this._storageView.getBoxField().removeAttr("disabled");
+			_this._storageView.getBoxField().show();
 		}); 
 	}
 
+	this._storageView.getBoxField().keyup(function() {
+		_this._storageModel.boxName = $(this).val();
+	});
+	
 	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
+		_this._storageView.getBoxField().hide();
+		
 		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
 		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
+		
 	});
 	
 	this._storageView.getSelectStorageDropdown().change(function(event) {
-		
+		_this._storageView.getBoxField().hide();
+		_this._storageModel.resetBoxInfo();
 		//
 		// Obtain Storage Configuration
 		//
 		var selectedStorageCode = $(this).val();
+		_this._storageModel.storageCode = selectedStorageCode;
 		var storageConfig = profile.getStorageConfiguation(selectedStorageCode);
 		
 		if(storageConfig) {

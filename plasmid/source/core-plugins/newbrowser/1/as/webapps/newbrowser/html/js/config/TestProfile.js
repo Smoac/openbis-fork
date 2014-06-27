@@ -93,19 +93,19 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 					"STORAGE_PROPERTY_GROUP" : "Storage information", //Where the storage will be painted.
 					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Group 1", //Storage Group Name
 					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
-					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
+					"ROW_PROPERTY" : "ROW", //Should be an integer.
+					"COLUMN_PROPERTY" : "COLUMN",  //Should be an integer.
 					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
-					"USER_PROPERTY" : "USER_PROPERTY"
+					"USER_PROPERTY" : "USER_PROPERTY" //Should be text.
 				},
 				{
 					"STORAGE_PROPERTY_GROUP" : "Storage information 2", //Where the storage will be painted.
 					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Group 2", //Storage Group Name
 					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
-					"ROW_PROPERTY" : "ROW_2", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
-					"COLUMN_PROPERTY" : "COLUMN_2", //Integer on YeastLab, can be (Vocabulary, text and integer).
+					"ROW_PROPERTY" : "ROW_2", //Should be an integer.
+					"COLUMN_PROPERTY" : "COLUMN_2", //Should be an integer.
 					"BOX_PROPERTY" : "BOX_NUMBER_2", //Should be text.
-					"USER_PROPERTY" : "USER_PROPERTY_2"
+					"USER_PROPERTY" : "USER_PROPERTY_2" //Should be text.
 				}],
 				/*
 				 * Storages map, can hold configurations for several storages.

@@ -22,6 +22,8 @@ function StorageView(storageModel, gridView) {
 	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
 	this._userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
 	this._gridContainer = $("<div>");
+	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
+	this._contentsContainer = $("<div>");
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -45,6 +47,17 @@ function StorageView(storageModel, gridView) {
 		}
 		
 		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
+		
+		if(this._storageModel.config.boxSelector === "on" || this._storageModel.config.rackSelector === "on") {
+			this._boxField.hide();
+			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxField, "Box Name");
+			$container.append($controlGroupBox);
+		}
+		
+		if(this._storageModel.config.contentsSelector === "on") {
+			var $controlGroupBoxContents = FormUtil.getFieldForComponentWithLabel(this._contentsContainer, "Box Contents");
+			$container.append($controlGroupBoxContents);
+		}
 	}
 	
 	//
@@ -64,5 +77,9 @@ function StorageView(storageModel, gridView) {
 	
 	this.getGridContainer = function() {
 		return this._gridContainer;
+	}
+	
+	this.getBoxField = function() {
+		return this._boxField;
 	}
 }
