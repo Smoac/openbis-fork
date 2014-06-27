@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-function StorageController(configOverride) {
-	//Dependent widgets
-	this._gridController = new GridController();
-	
-	this._storageModel = new StorageModel(configOverride);
-	this._storageView = new StorageView(this._storageModel, this._gridController.getView());
-	
-	//
-	// Getters
-	//
-	this.getModel = function() {
-		return this._storageModel;
-	}
-	
-	this.getView = function() {
-		return this._storageView;
-	}
+function GridModel() {
+	this.numRows = null;
+	this.numColumns = null;
+	this.selectedRow = null;
+	this.selectedColumn = null;
+	this.selectedLabel = null;
 }

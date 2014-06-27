@@ -14,19 +14,31 @@
  * limitations under the License.
  */
 
-function StorageView(storageModel) {
+function StorageView(storageModel, gridView) {
 	this._storageModel = storageModel;
+	this._gridView = gridView;
 	
-	this.defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
-	this.userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
+	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
+	this._userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
+	this._gridContainer = $("<div>");
 	
 	this.repaint = function($container) {
+		var _this = this;
 		$container.empty();
 		$container.append("<h2>Storage Widget Test</h2>");
-		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this.defaultStoragesDropDown, "Storage");
+		
+		this._defaultStoragesDropDown.change(function(event) {
+			var value = $(this).val();
+			_this._gridView.repaint(_this._gridContainer);
+		});
+		
+		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
 		$container.append($controlGroupStorages);
-		var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this.userIdFilter, "User Id Filter");
+		
+		var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdFilter, "User Id Filter");
 		$container.append($controlGroupUserId);
+		
+		$container.append(this._gridContainer);
 	}
 	
 	//
