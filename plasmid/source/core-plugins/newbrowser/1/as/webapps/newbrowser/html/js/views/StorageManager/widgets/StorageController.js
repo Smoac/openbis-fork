@@ -15,11 +15,25 @@
  */
 
 function StorageController(configOverride) {
+	var _this = this;
 	//Dependent widgets
 	this._gridController = new GridController();
 	
 	this._storageModel = new StorageModel(configOverride);
 	this._storageView = new StorageView(this._storageModel, this._gridController.getView());
+	
+	this._storageView.getSelectStorageDropdown().change(function(event) {
+		var storageCode = $(this).val();
+		var storageConfig = profile.getStorageConfiguation(storageCode);
+		
+		if(storageConfig) {
+			_this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
+		} else {
+			_this._gridController.getModel().reset(null, null);
+		}
+		
+		_this._gridController.getView().repaint(_this._storageView.getGridContainer());
+	});
 	
 	//
 	// Getters

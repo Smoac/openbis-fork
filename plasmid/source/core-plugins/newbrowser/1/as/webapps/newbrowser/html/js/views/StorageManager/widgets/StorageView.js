@@ -27,11 +27,6 @@ function StorageView(storageModel, gridView) {
 		$container.empty();
 		$container.append("<h2>Storage Widget Test</h2>");
 		
-		this._defaultStoragesDropDown.change(function(event) {
-			var value = $(this).val();
-			_this._gridView.repaint(_this._gridContainer);
-		});
-		
 		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
 		$container.append($controlGroupStorages);
 		
@@ -46,5 +41,13 @@ function StorageView(storageModel, gridView) {
 	//
 	this.getModel = function() {
 		return this._storageModel;
+	}
+	
+	this.getSelectStorageDropdown = function() {
+		return this._defaultStoragesDropDown;
+	}
+	
+	this.getGridContainer = function() {
+		return this._gridContainer;
 	}
 }

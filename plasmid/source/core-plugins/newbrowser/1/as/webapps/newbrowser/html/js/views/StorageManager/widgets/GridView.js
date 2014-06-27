@@ -19,7 +19,12 @@ function GridView(gridModel) {
 	
 	this.repaint = function($container) {
 		$container.empty();
-		$container.append("<h2>Grid</h2>");
+		if(this._gridModel.isValid()) {
+			$container.append("<h2>Grid with " + this._gridModel.numRows + "," + this._gridModel.numColumns + "</h2>");
+		} else {
+			$container.append("<h2>Empty Configuration</h2>");
+		}
+		
 	}
 	
 	//

@@ -20,4 +20,16 @@ function GridModel() {
 	this.selectedRow = null;
 	this.selectedColumn = null;
 	this.selectedLabel = null;
+	
+	this.reset = function(numRows, numColumns) {
+		this.numRows = numRows;
+		this.numColumns = numColumns;
+		this.selectedRow = null;
+		this.selectedColumn = null;
+		this.selectedLabel = null;
+	}
+	
+	this.isValid = function() {
+		return this.numRows !== null && this.numColumns !== null;
+	}
 }

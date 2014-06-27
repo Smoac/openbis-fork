@@ -68,6 +68,25 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.getStorageConfiguation = function(storageCode) {
+			if(!this.storagesConfiguration["isEnabled"]) {
+				return null;
+			}
+			
+			var configurationMap = this.storagesConfiguration["STORAGE_CONFIGS"][storageCode];
+			if(!configurationMap) {
+				return null;
+			}
+			
+			var configObj = {
+					rowNum : configurationMap["ROW_NUM"],
+					colNum : configurationMap["COLUMN_NUM"],
+					boxNum : configurationMap["BOX_NUM"]
+			}
+			
+			return configObj;
+		}
+		
 		this.getPropertyGroupFromStorage = function(propertyGroupName) {
 			if(!this.storagesConfiguration["isEnabled"]) { return false; }
 			var _this = this;
