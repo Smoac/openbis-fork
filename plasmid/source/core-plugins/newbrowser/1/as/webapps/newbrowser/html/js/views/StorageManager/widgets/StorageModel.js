@@ -16,9 +16,10 @@
 
 function StorageModel(configOverride) {
 	if(configOverride) {
-		this._config = configOverride;
+		this.config = configOverride;
 	} else {
-		this._config = {
+		this.config = {
+				title : "",
 				storageSelector : "on",
 				userSelector : "off",
 				boxSelector: "on",

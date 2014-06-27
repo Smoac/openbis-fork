@@ -19,6 +19,7 @@ function StorageManagerController(mainController) {
 	
 	//Sub Views Setup
 	this._storageFromController = new StorageController({
+		title : "From Storage",
 		storageSelector : "on",
 		userSelector : "on",
 		boxSelector: "on",
@@ -27,6 +28,7 @@ function StorageManagerController(mainController) {
 	});
 	
 	this._storageToController = new StorageController({
+		title : "To Storage",
 		storageSelector : "on",
 		userSelector : "on",
 		boxSelector: "on",
@@ -37,7 +39,7 @@ function StorageManagerController(mainController) {
 	
 	//Main View Setup
 	this._storageManagerModel = new StorageManagerModel();
-	this._storageManagerView = new StorageManagerView(this._storageManagerModel, this._storageToController.getView(), this._storageFromController.getView());
+	this._storageManagerView = new StorageManagerView(this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());
 	
 	this.init = function($container) {
 		if(!FormUtil.getDefaultStoragesDropDown("", true)) {

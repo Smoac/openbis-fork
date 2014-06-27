@@ -51,44 +51,6 @@ $.extend(BodenmillerLabProfile.prototype, DefaultProfile.prototype, {
 			"LOT" : "#CCCC99",
 		};
 	
-		this.storagesConfiguration = {
-				"isEnabled" : true,
-				/*
-				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-				*/
-				"STORAGE_PROPERTIES": [{
-					"STORAGE_PROPERTY_GROUP" : "Storage information", //Where the storage will be painted.
-					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-					"ROW_PROPERTY" : "ROW", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
-					"COLUMN_PROPERTY" : "COLUMN", //Integer on YeastLab, can be (Vocabulary, text and integer).
-					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
-					"USER_PROPERTY" : "USER_PROPERTY"
-				},
-				{
-					"STORAGE_PROPERTY_GROUP" : "Storage information 2", //Where the storage will be painted.
-					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
-					"ROW_PROPERTY" : "ROW_2", //Vocabulary on YeastLab, can be (Vocabulary, text and integer).
-					"COLUMN_PROPERTY" : "COLUMN_2", //Integer on YeastLab, can be (Vocabulary, text and integer).
-					"BOX_PROPERTY" : "BOX_NUMBER_2", //Should be text.
-					"USER_PROPERTY" : "USER_PROPERTY_2"
-				}],
-				/*
-				 * Storages map, can hold configurations for several storages.
-				*/
-				"STORAGE_CONFIGS": {
-					"TESTFREEZER" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 13, //Number of rows
-									"COLUMN_NUM" : 13, //Number of columns
-									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								},
-					"USER_BENCH" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 1, //Number of rows
-									"COLUMN_NUM" : 1, //Number of columns
-									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								}
-				}
-			};
-	
 		/*
 		 * Used by Sample Form
 		 */

@@ -110,8 +110,8 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 				*/
 				"STORAGE_CONFIGS": {
 					"TESTFREEZER" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 13, //Number of rows
-									"COLUMN_NUM" : 13, //Number of columns
+									"ROW_NUM" : 9, //Number of rows
+									"COLUMN_NUM" : 9, //Number of columns
 									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},
 					"USER_BENCH" : { //Freezer name given by the NAME_PROPERTY

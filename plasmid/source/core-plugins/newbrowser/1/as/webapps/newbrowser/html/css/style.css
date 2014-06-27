@@ -461,6 +461,10 @@ table.downloads {
 	border-radius: 5px;
 }
 
+.storageTable td:hover {
+	background-color: #CCAABB;
+}
+
 .storageTable td {
 	border-style:solid;
 	border-width:1px;
