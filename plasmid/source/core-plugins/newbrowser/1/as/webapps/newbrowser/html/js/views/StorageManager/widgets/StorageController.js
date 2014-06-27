@@ -23,7 +23,7 @@ function StorageController(configOverride) {
 	this._storageView = new StorageView(this._storageModel, this._gridController.getView());
 	
 	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
-		var storageGroupName = $(this).val();
+		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
 		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
 	});
 	
@@ -32,8 +32,8 @@ function StorageController(configOverride) {
 		//
 		// Obtain Storage Configuration
 		//
-		var storageCode = $(this).val();
-		var storageConfig = profile.getStorageConfiguation(storageCode);
+		var selectedStorageCode = $(this).val();
+		var storageConfig = profile.getStorageConfiguation(selectedStorageCode);
 		
 		if(storageConfig) {
 			_this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
@@ -44,44 +44,42 @@ function StorageController(configOverride) {
 		//
 		// Obtain Storage Boxes
 		//
-//		var propertyTypeCodes = [storageNamePropertyCode];
-//		var propertyValues = ["'" + selectedStorage + "'"];
-//		
-//		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
-//				function(samples) {
-//					var boxes = [];
-//					
-//					samples.forEach(
-//						function(element, index, array) {
-//							var boxCode = element.properties[storageBoxPropertyCode];
-//							
-//								//Ad new box 
-//								var boxRow = localReference._getSelectedValue(storageRowPropertyCode, true, element);
-//								var boxCol = localReference._getSelectedValue(storageColPropertyCode, true, element);
-//								
-//								var boxesRow = boxes[boxRow];
-//								if(!boxesRow) {
-//									boxesRow = [];
-//									boxes[boxRow] = boxesRow;
-//								}
-//								
-//								var boxesCol = boxesRow[boxCol];
-//								if(!boxesCol) {
-//									boxesCol = {};
-//									boxesRow[boxCol] = boxesCol;
-//								}
-//								
-//								boxesCol[boxCode] = true;
-//						}
-//					);
-//					
-//					return boxes;
-//		});
+		var propertyTypeCodes = [_this._storageModel.storagePropertyGroup.nameProperty];
+		var propertyValues = ["'" + selectedStorageCode + "'"];
 		
-		//
-		// Refresh Grid
-		//
-		_this._gridController.getView().repaint(_this._storageView.getGridContainer());
+		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
+				function(samples) {
+					var boxes = [];
+					
+					samples.forEach(function(element, index, array) {
+						var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
+						var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
+						var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
+						
+						var boxesRow = boxes[boxRow];
+						if(!boxesRow) {
+							boxesRow = [];
+							boxes[boxRow] = boxesRow;
+						}
+						
+						var boxesCol = boxesRow[boxCol];
+						if(!boxesCol) {
+							boxesCol = {};
+							boxesRow[boxCol] = boxesCol;
+						}
+						
+						boxesCol[boxCode] = true;
+					});
+					
+					//
+					// Refresh Grid with the boxes
+					//
+					_this._gridController.getModel().labels = boxes;
+					_this._gridController.getView().repaint(_this._storageView.getGridContainer());
+		});
+		
+		
+		
 	});
 	
 	//

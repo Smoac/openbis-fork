@@ -30,6 +30,7 @@ function StorageView(storageModel, gridView) {
 		
 		var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
 		$container.append($controlGroupStoragesGroups);
+		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(this._storageGroupsDropDown.val());
 		
 		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
 		$container.append($controlGroupStorages);

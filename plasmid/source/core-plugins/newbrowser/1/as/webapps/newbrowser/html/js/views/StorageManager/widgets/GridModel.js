@@ -33,6 +33,18 @@ function GridModel() {
 		this.selectedLabel = null;
 	}
 	
+	this.getLabels = function(posX, posY) {
+		if(this.labels) {
+			if(this.labels[posX]) {
+				if(this.labels[posX][posY]) {
+					return this.labels[posX][posY];
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	this.isValid = function() {
 		return this.numRows !== null && this.numColumns !== null;
 	}

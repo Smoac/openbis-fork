@@ -22,51 +22,53 @@ function GridView(gridModel) {
 		var _this = this;
 		$container.empty();
 		if(this._gridModel.isValid()) {
-			
-			this._gridTable = $("<table>", { "class" : "storageTable" });
-			
-			var $headerRow = $("<tr>");
-			var $emptyCell = $("<th>");
-			$headerRow.append($emptyCell);
-			
-			for(var j = 0; j < this._gridModel.numColumns; j++) {
-				var $numberCell = $("<th>").append(j+1);
-				$headerRow.append($numberCell);
-			}
-			this._gridTable.append($headerRow);
-			
-			for(var i = 0; i < this._gridModel.numRows; i++) {
-				var $newRow = $("<tr>");
-				var $numberCell = $("<th>").append(i+1);
-				$newRow.append($numberCell);
-				
-				for(var j = 0; j < this._gridModel.numColumns; j++) {
-					var $newColumn = $("<td>");
-					
-					var clickEvent = function(i, j) {
-						return function() {
-							_this._posClicked(i + 1, j + 1);
-						}
-					}
-					
-					$newColumn.click(clickEvent(i, j));
-					$newRow.append($newColumn);
-				}
-				this._gridTable.append($newRow);
-			} 
-			
+			this._gridTable = this._getGridTable();
 			$container.append(this._gridTable);
-			
 		} else {
 			$container.append("Grid can't be displayed because of missing configuration.");
 		}
 		
 	}
 	
-	//
-	//
-	//
+	this._getGridTable = function() {
+		var gridTable = $("<table>", { "class" : "storageTable" });
+		
+		var $headerRow = $("<tr>");
+		var $emptyCell = $("<th>");
+		$headerRow.append($emptyCell);
+		
+		for(var j = 0; j < this._gridModel.numColumns; j++) {
+			var $numberCell = $("<th>").append(j+1);
+			$headerRow.append($numberCell);
+		}
+		
+		gridTable.append($headerRow);
+		
+		for(var i = 0; i < this._gridModel.numRows; i++) {
+			var $newRow = $("<tr>");
+			var $numberCell = $("<th>").append(i+1);
+			$newRow.append($numberCell);
+			
+			for(var j = 0; j < this._gridModel.numColumns; j++) {
+				var $newColumn = $("<td>");
+				
+				var clickEvent = function(i, j) {
+					return function() {
+						_this._posClicked(i + 1, j + 1);
+					}
+				}
+				
+				$newColumn.click(clickEvent(i, j));
+				$newRow.append($newColumn);
+			}
+			gridTable.append($newRow);
+		}
+		return gridTable;
+	}
 	
+	//
+	//
+	//
 	this._posClicked = function(posX, posY) {
 		alert(posX + " " + posY);
 	}

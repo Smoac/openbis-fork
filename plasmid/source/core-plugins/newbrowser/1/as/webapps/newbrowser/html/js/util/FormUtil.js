@@ -54,7 +54,6 @@ var FormUtil = new function() {
 			$component.attr('required', '');
 		}
 		
-		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < propertyGroups.length; i++) {
 			var propertyGroup = propertyGroups[i];
 			$component.append($("<option>").attr('value',propertyGroup.groupDisplayName).text(propertyGroup.groupDisplayName));
