@@ -17,9 +17,10 @@
 function GridView(gridModel) {
 	this._gridModel = gridModel;
 	this._gridTable = null;
+	this._posClickedEventHandler = null;
+	this._labelClickedEventHandler = null;
 	
 	this.repaint = function($container) {
-		var _this = this;
 		$container.empty();
 		if(this._gridModel.isValid()) {
 			this._gridTable = this._getGridTable();
@@ -31,8 +32,8 @@ function GridView(gridModel) {
 	}
 	
 	this._getGridTable = function() {
+		var _this = this;
 		var gridTable = $("<table>", { "class" : "storageTable" });
-		
 		var $headerRow = $("<tr>");
 		var $emptyCell = $("<th>");
 		$headerRow.append($emptyCell);
@@ -53,12 +54,15 @@ function GridView(gridModel) {
 				var $newColumn = $("<td>");
 				
 				var clickEvent = function(i, j) {
-					return function() {
+					return function(event) {
+						event.stopPropagation();
 						_this._posClicked(i + 1, j + 1);
 					}
 				}
 				
 				$newColumn.click(clickEvent(i, j));
+				this._addLabels($newColumn, i + 1, j + 1);
+				
 				$newRow.append($newColumn);
 			}
 			gridTable.append($newRow);
@@ -66,15 +70,40 @@ function GridView(gridModel) {
 		return gridTable;
 	}
 	
+	this._addLabels = function($component, posX, posY) {
+		var _this = this;
+		var labels = this._gridModel.getLabels(posX, posY);
+		if(labels) {
+			for(var i = 0; i < labels.length; i++) {
+				var labelContainer = $("<div>", { class: "storageBox" }).append(labels[i]);
+				
+				var clickEvent = function(posX, posX, label) {
+					return function(event) {
+						event.stopPropagation();
+						_this._labelClicked(posX, posX, label);
+					}
+				}
+				
+				labelContainer.click(clickEvent(posX, posX, labels[i]));
+				
+				$component.append(labelContainer);
+			}
+		}
+	}
+	
 	//
-	//
+	// Event Handlers
 	//
 	this._posClicked = function(posX, posY) {
-		alert(posX + " " + posY);
+		if(this._posClickedEventHandler) {
+			this._posClickedEventHandler(posX, posY);
+		}
 	}
 	
 	this._labelClicked = function(posX, posY, label) {
-		
+		if(this._labelClickedEventHandler) {
+			this._labelClickedEventHandler(posX, posY, label);
+		}
 	}
 	
 	//
@@ -82,5 +111,16 @@ function GridView(gridModel) {
 	//
 	this.getModel = function() {
 		return this._gridModel;
+	}
+	
+	//
+	// Setters
+	//
+	this.setPosClickedEventHandler = function(posClickedEventHandler) {
+		this._posClickedEventHandler = posClickedEventHandler;
+	}
+	
+	this.setLabelClickedEventHandler = function(labelClickedEventHandler) {
+		this._labelClickedEventHandler = labelClickedEventHandler;
 	}
 }

@@ -37,7 +37,15 @@ function GridModel() {
 		if(this.labels) {
 			if(this.labels[posX]) {
 				if(this.labels[posX][posY]) {
-					return this.labels[posX][posY];
+					var labelsToReturn = this.labels[posX][posY];
+					
+					var labelsToReturnArray = [];
+					for(var labelToReturn in labelsToReturn) {
+						labelsToReturnArray.push(labelToReturn);
+					}
+					
+					var sortedLabelsToReturn = labelsToReturnArray.sort(naturalSort);
+					return sortedLabelsToReturn;
 				}
 			}
 		}

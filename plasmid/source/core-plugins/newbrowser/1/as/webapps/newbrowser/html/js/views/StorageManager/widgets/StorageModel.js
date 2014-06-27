@@ -20,8 +20,9 @@ function StorageModel(configOverride) {
 	} else {
 		this.config = {
 				title : "",
+				storagePropertyGroupSelector : "on",
 				storageSelector : "on",
-				userSelector : "off",
+				userSelector : "on",
 				boxSelector: "on",
 				rackSelector: "on",
 				contentsSelector: "off"

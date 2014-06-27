@@ -22,6 +22,18 @@ function StorageController(configOverride) {
 	this._storageModel = new StorageModel(configOverride);
 	this._storageView = new StorageView(this._storageModel, this._gridController.getView());
 	
+	if(this._storageModel.config.boxSelector === "on") {
+		this._gridController.getView().setLabelClickedEventHandler(function(posX, posY, label) {
+			alert(posX + " " + posY + " " + label);
+		}); 
+	}
+	
+	if(this._storageModel.config.rackSelector === "on") {
+		this._gridController.getView().setPosClickedEventHandler(function(posX, posY) {
+			alert(posX + " " + posY);
+		}); 
+	}
+
 	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
 		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
 		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);

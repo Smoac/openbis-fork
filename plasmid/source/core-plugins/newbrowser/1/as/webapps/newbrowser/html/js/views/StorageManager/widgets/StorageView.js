@@ -28,15 +28,21 @@ function StorageView(storageModel, gridView) {
 		$container.empty();
 		$container.append("<h2>" + this._storageModel.config.title + "</h2>");
 		
-		var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
-		$container.append($controlGroupStoragesGroups);
-		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(this._storageGroupsDropDown.val());
+		if(this._storageModel.config.storagePropertyGroupSelector === "on") {
+			var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
+			$container.append($controlGroupStoragesGroups);
+			this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(this._storageGroupsDropDown.val());
+		}
 		
-		var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
-		$container.append($controlGroupStorages);
+		if(this._storageModel.config.storageSelector === "on") {
+			var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
+			$container.append($controlGroupStorages);
+		}
 		
-		var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdFilter, "User Id Filter");
-		$container.append($controlGroupUserId);
+		if(this._storageModel.config.userSelector === "on") {
+			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdFilter, "User Id Filter");
+			$container.append($controlGroupUserId);
+		}
 		
 		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
 	}
