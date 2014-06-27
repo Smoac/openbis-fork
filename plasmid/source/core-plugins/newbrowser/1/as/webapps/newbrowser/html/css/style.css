@@ -463,6 +463,7 @@ table.downloads {
 
 .storageTable td:hover {
 	background-color: #CCAABB;
+	cursor : pointer;
 }
 
 .storageTable td {

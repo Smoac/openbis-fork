@@ -19,6 +19,7 @@ function GridView(gridModel) {
 	this._gridTable = null;
 	
 	this.repaint = function($container) {
+		var _this = this;
 		$container.empty();
 		if(this._gridModel.isValid()) {
 			
@@ -41,6 +42,14 @@ function GridView(gridModel) {
 				
 				for(var j = 0; j < this._gridModel.numColumns; j++) {
 					var $newColumn = $("<td>");
+					
+					var clickEvent = function(i, j) {
+						return function() {
+							_this._posClicked(i + 1, j + 1);
+						}
+					}
+					
+					$newColumn.click(clickEvent(i, j));
 					$newRow.append($newColumn);
 				}
 				this._gridTable.append($newRow);
@@ -62,7 +71,7 @@ function GridView(gridModel) {
 	}
 	
 	this._posClicked = function(posX, posY) {
-		alert(posX, posY);
+		alert(posX + " " + posY);
 	}
 	
 	this._labelClicked = function(posX, posY, label) {
