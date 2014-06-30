@@ -24,6 +24,15 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.boxSelector === "on") {
 		this._gridController.getView().setLabelClickedEventHandler(function(posX, posY, label) {
+			//
+			// Delete old state in model and view
+			//
+			_this._storageModel.resetBoxInfo();
+			
+
+			//
+			// Set new sate in model and view
+			//
 			_this._storageModel.row = posX;
 			_this._storageModel.column = posY;
 			_this._storageModel.boxName = label;
@@ -41,14 +50,31 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.rackSelector === "on") {
 		this._gridController.getView().setPosClickedEventHandler(function(posX, posY) {
+			//
+			// Delete old state in model and view
+			//
+			_this._storageModel.resetBoxInfo();
+			if(_this._storageModel.config.contentsSelector === "on") {
+				_this._storageView.showContents([]);
+			}
+			
+			//
+			// Set new sate in model and view
+			//
 			_this._storageModel.row = posX;
 			_this._storageModel.column = posY;
-			_this._storageModel.boxName = "";
 			
 			_this._storageView.getBoxField().val("");
 			_this._storageView.getBoxField().removeAttr("disabled");
 			_this._storageView.getBoxField().show();
 		}); 
+	}
+	
+	if(this._storageModel.config.contentsSelector === "on") {
+		this._storageView.getBoxContentsDropDown().change(function() {
+			var selectedSamples = $(this).val();
+			_this._storageModel.boxContents = selectedSamples;
+		});
 	}
 
 	this._storageView.getBoxField().keyup(function() {
@@ -65,7 +91,14 @@ function StorageController(configOverride) {
 	
 	this._storageView.getSelectStorageDropdown().change(function(event) {
 		_this._storageView.getBoxField().hide();
+		//
+		// Delete old state in model and view
+		//
 		_this._storageModel.resetBoxInfo();
+		if(_this._storageModel.config.contentsSelector === "on") {
+			_this._storageView.showContents([]);
+		}
+		
 		//
 		// Obtain Storage Configuration
 		//

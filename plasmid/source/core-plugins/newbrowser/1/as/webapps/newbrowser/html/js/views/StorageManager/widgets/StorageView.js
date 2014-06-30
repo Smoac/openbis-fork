@@ -23,7 +23,7 @@ function StorageView(storageModel, gridView) {
 	this._userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
-	this._contentsContainer = $("<div>");
+	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -55,21 +55,18 @@ function StorageView(storageModel, gridView) {
 		}
 		
 		if(this._storageModel.config.contentsSelector === "on") {
-			var $controlGroupBoxContents = FormUtil.getFieldForComponentWithLabel(this._contentsContainer, "Box Contents");
+			var $controlGroupBoxContents = FormUtil.getFieldForComponentWithLabel(this._boxContentsDropDown, "Box Contents");
 			$container.append($controlGroupBoxContents);
+			this._boxContentsDropDown.multiselect();
 		}
 	}
 	
 	this.showContents = function(contents) {
-		this._contentsContainer.empty();
-		
-		var	$contentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
+		this._boxContentsDropDown.empty();
 		for (var i = 0; i < contents.length; i++) {
-			$contentsDropDown.append($('<option>', { 'value' : contents[i].code , 'selected' : ''}).html(contents[i].code));
+			this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].code , 'selected' : ''}).html(contents[i].code));
 		}
-		
-		this._contentsContainer.append($contentsDropDown);
-		$('#boxSamplesSelector').multiselect();
+		this._boxContentsDropDown.multiselect('rebuild');
 	}
 	
 	//
@@ -93,5 +90,9 @@ function StorageView(storageModel, gridView) {
 	
 	this.getBoxField = function() {
 		return this._boxField;
+	}
+	
+	this.getBoxContentsDropDown = function() {
+		return this._boxContentsDropDown;
 	}
 }

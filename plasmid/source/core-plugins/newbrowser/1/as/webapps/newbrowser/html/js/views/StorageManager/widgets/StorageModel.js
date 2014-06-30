@@ -34,13 +34,13 @@ function StorageModel(configOverride) {
 	this.userId = null; //Selected user Being filtered (creator or latest modifier of the box)
 	this.row = null; //Selected Row
 	this.column = null; //Selected Column
-	this.boxName = //Selected Box
+	this.boxName = null; //Selected Box
 	this.boxContents = null; //Selected Box contents (samples)
 	
 	this.resetBoxInfo = function() {
 		this.row = null; //Selected Row
 		this.column = null; //Selected Column
-		this.boxName = //Selected Box
+		this.boxName = null; //Selected Box
 		this.boxContents = null; //Selected Box contents (samples)
 	}
 }
