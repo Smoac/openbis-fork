@@ -175,6 +175,19 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
             relationshipService.assignDataSetToContainer(session, dataPE, container);
             validateContainerContainedRelationshipGraph(container, dataPE);
         }
+        Map<String, DataSetRelationshipPE> relationShipsByCode = new HashMap<String, DataSetRelationshipPE>();
+        List<DataSetRelationshipPE> childRelationships = RelationshipUtils.getContainerComponentRelationships(container.getChildRelationships());
+        for (DataSetRelationshipPE childRelationship : childRelationships)
+        {
+            DataPE childDataSet = childRelationship.getChildDataSet();
+            relationShipsByCode.put(childDataSet.getCode(), childRelationship);
+        }
+        for (int i = 0; i < modifiedContainedCodesOrNull.size(); i++)
+        {
+            String componentCode = modifiedContainedCodesOrNull.get(i);
+            DataSetRelationshipPE dataSetRelationship = relationShipsByCode.get(componentCode);
+            dataSetRelationship.setOrdinal(i);
+        }
     }
 
     protected void setParents(final DataPE childPE,

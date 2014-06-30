@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -83,7 +85,7 @@ public class RegistrationTest extends SystemTestCase
         dataSetUpdate.setDatasetCode("ROOT_CONTAINER");
         dataSetUpdate.setDatasetId(new TechId(29));
         dataSetUpdate.setProperties(Collections.<IEntityProperty> emptyList());
-        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[] { "NEW_DATA_SET", "CONTAINER_2" });
+        dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[] { "NEW_DATA_SET", "CONTAINER_1" });
         DataSetBatchUpdateDetails details = new DataSetBatchUpdateDetails();
         details.setContainerUpdateRequested(true);
         dataSetUpdate.setDetails(details);
@@ -93,9 +95,16 @@ public class RegistrationTest extends SystemTestCase
 
         ContainerDataSet rootContainer = commonServer.getDataSetInfo(systemSessionToken, new TechId(29)).tryGetAsContainerDataSet();
         assertNotNull(rootContainer);
-        List<String> componentCodes = toolBox.extractCodes(rootContainer.getContainedDataSets());
+        List<AbstractExternalData> containedDataSets = rootContainer.getContainedDataSets();
+        Map<String, Integer> orderByCode = new TreeMap<String, Integer>();
+        for (AbstractExternalData dataSet : containedDataSets)
+        {
+            orderByCode.put(dataSet.getCode(), dataSet.getOrderInContainer(rootContainer.getId()));
+        }
+        List<String> componentCodes = toolBox.extractCodes(containedDataSets);
         Collections.sort(componentCodes);
-        assertEquals("[CONTAINER_2, NEW_DATA_SET]", componentCodes.toString());
+        assertEquals("[CONTAINER_1, NEW_DATA_SET]", componentCodes.toString());
+        assertEquals("{CONTAINER_1=1, NEW_DATA_SET=0}", orderByCode.toString());
     }
 
     @Test
