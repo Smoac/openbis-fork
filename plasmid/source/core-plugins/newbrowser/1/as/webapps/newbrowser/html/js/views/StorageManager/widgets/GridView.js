@@ -77,14 +77,14 @@ function GridView(gridModel) {
 			for(var i = 0; i < labels.length; i++) {
 				var labelContainer = $("<div>", { class: "storageBox" }).append(labels[i]);
 				
-				var clickEvent = function(posX, posX, label) {
+				var clickEvent = function(posX, posY, label) {
 					return function(event) {
 						event.stopPropagation();
-						_this._labelClicked(posX, posX, label);
+						_this._labelClicked(posX, posY, label);
 					}
 				}
 				
-				labelContainer.click(clickEvent(posX, posX, labels[i]));
+				labelContainer.click(clickEvent(posX, posY, labels[i]));
 				
 				$component.append(labelContainer);
 			}
