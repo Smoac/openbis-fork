@@ -29,7 +29,6 @@ function StorageController(configOverride) {
 			//
 			_this._storageModel.resetBoxInfo();
 			
-
 			//
 			// Set new sate in model and view
 			//
@@ -44,6 +43,7 @@ function StorageController(configOverride) {
 			if(_this._storageModel.config.contentsSelector === "on") {
 				var labelData = _this._gridController.getModel().getLabelDataByLabelName(label);
 				_this._storageView.showContents(labelData);
+				_this._storageModel.boxContents = labelData;
 			}
 		}); 
 	}
@@ -81,23 +81,32 @@ function StorageController(configOverride) {
 		_this._storageModel.boxName = $(this).val();
 	});
 	
-	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
+	this._deleteRackBoxContentStateInModelView = function() {
+		_this._storageModel.resetBoxInfo();
+		
+		_this._storageView.getBoxField().val("");
 		_this._storageView.getBoxField().hide();
-		
-		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
-		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
-		
-	});
+		if(_this._storageModel.config.contentsSelector === "on") {
+				_this._storageView.showContents([]);
+		}
+	}
 	
-	this._storageView.getSelectStorageDropdown().change(function(event) {
-		_this._storageView.getBoxField().hide();
+	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
 		//
 		// Delete old state in model and view
 		//
-		_this._storageModel.resetBoxInfo();
-		if(_this._storageModel.config.contentsSelector === "on") {
-			_this._storageView.showContents([]);
-		}
+		this._deleteRackBoxContentStateInModelView();
+		this._storageView.getSelectStorageDropdown().val("");
+		
+		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
+		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
+	});
+	
+	this._storageView.getSelectStorageDropdown().change(function(event) {
+		//
+		// Delete old state in model and view
+		//
+		_this._deleteRackBoxContentStateInModelView();
 		
 		//
 		// Obtain Storage Configuration
@@ -146,7 +155,7 @@ function StorageController(configOverride) {
 						boxSamples.push(element);
 						
 						boxesCol[boxCode] = boxSamples;
-					});
+					}, true);
 					
 					//
 					// Refresh Grid with the boxes
@@ -154,9 +163,6 @@ function StorageController(configOverride) {
 					_this._gridController.getModel().labels = boxes;
 					_this._gridController.getView().repaint(_this._storageView.getGridContainer());
 		});
-		
-		
-		
 	});
 	
 	//
