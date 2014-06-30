@@ -755,8 +755,8 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		var samplesToCreate = [];
 		this.sampleLinksChildren.getSamples().forEach(function(child) {
 			if(child.newSample) {
+			  child.properties = {};
 				if(this.profile.storagesConfiguration["isEnabled"]) {
-					child.properties = {};
 					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]] = $("#childrenStorageSelector").val();
 					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["ROW_PROPERTY"]] = 1;
 					child.properties[localReference.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["COLUMN_PROPERTY"]] = 1;
