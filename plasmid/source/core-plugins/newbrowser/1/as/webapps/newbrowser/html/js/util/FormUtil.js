@@ -38,6 +38,9 @@ var FormUtil = new function() {
 			return null;
 		}
 		var storageVocabularyProp = this.profile.getPropertyType(this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0]["NAME_PROPERTY"]);
+		if(!storageVocabularyProp) {
+			return null;
+		}
 		var $storageDropDown = this.getFieldForPropertyType(storageVocabularyProp);
 		$storageDropDown.attr('id', id);
 		if (isRequired) {
