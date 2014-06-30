@@ -462,7 +462,7 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction)
+	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
 	{	
 		var matchClauses = [];
 		
@@ -484,7 +484,14 @@ function ServerFacade(openbisServer) {
 		};
 		
 		var localReference = this;
-		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+		
+		var lookFor = ["PROPERTIES"];
+		if(isComplete) {
+			lookFor.append("ANCESTORS");
+			lookFor.append("DESCENDANTS");
+		}
+		
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, lookFor, function(data) {
 			callbackFunction(data.result);
 		});
 	}
