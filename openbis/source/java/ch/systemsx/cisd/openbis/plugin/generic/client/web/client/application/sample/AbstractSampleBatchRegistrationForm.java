@@ -16,162 +16,32 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
-
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FormEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.google.gwt.user.client.Element;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IMessageProvider;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractBatchRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
 
 /**
  * The <i>abstract</i> sample batch registration panel.
  * 
  * @author Izabela Adamczyk
  */
-public abstract class AbstractSampleBatchRegistrationForm extends AbstractRegistrationForm
+public abstract class AbstractSampleBatchRegistrationForm extends AbstractBatchRegistrationForm
 {
 
-    private static final String FIELD_LABEL_TEMPLATE = "File";
+    protected final IViewContext<IGenericClientServiceAsync> genericViewContext;
 
-    private static final int DEFAULT_NUMBER_OF_FILES = 1;
+    protected final SampleType sampleType;
 
-    private final BasicFileFieldManager fileFieldsManager;
-
-    private final String sessionKey;
-
-    public AbstractSampleBatchRegistrationForm(final IMessageProvider messageProvider,
+    AbstractSampleBatchRegistrationForm(
+            IViewContext<IGenericClientServiceAsync> genericViewContext, SampleType sampleType,
             String sessionKey)
     {
-        super(messageProvider, createId(sessionKey));
-        this.sessionKey = sessionKey;
-        fileFieldsManager =
-                new BasicFileFieldManager(sessionKey, DEFAULT_NUMBER_OF_FILES, FIELD_LABEL_TEMPLATE);
-        fileFieldsManager.setMandatory();
-        setScrollMode(Scroll.AUTO);
-        addUploadFeatures(sessionKey);
+        super(genericViewContext.getCommonViewContext(), GenericConstants.ID_PREFIX + sessionKey,
+                sessionKey);
+        this.genericViewContext = genericViewContext;
+        this.sampleType = sampleType;
     }
 
-    /**
-     * Perform registration on the service
-     */
-    abstract protected void save();
-
-    /**
-     * Adds additional fields to the form panel. File upload field will be added automatically after
-     * specific fields.
-     */
-    protected abstract void addSpecificFormFields(FormPanel form);
-
-    /**
-     * Returns session key defined for given form.
-     */
-    protected String getSessionKey()
-    {
-        return sessionKey;
-    }
-
-    @Override
-    protected final void submitValidForm()
-    {
-    }
-
-    @Override
-    protected final void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        addFormFields();
-    }
-
-    @Override
-    protected void resetFieldsAfterSave()
-    {
-        for (FileUploadField attachmentField : fileFieldsManager.getFields())
-        {
-            attachmentField.reset();
-        }
-        updateDirtyCheckAfterSave();
-    }
-
-    private static String createId(String sessionKey)
-    {
-        return GenericConstants.ID_PREFIX + sessionKey;
-    }
-
-    private final void addFormFields()
-    {
-        addSpecificFormFields(formPanel);
-        for (FileUploadField attachmentField : fileFieldsManager.getFields())
-        {
-            formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
-        }
-
-        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
-            {
-                @Override
-                public void handleEvent(FormEvent be)
-                {
-                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
-                }
-            });
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
-                    save();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    AbstractSampleBatchRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
-    }
-
-    private void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        addSaveButtonConfirmationListener();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (fileFieldsManager.filesDefined() > 0)
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            save();
-                        }
-                    }
-                }
-            });
-    }
-
-    @Override
-    protected void setUploadEnabled(boolean enabled)
-    {
-        super.setUploadEnabled(enabled);
-        infoBoxResetListener.setEnabled(enabled);
-    }
 }

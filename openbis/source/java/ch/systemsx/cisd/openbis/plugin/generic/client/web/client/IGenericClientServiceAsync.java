@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.IClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleUpdates;
@@ -41,8 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Asynchronous version of {@link IGenericClientService}.
@@ -69,25 +69,25 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<Sample> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#registerSamples(SampleType, String, String, boolean)
+     * @see IGenericClientService#registerSamples(SampleType, String, boolean, String, String, boolean)
      */
-    public void registerSamples(final SampleType sampleType, final String sessionKey,
+    public void registerSamples(final SampleType sampleType, String sessionKey, boolean async, String userEmail,
             String defaultGroupIdentifier, boolean updateExisting,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateSamples(SampleType, String, String)
+     * @see IGenericClientService#updateSamples(SampleType, String, boolean, String, String)
      */
-    public void updateSamples(final SampleType sampleType, final String sessionKey,
+    public void updateSamples(final SampleType sampleType, String sessionKey, boolean async, String userEmail,
             String defaultGroupIdentifier,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateExperiments(ExperimentType, String)
+     * @see IGenericClientService#updateExperiments(ExperimentType, String, boolean, String)
      */
-    public void updateExperiments(final ExperimentType experimentType, final String sessionKey,
+    public void updateExperiments(final ExperimentType experimentType, String sessionKey, boolean async, String userEmail,
             final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws UserFailureException;
 
@@ -143,15 +143,15 @@ public interface IGenericClientServiceAsync extends IClientServiceAsync
             final AsyncCallback<DataSetUpdateResult> asyncCallback) throws UserFailureException;
 
     /**
-     * @see IGenericClientService#updateDataSets(DataSetType,String)
+     * @see IGenericClientService#updateDataSets(DataSetType,String, boolean, String)
      */
-    public void updateDataSets(DataSetType dataSetType, String sessionKey,
+    public void updateDataSets(DataSetType dataSetType, String sessionKey, boolean async, String userEmail,
             AsyncCallback<List<BatchRegistrationResult>> updateDataSetsCallback);
 
     /**
-     * @see IGenericClientService#registerExperiments(ExperimentType, String)
+     * @see IGenericClientService#registerExperiments(ExperimentType, String, boolean, String)
      */
-    public void registerExperiments(ExperimentType experimentType, String sessionKey,
+    public void registerExperiments(ExperimentType experimentType, String sessionKey, boolean async, String userEmail,
             AsyncCallback<List<BatchRegistrationResult>> registerExperimentsCallback);
 
     /**

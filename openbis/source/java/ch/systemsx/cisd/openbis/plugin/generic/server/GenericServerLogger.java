@@ -217,14 +217,21 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void registerSamples(String sessionToken, List<NewSamplesWithTypes> newSamplesWithType)
             throws UserFailureException
     {
-        logTracking(sessionToken, "register_samples", getSamples(newSamplesWithType));
+        logTracking(sessionToken, "register_samples", "SAMPLES(%s)", getSamples(newSamplesWithType));
     }
 
     @Override
     public void updateSamples(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType)
             throws UserFailureException
     {
-        logTracking(sessionToken, "update_samples", getSamples(updatedSamplesWithType));
+        logTracking(sessionToken, "update_samples", "SAMPLES(%s)", getSamples(updatedSamplesWithType));
+    }
+
+    @Override
+    public void updateSamplesAsync(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType, String userEmail)
+            throws UserFailureException
+    {
+        logTracking(sessionToken, "update_samples_async", "SAMPLES(%s) EMAIL(%s)", getSamples(updatedSamplesWithType), userEmail);
     }
 
     @Override
@@ -262,8 +269,15 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     public void updateDataSets(String sessionToken, NewDataSetsWithTypes dataSets)
             throws UserFailureException
     {
-        logTracking(sessionToken, "update_data_sets",
-                (dataSets.getDataSetType().getCode() + ":" + dataSets.getNewDataSets().size()));
+        logTracking(sessionToken, "update_data_sets", "TYPE(%s) DATA_SETS(%s)",
+                dataSets.getDataSetType().getCode(), dataSets.getNewDataSets().size());
+    }
+
+    @Override
+    public void updateDataSetsAsync(String sessionToken, NewDataSetsWithTypes dataSets, String userEmail) throws UserFailureException
+    {
+        logTracking(sessionToken, "update_data_sets", "TYPE(%s) DATA_SETS(%s) EMAIL(%s)",
+                dataSets.getDataSetType().getCode(), dataSets.getNewDataSets().size(), userEmail);
     }
 
     @Override
@@ -275,11 +289,25 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
+    public void registerExperimentsAsync(String sessionToken, NewExperimentsWithType experiments, String userEmail) throws UserFailureException
+    {
+        logTracking(sessionToken, "register_experiments_async", "TYPE(%s) EXPERIMENTS(%s) EMAIL(%s)",
+                experiments.getExperimentTypeCode(), experiments.getNewExperiments().size(), userEmail);
+    }
+
+    @Override
     public void updateExperiments(String sessionToken, UpdatedExperimentsWithType experiments)
             throws UserFailureException
     {
         logTracking(sessionToken, "update_experiments", "TYPE(%s) EXPERIMENTS(%s)", experiments
                 .getExperimentType().getCode(), experiments.getUpdatedExperiments().size());
+    }
+
+    @Override
+    public void updateExperimentsAsync(String sessionToken, UpdatedExperimentsWithType experiments, String userEmail) throws UserFailureException
+    {
+        logTracking(sessionToken, "update_experiments_async", "TYPE(%s) EXPERIMENTS(%s) EMAIL(%s)", experiments
+                .getExperimentType().getCode(), experiments.getUpdatedExperiments().size(), userEmail);
     }
 
     @Override
@@ -342,4 +370,5 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
 
         return materials.toString();
     }
+
 }

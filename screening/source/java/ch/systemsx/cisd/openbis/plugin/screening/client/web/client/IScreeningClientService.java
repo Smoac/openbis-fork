@@ -26,6 +26,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -59,9 +60,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellSearchCrit
 /**
  * Service interface for the <i>screening</i> <i>GWT</i> client.
  * <p>
- * Each method should declare throwing {@link UserFailureException}. The authorisation framework can
- * throw it when the user has insufficient privileges. If it is not marked, the GWT client will
- * report unexpected exception.
+ * Each method should declare throwing {@link UserFailureException}. The authorisation framework can throw it when the user has insufficient
+ * privileges. If it is not marked, the GWT client will report unexpected exception.
  * </p>
  * 
  * @author Tomasz Pylak
@@ -103,14 +103,12 @@ public interface IScreeningClientService extends IClientService
             WellLocation location);
 
     /**
-     * Fetches information about a plate: metadata and images for wells. The specified dataset is
-     * supposed to be in BDS-HCS format.
+     * Fetches information about a plate: metadata and images for wells. The specified dataset is supposed to be in BDS-HCS format.
      */
     public PlateImages getPlateContentForDataset(TechId datasetId) throws UserFailureException;
 
     /**
-     * @return well locations which belong to a parent plate connected to a specified experiment(s)
-     *         and have specified material(s) inside.
+     * @return well locations which belong to a parent plate connected to a specified experiment(s) and have specified material(s) inside.
      */
     public TypedTableResultSet<WellContent> listPlateWells(
             IResultSetConfig<String, TableModelRowWithObject<WellContent>> gridCriteria,
@@ -121,18 +119,16 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Finds wells containing the specified material and belonging to the specified experiment.
-     * Loads wells metadata and single image dataset for each well. If there are many image datasets
-     * for the well, all but the first one are ignored. If there is no image dataset for the well,
-     * the whole well is ignored.
+     * Finds wells containing the specified material and belonging to the specified experiment. Loads wells metadata and single image dataset for each
+     * well. If there are many image datasets for the well, all but the first one are ignored. If there is no image dataset for the well, the whole
+     * well is ignored.
      */
     public List<WellReplicaImage> listWellImages(TechId materialId, TechId experimentId)
             throws UserFailureException;
 
     /**
-     * @return materials with codes or properties matching to the query. If the experiment is
-     *         specified, only materials inside well locations connected through the plate to this
-     *         specified experiment(s) will be returned.
+     * @return materials with codes or properties matching to the query. If the experiment is specified, only materials inside well locations
+     *         connected through the plate to this specified experiment(s) will be returned.
      */
     public TypedTableResultSet<Material> listMaterials(
             IResultSetConfig<String, TableModelRowWithObject<Material>> gridCriteria,
@@ -156,23 +152,20 @@ public interface IScreeningClientService extends IClientService
             ListMaterialDisplayCriteria criteria) throws UserFailureException;
 
     /**
-     * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for
-     * TypedTableResultSet.
+     * Like {@link ICommonClientService#prepareExportSamples(TableExportCriteria)}, but for TypedTableResultSet.
      */
     public String prepareExportPlateMetadata(
             TableExportCriteria<TableModelRowWithObject<WellMetadata>> exportCriteria)
             throws UserFailureException;
 
     /**
-     * Returns information about logical image in the given dataset. In HCS case the well location
-     * should be specified.
+     * Returns information about logical image in the given dataset. In HCS case the well location should be specified.
      */
     public LogicalImageInfo getImageDatasetInfo(String datasetCode, String datastoreCode,
             WellLocation wellLocationOrNull) throws UserFailureException;
 
     /**
-     * Returns information about image dataset for a given image dataset. Used to refresh
-     * information about the dataset.
+     * Returns information about image dataset for a given image dataset. Used to refresh information about the dataset.
      */
     public ImageDatasetEnrichedReference getImageDatasetReference(String datasetCode,
             String datastoreCode);
@@ -183,9 +176,8 @@ public interface IScreeningClientService extends IClientService
     public List<ImageResolution> getImageDatasetResolutions(String datasetCode, String datastoreCode);
 
     /**
-     * Loads information about datasets connected to specified sample (microscopy) or a container
-     * sample (HCS). In particular loads the logical images in datasets belonging to the specified
-     * sample (restricted to one well in HCS case).
+     * Loads information about datasets connected to specified sample (microscopy) or a container sample (HCS). In particular loads the logical images
+     * in datasets belonging to the specified sample (restricted to one well in HCS case).
      */
     public ImageSampleContent getImageDatasetInfosForSample(TechId sampleId,
             WellLocation wellLocationOrNull);
@@ -193,7 +185,8 @@ public interface IScreeningClientService extends IClientService
     /**
      * Registers a new library.
      */
-    public void registerLibrary(LibraryRegistrationInfo details) throws UserFailureException;
+    public List<BatchRegistrationResult> registerLibrary(LibraryRegistrationInfo newLibraryInfo,
+            String sessionKey, boolean async, String userEmail) throws UserFailureException;
 
     /**
      * Returns plate geometry vocabulary.
@@ -213,8 +206,7 @@ public interface IScreeningClientService extends IClientService
             throws UserFailureException;
 
     /**
-     * Return the selected {@link MaterialReplicaFeatureSummary}-s for a given experiment and
-     * material.
+     * Return the selected {@link MaterialReplicaFeatureSummary}-s for a given experiment and material.
      */
     public TypedTableResultSet<MaterialReplicaFeatureSummary> listMaterialReplicaFeatureSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,

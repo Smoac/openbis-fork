@@ -469,6 +469,31 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
     }
 
     @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_SAMPLE")
+    public void updateSamplesAsync(final String sessionToken, @AuthorizationGuard(guardClass = NewSamplesWithTypePredicate.class)
+    final List<NewSamplesWithTypes> newSamplesWithType, final String userEmail) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
+
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Sample Batch Update";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    genericServer.updateSamples(sessionToken, newSamplesWithType);
+                }
+            });
+    }
+
+    @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
     @Capability("WRITE_DATASET")
     public void updateDataSets(final String sessionToken,
@@ -496,6 +521,31 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 session.tryGetPerson());
         getDataSetTypeSlaveServerPlugin(dataSetType).updateDataSets(session,
                 convertDataSets(newDataSets));
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_POWER_USER)
+    @Capability("WRITE_DATASET")
+    public void updateDataSetsAsync(final String sessionToken, @AuthorizationGuard(guardClass = NewDataSetsWithTypePredicate.class)
+    final NewDataSetsWithTypes dataSets, final String userEmail) throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
+
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Data Set Batch Update";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    genericServer.updateDataSets(sessionToken, dataSets);
+                }
+            });
     }
 
     private void updateSamples(final Session session,
@@ -923,6 +973,32 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 experimentTypePE));
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE")
+    public void registerExperimentsAsync(final String sessionToken, @AuthorizationGuard(guardClass = NewExperimentsWithTypePredicate.class)
+    final NewExperimentsWithType experiments, String userEmail)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
+
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Experiment Batch Registration";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    genericServer.registerExperiments(sessionToken, experiments);
+                }
+            });
+    }
+
     /**
      * @param sessionToken The session token for the request
      * @param experiments Should be a NewExperimentsWithType where the newExperiments contains a collection of {@link UpdatedBasicExperiment} objects.
@@ -959,6 +1035,32 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
         BatchOperationExecutor.executeInBatches(new ExperimentBatchUpdate(businessObjectFactory
                 .createExperimentTable(session), convertExperiments(newExperiments),
                 experimentTypePE));
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    @Capability("WRITE_EXPERIMENT_SAMPLE")
+    public void updateExperimentsAsync(final String sessionToken, @AuthorizationGuard(guardClass = UpdatedExperimentsWithTypePredicate.class)
+    final UpdatedExperimentsWithType experiments, final String userEmail)
+            throws UserFailureException
+    {
+        assert sessionToken != null : "Unspecified session token.";
+        checkSession(sessionToken);
+
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Experiment Batch Update";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    genericServer.updateExperiments(sessionToken, experiments);
+                }
+            });
     }
 
     /**
@@ -1082,7 +1184,7 @@ public final class GenericServer extends AbstractServer<IGenericServer> implemen
                 @Override
                 public String getName()
                 {
-                    return "General Batch Import";
+                    return "Sample Batch Registration";
                 }
 
                 @Override

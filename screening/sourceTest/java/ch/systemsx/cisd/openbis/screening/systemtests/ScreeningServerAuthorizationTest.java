@@ -36,20 +36,23 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NewLibrary;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTestCase
 {
     private static final String TEST_USER = "test-user";
+
     private static final String SPACE_CODE = "CISD";
-    
+
     private ICommonServerForInternalUse commonServer;
+
     private IScreeningServer screeningServer;
+
     private IScreeningApiServer screeningApiServer;
+
     private String userSessionToken;
 
     @BeforeMethod
@@ -90,7 +93,7 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
         }
         return false;
     }
-    
+
     private boolean hasPerson(String sessionToken, String personID)
     {
         List<Person> persons = commonServer.listPersons(sessionToken);
@@ -103,25 +106,28 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
         }
         return false;
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testSetSessionUserFailsBecauseOfNonAuthorized()
     {
         screeningServer.setSessionUser(userSessionToken, "system");
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testListPlatesFailsBecauseOfAuthorization()
     {
         screeningApiServer.listPlates(userSessionToken, new ExperimentIdentifier("a", "b", "c", "d"));
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testRegisterLibraryFailsBecauseOfNonAuthorized()
     {
-        screeningServer.registerLibrary(userSessionToken, "",
-                Collections.<NewMaterial> emptyList(), Collections.<NewMaterial> emptyList(),
-                Collections.<NewSamplesWithTypes> emptyList());
+        NewLibrary newLibrary = new NewLibrary();
+        newLibrary.setNewGenesOrNull(Collections.<NewMaterial> emptyList());
+        newLibrary.setNewOligosOrNull(Collections.<NewMaterial> emptyList());
+        newLibrary.setNewSamplesWithType(Collections.<NewSamplesWithTypes> emptyList());
+
+        screeningServer.registerLibraries(userSessionToken, Collections.singletonList(newLibrary));
     }
-    
+
 }

@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
@@ -92,6 +93,19 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
                 new BasicFileFieldManager(sessionKey, NUMBER_OF_FIELDS, FIELD_LABEL_TEMPLATE);
         fileFieldsManager.setMandatory();
         addUploadFeatures(sessionKey);
+    }
+
+    /**
+     * Perform registration on the service
+     */
+    protected abstract void save();
+
+    /**
+     * Adds additional fields to the form panel. File upload field will be added automatically after specific fields.
+     */
+    protected void addSpecificFormFields(FormPanel form)
+    {
+
     }
 
     @Override
@@ -248,6 +262,8 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
 
     private final void addFormFields()
     {
+        addSpecificFormFields(formPanel);
+
         addOnlyFormFields(false);
 
         formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
@@ -300,8 +316,6 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
                 }
             });
     }
-
-    protected abstract void save();
 
     @Override
     protected void setUploadEnabled(boolean enabled)

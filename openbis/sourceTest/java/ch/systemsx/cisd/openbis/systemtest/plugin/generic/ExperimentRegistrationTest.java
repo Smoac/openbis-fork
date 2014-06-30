@@ -90,7 +90,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my éxpériment") });
+        { property("DESCRIPTION", "my éxpériment") });
         genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
                 newExperiment);
 
@@ -114,9 +114,9 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my experiment") });
+        { property("DESCRIPTION", "my experiment") });
         newExperiment.setSamples(new String[]
-            { "3vcp8" });
+        { "3vcp8" });
         genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
                 newExperiment);
 
@@ -144,7 +144,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my experiment") });
+        { property("DESCRIPTION", "my experiment") });
         newExperiment.setRegisterSamples(true);
         SampleType sampleType = new SampleType();
         sampleType.setCode("CELL_PLATE");
@@ -191,7 +191,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         String experimentIdentifier = "/cisd/default/" + experimentCode;
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my experiment") });
+        { property("DESCRIPTION", "my experiment") });
         newExperiment.setAttachments(Arrays.asList(new NewAttachment("hello.txt", "hello",
                 "test attachment")));
         genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
@@ -226,9 +226,9 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         // Create some experiments to update
         ArrayList<String> expIds = registerNewExperiments(expCount);
         String[] codes = new String[]
-            { "DESCRIPTION" };
+        { "DESCRIPTION" };
         String[] values = new String[]
-            { "New déscription" };
+        { "New déscription" };
         String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Update the experiments
@@ -237,7 +237,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
         List<BatchRegistrationResult> results =
-                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY, false, null);
 
         // Check the return value
         assertEquals(1, results.size());
@@ -257,9 +257,9 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         // Create some experiments to update
         ArrayList<String> expIds = registerNewExperiments(expCount);
         String[] codes = new String[]
-            { "DESCRIPTION" };
+        { "DESCRIPTION" };
         String[] values = new String[]
-            { "New déscription" };
+        { "New déscription" };
         String bulkUpdateString = createBulkUpdateString(expIds, "/cisd/nemo", codes, values);
 
         // Update the experiments
@@ -268,7 +268,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
         List<BatchRegistrationResult> results =
-                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY, false, null);
 
         // Check the return value
         assertEquals(1, results.size());
@@ -298,7 +298,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         List<String> expIds = Collections.singletonList(experimentIdentifier);
         NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
         newExperiment.setProperties(new IEntityProperty[]
-            { property("DESCRIPTION", "my experiment") });
+        { property("DESCRIPTION", "my experiment") });
         newExperiment.setRegisterSamples(true);
         SampleType sampleType = new SampleType();
         sampleType.setCode("CELL_PLATE");
@@ -317,7 +317,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
         List<BatchRegistrationResult> results =
-                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+                genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY, false, null);
 
         // Check the return value
         assertEquals(1, results.size());
@@ -361,8 +361,8 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         // Create some experiments to update
         ArrayList<String> expIds = registerNewExperiments(expCount);
         String bulkUpdateString = createBulkUpdateString(expIds, new String[]
-            { "DESCRIPTION" }, new String[]
-            { "--DELETE--" });
+        { "DESCRIPTION" }, new String[]
+        { "--DELETE--" });
 
         // Update the experiments
         addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt", bulkUpdateString.getBytes());
@@ -370,7 +370,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         experimentType.setCode("SIRNA_HCS");
         try
         {
-            genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+            genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY, false, null);
             fail("Should have thrown an excption");
         } catch (UserFailureException ex)
         {
@@ -389,9 +389,9 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         // Create some experiments to update
         ArrayList<String> expIds = registerNewExperiments(expCount);
         String[] codes = new String[]
-            { "DESCRIPTION", "GENDER" };
+        { "DESCRIPTION", "GENDER" };
         String[] values = new String[]
-            { "New déscription", "MALE" };
+        { "New déscription", "MALE" };
         String bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         // Add/Modify some properties
@@ -400,23 +400,23 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("SIRNA_HCS");
 
-        genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+        genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY, false, null);
         verifyBulkUpdate(expIds, codes, values);
 
         // Delete some properties
         codes = new String[]
-            { "GENDER" };
+        { "GENDER" };
         values = new String[]
-            { "__DELETE__" };
+        { "__DELETE__" };
         bulkUpdateString = createBulkUpdateString(expIds, codes, values);
 
         addMultiPartFile(EXPERIMENTS_SESSION_KEY, "experiments.txt",
                 bulkUpdateString.getBytes(UnicodeUtils.DEFAULT_UNICODE_CHARSET));
-        genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY);
+        genericClientService.updateExperiments(experimentType, EXPERIMENTS_SESSION_KEY, false, null);
 
         verifyBulkUpdate(expIds, new String[]
-            { "DESCRIPTION" }, new String[]
-            { "New déscription" });
+        { "DESCRIPTION" }, new String[]
+        { "New déscription" });
     }
 
     /**
@@ -432,7 +432,7 @@ public class ExperimentRegistrationTest extends GenericSystemTestCase
             String experimentIdentifier = "/cisd/default/" + experimentCode;
             NewExperiment newExperiment = new NewExperiment(experimentIdentifier, "SIRNA_HCS");
             newExperiment.setProperties(new IEntityProperty[]
-                { property("DESCRIPTION", "my éxpériment") });
+            { property("DESCRIPTION", "my éxpériment") });
             genericClientService.registerExperiment(ATTACHMENTS_SESSION_KEY, SAMPLES_SESSION_KEY,
                     newExperiment);
             expIds.add(experimentIdentifier);

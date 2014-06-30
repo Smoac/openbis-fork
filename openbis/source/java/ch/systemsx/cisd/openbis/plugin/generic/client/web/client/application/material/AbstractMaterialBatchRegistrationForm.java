@@ -30,15 +30,15 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 abstract class AbstractMaterialBatchRegistrationForm extends AbstractBatchRegistrationForm
 {
+    protected final IViewContext<IGenericClientServiceAsync> genericViewContext;
+
     protected final MaterialType materialType;
 
     private final BatchOperationKind batchOperationKind;
 
-    protected final IViewContext<IGenericClientServiceAsync> genericViewContext;
-
     AbstractMaterialBatchRegistrationForm(
-            IViewContext<IGenericClientServiceAsync> genericViewContext, String sessionKey,
-            BatchOperationKind batchOperationKind, MaterialType materialType)
+            IViewContext<IGenericClientServiceAsync> genericViewContext, MaterialType materialType,
+            BatchOperationKind batchOperationKind, String sessionKey)
     {
         super(genericViewContext.getCommonViewContext(), GenericConstants.ID_PREFIX + sessionKey,
                 sessionKey);

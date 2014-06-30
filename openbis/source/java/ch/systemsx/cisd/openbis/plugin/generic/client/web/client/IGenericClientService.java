@@ -81,7 +81,7 @@ public interface IGenericClientService extends IClientService
      *            operation).
      */
     public List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey, String defaultGroupIdentifier, boolean updateExisting)
+            String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier, boolean updateExisting)
             throws UserFailureException;
 
     /**
@@ -91,7 +91,7 @@ public interface IGenericClientService extends IClientService
      * </p>
      */
     public List<BatchRegistrationResult> registerExperiments(final ExperimentType experimentType,
-            final String sessionKey) throws UserFailureException;
+            String sessionKey, boolean async, String userEmail) throws UserFailureException;
 
     /**
      * Updates samples from files which have been previously uploaded.
@@ -100,7 +100,7 @@ public interface IGenericClientService extends IClientService
      * </p>
      */
     public List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
-            final String sessionKey, String defaultGroupIdentifier) throws UserFailureException;
+            String sessionKey, boolean async, String userEmail, String defaultGroupIdentifier) throws UserFailureException;
 
     /**
      * Updates experiments from files which have been previously uploaded.
@@ -109,7 +109,7 @@ public interface IGenericClientService extends IClientService
      * </p>
      */
     public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
-            final String sessionKey) throws UserFailureException;
+            String sessionKey, boolean async, String userEmail) throws UserFailureException;
 
     /**
      * For given {@link TechId} returns corresponding {@link AbstractExternalData}.
@@ -174,7 +174,7 @@ public interface IGenericClientService extends IClientService
      * </p>
      */
     public List<BatchRegistrationResult> updateDataSets(final DataSetType dataSetType,
-            final String sessionKey) throws UserFailureException;
+            String sessionKey, boolean async, String userEmail) throws UserFailureException;
 
     /**
      * Updates samples and materials from excel files which have been previously uploaded.

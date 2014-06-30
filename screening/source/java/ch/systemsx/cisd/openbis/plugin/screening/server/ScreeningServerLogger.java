@@ -31,9 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -76,6 +74,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageSampleCon
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummaryResult;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NewLibrary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.WellContent;
@@ -418,13 +417,15 @@ final class ScreeningServerLogger extends AbstractServerLogger implements IScree
     }
 
     @Override
-    public void registerLibrary(String sessionToken, String userEmail,
-            List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
-            List<NewSamplesWithTypes> newSamplesWithType)
+    public void registerLibraries(String sessionToken, List<NewLibrary> newLibraries)
     {
-        logAccess(sessionToken, "registerLibrary",
-                "userEmail(%s), newGenesOrNull(%s), newOligosOrNull(%s), newSamplesWithType(%s)",
-                userEmail, newGenesOrNull, newOligosOrNull, newSamplesWithType);
+        logAccess(sessionToken, "registerLibraries", "LIBRARIES(%s)", newLibraries != null ? newLibraries.size() : 0);
+    }
+
+    @Override
+    public void registerLibrariesAsync(String sessionToken, List<NewLibrary> newLibraries, String userEmail)
+    {
+        logAccess(sessionToken, "registerLibrariesAsync", "LIBRARIES(%s) EMAIL(%s)", newLibraries != null ? newLibraries.size() : 0, userEmail);
     }
 
     @Override

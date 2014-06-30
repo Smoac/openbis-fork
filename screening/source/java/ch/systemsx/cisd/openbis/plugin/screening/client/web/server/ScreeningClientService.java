@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.server;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -41,8 +42,10 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.resultset.MaterialDisa
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AsyncBatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
@@ -69,6 +72,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LogicalImageIn
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NewLibrary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -243,33 +247,56 @@ public final class ScreeningClientService extends AbstractClientService implemen
     }
 
     @Override
-    public void registerLibrary(LibraryRegistrationInfo details) throws UserFailureException
+    public List<BatchRegistrationResult> registerLibrary(LibraryRegistrationInfo details, String sessionKey, boolean async, String userEmail)
+            throws UserFailureException
     {
         final String sessionToken = getSessionToken();
         HttpSession session = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
-        String sessionKey = details.getSessionKey();
         String experiment = details.getExperiment();
         try
         {
             String space =
                     new ExperimentIdentifierFactory(experiment).createIdentifier().getSpaceCode();
             uploadedFiles = getUploadedFiles(sessionKey, session);
+
+            List<NewLibrary> newLibraries = new LinkedList<NewLibrary>();
+            List<BatchRegistrationResult> results = new LinkedList<BatchRegistrationResult>();
+
             for (IUncheckedMultipartFile file : uploadedFiles.iterable())
             {
                 LibraryExtractor extractor =
                         new LibraryExtractor(file.getInputStream(), details.getSeparator(),
                                 experiment, space, details.getPlateGeometry(), details.getScope());
                 extractor.extract();
-                server.registerLibrary(sessionToken, details.getUserEmail(),
-                        extractor.getNewGenes(), extractor.getNewOligos(),
-                        extractor.getNewSamplesWithType());
+
+                NewLibrary newLibrary = new NewLibrary();
+                newLibrary.setNewGenesOrNull(extractor.getNewGenes());
+                newLibrary.setNewOligosOrNull(extractor.getNewOligos());
+                newLibrary.setNewSamplesWithType(extractor.getNewSamplesWithType());
+                newLibraries.add(newLibrary);
+
+                BatchRegistrationResult result = new BatchRegistrationResult();
+                result.setFileName(file.getOriginalFilename());
+                result.setMessage(String.format("%d gene(s), %d oligo(s) %d sample(s) found and registered.", newLibrary.getNewGenesCount(),
+                        newLibrary.getNewOligosCount(), newLibrary.getNewSamplesWithTypeCount()));
+                results.add(result);
+            }
+
+            if (async)
+            {
+                server.registerLibrariesAsync(sessionToken, newLibraries, userEmail);
+                String fileName = results.get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                server.registerLibraries(sessionToken, newLibraries);
+                return results;
             }
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
-
     }
 
     @Override

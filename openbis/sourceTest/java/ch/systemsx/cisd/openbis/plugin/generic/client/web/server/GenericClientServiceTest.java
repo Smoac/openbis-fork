@@ -42,13 +42,12 @@ import ch.systemsx.cisd.openbis.generic.client.web.server.AbstractClientServiceT
 import ch.systemsx.cisd.openbis.generic.client.web.server.UploadedFilesBean;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.GenericEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
@@ -58,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterialsWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -272,7 +272,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         newSample.setContainerIdentifier("MP2");
         newSample.setParentIdentifier("MP3");
         newSample.setProperties(new IEntityProperty[]
-            { createSampleProperty("prop1", "RED"), createSampleProperty("prop2", "1") });
+        { createSampleProperty("prop1", "RED"), createSampleProperty("prop2", "1") });
         final SampleType sampleType = createSampleType("MASTER_PLATE");
         final String fileName = "originalFileName.txt";
 
@@ -315,7 +315,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                             @Override
                             @SuppressWarnings(
-                                { "unchecked" })
+                            { "unchecked" })
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final List<NewSamplesWithTypes> samplesSecions =
@@ -343,7 +343,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.registerSamples(sampleType, sessionKey, null, false);
+                genericClientService.registerSamples(sampleType, sessionKey, false, null, null, false);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
@@ -360,7 +360,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
         final NewSample newSample = new NewSample();
         newSample.setIdentifier("MP");
         newSample.setParentsOrNull(new String[]
-            { "MP_1", "MP_2" });
+        { "MP_1", "MP_2" });
         newSample.setProperties(new IEntityProperty[0]);
         final SampleType sampleType = createSampleType("MASTER_PLATE");
         final String fileName = "originalFileName.txt";
@@ -403,7 +403,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                             @Override
                             @SuppressWarnings(
-                                { "unchecked" })
+                            { "unchecked" })
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final List<NewSamplesWithTypes> samplesSecions =
@@ -428,7 +428,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.registerSamples(sampleType, sessionKey, null, false);
+                genericClientService.registerSamples(sampleType, sessionKey, false, null, null, false);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
@@ -483,7 +483,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
 
                             @Override
                             @SuppressWarnings(
-                                { "unchecked", "deprecation" })
+                            { "unchecked", "deprecation" })
                             public Object invoke(Invocation invocation) throws Throwable
                             {
                                 final List<NewSamplesWithTypes> samplesSecions =
@@ -518,7 +518,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.updateSamples(sampleType, sessionKey, defaultGroupIdentifier);
+                genericClientService.updateSamples(sampleType, sessionKey, false, null, defaultGroupIdentifier);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
@@ -597,7 +597,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.updateSamples(sampleType, sessionKey, defaultGroupIdentifier);
+                genericClientService.updateSamples(sampleType, sessionKey, false, null, defaultGroupIdentifier);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
@@ -791,7 +791,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                         });
 
                     exactly(2).of(genericServer).getAuthSession(SESSION_TOKEN);
-                    
+
                     one(genericServer).updateExperiments(with(equal(SESSION_TOKEN)),
                             with(new IsAnything<UpdatedExperimentsWithType>()));
                     will(new CustomAction("check experiment")
@@ -826,7 +826,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.updateExperiments(experimentType, sessionKey);
+                genericClientService.updateExperiments(experimentType, sessionKey, false, null);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());
@@ -875,7 +875,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
                         });
 
                     exactly(2).of(genericServer).getAuthSession(SESSION_TOKEN);
-                    
+
                     one(genericServer).updateExperiments(with(equal(SESSION_TOKEN)),
                             with(new IsAnything<UpdatedExperimentsWithType>()));
                     will(new CustomAction("check experiment")
@@ -912,7 +912,7 @@ public final class GenericClientServiceTest extends AbstractClientServiceTest
             });
         uploadedFilesBean.addMultipartFile(multipartFile);
         final List<BatchRegistrationResult> result =
-                genericClientService.updateExperiments(experimentType, sessionKey);
+                genericClientService.updateExperiments(experimentType, sessionKey, false, null);
         assertEquals(1, result.size());
         final BatchRegistrationResult batchRegistrationResult = result.get(0);
         assertEquals(fileName, batchRegistrationResult.getFileName());

@@ -41,8 +41,8 @@ public final class GenericExperimentBatchRegistrationForm extends
     @Override
     protected void save()
     {
-        viewContext.getService().registerExperiments(type, getSessionKey(),
-                new RegisterExperimentsCallback(viewContext));
+        genericViewContext.getService().registerExperiments(experimentType, SESSION_KEY, isAsync(), emailField.getValue(),
+                new BatchRegistrationCallback(viewContext));
     }
 
 }

@@ -17,29 +17,24 @@
 package ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.sample;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.model.VocabularyTermModel;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.ExperimentChooserField.ExperimentChooserFieldAdaptor;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.VocabularyTermSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample.AbstractSampleBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientServiceAsync;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.LibraryRegistrationInfo.RegistrationScope;
@@ -50,7 +45,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConst
  * 
  * @author Izabela Adamczyk
  */
-public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatchRegistrationForm
+public final class LibrarySampleBatchRegistrationForm extends AbstractBatchRegistrationForm
 {
 
     public enum Separator implements Serializable
@@ -87,49 +82,26 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
 
     private final ExperimentChooserFieldAdaptor experimentChooser;
 
-    private final IViewContext<IScreeningClientServiceAsync> viewContext;
+    private final IViewContext<IScreeningClientServiceAsync> screeningViewContext;
 
     private final PlateGeometrySelectionWidget plateGeometryField;
 
     private final SimpleComboBox<String> scopeField;
-
-    private final TextField<String> emailField;
 
     private final SimpleComboBox<Separator> separatorField;
 
     public LibrarySampleBatchRegistrationForm(
             final IViewContext<IScreeningClientServiceAsync> viewContext)
     {
-        super(viewContext.getCommonViewContext(), SESSION_KEY);
+        super(viewContext.getCommonViewContext(), GenericConstants.ID_PREFIX + SESSION_KEY, SESSION_KEY);
         setResetButtonVisible(true);
-        this.viewContext = viewContext;
+        this.screeningViewContext = viewContext;
         experimentChooser =
                 ExperimentChooserField.create(viewContext.getMessage(Dict.EXPERIMENT), true, null,
                         viewContext.getCommonViewContext());
         plateGeometryField = createPlateGeometryField();
         scopeField = createScopeField();
         separatorField = createSeparatorField();
-        emailField =
-                createEmailField(viewContext.getModel().getSessionContext().getUser()
-                        .getUserEmail());
-    }
-
-    private TextField<String> createEmailField(String userEmail)
-    {
-        TextField<String> field = new TextField<String>();
-        field.setAllowBlank(false);
-        field.setFieldLabel("Email");
-        FieldUtil.markAsMandatory(field);
-        field.setValue(userEmail);
-        field.setValidateOnBlur(true);
-        field.setRegex(GenericConstants.EMAIL_REGEX);
-        field.getMessages().setRegexText("Expected email address format: user@domain.com");
-        AbstractImagePrototype infoIcon =
-                AbstractImagePrototype.create(viewContext.getImageBundle().getInfoIcon());
-        FieldUtil.addInfoIcon(field,
-                "All relevant notifications will be send to this email address",
-                infoIcon.createImage());
-        return field;
     }
 
     private SimpleComboBox<String> createScopeField()
@@ -173,16 +145,13 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
         ExperimentIdentifier experiment = experimentChooser.tryToGetValue();
         VocabularyTermModel value = plateGeometryField.getValue();
         String plateGeometry = value == null ? null : value.getTerm().getCode();
-        String userEmail = emailField.getValue();
         char separator = extractSeparatorCharacter();
         RegistrationScope registrationScope = extractRegistrationScope();
         LibraryRegistrationInfo libraryInfo =
-                new LibraryRegistrationInfo().setSessionKey(getSessionKey())
-                        .setExperiment(experiment.getIdentifier()).setPlateGeometry(plateGeometry)
-                        .setUserEmail(userEmail).setScope(registrationScope)
-                        .setSeparator(separator);
-        viewContext.getService().registerLibrary(libraryInfo,
-                new RegisterSamplesCallback(viewContext));
+                new LibraryRegistrationInfo().setExperiment(experiment.getIdentifier()).setPlateGeometry(plateGeometry)
+                        .setScope(registrationScope).setSeparator(separator);
+        screeningViewContext.getService().registerLibrary(libraryInfo, SESSION_KEY, isAsync(), emailField.getValue(),
+                new BatchRegistrationCallback(viewContext));
         infoBox.displayInfo("Data preprocessing started. Please wait...");
     }
 
@@ -209,36 +178,23 @@ public final class LibrarySampleBatchRegistrationForm extends AbstractSampleBatc
     }
 
     @Override
+    protected LabelField createTemplateField()
+    {
+        return null;
+    }
+
+    @Override
     protected void addSpecificFormFields(FormPanel form)
     {
         form.add(experimentChooser.getChooserField());
         form.add(plateGeometryField);
-        form.add(emailField);
         form.add(scopeField);
         form.add(separatorField);
     }
 
-    private final class RegisterSamplesCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<Void>
-    {
-        RegisterSamplesCallback(final IViewContext<IScreeningClientServiceAsync> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(final Void result)
-        {
-            return Arrays.asList(new HtmlMessageElement(viewContext
-                    .getMessage(
-                            ch.systemsx.cisd.openbis.plugin.screening.client.web.client.application.Dict.IMPORT_SCHEDULED_MESSAGE,
-                            emailField.getValue())));
-        }
-    }
-
     private PlateGeometrySelectionWidget createPlateGeometryField()
     {
-        PlateGeometrySelectionWidget field = new PlateGeometrySelectionWidget(viewContext);
+        PlateGeometrySelectionWidget field = new PlateGeometrySelectionWidget(screeningViewContext);
         field.setFieldLabel("Plate Geometry");
         FieldUtil.markAsMandatory(field);
         return field;

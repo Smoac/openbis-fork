@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.screening.server;
 
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.DssServiceRpcS
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningBatchHandler;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningFactory;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.internal.IDssServiceRpcScreeningMultiplexer;
+import ch.systemsx.cisd.openbis.generic.server.AbstractASyncAction;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
@@ -69,8 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewMaterial;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleParentWithDerived;
@@ -155,6 +156,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplic
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaSummaryAggregationType;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSimpleFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialSummarySettings;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.NewLibrary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateContent;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateImages;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -424,12 +426,38 @@ public final class ScreeningServer extends AbstractServer<IScreeningServer> impl
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
     @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
-    public void registerLibrary(String sessionToken, String userEmail,
-            List<NewMaterial> newGenesOrNull, List<NewMaterial> newOligosOrNull,
-            List<NewSamplesWithTypes> newSamplesWithType)
+    public void registerLibraries(String sessionToken, List<NewLibrary> newLibraries)
     {
-        executeASync(userEmail, new LibraryRegistrationTask(sessionToken, newGenesOrNull,
-                newOligosOrNull, newSamplesWithType, commonServer, genericServer, getDAOFactory()));
+        for (NewLibrary newLibrary : newLibraries)
+        {
+            new LibraryRegistrationTask(sessionToken, newLibrary.getNewGenesOrNull(), newLibrary.getNewOligosOrNull(),
+                    newLibrary.getNewSamplesWithType(), commonServer, genericServer, getDAOFactory()).doAction(new StringWriter());
+        }
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ADMIN)
+    @Capability("WRITE_EXPERIMENT_SAMPLE_MATERIAL")
+    public void registerLibrariesAsync(final String sessionToken, final List<NewLibrary> newLibraries, final String userEmail)
+    {
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Library Batch Registration";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    for (NewLibrary newLibrary : newLibraries)
+                    {
+                        new LibraryRegistrationTask(sessionToken, newLibrary.getNewGenesOrNull(), newLibrary.getNewOligosOrNull(),
+                                newLibrary.getNewSamplesWithType(), commonServer, genericServer, getDAOFactory()).doAction(messageWriter);
+                    }
+                }
+            });
     }
 
     @Override

@@ -149,6 +149,14 @@ public interface IGenericServer extends IServer
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
+     * Asynchronously updates samples of different types in batches.
+     */
+    @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
+    public void updateSamplesAsync(final String sessionToken,
+            final List<NewSamplesWithTypes> newSamplesWithType, String userEmail) throws UserFailureException;
+
+    /**
      * Registers experiment. At the same time samples may be registered or updated.
      */
     @Transactional
@@ -167,11 +175,27 @@ public interface IGenericServer extends IServer
             throws UserFailureException;
 
     /**
+     * Asynchronously registers experiments in batch.
+     */
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
+    public void registerExperimentsAsync(String sessionToken, final NewExperimentsWithType experiments, String userEmail)
+            throws UserFailureException;
+
+    /**
      * Update experiments in batch.
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperiments(String sessionToken, final UpdatedExperimentsWithType experiments)
+            throws UserFailureException;
+
+    /**
+     * Asynchronously update experiments in batch.
+     */
+    @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
+    public void updateExperimentsAsync(String sessionToken, final UpdatedExperimentsWithType experiments, String userEmail)
             throws UserFailureException;
 
     /**
@@ -273,6 +297,14 @@ public interface IGenericServer extends IServer
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSets(final String sessionToken, final NewDataSetsWithTypes dataSets)
+            throws UserFailureException;
+
+    /**
+     * Asynchronously updates data sets of different types in batches.
+     */
+    @Transactional
+    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
+    public void updateDataSetsAsync(final String sessionToken, final NewDataSetsWithTypes dataSets, String userEmail)
             throws UserFailureException;
 
 }

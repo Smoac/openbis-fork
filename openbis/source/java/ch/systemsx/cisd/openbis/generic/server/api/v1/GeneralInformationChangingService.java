@@ -244,7 +244,7 @@ public class GeneralInformationChangingService extends
     {
         List<BatchRegistrationResult> results = genericClientService.registerSamples(
                 getSampleType(sampleTypeCode, sessionToken),
-                sessionKey,
+                sessionKey, false, null,
                 defaultGroupIdentifier,
                 false);
 
@@ -262,7 +262,7 @@ public class GeneralInformationChangingService extends
     {
         List<BatchRegistrationResult> results = genericClientService.updateSamples(
                 getSampleType(sampleTypeCode, sessionToken),
-                sessionKey,
+                sessionKey, false, null,
                 defaultGroupIdentifier);
 
         return results.get(0).getMessage();

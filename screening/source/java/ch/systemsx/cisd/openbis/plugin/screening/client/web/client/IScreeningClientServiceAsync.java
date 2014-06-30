@@ -27,6 +27,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TableExportCriteri
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.TypedTableResultSet;
 import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
@@ -166,10 +167,11 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<ImageSampleContent> abstractAsyncCallback);
 
     /**
-     * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo)
+     * @see IScreeningClientService#registerLibrary(LibraryRegistrationInfo, String, boolean, String)
      */
     public void registerLibrary(LibraryRegistrationInfo newLibraryInfo,
-            AsyncCallback<Void> registerSamplesCallback);
+            String sessionKey, boolean async, String userEmail,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback);
 
     /**
      * @see IScreeningClientService#getPlateGeometryVocabulary()
@@ -183,8 +185,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<TypedTableResultSet<Material>> callback);
 
     /**
-     * @see IScreeningClientService#listExperimentFeatureVectorSummary(IResultSetConfig, TechId,
-     *      AnalysisProcedureCriteria)
+     * @see IScreeningClientService#listExperimentFeatureVectorSummary(IResultSetConfig, TechId, AnalysisProcedureCriteria)
      */
     public void listExperimentFeatureVectorSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> resultSetConfig,
@@ -199,8 +200,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listMaterialReplicaFeatureSummary(IResultSetConfig,
-     *      MaterialFeaturesOneExpCriteria)
+     * @see IScreeningClientService#listMaterialReplicaFeatureSummary(IResultSetConfig, MaterialFeaturesOneExpCriteria)
      */
     public void listMaterialReplicaFeatureSummary(
             IResultSetConfig<String, TableModelRowWithObject<MaterialReplicaFeatureSummary>> resultSetConfig,
@@ -215,8 +215,7 @@ public interface IScreeningClientServiceAsync extends IClientServiceAsync
             AsyncCallback<String> callback);
 
     /**
-     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig,
-     *      MaterialFeaturesManyExpCriteria)
+     * @see IScreeningClientService#listMaterialFeaturesFromAllExperiments(IResultSetConfig, MaterialFeaturesManyExpCriteria)
      */
     public void listMaterialFeaturesFromAllExperiments(
             IResultSetConfig<String, TableModelRowWithObject<MaterialSimpleFeatureVectorSummary>> resultSetConfig,

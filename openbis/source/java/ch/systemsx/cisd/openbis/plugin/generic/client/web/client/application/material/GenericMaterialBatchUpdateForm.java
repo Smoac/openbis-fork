@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
@@ -28,9 +30,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  */
 public class GenericMaterialBatchUpdateForm extends AbstractMaterialBatchRegistrationForm
 {
-    private static final String PREFIX = "material-batch-update";
-
-    private static final String SESSION_KEY = PREFIX;
+    private static final String SESSION_KEY = "material-batch-update";
 
     private final CheckBoxField ignoreUnregisteredMaterialsCheckBox;
 
@@ -38,17 +38,16 @@ public class GenericMaterialBatchUpdateForm extends AbstractMaterialBatchRegistr
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final MaterialType materialType)
     {
-        super(viewContext, PREFIX, BatchOperationKind.UPDATE, materialType);
+        super(viewContext, materialType, BatchOperationKind.UPDATE, SESSION_KEY);
         setResetButtonVisible(true);
         ignoreUnregisteredMaterialsCheckBox =
                 new CheckBoxField(viewContext.getMessage(Dict.IGNORE_UNREGISTERED_MATERIALS), false);
     }
 
     @Override
-    protected void addOnlyFormFields(boolean forceAddEmailField)
+    protected void addSpecificFormFields(FormPanel form)
     {
         formPanel.add(ignoreUnregisteredMaterialsCheckBox);
-        super.addOnlyFormFields(forceAddEmailField);
     }
 
     @Override

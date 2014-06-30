@@ -161,7 +161,7 @@ public class CodeGenerationTest extends SystemTestCase
         sampleType.setGeneratedCodePrefix("A");
         sampleType.setCode("CELL_PLATE");
 
-        genericClientService.registerSamples(sampleType, SESSION_KEY, "/CISD", false);
+        genericClientService.registerSamples(sampleType, SESSION_KEY, false, null, "/CISD", false);
 
         Experiment experiment =
                 commonServer.getExperimentInfo(sessionID,

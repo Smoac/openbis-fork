@@ -16,31 +16,20 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.sample;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.GXT;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.google.gwt.user.client.Event;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.SpaceSelectionWidget;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.FieldUtil;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
@@ -56,23 +45,18 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
 
     private static final String SESSION_KEY = "sample-batch-registration";
 
-    private final SampleType sampleType;
-
     private final CheckBoxField generateCodesCheckbox;
 
     private final CheckBoxField updateExistingCheckbox;
 
     private final SpaceSelectionWidget groupSelector;
 
-    private final IViewContext<IGenericClientServiceAsync> viewContext;
-
     public GenericSampleBatchRegistrationForm(
             final IViewContext<IGenericClientServiceAsync> viewContext, final SampleType sampleType)
     {
-        super(viewContext.getCommonViewContext(), SESSION_KEY);
+        super(viewContext, sampleType, SESSION_KEY);
         setResetButtonVisible(true);
-        this.viewContext = viewContext;
-        this.sampleType = sampleType;
+
         generateCodesCheckbox =
                 new CheckBoxField(viewContext.getMessage(Dict.AUTO_GENERATE_CODES_LABEL), false);
         updateExistingCheckbox =
@@ -109,56 +93,6 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
             });
     }
 
-    @Override
-    protected void save()
-    {
-        String defaultGroupIdentifier = null;
-        Space selectedGroup = groupSelector.tryGetSelectedSpace();
-        if (generateCodesCheckbox.getValue() && selectedGroup != null)
-        {
-            defaultGroupIdentifier = selectedGroup.getIdentifier();
-        }
-        boolean updateExisting = updateExistingCheckbox.getValue();
-        viewContext.getService().registerSamples(sampleType, getSessionKey(),
-                defaultGroupIdentifier, updateExisting, new RegisterSamplesCallback(viewContext));
-    }
-
-    @Override
-    protected void addSpecificFormFields(FormPanel form)
-    {
-        form.add(generateCodesCheckbox);
-        form.add(groupSelector);
-        form.add(updateExistingCheckbox);
-        form.add(createTemplateField());
-    }
-
-    @Override
-    protected void resetPanel()
-    {
-        super.resetPanel();
-        groupSelector.setVisible(false);
-        groupSelector.setEnabled(false);
-    }
-
-    private LabelField createTemplateField()
-    {
-        LabelField result =
-                new LabelField(LinkRenderer.renderAsLink(viewContext
-                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
-        result.sinkEvents(Event.ONCLICK);
-        result.addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-                @Override
-                public void handleEvent(BaseEvent be)
-                {
-                    WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
-                            sampleType, generateCodesCheckbox.getValue(), true,
-                            BatchOperationKind.REGISTRATION));
-                }
-            });
-        return result;
-    }
-
     private final SpaceSelectionWidget createGroupField(
             IViewContext<ICommonClientServiceAsync> context, String idSuffix, boolean addShared,
             final CheckBoxField checkbox)
@@ -179,32 +113,48 @@ public final class GenericSampleBatchRegistrationForm extends AbstractSampleBatc
                 }
             };
         FieldUtil.markAsMandatory(field);
-        field.setFieldLabel(viewContext.getMessage(Dict.DEFAULT_GROUP));
+        field.setFieldLabel(genericViewContext.getMessage(Dict.DEFAULT_GROUP));
         field.setVisible(false);
         return field;
     }
 
-    private final class RegisterSamplesCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<List<BatchRegistrationResult>>
+    @Override
+    protected String createTemplateUrl()
     {
-        RegisterSamplesCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
-        {
-            super(viewContext);
-        }
+        return UrlParamsHelper.createTemplateURL(EntityKind.SAMPLE,
+                sampleType, generateCodesCheckbox.getValue(), true,
+                BatchOperationKind.REGISTRATION);
+    }
 
-        @Override
-        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(
-                final List<BatchRegistrationResult> result)
+    @Override
+    protected void addSpecificFormFields(FormPanel form)
+    {
+        form.add(generateCodesCheckbox);
+        form.add(groupSelector);
+        form.add(updateExistingCheckbox);
+    }
+
+    @Override
+    protected void resetPanel()
+    {
+        super.resetPanel();
+        groupSelector.setVisible(false);
+        groupSelector.setEnabled(false);
+    }
+
+    @Override
+    protected void save()
+    {
+        String defaultGroupIdentifier = null;
+        Space selectedGroup = groupSelector.tryGetSelectedSpace();
+        if (generateCodesCheckbox.getValue() && selectedGroup != null)
         {
-            final StringBuilder builder = new StringBuilder();
-            for (final BatchRegistrationResult batchRegistrationResult : result)
-            {
-                builder.append("<b>" + batchRegistrationResult.getFileName() + "</b>: ");
-                builder.append(batchRegistrationResult.getMessage());
-                builder.append("<br />");
-            }
-            return Arrays.asList(new HtmlMessageElement(builder.toString()));
+            defaultGroupIdentifier = selectedGroup.getIdentifier();
         }
+        boolean updateExisting = updateExistingCheckbox.getValue();
+
+        genericViewContext.getService().registerSamples(sampleType, SESSION_KEY, isAsync(), emailField.getValue(),
+                defaultGroupIdentifier, updateExisting, new BatchRegistrationCallback(genericViewContext));
     }
 
 }

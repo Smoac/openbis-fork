@@ -173,7 +173,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Override
     public final List<BatchRegistrationResult> registerSamples(final SampleType sampleType,
-            final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting)
+            final String sessionKey, boolean async, String userEmail, final String defaultGroupIdentifier, boolean updateExisting)
     {
         boolean isAutogenerateCodes = defaultGroupIdentifier != null;
 
@@ -185,8 +185,17 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
-            return info.getResultList();
+
+            if (async)
+            {
+                genericServer.registerOrUpdateSamplesAsync(sessionToken, info.getSamples(), userEmail);
+                String fileName = info.getResultList().get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                genericServer.registerOrUpdateSamples(sessionToken, info.getSamples());
+                return info.getResultList();
+            }
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             if (e.getCause() instanceof SampleUniqueCodeViolationExceptionAbstract)
@@ -242,28 +251,16 @@ public class GenericClientService extends AbstractClientService implements IGene
 
             if (async)
             {
-                if (materialsInfo.getMaterials().isEmpty())
-                {
-                    genericServer.registerOrUpdateSamplesAsync(sessionToken,
-                            samplesInfo.getSamples(), userEmail);
-                } else
-                {
-                    genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken,
-                            samplesInfo.getSamples(), materialsInfo.getMaterials(), userEmail);
-                }
+                genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken,
+                        samplesInfo.getSamples(), materialsInfo.getMaterials(), userEmail);
 
                 String fileName = uploadedFiles.iterable().iterator().next().getOriginalFilename();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
             } else
             {
-                if (materialsInfo.getMaterials().isEmpty())
-                {
-                    genericServer.registerOrUpdateSamples(sessionToken, samplesInfo.getSamples());
-                } else
-                {
-                    genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
-                            samplesInfo.getSamples(), materialsInfo.getMaterials());
-                }
+                genericServer.registerOrUpdateSamplesAndMaterials(sessionToken,
+                        samplesInfo.getSamples(), materialsInfo.getMaterials());
+
                 List<BatchRegistrationResult> results = new ArrayList<BatchRegistrationResult>();
                 results.addAll(materialsInfo.getResultList());
                 results.addAll(samplesInfo.getResultList());
@@ -280,7 +277,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Override
     public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
-            final String sessionKey, final String defaultGroupIdentifier)
+            final String sessionKey, boolean async, String userEmail, final String defaultGroupIdentifier)
     {
         BatchSamplesOperation info =
                 parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true, null,
@@ -288,8 +285,17 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             final String sessionToken = getSessionToken();
-            genericServer.updateSamples(sessionToken, info.getSamples());
-            return info.getResultList();
+
+            if (async)
+            {
+                genericServer.updateSamplesAsync(sessionToken, info.getSamples(), userEmail);
+                String fileName = info.getResultList().get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                genericServer.updateSamples(sessionToken, info.getSamples());
+                return info.getResultList();
+            }
         } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);
@@ -439,7 +445,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Override
     public final List<BatchRegistrationResult> registerExperiments(
-            final ExperimentType experimentType, final String sessionKey)
+            final ExperimentType experimentType, final String sessionKey, boolean async, String userEmail)
     {
         String sessionToken = getSessionToken();
         ExperimentLoader loader = parseExperiments(sessionKey);
@@ -447,11 +453,18 @@ public class GenericClientService extends AbstractClientService implements IGene
         // Update the identifiers using the default project and space when possible
         applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
 
-        genericServer.registerExperiments(
-                sessionToken,
-                new NewExperimentsWithType(experimentType.getCode(), loader
-                        .getNewBasicExperiments()));
-        return loader.getResults();
+        NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), loader.getNewBasicExperiments());
+
+        if (async)
+        {
+            genericServer.registerExperimentsAsync(sessionToken, newExperiments, userEmail);
+            String fileName = loader.getResults().get(0).getFileName();
+            return AsyncBatchRegistrationResult.singletonList(fileName);
+        } else
+        {
+            genericServer.registerExperiments(sessionToken, newExperiments);
+            return loader.getResults();
+        }
     }
 
     @Override
@@ -775,7 +788,7 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey)
+    public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey, boolean async, String userEmail)
     {
 
         HttpSession session = getHttpSession();
@@ -791,9 +804,21 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
             DataSetLoader loader = new DataSetLoader();
             loader.load(files);
-            genericServer.updateDataSets(getSessionToken(), new NewDataSetsWithTypes(dataSetType,
-                    loader.getNewDataSets()));
-            return loader.getResults();
+
+            NewDataSetsWithTypes newDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType,
+                    loader.getNewDataSets());
+
+            if (async)
+            {
+                genericServer.updateDataSetsAsync(getSessionToken(), newDataSetsWithTypes, userEmail);
+                String fileName = loader.getResults().get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+
+            } else
+            {
+                genericServer.updateDataSets(getSessionToken(), newDataSetsWithTypes);
+                return loader.getResults();
+            }
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
@@ -802,7 +827,7 @@ public class GenericClientService extends AbstractClientService implements IGene
 
     @Override
     public List<BatchRegistrationResult> updateExperiments(ExperimentType experimentType,
-            String sessionKey)
+            String sessionKey, boolean async, String userEmail)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
     {
         HttpSession session = getHttpSession();
@@ -820,9 +845,20 @@ public class GenericClientService extends AbstractClientService implements IGene
             loader.load(files);
             // Update the identifiers using the default project and space when possible
             applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), getSessionToken());
-            genericServer.updateExperiments(getSessionToken(), new UpdatedExperimentsWithType(
-                    experimentType, loader.getNewBasicExperiments()));
-            return loader.getResults();
+
+            UpdatedExperimentsWithType updatedExperiments = new UpdatedExperimentsWithType(
+                    experimentType, loader.getNewBasicExperiments());
+
+            if (async)
+            {
+                genericServer.updateExperimentsAsync(getSessionToken(), updatedExperiments, userEmail);
+                String fileName = loader.getResults().get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                genericServer.updateExperiments(getSessionToken(), updatedExperiments);
+                return loader.getResults();
+            }
         } finally
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);

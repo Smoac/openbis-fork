@@ -16,8 +16,9 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.material;
 
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.field.CheckBoxField;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
@@ -33,11 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
 public final class GenericMaterialBatchRegistrationForm extends
         AbstractMaterialBatchRegistrationForm
 {
-    private static final String PREFIX = "material-batch-registration";
-
-    private static final String SESSION_KEY = PREFIX;
-
-    public final static String ID = GenericConstants.ID_PREFIX + PREFIX;
+    private static final String SESSION_KEY = "material-batch-registration";
 
     private final CheckBoxField updateExistingCheckbox;
 
@@ -45,7 +42,7 @@ public final class GenericMaterialBatchRegistrationForm extends
             final IViewContext<IGenericClientServiceAsync> viewContext,
             final MaterialType materialType)
     {
-        super(viewContext, PREFIX, BatchOperationKind.REGISTRATION, materialType);
+        super(viewContext, materialType, BatchOperationKind.REGISTRATION, SESSION_KEY);
         setResetButtonVisible(true);
         updateExistingCheckbox =
                 new CheckBoxField(viewContext.getMessage(Dict.UPDATE_EXISTING_ENTITIES_LABEL),
@@ -53,10 +50,9 @@ public final class GenericMaterialBatchRegistrationForm extends
     }
 
     @Override
-    protected void addOnlyFormFields(boolean forceAddEmailField)
+    protected void addSpecificFormFields(FormPanel form)
     {
         formPanel.add(updateExistingCheckbox);
-        super.addOnlyFormFields(forceAddEmailField);
     }
 
     @Override

@@ -54,10 +54,6 @@ public class LibraryRegistrationInfo implements Serializable
 
     private String plateGeometry;
 
-    private String sessionKey;
-
-    private String userEmail;
-
     private RegistrationScope scope;
 
     private char separator;
@@ -87,16 +83,6 @@ public class LibraryRegistrationInfo implements Serializable
         return plateGeometry;
     }
 
-    public String getSessionKey()
-    {
-        return sessionKey;
-    }
-
-    public String getUserEmail()
-    {
-        return userEmail;
-    }
-
     public char getSeparator()
     {
         return separator;
@@ -111,18 +97,6 @@ public class LibraryRegistrationInfo implements Serializable
     public LibraryRegistrationInfo setPlateGeometry(String plateGeometry)
     {
         this.plateGeometry = plateGeometry;
-        return this;
-    }
-
-    public LibraryRegistrationInfo setSessionKey(String sessionKey)
-    {
-        this.sessionKey = sessionKey;
-        return this;
-    }
-
-    public LibraryRegistrationInfo setUserEmail(String userEmail)
-    {
-        this.userEmail = userEmail;
         return this;
     }
 

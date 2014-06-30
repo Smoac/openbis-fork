@@ -16,36 +16,11 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.experiment;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
-
-import java.util.Arrays;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FormEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Event;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.UrlParamsHelper;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractRegistrationForm;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.WindowUtils;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractBatchRegistrationForm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientServiceAsync;
@@ -55,184 +30,30 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * 
  * @author Izabela Adamczyk
  */
-public abstract class AbstractExperimentBatchRegistrationForm extends AbstractRegistrationForm
+public abstract class AbstractExperimentBatchRegistrationForm extends AbstractBatchRegistrationForm
 {
-    // TODO 2010-10-26, IA: Merge with other AbstractEntityBatchRegistratiinForm(s)
+    protected final IViewContext<IGenericClientServiceAsync> genericViewContext;
 
-    private static final String FIELD_LABEL_TEMPLATE = "File";
-
-    private static final int DEFAULT_NUMBER_OF_FILES = 1;
-
-    private final BasicFileFieldManager fileFieldsManager;
-
-    private final String sessionKey;
-
-    protected final IViewContext<IGenericClientServiceAsync> viewContext;
-
-    protected final ExperimentType type;
+    protected final ExperimentType experimentType;
 
     private final BatchOperationKind batchOperationKind;
 
     public AbstractExperimentBatchRegistrationForm(
-            IViewContext<IGenericClientServiceAsync> viewContext, ExperimentType type,
+            IViewContext<IGenericClientServiceAsync> genericViewContext, ExperimentType experimentType,
             BatchOperationKind batchOperationKind, String sessionKey)
     {
-        super(viewContext.getCommonViewContext(), createId(sessionKey));
-        this.viewContext = viewContext;
-        this.type = type;
+        super(genericViewContext.getCommonViewContext(), GenericConstants.ID_PREFIX + sessionKey,
+                sessionKey);
+        this.genericViewContext = genericViewContext;
         this.batchOperationKind = batchOperationKind;
-        this.sessionKey = sessionKey;
-        fileFieldsManager =
-                new BasicFileFieldManager(sessionKey, DEFAULT_NUMBER_OF_FILES, FIELD_LABEL_TEMPLATE);
-        fileFieldsManager.setMandatory();
-        setScrollMode(Scroll.AUTO);
-        addUploadFeatures(sessionKey);
-    }
-
-    /**
-     * Perform registration on the service
-     */
-    abstract protected void save();
-
-    /**
-     * Returns session key defined for given form.
-     */
-    protected String getSessionKey()
-    {
-        return sessionKey;
+        this.experimentType = experimentType;
     }
 
     @Override
-    protected final void submitValidForm()
+    protected String createTemplateUrl()
     {
+        return UrlParamsHelper.createTemplateURL(EntityKind.EXPERIMENT,
+                experimentType, false, false, batchOperationKind);
     }
 
-    @Override
-    protected final void onRender(final Element target, final int index)
-    {
-        super.onRender(target, index);
-        addFormFields();
-    }
-
-    @Override
-    protected void resetFieldsAfterSave()
-    {
-        for (FileUploadField attachmentField : fileFieldsManager.getFields())
-        {
-            attachmentField.reset();
-        }
-        updateDirtyCheckAfterSave();
-    }
-
-    private static String createId(String sessionKey)
-    {
-        return GenericConstants.ID_PREFIX + sessionKey;
-    }
-
-    private LabelField createTemplateField()
-    {
-        LabelField result =
-                new LabelField(LinkRenderer.renderAsLink(viewContext
-                        .getMessage(Dict.FILE_TEMPLATE_LABEL)));
-        result.sinkEvents(Event.ONCLICK);
-        result.addListener(Events.OnClick, new Listener<BaseEvent>()
-            {
-                @Override
-                public void handleEvent(BaseEvent be)
-                {
-                    WindowUtils.openWindow(UrlParamsHelper.createTemplateURL(EntityKind.EXPERIMENT,
-                            type, false, false, batchOperationKind));
-                }
-            });
-        return result;
-    }
-
-    private final void addFormFields()
-    {
-        formPanel.add(createTemplateField());
-        for (FileUploadField attachmentField : fileFieldsManager.getFields())
-        {
-            formPanel.add(wrapUnaware((Field<?>) attachmentField).get());
-        }
-
-        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
-            {
-                @Override
-                public void handleEvent(FormEvent be)
-                {
-                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
-                }
-            });
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
-                    save();
-                }
-
-                @Override
-                protected void setUploadEnabled()
-                {
-                    AbstractExperimentBatchRegistrationForm.this.setUploadEnabled(true);
-                }
-            });
-        redefineSaveListeners();
-    }
-
-    private void redefineSaveListeners()
-    {
-        saveButton.removeAllListeners();
-        addSaveButtonConfirmationListener();
-        saveButton.addSelectionListener(new SelectionListener<ButtonEvent>()
-            {
-                @Override
-                public final void componentSelected(final ButtonEvent ce)
-                {
-                    if (formPanel.isValid())
-                    {
-                        if (fileFieldsManager.filesDefined() > 0)
-                        {
-                            setUploadEnabled(false);
-                            formPanel.submit();
-                        } else
-                        {
-                            save();
-                        }
-                    }
-                }
-            });
-    }
-
-    @Override
-    protected void setUploadEnabled(boolean enabled)
-    {
-        super.setUploadEnabled(enabled);
-        infoBoxResetListener.setEnabled(enabled);
-    }
-
-    final class RegisterExperimentsCallback extends
-            AbstractRegistrationForm.AbstractRegistrationCallback<List<BatchRegistrationResult>>
-    {
-        RegisterExperimentsCallback(final IViewContext<IGenericClientServiceAsync> viewContext)
-        {
-            super(viewContext);
-        }
-
-        @Override
-        protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(
-                final List<BatchRegistrationResult> result)
-        {
-            final StringBuilder builder = new StringBuilder();
-            for (final BatchRegistrationResult batchRegistrationResult : result)
-            {
-                builder.append("<b>" + batchRegistrationResult.getFileName() + "</b>: ");
-                builder.append(batchRegistrationResult.getMessage());
-                builder.append("<br />");
-            }
-            return Arrays.asList(new HtmlMessageElement(builder.toString()));
-        }
-
-    }
 }
