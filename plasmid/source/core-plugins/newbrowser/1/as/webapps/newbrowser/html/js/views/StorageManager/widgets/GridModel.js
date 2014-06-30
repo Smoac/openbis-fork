@@ -53,6 +53,22 @@ function GridModel() {
 		return null;
 	}
 	
+
+	this.getLabelDataByLabelName = function(name) {
+		for(row in this.labels) {
+			var rowData = this.labels[row];
+			for (column in rowData) {
+				var columnData = rowData[column];
+				for(boxName in columnData) {
+					if(boxName === name) {
+						return columnData[boxName];
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
 	this.isValid = function() {
 		return this.numRows !== null && this.numColumns !== null;
 	}

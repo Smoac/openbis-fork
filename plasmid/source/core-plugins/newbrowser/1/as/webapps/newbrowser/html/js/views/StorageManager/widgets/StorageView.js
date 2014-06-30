@@ -60,6 +60,18 @@ function StorageView(storageModel, gridView) {
 		}
 	}
 	
+	this.showContents = function(contents) {
+		this._contentsContainer.empty();
+		
+		var	$contentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
+		for (var i = 0; i < contents.length; i++) {
+			$contentsDropDown.append($('<option>', { 'value' : contents[i].code , 'selected' : ''}).html(contents[i].code));
+		}
+		
+		this._contentsContainer.append($contentsDropDown);
+		$('#boxSamplesSelector').multiselect();
+	}
+	
 	//
 	// Getters
 	//

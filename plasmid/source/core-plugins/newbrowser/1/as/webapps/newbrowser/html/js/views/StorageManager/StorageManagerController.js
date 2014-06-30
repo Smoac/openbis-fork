@@ -43,6 +43,10 @@ function StorageManagerController(mainController) {
 	this._storageManagerModel = new StorageManagerModel();
 	this._storageManagerView = new StorageManagerView(this._storageManagerModel, this._storageFromController.getView(), this._storageToController.getView());
 	
+	this._storageManagerView.getMoveButton().click(function() {
+		alert("Cool");
+	});
+	
 	this.init = function($container) {
 		if(!FormUtil.getDefaultStoragesDropDown("", true)) {
 			Util.showError("You need to configure the storage options to manage them. :-)");

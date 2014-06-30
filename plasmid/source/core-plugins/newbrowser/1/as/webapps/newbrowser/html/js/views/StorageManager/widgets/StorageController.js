@@ -32,8 +32,9 @@ function StorageController(configOverride) {
 			_this._storageView.getBoxField().attr("disabled", "");
 			_this._storageView.getBoxField().show();
 			
-			if(this._storageModel.config.contentsSelector === "on") {
-				
+			if(_this._storageModel.config.contentsSelector === "on") {
+				var labelData = _this._gridController.getModel().getLabelDataByLabelName(label);
+				_this._storageView.showContents(labelData);
 			}
 		}); 
 	}
@@ -105,7 +106,13 @@ function StorageController(configOverride) {
 							boxesRow[boxCol] = boxesCol;
 						}
 						
-						boxesCol[boxCode] = true;
+						var boxSamples = boxesCol[boxCode];
+						if(!boxSamples) {
+							boxSamples = [];
+						}
+						boxSamples.push(element);
+						
+						boxesCol[boxCode] = boxSamples;
 					});
 					
 					//
