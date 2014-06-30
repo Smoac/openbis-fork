@@ -44,6 +44,13 @@ dependencies {
 
 sourceSets.test.runtimeClasspath = configurations.testRuntimeFirst + sourceSets.test.runtimeClasspath
 
+eclipse {
+    classpath {
+        downloadSources=true
+        defaultOutputDir = file('targets/www/WEB-INF/classes')
+    }
+}
+
 configurations {
 	testRuntime.exclude group: 'google', module: 'gwt-servlet'
 }

@@ -4,6 +4,13 @@ evaluationDependsOn(':dbmigration')
 
 apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
 
+eclipse {
+    classpath {
+        downloadSources=true
+        defaultOutputDir = file('targets/www/WEB-INF/classes')
+    }
+}
+
 configurations.create('gwt')
 configurations.create('zipping')
 configurations.create('cliJars')

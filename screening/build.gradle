@@ -20,6 +20,13 @@ dependencies {
 
 }
 
+eclipse {
+    classpath {
+        downloadSources=true
+        defaultOutputDir = file('targets/www/WEB-INF/classes')
+    }
+}
+
 sourceSets { 
     test {
         resources {
