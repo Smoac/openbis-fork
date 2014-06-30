@@ -73,7 +73,12 @@ function StorageController(configOverride) {
 	if(this._storageModel.config.contentsSelector === "on") {
 		this._storageView.getBoxContentsDropDown().change(function() {
 			var selectedSamples = $(this).val();
-			_this._storageModel.boxContents = selectedSamples;
+			var selectedContents = [];
+			for(var i = 0; i < selectedContents; i++) {
+				var sample = _this._gridController().getModel().getLabelDataByLabelName(selectedContents[i]);
+				selectedContents.push(sample);
+			}
+			_this._storageModel.boxContents = selectedContents;
 		});
 	}
 
@@ -95,8 +100,8 @@ function StorageController(configOverride) {
 		//
 		// Delete old state in model and view
 		//
-		this._deleteRackBoxContentStateInModelView();
-		this._storageView.getSelectStorageDropdown().val("");
+		_this._deleteRackBoxContentStateInModelView();
+		_this._storageView.getSelectStorageDropdown().val("");
 		
 		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
 		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);

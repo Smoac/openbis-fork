@@ -45,8 +45,6 @@ function StorageManagerController(mainController) {
 	
 	var _this = this;
 	this._storageManagerView.getMoveButton().click(function() {
-		Util.blockUI();
-		
 		var fromModel = _this._storageFromController.getModel();
 		if(!fromModel.boxContents) {
 			Util.showError("Please select something to move.");
@@ -100,6 +98,7 @@ function StorageManagerController(mainController) {
 			};
 			
 			if(profile.allDataStores.length > 0) {
+				Util.blockUI();
 				mainController.serverFacade.createReportFromAggregationService(profile.allDataStores[0].code, parameters, function(response) {
 					if(response.error) { //Error Case 1
 						Util.showError(response.error.message, function() {Util.unblockUI();});
