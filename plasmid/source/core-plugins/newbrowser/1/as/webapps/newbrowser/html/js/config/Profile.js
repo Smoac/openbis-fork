@@ -40,8 +40,8 @@ $.extend(DefaultProfile.prototype, {
 		this.searchType = {
 			"TYPE" : "SEARCH",
 			"DISPLAY_NAME" : "Search",
-			"SAMPLE_TYPE_PROPERTIES" : ["TYPE", "MATCHED_TEXT", "MATCHED_FIELD"],
-			"SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field"],	
+			"SAMPLE_TYPE_ATTRIBUTES" : ["sampleTypeCode", "MATCHED_TEXT", "MATCHED_FIELD"],
+			"SAMPLE_TYPE_ATTRIBUTES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field"],	
 		};
 		
 		this.allSampleTypes = [];

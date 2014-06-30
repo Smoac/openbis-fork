@@ -194,8 +194,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var sampleTypePropertiesDisplayNames = null;
 		
 		if(this.sampleTypeCode == "SEARCH") {
-			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
-			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
+			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_ATTRIBUTES"];
+			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_ATTRIBUTES_DISPLAY_NAME"];
 		} else {
 			sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
 			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
@@ -216,8 +216,14 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
 		tableTemplate += "<tr class=\"sample-table-header interactive\"><th sort-attribute='code'>Code</th><th sort-attribute=''>Preview</th>";
+		
+		var sortMethod = "sort-property";
+		if(this.sampleTypeCode == "SEARCH") {
+			sortMethod = "sort-attribute";
+		}
+		
 		for (var i = 0; i < sampleTypePropertiesDisplayNames.length; i++) {
-			tableTemplate += "<th sort-property='" + sampleTypeProperties[i] + "'>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
+			tableTemplate += "<th " + sortMethod + "='" + sampleTypeProperties[i] + "'>" + sampleTypePropertiesDisplayNames[i]+ "</th>";
 		}
 		
 		if(!this.isEmbedded) {
@@ -341,8 +347,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var sampleTypePropertiesDisplayNames = null;
 		
 		if(this.sampleTypeCode == "SEARCH") {
-			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_PROPERTIES"];
-			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_PROPERTIES_DISPLAY_NAME"];
+			sampleTypeProperties = this.profile.searchType["SAMPLE_TYPE_ATTRIBUTES"];
+			sampleTypePropertiesDisplayNames = this.profile.searchType["SAMPLE_TYPE_ATTRIBUTES_DISPLAY_NAME"];
 		} else {
 			sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
 			if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
@@ -392,7 +398,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var sampleLink = "<a href='"+url+"?viewName=showViewSamplePageFromPermId&viewData=" + sample.permId + "&hideMenu=true' target='_blank'>" + sample.code + "</a>";
 				
 				if(localReference.isSearch) {
-					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample.properties, sample.properties ];
+					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample, sample ];
 				} else {
 					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>"];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
@@ -468,12 +474,16 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				.append("div")
 				.attr("class", "sample-table-data-cell")
 				.html(
-					function(d, index) {
+					function(sampleData, index) {
+						
 						if (localReference.isSearch && index == 3) {
+							d = sampleData.properties;
 							if (searchText && searchText.length > 0 && d) {
 								for (propertyName in d) {
 									var propertyValue = d[propertyName];
 									if (propertyValue && searchRegexp.test(propertyValue)) {
+										var cleanPropertyValue = ""
+										
 										if(propertyValue.indexOf("<root>") != -1) {
 											if(profile.getHTMLTableFromXML) {
 												return profile.getHTMLTableFromXML(propertyValue);
@@ -481,29 +491,34 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 												if(propertyValue) {
 													propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
 												}
-												return propertyValue;
+												cleanPropertyValue = propertyValue;
 											}
 										} else {
 											if(propertyValue) {
 												propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
 											}
-											return propertyValue;
+											cleanPropertyValue = propertyValue;
 										}
+										
+										sampleData["MATCHED_TEXT"] = cleanPropertyValue;
+										return cleanPropertyValue;
 									}
 								}
 							}
 						} else if (localReference.isSearch && index == 4) {
+							d = sampleData.properties;
 							if (searchText && searchText.length > 0 && d) {
 							
 								for (propertyName in d) {
 									var propertyValue = d[propertyName];
 									if (propertyValue && searchRegexp.test(propertyValue)) {
+										sampleData["MATCHED_FIELD"] = propertyName;
 										return propertyName;
 									}
 								}
 							}
 						} else {
-							return d;
+							return sampleData;
 						}
 						return "";
 					}
@@ -679,6 +694,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		//Obtain filter tokens
 		var filterValue = $('#table-filter').val();
+		if(!filterValue) {
+			filterValue = "";
+		}
 		var filterValueTokensAux = filterValue.toLowerCase().split(" ");
 		var filterValueTokens = [];
 		
@@ -690,7 +708,9 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		
 		//Obtain visible table column codes (only filter using those)
 		var sampleTypeProperties = this.profile.typePropertiesForTable[this.sampleTypeCode];
-		if(sampleTypeProperties === null || sampleTypeProperties === undefined) {
+		if(this.sampleTypeCode === "SEARCH") {
+			sampleTypeProperties = [];
+		} else if(!sampleTypeProperties) {
 			sampleTypeProperties = this.profile.getAllPropertiCodesForTypeCode(this.sampleTypeCode);
 		}
 		
