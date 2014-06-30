@@ -211,7 +211,7 @@ apply plugin: 'eclipse'
 eclipse {
     classpath {
         downloadSources=true
-        defaultOutputDir = file('targets')
+        defaultOutputDir = file('targets/classes')
     }
 }
 
