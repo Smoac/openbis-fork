@@ -58,25 +58,27 @@ function StorageManagerController(mainController) {
 		}
 		
 		for(var i = 0; i < fromModel.boxContents.length; i++) {
+			var sample = fromModel.boxContents[i];
+			
 			//alert(fromModel.boxContents[i].code + " to " + toModel.boxName+"(" + toModel.row + "," + toModel.column + ")");
 			
-			fromModel.boxContents[i].properties[fromModel.storagePropertyGroup.nameProperty] = null;
-			fromModel.boxContents[i].properties[fromModel.storagePropertyGroup.rowProperty] = null;
-			fromModel.boxContents[i].properties[fromModel.storagePropertyGroup.columnProperty] = null;
-			fromModel.boxContents[i].properties[fromModel.storagePropertyGroup.boxProperty] = null;
-			fromModel.boxContents[i].properties[fromModel.storagePropertyGroup.userProperty] = null;
+			sample.properties[fromModel.storagePropertyGroup.nameProperty] = null;
+			sample.properties[fromModel.storagePropertyGroup.rowProperty] = null;
+			sample.properties[fromModel.storagePropertyGroup.columnProperty] = null;
+			sample.properties[fromModel.storagePropertyGroup.boxProperty] = null;
+			sample.properties[fromModel.storagePropertyGroup.userProperty] = null;
 			
-			fromModel.boxContents[i].properties[toModel.storagePropertyGroup.nameProperty] = toModel.storageCode;
-			fromModel.boxContents[i].properties[toModel.storagePropertyGroup.rowProperty] = toModel.row;
-			fromModel.boxContents[i].properties[toModel.storagePropertyGroup.columnProperty] = toModel.column;
-			fromModel.boxContents[i].properties[toModel.storagePropertyGroup.boxProperty] = toModel.boxName;
-			fromModel.boxContents[i].properties[toModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+			sample.properties[toModel.storagePropertyGroup.nameProperty] = toModel.storageCode;
+			sample.properties[toModel.storagePropertyGroup.rowProperty] = parseInt(toModel.row);
+			sample.properties[toModel.storagePropertyGroup.columnProperty] = parseInt(toModel.column);
+			sample.properties[toModel.storagePropertyGroup.boxProperty] = toModel.boxName;
+			sample.properties[toModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 			
-			var sampleSpace = fromModel.boxContents[i].spaceCode;
+			var sampleSpace = sample.spaceCode;
 			var sampleProject = null;
 			var sampleExperiment = null;
 			
-			var experimentIdentifier = fromModel.boxContents[i].experimentIdentifierOrNull;
+			var experimentIdentifier = sample.experimentIdentifierOrNull;
 			if(experimentIdentifier) {
 				sampleProject = experimentIdentifier.split("/")[2];
 				sampleExperiment = experimentIdentifier.split("/")[3];
@@ -89,12 +91,12 @@ function StorageManagerController(mainController) {
 					"sampleSpace" : sampleSpace,
 					"sampleProject" : sampleProject,
 					"sampleExperiment" : sampleExperiment,
-					"sampleCode" : fromModel.boxContents[i].code,
-					"sampleType" : fromModel.boxContents[i].sampleTypeCode,
+					"sampleCode" : sample.code,
+					"sampleType" : sample.sampleTypeCode,
 					//Other Properties
-					"sampleProperties" : fromModel.boxContents[i].properties,
+					"sampleProperties" : sample.properties,
 					//Parent links
-					"sampleParents": fromModel.boxContents[i].parents
+					"sampleParents": sample.parents
 			};
 			
 			if(profile.allDataStores.length > 0) {

@@ -64,7 +64,7 @@ function StorageView(storageModel, gridView) {
 	this.showContents = function(contents) {
 		this._boxContentsDropDown.empty();
 		for (var i = 0; i < contents.length; i++) {
-			this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].code , 'selected' : ''}).html(contents[i].code));
+			this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].permId , 'selected' : ''}).html(contents[i].code));
 		}
 		this._boxContentsDropDown.multiselect('rebuild');
 	}

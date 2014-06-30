@@ -72,13 +72,16 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.contentsSelector === "on") {
 		this._storageView.getBoxContentsDropDown().change(function() {
-			var selectedSamples = $(this).val();
-			var selectedContents = [];
-			for(var i = 0; i < selectedContents; i++) {
-				var sample = _this._gridController().getModel().getLabelDataByLabelName(selectedContents[i]);
-				selectedContents.push(sample);
+			var samplesOfBox = _this._gridController.getModel().getLabelDataByLabelName(_this._storageModel.boxName);
+			var selectedSamplePermIds = $(this).val();
+			var selectedSamples = [];
+			for(var i = 0; i < samplesOfBox.length; i++) {
+				var sample = samplesOfBox[i];
+				if($.inArray(sample.permId, selectedSamplePermIds) !== -1) {
+					selectedSamples.push(sample);
+				}
 			}
-			_this._storageModel.boxContents = selectedContents;
+			_this._storageModel.boxContents = selectedSamples;
 		});
 	}
 
