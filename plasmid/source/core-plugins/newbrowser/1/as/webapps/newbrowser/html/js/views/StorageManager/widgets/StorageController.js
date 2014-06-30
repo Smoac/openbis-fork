@@ -105,6 +105,8 @@ function StorageController(configOverride) {
 		//
 		_this._deleteRackBoxContentStateInModelView();
 		_this._storageView.getSelectStorageDropdown().val("");
+		_this._gridController.getModel().reset();
+		_this._gridController.getView().repaint(_this._storageView.getGridContainer());
 		
 		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
 		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
