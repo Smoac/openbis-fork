@@ -63,15 +63,16 @@ function StorageManagerController(mainController) {
 			
 			//alert(fromModel.boxContents[i].code + " to " + toModel.boxName+"(" + toModel.row + "," + toModel.column + ")");
 			
-			sample.properties[fromModel.storagePropertyGroup.nameProperty] = null;
-			sample.properties[fromModel.storagePropertyGroup.rowProperty] = null;
-			sample.properties[fromModel.storagePropertyGroup.columnProperty] = null;
-			sample.properties[fromModel.storagePropertyGroup.boxProperty] = null;
-			sample.properties[fromModel.storagePropertyGroup.userProperty] = null;
+			//TODO: Delete property with the API
+			delete sample.properties[fromModel.storagePropertyGroup.nameProperty];
+			delete sample.properties[fromModel.storagePropertyGroup.rowProperty];
+			delete sample.properties[fromModel.storagePropertyGroup.columnProperty];
+			delete sample.properties[fromModel.storagePropertyGroup.boxProperty];
+			delete sample.properties[fromModel.storagePropertyGroup.userProperty];
 			
 			sample.properties[toModel.storagePropertyGroup.nameProperty] = toModel.storageCode;
-			sample.properties[toModel.storagePropertyGroup.rowProperty] = parseInt(toModel.row);
-			sample.properties[toModel.storagePropertyGroup.columnProperty] = parseInt(toModel.column);
+			sample.properties[toModel.storagePropertyGroup.rowProperty] = toModel.row;
+			sample.properties[toModel.storagePropertyGroup.columnProperty] = toModel.column;
 			sample.properties[toModel.storagePropertyGroup.boxProperty] = toModel.boxName;
 			sample.properties[toModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 			
@@ -115,7 +116,9 @@ function StorageManagerController(mainController) {
 						if(samplesToUpdateParams.length > 0) {
 							updateCall(samplesToUpdateParams.pop());
 						} else {
-							Util.showSuccess("Entities moved.");
+							Util.showSuccess("Entities moved.", function() {
+								mainController.changeView("showStorageManager", null);
+							});
 						}
 					} else { //This should never happen
 						Util.showError("Unknown Error.", function() {Util.unblockUI();});
