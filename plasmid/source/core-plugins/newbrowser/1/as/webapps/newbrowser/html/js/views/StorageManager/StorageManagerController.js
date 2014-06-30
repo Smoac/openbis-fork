@@ -57,6 +57,7 @@ function StorageManagerController(mainController) {
 			return;
 		}
 		
+		var samplesToUpdateParams = [];
 		for(var i = 0; i < fromModel.boxContents.length; i++) {
 			var sample = fromModel.boxContents[i];
 			
@@ -99,8 +100,11 @@ function StorageManagerController(mainController) {
 					"sampleParents": sample.parents
 			};
 			
+			samplesToUpdateParams.push(parameters);
+		}
+		
+		var updateCall = function(parameters) {
 			if(profile.allDataStores.length > 0) {
-				Util.blockUI();
 				mainController.serverFacade.createReportFromAggregationService(profile.allDataStores[0].code, parameters, function(response) {
 					if(response.error) { //Error Case 1
 						Util.showError(response.error.message, function() {Util.unblockUI();});
@@ -108,7 +112,11 @@ function StorageManagerController(mainController) {
 						var stacktrace = response.result.rows[0][1].value;
 						Util.showStacktraceAsError(stacktrace);
 					} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
-						Util.showSuccess("Entities moved.");
+						if(samplesToUpdateParams.length > 0) {
+							updateCall(samplesToUpdateParams.pop());
+						} else {
+							Util.showSuccess("Entities moved.");
+						}
 					} else { //This should never happen
 						Util.showError("Unknown Error.", function() {Util.unblockUI();});
 					}
@@ -116,6 +124,11 @@ function StorageManagerController(mainController) {
 			} else {
 				Util.showError("No DSS available.", function() {Util.unblockUI();});
 			}
+		}
+		
+		if(samplesToUpdateParams.length > 0) {
+			Util.blockUI();
+			updateCall(samplesToUpdateParams.pop());
 		}
 		
 	});
