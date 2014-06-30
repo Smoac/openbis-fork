@@ -151,7 +151,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			for(var i = 0; i < spaces.length; i++) {
 				var space = spaces[i];
 				
-				if($.inArray(space.code, _this._mainController.profile.inventorySpaces) !== -1) {
+				if($.inArray(space.code, _this._mainController.profile.inventorySpaces) !== -1 && _this._mainController.profile.inventorySpaces.length > 0) {
 					continue;
 				}
 				
