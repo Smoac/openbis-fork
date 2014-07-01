@@ -118,6 +118,7 @@ function StorageManagerController(mainController) {
 						} else {
 							Util.showSuccess("Entities moved.", function() {
 								mainController.changeView("showStorageManager", null);
+								Util.unblockUI();
 							});
 						}
 					} else { //This should never happen
