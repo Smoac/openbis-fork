@@ -180,31 +180,34 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 		sample.setParentSampleIdentifiers(sampleParents);
 	
 	#Create new sample children
-	for newSampleChild in sampleChildrenNew:
-		child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
-		child.setParentSampleIdentifiers([sampleIdentifier]);
-		for key in newSampleChild["properties"].keySet():
-			propertyValue = unicode(newSampleChild["properties"][key]);
-			if propertyValue == "":
-				propertyValue = None;
-			
-			child.setPropertyValue(key,propertyValue);
+	if sampleChildrenNew != None:
+		for newSampleChild in sampleChildrenNew:
+			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
+			child.setParentSampleIdentifiers([sampleIdentifier]);
+			for key in newSampleChild["properties"].keySet():
+				propertyValue = unicode(newSampleChild["properties"][key]);
+				if propertyValue == "":
+					propertyValue = None;
+				
+				child.setPropertyValue(key,propertyValue);
 		
 	#Add sample children
-	for sampleChildIdentifier in sampleChildren:
-		child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
-		if child != None: #The new created ones will not be found
-			childParents = child.getParentSampleIdentifiers();
-			childParents.add(sampleIdentifier);
-			child.setParentSampleIdentifiers(childParents);
+	if sampleChildren != None:
+		for sampleChildIdentifier in sampleChildren:
+			child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
+			if child != None: #The new created ones will not be found
+				childParents = child.getParentSampleIdentifiers();
+				childParents.add(sampleIdentifier);
+				child.setParentSampleIdentifiers(childParents);
 
 	#Remove sample children
-	for sampleChildIdentifier in sampleChildrenRemoved:
-		child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
-		if child != None: #The new created ones will not be found
-			childParents = child.getParentSampleIdentifiers();
-			childParents.remove(sampleIdentifier);
-			child.setParentSampleIdentifiers(childParents);
+	if sampleChildrenRemoved != None:
+		for sampleChildIdentifier in sampleChildrenRemoved:
+			child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample
+			if child != None: #The new created ones will not be found
+				childParents = child.getParentSampleIdentifiers();
+				childParents.remove(sampleIdentifier);
+				child.setParentSampleIdentifiers(childParents);
 
 	#Return from the call
 	return True;

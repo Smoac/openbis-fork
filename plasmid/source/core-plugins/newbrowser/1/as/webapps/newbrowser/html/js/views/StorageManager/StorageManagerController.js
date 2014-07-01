@@ -64,11 +64,11 @@ function StorageManagerController(mainController) {
 			//alert(fromModel.boxContents[i].code + " to " + toModel.boxName+"(" + toModel.row + "," + toModel.column + ")");
 			
 			//TODO: Delete property with the API, it gives error when putting a null on a int instead of deleting it
-			delete sample.properties[fromModel.storagePropertyGroup.nameProperty];
-			delete sample.properties[fromModel.storagePropertyGroup.rowProperty];
-			delete sample.properties[fromModel.storagePropertyGroup.columnProperty];
-			delete sample.properties[fromModel.storagePropertyGroup.boxProperty];
-			delete sample.properties[fromModel.storagePropertyGroup.userProperty];
+			sample.properties[fromModel.storagePropertyGroup.nameProperty] = "";
+			sample.properties[fromModel.storagePropertyGroup.rowProperty] = "";
+			sample.properties[fromModel.storagePropertyGroup.columnProperty] = "";
+			sample.properties[fromModel.storagePropertyGroup.boxProperty] = "";
+			sample.properties[fromModel.storagePropertyGroup.userProperty] = "";
 			
 			sample.properties[toModel.storagePropertyGroup.nameProperty] = toModel.storageCode;
 			sample.properties[toModel.storagePropertyGroup.rowProperty] = toModel.row;
