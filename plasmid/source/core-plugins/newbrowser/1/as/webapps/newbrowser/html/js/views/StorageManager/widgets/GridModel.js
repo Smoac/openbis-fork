@@ -18,6 +18,8 @@ function GridModel() {
 	this.numRows = null;
 	this.numColumns = null;
 	this.labels = null;
+	this.labelsFilter = null;
+	this.dataFilter = null;
 	
 	this.reset = function(numRows, numColumns, labels) {
 		this.numRows = numRows;
@@ -37,7 +39,12 @@ function GridModel() {
 					}
 					
 					var sortedLabelsToReturn = labelsToReturnArray.sort(naturalSort);
-					return sortedLabelsToReturn;
+					
+					if(this.labelsFilter) {
+						return this.labelsFilter(posX, posY, sortedLabelsToReturn);
+					} else {
+						return sortedLabelsToReturn;
+					}
 				}
 			}
 		}
@@ -45,16 +52,16 @@ function GridModel() {
 		return null;
 	}
 	
-
-	this.getLabelDataByLabelName = function(name) {
-		for(row in this.labels) {
-			var rowData = this.labels[row];
-			for (column in rowData) {
-				var columnData = rowData[column];
-				for(boxName in columnData) {
-					if(boxName === name) {
-						return columnData[boxName];
-					}
+	
+	this.getLabelDataByLabelName = function(posX, posY, name) {
+		var columnData = this.labels[posX][posY];
+		for(boxName in columnData) {
+			if(boxName === name) {
+				var boxData = columnData[boxName];
+				if(this.dataFilter) {
+					return this.dataFilter(posX, posY, boxData);
+				} else {
+					return boxData;
 				}
 			}
 		}

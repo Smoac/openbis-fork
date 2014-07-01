@@ -31,7 +31,8 @@ function StorageModel(configOverride) {
 	
 	this.storagePropertyGroup = null; //Selected Storage Property Group
 	this.storageCode = null; //Selected Storage
-	this.userId = null; //Selected user Being filtered (creator or latest modifier of the box)
+	this.userIds = null;
+	this.userIdsSelected = null; //Selected user Being filtered (creator or latest modifier of the box)
 	this.row = null; //Selected Row
 	this.column = null; //Selected Column
 	this.boxName = null; //Selected Box

@@ -19,6 +19,7 @@ function StorageController(configOverride) {
 	var _this = this;
 	//Dependent widgets
 	this._gridController = new GridController();
+	
 	//This controller M/V
 	this._storageModel = new StorageModel(configOverride);
 	this._storageView = new StorageView(this, this._storageModel, this._gridController.getView());
@@ -30,7 +31,7 @@ function StorageController(configOverride) {
 			_this._storageView.showBoxName();
 			
 			if(_this._storageModel.config.contentsSelector === "on") {
-				var labelData = _this._gridController.getModel().getLabelDataByLabelName(label);
+				var labelData = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, label);
 				_this._storageModel.boxContents = labelData;
 				_this._storageView.refreshBoxContents();
 			}
@@ -52,6 +53,50 @@ function StorageController(configOverride) {
 		this._storageModel.boxContents = selectedSamples;
 	}
 
+	this.setUserIdsSelected = function(userIdsSelected) {
+		this._storageModel.userIdsSelected = userIdsSelected;
+		this._gridController.getModel().labelsFilter = function(posX, posY, sortedLabels) {
+			var sortedLabelsToReturn = [];
+			for(var i = 0; i < sortedLabels.length; i++) {
+				var labelSamples = _this._gridController.getModel().getLabelDataByLabelName(posX, posY, sortedLabels[i]);
+				var labelSamplesSelected = [];
+				for(var j = 0; j < labelSamples.length; j++) {
+					var labelSample = labelSamples[j];
+					var sampleUserId = labelSample.properties[_this._storageModel.storagePropertyGroup.userProperty];
+					if($.inArray(sampleUserId, userIdsSelected) !== -1) {
+						labelSamplesSelected.push(labelSample);
+					}
+				}
+				if(labelSamplesSelected.length !== 0) {
+					sortedLabelsToReturn.push(sortedLabels[i]);
+				}
+			}
+			return sortedLabelsToReturn;
+		}
+		
+		this._gridController.getModel().dataFilter = function(posX, posY, labelSamples) {
+			var labelSamplesSelected = [];
+			for(var j = 0; j < labelSamples.length; j++) {
+				var labelSample = labelSamples[j];
+				var sampleUserId = labelSample.properties[_this._storageModel.storagePropertyGroup.userProperty];
+				if($.inArray(sampleUserId, userIdsSelected) !== -1) {
+					labelSamplesSelected.push(labelSample);
+				}
+			}
+			return labelSamplesSelected;
+		}
+		
+		this._storageModel.resetBoxInfo(null, null, null, null);
+		this._storageView.refreshGrid();
+		this._storageView.hideBoxField();
+		this._storageView.refreshBoxContents();
+	}
+	
+	this.setUserIds = function(userIds) {
+		this._storageModel.userIds = userIds;
+		this._storageView.refreshUserIdContents();
+	}
+	
 	this.setBoxSelected = function(boxName) {
 		this._storageModel.boxName = boxName;
 	}
@@ -103,11 +148,16 @@ function StorageController(configOverride) {
 		mainController.serverFacade.searchWithProperties(propertyTypeCodes, propertyValues,
 				function(samples) {
 					var boxes = [];
-					
+					var userIds = [];
 					samples.forEach(function(element, index, array) {
 						var boxCode = element.properties[_this._storageModel.storagePropertyGroup.boxProperty];
 						var boxRow  = element.properties[_this._storageModel.storagePropertyGroup.rowProperty];
 						var boxCol  = element.properties[_this._storageModel.storagePropertyGroup.columnProperty];
+						var userId = element.properties[_this._storageModel.storagePropertyGroup.userProperty];
+						
+						if($.inArray(userId, userIds) === -1) {
+							userIds.push(userId);
+						}
 						
 						var boxesRow = boxes[boxRow];
 						if(!boxesRow) {
@@ -133,6 +183,7 @@ function StorageController(configOverride) {
 					//
 					// Refresh Grid with the boxes
 					//
+					_this.setUserIds(userIds);
 					_this._gridController.getModel().labels = boxes;
 					_this._storageView.refreshGrid();
 		});

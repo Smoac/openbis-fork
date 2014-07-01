@@ -21,7 +21,7 @@ function StorageView(storageController, storageModel, gridView) {
 	
 	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
 	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
-	this._userIdFilter = FormUtil._getInputField("text", "", "User id to filter", null, false);
+	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
 	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
@@ -57,8 +57,14 @@ function StorageView(storageController, storageModel, gridView) {
 		
 		if(this._storageModel.config.userSelector === "on") {
 			//Paint
-			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdFilter, "User Id Filter");
+			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdDropdown, "User Id Filter");
 			$container.append($controlGroupUserId);
+			this._userIdDropdown.multiselect();
+			//Attach Event
+			this._userIdDropdown.change(function() {
+				var selectedUserIds = $(this).val();
+				_this._storageController.setUserIdsSelected(selectedUserIds);
+			});
 		}
 		
 		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
@@ -81,7 +87,7 @@ function StorageView(storageController, storageModel, gridView) {
 			this._boxContentsDropDown.multiselect();
 			//Attach Event
 			this._boxContentsDropDown.change(function() {
-				var samplesOfBox = _this._gridView.getModel().getLabelDataByLabelName(_this._storageModel.boxName);
+				var samplesOfBox = _this._gridView._gridModel.getLabelDataByLabelName(_this._storageModel.row,  _this._storageModel.column, _this._storageModel.boxName);
 				var selectedSamplePermIds = $(this).val();
 				var selectedSamples = [];
 				for(var i = 0; i < samplesOfBox.length; i++) {
@@ -93,6 +99,17 @@ function StorageView(storageController, storageModel, gridView) {
 				_this._storageController.setBoxContentsSelected(selectedSamples);
 			});
 		}
+	}
+	
+	this.refreshUserIdContents = function() {
+		this._userIdDropdown.empty();
+		var contents = this._storageModel.userIds;
+		if(contents) {
+			for (var i = 0; i < contents.length; i++) {
+				this._userIdDropdown.append($('<option>', { 'value' : contents[i] , 'selected' : ''}).html(contents[i]));
+			}
+		} 
+		this._userIdDropdown.multiselect('rebuild');
 	}
 	
 	this.refreshBoxContents = function() {
