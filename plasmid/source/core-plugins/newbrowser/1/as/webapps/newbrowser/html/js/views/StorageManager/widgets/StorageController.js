@@ -15,15 +15,16 @@
  */
 
 function StorageController(configOverride) {
+	//Pointer to himself
 	var _this = this;
 	//Dependent widgets
 	this._gridController = new GridController();
-	
+	//This controller M/V
 	this._storageModel = new StorageModel(configOverride);
-	this._storageView = new StorageView(this._storageModel, this._gridController.getView());
+	this._storageView = new StorageView(this, this._storageModel, this._gridController.getView());
 	
 	if(this._storageModel.config.boxSelector === "on") {
-		this._gridController.getView().setLabelClickedEventHandler(function(posX, posY, label) {
+		this._gridController.getView().setLabelSelectedEventHandler(function(posX, posY, label) {
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, label, null);
 			_this._storageView.showBoxName();
@@ -37,7 +38,7 @@ function StorageController(configOverride) {
 	}
 	
 	if(this._storageModel.config.rackSelector === "on") {
-		this._gridController.getView().setPosClickedEventHandler(function(posX, posY) {
+		this._gridController.getView().setPosSelectedEventHandler(function(posX, posY) {
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, null, null);
 			_this._storageView.showBoxField();
@@ -47,62 +48,50 @@ function StorageController(configOverride) {
 		}); 
 	}
 	
-	if(this._storageModel.config.contentsSelector === "on") {
-		this._storageView.getBoxContentsDropDown().change(function() {
-			var samplesOfBox = _this._gridController.getModel().getLabelDataByLabelName(_this._storageModel.boxName);
-			var selectedSamplePermIds = $(this).val();
-			var selectedSamples = [];
-			for(var i = 0; i < samplesOfBox.length; i++) {
-				var sample = samplesOfBox[i];
-				if($.inArray(sample.permId, selectedSamplePermIds) !== -1) {
-					selectedSamples.push(sample);
-				}
-			}
-			_this._storageModel.boxContents = selectedSamples;
-		});
+	this.setBoxContentsSelected = function(selectedSamples) {
+		this._storageModel.boxContents = selectedSamples;
 	}
 
-	this._storageView.getBoxField().keyup(function() {
-		_this._storageModel.boxName = $(this).val();
-	});
+	this.setBoxSelected = function(boxName) {
+		this._storageModel.boxName = boxName;
+	}
 	
 	this._deleteRackBoxContentStateInModelView = function() {
 		// Delete old state in model and view and set new sate in model and view
-		_this._storageModel.resetBoxInfo(null, null, null, null);
-		_this._storageView.hideBoxField();
-		if(_this._storageModel.config.contentsSelector === "on") {
-			_this._storageView.refreshBoxContents();
+		this._storageModel.resetBoxInfo(null, null, null, null);
+		this._storageView.hideBoxField();
+		if(this._storageModel.config.contentsSelector === "on") {
+			this._storageView.refreshBoxContents();
 		}
 	}
 	
-	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
-		// Delete old state in model and view
-		_this._deleteRackBoxContentStateInModelView();
-		_this._storageView.resetSelectStorageDropdown();
-		_this._gridController.getModel().reset();
-		_this._gridController.getView().repaint(_this._storageView.getGridContainer());
+	this.setSelectStorageGroup = function(storageGroupName) {
+		//Delete old state
+		this._deleteRackBoxContentStateInModelView();
+		this._storageView.resetSelectStorageDropdown();
+		this._gridController.getModel().reset();
 		
-		var storageGroupName = _this._storageView.getSelectStorageGroupDropdown().val();
-		_this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
-	});
+		//Set new state
+		this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(storageGroupName);
+		this._storageView.refreshGrid();
+	}
 	
-	this._storageView.getSelectStorageDropdown().change(function(event) {
+	this.setSelectStorage = function(selectedStorageCode) {
 		//
 		// Delete old state in model and view
 		//
-		_this._deleteRackBoxContentStateInModelView();
+		this._deleteRackBoxContentStateInModelView();
 		
 		//
 		// Obtain Storage Configuration
 		//
-		var selectedStorageCode = $(this).val();
-		_this._storageModel.storageCode = selectedStorageCode;
+		this._storageModel.storageCode = selectedStorageCode;
 		var storageConfig = profile.getStorageConfiguation(selectedStorageCode);
 		
 		if(storageConfig) {
-			_this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
+			this._gridController.getModel().reset(storageConfig.rowNum, storageConfig.colNum);
 		} else {
-			_this._gridController.getModel().reset(null, null);
+			this._gridController.getModel().reset(null, null);
 		}
 		
 		//
@@ -145,9 +134,9 @@ function StorageController(configOverride) {
 					// Refresh Grid with the boxes
 					//
 					_this._gridController.getModel().labels = boxes;
-					_this._gridController.getView().repaint(_this._storageView.getGridContainer());
+					_this._storageView.refreshGrid();
 		});
-	});
+	}
 	
 	//
 	// Getters

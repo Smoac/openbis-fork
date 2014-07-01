@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-function StorageView(storageModel, gridView) {
+function StorageView(storageController, storageModel, gridView) {
+	this._storageController = storageController;
 	this._storageModel = storageModel;
 	this._gridView = gridView;
 	
@@ -26,22 +27,36 @@ function StorageView(storageModel, gridView) {
 	this._boxContentsDropDown = $('<select>', { 'id' : 'boxSamplesSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	
 	this.repaint = function($container) {
+		//
+		// Paint View
+		//
 		var _this = this;
 		$container.empty();
 		$container.append("<h2>" + this._storageModel.config.title + "</h2>");
 		
 		if(this._storageModel.config.storagePropertyGroupSelector === "on") {
+			//Paint
 			var $controlGroupStoragesGroups = FormUtil.getFieldForComponentWithLabel(this._storageGroupsDropDown, "Group");
 			$container.append($controlGroupStoragesGroups);
 			this._storageModel.storagePropertyGroup = profile.getStoragePropertyGroup(this._storageGroupsDropDown.val());
+			//Attach Event
+			this._storageGroupsDropDown.change(function(event) {
+				_this._storageController.setSelectStorageGroup($(this).val());
+			});
 		}
 		
 		if(this._storageModel.config.storageSelector === "on") {
+			//Paint
 			var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
 			$container.append($controlGroupStorages);
+			//Attach Event
+			this._defaultStoragesDropDown.change(function(event) {
+				_this._storageController.setSelectStorage($(this).val());
+			});
 		}
 		
 		if(this._storageModel.config.userSelector === "on") {
+			//Paint
 			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdFilter, "User Id Filter");
 			$container.append($controlGroupUserId);
 		}
@@ -49,15 +64,34 @@ function StorageView(storageModel, gridView) {
 		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
 		
 		if(this._storageModel.config.boxSelector === "on" || this._storageModel.config.rackSelector === "on") {
+			//Paint
 			this._boxField.hide();
 			var $controlGroupBox = FormUtil.getFieldForComponentWithLabel(this._boxField, "Box Name");
 			$container.append($controlGroupBox);
+			//Attach Event
+			this._boxField.keyup(function() {
+				_this._storageController.setBoxSelected($(this).val());
+			});
 		}
 		
 		if(this._storageModel.config.contentsSelector === "on") {
+			//Paint
 			var $controlGroupBoxContents = FormUtil.getFieldForComponentWithLabel(this._boxContentsDropDown, "Box Contents");
 			$container.append($controlGroupBoxContents);
 			this._boxContentsDropDown.multiselect();
+			//Attach Event
+			this._boxContentsDropDown.change(function() {
+				var samplesOfBox = _this._gridView.getModel().getLabelDataByLabelName(_this._storageModel.boxName);
+				var selectedSamplePermIds = $(this).val();
+				var selectedSamples = [];
+				for(var i = 0; i < samplesOfBox.length; i++) {
+					var sample = samplesOfBox[i];
+					if($.inArray(sample.permId, selectedSamplePermIds) !== -1) {
+						selectedSamples.push(sample);
+					}
+				}
+				_this._storageController.setBoxContentsSelected(selectedSamples);
+			});
 		}
 	}
 	
@@ -68,54 +102,37 @@ function StorageView(storageModel, gridView) {
 			for (var i = 0; i < contents.length; i++) {
 				this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].permId , 'selected' : ''}).html(contents[i].code));
 			}
-			this._boxContentsDropDown.multiselect('rebuild');
-		}
+		} 
+		this._boxContentsDropDown.multiselect('rebuild');
 	}
 	
 	//
-	// Getters
+	// View specific methods
 	//
-	this.getModel = function() {
-		return this._storageModel;
-	}
-	
-	this.getSelectStorageGroupDropdown = function() {
-		return this._storageGroupsDropDown;
-	}
-	
 	this.resetSelectStorageDropdown = function() {
 		this._defaultStoragesDropDown.val("");
 	}
 	
-	this.getSelectStorageDropdown = function() {
-		return this._defaultStoragesDropDown;
-	}
-	
-	this.getGridContainer = function() {
-		return this._gridContainer;
-	}
-	
-	this.getBoxField = function() {
-		return this._boxField;
+	this.refreshGrid = function() {
+		this._gridView.repaint(this._gridContainer);
 	}
 	
 	this.hideBoxField = function() {
 		this._boxField.val("");
 		this._boxField.hide();
 	}
+	
 	this.showBoxField = function() {
 		this._boxField.val("");
 		this._boxField.removeAttr("disabled");
 		this._boxField.show();
 	}
 	
-	this.showBoxName = function(boxName) {
-		this._boxField.val(boxName);
+	this.showBoxName = function() {
+		this._boxField.val(this._storageModel.boxName);
 		this._boxField.attr("disabled", "");
 		this._boxField.show();
 	}
-	
-	this.getBoxContentsDropDown = function() {
-		return this._boxContentsDropDown;
-	}
+
+
 }

@@ -116,11 +116,11 @@ function GridView(gridModel) {
 	//
 	// Setters
 	//
-	this.setPosClickedEventHandler = function(posClickedEventHandler) {
+	this.setPosSelectedEventHandler = function(posClickedEventHandler) {
 		this._posClickedEventHandler = posClickedEventHandler;
 	}
 	
-	this.setLabelClickedEventHandler = function(labelClickedEventHandler) {
+	this.setLabelSelectedEventHandler = function(labelClickedEventHandler) {
 		this._labelClickedEventHandler = labelClickedEventHandler;
 	}
 }
