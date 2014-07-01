@@ -19,7 +19,7 @@ function StorageManagerView(storageManagerModel, storageFromView, storageToView)
 	
 	this._storageFromView = storageFromView;
 	this._storageToView = storageToView;
-	this._moveBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-arrow-right'></span> Move Selected Samples");
+	this._moveBtn = $("<a>", { "class" : "btn btn-default"}).append("Move Selected Samples <span class='glyphicon glyphicon-arrow-right'></span>");
 	
 	this.repaint = function($container) {
 		$container.empty();
