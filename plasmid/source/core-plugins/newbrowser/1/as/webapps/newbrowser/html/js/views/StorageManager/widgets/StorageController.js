@@ -24,49 +24,26 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.boxSelector === "on") {
 		this._gridController.getView().setLabelClickedEventHandler(function(posX, posY, label) {
-			//
-			// Delete old state in model and view
-			//
-			_this._storageModel.resetBoxInfo();
-			
-			//
-			// Set new sate in model and view
-			//
-			_this._storageModel.row = posX;
-			_this._storageModel.column = posY;
-			_this._storageModel.boxName = label;
-			
-			_this._storageView.getBoxField().val(label);
-			_this._storageView.getBoxField().attr("disabled", "");
-			_this._storageView.getBoxField().show();
+			// Delete old state in model and view and set new sate in model and view
+			_this._storageModel.resetBoxInfo(posX, posY, label, null);
+			_this._storageView.showBoxName();
 			
 			if(_this._storageModel.config.contentsSelector === "on") {
 				var labelData = _this._gridController.getModel().getLabelDataByLabelName(label);
-				_this._storageView.showContents(labelData);
 				_this._storageModel.boxContents = labelData;
+				_this._storageView.refreshBoxContents();
 			}
 		}); 
 	}
 	
 	if(this._storageModel.config.rackSelector === "on") {
 		this._gridController.getView().setPosClickedEventHandler(function(posX, posY) {
-			//
-			// Delete old state in model and view
-			//
-			_this._storageModel.resetBoxInfo();
+			// Delete old state in model and view and set new sate in model and view
+			_this._storageModel.resetBoxInfo(posX, posY, null, null);
+			_this._storageView.showBoxField();
 			if(_this._storageModel.config.contentsSelector === "on") {
-				_this._storageView.showContents([]);
+				_this._storageView.refreshBoxContents();
 			}
-			
-			//
-			// Set new sate in model and view
-			//
-			_this._storageModel.row = posX;
-			_this._storageModel.column = posY;
-			
-			_this._storageView.getBoxField().val("");
-			_this._storageView.getBoxField().removeAttr("disabled");
-			_this._storageView.getBoxField().show();
 		}); 
 	}
 	
@@ -90,21 +67,18 @@ function StorageController(configOverride) {
 	});
 	
 	this._deleteRackBoxContentStateInModelView = function() {
-		_this._storageModel.resetBoxInfo();
-		
-		_this._storageView.getBoxField().val("");
-		_this._storageView.getBoxField().hide();
+		// Delete old state in model and view and set new sate in model and view
+		_this._storageModel.resetBoxInfo(null, null, null, null);
+		_this._storageView.hideBoxField();
 		if(_this._storageModel.config.contentsSelector === "on") {
-				_this._storageView.showContents([]);
+			_this._storageView.refreshBoxContents();
 		}
 	}
 	
 	this._storageView.getSelectStorageGroupDropdown().change(function(event) {
-		//
 		// Delete old state in model and view
-		//
 		_this._deleteRackBoxContentStateInModelView();
-		_this._storageView.getSelectStorageDropdown().val("");
+		_this._storageView.resetSelectStorageDropdown();
 		_this._gridController.getModel().reset();
 		_this._gridController.getView().repaint(_this._storageView.getGridContainer());
 		

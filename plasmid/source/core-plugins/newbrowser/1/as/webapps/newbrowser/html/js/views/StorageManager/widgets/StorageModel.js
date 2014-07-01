@@ -37,10 +37,10 @@ function StorageModel(configOverride) {
 	this.boxName = null; //Selected Box
 	this.boxContents = null; //Selected Box contents (samples)
 	
-	this.resetBoxInfo = function() {
-		this.row = null; //Selected Row
-		this.column = null; //Selected Column
-		this.boxName = null; //Selected Box
-		this.boxContents = null; //Selected Box contents (samples)
+	this.resetBoxInfo = function(row, column, boxName, boxContents) {
+		this.row = row; //Selected Row
+		this.column = column; //Selected Column
+		this.boxName = boxName; //Selected Box
+		this.boxContents = boxContents; //Selected Box contents (samples)
 	}
 }

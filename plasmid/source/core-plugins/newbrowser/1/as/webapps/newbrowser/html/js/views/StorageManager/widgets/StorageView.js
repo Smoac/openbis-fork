@@ -61,12 +61,15 @@ function StorageView(storageModel, gridView) {
 		}
 	}
 	
-	this.showContents = function(contents) {
+	this.refreshBoxContents = function() {
 		this._boxContentsDropDown.empty();
-		for (var i = 0; i < contents.length; i++) {
-			this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].permId , 'selected' : ''}).html(contents[i].code));
+		var contents = this._storageModel.boxContents;
+		if(contents) {
+			for (var i = 0; i < contents.length; i++) {
+				this._boxContentsDropDown.append($('<option>', { 'value' : contents[i].permId , 'selected' : ''}).html(contents[i].code));
+			}
+			this._boxContentsDropDown.multiselect('rebuild');
 		}
-		this._boxContentsDropDown.multiselect('rebuild');
 	}
 	
 	//
@@ -80,6 +83,10 @@ function StorageView(storageModel, gridView) {
 		return this._storageGroupsDropDown;
 	}
 	
+	this.resetSelectStorageDropdown = function() {
+		this._defaultStoragesDropDown.val("");
+	}
+	
 	this.getSelectStorageDropdown = function() {
 		return this._defaultStoragesDropDown;
 	}
@@ -90,6 +97,22 @@ function StorageView(storageModel, gridView) {
 	
 	this.getBoxField = function() {
 		return this._boxField;
+	}
+	
+	this.hideBoxField = function() {
+		this._boxField.val("");
+		this._boxField.hide();
+	}
+	this.showBoxField = function() {
+		this._boxField.val("");
+		this._boxField.removeAttr("disabled");
+		this._boxField.show();
+	}
+	
+	this.showBoxName = function(boxName) {
+		this._boxField.val(boxName);
+		this._boxField.attr("disabled", "");
+		this._boxField.show();
 	}
 	
 	this.getBoxContentsDropDown = function() {
