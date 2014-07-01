@@ -107,13 +107,6 @@ function GridView(gridModel) {
 	}
 	
 	//
-	// Getters
-	//
-	this.getModel = function() {
-		return this._gridModel;
-	}
-	
-	//
 	// Setters
 	//
 	this.setPosSelectedEventHandler = function(posClickedEventHandler) {
