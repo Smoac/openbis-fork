@@ -207,11 +207,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		//
 		// Table Headers
 		//
-		if(this.sampleTypeCode == "SEARCH") {
-			$("#tableContainer").append("<div id='paginationContainerTop' class='paginationTop'></div>");
-		} else {
-			$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='Filter visible columns' class='form-control search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
-		}
+		$("#tableContainer").append("<div class='tableFilterContainer'><input placeholder='Filter visible columns' class='form-control search-query' id='table-filter' type='text'></div> <div id='paginationContainerTop' class='paginationTop'></div>");	
 		$("#tableContainer").append("<div class='wrapper' style='clear: both; padding-top: 10px;'>");
 		
 		var tableTemplate = "<table style='width:100%;' class='table table-hover' id=\"sample-table\"><thead>";
@@ -778,6 +774,15 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 							}
 						}
 					}
+					
+					if(this.sampleTypeCode === "SEARCH") {
+						filterValueTokensPassed[j] = this.samples[i].sampleTypeCode.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||
+													this.samples[i].code.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||
+													this.samples[i]["PROPERTIES_JSON"].toLowerCase().indexOf(filterValueTokens[j]) !== -1;
+						if(filterValueTokensPassed[j]) {
+							break;
+						}
+					}
 				}
 			}
 			
@@ -789,6 +794,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			if(pass) {
 				filteredSamplesHolder.push(this.samples[i]);
 			}
+			
 		}
 		
 		//Repaint first page
