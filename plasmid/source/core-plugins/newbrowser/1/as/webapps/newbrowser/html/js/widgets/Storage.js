@@ -395,7 +395,6 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 						$virtualStorageRow.append($rackHeader.append(i+1));
 					} else {
 						var $rack = $("<td>");
-						
 						//Used for validation
 						var currentBoxes = 0;
 						//Populate Box Names
@@ -412,10 +411,19 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 								var sortedBoxesArray = currentBoxesArray.sort(naturalSort);
 								
 								for(var k = 0; k < sortedBoxesArray.length; k++) {
-									$rack.append(
-										$("<div>", { class: "storageBox" })
-											.append(sortedBoxesArray[k])
-									);
+									var storageBox = $("<div>", { class: "storageBox" }).append(sortedBoxesArray[k]);
+									
+									var clickFunction = function(label) {
+										return function(event) {
+											//event.stopPropagation();
+											localReference._setSelectedValue(storageBoxPropertyCode, label);
+											$("#" + storageBoxPropertyCode).show();
+											$("#" + storageBoxPropertyCode).prop('disabled', true);
+										}
+									}
+									storageBox.click(clickFunction(sortedBoxesArray[k]));
+									
+									$rack.append(storageBox);
 								}
 								
 							}
@@ -429,7 +437,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 						$rack.attr("currentNum", currentBoxes);
 						
 						//Event
-						$rack.click(function() {
+						$rack.click(function(event) {
 							if(localReference.isDisabled) { return; }
 							
 							//Check if can be added
@@ -449,7 +457,11 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 							localReference._setSelectedValue(storageRowPropertyCode, $(this).attr("rowNum"));
 							localReference._setSelectedValue(storageColPropertyCode, $(this).attr("colNum"));
 							localReference._setSelectedValue(storageUserPropertyCode, localReference.userId);
-							localReference._repaint();
+							
+							if(!(event.target.className === "storageBox")) {
+								localReference._setSelectedValue(storageBoxPropertyCode, "");
+								localReference._repaint();
+							}
 						});
 						
 						//Append Rack
@@ -479,17 +491,23 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			//
 			// 3. Input the box name
 			//
+			
+			//Create and set the field
+			var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), false, '[A-Z0-9_]+');
+			$propertyTypeBoxComponent.change(
+				function() {
+					$(this).val($(this).val().toUpperCase()); //Box Names can only be upper case
+				}
+			);
+			$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeBoxComponent, "Box Name"));
+			
 			if($virtualStorage && selectedRow && selectedCol) {
-				//Create and set the field
-				var $propertyTypeBoxComponent = this._getComponent(this._getPropertyFromType(storageBoxPropertyCode), false, '[A-Z0-9_]+');
-				$propertyTypeBoxComponent.change(
-					function() {
-						$(this).val($(this).val().toUpperCase()); //Box Names can only be upper case
-					}
-				);
-				
 				$propertyTypeBoxComponent.val(selectedBox);
-				$container.append(FormUtil.getFieldForComponentWithLabel($propertyTypeBoxComponent, "Box Name"));
+				if(selectedBox && selectedBox !== "") {
+					$propertyTypeBoxComponent.attr("disabled", true);
+				}
+			} else {
+				$propertyTypeBoxComponent.hide();
 			}
 			
 			if(storageConfig) {
