@@ -528,8 +528,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 							}
 							
 							var toShow = sampleData["PROPERTIES_JSON"];
-							if(sampleData["PROPERTIES_JSON"].length > 50) {
-								toShow = toShow.substring(0, 150) + "...";
+							if(sampleData["PROPERTIES_JSON"].length > 200) {
+								toShow = toShow.substring(0, 200) + "...";
 							}
 							
 							return toShow;
