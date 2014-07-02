@@ -457,13 +457,12 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 						inspectedClass = "inspectorClicked";
 					}
 					tableFields[tableFields.length] = "<a id='PIN_" + sample.permId + "' class='btn btn-default " + inspectedClass + "' onmouseover=\"mainController.currentView.previewNote('" + sample.permId + "', 'PIN_" + sample.permId + "');\" ><img src='./img/pin-icon.png' style='width:16px; height:16px;' /></a>";
+					tableFields[tableFields.length] = "<a class='btn btn-default' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
 				}
 				
 				if(localReference.enableEdit) {
-					tableFields[tableFields.length] = "<a class='btn btn-default' href=\"javascript:mainController.changeView('showSampleHierarchyPage','"+sample.permId+"');\"><img src='./img/hierarchy-icon.png' style='width:16px; height:17px;' /></a>";
 					tableFields[tableFields.length] = "";
 				} else {
-					tableFields[tableFields.length] = "";
 					tableFields[tableFields.length] = "";
 				}
 				
