@@ -517,7 +517,14 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 							}
 						} else if (localReference.isSearch && index == 5) {
 							if(localReference.isSearch && !sampleData["PROPERTIES_JSON"]) {
-								sampleData["PROPERTIES_JSON"] = JSON.stringify(sampleData.properties).replace(/:/g,' : ');
+								var propertiesString = "";
+								for(propertyKey in sampleData.properties) {
+									if(propertiesString.length > 0) {
+										propertiesString += " , ";
+									}
+									propertiesString += "<b>" + propertyKey + "</b> : " + sampleData.properties[propertyKey];
+								}
+								sampleData["PROPERTIES_JSON"] = propertiesString;
 							}
 							
 							var toShow = sampleData["PROPERTIES_JSON"];
