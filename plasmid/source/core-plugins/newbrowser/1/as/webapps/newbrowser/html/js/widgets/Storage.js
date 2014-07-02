@@ -352,7 +352,7 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 			//Attach row, column and user hidden fields
 			$propertyTypeRowComponent = this._getComponent(this._getPropertyFromType(storageRowPropertyCode), true, null);
 			$propertyTypeColComponent = this._getComponent(this._getPropertyFromType(storageColPropertyCode), true, null);
-			$propertyTypeUserComponent = this._getComponent(this._getPropertyFromType(storageUserPropertyCode), !selectedStorage.startsWith("USER_BENCH"), null);
+			$propertyTypeUserComponent = this._getComponent(this._getPropertyFromType(storageUserPropertyCode), false, null);
 			$propertyTypeUserComponent.prop('disabled', true);
 			$container
 				.append($propertyTypeRowComponent)
@@ -450,22 +450,6 @@ function Storage(serverFacade, containerId, profile, sampleTypeCode, sample, isD
 							localReference._setSelectedValue(storageColPropertyCode, $(this).attr("colNum"));
 							localReference._setSelectedValue(storageUserPropertyCode, localReference.userId);
 							localReference._repaint();
-						});
-						
-						$rack.mouseover(function() {
-							$(".storageSelectedCorner").removeClass("storageSelectedCorner");
-							
-							var rowNum = $(this).attr("rowNum");
-							var colNum = $(this).attr("colNum");
-							
-							var rackIdRow = "#" + localReference.containerId + "_rack_" + rowNum + "_" + 0;
-							$(rackIdRow).addClass('storageSelectedCorner');
-							
-							var rackIdCol = "#" + localReference.containerId + "_rack_" + 0 + "_" + colNum;
-							$(rackIdCol).addClass('storageSelectedCorner');
-							
-							var rackId = "#" + localReference.containerId + "_rack_" + rowNum + "_" + colNum;
-							$(rackId).addClass('storageSelectedCorner');
 						});
 						
 						//Append Rack
