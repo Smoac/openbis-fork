@@ -398,7 +398,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var sampleLink = "<a href='"+url+"?viewName=showViewSamplePageFromPermId&viewData=" + sample.permId + "&hideMenu=true' target='_blank'>" + sample.code + "</a>";
 				
 				if(localReference.isSearch) {
-					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample, sample ];
+					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>", sample.sampleTypeCode, sample, sample, sample];
 				} else {
 					tableFields = [sampleLink, "<img data-preview-loaded='false' onClick=\""+imageOnClick+"\" class='zoomableImage' id='preview"+sample.identifier.replace(/\//g,'-')+"' src='./img/image_loading.gif' style='height:80px;'></img>"];
 					for(var i=0; i<sampleTypeProperties.length; i++) {
@@ -474,7 +474,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				.attr("class", "sample-table-data-cell")
 				.html(
 					function(sampleData, index) {
-						
 						if (localReference.isSearch && index == 3) {
 							d = sampleData.properties;
 							if (searchText && searchText.length > 0 && d) {
@@ -516,6 +515,17 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 									}
 								}
 							}
+						} else if (localReference.isSearch && index == 5) {
+							if(localReference.isSearch && !sampleData["PROPERTIES_JSON"]) {
+								sampleData["PROPERTIES_JSON"] = JSON.stringify(sampleData.properties).replace(/:/g,' : ');
+							}
+							
+							var toShow = sampleData["PROPERTIES_JSON"];
+							if(sampleData["PROPERTIES_JSON"].length > 50) {
+								toShow = toShow.substring(0, 150) + "...";
+							}
+							
+							return toShow;
 						} else {
 							return sampleData;
 						}
