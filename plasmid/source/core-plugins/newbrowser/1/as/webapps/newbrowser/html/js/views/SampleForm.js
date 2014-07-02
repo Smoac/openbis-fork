@@ -735,6 +735,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		
 		if(this.sample !== null) {
 			experimentIdentifier = this.sample.experimentIdentifierOrNull;
+			if(!experimentIdentifier) {
+				sampleSpace = $("#sampleSpaceProject").val();
+			}
 		} else if(this.isELNSubExperiment) {
 			experimentIdentifier = $("#sampleSpaceProject").val();
 		} else {
