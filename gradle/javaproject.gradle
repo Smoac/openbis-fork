@@ -91,12 +91,13 @@ def execute_working_dir(command, arguments, working_dir) {
     }
 }
 
-def SVN_CMD = 'svn'
+ext.svnCommand = 'svn'
 
 def isSvnProject() {
    def result = exec {
-            executable = "svn"
-            args = ["info"]
+            executable = svnCommand
+            args = ['--non-interactive', "info"]
+            standardOutput = new ByteArrayOutputStream()
             ignoreExitValue = true
         }
     return result["exitValue"] == 0
@@ -104,7 +105,7 @@ def isSvnProject() {
 
 def executeSVN(arguments) {
     arguments.add(0, '--non-interactive')
-    return execute('svn', arguments)
+    return execute(svnCommand, arguments)
 }
 
 def calculateCleanFlag() {
