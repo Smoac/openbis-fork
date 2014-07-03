@@ -354,3 +354,11 @@ td.properties-sub-section {
 .entityWithTemplateField {
 	margin-left: 10px;	
 }
+
+/*************************
+ * Welcome Page
+ *************************/
+
+.welcomePageContainer .gwt-HTML {
+	overflow: scroll;
+}

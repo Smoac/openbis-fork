@@ -231,4 +231,24 @@ public class DataSetImmutable extends AbstractDataSetImmutable
     {
         return isContainerDataSet() || isLinkDataSet();
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (false == (obj instanceof DataSetImmutable))
+            return false;
+        DataSetImmutable other = (DataSetImmutable) obj;
+        if (getDataSetCode() == null)
+        {
+            if (other.getDataSetCode() != null)
+                return false;
+        } else if (!getDataSetCode().equals(other.getDataSetCode()))
+            return false;
+        return true;
+    }
+
 }
