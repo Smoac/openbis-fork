@@ -779,9 +779,6 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 						filterValueTokensPassed[j] = this.samples[i].sampleTypeCode.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||
 													this.samples[i].code.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||
 													this.samples[i]["PROPERTIES_JSON"].toLowerCase().indexOf(filterValueTokens[j]) !== -1;
-						if(filterValueTokensPassed[j]) {
-							break;
-						}
 					}
 				}
 			}
