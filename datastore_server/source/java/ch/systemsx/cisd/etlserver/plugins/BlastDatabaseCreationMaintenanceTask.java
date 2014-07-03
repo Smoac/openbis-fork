@@ -18,15 +18,23 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -183,8 +191,10 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     @Override
     public void execute()
     {
-        IHierarchicalContentProvider contentProvider = getContentProvider();
         IEncapsulatedOpenBISService service = getOpenBISService();
+        Map<SequenceType, VirtualDatabase> virtualDatabases = loadVirtualDatabases(service);
+        
+        IHierarchicalContentProvider contentProvider = getContentProvider();
         List<AbstractExternalData> dataSets = getDataSets(service);
         if (dataSets.isEmpty() == false)
         {
@@ -196,7 +206,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             {
                 try
                 {
-                    createBlastDatabase(dataSet, contentProvider);
+                    createBlastDatabase(dataSet, virtualDatabases, contentProvider);
                 } catch (Exception ex)
                 {
                     operationLog.error("Error caused by creating BLAST database for data set " + dataSet.getCode() 
@@ -205,6 +215,34 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
             updateLastSeenEventId(dataSet.getId());
         }
+        for (VirtualDatabase virtualDatabase : virtualDatabases.values())
+        {
+            virtualDatabase.save();
+        }
+    }
+
+    private Map<SequenceType, VirtualDatabase> loadVirtualDatabases(IEncapsulatedOpenBISService service)
+    {
+        Map<SequenceType, VirtualDatabase> virtualDatabases = new TreeMap<SequenceType, VirtualDatabase>();
+        Set<String> dataSetCodes = new HashSet<String>();
+        for (SequenceType sequenceType : SequenceType.values())
+        {
+            VirtualDatabase virtualDatabase = new VirtualDatabase(blastDatabasesFolder, sequenceType);
+            dataSetCodes.addAll(virtualDatabase.getDataSetCodes());
+            virtualDatabases.put(sequenceType, virtualDatabase);
+        }
+        if (dataSetCodes.isEmpty() == false)
+        {
+            for (AbstractExternalData dataSet : service.listDataSetsByCode(new ArrayList<String>(dataSetCodes)))
+            {
+                dataSetCodes.remove(dataSet.getCode());
+            }
+            for (VirtualDatabase virtualDatabase : virtualDatabases.values())
+            {
+                virtualDatabase.removeDeletedDataSets(dataSetCodes);
+            }
+        }
+        return virtualDatabases;
     }
     
     private boolean dataSetTypeMatches(AbstractExternalData dataSet)
@@ -220,7 +258,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         return false;
     }
 
-    private void createBlastDatabase(AbstractExternalData dataSet, IHierarchicalContentProvider contentProvider)
+    private void createBlastDatabase(AbstractExternalData dataSet, Map<SequenceType, VirtualDatabase> virtualDatabases,
+            IHierarchicalContentProvider contentProvider)
     {
         String dataSetCode = dataSet.getCode();
         FastaFileBuilder builder = new FastaFileBuilder(tmpFolder, dataSetCode);
@@ -253,12 +292,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             {
                 process(makembindex, "-iformat", "blastdb", "-input", databaseFile, "-old_style_index", "false");
             }
-            File allDatabaseFile = new File(blastDatabasesFolder, "all-" + dbtype + ".nal");
-            if (allDatabaseFile.exists() == false)
-            {
-                FileUtilities.writeToFile(allDatabaseFile, "TITLE all-" + dbtype + "\nDBLIST");
-            }
-            FileUtilities.appendToFile(allDatabaseFile, " " + databaseName, false);
+            virtualDatabases.get(sequenceType).addDataSet(dataSetCode);
         }
         builder.cleanUp();
     }
@@ -389,4 +423,107 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         return ServiceProvider.getHierarchicalContentProvider();
     }
 
+    private static class VirtualDatabase
+    {
+        private final File databaseFolder;
+        private final String dbtype;
+        private final String postfix;
+        private final File databaseFile;
+        private final Set<String> dataSetCodes = new LinkedHashSet<String>();
+
+        VirtualDatabase(File databaseFolder, SequenceType sequenceType)
+        {
+            this.databaseFolder = databaseFolder;
+            dbtype = sequenceType.toString().toLowerCase();
+            postfix = "-" + dbtype;
+            databaseFile = new File(databaseFolder, "all-" + dbtype + ".nal");
+            if (databaseFile.isFile())
+            {
+                List<String> lines = FileUtilities.loadToStringList(databaseFile);
+                if (lines.size() == 2)
+                {
+                    StringTokenizer tokenizer = new StringTokenizer(lines.get(1));
+                    tokenizer.nextToken(); // drop 'DBLIST' token
+                    while (tokenizer.hasMoreTokens())
+                    {
+                        String token = tokenizer.nextToken();
+                        if (token.endsWith(postfix))
+                        {
+                            dataSetCodes.add(token.substring(0, token.length() - postfix.length()));
+                        }
+                    }
+                }
+            }
+        }
+        
+        Set<String> getDataSetCodes()
+        {
+            return dataSetCodes;
+        }
+        
+        void addDataSet(String dataSetCode)
+        {
+            dataSetCodes.add(dataSetCode);
+        }
+        
+        void removeDeletedDataSets(Collection<String> deletedDataSets)
+        {
+            for (String dataSetCode : deletedDataSets)
+            {
+                dataSetCodes.remove(dataSetCode);
+                final String databaseName = dataSetCode + postfix;
+                File[] files = databaseFolder.listFiles(new FilenameFilter()
+                    {
+                        @Override
+                        public boolean accept(File dir, String name)
+                        {
+                            return name.startsWith(databaseName);
+                        }
+                    });
+                if (files != null)
+                {
+                    boolean success = true;
+                    for (File file : files)
+                    {
+                        if (FileUtilities.delete(file) == false)
+                        {
+                            operationLog.warn("File deletion failed: " + file);
+                        }
+                    }
+                    if (success)
+                    {
+                        operationLog.info("BLAST database " + databaseName + " successfully deleted.");
+                    }
+                }
+            }
+        }
+        
+        void save()
+        {
+            File allDatabaseFile = new File(databaseFolder, "all-" + dbtype + ".nal");
+            if (dataSetCodes.isEmpty())
+            {
+                if (allDatabaseFile.exists())
+                {
+                    if (FileUtilities.delete(allDatabaseFile))
+                    {
+                        operationLog.info("Virtual BLAST database file " + allDatabaseFile 
+                                + " deleted because it was empty.");
+                    } else
+                    {
+                        operationLog.warn("File deletion failed: " + allDatabaseFile);
+                    }
+                }
+            } else
+            {
+                StringBuilder builder = new StringBuilder();
+                builder.append("TITLE all-" + dbtype + "\nDBLIST");
+                for (String dataSetCode : dataSetCodes)
+                {
+                    builder.append(' ').append(dataSetCode).append(postfix);
+                }
+                FileUtilities.writeToFile(allDatabaseFile, builder.toString());
+            }
+        }
+    }
 }
