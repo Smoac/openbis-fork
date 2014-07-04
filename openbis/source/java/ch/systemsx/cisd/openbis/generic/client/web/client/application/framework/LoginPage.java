@@ -18,6 +18,13 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import java.util.Date;
 
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
+
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -27,13 +34,6 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * The login page.
@@ -109,14 +109,14 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
     private Widget createFooter(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         HorizontalPanel footer = new HorizontalPanel();
-        final HTML html = new HTML("Click <a href='help.html' target='_blank'>here</a> for help.");
+        final HTML html = new HTML("Click <a href='./custom/help.html' target='_blank'>here</a> for help.");
         footer.add(html);
         return footer;
     }
 
     private HTML getBannersPage()
     {
-        HTML html = new HtmlPage("loginHeader");
+        HTML html = new HtmlPage("./custom/loginHeader");
         html.setStyleName("login-header");
         return html;
     }
