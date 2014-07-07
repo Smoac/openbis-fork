@@ -8,8 +8,7 @@ evaluationDependsOn(':datastore_server')
 evaluationDependsOn(':screening')
 evaluationDependsOn(':openbis_standard_technologies')
 
-
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: '../gradle/javaproject.gradle'
 
 dependencies {
     compile project(':screening')
