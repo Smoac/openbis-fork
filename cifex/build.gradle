@@ -2,7 +2,7 @@ evaluationDependsOn(':common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: '../gradle/javaproject.gradle'
 
 eclipse {
     classpath {
