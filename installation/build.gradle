@@ -11,7 +11,7 @@ evaluationDependsOn(':rtd_yeastx')
 evaluationDependsOn(':deep_sequencing_unit')
 evaluationDependsOn(':openbis_standard_technologies')
 
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: '../gradle/javaproject.gradle'
 
 // Replace BUILD INFO files for AS and DSS because their revision number is usually to low.
 def buildInfo = file("${project.projectDir}/targets/dist/BUILD-${project.name}.INFO").text
