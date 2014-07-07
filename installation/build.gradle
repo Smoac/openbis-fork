@@ -45,8 +45,8 @@ dependencies {
 }
 
 archivesBaseName = 'openBIS-installation-standard-technologies'
-installerDistDir = 'targets/dist/installer'
-izPackJar = "${buildDir}/izPack.jar"
+ext.installerDistDir = 'targets/dist/installer'
+ext.izPackJar = "${buildDir}/izPack.jar"
 println "installerDir:${installerDistDir}"
 println "buildDir:${buildDir}"
 println "installer:${project.projectDir}/resource/installer"

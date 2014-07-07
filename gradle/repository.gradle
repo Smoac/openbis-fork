@@ -1,4 +1,4 @@
-repositoryConfig = {
+ext.repositoryConfig = {
     add(new org.apache.ivy.plugins.resolver.FileSystemResolver()) {
         name = 'ivy-repository-local'
         addIvyPattern "${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"

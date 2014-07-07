@@ -83,8 +83,8 @@ buildscript {
 
 task compileGwt (dependsOn: classes, type: JavaExec) {
 
-	buildDir = "${project.buildDir}/gwt"
-	extraDir = "${project.buildDir}/extra"
+	ext.buildDir = "${project.buildDir}/gwt"
+	def extraDir = "${project.buildDir}/extra"
      
 	inputs.source sourceSets.main.java.srcDirs
 	inputs.dir sourceSets.main.output.resourcesDir
@@ -127,7 +127,7 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 }
 
 
-classpathEntries = files(
+ext.classpathEntries = files(
 	project(':openbis').file('source/java/applicationContext.xml'),
 	project(':openbis').file('source/java/dbConfigurationContext.xml'),
 	project(':openbis').file('source/java/ehcache.xml'),
@@ -144,7 +144,7 @@ classpathEntries = files(
 	'source/java/standard-technologies-applicationContext.xml'
 )
 
-zipEntries = files(
+ext.zipEntries = files(
 	project(':openbis').file('dist/server/check.sh'),
 	project(':openbis').file('dist/server/configure.sh'),
 	project(':openbis').file('dist/server/export-master-data.py'),
@@ -267,7 +267,7 @@ task checksums {
 		}
 		destFile.createNewFile()
 		
-		configFiles = classpathEntries.filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')})
+		def configFiles = classpathEntries.filter({file -> file.name.endsWith('xml') || file.name.endsWith('.conf') || file.name.endsWith('.properties')})
 		configFiles.each {file ->
 			destFile.text += generateMD5(file)+" webapps/openbis/WEB-INF/classes/"+file.name+"\n"
 		}

@@ -23,7 +23,7 @@ task wrapper(type: Wrapper) {
     distributionUrl = "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/gradle/distribution/1.8/gradle-1.8-all.zip"
 }
 
-addSource = (sourceCompatibility == org.gradle.api.JavaVersion.VERSION_1_6)
+ext.addSource = (sourceCompatibility == org.gradle.api.JavaVersion.VERSION_1_6)
 
 sourceCompatibility='1.6'
 targetCompatibility='1.6'
@@ -184,8 +184,8 @@ group="cisd"
 
 task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     doFirst {
-        cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
-        cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDir]
+        def cp = configurations.testCompile.filter({ f -> f.name.startsWith('restrictionchecker') || f.name.startsWith('bcel')}).asPath
+        def cmd = ['java', '-cp', cp, 'ch.rinn.restrictions.RestrictionChecker', '-r', sourceSets.main.output.classesDir]
         if (sourceSets.test.output.classesDir.exists()) {
             cmd.add(sourceSets.test.output.classesDir)
         }
