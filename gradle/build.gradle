@@ -15,4 +15,4 @@ evaluationDependsOn(':ui-test')
 evaluationDependsOn(':js-test')
 evaluationDependsOn(':image_readers')
 
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: '../gradle/javaproject.gradle'
