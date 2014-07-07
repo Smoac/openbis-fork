@@ -27,7 +27,7 @@ elif [ "$1" == "cifex" ]
 then
 	${DIR}/gradle/build_cifex.sh $@
 else
-	echo "Unknown product $1"
+	${DIR}/gradle/build_project.sh $@
 fi
 
 exit 0
