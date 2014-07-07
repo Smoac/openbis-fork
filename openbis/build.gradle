@@ -4,7 +4,7 @@ evaluationDependsOn(':openbis-common')
 evaluationDependsOn(':authentication')
 evaluationDependsOn(':dbmigration')
 
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: '../gradle/javaproject.gradle'
 
 configurations.create('testRuntimeFirst')
 
