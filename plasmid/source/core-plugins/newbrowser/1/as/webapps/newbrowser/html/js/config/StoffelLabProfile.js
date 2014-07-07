@@ -9,6 +9,8 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 		
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
+		this.inventorySpaces = ["INVENTORY"];
+		this.isShowUnavailablePreviewOnSampleTable = true;
 		this.typeGroups = {
 			"MATERIALS" : {
 				"TYPE" : "MATERIALS",
@@ -32,9 +34,37 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 			}
 		};
 
-		this.inventorySpaces = ["INVENTORY"];
+			
+
+		this.getSpaceForSampleType = function(type) {
+			if(type === "ANTIBODY") {
+				return "INVENTORY";
+			} else if(type === "PLASMID") {
+				return "INVENTORY";
+			} else if(type === "INHIBITOR") {
+				return "INVENTORY";
+			} else if(type === "CELL_LINE") {
+				return "INVENTORY";
+			} else {
+				return null;
+			}
+		}	
 	
-	
+
+		this.getExperimentIdentifierForSample = function(type, code, properties) {
+			if(type === "ANTIBODY") {
+				return "/INVENTORY/SAMPLES/ANTIBODIES";
+			} else if(type === "PLASMID") {
+				return "/INVENTORY/SAMPLES/PLASMIDS";
+			} else if(type === "INHIBITOR") {
+				return "/INVENTORY/SAMPLES/INHIBITORS";
+			} else if(type === "CELL_LINE") {
+				return "/INVENTORY/SAMPLES/CELL_LINES";
+			} else {
+				return null;
+			}
+		}
+
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*
@@ -53,7 +83,7 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 				 * Storages map, can hold configurations for several storages.
 				*/
 				"STORAGE_CONFIGS": {
-					"H20.1_KREK-1" : { //Freezer name given by the NAME_PROPERTY
+					"MINUS80_1" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 5, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
@@ -107,10 +137,10 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 		}
 
 		
-		//The properties you want to appear on the tables, if you donÂ«t specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you donÇt specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
 		
-		//The colors for the notes, if you donÂ«t specify the color, light yellow will be used by default.
+		//The colors for the notes, if you donÇt specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 }
 });
