@@ -10,7 +10,7 @@ evaluationDependsOn(':screening')
 evaluationDependsOn(':rtd_yeastx')
 evaluationDependsOn(':deep_sequencing_unit')
 
-apply from: 'http://svncisd.ethz.ch/repos/cisd/gradle/trunk/javaproject.gradle'
+apply from: '../gradle/javaproject.gradle'
 apply from: 'query-api.gradle'
 apply from: 'screening-api.gradle'
 apply from: 'proteomics-api.gradle'
