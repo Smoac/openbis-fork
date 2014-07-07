@@ -9,6 +9,8 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 		
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
+		this.inventorySpaces = ["INVENTORY"];
+		this.isShowUnavailablePreviewOnSampleTable = true;
 		this.typeGroups = {
 			"MATERIALS" : {
 				"TYPE" : "MATERIALS",
@@ -32,8 +34,36 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 			}
 		};
 
-		this.inventorySpaces = ["INVENTORY"];
+			
+
+		this.getSpaceForSampleType = function(type) {
+			if(type === "ANTIBODY") {
+				return "INVENTORY";
+			} else if(type === "PLASMID") {
+				return "INVENTORY";
+			} else if(type === "INHIBITOR") {
+				return "INVENTORY";
+			} else if(type === "CELL_LINE") {
+				return "INVENTORY";
+			} else {
+				return null;
+			}
+		}	
 	
+
+		this.getExperimentIdentifierForSample = function(type, code, properties) {
+			if(type === "ANTIBODY") {
+				return "/INVENTORY/SAMPLES/ANTIBODIES";
+			} else if(type === "PLASMID") {
+				return "/INVENTORY/SAMPLES/PLASMIDS";
+			} else if(type === "INHIBITOR") {
+				return "/INVENTORY/SAMPLES/INHIBITORS";
+			} else if(type === "CELL_LINE") {
+				return "/INVENTORY/SAMPLES/CELL_LINES";
+			} else {
+				return null;
+			}
+		}
 	
 		this.storagesConfiguration = {
 				"isEnabled" : true,
@@ -53,17 +83,137 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 				 * Storages map, can hold configurations for several storages.
 				*/
 				"STORAGE_CONFIGS": {
-					"H20.1_KREK-1" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 5, //Number of rows
+					"G9_FRIDGE-1" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},
-					"H20.2_KREK-2" : { //Freezer name given by the NAME_PROPERTY
+					"G9_FRIDGE-2" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 5, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},	
-					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+					"G9_FREEZER-A" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},	
+					"G9_FREEZER-B" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},	
+					"G9_FREEZER-C" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 3, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FREEZER-D" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 7, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FREEZER-E" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 14, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FREEZER-F" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 3, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FREEZER-G" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FREEZER-H" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FREEZER-I" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 9, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FRIDGE-3" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 5, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FRIDGE-4" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FRIDGE-5" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 3, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FRIDGE-6" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G10_FRIDGE-7" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G11_FRIDGE-8" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G14_FREEZER-J" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"G14_FREEZER-K" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 8, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},																
+					"G14_FREEZER-L" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},								
+					"G14_FREEZER-M" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},								
+					"G14_FRIDGE-9" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},										
+					"G14_FRIDGE-10" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},									
+					"G17_FRIDGE-11" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 6, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},										
+					"G17_FRIDGE-12" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 3, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},													
+					"G17_FREEZER-N" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 4, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},												
+					"USER_BENCH_FRANK" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 1, //Number of rows
 									"COLUMN_NUM" : 1, //Number of columns
 									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
@@ -77,21 +227,21 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 					"SAMPLE_PARENTS_HINT" : [
 					                             	{
 														"LABEL" : "Protocol",
-														"TYPE": "PROTOCOL",
+														"TYPE": "PROTOCOLS",
 														"MIN_COUNT" : 1,
 														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
+														"TYPE": "PLASMIDS",
 														"MIN_COUNT" : 1,
 														"ANNOTATION_PROPERTIES" : []
 													}
 													,
 													{
 														"LABEL" : "Inhibitor",
-														"TYPE": "INHIBITOR",
+														"TYPE": "INHIBITORS",
 														"MIN_COUNT" : 1,
 														"ANNOTATION_PROPERTIES" : []
 													}
@@ -107,10 +257,10 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 		}
 
 		
-		//The properties you want to appear on the tables, if you donÂ«t specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you donÇt specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
 		
-		//The colors for the notes, if you donÂ«t specify the color, light yellow will be used by default.
+		//The colors for the notes, if you donÇt specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 }
 });
