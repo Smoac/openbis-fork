@@ -86,7 +86,7 @@ def insertDataSet(tr, parameters, tableBuilder):
 	threadProperties = getThreadProperties(tr);
 	tempDir =  threadProperties[u'incoming-dir'] + "/tmp_eln/" + str(time.time());
 	tempDirFile = File(tempDir);
-	tempDirFile.mkdir();
+	tempDirFile.mkdirs();
 	
 	#tempDir = System.getProperty("java.io.tmpdir");
 	dss_component = DssComponentFactory.tryCreate(parameters.get("sessionID"), parameters.get("openBISURL"));
