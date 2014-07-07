@@ -64,9 +64,11 @@ sourceSets {
 }
 
 task cleanDbSuite(type: Test) {
-	useTestNG()
-	options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
-	reports.html.destination = file("${project.buildDir}/reports/tests-cleandb")
+    useTestNG()
+    options.suites('sourceTest/java/tests_system_cleandb_excluding_authorization.xml')
+    if (delegate.getProperties().get('reports') != null) {
+        reports.html.destination = file("${project.buildDir}/reports/tests-cleandb")
+    }
 }
 
 
