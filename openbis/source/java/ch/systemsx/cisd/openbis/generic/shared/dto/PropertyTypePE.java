@@ -57,9 +57,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
  */
 @Entity
 @Table(name = TableNames.PROPERTY_TYPES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE,
-                ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE }) })
 public final class PropertyTypePE extends HibernateAbstractRegistrationHolder implements
         Comparable<PropertyTypePE>, IIdAndCodeHolder
 {
@@ -79,10 +78,9 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     private VocabularyPE vocabulary;
 
     /**
-     * If this field is set, then it specifies the type of the materials, which are values of this
-     * property type.<br>
-     * Note that this field can be null and the data type can be still MATERIAL, it means that, that
-     * material of any type can be a valid property value.
+     * If this field is set, then it specifies the type of the materials, which are values of this property type.<br>
+     * Note that this field can be null and the data type can be still MATERIAL, it means that, that material of any type can be a valid property
+     * value.
      */
     private MaterialTypePE materialType;
 
@@ -91,8 +89,6 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     private boolean managedInternally;
 
     private transient Long id;
-
-    private DatabaseInstancePE databaseInstance;
 
     private Set<MaterialTypePropertyTypePE> materialTypePropertyTypes =
             new HashSet<MaterialTypePropertyTypePE>();
@@ -112,8 +108,7 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     private String schema;
 
     /**
-     * (optional) transformation that should be performed on property values before they are passed
-     * to client (e.g. XSLT document for XML)
+     * (optional) transformation that should be performed on property values before they are passed to client (e.g. XSLT document for XML)
      */
     private String transformation;
 
@@ -146,25 +141,11 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     }
 
     /**
-     * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix
-     * use {@link #setCode(String)}).
+     * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix use {@link #setCode(String)}).
      */
     public void setSimpleCode(final String simpleCode)
     {
         this.simpleCode = simpleCode.toUpperCase();
-    }
-
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @Column(name = ColumnNames.CODE_COLUMN)
@@ -334,7 +315,6 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
         final PropertyTypePE that = (PropertyTypePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getSimpleCode(), that.getSimpleCode());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         builder.append(isInternalNamespace(), that.isInternalNamespace());
         return builder.isEquals();
     }
@@ -344,7 +324,6 @@ public final class PropertyTypePE extends HibernateAbstractRegistrationHolder im
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getSimpleCode());
-        builder.append(getDatabaseInstance());
         builder.append(isInternalNamespace());
         return builder.toHashCode();
     }

@@ -27,7 +27,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 /**
  * Data access object for {@link FileFormatTypePE}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> implements
         IFileFormatTypeDAO
@@ -53,10 +53,6 @@ public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> impleme
     public void createOrUpdate(FileFormatTypePE fileFormatType)
     {
         assert fileFormatType != null : "File Format Type is null";
-        if (fileFormatType.getDatabaseInstance() == null)
-        {
-            fileFormatType.setDatabaseInstance(getDatabaseInstance());
-        }
         createOrUpdateType(fileFormatType);
     }
 

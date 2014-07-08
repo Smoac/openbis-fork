@@ -205,15 +205,14 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     @Select(sql = "select id, code, download_url from data_stores where dbin_id=?{1}")
     public DataStoreRecord[] getDataStores(long databaseInstanceId);
 
-    @Select(sql = "select id, code from file_format_types where dbin_id=?{1}")
-    public CodeRecord[] getFileFormatTypes(long databaseInstanceId);
+    @Select(sql = "select id, code from file_format_types")
+    public CodeRecord[] getFileFormatTypes();
 
     @Select(sql = "select id, code from locator_types")
     public CodeRecord[] getLocatorTypes();
 
-    @Select(sql = "select id, code, label, url_template, is_openbis from external_data_management_systems where dbin_id=?{1}")
-    public ExternalDataManagementSystemRecord[] getExternalDataManagementSystems(
-            long databaseInstanceId);
+    @Select(sql = "select id, code, label, url_template, is_openbis from external_data_management_systems")
+    public ExternalDataManagementSystemRecord[] getExternalDataManagementSystems();
 
     //
     // Datasets

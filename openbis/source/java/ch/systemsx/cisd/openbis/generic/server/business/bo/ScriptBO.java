@@ -132,7 +132,6 @@ public final class ScriptBO extends AbstractBusinessObject implements IScriptBO
     {
         assert newScript != null : "Unspecified script.";
         script = scriptFactory.create();
-        script.setDatabaseInstance(getHomeDatabaseInstance());
         script.setName(newScript.getName());
         script.setDescription(newScript.getDescription());
         script.setRegistrator(findPerson());

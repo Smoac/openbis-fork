@@ -17,16 +17,12 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -38,13 +34,11 @@ import ch.systemsx.cisd.openbis.generic.shared.IServer;
  */
 @Entity
 @Table(name = TableNames.FILE_FORMAT_TYPES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN }) })
 public final class FileFormatTypePE extends AbstractTypePE
 {
     private static final long serialVersionUID = IServer.VERSION;
-
-    private DatabaseInstancePE databaseInstance;
 
     @Override
     @SequenceGenerator(name = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, sequenceName = SequenceNames.FILE_FORMAT_TYPE_SEQUENCE, allocationSize = 1)
@@ -53,19 +47,6 @@ public final class FileFormatTypePE extends AbstractTypePE
     public final Long getId()
     {
         return id;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public final DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     public FileFormatTypePE()

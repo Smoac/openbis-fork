@@ -45,8 +45,8 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
 {
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ScriptDAO.class);
@@ -77,7 +77,6 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
 
         final Criteria criteria = getSession().createCriteria(ScriptPE.class);
         criteria.add(Restrictions.eq("name", scriptName));
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         return (ScriptPE) criteria.uniqueResult();
     }
 

@@ -20,9 +20,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
@@ -51,8 +48,6 @@ public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrat
     private boolean isPublic;
 
     private Date modificationDate;
-
-    private DatabaseInstancePE databaseInstance;
 
     protected Long id;
 
@@ -102,19 +97,6 @@ public abstract class AbstractExpressionPE<T> extends HibernateAbstractRegistrat
     public void setModificationDate(Date versionDate)
     {
         this.modificationDate = versionDate;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     public final void setId(final Long id)

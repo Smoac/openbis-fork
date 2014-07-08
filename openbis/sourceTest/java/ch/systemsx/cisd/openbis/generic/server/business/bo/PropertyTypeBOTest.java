@@ -124,9 +124,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.VARCHAR);
                     will(returnValue(dataTypePE));
 
@@ -150,9 +147,6 @@ public final class PropertyTypeBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
                     one(propertyTypeDAO).getDataTypeByCode(DataTypeCode.VARCHAR);
                     will(returnValue(dataTypePE));
 

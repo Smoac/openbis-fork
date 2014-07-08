@@ -86,7 +86,6 @@ public class ExternalDataManagementSystemDAO extends AbstractDAO implements
     public List<ExternalDataManagementSystemPE> listExternalDataManagementSystems()
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<ExternalDataManagementSystemPE> list = cast(criteria.list());

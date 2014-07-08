@@ -75,7 +75,6 @@ public final class PropertyTypeBO extends VocabularyBO implements IPropertyTypeB
     {
         assert propertyType != null : "Unspecified property type.";
         propertyTypePE = new PropertyTypePE();
-        propertyTypePE.setDatabaseInstance(getHomeDatabaseInstance());
         propertyTypePE.setCode(propertyType.getCode());
         propertyTypePE.setLabel(propertyType.getLabel());
         propertyTypePE.setDescription(propertyType.getDescription());

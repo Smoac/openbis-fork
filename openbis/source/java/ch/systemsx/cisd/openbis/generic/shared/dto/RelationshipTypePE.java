@@ -18,12 +18,9 @@ package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -47,8 +44,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.InternalNamespace;
  */
 @Entity
 @Table(name = TableNames.RELATIONSHIP_TYPES_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN }) })
 public class RelationshipTypePE extends HibernateAbstractRegistrationHolder implements
         IIdAndCodeHolder
 {
@@ -66,15 +63,12 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
 
     private transient Long id;
 
-    private DatabaseInstancePE databaseInstance;
-
     private String parentLabel;
 
     private String childLabel;
 
     /**
-     * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix
-     * use {@link #setCode(String)}).
+     * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix use {@link #setCode(String)}).
      */
     public void setSimpleCode(final String simpleCode)
     {
@@ -168,19 +162,6 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
         this.id = id;
     }
 
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
-
     @NotNull(message = ValidationMessages.LABEL_NOT_NULL_MESSAGE)
     @Column(name = ColumnNames.PARENT_LABEL_COLUMN)
     @Length(max = GenericConstants.COLUMN_LABEL, message = ValidationMessages.LABEL_LENGTH_MESSAGE)
@@ -221,7 +202,6 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
         final RelationshipTypePE that = (RelationshipTypePE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getSimpleCode(), that.getSimpleCode());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         builder.append(isInternalNamespace(), that.isInternalNamespace());
         return builder.isEquals();
     }
@@ -231,7 +211,6 @@ public class RelationshipTypePE extends HibernateAbstractRegistrationHolder impl
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getSimpleCode());
-        builder.append(getDatabaseInstance());
         builder.append(isInternalNamespace());
         return builder.toHashCode();
     }

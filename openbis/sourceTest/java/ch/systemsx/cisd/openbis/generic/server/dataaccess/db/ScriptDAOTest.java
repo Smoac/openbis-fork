@@ -38,7 +38,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author Izabela Adamczyk
  */
 @Test(groups =
-    { "db", "script" })
+{ "db", "script" })
 @Friend(toClasses = SpacePE.class)
 public final class ScriptDAOTest extends AbstractDAOTest
 {
@@ -47,12 +47,12 @@ public final class ScriptDAOTest extends AbstractDAOTest
     private final static Object[][] scriptTypes()
     {
         return new Object[][]
-            {
-                    { ScriptType.DYNAMIC_PROPERTY },
-                    { ScriptType.MANAGED_PROPERTY }
+        {
+                { ScriptType.DYNAMIC_PROPERTY },
+                { ScriptType.MANAGED_PROPERTY }
 
         };
-}
+    }
 
     private static final String DESCRIPTION = "desc";
 
@@ -87,7 +87,6 @@ public final class ScriptDAOTest extends AbstractDAOTest
         AssertJUnit.assertNotNull(retrievedScript);
         assertEquals(script.getScriptType(), retrievedScript.getScriptType());
         assertEquals(script.getRegistrator(), retrievedScript.getRegistrator());
-        assertEquals(script.getDatabaseInstance(), retrievedScript.getDatabaseInstance());
         assertEquals(script.getScript(), retrievedScript.getScript());
         assertEquals(script.getDescription(), retrievedScript.getDescription());
         assertEquals(script.getName(), retrievedScript.getName());
@@ -107,7 +106,6 @@ public final class ScriptDAOTest extends AbstractDAOTest
         AssertJUnit.assertNotNull(retrievedScript);
         assertEquals(script.getScriptType(), retrievedScript.getScriptType());
         assertEquals(script.getRegistrator(), retrievedScript.getRegistrator());
-        assertEquals(script.getDatabaseInstance(), retrievedScript.getDatabaseInstance());
         assertEquals(script.getScript(), retrievedScript.getScript());
         assertEquals(script.getDescription(), retrievedScript.getDescription());
         assertEquals(script.getName(), retrievedScript.getName());
@@ -140,7 +138,6 @@ public final class ScriptDAOTest extends AbstractDAOTest
         if (registered != null) // for Eclipse
         {
             assertEquals(script.getScriptType(), registered.getScriptType());
-            assertEquals(script.getDatabaseInstance(), registered.getDatabaseInstance());
             assertEquals(script.getScript(), registered.getScript());
             assertEquals(script.getDescription(), registered.getDescription());
             assertEquals(script.getName(), registered.getName());

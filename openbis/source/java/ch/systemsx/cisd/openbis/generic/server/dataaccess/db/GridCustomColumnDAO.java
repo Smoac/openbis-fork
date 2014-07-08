@@ -51,9 +51,6 @@ public class GridCustomColumnDAO extends AbstractGenericEntityDAO<GridCustomColu
     public void createColumn(GridCustomColumnPE column)
     {
         assert column != null : "Unspecified column";
-        assert column.getDatabaseInstance() == null;
-        column.setDatabaseInstance(getDatabaseInstance());
-
         persist(column);
     }
 

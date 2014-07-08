@@ -351,7 +351,6 @@ public class RegistrationTest extends SystemTestCase
                 { "/CISD/TEST_SAMPLE", authenticateAs("test_role"), false } };
     }
 
-    @SuppressWarnings("null")
     @Test(dataProvider = "registerSharedSample")
     public void testRegisterSharedSampleFailsForNonAdminUser(String identifier,
             String sessionToken, boolean shouldFail)

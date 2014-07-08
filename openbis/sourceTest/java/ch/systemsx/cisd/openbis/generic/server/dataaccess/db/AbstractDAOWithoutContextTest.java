@@ -229,7 +229,6 @@ public abstract class AbstractDAOWithoutContextTest extends
         final ScriptPE result = createScriptPE(scriptType, name, script, description, kind);
         daoFactory.getScriptDAO().createOrUpdate(result);
         assertEquals(scriptType, result.getScriptType());
-        assertEquals(daoFactory.getHomeDatabaseInstance(), result.getDatabaseInstance());
         assertEquals(script, result.getScript());
         assertEquals(description, result.getDescription());
         assertEquals(name, result.getName());
@@ -246,7 +245,6 @@ public abstract class AbstractDAOWithoutContextTest extends
         result.setName(name);
         result.setScript(script);
         result.setDescription(description);
-        result.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         result.setRegistrator(getSystemPerson());
         result.setEntityKind(kind);
         result.setPluginType(PluginType.JYTHON);
@@ -362,7 +360,6 @@ public abstract class AbstractDAOWithoutContextTest extends
         propertyTypePE.setDescription(code);
         propertyTypePE.setRegistrator(getSystemPerson());
         propertyTypePE.setType(dataType);
-        propertyTypePE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         if (DataTypeCode.CONTROLLEDVOCABULARY.equals(dataType.getCode()))
         {
             assertNotNull(vocabularyOrNull);

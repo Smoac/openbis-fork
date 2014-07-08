@@ -104,7 +104,6 @@ public class VocabularyBO extends AbstractBusinessObject implements IVocabularyB
     {
         assert vocabulary != null : "Unspecified vocabulary.";
         vocabularyPE = new VocabularyPE();
-        vocabularyPE.setDatabaseInstance(getHomeDatabaseInstance());
         vocabularyPE.setCode(vocabulary.getCode());
         vocabularyPE.setRegistrator(findPerson());
         vocabularyPE.setDescription(vocabulary.getDescription());

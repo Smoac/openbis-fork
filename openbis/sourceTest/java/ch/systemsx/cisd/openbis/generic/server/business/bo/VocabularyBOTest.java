@@ -31,7 +31,6 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewVocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
@@ -160,13 +159,6 @@ public final class VocabularyBOTest extends AbstractBOTest
     public final void testDefine()
     {
         final VocabularyBO vocabularyBO = createVocabularyBO();
-        context.checking(new Expectations()
-            {
-                {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-                }
-            });
         final NewVocabulary vocabulary = createVocabulary();
         vocabularyBO.define(vocabulary);
         final VocabularyPE vocabularyPE = vocabularyBO.getVocabulary();
@@ -183,9 +175,6 @@ public final class VocabularyBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
                     exactly(vocabulary.getTerms().size()).of(vocabularyTermDAO).validate(
                             with(aNonNull(VocabularyTermPE.class)));
 
@@ -205,9 +194,6 @@ public final class VocabularyBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
                     exactly(vocabulary.getTerms().size()).of(vocabularyTermDAO).validate(
                             with(aNonNull(VocabularyTermPE.class)));
 
@@ -235,9 +221,6 @@ public final class VocabularyBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
                     exactly(3).of(vocabularyTermDAO).validate(
                             with(aNonNull(VocabularyTermPE.class)));
                     will(throwException(new DataIntegrityViolationException(null)));

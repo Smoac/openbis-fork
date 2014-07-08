@@ -54,9 +54,9 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
         final List<RelationshipTypePE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select pt from %s pt where pt.simpleCode = ? "
-                                + "and pt.databaseInstance = ? and pt.internalNamespace = ?",
+                                + "and pt.internalNamespace = ?",
                                 RelationshipTypePE.class.getSimpleName()),
-                        toArray(mangledCode, getDatabaseInstance(), internalNamespace)));
+                        toArray(mangledCode, internalNamespace)));
         final RelationshipTypePE entity = tryFindEntity(list, "relationship type", code);
         if (operationLog.isDebugEnabled())
         {

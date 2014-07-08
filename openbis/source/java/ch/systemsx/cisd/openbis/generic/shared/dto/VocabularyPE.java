@@ -30,8 +30,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -61,9 +59,8 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
  */
 @Entity
 @Table(name = TableNames.CONTROLLED_VOCABULARY_TABLE, uniqueConstraints =
-    { @UniqueConstraint(columnNames =
-        { ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE,
-                ColumnNames.DATABASE_INSTANCE_COLUMN }) })
+{ @UniqueConstraint(columnNames =
+{ ColumnNames.CODE_COLUMN, ColumnNames.IS_INTERNAL_NAMESPACE }) })
 public class VocabularyPE extends HibernateAbstractRegistrationHolder implements IIdAndCodeHolder,
         Comparable<VocabularyPE>, Serializable
 {
@@ -88,8 +85,6 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
 
     private String urlTemplate;
 
-    private DatabaseInstancePE databaseInstance;
-
     private Date modificationDate;
 
     public VocabularyPE()
@@ -106,8 +101,7 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     }
 
     /**
-     * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix
-     * use {@link #setCode(String)}).
+     * Sets code in 'database format' - without 'user prefix'. To set full code (with user prefix use {@link #setCode(String)}).
      */
     private void setSimpleCode(final String simpleCode)
     {
@@ -158,19 +152,6 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
     public void setDescription(final String descriptionOrNull)
     {
         this.description = descriptionOrNull;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "vocabularyInternal", orphanRemoval = true)
@@ -309,7 +290,6 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
         builder.append(isInternalNamespace(), that.isInternalNamespace());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -319,7 +299,6 @@ public class VocabularyPE extends HibernateAbstractRegistrationHolder implements
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
         builder.append(isInternalNamespace());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
  * @author Christian Ribeaud
  */
 @Test(groups =
-    { "db" })
+{ "db" })
 @Friend(toClasses = VocabularyPE.class)
 public final class VocabularyDAOTest extends AbstractDAOTest
 {
@@ -91,7 +91,6 @@ public final class VocabularyDAOTest extends AbstractDAOTest
         final VocabularyPE vocabularyPE = new VocabularyPE();
         final String vocabularyCode = "FORMAT";
         vocabularyPE.setCode(vocabularyCode);
-        vocabularyPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         vocabularyPE.setDescription("The format description");
         vocabularyPE.setRegistrator(registrator);
         vocabularyPE.addTerm(createVocabularyTerm("SMALL", 1));

@@ -29,8 +29,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -74,8 +72,6 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
 
     private String description;
 
-    private DatabaseInstancePE databaseInstance;
-
     private String script;
 
     private EntityKind entityKind;
@@ -110,19 +106,6 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     public void setDescription(final String description)
     {
         this.description = description;
-    }
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
     }
 
     public final void setId(final Long id)
@@ -190,7 +173,6 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
         final ScriptPE that = (ScriptPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getName(), that.getName());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -199,7 +181,6 @@ public class ScriptPE extends HibernateAbstractRegistrationHolder implements IId
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getName());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

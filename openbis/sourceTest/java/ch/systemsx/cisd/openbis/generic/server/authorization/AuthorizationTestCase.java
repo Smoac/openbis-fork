@@ -302,7 +302,6 @@ public class AuthorizationTestCase extends AssertJUnit
             PersonPE registrator, boolean isPublic)
     {
         final GridCustomFilterPE filter = new GridCustomFilterPE();
-        filter.setDatabaseInstance(databaseInstance);
         filter.setRegistrator(registrator);
         filter.setPublic(isPublic);
         filter.setExpression(""); // needed for translation

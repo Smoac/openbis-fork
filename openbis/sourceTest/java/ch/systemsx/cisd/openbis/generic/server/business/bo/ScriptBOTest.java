@@ -114,9 +114,6 @@ public final class ScriptBOTest extends AbstractBOTest
                     one(scriptFactory).create();
                     will(returnValue(scriptPE));
 
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(instance));
-
                     one(scriptDAO).createOrUpdate(scriptPE);
                 }
             });
@@ -128,7 +125,6 @@ public final class ScriptBOTest extends AbstractBOTest
         assertEquals(newScript.getName(), scriptPE.getName());
         assertEquals(ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), scriptPE.getRegistrator());
         assertEquals(newScript.getScript(), scriptPE.getScript());
-        assertEquals(instance, scriptPE.getDatabaseInstance());
         context.assertIsSatisfied();
     }
 
@@ -152,9 +148,6 @@ public final class ScriptBOTest extends AbstractBOTest
                 {
                     one(scriptFactory).create();
                     will(returnValue(scriptPE));
-
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(instance));
                 }
             });
         scriptBO.define(newScript);

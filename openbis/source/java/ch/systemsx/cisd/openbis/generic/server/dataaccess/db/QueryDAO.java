@@ -51,7 +51,6 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
     public List<QueryPE> listQueries(QueryType queryType)
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         if (queryType != QueryType.UNSPECIFIED)
         {
             criteria.add(Restrictions.eq("queryType", queryType));
@@ -69,9 +68,6 @@ public class QueryDAO extends AbstractGenericEntityDAO<QueryPE> implements IQuer
     public void createQuery(QueryPE query) throws DataAccessException
     {
         assert query != null : "Unspecified query";
-        assert query.getDatabaseInstance() == null;
-        query.setDatabaseInstance(getDatabaseInstance());
-
         try
         {
             persist(query);

@@ -96,7 +96,6 @@ public class GridCustomColumnPE extends AbstractGridExpressionPE<GridCustomColum
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getCode(), that.getCode());
         builder.append(getGridId(), that.getGridId());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -106,7 +105,6 @@ public class GridCustomColumnPE extends AbstractGridExpressionPE<GridCustomColum
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getCode());
         builder.append(getGridId());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

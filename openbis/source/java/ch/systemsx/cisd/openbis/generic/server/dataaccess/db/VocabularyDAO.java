@@ -46,8 +46,8 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
     private static final String TABLE_NAME = ENTITY_CLASS.getSimpleName();
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, VocabularyDAO.class);
@@ -87,9 +87,9 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
         final List<VocabularyPE> list =
                 cast(getHibernateTemplate().find(
                         String.format("select v from %s v where v.simpleCode = ? "
-                                + "and v.databaseInstance = ? and v.internalNamespace = ?",
+                                + "and v.internalNamespace = ?",
                                 TABLE_NAME),
-                        toArray(mangledVocabularyCode, getDatabaseInstance(), internalNamespace)));
+                        toArray(mangledVocabularyCode, internalNamespace)));
         final VocabularyPE entity = tryFindEntity(list, "vocabulary", vocabularyCode);
         if (operationLog.isDebugEnabled())
         {
@@ -102,12 +102,11 @@ final class VocabularyDAO extends AbstractGenericEntityDAO<VocabularyPE> impleme
     @Override
     public final List<VocabularyPE> listVocabularies(boolean excludeInternal)
     {
-        String excludeInternalQuery = " and v.internalNamespace = false";
+        String excludeInternalQuery = " where v.internalNamespace = false";
         final List<VocabularyPE> list =
                 cast(getHibernateTemplate().find(
-                        String.format("from %s v where v.databaseInstance = ?"
-                                + (excludeInternal ? excludeInternalQuery : ""), TABLE_NAME),
-                        toArray(getDatabaseInstance())));
+                        String.format("from %s v "
+                                + (excludeInternal ? excludeInternalQuery : ""), TABLE_NAME)));
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(list.size() + " vocabulary(ies) have been found.");

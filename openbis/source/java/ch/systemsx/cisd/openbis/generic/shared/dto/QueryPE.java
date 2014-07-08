@@ -126,7 +126,6 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
         final QueryPE that = (QueryPE) obj;
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getName(), that.getName());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         builder.append(getQueryDatabaseKey(), that.getQueryDatabaseKey());
         return builder.isEquals();
     }
@@ -136,7 +135,6 @@ public class QueryPE extends AbstractExpressionPE<QueryPE>
     {
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getName());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

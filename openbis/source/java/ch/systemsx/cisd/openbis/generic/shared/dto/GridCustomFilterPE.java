@@ -81,7 +81,6 @@ public class GridCustomFilterPE extends AbstractGridExpressionPE<GridCustomFilte
         final EqualsBuilder builder = new EqualsBuilder();
         builder.append(getName(), that.getName());
         builder.append(getGridId(), that.getGridId());
-        builder.append(getDatabaseInstance(), that.getDatabaseInstance());
         return builder.isEquals();
     }
 
@@ -91,7 +90,6 @@ public class GridCustomFilterPE extends AbstractGridExpressionPE<GridCustomFilte
         final HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(getName());
         builder.append(getGridId());
-        builder.append(getDatabaseInstance());
         return builder.toHashCode();
     }
 

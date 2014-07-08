@@ -87,10 +87,6 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
     final List<T> listTypes(final boolean appendDatabaseInstance) throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        if (appendDatabaseInstance)
-        {
-            criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
-        }
         final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
         {

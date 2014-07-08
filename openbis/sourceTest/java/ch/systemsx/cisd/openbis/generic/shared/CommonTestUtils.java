@@ -256,7 +256,6 @@ public class CommonTestUtils
     {
         VocabularyPE vocabulary = new VocabularyPE();
         vocabulary.setCode(fullCode);
-        vocabulary.setDatabaseInstance(createHomeDatabaseInstance());
         if (terms != null)
         {
             vocabulary.setTerms(terms);
@@ -276,7 +275,6 @@ public class CommonTestUtils
     {
         PropertyTypePE result = new PropertyTypePE();
         result.setCode(fullCode);
-        result.setDatabaseInstance(createHomeDatabaseInstance());
         result.setType(createDataType(type));
         result.setVocabulary(vocabularyOrNull);
         result.setMaterialType(materialTypeOrNull);

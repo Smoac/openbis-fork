@@ -51,9 +51,6 @@ public class GridCustomFilterDAO extends AbstractGenericEntityDAO<GridCustomFilt
     public void createFilter(GridCustomFilterPE filter)
     {
         assert filter != null : "Unspecified filter";
-        assert filter.getDatabaseInstance() == null;
-        filter.setDatabaseInstance(getDatabaseInstance());
-
         persist(filter);
     }
 
@@ -63,7 +60,6 @@ public class GridCustomFilterDAO extends AbstractGenericEntityDAO<GridCustomFilt
         assert gridId != null : "Unspecified grid ID.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.add(Restrictions.eq("gridId", gridId));
         final List<GridCustomFilterPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())

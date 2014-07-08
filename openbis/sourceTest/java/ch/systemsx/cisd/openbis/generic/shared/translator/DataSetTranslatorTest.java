@@ -223,7 +223,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         linkDataPE.setExperiment(experimentPE);
 
         ExternalDataManagementSystemPE edms = new ExternalDataManagementSystemPE();
-        edms.setDatabaseInstance(databaseInstancePE);
         edms.setCode("EDMS");
         edms.setLabel("Label");
         linkDataPE.setExternalDataManagementSystem(edms);

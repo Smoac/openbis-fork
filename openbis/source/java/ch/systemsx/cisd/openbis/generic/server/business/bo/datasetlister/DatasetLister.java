@@ -1217,7 +1217,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
 
         fileFormatTypes.clear();
-        for (CodeRecord code : query.getFileFormatTypes(databaseInstanceId))
+        for (CodeRecord code : query.getFileFormatTypes())
         {
             fileFormatTypes.put(code.id, createFileFormatType(code));
         }
@@ -1236,7 +1236,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
 
         externalDataManagementSystems.clear();
         for (ExternalDataManagementSystemRecord edms : query
-                .getExternalDataManagementSystems(databaseInstanceId))
+                .getExternalDataManagementSystems())
         {
             externalDataManagementSystems.put(edms.id, createExternalDataManagementSystem(edms));
         }

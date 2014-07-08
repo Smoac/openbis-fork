@@ -4304,7 +4304,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         if (edmsPE == null)
         {
             edmsPE = new ExternalDataManagementSystemPE();
-            edmsPE.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         }
 
         edmsDAO.createOrUpdateExternalDataManagementSystem(ExternalDataManagementSystemTranslator

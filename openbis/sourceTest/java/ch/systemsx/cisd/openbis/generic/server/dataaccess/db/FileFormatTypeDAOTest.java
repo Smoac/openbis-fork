@@ -27,12 +27,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 @Test(groups =
-    { "db", "fileFormatType" })
+{ "db", "fileFormatType" })
 public class FileFormatTypeDAOTest extends AbstractDAOTest
 {
     private static final int NUMBER_OF_TYPES = 8;
@@ -41,34 +39,32 @@ public class FileFormatTypeDAOTest extends AbstractDAOTest
     public void testTryToFindeFileFormatTypeByCode()
     {
         FileFormatTypePE type = daoFactory.getFileFormatTypeDAO().tryToFindFileFormatTypeByCode("XML");
-        
+
         assertEquals("XML", type.getCode());
         assertEquals("XML File", type.getDescription());
-        assertEquals(daoFactory.getHomeDatabaseInstance(), type.getDatabaseInstance());
     }
-    
+
     @Test
     public void testListFileFormatTypes()
     {
         List<FileFormatTypePE> types = daoFactory.getFileFormatTypeDAO().listFileFormatTypes();
         Collections.sort(types);
-        
+
         int size = types.size();
         assertEquals(NUMBER_OF_TYPES, types.size());
         assertEquals("XML", types.get(size - 1).getCode());
     }
-    
+
     @Test
     public void testCreate()
     {
         FileFormatTypePE fileFormatType = new FileFormatTypePE();
         fileFormatType.setCode("GIF");
         fileFormatType.setDescription("Graphical Interchange Format");
-        fileFormatType.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
         IFileFormatTypeDAO fileFormatTypeDAO = daoFactory.getFileFormatTypeDAO();
-        
+
         fileFormatTypeDAO.createOrUpdate(fileFormatType);
-        
+
         FileFormatTypePE type =
                 fileFormatTypeDAO.tryToFindFileFormatTypeByCode(fileFormatType.getCode());
         assertEquals(fileFormatType.getDescription(), type.getDescription());
