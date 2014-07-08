@@ -3,10 +3,8 @@ ext.repositoryConfig = {
         ivyPattern "${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/ivy.xml"
         artifactPattern "${project.projectDir}/../ivy-repository/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
     }
-    /*
     ivy {
         ivyPattern "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/ivy.xml"
         artifactPattern "http://svncisd.ethz.ch/repos/cisd/ivy-repository/trunk/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]"
     }
-    */
 }
