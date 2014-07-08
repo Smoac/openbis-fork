@@ -78,17 +78,16 @@ jar {
 	}
 }
 
+ext.gwtBuildDir = "${project.buildDir}/gwt"
 task compileGwt (dependsOn: classes, type: JavaExec) {
 
-	buildDir = "${project.buildDir}/gwt"
-	extraDir = "${project.buildDir}/extra"
      
 	inputs.source sourceSets.main.java.srcDirs
 	inputs.dir sourceSets.main.output.resourcesDir
-	outputs.dir buildDir
+	outputs.dir gwtBuildDir
      
 	doFirst {
-		file(buildDir).mkdirs()
+		file(gwtBuildDir).mkdirs()
 	}
      
 	main = 'com.google.gwt.dev.Compiler'
@@ -106,11 +105,11 @@ task compileGwt (dependsOn: classes, type: JavaExec) {
 	args =
 		[
 			'ch.systemsx.cisd.cifex.Cifex',
-			'-war', buildDir,
+			'-war', gwtBuildDir,
 			'-logLevel', 'INFO',
 			'-localWorkers', '2',
 			'-compileReport', 
-			'-extra', extraDir,
+			'-extra', "${project.buildDir}/extra",
 		]
 	
 	maxHeapSize = '1024m'
@@ -122,7 +121,7 @@ task createWar(type: War) {
 	webXml = file('resource/server/web.xml')
 	
 	webInf {
-	from "${compileGwt.buildDir}/WEB-INF",
+	from "${gwtBuildDir}/WEB-INF",
         file('resource/server/spring-servlet.xml'),
         project(':common').file('resource/server/web-common.xml')
     }
@@ -153,7 +152,7 @@ task createWar(type: War) {
 		include "sql/**/*.sql"
 	}
 	
-	from "${compileGwt.buildDir}/ch.systemsx.cisd.cifex.Cifex"
+	from "${gwtBuildDir}/ch.systemsx.cisd.cifex.Cifex"
 	
 }
 createWar.dependsOn compileGwt
@@ -168,8 +167,8 @@ task createJettyVersionFile {
     }
 }
 
-toBeSignedFolder = "${buildDir}/to-be-signed-jars"
-signedFolder = "${buildDir}/signed-jars"
+ext.toBeSignedFolder = "${buildDir}/to-be-signed-jars"
+ext.signedFolder = "${buildDir}/signed-jars"
 
 task copyJarsForSigning(type: Copy, dependsOn: jar) {
     from configurations.cliJars.files
@@ -189,8 +188,8 @@ task copyJarsForSigning(type: Copy, dependsOn: jar) {
 
 }
 
-keystoreFile = 'etc/dev.keystore'
 task signCliJars(type: Copy, dependsOn: [copyJarsForSigning]) {
+    def keystoreFile = 'etc/dev.keystore'
     from toBeSignedFolder
     into signedFolder
     inputs.file keystoreFile
