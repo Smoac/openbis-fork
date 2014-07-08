@@ -16,8 +16,9 @@ dependencies {
 
 def jarConfiguration(parameters){
     return {
+        destinationDir = project.distsDir
         baseName = parameters.get('baseName')
-        libraryName = parameters.get('libraryName')
+        def libraryName = parameters.get('libraryName')
         
         from('targets/dist') {
             include 'BUILD*INFO'
@@ -36,22 +37,22 @@ def jarConfiguration(parameters){
 
 task jarImageIO(type: Jar) {
     configure jarConfiguration([
-        baseName : 'cisd-image_readers',
-        libraryName : 'imageio'  
+        'baseName' : 'cisd-image_readers',
+        'libraryName' : 'imageio'  
     ])
 }
 
 task jarJai(type: Jar) {
     configure jarConfiguration([
-        baseName : 'cisd-image_readers-jai', 
-        libraryName : 'jai'
+        'baseName' : 'cisd-image_readers-jai', 
+        'libraryName' : 'jai'
     ])
 }
 
 task jarBioformats(type: Jar) {
     configure jarConfiguration([
-        baseName : 'cisd-image_readers-bioformats',
-        libraryName : 'bioformats'
+        'baseName' : 'cisd-image_readers-bioformats',
+        'libraryName' : 'bioformats'
     ])
 }
 
@@ -62,4 +63,12 @@ task jarImageJ(type: Jar) {
     ])
 }
 
+jar {
+    destinationDir = project.distsDir
+}
 jar.dependsOn([ jarImageIO, jarJai, jarBioformats, jarImageJ ])
+
+sourcesJar {
+    destinationDir = project.distsDir
+}
+
