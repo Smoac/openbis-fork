@@ -51,33 +51,38 @@ else
 fi
 echo "Repository Template URL: $TEMPLATE_URL"
 
+checkout() {
+  project=$1
+    echo svn co ${TEMPLATE_URL/__project__/$project} -q "$BUILDING_SITE/$project"
+    svn co ${TEMPLATE_URL/__project__/$project} -q "$BUILDING_SITE/$project"
+}
+
 #
 # Retrieve main project
 #
-echo svn co ${TEMPLATE_URL/__project__/$PROJECT} -q "$BUILDING_SITE/$PROJECT"
-svn co ${TEMPLATE_URL/__project__/$PROJECT} -q "$BUILDING_SITE/$PROJECT"
+checkout $PROJECT
 settings_gradle_file="$BUILDING_SITE/$PROJECT/settings.gradle"
 if [ ! -f "$settings_gradle_file" ]; then
   echo "Building stopped because no file settings.gradle found in ${TEMPLATE_URL/__project__/$PROJECT}."
   exit 1
 fi
 
-projects=`awk '/includeFlat/ {line=substr($0,12); while(match(line,", *$")) {getline;line=(line $0)}; gsub(", *", "\n", line); gsub(" *'\''", "", line); print line}' "$settings_gradle_file"`
+projects=`awk '/includeFlat/ {line=substr($0,12); while(match(line,",[\t ]*$")) {getline;line=(line $0)}; gsub(",", " ", line); gsub("'\''", "", line); print line}' "$settings_gradle_file"`
 for project in $projects; do
   if [[ $project != $PROJECT ]]; then
-    echo svn co ${TEMPLATE_URL/__project__/$project} -q "$BUILDING_SITE/$project"
-    svn co ${TEMPLATE_URL/__project__/$project} -q "$BUILDING_SITE/$project"
+    checkout $project
   fi
 done
+checkout gradle
 
 pushd .
 cd "$BUILDING_SITE/$PROJECT"
-./gradlew build -x test
+./gradlew --gradle-user-home "$BUILDING_SITE"   build -x test
 popd
-mv "$BUILDING_SITE/$PROJECT/targets/gradle/distributions/*" .
-
- 
-
-#rm -rf "$BUILDING_SITE"
+if [ -d "$BUILDING_SITE/$PROJECT/targets/gradle/distributions" ]; then
+  for f in "$BUILDING_SITE/$PROJECT/targets/gradle/distributions/*"; do
+    mv $f .
+  done
+fi
 
 

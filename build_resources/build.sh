@@ -2,7 +2,7 @@
 usage()
 {
   echo ""
-  echo "Usage: ./build.sh <openbis/cifex/apis> [trunk/sprint] [sprint version]"
+  echo "Usage: ./build.sh openbis|apis|<project> [trunk|sprint] [<sprint version>]"
   echo ""
   echo "Example: ./build.sh cifex" - will build cifex installer from trunk
   echo "Example: ./build.sh apis sprint" - will build openBIS clients and APIs package from latest released sprint.
@@ -22,12 +22,9 @@ DIR=`dirname $0`
 
 if [ "$1" == "openbis" ] || [ "$1" == "apis" ]
 then
-	${DIR}/gradle/build_openbis.sh $@
-elif [ "$1" == "cifex" ]
-then
-	${DIR}/gradle/build_cifex.sh $@
+  ${DIR}/gradle/build_openbis.sh $@
 else
-	${DIR}/gradle/build_project.sh $@
+  ${DIR}/gradle/build_project.sh $@
 fi
 
 exit 0
