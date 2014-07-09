@@ -60,7 +60,6 @@ public class GridCustomColumnDAO extends AbstractGenericEntityDAO<GridCustomColu
         assert gridId != null : "Unspecified grid ID.";
 
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.add(Restrictions.eq("gridId", gridId));
         final List<GridCustomColumnPE> list = cast(getHibernateTemplate().findByCriteria(criteria));
         if (operationLog.isDebugEnabled())
