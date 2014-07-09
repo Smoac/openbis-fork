@@ -22,8 +22,9 @@ if (System.getProperty("openbis.development-build") != null) {
 	}
 }
 
-task deleteGWT(type: Delete) {
-    delete '.gwt-cache', 'targets/www'
+task deleteGWT(type: Exec) {
+    executable "rm"
+    args "-rf", "${project.projectDir.absolutePath}/.gwt-cache", "${project.projectDir.absolutePath}/targets/www"
 }
 
 task prepareGWT(type:Copy, dependsOn: [deleteGWT, compileJava]) {
