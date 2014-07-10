@@ -4,57 +4,29 @@ PROJECT=$1
 BRANCH=$2
 VERSION=$3
 
-REPOSITORY_URL="svn+ssh://svncisd.ethz.ch/repos/cisd"
 BUILDING_SITE="/tmp/gradle-build"
+
+BASE=`dirname "$0"`
+if [ ${BASE#/} == ${BASE} ]; then
+    BASE="`pwd`/${BASE}"
+fi
+source $BASE/utilities.sh
+
+template_url=$(calculate_repository_template_url $PROJECT $BRANCH $VERSION)
+echo "Repository Template URL: $template_url"
+if [[ -z "$template_url" ]]; then
+  exit 1
+fi
 
 rm -rf "$BUILDING_SITE"
 
-#
-# Calculate repository template URL
-#
-if [[ -z "$BRANCH" ]]; then
-  BRANCH="trunk"
-fi
-if [ "$BRANCH" == "trunk" ]; then
-  TEMPLATE_URL="$REPOSITORY_URL/__project__/trunk"
-else
-  if [[ "$VERSION" == *.x ]]; then
-    TEMPLATE_URL="$REPOSITORY_URL/$PROJECT/branches/$BRANCH/$VERSION/__project__"
-  else
-    if [ "$BRANCH" == "sprint" ]; then
-      if [[ -z "$VERSION" ]]; then
-        LATEST_SPRINT=`svn list $REPOSITORY_URL/$PROJECT/branches/sprint/|awk -F. '{print substr($1,2)}'|sort -nr|head -1`
-        VERSION=S$LATEST_SPRINT
-      fi
-      if [[ "$VERSION" == *.* ]]; then
-        TAG="$VERSION"
-        VERSION=`echo $VERSION|cut -d. -f1`
-      else
-        LATEST_PATCH=`svn list $REPOSITORY_URL/$PROJECT/tags/sprint/$VERSION.x/|awk -F. '{print $2}'|sort -nr|head -1`
-        TAG=$VERSION.${LATEST_PATCH%/}
-      fi
-      TEMPLATE_URL="$REPOSITORY_URL/$PROJECT/tags/$BRANCH/$VERSION.x/$TAG/__project__"
-    elif [[ -z "$VERSION" ]]; then
-      echo "Missing version argument. Needed for branch '$BRANCH'."
-      exit 1
-    else
-      if [[ "$VERSION" == *.*.* ]]; then
-        TAG="$VERSION"
-        VERSION=`echo $VERSION|cut -d. -f1,2`
-      else
-        LATEST_PATCH=`svn list $REPOSITORY_URL/$PROJECT/tags/$BRANCH/$VERSION.x/|awk -F. '{print $3}'|sort -nr|head -1`
-        TAG=$VERSION.${LATEST_PATCH%/}
-      fi
-      TEMPLATE_URL="$REPOSITORY_URL/$PROJECT/tags/$BRANCH/$VERSION.x/$TAG/__project__"
-    fi
-  fi
-fi
-echo "Repository Template URL: $TEMPLATE_URL"
 
-checkout() {
-  project=$1
-    echo svn co ${TEMPLATE_URL/__project__/$project} -q "$BUILDING_SITE/$project"
-    svn co ${TEMPLATE_URL/__project__/$project} -q "$BUILDING_SITE/$project"
+checkout() 
+{
+  local project=$1
+  
+  echo svn co ${template_url/__project__/$project} -q "$BUILDING_SITE/$project"
+  svn co ${template_url/__project__/$project} -q "$BUILDING_SITE/$project"
 }
 
 #

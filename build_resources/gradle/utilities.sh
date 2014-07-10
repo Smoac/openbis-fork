@@ -3,6 +3,7 @@ SVN_MUCC=svnmucc
 REPOSITORY_URL="svn+ssh://svncisd.ethz.ch/repos/cisd"
 
 SPRINT_VERSION_REGEX="^(S([0-9]+)(\.([0-9]+))?)?$"
+RELEASE_VERSION_REGEX="^(([0-9]+.[01][0-9])(\.([0-9]+))?)?$"
 
 #
 # Asserts specified project exists in the repository. Otherwise the script is terminated.
@@ -13,7 +14,7 @@ assert_valid_project()
   
   if [  $(_path_exists $project) == FALSE ]; then
     _error "Unknown project: $project"
-    exit 1
+    _exit_on_error
   fi
 }
 
@@ -29,7 +30,23 @@ assert_valid_sprint_version_tag()
   if [[ ! $version_tag =~ $SPRINT_VERSION_REGEX ]]; then
     _error "Sprint version/tag is not of form S<version number>[.<patch number>]: $version_tag"
     _error "Valid examples: S23.12, S108, S156.8"
-    exit 1
+    _exit_on_error
+  fi
+}
+
+#
+# Asserts specified release version/tag is valid. Otherwise the script is terminated.
+#
+# As a side effect BASH_REMATCH[2] and BASH_REMATCH[4] are set with version and patch number, respectively.
+#
+assert_valid_release_version_tag()
+{
+  local version_tag=$1
+  
+  if [[ ! $version_tag =~ $RELEASE_VERSION_REGEX ]]; then
+    _error "Release version/tag is not of form <year>.<month>[.<patch number>]: $version_tag"
+    _error "Valid examples: 9.12, 13.04, 13.04.2, 10.06.13"
+    _exit_on_error
   fi
 }
 
@@ -41,15 +58,13 @@ assert_valid_sprint_version_tag()
 # This function should be used as follows:
 # sprint_version=$(get_sprint_version $project $version_number)
 #
-# Note: assert_valid_sprint_version_tag has to be invoked before invoking this function.
-#
 get_sprint_version()
 {
   local project=$1
   local version_number=$2
 
   if [ "$version_number" == "" ]; then
-    latest=`_list_branches $project sprint|awk -F. '{print substr($1,2)}'|sort -nr|head -1`
+    latest=$(_get_latest_sprint_version $project)
     if [ "$latest" == "" ]; then
       echo 1
     else
@@ -61,25 +76,43 @@ get_sprint_version()
 }
 
 #
-# Returns specified patch number if it is not an empty string. 
-# If undefined the latest tagged sprint version of the specified project is read from the repository.
-# This patch number increased by one will be returned. 
+# Returns specified release number if it is not an empty string.
+# If undefined the current year and month will be returned in the form <2-digit year>.<2-digit month>.
 #
 # This function should be used as follows:
-# sprint_version=$(get_sprint_version $project $version_number $patch_number)
+# release_version=$(get_release_version $version_number)
 #
-# Note: assert_valid_sprint_version_tag has to be invoked before invoking this function.
+get_release_version()
+{
+  local version_number=$1
+
+  if [ "$version_number" == "" ]; then
+    echo `date "+%y.%m"`
+  else
+    echo "$version_number"
+  fi
+}
+
 #
-get_sprint_patch()
+# Returns specified patch number if it is not an empty string. 
+# If undefined the latest tagged version of the specified project for the specified branch
+# is read from the repository. This patch number increased by one will be returned. 
+#
+# This function should be used as follows:
+# patch=$(get_patch_number $project $branch $version $patch_number)
+#
+get_patch_number()
 {
   local project=$1
-  local version_number=$2
-  local patch_number=$3
+  local branch=$2
+  local version=$3
+  local patch_number=$4
 
   if [ "$patch_number" == "" ]; then
-    path=$project/tags/sprint/S$version_number.x
+    local path=$project/tags/$branch/$version.x
+    echo "PATH:$path" >&2
     if [ $(_path_exists $path) == TRUE ]; then
-      latest=`_list_folder $path|cut -d/ -f1|cut -d. -f2|sort -nr|head -1`
+      latest=$(_get_latest_patch_number $project $branch $version)
       if [ "$latest" == "" ]; then
         echo 0
       else
@@ -94,17 +127,18 @@ get_sprint_patch()
 }
 
 #
-# Creates specified sprint branch for specified project if it not already exists. 
+# Creates specified branch for specified project if it not already exists. 
 # Copies main project and all dependent project (determined by file 'settings.gradle' of main project)
-# from trunk into the new branch.  
+# from trunk into the new branch.
 #
-create_sprint_branch_if_necessary()
+create_branch_if_necessary()
 {
   local project=$1
-  local sprint_version=$2
+  local branch=$2
+  local version=$3
   
-  local dir_name=S$sprint_version.x
-  local path="$project/branches/sprint/$dir_name"
+  local dir_name=$version.x
+  local path="$project/branches/$branch/$dir_name"
   if [ $(_path_exists $path) == FALSE ]; then
     _start_batch
     _mkdir "$path"
@@ -112,40 +146,100 @@ create_sprint_branch_if_necessary()
     for p in $projects; do
       _batch cp "$REPOSITORY_URL/$p/trunk" "$REPOSITORY_URL/$path/$p"
     done
-    local log_message="Create sprint branch '$dir_name' for project $project"
+    local log_message="Create $branch branch '$dir_name' for project $project"
     echo $log_message
     _submit_batch "$log_message"
   fi
 }
 
 #
-# Tags the specified sprint branch of specified project. 
-# Creates <project>/tags/sprint/S<sprint_version>.x and copies to this folder
-# the branch <project>/branch/sprint/S<sprint_version>.x as tag <sprint_version>.<patch number>
+# Tags the specified branch of specified project. 
+# Creates <project>/tags/<branch>/<version>.x and copies to this folder
+# the branch <project>/branch/<branch>/<version>.x as tag <version>.<patch number>
 #
-copy_sprint_branch_to_tag()
+copy_branch_to_tag()
 {
   local project=$1
-  local sprint_version=$2
-  local patch_number=$3
+  local branch=$2
+  local version=$3
+  local patch_number=$4
   
-  local dir_name=S$sprint_version.x
-  local tag_name=S$sprint_version.$patch_number
-  local path="$project/tags/sprint/$dir_name"
+  local dir_name=$version.x
+  local tag_name=$version.$patch_number
+  local path="$project/tags/$branch/$dir_name"
   if [ $(_path_exists "$path/$tag_name") == TRUE ]; then
-    _error "There exists already a sprint tag '$tag_name' for project $project."
-    _error "You can use the sprint version 'S$sprint_version' without specifying the patch number."
+    _error "There exists already a $branch tag '$tag_name' for project $project."
+    _error "You can use the branch version '$version' without specifying the patch number."
     _error "The tagging script will find out the next available patch number."
-    exit 1
+    _exit_on_error
   fi
   _start_batch
   _mkdir "$path"
-  _batch cp "$REPOSITORY_URL/$project/branches/sprint/$dir_name" "$REPOSITORY_URL/$path/$tag_name"
-  local log_message="Create sprint tag '$tag_name' for project $project"
+  _batch cp "$REPOSITORY_URL/$project/branches/$branch/$dir_name" "$REPOSITORY_URL/$path/$tag_name"
+  local log_message="Create $branch tag '$tag_name' for project $project"
   echo $log_message
   _submit_batch "$log_message"
 }
 
+#
+# Calculates the template for the repository URL. The template contains '__project__' which will
+# be the place holder for the projects to be checked out.
+#
+# This function should be used as follows:
+# template=$(calculate_repository_template_url $project $branch $version)
+#
+# In case of an error an empty string is returned.
+#
+calculate_repository_template_url()
+{
+  local project=$1
+  local branch=$2
+  local version=$3
+  
+  assert_valid_project $project
+  if [[ -z "$branch" ]]; then
+    branch="trunk"
+  fi
+  if [ "$branch" == "trunk" ]; then
+    echo "$REPOSITORY_URL/__project__/trunk"
+  else
+    if [[ "$version" == *.x ]]; then
+      local path="$REPOSITORY_URL/$project/branches/$branch/$version"
+      if [ $(_path_exists $path) == FALSE ]; then
+        _error "Unknown version '$version' in $branch branch for project $project."
+        _exit_on_error
+      fi
+      echo "$REPOSITORY_URL/$project/branches/$branch/$version/__project__"
+    else
+      if [[ "$branch" != "sprint" && -z "$version" ]]; then
+        _error "Missing version argument. Needed for $branch branch."
+        _exit_on_error
+      else
+        if [[ -z "$version" ]]; then
+          version=S$(_get_latest_sprint_version $project)
+        fi
+        if [[ "$version" == S*.* || "$version" == *.*.* ]]; then
+          local tag="$version"
+          version=${version%.*}
+        else
+          local path=$project/tags/$branch/$version.x
+          if [ $(_path_exists $path) == FALSE ]; then
+            _error "No tags exists for version '$version' of $branch branch for project $project."
+            _exit_on_error
+          fi
+          local tag=$version.$(_get_latest_patch_number $project $branch $version)
+        fi
+      fi
+      local path=$project/tags/$branch/$version.x/$tag
+      if [ $(_path_exists $path) == FALSE ]; then
+        _error "Unknown tag '$tag' in $branch branch for project $project."
+        _exit_on_error
+      fi
+      echo "$REPOSITORY_URL/$path/__project__"
+    fi
+  fi
+  
+}
 
 ################################### private functions (only used in this script) ################
 
@@ -204,6 +298,22 @@ _add_mucc_command_item()
   for item in "$@"; do
     tag_batch_command_mucc[${#tag_batch_command_mucc[*]}]="$item"
   done
+}
+
+_get_latest_sprint_version()
+{
+  local project=$1
+  
+  _list_branches $project sprint|awk -F. '{print substr($1,2)}'|sort -nr|head -1
+}
+
+_get_latest_patch_number()
+{
+  local project=$1
+  local branch=$2
+  local version=$3
+  
+  _list_folder $project/tags/$branch/$version.x|cut -d/ -f1|awk -F. '{print $NF}'|sort -nr|head -1
 }
 
 _list_branches() 
@@ -272,14 +382,14 @@ _assert_repository()
   "$SVN_CMD" -q --non-interactive --version > /dev/null
   if [ $? != 0 ]; then
     _error "Subversion client client '$SVN_CMD' not available"
-    _error "Please make Subversion command line client available or set variable SVN_CMD in script '$BASE/utilities.sh' correctly."
-    exit 1
+    _error "Please make Subversion command line client available or set variable SVN_CMD in script '${BASH_SOURCE[0]}' correctly."
+    _exit_on_error
   fi
   "$SVN_CMD" info --non-interactive "$REPOSITORY_URL" > /dev/null
   if [ $? != 0 ]; then
     _error "Subversion repository '$REPOSITORY_URL' not available"
-    _error "Please check that the variable REPOSITORY_URL in script '$BASE/utilities.sh' is set correctly."
-    exit 1
+    _error "Please check that the variable REPOSITORY_URL in script '${BASH_SOURCE[0]}' is set correctly."
+    _exit_on_error
   fi
   "$SVN_MUCC" --help > /dev/null 2>&1
   if [ $? == 0 ]; then
@@ -296,6 +406,11 @@ _assert_repository()
 _error()
 {
   echo "ERROR> $@" >&2
+}
+
+_exit_on_error()
+{
+  exit 1
 }
 
 _assert_repository
