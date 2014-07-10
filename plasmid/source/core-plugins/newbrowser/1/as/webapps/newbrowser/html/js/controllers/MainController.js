@@ -414,9 +414,6 @@ function MainController(profile) {
 	
 	this._showSearchPage = function(value) {
 		//Only search with at least 3 characters
-		if(value.length < 3) {
-			return;
-		}
 		
 		this.lastSearchId++;
 		var localSearchId = this.lastSearchId;
@@ -424,6 +421,14 @@ function MainController(profile) {
 		
 		var possibleSearch = function() {
 			if(localSearchId === localReference.lastSearchId) { //Trigger it if no new have started
+				
+				if(value.length < 3) {
+					var isOk = window.confirm("Are you sure you want to make a search with " + value.length +" characters? You can expect a lot of results.");
+					if(!isOk) {
+						return;
+					}
+				}
+				
 				//Update Main Container
 				var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
 				$("#search").addClass("search-query-searching");
