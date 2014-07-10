@@ -413,7 +413,9 @@ function MainController(profile) {
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
 	
 	this._showSearchPage = function(value) {
-		//Only search with at least 3 characters
+		if(value.length === 0) {
+			return;
+		}
 		
 		this.lastSearchId++;
 		var localSearchId = this.lastSearchId;
