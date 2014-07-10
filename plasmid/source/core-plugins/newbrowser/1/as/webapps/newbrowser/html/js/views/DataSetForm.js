@@ -54,8 +54,18 @@ function DataSetForm(serverFacade, containerId, profile, sample, mode) {
 		$component.attr('required', '');
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		
 		for(var i = 0; i < dataSetTypes.length; i++) {
-			$component.append($("<option>").attr('value',dataSetTypes[i].code).text(dataSetTypes[i].code));
+			var displayName = dataSetTypes[i].code;
+			if(dataSetTypes[i].description) {
+				var length = dataSetTypes[i].description.length > 40;
+				if(dataSetTypes[i].description.length > 40) {
+					displayName = dataSetTypes[i].description.substring(1,36) + " ...";
+				} else {
+					displayName = dataSetTypes[i].description;
+				}
+			}
+			$component.append($("<option>").attr('value',dataSetTypes[i].code).text(displayName));
 		}
 		
 		return $component;
