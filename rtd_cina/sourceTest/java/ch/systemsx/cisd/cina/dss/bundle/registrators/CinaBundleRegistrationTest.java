@@ -63,25 +63,23 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
     private static final String METADATA_DATA_SET_CODE = "METADATA_DATA_SET_CODE";
 
-    private static final String DB_CODE = "DB";
-
     private static final String SPACE_CODE = "SPACE";
 
     private static final String PROJECT_CODE = "PROJECT";
 
     private static final String EXPERIMENT_CODE = "EXP-1";
 
-    protected static final String EXPERIMENT_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
+    protected static final String EXPERIMENT_IDENTIFIER = "/" + SPACE_CODE + "/"
             + PROJECT_CODE + "/" + EXPERIMENT_CODE;
 
     private static final String GRID_SAMPLE_CODE = "GRID-CODE";
 
-    protected static final String GRID_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
+    protected static final String GRID_SAMPLE_IDENTIFIER = "/"+ SPACE_CODE + "/"
             + GRID_SAMPLE_CODE;
 
     private static final String COLLECTION_SAMPLE_CODE = "REPLICA54";
 
-    protected static final String COLLECTION_SAMPLE_IDENTIFIER = DB_CODE + ":/" + SPACE_CODE + "/"
+    protected static final String COLLECTION_SAMPLE_IDENTIFIER = "/" + SPACE_CODE + "/"
             + COLLECTION_SAMPLE_CODE;
 
     private static final String BUNDLE_METADATA_DATA_SET_CODE = "BUNDLE_METADATA";
@@ -223,7 +221,6 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         Space space = new Space();
         space.setCode(SPACE_CODE);
         DatabaseInstance dbInstance = new DatabaseInstance();
-        dbInstance.setCode(DB_CODE);
         space.setInstance(dbInstance);
         project.setSpace(space);
         exp.setProject(project);
@@ -298,7 +295,6 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setDataSetCode(RAW_IMAGES_DATA_SET_CODE);
         dataSetInformation.setSampleCode(COLLECTION_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
-        dataSetInformation.setInstanceCode(DB_CODE);
         dataSetInformation.setShareId("42");
 
         // set up the expectations
@@ -337,7 +333,6 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setDataSetCode(METADATA_DATA_SET_CODE);
         dataSetInformation.setSampleCode(COLLECTION_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
-        dataSetInformation.setInstanceCode(DB_CODE);
         dataSetInformation.setShareId("42");
 
         dataSet = new PhysicalDataSet();
@@ -442,7 +437,6 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
         dataSetInformation.setDataSetCode(BUNDLE_METADATA_DATA_SET_CODE);
         dataSetInformation.setSampleCode(GRID_SAMPLE_CODE);
         dataSetInformation.setSpaceCode(SPACE_CODE);
-        dataSetInformation.setInstanceCode(DB_CODE);
 
         final File dataSetFile = new File(path);
 
@@ -481,7 +475,6 @@ public abstract class CinaBundleRegistrationTest extends AbstractFileSystemTestC
 
         final DataSetInformation callerDataSetInfo = new DataSetInformation();
         callerDataSetInfo.setSpaceCode(SPACE_CODE);
-        callerDataSetInfo.setInstanceCode(DB_CODE);
         callerDataSetInfo.setExperimentIdentifier(new ExperimentIdentifierFactory(
                 EXPERIMENT_IDENTIFIER).createIdentifier());
 
