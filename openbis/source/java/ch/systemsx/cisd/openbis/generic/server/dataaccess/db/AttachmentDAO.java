@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Implementation of {@link IAttachmentDAO} for data bases.
@@ -48,9 +47,9 @@ final class AttachmentDAO extends AbstractGenericEntityDAO<AttachmentPE> impleme
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             AttachmentDAO.class);
 
-    AttachmentDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    AttachmentDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, ATTACHMENT_CLASS);
+        super(sessionFactory, ATTACHMENT_CLASS);
     }
 
     private final static String createFindLastVersionQuery(AttachmentHolderPE owner)

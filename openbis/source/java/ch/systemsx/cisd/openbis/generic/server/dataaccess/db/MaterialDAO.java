@@ -47,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.MaterialCodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractIdAndCodeHolder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -77,10 +76,9 @@ public class MaterialDAO extends AbstractGenericEntityWithPropertiesDAO<Material
     private static final Pattern RELAXED_CODE_PATTERN = Pattern.compile("^[^\\s]+$",
             Pattern.CASE_INSENSITIVE);
 
-    protected MaterialDAO(final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance)
+    protected MaterialDAO(final PersistencyResources persistencyResources)
     {
-        super(persistencyResources, databaseInstance, ENTITY_CLASS);
+        super(persistencyResources, ENTITY_CLASS);
     }
 
     @Override

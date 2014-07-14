@@ -31,7 +31,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -95,8 +94,7 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
         }
     }
 
-    private EntityTypePE convertGeneric(EntityType entityType, EntityKind kind,
-            DatabaseInstancePE databaseInstance) throws UserFailureException
+    private EntityTypePE convertGeneric(EntityType entityType, EntityKind kind) throws UserFailureException
     {
         EntityTypePE typePE = EntityTypePE.createEntityTypePE(kind);
         typePE.setCode(entityType.getCode());
@@ -143,14 +141,14 @@ public final class EntityTypeBO extends AbstractBusinessObject implements IEntit
     public void define(MaterialType entityType)
     {
         this.entityKind = EntityKind.MATERIAL;
-        this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
+        this.entityTypePE = convertGeneric(entityType, entityKind);
     }
 
     @Override
     public void define(ExperimentType entityType)
     {
         this.entityKind = EntityKind.EXPERIMENT;
-        this.entityTypePE = convertGeneric(entityType, entityKind, getHomeDatabaseInstance());
+        this.entityTypePE = convertGeneric(entityType, entityKind);
     }
 
     @Override

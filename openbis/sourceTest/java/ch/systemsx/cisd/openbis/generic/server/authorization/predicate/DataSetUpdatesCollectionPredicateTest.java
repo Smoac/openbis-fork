@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetUpdatesCollectionPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -45,7 +44,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/" + SPACE_CODE
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()
@@ -71,7 +70,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/" + SPACE_CODE
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()
@@ -98,7 +97,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
         ds1.setExperimentIdentifierOrNull(ExperimentIdentifierFactory.parse("/"
                 + ANOTHER_SPACE_CODE + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
 
@@ -118,7 +117,7 @@ public class DataSetUpdatesCollectionPredicateTest extends AuthorizationTestCase
                 + "/P/E"));
         ds1.setSampleIdentifierOrNull(SampleIdentifierFactory
                 .parse("/" + ANOTHER_SPACE_CODE + "/S"));
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         DataSetUpdatesCollectionPredicate predicate = new DataSetUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()

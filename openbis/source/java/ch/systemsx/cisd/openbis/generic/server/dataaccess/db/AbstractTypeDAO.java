@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * An abstract extension of <code>HibernateAbstractDAO</code> suitable for tables that contains <i>type</i> information. <br>
@@ -50,10 +49,9 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
      */
     private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
-    public AbstractTypeDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance, final Class<T> entityClass)
+    public AbstractTypeDAO(final SessionFactory sessionFactory, final Class<T> entityClass)
     {
-        super(sessionFactory, databaseInstance, entityClass);
+        super(sessionFactory, entityClass);
     }
 
     final T tryFindTypeByCode(final String code) throws DataAccessException

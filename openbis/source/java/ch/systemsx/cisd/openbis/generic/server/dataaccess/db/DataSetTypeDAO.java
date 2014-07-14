@@ -21,7 +21,6 @@ import org.hibernate.SessionFactory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Data access object for {@link DataSetTypePE}.
@@ -30,9 +29,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
  */
 public class DataSetTypeDAO extends AbstractTypeDAO<DataSetTypePE> implements IDataSetTypeDAO
 {
-    public DataSetTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public DataSetTypeDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, DataSetTypePE.class);
+        super(sessionFactory, DataSetTypePE.class);
     }
 
     @Override

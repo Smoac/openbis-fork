@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPropertyPE;
@@ -83,10 +82,9 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
 
     private final IExperimentSampleQuery experimentSampleQuery;
 
-    protected ExperimentDAO(final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance)
+    protected ExperimentDAO(final PersistencyResources persistencyResources)
     {
-        super(persistencyResources, databaseInstance, ExperimentPE.class);
+        super(persistencyResources, ExperimentPE.class);
         this.experimentSampleQuery = QueryTool.getManagedQuery(IExperimentSampleQuery.class);
     }
 

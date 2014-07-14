@@ -41,7 +41,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvalua
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -72,10 +71,9 @@ final class EntityPropertyTypeDAO extends AbstractDAO implements IEntityProperty
     private final IDynamicPropertyEvaluationScheduler dynamicPropertyEvaluationScheduler;
 
     public EntityPropertyTypeDAO(final EntityKind entityKind,
-            final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance)
+            final PersistencyResources persistencyResources)
     {
-        super(persistencyResources.getSessionFactory(), databaseInstance);
+        super(persistencyResources.getSessionFactory());
         this.entityKind = entityKind;
         this.dynamicPropertyEvaluationScheduler =
                 persistencyResources.getDynamicPropertyEvaluationScheduler();

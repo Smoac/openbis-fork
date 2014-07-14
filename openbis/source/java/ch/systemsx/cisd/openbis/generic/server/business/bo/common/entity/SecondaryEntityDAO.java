@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -66,15 +65,14 @@ public class SecondaryEntityDAO
     public static SecondaryEntityDAO create(IDAOFactory daoFactory,
             ISecondaryEntityListingQuery query)
     {
-        return new SecondaryEntityDAO(query, daoFactory.getHomeDatabaseInstance());
+        return new SecondaryEntityDAO(query);
     }
 
     private final ISecondaryEntityListingQuery query;
 
     private final DatabaseInstance databaseInstance;
 
-    private SecondaryEntityDAO(final ISecondaryEntityListingQuery query,
-            final DatabaseInstancePE databaseInstancePE)
+    private SecondaryEntityDAO(final ISecondaryEntityListingQuery query)
     {
         this.query = query;
         this.databaseInstance = DatabaseInstanceTranslator.translate();

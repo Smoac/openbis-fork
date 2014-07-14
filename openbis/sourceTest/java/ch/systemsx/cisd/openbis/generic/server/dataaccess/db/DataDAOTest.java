@@ -49,7 +49,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -556,8 +555,7 @@ public final class DataDAOTest extends AbstractDAOTest
     protected SamplePE pickASample()
     {
         ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        DatabaseInstancePE dbInstance = daoFactory.getHomeDatabaseInstance();
-        SamplePE sample = sampleDAO.tryFindByCodeAndDatabaseInstance("MP", dbInstance);
+        SamplePE sample = sampleDAO.tryFindByCodeAndDatabaseInstance("MP");
         assertNotNull(sample);
         return sample;
     }

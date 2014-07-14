@@ -36,7 +36,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -112,8 +111,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         projectPE.setCode("my-project");
         SpacePE groupPE = new SpacePE();
         groupPE.setCode("my-group");
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("my-instance");
         projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         externalDataPE.setExperiment(experimentPE);
@@ -216,8 +213,6 @@ public class DataSetTranslatorTest extends AssertJUnit
         projectPE.setCode("my-project");
         SpacePE groupPE = new SpacePE();
         groupPE.setCode("my-group");
-        DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("my-instance");
         projectPE.setSpace(groupPE);
         experimentPE.setProject(projectPE);
         linkDataPE.setExperiment(experimentPE);

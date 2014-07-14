@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -53,7 +52,6 @@ public final class GroupDAOTest extends AbstractDAOTest
         final String groupCode = NEW_TEST_GROUP;
         final SpacePE group = createSpace(groupCode);
 
-        final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
         final SpacePE retrievedGroup =
                 daoFactory.getSpaceDAO().tryFindSpaceByCode(groupCode);
         AssertJUnit.assertNotNull(retrievedGroup);
@@ -86,9 +84,7 @@ public final class GroupDAOTest extends AbstractDAOTest
     @Test(groups = "broken")
     public void testListGroupsOfAnotherDatabaseInstance()
     {
-        final DatabaseInstancePE databaseInstance = createDatabaseInstance("another-db");
-        databaseInstance.setOriginalSource(true); // to cheat GroupDAO
-        createSpace("test-group", databaseInstance);
+        createSpace("test-group");
         final List<SpacePE> groups = daoFactory.getSpaceDAO().listSpaces();
         assertEquals("TEST-GROUP", groups.get(0).getCode());
         assertEquals(1, groups.size());

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
-import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_GROUP;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_GROUP2;
 import static ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool.EXAMPLE_PERSON;
@@ -48,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -102,8 +100,6 @@ public final class SampleBOTest extends AbstractBOTest
     {
         SampleTypePE sampleType = new SampleTypePE();
         sampleType.setCode(typeCode);
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode(DB);
         sampleType.setSampleTypePropertyTypes(new HashSet<SampleTypePropertyTypePE>());
         return sampleType;
     }
@@ -169,8 +165,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO,
-                            databaseInstanceDAO);
+                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO);
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(MASTER_PLATE);
                     will(returnValue(sampleType));
@@ -280,8 +275,7 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
-                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO,
-                            databaseInstanceDAO);
+                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO);
 
                     one(sampleDAO).tryFindByCodeAndSpace(generatedFromIdentifier.getSampleCode(),
                             EXAMPLE_GROUP);
@@ -327,9 +321,6 @@ public final class SampleBOTest extends AbstractBOTest
     @SuppressWarnings("unchecked")
     public final void testEditSharedSampleWithAuthorizationFailure()
     {
-        final DatabaseInstancePE database = new DatabaseInstancePE();
-        database.setCode(DB);
-
         final SamplePE sample = createSample("sampleCode", (SpacePE) null);
 
         prepareTryToLoadOfSampleWithId(sample);
@@ -436,9 +427,6 @@ public final class SampleBOTest extends AbstractBOTest
             {
                 {
 
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
-
                     allowing(dataDAO).hasDataSet(with(sample));
                     will(returnValue(false));
 
@@ -529,10 +517,6 @@ public final class SampleBOTest extends AbstractBOTest
                     allowing(daoFactory).getRelationshipTypeDAO();
                     will(returnValue(relationshipTypeDAO));
 
-                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                            EXAMPLE_DATABASE_INSTANCE.getCode());
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
-
                     allowing(spaceDAO).tryFindSpaceByCode(
                             parent.getSpace().getCode());
                     will(returnValue(EXAMPLE_GROUP));
@@ -586,12 +570,6 @@ public final class SampleBOTest extends AbstractBOTest
 
                     allowing(daoFactory).getRelationshipTypeDAO();
                     will(returnValue(relationshipTypeDAO));
-
-                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                            EXAMPLE_DATABASE_INSTANCE.getCode());
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
 
                     allowing(spaceDAO).tryFindSpaceByCode(
                             EXAMPLE_GROUP.getCode());
@@ -667,11 +645,6 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-
-                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                            EXAMPLE_DATABASE_INSTANCE.getCode());
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
-
                     allowing(spaceDAO).tryFindSpaceByCode(
                             container.getSpace().getCode());
                     will(returnValue(EXAMPLE_GROUP));
@@ -719,10 +692,6 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                            EXAMPLE_DATABASE_INSTANCE.getCode());
-                    will(returnValue(EXAMPLE_DATABASE_INSTANCE));
-
                     allowing(spaceDAO).tryFindSpaceByCode(
                             container.getSpace().getCode());
                     will(returnValue(EXAMPLE_GROUP2));
@@ -837,14 +806,10 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(databaseInstanceDAO).tryFindDatabaseInstanceByCode(DB);
-                    will(returnValue(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE));
-
                     allowing(daoFactory).getSampleDAO();
                     will(returnValue(sampleDAO));
 
-                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO,
-                            databaseInstanceDAO);
+                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO);
 
                     final SamplePE groupParent = new SamplePE();
                     groupParent.setRegistrator(EXAMPLE_PERSON);
@@ -919,8 +884,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO,
-                            databaseInstanceDAO);
+                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO);
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
@@ -956,8 +920,7 @@ public final class SampleBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO,
-                            databaseInstanceDAO);
+                    ManagerTestTool.prepareFindGroup(this, daoFactory, spaceDAO);
 
                     one(sampleTypeDAO).tryFindSampleTypeByCode(DILUTION_PLATE);
                     will(returnValue(new SampleTypePE()));
@@ -1106,7 +1069,7 @@ public final class SampleBOTest extends AbstractBOTest
             {
                 {
                     String sampleCode = sampleIdentifier.getSampleCode();
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode, null);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance(sampleCode);
                     will(returnValue(sample));
                 }
             });

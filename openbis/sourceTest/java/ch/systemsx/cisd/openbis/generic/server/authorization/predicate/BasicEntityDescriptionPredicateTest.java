@@ -36,7 +36,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.EXPERIMENT,
                 INSTANCE_CODE + ":/" + SPACE_CODE + "/P/E1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -51,7 +51,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.EXPERIMENT,
                 INSTANCE_CODE + ":/" + ANOTHER_SPACE_CODE + "/P/E1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -66,7 +66,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.SAMPLE,
                 INSTANCE_CODE + ":/" + SPACE_CODE + "/S1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -81,7 +81,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.SAMPLE,
                 INSTANCE_CODE + ":/" + ANOTHER_SPACE_CODE + "/S1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -106,7 +106,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
 
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.DATA_SET, "D1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -131,7 +131,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
 
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.DATA_SET, "D1");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);
@@ -145,7 +145,7 @@ public class BasicEntityDescriptionPredicateTest extends AuthorizationTestCase
     {
         BasicEntityDescription entityDescription = new BasicEntityDescription(EntityKind.MATERIAL, "M1 (MT)");
         BasicEntityDescriptionPredicate predicate = new BasicEntityDescriptionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.doEvaluation(createPerson(), createRoles(false), entityDescription);

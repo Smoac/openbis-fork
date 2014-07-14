@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleRelationshipPE;
@@ -46,14 +45,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
 
     private static final String SAMPLE_3 = "sample-3";
 
-    private static DatabaseInstancePE createDatabaseInstance(String code)
-    {
-        DatabaseInstancePE d = new DatabaseInstancePE();
-        d.setCode(code);
-        return d;
-    }
-
-    private static SpacePE createGroup(DatabaseInstancePE db, String code)
+    private static SpacePE createGroup(String code)
     {
         SpacePE g = new SpacePE();
         g.setCode(code);
@@ -68,7 +60,7 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
         return s;
     }
 
-    private static SamplePE createSharedSample(DatabaseInstancePE db, String code)
+    private static SamplePE createSharedSample(String code)
     {
         SamplePE s = new SamplePE();
         s.setCode(code);
@@ -78,10 +70,9 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test
     public void testGroupSampleCanHaveParentFromTheSameGroup() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_1);
-        SamplePE generator = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_2);
-        SamplePE container = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_3);
+        SamplePE child = createGroupSample(createGroup(GROUP_1), SAMPLE_1);
+        SamplePE generator = createGroupSample(createGroup(GROUP_1), SAMPLE_2);
+        SamplePE container = createGroupSample(createGroup(GROUP_1), SAMPLE_3);
 
         setBidirectionalRelationships(child, generator, container);
         checkBusinessRules(child);
@@ -90,10 +81,9 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test
     public void testGroupSampleCanHaveSharedParent() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_1);
-        SamplePE generator = createSharedSample(databaseInstance, SAMPLE_2);
-        SamplePE container = createSharedSample(databaseInstance, SAMPLE_3);
+        SamplePE child = createGroupSample(createGroup(GROUP_1), SAMPLE_1);
+        SamplePE generator = createSharedSample(SAMPLE_2);
+        SamplePE container = createSharedSample(SAMPLE_3);
 
         setBidirectionalRelationships(child, generator, container);
         checkBusinessRules(child);
@@ -102,9 +92,8 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test
     public void testGroupSampleCanBeContainedByParentFromDifferentGroup() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_1);
-        SamplePE container = createGroupSample(createGroup(databaseInstance, GROUP_2), SAMPLE_2);
+        SamplePE child = createGroupSample(createGroup(GROUP_1), SAMPLE_1);
+        SamplePE container = createGroupSample(createGroup(GROUP_2), SAMPLE_2);
 
         setBidirectionalRelationships(child, null, container);
         checkBusinessRules(child);
@@ -113,9 +102,8 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test
     public void testGroupSampleCanBeDerivedFromParentFromDifferentGroup() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_1);
-        SamplePE generator = createGroupSample(createGroup(databaseInstance, GROUP_2), SAMPLE_2);
+        SamplePE child = createGroupSample(createGroup(GROUP_1), SAMPLE_1);
+        SamplePE generator = createGroupSample(createGroup(GROUP_2), SAMPLE_2);
 
         setBidirectionalRelationships(child, generator, null);
         checkBusinessRules(child);
@@ -124,10 +112,9 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test
     public void testInstanceSampleCanHaveInstanceSampleParents() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createSharedSample(databaseInstance, SAMPLE_1);
-        SamplePE generator = createSharedSample(databaseInstance, SAMPLE_2);
-        SamplePE container = createSharedSample(databaseInstance, SAMPLE_3);
+        SamplePE child = createSharedSample(SAMPLE_1);
+        SamplePE generator = createSharedSample(SAMPLE_2);
+        SamplePE container = createSharedSample(SAMPLE_3);
 
         setBidirectionalRelationships(child, generator, container);
         checkBusinessRules(child);
@@ -136,9 +123,8 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test(expectedExceptions = UserFailureException.class)
     public void testInstanceSampleCannotBeContainedByGroupSample() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createSharedSample(databaseInstance, SAMPLE_1);
-        SamplePE container = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_2);
+        SamplePE child = createSharedSample(SAMPLE_1);
+        SamplePE container = createGroupSample(createGroup(GROUP_1), SAMPLE_2);
 
         setBidirectionalRelationships(child, null, container);
         // two asserts need to fail
@@ -154,9 +140,8 @@ public final class SampleGenericBusinessRulesTest extends AssertJUnit
     @Test(expectedExceptions = UserFailureException.class)
     public void testInstanceSampleCannotBeDerivedFromGroupSample() throws Exception
     {
-        DatabaseInstancePE databaseInstance = createDatabaseInstance(DB);
-        SamplePE child = createSharedSample(databaseInstance, SAMPLE_1);
-        SamplePE generator = createGroupSample(createGroup(databaseInstance, GROUP_1), SAMPLE_2);
+        SamplePE child = createSharedSample(SAMPLE_1);
+        SamplePE generator = createGroupSample(createGroup(GROUP_1), SAMPLE_2);
 
         setBidirectionalRelationships(child, generator, null);
         // two asserts need to fail

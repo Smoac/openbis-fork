@@ -1229,7 +1229,7 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
 
         dataStores.clear();
-        for (DataStoreRecord code : query.getDataStores(databaseInstanceId))
+        for (DataStoreRecord code : query.getDataStores())
         {
             dataStores.put(code.id, createDataStore(code));
         }

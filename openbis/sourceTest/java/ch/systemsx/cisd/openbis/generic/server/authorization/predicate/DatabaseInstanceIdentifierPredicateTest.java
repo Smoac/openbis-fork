@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -55,8 +54,6 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     public final void testSuccessfulEvaluation()
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
-        final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        prepareProvider(ANOTHER_INSTANCE_CODE, databaseInstance);
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(true),
@@ -69,8 +66,6 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     public final void testEveryoneCanReadDatabaseEntities()
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
-        final DatabaseInstancePE databaseInstance = createAnotherDatabaseInstance();
-        prepareProvider(ANOTHER_INSTANCE_CODE, databaseInstance);
         predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
@@ -97,13 +92,10 @@ public final class DatabaseInstanceIdentifierPredicateTest extends Authorization
     public final void testWithGroupIdentifier()
     {
         final DatabaseInstanceIdentifierPredicate predicate = createInstancePredicate(true);
-        final DatabaseInstancePE databaseInstance = createDatabaseInstance();
-        prepareProvider(databaseInstance.getCode(), databaseInstance);
         predicate.init(provider);
         final PersonPE person = createPerson();
         final Status evaluation =
                 predicate.doEvaluation(person, createRoles(false), new SpaceIdentifier(
-                        new DatabaseInstanceIdentifier(databaseInstance.getCode()),
                         SPACE_CODE));
         assertEquals(Status.OK, evaluation);
         context.assertIsSatisfied();

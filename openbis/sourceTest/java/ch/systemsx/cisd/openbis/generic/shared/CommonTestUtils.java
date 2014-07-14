@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -191,19 +190,6 @@ public class CommonTestUtils
         return assignment;
     }
 
-    public static DatabaseInstancePE createDatabaseInstance(final String code)
-    {
-        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode(code);
-        databaseInstance.setUuid("UUID-" + code);
-        return databaseInstance;
-    }
-
-    public static DatabaseInstancePE createHomeDatabaseInstance()
-    {
-        return createDatabaseInstance(HOME_DATABASE_INSTANCE_CODE);
-    }
-
     static public PersonPE createPersonFromPrincipal(final Principal principal)
     {
         final PersonPE person = new PersonPE();
@@ -217,8 +203,7 @@ public class CommonTestUtils
         return person;
     }
 
-    static public SpacePE createSpace(final String groupCode,
-            final DatabaseInstancePE databaseInstance)
+    static public SpacePE createSpace(final String groupCode)
     {
         final SpacePE space = new SpacePE();
         space.setCode(groupCode);
@@ -227,8 +212,7 @@ public class CommonTestUtils
 
     public static SpacePE createSpace(SpaceIdentifier identifier)
     {
-        DatabaseInstancePE db = createDatabaseInstance(identifier.getDatabaseInstanceCode());
-        return createSpace(identifier.getSpaceCode(), db);
+        return createSpace(identifier.getSpaceCode());
     }
 
     public static final ExperimentTypePE createExperimentType()
@@ -294,8 +278,7 @@ public class CommonTestUtils
     {
         final ProjectPE project = new ProjectPE();
         project.setCode(pi.getProjectCode());
-        project.setSpace(createSpace(pi.getSpaceCode(),
-                createDatabaseInstance(pi.getDatabaseInstanceCode())));
+        project.setSpace(createSpace(pi.getSpaceCode()));
         return project;
     }
 

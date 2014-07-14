@@ -16,22 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.util;
 
-import java.util.List;
-
-import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exceptions.InternalErr;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
-import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.util.DatabaseInstanceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.util.SpaceCodeHelper;
 
 /**
@@ -59,51 +51,42 @@ public final class SpaceIdentifierHelper
         public static SpaceIdentifierNormalizer create(final IAuthorizationDAOFactory daoFactory,
                 final String homeSpaceCodeOrNull)
         {
-            final IDatabaseInstanceFinder instanceFinder =
-                    SpaceIdentifierHelper.createCachedInstanceFinder(daoFactory);
-            return new SpaceIdentifierNormalizer(instanceFinder, homeSpaceCodeOrNull);
+            return new SpaceIdentifierNormalizer(homeSpaceCodeOrNull);
         }
-
-        private final IDatabaseInstanceFinder databaseInstanceFinder;
 
         private final String homeSpaceCodeOrNull;
 
-        private SpaceIdentifierNormalizer(final IDatabaseInstanceFinder databaseInstanceFinder,
-                final String homeSpaceCodeOrNull)
+        private SpaceIdentifierNormalizer(final String homeSpaceCodeOrNull)
         {
-            this.databaseInstanceFinder = databaseInstanceFinder;
             this.homeSpaceCodeOrNull = homeSpaceCodeOrNull;
         }
 
         public final SpaceIdentifier normalize(final SpaceIdentifier identifier)
         {
-            return SpaceIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
-                    databaseInstanceFinder);
+            return SpaceIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull);
         }
 
         public final SampleIdentifier normalize(final SampleIdentifier identifier)
         {
-            return SpaceIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull,
-                    databaseInstanceFinder);
+            return SpaceIdentifierHelper.normalize(identifier, homeSpaceCodeOrNull);
         }
     }
 
     /** Transforms given space identifier to the canonical form. */
     private final static SpaceIdentifier normalize(final SpaceIdentifier spaceIdentifier,
-            final String homeSpaceCodeOrNull, final IDatabaseInstanceFinder instanceFinder)
+            final String homeSpaceCodeOrNull)
     {
-        final DatabaseInstanceIdentifier instance = normalize(spaceIdentifier, instanceFinder);
         String spaceCode = spaceIdentifier.getSpaceCode();
         if (spaceCode == null)
         {
             spaceCode = homeSpaceCodeOrNull;
         }
-        return new SpaceIdentifier(instance, spaceCode.toUpperCase());
+        return new SpaceIdentifier(spaceCode.toUpperCase());
     }
 
     /** Transforms given sample identifier to the canonical form. */
     private final static SampleIdentifier normalize(final SampleIdentifier sampleIdentifier,
-            final String homeSpaceCodeOrNull, final IDatabaseInstanceFinder instanceFinder)
+            final String homeSpaceCodeOrNull)
     {
         if (sampleIdentifier.isDatabaseInstanceLevel())
         {
@@ -111,95 +94,12 @@ public final class SpaceIdentifierHelper
         } else if (sampleIdentifier.isSpaceLevel())
         {
             final SpaceIdentifier spaceIdentifier =
-                    normalize(sampleIdentifier.getSpaceLevel(), homeSpaceCodeOrNull, instanceFinder);
+                    normalize(sampleIdentifier.getSpaceLevel(), homeSpaceCodeOrNull);
             return new SampleIdentifier(spaceIdentifier, sampleIdentifier.getSampleCode());
         } else
         {
             throw InternalErr.error(sampleIdentifier);
         }
-    }
-
-    private static DatabaseInstanceIdentifier normalize(
-            final DatabaseInstanceIdentifier identifier,
-            final IDatabaseInstanceFinder instanceFinder)
-    {
-        final String code =
-                DatabaseInstanceIdentifierHelper.getDatabaseInstance(identifier, instanceFinder)
-                        .getCode();
-        return new DatabaseInstanceIdentifier(code.toUpperCase());
-    }
-
-    /**
-     * Creates database instance finder which caches all existing database instance at the start.
-     */
-    public final static IDatabaseInstanceFinder createCachedInstanceFinder(
-            final IAuthorizationDAOFactory daoFactory)
-    {
-        final List<DatabaseInstancePE> instances =
-                daoFactory.getDatabaseInstanceDAO().listDatabaseInstances();
-
-        final TableMap<String, DatabaseInstancePE> databaseInstancesByCode =
-                new TableMap<String, DatabaseInstancePE>(instances, KeyExtractorFactory
-                        .getDatabaseInstanceByCodeKeyExtractor());
-
-        final TableMap<String, DatabaseInstancePE> databaseInstancesByUUID =
-                new TableMap<String, DatabaseInstancePE>(instances, KeyExtractorFactory
-                        .getDatabaseInstanceByUUIDKeyExtractor());
-
-        return new IDatabaseInstanceFinder()
-            {
-                @Override
-                public DatabaseInstancePE getHomeDatabaseInstance()
-                {
-                    return daoFactory.getHomeDatabaseInstance();
-                }
-
-                @Override
-                public DatabaseInstancePE tryFindDatabaseInstanceByCode(
-                        final String databaseInstanceCode)
-                {
-                    return databaseInstancesByCode.tryGet(databaseInstanceCode);
-                }
-
-                @Override
-                public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
-                        final String databaseInstanceUUID)
-                {
-                    return databaseInstancesByUUID.tryGet(databaseInstanceUUID);
-                }
-            };
-    }
-
-    /**
-     * Creates database instance finder which checks the database everytime when the instance is searched.
-     */
-    private final static IDatabaseInstanceFinder createInstanceFinder(
-            final IAuthorizationDAOFactory daoFactory)
-    {
-        return new IDatabaseInstanceFinder()
-            {
-                @Override
-                public DatabaseInstancePE getHomeDatabaseInstance()
-                {
-                    return daoFactory.getHomeDatabaseInstance();
-                }
-
-                @Override
-                public DatabaseInstancePE tryFindDatabaseInstanceByCode(
-                        final String databaseInstanceCode)
-                {
-                    return daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByCode(
-                            databaseInstanceCode);
-                }
-
-                @Override
-                public DatabaseInstancePE tryFindDatabaseInstanceByUUID(
-                        final String databaseInstanceUUID)
-                {
-                    return daoFactory.getDatabaseInstanceDAO().tryFindDatabaseInstanceByUUID(
-                            databaseInstanceUUID);
-                }
-            };
     }
 
     /** finds a space in the database for the given identifier */
@@ -210,23 +110,4 @@ public final class SpaceIdentifierHelper
         final ISpaceDAO groupDAO = daoFactory.getSpaceDAO();
         return groupDAO.tryFindSpaceByCode(spaceCode);
     }
-
-    public final static DatabaseInstancePE getDatabaseInstance(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IAuthorizationDAOFactory daoFactory) throws UserFailureException
-    {
-        IDatabaseInstanceFinder finder = createInstanceFinder(daoFactory);
-        return DatabaseInstanceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier,
-                finder);
-    }
-
-    public final static DatabaseInstancePE tryGetDatabaseInstance(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IAuthorizationDAOFactory daoFactory) throws UserFailureException
-    {
-        IDatabaseInstanceFinder finder = createInstanceFinder(daoFactory);
-        return DatabaseInstanceIdentifierHelper.tryGetDatabaseInstance(databaseInstanceIdentifier,
-                finder);
-    }
-
 }

@@ -23,7 +23,6 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -48,20 +47,18 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     SamplePE tryToFindByPermID(String permID) throws DataAccessException;
 
     /**
-     * Returns the sample specified by given <var>sampleCode</var> and given
-     * <var>databaseInstance</var>.
+     * Returns the sample specified by given <var>sampleCode</var> and given <var>databaseInstance</var>.
      */
-    SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
-            final DatabaseInstancePE databaseInstance) throws DataAccessException;
+    SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode) throws DataAccessException;
 
     /**
      * Returns a list of samples with given <var>databaseInstance</var> and one of given codes.
      * 
-     * @param containerCodeOrNull if specified all returned samples should have container with
-     *            specified code, otherwise they shouldn't have any container
+     * @param containerCodeOrNull if specified all returned samples should have container with specified code, otherwise they shouldn't have any
+     *            container
      */
     List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
-            String containerCodeOrNull, final DatabaseInstancePE databaseInstance);
+            String containerCodeOrNull);
 
     /**
      * Returns the sample specified by given <var>sampleCode</var> and given <var>space</var>.
@@ -72,8 +69,8 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /**
      * Returns a list of samples with given <var>space</var> and one of given codes.
      * 
-     * @param containerCodeOrNull if specified all returned samples should have container with
-     *            specified code, otherwise they shouldn't have any container
+     * @param containerCodeOrNull if specified all returned samples should have container with specified code, otherwise they shouldn't have any
+     *            container
      */
     List<SamplePE> listByCodesAndSpace(final List<String> sampleCodes, String containerCodeOrNull,
             final SpacePE space);
@@ -96,8 +93,7 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<SamplePE> listSamplesByGeneratedFrom(final SamplePE sample) throws DataAccessException;
 
     /**
-     * Returns ids of parents of samples specified by given ids and connected by chosen relationship
-     * type.
+     * Returns ids of parents of samples specified by given ids and connected by chosen relationship type.
      */
     public Set<TechId> listSampleIdsByChildrenIds(Collection<TechId> children, TechId relationship);
 
@@ -117,15 +113,13 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     List<TechId> listSampleIdsByExperimentIds(Collection<TechId> experimentIds);
 
     /**
-     * Lists samples (with minimal additional information) belonging to the given <code>space</code>
-     * and having a property with the specified value.
+     * Lists samples (with minimal additional information) belonging to the given <code>space</code> and having a property with the specified value.
      */
     List<SamplePE> listSamplesBySpaceAndProperty(final String propertyCode,
             final String propertyValue, final SpacePE space) throws DataAccessException;
 
     /**
-     * Lists samples (with minimal additional information) with permanent identifier in given set of
-     * values.
+     * Lists samples (with minimal additional information) with permanent identifier in given set of values.
      */
     List<SamplePE> listByPermID(Set<String> values);
 

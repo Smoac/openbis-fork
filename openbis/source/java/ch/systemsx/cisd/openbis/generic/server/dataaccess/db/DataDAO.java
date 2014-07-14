@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedDataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -104,10 +103,9 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
 
     private IRelationshipTypeDAO relationshipTypeDAO;
 
-    DataDAO(final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance, IRelationshipTypeDAO relationshipTypeDAO)
+    DataDAO(final PersistencyResources persistencyResources, IRelationshipTypeDAO relationshipTypeDAO)
     {
-        super(persistencyResources, databaseInstance, ENTITY_CLASS);
+        super(persistencyResources, ENTITY_CLASS);
         this.relationshipTypeDAO = relationshipTypeDAO;
     }
 

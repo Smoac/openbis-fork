@@ -31,7 +31,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.GridCustomFilterPE;
@@ -79,7 +78,7 @@ public class AuthorizationTestCase extends AssertJUnit
     {
         SpacePE groupPE = new SpacePE();
         groupPE.setCode(spaceIdentifier.getSpaceCode());
-        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, null, groupPE);
+        return new RoleWithIdentifier(RoleLevel.SPACE, roleCode, groupPE);
     }
 
     /**
@@ -88,47 +87,7 @@ public class AuthorizationTestCase extends AssertJUnit
     protected RoleWithIdentifier createInstanceRole(RoleCode roleCode,
             DatabaseInstanceIdentifier instanceIdentifier)
     {
-        DatabaseInstancePE instance = createDatabaseInstancePE(instanceIdentifier);
-        return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, instance, null);
-    }
-
-    /**
-     * Creates a new instance of {@link DatabaseInstancePE} for the specified identifier. Shortcut for
-     * <code>createDatabaseInstance(instanceIdentifier.getDatabaseInstanceCode())</code>.
-     */
-    protected DatabaseInstancePE createDatabaseInstancePE(
-            DatabaseInstanceIdentifier instanceIdentifier)
-    {
-        return createDatabaseInstance(instanceIdentifier.getDatabaseInstanceCode());
-    }
-
-    /**
-     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #INSTANCE_CODE}. Shortcut for
-     * <code>createDatabaseInstance(INSTANCE_CODE)</code>.
-     */
-    protected final DatabaseInstancePE createDatabaseInstance()
-    {
-        return createDatabaseInstance(INSTANCE_CODE);
-    }
-
-    /**
-     * Creates a new instance of {@link DatabaseInstancePE} for the specified code. Only code and UUID will be set.
-     */
-    protected DatabaseInstancePE createDatabaseInstance(String code)
-    {
-        DatabaseInstancePE instance = new DatabaseInstancePE();
-        instance.setCode(code);
-        instance.setUuid("global_" + code);
-        return instance;
-    }
-
-    /**
-     * Creates a new instance of {@link DatabaseInstancePE} with code {@link #ANOTHER_INSTANCE_CODE} . Shortcut for
-     * <code>createDatabaseInstance(ANOTHER_INSTANCE_CODE)</code>.
-     */
-    protected DatabaseInstancePE createAnotherDatabaseInstance()
-    {
-        return createDatabaseInstance(ANOTHER_INSTANCE_CODE);
+        return new RoleWithIdentifier(RoleLevel.INSTANCE, roleCode, null);
     }
 
     /**
@@ -136,11 +95,11 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected PersonPE createPerson()
     {
-        return createPerson("megapixel", createDatabaseInstance());
+        return createPerson("megapixel");
     }
 
     /** Creates a person with specified userId and database instance. */
-    protected PersonPE createPerson(String userId, DatabaseInstancePE instance)
+    protected PersonPE createPerson(String userId)
     {
         final PersonPE personPE = new PersonPE();
         personPE.setUserId(userId);
@@ -163,7 +122,7 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected SpacePE createSpace()
     {
-        return createSpace(SPACE_CODE, createDatabaseInstance());
+        return createSpace(SPACE_CODE);
     }
 
     /**
@@ -171,7 +130,7 @@ public class AuthorizationTestCase extends AssertJUnit
      */
     protected SpacePE createAnotherSpace()
     {
-        return createSpace(ANOTHER_SPACE_CODE, createAnotherDatabaseInstance());
+        return createSpace(ANOTHER_SPACE_CODE);
     }
 
     /**
@@ -180,15 +139,13 @@ public class AuthorizationTestCase extends AssertJUnit
     protected SpacePE createSpace(SpaceIdentifier identifier)
     {
         final String databaseInstanceCode = identifier.getDatabaseInstanceCode();
-        final DatabaseInstancePE instance = createDatabaseInstance(databaseInstanceCode);
-        return createSpace(identifier.getSpaceCode(), instance);
+        return createSpace(identifier.getSpaceCode());
     }
 
     /**
      * Creates a space with specified group code and database instance.
      */
-    protected SpacePE createSpace(final String spaceCode,
-            final DatabaseInstancePE databaseInstancePE)
+    protected SpacePE createSpace(final String spaceCode)
     {
         final SpacePE space = new SpacePE();
         space.setCode(spaceCode);
@@ -288,7 +245,7 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a sample in the specified database instance.
      */
-    protected SamplePE createSample(DatabaseInstancePE databaseInstance)
+    protected SamplePE createSample()
     {
         final SamplePE sample = new SamplePE();
         sample.setSampleType(createSampleType());
@@ -298,8 +255,7 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Creates a filter in the specified database instance and registrator and ownership flag.
      */
-    protected GridCustomFilterPE createFilter(DatabaseInstancePE databaseInstance,
-            PersonPE registrator, boolean isPublic)
+    protected GridCustomFilterPE createFilter(PersonPE registrator, boolean isPublic)
     {
         final GridCustomFilterPE filter = new GridCustomFilterPE();
         filter.setRegistrator(registrator);
@@ -358,44 +314,9 @@ public class AuthorizationTestCase extends AssertJUnit
     /**
      * Prepares {@link #provider} to expect a query for the home database instance and spaces.
      */
-    protected final void prepareProvider(final DatabaseInstancePE databaseInstance,
+    protected final void prepareProvider(
             final List<SpacePE> spaces)
     {
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-
-                    allowing(provider).listSpaces();
-                    will(returnValue(spaces));
-                }
-            });
-    }
-
-    /**
-     * Prepares {@link #provider} to expect a query for the specified database instance code and to return the specified database instance.
-     */
-    protected final void prepareProvider(final String databaseInstanceCode,
-            final DatabaseInstancePE databaseInstance)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(provider).tryFindDatabaseInstanceByCode(databaseInstanceCode);
-                    will(returnValue(databaseInstance));
-                }
-            });
-    }
-
-    /**
-     * Prepares {@link #provider} to expect a query for the specified database instance code and to return the specified database instance and to list
-     * spaces which will return the specified list of spaces.
-     */
-    protected final void prepareProvider(final String databaseInstanceCode,
-            final DatabaseInstancePE databaseInstance, final List<SpacePE> spaces)
-    {
-        prepareProvider(databaseInstanceCode, databaseInstance);
         context.checking(new Expectations()
             {
                 {

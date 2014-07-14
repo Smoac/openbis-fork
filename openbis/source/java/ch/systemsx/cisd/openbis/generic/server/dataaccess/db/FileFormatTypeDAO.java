@@ -21,7 +21,6 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 
 /**
@@ -32,9 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.FileFormatTypePE;
 public class FileFormatTypeDAO extends AbstractTypeDAO<FileFormatTypePE> implements
         IFileFormatTypeDAO
 {
-    public FileFormatTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public FileFormatTypeDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, FileFormatTypePE.class);
+        super(sessionFactory, FileFormatTypePE.class);
     }
 
     @Override

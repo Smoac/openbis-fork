@@ -18,8 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import org.hibernate.SessionFactory;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-
 /**
  * Factory definition for all Data Access Objects which are needed for managing authorization.
  * 
@@ -31,16 +29,9 @@ public interface IAuthorizationDAOFactory
     public PersistencyResources getPersistencyResources();
 
     /**
-     * Returns the current {@link DatabaseInstancePE}.
-     */
-    public DatabaseInstancePE getHomeDatabaseInstance();
-
-    /**
-     * @param batchMode should be set to true if it is foreseen that many write operations
-     *            interleaved with read operations will be executed in one block. Note that it
-     *            causes that read operations will not see any changes made to the database in this
-     *            session. It will bring big performance improvement. The batch mode should be set
-     *            to false as soon as it is no longer needed.
+     * @param batchMode should be set to true if it is foreseen that many write operations interleaved with read operations will be executed in one
+     *            block. Note that it causes that read operations will not see any changes made to the database in this session. It will bring big
+     *            performance improvement. The batch mode should be set to false as soon as it is no longer needed.
      */
     public void setBatchUpdateMode(boolean batchMode);
 
@@ -52,8 +43,6 @@ public interface IAuthorizationDAOFactory
     public IPersonDAO getPersonDAO();
 
     public ISpaceDAO getSpaceDAO();
-
-    public IDatabaseInstanceDAO getDatabaseInstanceDAO();
 
     public IRoleAssignmentDAO getRoleAssignmentDAO();
 

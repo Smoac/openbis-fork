@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister.ISampleL
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.AbstractDAOTest;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -180,8 +179,6 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     static SamplePE getSample(String groupCode, String sampleCode, long dbInstanceId,
             IDAOFactory daoFactory)
     {
-        DatabaseInstancePE dbInstancePE = new DatabaseInstancePE();
-        dbInstancePE.setId(dbInstanceId);
         SpacePE group =
                 daoFactory.getSpaceDAO().tryFindSpaceByCode(groupCode);
         assertNotNull(group);
@@ -218,7 +215,7 @@ public class DatasetListingQueryTest extends AbstractDAOTest
     @Test
     public void testDataStores()
     {
-        CodeRecord[] codes = query.getDataStores(dbInstanceId);
+        CodeRecord[] codes = query.getDataStores();
         assertEqualsOrGreater(1, codes.length);
         findCode(Arrays.asList(codes), "STANDARD");
     }

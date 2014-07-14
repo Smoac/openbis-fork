@@ -19,19 +19,18 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ILocatorTypeDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.LocatorTypePE;
 
 /**
  * Data access object for {@link LocatorTypePE}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class LocatorTypeDAO extends AbstractTypeDAO<LocatorTypePE> implements ILocatorTypeDAO
 {
-    public LocatorTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public LocatorTypeDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, LocatorTypePE.class);
+        super(sessionFactory, LocatorTypePE.class);
     }
 
     @Override

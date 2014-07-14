@@ -27,8 +27,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -73,7 +71,7 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
 
     private String sessionToken;
 
-    private DatabaseInstancePE databaseInstance;
+    private String databaseInstanceUUID;
 
     private Date modificationDate;
 
@@ -153,17 +151,15 @@ public final class DataStorePE extends AbstractIdAndCodeHolder<DataStorePE>
         this.modificationDate = versionDate;
     }
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @NotNull(message = ValidationMessages.DATABASE_INSTANCE_NOT_NULL_MESSAGE)
-    @JoinColumn(name = ColumnNames.DATABASE_INSTANCE_COLUMN, updatable = false)
-    public DatabaseInstancePE getDatabaseInstance()
+    @Column(name = ColumnNames.UUID_COLUMN, nullable = false)
+    public String getDatabaseInstanceUUID()
     {
-        return databaseInstance;
+        return databaseInstanceUUID;
     }
 
-    public void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
+    public void setDatabaseInstanceUUID(final String databaseInstanceUUID)
     {
-        this.databaseInstance = databaseInstance;
+        this.databaseInstanceUUID = databaseInstanceUUID;
     }
 
     @NotNull

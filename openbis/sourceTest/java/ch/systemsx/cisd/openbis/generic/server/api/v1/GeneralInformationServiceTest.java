@@ -75,7 +75,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.ExternalDataPEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SpacePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
@@ -633,10 +632,7 @@ public class GeneralInformationServiceTest extends AbstractServerTestCase
                     ProjectPE project = new ProjectPE();
                     project.setCode("P");
                     project.setSpace(new SpacePEBuilder()
-                            .code("S")
-                            .databaseInstance(
-                                    new DatabaseInstancePEBuilder().code("DB1")
-                                            .getDatabaseInstance()).getSpace());
+                            .code("S").getSpace());
                     experiment.setProject(project);
                     one(dataSetDAO).tryToFindDataSetByCode("ds1");
                     ExternalDataPEBuilder ds1 =

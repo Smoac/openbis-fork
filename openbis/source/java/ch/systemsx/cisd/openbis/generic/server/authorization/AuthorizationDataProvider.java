@@ -1,10 +1,8 @@
 package ch.systemsx.cisd.openbis.generic.server.authorization;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Query;
@@ -16,7 +14,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFacto
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -36,30 +33,9 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
 {
     private final IAuthorizationDAOFactory daoFactory;
 
-    private final Map<String, DatabaseInstancePE> codeToDbInstanceMap =
-            new HashMap<String, DatabaseInstancePE>();
-
-    private final Map<String, DatabaseInstancePE> uuidToDbInstanceMap =
-            new HashMap<String, DatabaseInstancePE>();
-
-    private final DatabaseInstancePE homeDatabaseInstance;
-
     public AuthorizationDataProvider(IAuthorizationDAOFactory daoFactory)
     {
         this.daoFactory = daoFactory;
-        if (daoFactory != null) // Make unit tests work
-        {
-            this.homeDatabaseInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
-            for (DatabaseInstancePE instance : daoFactory.getDatabaseInstanceDAO()
-                    .listDatabaseInstances())
-            {
-                codeToDbInstanceMap.put(instance.getCode(), instance);
-                uuidToDbInstanceMap.put(instance.getUuid(), instance);
-            }
-        } else
-        {
-            this.homeDatabaseInstance = null;
-        }
     }
 
     @Override
@@ -69,7 +45,7 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
-    public SpacePE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode)
+    public SpacePE tryGetSpace(String spaceCode)
     {
         return daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
     }
@@ -84,24 +60,6 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     public SamplePE tryGetSampleByPermId(String permId)
     {
         return daoFactory.getSampleDAO().tryToFindByPermID(permId);
-    }
-
-    @Override
-    public DatabaseInstancePE getHomeDatabaseInstance()
-    {
-        return homeDatabaseInstance;
-    }
-
-    @Override
-    public DatabaseInstancePE tryFindDatabaseInstanceByCode(String databaseInstanceCode)
-    {
-        return codeToDbInstanceMap.get(databaseInstanceCode);
-    }
-
-    @Override
-    public DatabaseInstancePE tryFindDatabaseInstanceByUUID(String databaseInstanceUUID)
-    {
-        return uuidToDbInstanceMap.get(databaseInstanceUUID);
     }
 
     @Override

@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -59,10 +58,6 @@ public final class RoleAssignmentTableTest extends AbstractBOTest
         newRoleAssignment.setGrantee(Grantee.createPerson(userId));
         final PersonPE personPE = new PersonPE();
         personPE.setUserId(userId);
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode(databaseInstanceCode);
-        final long databaseInstanceId = 12L;
-        databaseInstancePE.setId(databaseInstanceId);
         final SpacePE groupPE = new SpacePE();
         groupPE.setCode(groupCode);
         context.checking(new Expectations()

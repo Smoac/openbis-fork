@@ -190,8 +190,7 @@ class EntityExistenceChecker
                                 return sampleDAO.tryFindByCodeAndSpace(sampleCode,
                                         spaceExistenceManager.tryGet(spaceLevel));
                             }
-                            return sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode,
-                                    daoFactory.getHomeDatabaseInstance());
+                            return sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode);
                         }
                     };
         spaceExistenceManager =

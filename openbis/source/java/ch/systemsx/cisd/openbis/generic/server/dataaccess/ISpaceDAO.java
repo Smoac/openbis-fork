@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**

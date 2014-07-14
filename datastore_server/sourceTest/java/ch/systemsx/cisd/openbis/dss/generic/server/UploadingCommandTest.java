@@ -66,7 +66,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -347,9 +346,6 @@ public class UploadingCommandTest extends AssertJUnit
         project.setCode("p1");
         SpacePE group = new SpacePE();
         group.setCode("g1");
-        DatabaseInstancePE instance = new DatabaseInstancePE();
-        instance.setCode("instance");
-        instance.setOriginalSource(true);
         project.setSpace(group);
         experiment.setProject(project);
         LinkedHashSet<EntityPropertyPE> properties = new LinkedHashSet<EntityPropertyPE>();

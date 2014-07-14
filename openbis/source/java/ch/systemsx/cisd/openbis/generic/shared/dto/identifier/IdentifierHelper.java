@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletedSamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -60,17 +59,9 @@ public final class IdentifierHelper
     /**
      * Creates a {@link DatabaseInstanceIdentifier} from given <var>groupPE</var>.
      */
-    public final static DatabaseInstanceIdentifier createDatabaseInstanceIdentifier(
-            final DatabaseInstancePE databaseInstancePE)
+    public final static DatabaseInstanceIdentifier createDatabaseInstanceIdentifier()
     {
-        assert databaseInstancePE != null : "Unspecified database instance";
-        if (databaseInstancePE.isOriginalSource())
-        {
-            return DatabaseInstanceIdentifier.createHome();
-        } else
-        {
-            return new DatabaseInstanceIdentifier(databaseInstancePE.getCode());
-        }
+        return DatabaseInstanceIdentifier.createHome();
     }
 
     /**
@@ -164,7 +155,7 @@ public final class IdentifierHelper
                     space.getInstance().isHomeDatabase() ? DatabaseInstanceIdentifier.HOME_INSTANCE
                             : new DatabaseInstanceIdentifier(space.getInstance().getCode());
             SpaceIdentifier groupIdentifier =
-                    new SpaceIdentifier(instanceIdentifier, space.getCode());
+                    new SpaceIdentifier(space.getCode());
             return new SampleIdentifier(groupIdentifier, sample.getCode());
         } else
         {
@@ -257,15 +248,13 @@ public final class IdentifierHelper
      * Creates a full {@link ProjectIdentifier} (i.e. identifier with database instance, space and project codes specified) from given
      * <var>projectIdentifier</var> and <var>homeDatabaseInstance</var>.
      */
-    public final static ProjectIdentifier createFullProjectIdentifier(final ProjectIdentifier projectIdentifier,
-            DatabaseInstancePE homeDatabaseInstance)
+    public final static ProjectIdentifier createFullProjectIdentifier(final ProjectIdentifier projectIdentifier)
     {
         assert projectIdentifier != null : "Unspecified project identifier";
-        assert homeDatabaseInstance != null : "Unspecified home database instance";
 
         if (projectIdentifier.isHomeDatabase())
         {
-            return new ProjectIdentifier(homeDatabaseInstance.getCode(), projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
+            return new ProjectIdentifier(projectIdentifier.getSpaceCode(), projectIdentifier.getProjectCode());
         } else
         {
             return new ProjectIdentifier(projectIdentifier.getDatabaseInstanceCode(), projectIdentifier.getSpaceCode(),

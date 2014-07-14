@@ -21,9 +21,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.ProjectPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * @author Pawel Glyzewski
@@ -41,12 +39,6 @@ public class ProjectPredicateTest extends AuthorizationTestCase
                 {
                     allowing(provider).listSpaces();
                     will(returnValue(createSpaces()));
-
-                    DatabaseInstancePE db = new DatabaseInstancePE();
-                    db.setCode(INSTANCE_CODE);
-                    db.setUuid("global_" + INSTANCE_CODE);
-                    allowing(provider).getHomeDatabaseInstance();
-                    will(returnValue(db));
                 }
             });
         predicate.init(provider);
@@ -68,12 +60,6 @@ public class ProjectPredicateTest extends AuthorizationTestCase
                 {
                     allowing(provider).listSpaces();
                     will(returnValue(createSpaces()));
-
-                    DatabaseInstancePE db = new DatabaseInstancePE();
-                    db.setCode(INSTANCE_CODE);
-                    db.setUuid("global_" + INSTANCE_CODE);
-                    allowing(provider).getHomeDatabaseInstance();
-                    will(returnValue(db));
                 }
             });
         predicate.init(provider);

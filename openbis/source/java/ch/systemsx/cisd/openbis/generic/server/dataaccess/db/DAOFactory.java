@@ -21,8 +21,8 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
-import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.dbmigration.DatabaseConfigurationContext;
+import ch.systemsx.cisd.openbis.common.spring.SpringEoDSQLExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAttachmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
@@ -48,12 +48,10 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.HibernateSearchContext;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * {@link IDAOFactory} implementation working with {@link DatabaseConfigurationContext} and
- * {@link SessionFactory}.
+ * {@link IDAOFactory} implementation working with {@link DatabaseConfigurationContext} and {@link SessionFactory}.
  * 
  * @author Franz-Josef Elmer
  */
@@ -125,39 +123,38 @@ public final class DAOFactory extends AuthorizationDAOFactory implements IDAOFac
                 dynamicPropertyEvaluationScheduler);
         this.dynamicPropertyEvaluationScheduler = dynamicPropertyEvaluationScheduler;
         this.fullTextIndexUpdateScheduler = fullTextIndexUpdateScheduler;
-        final DatabaseInstancePE databaseInstance = getHomeDatabaseInstance();
-        sampleTypeDAO = new SampleTypeDAO(sessionFactory, databaseInstance);
+        sampleTypeDAO = new SampleTypeDAO(sessionFactory);
         hibernateSearchDAO = new HibernateSearchDAO(sessionFactory, hibernateSearchContext);
-        propertyTypeDAO = new PropertyTypeDAO(sessionFactory, databaseInstance);
-        vocabularyDAO = new VocabularyDAO(sessionFactory, databaseInstance);
-        vocabularyTermDAO = new VocabularyTermDAO(sessionFactory, databaseInstance);
-        attachmentDAO = new AttachmentDAO(sessionFactory, databaseInstance);
-        dataSetTypeDAO = new DataSetTypeDAO(sessionFactory, databaseInstance);
-        fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory, databaseInstance);
-        locatorTypeDAO = new LocatorTypeDAO(sessionFactory, databaseInstance);
-        materialDAO = new MaterialDAO(getPersistencyResources(), databaseInstance);
-        codeSequenceDAO = new CodeSequenceDAO(sessionFactory, databaseInstance);
-        dataStoreDAO = new DataStoreDAO(sessionFactory, databaseInstance);
-        permIdDAO = new PermIdDAO(sessionFactory, databaseInstance);
-        eventDAO = new EventDAO(sessionFactory, databaseInstance);
-        authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory, databaseInstance);
-        scriptDAO = new ScriptDAO(sessionFactory, databaseInstance);
-        corePluginDAO = new CorePluginDAO(sessionFactory, databaseInstance);
-        postRegistrationDAO = new PostRegistrationDAO(sessionFactory, databaseInstance);
-        entityOperationsLogDAO = new EntityOperationsLogDAO(sessionFactory, databaseInstance);
+        propertyTypeDAO = new PropertyTypeDAO(sessionFactory);
+        vocabularyDAO = new VocabularyDAO(sessionFactory);
+        vocabularyTermDAO = new VocabularyTermDAO(sessionFactory);
+        attachmentDAO = new AttachmentDAO(sessionFactory);
+        dataSetTypeDAO = new DataSetTypeDAO(sessionFactory);
+        fileFormatTypeDAO = new FileFormatTypeDAO(sessionFactory);
+        locatorTypeDAO = new LocatorTypeDAO(sessionFactory);
+        materialDAO = new MaterialDAO(getPersistencyResources());
+        codeSequenceDAO = new CodeSequenceDAO(sessionFactory);
+        dataStoreDAO = new DataStoreDAO(sessionFactory);
+        permIdDAO = new PermIdDAO(sessionFactory);
+        eventDAO = new EventDAO(sessionFactory);
+        authorizationGroupDAO = new AuthorizationGroupDAO(sessionFactory);
+        scriptDAO = new ScriptDAO(sessionFactory);
+        corePluginDAO = new CorePluginDAO(sessionFactory);
+        postRegistrationDAO = new PostRegistrationDAO(sessionFactory);
+        entityOperationsLogDAO = new EntityOperationsLogDAO(sessionFactory);
         final EntityKind[] entityKinds = EntityKind.values();
         for (final EntityKind entityKind : entityKinds)
         {
             final EntityTypeDAO dao =
-                    new EntityTypeDAO(entityKind, sessionFactory, databaseInstance);
+                    new EntityTypeDAO(entityKind, sessionFactory);
             entityTypeDAOs.put(entityKind, dao);
             entityPropertyTypeDAOs.put(entityKind, new EntityPropertyTypeDAO(entityKind,
-                    getPersistencyResources(), databaseInstance));
+                    getPersistencyResources()));
         }
         entityPropertyHistoryDAO =
-                new EntityHistoryDAO(getPersistencyResources(), databaseInstance);
+                new EntityHistoryDAO(getPersistencyResources());
         externalDataManagementSystemDAO =
-                new ExternalDataManagementSystemDAO(sessionFactory, databaseInstance);
+                new ExternalDataManagementSystemDAO(sessionFactory);
     }
 
     //

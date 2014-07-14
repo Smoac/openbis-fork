@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo.common;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
 /**
@@ -29,9 +28,9 @@ public abstract class AbstractDAO
 
     private final DatabaseInstance databaseInstance;
 
-    protected AbstractDAO(final DatabaseInstancePE databaseInstance)
+    protected AbstractDAO()
     {
-        this.databaseInstanceId = databaseInstance.getId();
+        this.databaseInstanceId = 1;
         this.databaseInstance = DatabaseInstanceTranslator.translate();
     }
 

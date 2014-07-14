@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextIndexUpdateScheduler;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
@@ -70,10 +69,9 @@ public abstract class AbstractGenericEntityWithPropertiesDAO<T extends IEntityIn
     private final PersistencyResources persistencyResources;
 
     protected AbstractGenericEntityWithPropertiesDAO(
-            final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance, final Class<T> entityClass)
+            final PersistencyResources persistencyResources, final Class<T> entityClass)
     {
-        super(persistencyResources.getSessionFactory(), databaseInstance, entityClass);
+        super(persistencyResources.getSessionFactory(), entityClass);
         this.persistencyResources = persistencyResources;
     }
 

@@ -26,7 +26,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ICorePluginDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.CorePluginPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Hibernate-based implementation of {@link ICorePluginDAO}.
@@ -37,9 +36,9 @@ public class CorePluginDAO extends AbstractDAO implements ICorePluginDAO
 {
     private final static Class<CorePluginPE> ENTITY_CLASS = CorePluginPE.class;
 
-    public CorePluginDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public CorePluginDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory);
     }
 
     @Override

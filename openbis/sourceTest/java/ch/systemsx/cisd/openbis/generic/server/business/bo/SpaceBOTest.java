@@ -20,7 +20,6 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -70,16 +69,11 @@ public final class SpaceBOTest extends AbstractBOTest
     public final void testDefineAndSave()
     {
         final SpaceBO spaceBO = createSpaceBO();
-        final DatabaseInstancePE instance = new DatabaseInstancePE();
-        instance.setOriginalSource(true);
         final SpacePE groupDTO = new SpacePE();
         groupDTO.setCode("MY_CODE");
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(instance));
-
                     one(spaceDAO).createSpace(groupDTO);
                 }
             });

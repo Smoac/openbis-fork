@@ -47,7 +47,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         SampleUpdatesDTO sampleWithIdAndIdentifer =
                 new SampleUpdatesDTO(new TechId(44L), null, null, null, 0,
                         SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S1"), null, null);
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()
@@ -80,10 +80,9 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         SampleUpdatesDTO sampleWithIdAndIdentifer =
                 new SampleUpdatesDTO(new TechId(44L), null, null, null, 0,
                         SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S1"), null, null);
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance());
         context.checking(new Expectations()
             {
                 {
@@ -115,7 +114,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         SampleUpdatesDTO sampleWithIdAndIdentifer =
                 new SampleUpdatesDTO(new TechId(44L), null, null, null, 0,
                         SampleIdentifierFactory.parse("/" + SPACE_CODE + "/S1"), null, null);
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
 
@@ -139,7 +138,7 @@ public class SampleUpdatesCollectionPredicateTest extends AuthorizationTestCase
         SampleUpdatesDTO sampleWithIdAndIdentifer =
                 new SampleUpdatesDTO(new TechId(44L), null, null, null, 0,
                         SampleIdentifierFactory.parse("/" + ANOTHER_SPACE_CODE + "/S1"), null, null);
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         SampleUpdatesCollectionPredicate predicate = new SampleUpdatesCollectionPredicate();
         predicate.init(provider);
         context.checking(new Expectations()

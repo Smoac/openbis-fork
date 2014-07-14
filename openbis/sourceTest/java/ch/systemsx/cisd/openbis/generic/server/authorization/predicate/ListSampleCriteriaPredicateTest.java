@@ -59,7 +59,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testNoSpaces()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), Collections.<SpacePE> emptyList());
+        prepareProvider(Collections.<SpacePE> emptyList());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);
@@ -72,7 +72,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSpaceDoesNotExist()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), Arrays.asList(createAnotherSpace()));
+        prepareProvider(Arrays.asList(createAnotherSpace()));
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);
@@ -84,7 +84,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseSpaceUnauthorized()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createAnotherDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(ANOTHER_SPACE_CODE);
@@ -97,7 +97,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForSpaceSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setSpaceCode(SPACE_CODE);
@@ -112,7 +112,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForSharedSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
         final ListSampleCriteria criteria = new ListSampleCriteria();
         criteria.setIncludeInstance(true);
@@ -127,7 +127,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForExperimentSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         context.checking(new Expectations()
             {
                 {
@@ -147,7 +147,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseExperimentUnauthorized()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         context.checking(new Expectations()
             {
                 {
@@ -167,7 +167,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationForContainerSamples()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         context.checking(new Expectations()
             {
                 {
@@ -187,7 +187,7 @@ public class ListSampleCriteriaPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseContainerUnauthorized()
     {
         final ListSampleCriteriaPredicate predicate = new ListSampleCriteriaPredicate();
-        prepareProvider(createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         context.checking(new Expectations()
             {
                 {

@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IGenericDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Abstract super class of DAOs using generic interface.
@@ -49,10 +48,9 @@ public abstract class AbstractGenericEntityDAO<T extends IIdHolder> extends Abst
 
     private final Class<T> entityClass;
 
-    protected AbstractGenericEntityDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance, final Class<T> entityClass)
+    protected AbstractGenericEntityDAO(final SessionFactory sessionFactory, final Class<T> entityClass)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory);
         this.entityClass = entityClass;
     }
 

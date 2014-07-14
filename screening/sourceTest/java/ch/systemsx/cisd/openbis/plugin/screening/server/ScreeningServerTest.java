@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SamplePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SpacePEBuilder;
@@ -77,10 +76,7 @@ public class ScreeningServerTest extends AbstractServerTestCase
                 typeBuilder.assign(propertyType).getEntityTypePropertyType();
         SamplePEBuilder builder =
                 new SamplePEBuilder(137)
-                        .space(new SpacePEBuilder()
-                                .databaseInstance(
-                                        new DatabaseInstancePEBuilder().code("DB")
-                                                .getDatabaseInstance()).code("S1").getSpace())
+                        .space(new SpacePEBuilder().code("S1").getSpace())
                         .code("P1").permID(PERM_ID).type(typeBuilder.getSampleType())
                         .property(etpt, "hello");
         exampleSample = builder.getSample();

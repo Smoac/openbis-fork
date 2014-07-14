@@ -19,10 +19,8 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.util.List;
 import java.util.Set;
 
-import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -42,7 +40,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  * 
  * @author Franz-Josef Elmer
  */
-public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
+public interface IAuthorizationDataProvider
 {
     /**
      * Returns a list of all data spaces.
@@ -50,20 +48,17 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public List<SpacePE> listSpaces();
 
     /**
-     * Returns the space for the given <var>spaceCode</var> or <code>null</code>, if it does not
-     * exist.
+     * Returns the space for the given <var>spaceCode</var> or <code>null</code>, if it does not exist.
      */
-    public SpacePE tryGetSpace(DatabaseInstancePE databaseInstance, String spaceCode);
+    public SpacePE tryGetSpace(String spaceCode);
 
     /**
-     * Returns the experiment for the given <var>permId</var> or <code>null</code>, if it does not
-     * exist.
+     * Returns the experiment for the given <var>permId</var> or <code>null</code>, if it does not exist.
      */
     public ExperimentPE tryGetExperimentByPermId(String permId);
 
     /**
-     * Returns the sample for the given <var>permId</var> or <code>null</code>, if it does not
-     * exist.
+     * Returns the sample for the given <var>permId</var> or <code>null</code>, if it does not exist.
      */
     public SamplePE tryGetSampleByPermId(String permId);
 
@@ -104,20 +99,17 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public Set<SampleAccessPE> getSampleCollectionAccessData(List<TechId> sampleIds);
 
     /**
-     * Returns the information necessary to determine if a user is allowed to delete/revert the data
-     * sets.
+     * Returns the information necessary to determine if a user is allowed to delete/revert the data sets.
      */
     public Set<DataSetAccessPE> getDeletedDatasetCollectionAccessData(List<TechId> deletionIds);
 
     /**
-     * Returns the information necessary to determine if a user is allowed to delete/revert the
-     * samples.
+     * Returns the information necessary to determine if a user is allowed to delete/revert the samples.
      */
     public Set<SampleAccessPE> getDeletedSampleCollectionAccessData(List<TechId> deletionIds);
 
     /**
-     * Returns the information necessary to determine if a user is allowed to delete/revert the
-     * experiment.
+     * Returns the information necessary to determine if a user is allowed to delete/revert the experiment.
      */
     public Set<ExperimentAccessPE> getDeletedExperimentCollectionAccessData(
             final List<TechId> deletionIds);
@@ -130,8 +122,7 @@ public interface IAuthorizationDataProvider extends IDatabaseInstanceFinder
     public SpacePE tryGetSpace(SpaceOwnerKind entityKind, TechId techId);
 
     /**
-     * Returns a set of distinct spaces owned by the entities of specified type and with specified
-     * ids.
+     * Returns a set of distinct spaces owned by the entities of specified type and with specified ids.
      */
     public Set<SpacePE> getDistinctSpacesByEntityIds(SpaceOwnerKind entityKind, List<TechId> techIds);
 

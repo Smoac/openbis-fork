@@ -23,7 +23,6 @@ import java.util.Set;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ShouldFlattenCollections;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -61,8 +60,7 @@ public class SampleTechIdCollectionPredicate extends
             switch (accessDatum.getOwnerType())
             {
                 case SPACE:
-                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(
-                            DatabaseInstanceIdentifier.createHome(), ownerCode)));
+                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(ownerCode)));
                     break;
                 case DATABASE_INSTANCE:
                     ownerIds.add(new SampleOwnerIdentifier());

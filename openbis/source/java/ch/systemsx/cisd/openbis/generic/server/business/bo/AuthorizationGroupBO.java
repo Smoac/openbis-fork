@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdates;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -74,7 +73,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
          * Creates a new {@link AuthorizationGroupPE}.
          */
         public AuthorizationGroupPE create(NewAuthorizationGroup newAuthorizationGroup,
-                PersonPE registrator, DatabaseInstancePE homeDBInstance);
+                PersonPE registrator);
     }
 
     @Private
@@ -82,7 +81,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
     {
         @Override
         public AuthorizationGroupPE create(NewAuthorizationGroup newAuthorizationGroup,
-                PersonPE registrator, DatabaseInstancePE homeDBInstance)
+                PersonPE registrator)
         {
             AuthorizationGroupPE authorizationGroup = new AuthorizationGroupPE();
             authorizationGroup.setCode(newAuthorizationGroup.getCode());
@@ -98,7 +97,7 @@ public class AuthorizationGroupBO extends AbstractBusinessObject implements IAut
         assert newAuthorizationGroup != null : "Undefined new authorization group";
         assert authorizationGroup == null : "Authorization group already defined";
         authorizationGroup =
-                groupFactory.create(newAuthorizationGroup, findPerson(), getHomeDatabaseInstance());
+                groupFactory.create(newAuthorizationGroup, findPerson());
         dataChanged = true;
     }
 

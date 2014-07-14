@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -57,7 +56,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testExceptionBecauseGroupDoesNotExist()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), Collections.<SpacePE> emptyList());
+        prepareProvider(Collections.<SpacePE> emptyList());
         predicate.init(provider);
         assertTrue(predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
                 INSTANCE_CODE, SPACE_CODE)).isError());
@@ -68,7 +67,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluation()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
@@ -81,7 +80,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testSuccessfulEvaluationWithHomeGroup()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
         final PersonPE person = createPerson();
         final SpacePE homeGroup = createSpace();
@@ -97,7 +96,7 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     public final void testFailedEvaluation()
     {
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
         final Status evaluation =
                 predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
@@ -111,15 +110,13 @@ public final class SpaceIdentifierPredicateTest extends AuthorizationTestCase
     @Test
     public final void testAccessAnotherGroup()
     {
-        final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
         final SpaceIdentifierPredicate predicate = new SpaceIdentifierPredicate();
         final List<SpacePE> groups = createSpaces();
-        groups.add(createSpace(ANOTHER_SPACE_CODE, homeDatabaseInstance));
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
+        groups.add(createSpace(ANOTHER_SPACE_CODE));
+        prepareProvider(groups);
         predicate.init(provider);
         final Status evaluation =
-                predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(
-                        INSTANCE_CODE, ANOTHER_SPACE_CODE));
+                predicate.doEvaluation(createPerson(), createRoles(false), new SpaceIdentifier(ANOTHER_SPACE_CODE));
         assertEquals(StatusFlag.ERROR, evaluation.getFlag());
         assertEquals("User 'megapixel' does not have enough privileges.", evaluation
                 .tryGetErrorMessage());

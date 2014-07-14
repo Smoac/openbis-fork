@@ -45,7 +45,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -81,8 +80,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
 
     private long dbInstanceId;
 
-    private DatabaseInstancePE dbInstance;
-
     private SpacePE group;
 
     private long groupId;
@@ -106,7 +103,6 @@ public class SampleListingQueryTest extends AbstractDAOTest
     {
         SampleListerDAO sampleListerDAO = createSampleListerDAO(daoFactory);
         dbInstanceId = sampleListerDAO.getDatabaseInstanceId();
-        dbInstance = daoFactory.getDatabaseInstanceDAO().getByTechId(new TechId(dbInstanceId));
         group =
                 daoFactory.getSpaceDAO().tryFindSpaceByCode(DEFAULT_SPACE_CODE);
         groupId = group.getId();
@@ -116,7 +112,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
                         .tryFindSampleTypeByCode(SAMPLE_TYPE_CODE_MASTER_PLATE);
         sharedMasterPlate =
                 daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(
-                        SHARED_MASTER_PLATE_CODE, dbInstance);
+                        SHARED_MASTER_PLATE_CODE);
         assertEquals(SHARED_MASTER_PLATE_ID, sharedMasterPlate.getId().longValue());
         query = sampleListerDAO.getQuery();
         parentChildRelationshipTypeId = query.getRelationshipTypeId("PARENT_CHILD", true);

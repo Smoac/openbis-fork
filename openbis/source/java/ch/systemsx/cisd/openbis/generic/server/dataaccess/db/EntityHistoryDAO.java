@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AbstractEntityPropertyHistoryPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
@@ -37,9 +36,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 class EntityHistoryDAO extends AbstractDAO implements IEntityHistoryDAO
 {
-    EntityHistoryDAO(PersistencyResources persistencyResources, DatabaseInstancePE databaseInstance)
+    EntityHistoryDAO(PersistencyResources persistencyResources)
     {
-        super(persistencyResources.getSessionFactory(), databaseInstance);
+        super(persistencyResources.getSessionFactory());
     }
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,

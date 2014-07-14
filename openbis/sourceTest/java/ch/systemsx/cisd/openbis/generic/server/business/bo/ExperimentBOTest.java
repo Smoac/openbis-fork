@@ -43,7 +43,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
@@ -993,8 +992,6 @@ public final class ExperimentBOTest extends AbstractBOTest
         project.setCode(projectCode);
         final SpacePE group = new SpacePE();
         group.setCode(groupCode);
-        final DatabaseInstancePE db = new DatabaseInstancePE();
-        db.setCode(dbCode);
         project.setSpace(group);
         return project;
     }

@@ -336,7 +336,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         // with no connections and then connect a data set to it.
         // to an empty experiment (with no connections).
         ExperimentPE experiment =
-                createExperiment("CISD", "CISD", "DEFAULT", "EXP-13", "SIRNA_HCS");
+                createExperiment("CISD", "DEFAULT", "EXP-13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         final ExperimentPE deletedExperiment = findExperimentByIdentifier("/CISD/DEFAULT/EXP-13");
@@ -392,7 +392,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 DynamicPropertyEvaluationScheduler.getThreadOperations();
         assertEquals(0, threadOperations.size());
 
-        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
+        ExperimentPE experiment = createExperiment("CISD", "NEMO", "EXP12", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(2, threadOperations.size());
@@ -491,14 +491,14 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 DynamicPropertyEvaluationScheduler.getThreadOperations();
         assertEquals(0, threadOperations.size());
 
-        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
+        ExperimentPE experiment = createExperiment("CISD", "NEMO", "EXP13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(2, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         ExperimentPE experiment2 =
-                createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
+                createExperiment("CISD", "NEMO", "EXP12", "COMPOUND_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2, getTestPerson());
 
         assertEquals(4, threadOperations.size());
@@ -524,7 +524,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
         assertEqualsOrGreater(7, experimentsBefore.size());
         assertExperimentIdentifierPresent(CISD_CISD_NEMO_EXP11, experimentsBefore);
 
-        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP11", "SIRNA_HCS");
+        ExperimentPE experiment = createExperiment("CISD", "NEMO", "EXP11", "SIRNA_HCS");
         boolean exceptionThrown = false;
         try
         {
@@ -567,7 +567,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     @Test(dataProvider = "illegalCodesProvider")
     public final void testCreateExperimentWithIllegalCode(String code)
     {
-        final ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", code, "SIRNA_HCS");
+        final ExperimentPE experiment = createExperiment("CISD", "NEMO", code, "SIRNA_HCS");
         boolean exceptionThrown = false;
 
         try
@@ -588,7 +588,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         final IExperimentDAO dao = daoFactory.getExperimentDAO();
         ProjectPE project =
-                findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "NEMO");
+                findProject("CISD", "NEMO");
 
         List<ExperimentPE> entities =
                 dao.listExperimentsByProjectAndProperty("DESCRIPTION", "A simple experiment",
@@ -605,7 +605,7 @@ public class ExperimentDAOTest extends AbstractDAOTest
     {
         final IExperimentDAO dao = daoFactory.getExperimentDAO();
         ProjectPE project =
-                findProject(daoFactory.getHomeDatabaseInstance().getCode(), "CISD", "NEMO");
+                findProject("CISD", "NEMO");
 
         List<ExperimentPE> entities =
                 dao.listExperimentsByProjectAndProperty("GENDER", "MALE", project);

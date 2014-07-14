@@ -26,7 +26,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RelationshipTypePE;
 
 /**
@@ -39,9 +38,9 @@ public class RelationshipTypeDAO extends AbstractGenericEntityDAO<RelationshipTy
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RelationshipTypeDAO.class);
 
-    public RelationshipTypeDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public RelationshipTypeDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, RelationshipTypePE.class);
+        super(sessionFactory, RelationshipTypePE.class);
     }
 
     @Override

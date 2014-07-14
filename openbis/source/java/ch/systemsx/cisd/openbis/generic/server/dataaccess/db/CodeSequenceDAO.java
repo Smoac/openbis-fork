@@ -22,7 +22,6 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 
 /**
@@ -35,10 +34,9 @@ public class CodeSequenceDAO extends AbstractDAO implements ICodeSequenceDAO
     private static final Map<EntityKind, String> entityKindSequenceMap =
             new HashMap<EntityKind, String>();
 
-    protected CodeSequenceDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+    protected CodeSequenceDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory);
         entityKindSequenceMap.put(EntityKind.EXPERIMENT, SequenceNames.EXPERIMENT_CODE_SEQUENCE);
         entityKindSequenceMap.put(EntityKind.SAMPLE, SequenceNames.SAMPLE_CODE_SEQUENCE);
         entityKindSequenceMap.put(EntityKind.DATA_SET, SequenceNames.CODE_SEQUENCE);

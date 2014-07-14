@@ -27,7 +27,6 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -45,10 +44,10 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     {
         final RoleWithHierarchy role = RoleWithHierarchy.valueOf(RoleLevel.SPACE, RoleCode.ADMIN);
         RoleWithIdentifier roleWithCode =
-                createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, "CISD"));
+                createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier("CISD"));
         assertEquals(role, roleWithCode.getRole());
         roleWithCode =
-                createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, ""));
+                createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier(""));
         assertEquals(role, roleWithCode.getRole());
     }
 
@@ -58,9 +57,9 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         final Set<RoleWithHierarchy> singleton =
                 Collections.singleton(RoleWithHierarchy.valueOf(RoleLevel.SPACE, RoleCode.ADMIN));
         final List<RoleWithIdentifier> list = new ArrayList<RoleWithIdentifier>();
-        list.add(createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, "CISD")));
-        list.add(createSpaceRole(RoleCode.USER, new SpaceIdentifier(INSTANCE_IDENTIFIER, "3V")));
-        list.add(createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier(INSTANCE_IDENTIFIER, "IMSB")));
+        list.add(createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier("CISD")));
+        list.add(createSpaceRole(RoleCode.USER, new SpaceIdentifier("3V")));
+        list.add(createSpaceRole(RoleCode.ADMIN, new SpaceIdentifier("IMSB")));
         list.add(createInstanceRole(RoleCode.ETL_SERVER, INSTANCE_IDENTIFIER));
         DefaultAccessController.retainMatchingRoleWithIdentifiers(list, singleton);
         assertEquals(2, list.size());
@@ -70,13 +69,12 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
     public final void testFactory()
     {
         SpacePE group = new SpacePE();
-        DatabaseInstancePE instance = new DatabaseInstancePE();
-        new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, null, group);
-        new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, instance, null);
+        new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, group);
+        new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, null);
         boolean fail = true;
         try
         {
-            new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, instance, null);
+            new RoleWithIdentifier(RoleLevel.SPACE, RoleCode.USER, null);
         } catch (final AssertionError ex)
         {
             fail = false;
@@ -85,7 +83,7 @@ public final class RoleWithIdentifierTest extends AuthorizationTestCase
         fail = true;
         try
         {
-            new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, null, group);
+            new RoleWithIdentifier(RoleLevel.INSTANCE, RoleCode.OBSERVER, group);
         } catch (final AssertionError ex)
         {
             fail = false;

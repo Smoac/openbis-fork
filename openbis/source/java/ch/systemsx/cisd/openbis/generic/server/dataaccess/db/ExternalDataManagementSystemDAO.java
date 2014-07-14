@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExternalDataManagementSystemDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 
 /**
@@ -45,10 +44,9 @@ public class ExternalDataManagementSystemDAO extends AbstractDAO implements
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ExternalDataManagementSystemDAO.class);
 
-    public ExternalDataManagementSystemDAO(SessionFactory sessionFactory,
-            DatabaseInstancePE databaseInstance)
+    public ExternalDataManagementSystemDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory);
     }
 
     @Override

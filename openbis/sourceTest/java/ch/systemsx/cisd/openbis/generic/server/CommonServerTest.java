@@ -415,8 +415,8 @@ public final class CommonServerTest extends AbstractServerTestCase
     {
         final PersonPE person = createPersonWithRoleAssignmentsFromPrincipal(PRINCIPAL);
         final DatabaseInstanceIdentifier identifier = DatabaseInstanceIdentifier.createHome();
-        final SpacePE g1 = CommonTestUtils.createSpace("g1", homeDatabaseInstance);
-        final SpacePE g2 = CommonTestUtils.createSpace("g2", homeDatabaseInstance);
+        final SpacePE g1 = CommonTestUtils.createSpace("g1");
+        final SpacePE g2 = CommonTestUtils.createSpace("g2");
         final Session mySession = createSession(CommonTestUtils.USER_ID);
         mySession.setPerson(person);
         person.setHomeSpace(g1);

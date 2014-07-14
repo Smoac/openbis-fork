@@ -25,10 +25,8 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.AuthorizationGroupBO.IAuthorizationGroupFactory;
-import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAuthorizationGroup;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Test cases for corresponding {@link AuthorizationGroupBO} class.
@@ -70,11 +68,8 @@ public final class AuthorizationGroupBOTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    DatabaseInstancePE dbInstance = CommonTestUtils.createHomeDatabaseInstance();
-                    will(returnValue(dbInstance));
                     one(groupFactory).create(newAuthorizationGroup,
-                            ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), dbInstance);
+                            ManagerTestTool.EXAMPLE_SESSION.tryGetPerson());
                     will(returnValue(authGroupPE));
                 }
             });
@@ -96,16 +91,13 @@ public final class AuthorizationGroupBOTest extends AbstractBOTest
     {
         final AuthorizationGroupBO bo = createBO();
 
-        final DatabaseInstancePE homeDb = CommonTestUtils.createHomeDatabaseInstance();
         final NewAuthorizationGroup newAuthorizationGroup = createNewAuthorizationGroup();
         final AuthorizationGroupPE authGroupPE = createAuthorizationGroup();
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(homeDb));
                     one(groupFactory).create(newAuthorizationGroup,
-                            ManagerTestTool.EXAMPLE_SESSION.tryGetPerson(), homeDb);
+                            ManagerTestTool.EXAMPLE_SESSION.tryGetPerson());
                     will(returnValue(authGroupPE));
                 }
             });

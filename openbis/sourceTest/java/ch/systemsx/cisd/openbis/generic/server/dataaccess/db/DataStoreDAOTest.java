@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.types.DataSetTypeCode;
  * @author Tomasz Pylak
  */
 @Test(groups =
-    { "db", "dataStore" })
+{ "db", "dataStore" })
 public final class DataStoreDAOTest extends AbstractDAOTest
 {
     private static final String DATA_STORE_CODE = "xxx";
@@ -65,7 +65,7 @@ public final class DataStoreDAOTest extends AbstractDAOTest
 
     protected void initializeDataStore(DataStorePE dataStore)
     {
-        dataStore.setDatabaseInstance(daoFactory.getHomeDatabaseInstance());
+        dataStore.setDatabaseInstanceUUID(DATA_STORE_CODE);
         String code = DATA_STORE_CODE;
         dataStore.setCode(code);
         dataStore.setDownloadUrl(code);

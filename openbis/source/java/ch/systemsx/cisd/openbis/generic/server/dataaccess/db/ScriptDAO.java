@@ -33,7 +33,6 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IScriptDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 
 /**
@@ -51,9 +50,9 @@ final class ScriptDAO extends AbstractGenericEntityDAO<ScriptPE> implements IScr
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ScriptDAO.class);
 
-    ScriptDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    ScriptDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, ScriptPE.class);
+        super(sessionFactory, ScriptPE.class);
     }
 
     @Override

@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -140,8 +139,6 @@ public class RawDataSampleValidatorTest extends AssertJUnit
         RoleAssignmentPE role = new RoleAssignmentPE();
         if (groupCodeOrNull == null)
         {
-            DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-            databaseInstance.setUuid(dataBaseInstanceUUID);
         } else
         {
             SpacePE group = new SpacePE();

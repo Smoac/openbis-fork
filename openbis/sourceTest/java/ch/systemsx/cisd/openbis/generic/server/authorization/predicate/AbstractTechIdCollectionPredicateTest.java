@@ -42,7 +42,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testProjectTechIdCollectionPredicateIsSuccessful()
     {
         ProjectTechIdCollectionPredicate predicate = new ProjectTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
@@ -63,7 +63,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testSpaceTechIdCollectionPredicateSucceedsForInstanceAdmin()
     {
         SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
@@ -85,7 +85,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testSpaceTechIdCollectionPredicateSucceedsForSpaceAdmin()
     {
         SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
@@ -107,7 +107,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testSpaceTechIdCollectionPredicateFails()
     {
         SpaceTechIdCollectionPredicate predicate = new SpaceTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
@@ -129,7 +129,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testDataSetTechIdCollectionPredicateIsSuccessful()
     {
         DataSetTechIdCollectionPredicate predicate = new DataSetTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {
@@ -150,7 +150,7 @@ public class AbstractTechIdCollectionPredicateTest extends AuthorizationTestCase
     public void testExperimentTechIdCollectionPredicateFails()
     {
         ExperimentTechIdCollectionPredicate predicate = new ExperimentTechIdCollectionPredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         final List<TechId> techIds = TechId.createList(1L, 2L);
         context.checking(new Expectations()
             {

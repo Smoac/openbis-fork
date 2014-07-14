@@ -30,7 +30,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
@@ -75,7 +74,7 @@ public final class DeletionValidator extends AbstractValidator<Deletion>
             {
                 case SPACE:
                     SpaceIdentifier si =
-                            new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(), ownerCode);
+                            new SpaceIdentifier(ownerCode);
                     if (verifySpace(person, si.getSpaceCode()))
                     {
                         return true;

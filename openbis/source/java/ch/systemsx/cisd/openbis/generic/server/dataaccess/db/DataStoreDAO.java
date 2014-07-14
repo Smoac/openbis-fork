@@ -31,12 +31,11 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Hibernate-based implementation of {@link IDataStoreDAO}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
 {
@@ -45,9 +44,9 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, DataStoreDAO.class);
 
-    public DataStoreDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public DataStoreDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory);
     }
 
     @Override
@@ -80,7 +79,6 @@ public class DataStoreDAO extends AbstractDAO implements IDataStoreDAO
     public List<DataStorePE> listDataStores()
     {
         final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
-        criteria.add(Restrictions.eq("databaseInstance", getDatabaseInstance()));
         criteria.setFetchMode("servicesInternal", FetchMode.JOIN);
         criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
         final List<DataStorePE> list = cast(criteria.list());

@@ -56,7 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewSamplesWithTypes;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialTypePE;
@@ -94,8 +93,6 @@ public class EntityExistenceCheckerTest extends AssertJUnit
 
     private EntityExistenceChecker checker;
 
-    private DatabaseInstancePE databaseInstance;
-
     @BeforeMethod
     public void setUp()
     {
@@ -109,14 +106,9 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         materialDAO = context.mock(IMaterialDAO.class);
         materialTypeDAO = context.mock(IEntityTypeDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
-        databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode(DATABASE_INSTANCE_CODE);
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(databaseInstance));
-
                     allowing(daoFactory).getSpaceDAO();
                     will(returnValue(spaceDAO));
 
@@ -251,7 +243,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                     one(experimentDAO).tryFindByCodeAndProject(project, "E1");
                     will(returnValue(new ExperimentPE()));
 
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE", databaseInstance);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE");
                     SamplePE sample = new SamplePE();
                     sample.setCode("PLATE");
                     will(returnValue(sample));
@@ -286,7 +278,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                     one(experimentDAO).tryFindByCodeAndProject(project, "E1");
                     will(returnValue(new ExperimentPE()));
 
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE", databaseInstance);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE");
                     SamplePE sample = new SamplePE();
                     sample.setCode("PLATE");
                     will(returnValue(sample));
@@ -430,7 +422,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
         context.checking(new Expectations()
             {
                 {
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE", databaseInstance);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE");
                 }
             });
 
@@ -576,7 +568,7 @@ public class EntityExistenceCheckerTest extends AssertJUnit
                     will(returnValue(sampleType()));
                     allowing(sampleTypeDAO).tryFindSampleTypeByCode("ALPHA");
                     will(returnValue(sampleType("ALPHA")));
-                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE", databaseInstance);
+                    one(sampleDAO).tryFindByCodeAndDatabaseInstance("PLATE");
 
                 }
             });

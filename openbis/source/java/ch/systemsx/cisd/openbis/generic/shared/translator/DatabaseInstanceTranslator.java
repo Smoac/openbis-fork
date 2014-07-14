@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.generic.shared.translator;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * A {@link DatabaseInstance} &lt;---&gt; {@link DatabaseInstancePE} translator.
@@ -40,18 +39,6 @@ public final class DatabaseInstanceTranslator
         result.setUuid("");
         result.setHomeDatabase(true);
         result.setIdentifier("");
-        return result;
-    }
-
-    public final static DatabaseInstancePE translate(final DatabaseInstance databaseInstance)
-    {
-        if (databaseInstance == null)
-        {
-            return null;
-        }
-        final DatabaseInstancePE result = new DatabaseInstancePE();
-        result.setCode(databaseInstance.getCode());
-        result.setUuid(databaseInstance.getUuid());
         return result;
     }
 

@@ -26,7 +26,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -64,8 +63,6 @@ public class QueryAccessControllerTest
     {
         final RoleAssignmentPE instanceRole = new RoleAssignmentPE();
 
-        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode(DB_INSTANCE);
         instanceRole.setRole(role);
 
         return instanceRole;

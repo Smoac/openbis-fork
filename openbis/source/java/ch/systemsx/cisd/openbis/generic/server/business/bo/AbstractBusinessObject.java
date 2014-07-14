@@ -37,7 +37,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityHistoryDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
@@ -77,7 +76,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Identifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityPropertiesHolder;
@@ -317,12 +315,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     //
 
     @Override
-    public final DatabaseInstancePE getHomeDatabaseInstance()
-    {
-        return daoFactory.getHomeDatabaseInstance();
-    }
-
-    @Override
     public final ISpaceDAO getSpaceDAO()
     {
         return daoFactory.getSpaceDAO();
@@ -338,12 +330,6 @@ abstract class AbstractBusinessObject implements IDAOFactory
     public final IPersonDAO getPersonDAO()
     {
         return daoFactory.getPersonDAO();
-    }
-
-    @Override
-    public final IDatabaseInstanceDAO getDatabaseInstanceDAO()
-    {
-        return daoFactory.getDatabaseInstanceDAO();
     }
 
     @Override

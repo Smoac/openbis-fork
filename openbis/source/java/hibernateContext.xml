@@ -19,7 +19,6 @@
         </property>
         <property name="annotatedClasses">
             <list>
-                <value>ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE</value>
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE</value>
 
                 <value>ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE</value>

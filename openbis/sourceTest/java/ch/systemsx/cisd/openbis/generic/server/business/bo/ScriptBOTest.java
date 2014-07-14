@@ -32,7 +32,6 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
@@ -98,7 +97,6 @@ public final class ScriptBOTest extends AbstractBOTest
     public final void testDefineAndSave(ScriptType scriptType, String expectedErrorMessage)
     {
         final ScriptBO scriptBO = createScriptBO();
-        final DatabaseInstancePE instance = createDatabaseInstance();
 
         final Script newScript = new Script();
         newScript.setDescription(DESCRIPTION);
@@ -133,7 +131,6 @@ public final class ScriptBOTest extends AbstractBOTest
             String expectedErrorMessage)
     {
         final ScriptBO scriptBO = createScriptBO();
-        final DatabaseInstancePE instance = createDatabaseInstance();
 
         final Script newScript = new Script();
         newScript.setDescription(DESCRIPTION);

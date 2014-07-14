@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -191,7 +192,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServerInfo;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityCollectionForCreationOrUpdate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -355,18 +355,25 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     public DatabaseInstance getHomeDatabaseInstance(final String sessionToken)
     {
         final DatabaseInstance result = new DatabaseInstance();
-        DatabaseInstancePE hdb = getHomeDatabaseInstance();
-        result.setCode(hdb.getCode());
+        result.setCode("CISD");
         result.setHomeDatabase(true);
-        result.setId(hdb.getId());
-        result.setIdentifier(hdb.getUuid());
-        result.setUuid(hdb.getUuid());
+        result.setId(1L);
+        String uuid = getDatabaseInstanceUUID();
+        result.setIdentifier(uuid);
+        result.setUuid(uuid);
         return result;
     }
 
-    private DatabaseInstancePE getHomeDatabaseInstance()
+    private String getDatabaseInstanceUUID()
     {
-        return daoFactory.getHomeDatabaseInstance();
+        List<DataStorePE> stores = daoFactory.getDataStoreDAO().listDataStores();
+        if (stores.size() == 0)
+        {
+            return UUID.randomUUID().toString().toUpperCase();
+        } else
+        {
+            return stores.get(0).getDatabaseInstanceUUID();
+        }
     }
 
     @Override
@@ -382,7 +389,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         if (dataStore == null)
         {
             dataStore = new DataStorePE();
-            dataStore.setDatabaseInstance(getHomeDatabaseInstance());
+            dataStore.setDatabaseInstanceUUID(UUID.randomUUID().toString().toUpperCase());
         }
         dataStore.setCode(info.getDataStoreCode());
         dataStore.setDownloadUrl(info.getDownloadUrl());
@@ -1338,7 +1345,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
             TrackingDataSetCriteria criteria)
     {
         Session session = getSession(sessionToken);
-        getDAOFactory().getHomeDatabaseInstance();
         DataStorePE dataStore =
                 getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
         if (dataStore == null)
@@ -2728,7 +2734,6 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         List<AbstractExternalData> allDataSets = datasetLister.listByDatasetIds(allDataSetIds);
 
         // find datastore
-        getDAOFactory().getHomeDatabaseInstance();
         DataStorePE dataStore =
                 getDAOFactory().getDataStoreDAO().tryToFindDataStoreByCode(dataStoreCode);
         if (dataStore == null)

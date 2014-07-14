@@ -34,7 +34,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee.GranteeType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 
@@ -62,9 +61,9 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, RoleAssignmentDAO.class);
 
-    RoleAssignmentDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    RoleAssignmentDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, ENTITY_CLASS);
+        super(sessionFactory, ENTITY_CLASS);
     }
 
     //
@@ -187,8 +186,8 @@ public final class RoleAssignmentDAO extends AbstractGenericEntityDAO<RoleAssign
                 cast(getHibernateTemplate().find(
                         String.format("from %s r where r."
                                 + getGranteeHqlParameter(grantee.getType()) + " = ? "
-                                + "and r.role = ? and r.databaseInstance = ?", TABLE_NAME),
-                        toArray(grantee.getCode(), role, getDatabaseInstance())));
+                                + "and r.role = ?", TABLE_NAME),
+                        toArray(grantee.getCode(), role)));
         final RoleAssignmentPE roleAssignment =
                 tryFindEntity(roles, "role_assignments", role, grantee);
         if (operationLog.isInfoEnabled())

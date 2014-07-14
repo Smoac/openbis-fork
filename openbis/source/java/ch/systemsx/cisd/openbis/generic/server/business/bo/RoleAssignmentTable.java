@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFacto
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Grantee;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.NewRoleAssignment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -108,8 +107,6 @@ public final class RoleAssignmentTable extends AbstractBusinessObject implements
                 newRoleAssignment.getDatabaseInstanceIdentifier();
         if (databaseInstanceIdentifier != null)
         {
-            final DatabaseInstancePE databaseInstance =
-                    SpaceIdentifierHelper.getDatabaseInstance(databaseInstanceIdentifier, this);
         } else
         {
             final SpaceIdentifier groupIdentifier = newRoleAssignment.getSpaceIdentifier();

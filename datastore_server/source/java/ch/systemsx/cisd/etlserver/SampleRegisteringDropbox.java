@@ -200,7 +200,7 @@ public class SampleRegisteringDropbox implements IDataSetHandler
         {
             return null;
         }
-        return new SpaceIdentifier(DatabaseInstanceIdentifier.createHome(), spaceCodeOrNull)
+        return new SpaceIdentifier(spaceCodeOrNull)
                 .toString();
     }
 

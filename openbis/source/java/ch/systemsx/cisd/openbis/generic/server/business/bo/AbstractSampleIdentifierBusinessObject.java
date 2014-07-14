@@ -100,7 +100,7 @@ abstract class AbstractSampleIdentifierBusinessObject extends AbstractBusinessOb
             if (sampleOwner.isDatabaseInstanceLevel())
             {
                 result =
-                        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, null);
+                        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode);
             } else
             {
                 assert sampleOwner.isSpaceLevel() : "Must be of space level.";

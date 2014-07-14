@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertiesConverter;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
@@ -61,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.IPermIdDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.ManagedPropertyEvaluatorFactory;
 
@@ -94,8 +92,6 @@ public abstract class AbstractBOTest extends AssertJUnit
     protected IMaterialDAO materialDAO;
 
     protected IDataDAO dataDAO;
-
-    protected IDatabaseInstanceDAO databaseInstanceDAO;
 
     protected ISampleDAO sampleDAO;
 
@@ -159,7 +155,6 @@ public abstract class AbstractBOTest extends AssertJUnit
         projectDAO = context.mock(IProjectDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
         sampleDAO = context.mock(ISampleDAO.class);
-        databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         dataDAO = context.mock(IDataDAO.class);
         personDAO = context.mock(IPersonDAO.class);
         propertiesConverter = context.mock(IEntityPropertiesConverter.class);
@@ -191,8 +186,6 @@ public abstract class AbstractBOTest extends AssertJUnit
             {
                 {
                     allowing(daoFactory).getSessionFactory();
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
                     allowing(daoFactory).getSpaceDAO();
                     will(returnValue(spaceDAO));
                     allowing(daoFactory).getVocabularyDAO();
@@ -258,14 +251,5 @@ public abstract class AbstractBOTest extends AssertJUnit
             // assert expectations were met, including the name of the failed method
             throw new Error(m.getName() + "() : ", t);
         }
-    }
-
-    protected DatabaseInstancePE createDatabaseInstance()
-    {
-        DatabaseInstancePE db = new DatabaseInstancePE();
-        db.setCode("DB");
-        db.setOriginalSource(true);
-        db.setUuid("UUID");
-        return db;
     }
 }

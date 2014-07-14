@@ -152,8 +152,8 @@ public class DataSetListerTest extends AbstractDAOTest
                     + " where code='STANDARD'");
             final long newDataStoreId =
                     (Long) query
-                            .select("insert into data_stores (id,dbin_id,code,download_url,remote_url,session_token)"
-                                    + " values (nextval('data_store_id_seq'),1,'DSS2','http://download_2','http://remote_2','') returning id")
+                            .select("insert into data_stores (id,code,download_url,remote_url,session_token, uuid)"
+                                    + " values (nextval('data_store_id_seq'),'DSS2','http://download_2','http://remote_2','', 'DSS2') returning id")
                             .get(0).get("id");
             query.update("update data set dast_id = ?{1} where code = ?{2}", newDataStoreId,
                     "20081105092259000-20");

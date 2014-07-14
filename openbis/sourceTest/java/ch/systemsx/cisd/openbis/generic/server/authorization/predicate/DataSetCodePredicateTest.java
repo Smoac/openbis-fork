@@ -21,7 +21,6 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.DataSetCodePredicate;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 
 /**
@@ -44,7 +43,7 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");
@@ -67,7 +66,7 @@ public class DataSetCodePredicateTest extends AuthorizationTestCase
                 }
             });
         DataSetCodePredicate predicate = new DataSetCodePredicate();
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status evaluation = predicate.doEvaluation(createPerson(), createRoles(false), "d1");

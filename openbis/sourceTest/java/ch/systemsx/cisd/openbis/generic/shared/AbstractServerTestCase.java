@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
@@ -84,7 +83,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DisplaySettings;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -118,13 +116,9 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IOpenBisSessionManager sessionManager;
 
-    protected IDatabaseInstanceDAO databaseInstanceDAO;
-
     protected IPersonDAO personDAO;
 
     protected IRoleAssignmentDAO roleAssignmentDAO;
-
-    protected DatabaseInstancePE homeDatabaseInstance;
 
     protected ISpaceDAO groupDAO;
 
@@ -229,7 +223,6 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         propertiesBatchManager = context.mock(IPropertiesBatchManager.class);
         // DAO
         daoFactory = context.mock(IDAOFactory.class);
-        databaseInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         personDAO = context.mock(IPersonDAO.class);
         groupDAO = context.mock(ISpaceDAO.class);
         sampleDAO = context.mock(ISampleDAO.class);
@@ -278,14 +271,9 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         materialLister = context.mock(IMaterialLister.class);
         roleAssignmentTable = context.mock(IRoleAssignmentTable.class);
 
-        homeDatabaseInstance = CommonTestUtils.createHomeDatabaseInstance();
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(homeDatabaseInstance));
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
                     allowing(daoFactory).getPersonDAO();
                     will(returnValue(personDAO));
                     allowing(daoFactory).getProjectDAO();

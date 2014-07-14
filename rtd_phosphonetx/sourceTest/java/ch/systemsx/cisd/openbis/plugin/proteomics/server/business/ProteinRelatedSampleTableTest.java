@@ -33,7 +33,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatabaseInstancePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.EntityTypePropertyTypePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SamplePEBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.SampleTypePEBuilder;
@@ -68,8 +67,6 @@ public class ProteinRelatedSampleTableTest extends AbstractBOTestCase
         SpacePE space =
                 new SpacePEBuilder()
                         .code("s")
-                        .databaseInstance(
-                                new DatabaseInstancePEBuilder().code("my-db").getDatabaseInstance())
                         .getSpace();
         SampleTypePEBuilder sampleTypeBuilder = new SampleTypePEBuilder().code("my-type");
         PropertyTypePE propertyType =

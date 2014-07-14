@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
@@ -54,9 +53,9 @@ final class PropertyTypeDAO extends AbstractGenericEntityDAO<PropertyTypePE> imp
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, PropertyTypeDAO.class);
 
-    PropertyTypeDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    PropertyTypeDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, PropertyTypePE.class);
+        super(sessionFactory, PropertyTypePE.class);
     }
 
     //

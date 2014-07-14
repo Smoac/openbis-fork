@@ -29,10 +29,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import ch.systemsx.cisd.authentication.Principal;
 import ch.systemsx.cisd.common.db.SQLStateUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -46,8 +44,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 public class ManagerTestTool
 {
     private static final String HOST = "some_ip";
-
-    public static final DatabaseInstancePE EXAMPLE_DATABASE_INSTANCE = createDatabaseInstance();
 
     public static final SpacePE EXAMPLE_GROUP = createGroup();
 
@@ -93,18 +89,10 @@ public class ManagerTestTool
     }
 
     public final static void prepareFindGroup(final Expectations expectations,
-            final IAuthorizationDAOFactory daoFactory, final ISpaceDAO groupDAO,
-            final IDatabaseInstanceDAO databaseInstanceDAO)
+            final IAuthorizationDAOFactory daoFactory, final ISpaceDAO groupDAO)
     {
         expectations.allowing(daoFactory).getSpaceDAO();
         expectations.will(Expectations.returnValue(groupDAO));
-
-        expectations.allowing(daoFactory).getDatabaseInstanceDAO();
-        expectations.will(Expectations.returnValue(databaseInstanceDAO));
-
-        expectations.allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                EXAMPLE_DATABASE_INSTANCE.getCode().toUpperCase());
-        expectations.will(Expectations.returnValue(EXAMPLE_DATABASE_INSTANCE));
 
         expectations.allowing(groupDAO).tryFindSpaceByCode(
                 EXAMPLE_GROUP.getCode().toUpperCase());
@@ -114,13 +102,6 @@ public class ManagerTestTool
     public static SpacePE prepareFindGroup(final Expectations exp, final String groupCode,
             final IAuthorizationDAOFactory daoFactory, final ISpaceDAO groupDAO)
     {
-        exp.allowing(daoFactory).getHomeDatabaseInstance();
-        DatabaseInstancePE db = new DatabaseInstancePE();
-        db.setCode(EXAMPLE_DATABASE_INSTANCE.getCode());
-        Long dbId = 3123L;
-        db.setId(dbId);
-        exp.will(Expectations.returnValue(db));
-
         exp.allowing(daoFactory).getSpaceDAO();
         exp.will(Expectations.returnValue(groupDAO));
 
@@ -209,14 +190,6 @@ public class ManagerTestTool
         project.setCode("MY_GREAT_PROJECT");
         project.setId(314L);
         return project;
-    }
-
-    public final static DatabaseInstancePE createDatabaseInstance()
-    {
-        final DatabaseInstancePE databaseInstancePE = new DatabaseInstancePE();
-        databaseInstancePE.setCode("MY_DATABASE_INSTANCE");
-        databaseInstancePE.setId(841L);
-        return databaseInstancePE;
     }
 
     private ManagerTestTool()

@@ -697,7 +697,7 @@ abstract class AbstractSampleBusinessObject extends AbstractSampleIdentifierBusi
             if (sampleOwner.isDatabaseInstanceLevel())
             {
                 samples =
-                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes, containerCodeOrNull, null);
+                        sampleDAO.listByCodesAndDatabaseInstance(sampleCodes, containerCodeOrNull);
             } else
             {
                 assert sampleOwner.isSpaceLevel() : "Must be of space level.";

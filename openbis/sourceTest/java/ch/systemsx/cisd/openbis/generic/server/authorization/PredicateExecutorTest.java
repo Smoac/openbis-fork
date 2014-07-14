@@ -29,7 +29,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.string.StringUtilities;
 import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.IPredicate;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -51,8 +50,6 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
 
     private IAuthorizationDAOFactory daoFactory;
 
-    private IDatabaseInstanceDAO dbInstanceDAO;
-
     private PredicateExecutor predicateExecutor;
 
     private List<RoleWithIdentifier> createAllowedRoles()
@@ -68,20 +65,8 @@ public final class PredicateExecutorTest extends AuthorizationTestCase
         super.setUp();
         predicateFactory = context.mock(IPredicateFactory.class);
         daoFactory = context.mock(IAuthorizationDAOFactory.class);
-        dbInstanceDAO = context.mock(IDatabaseInstanceDAO.class);
         predicateExecutor = new PredicateExecutor();
         predicateExecutor.setPredicateFactory(predicateFactory);
-        context.checking(new Expectations()
-            {
-                {
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(dbInstanceDAO));
-                    one(dbInstanceDAO).getHomeInstance();
-                    will(returnValue(null));
-                    one(dbInstanceDAO).listDatabaseInstances();
-                    will(returnValue(Collections.EMPTY_LIST));
-                }
-            });
         predicateExecutor.setDAOFactory(daoFactory);
     }
 

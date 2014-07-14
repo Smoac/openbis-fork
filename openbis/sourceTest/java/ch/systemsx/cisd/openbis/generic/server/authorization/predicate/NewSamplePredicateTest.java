@@ -44,7 +44,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
-        prepareProvider(ANOTHER_INSTANCE_CODE, createAnotherDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(createPerson(), createRoles(true), sample);
@@ -63,7 +63,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
@@ -84,7 +84,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
         NewSample sample =
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), createSpaces());
+        prepareProvider(createSpaces());
         predicate.init(provider);
 
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);
@@ -104,7 +104,7 @@ public class NewSamplePredicateTest extends AuthorizationTestCase
                 NewSample.createWithParent(sampleIdentifier.toString(), sampleType, "container",
                         "parent");
         List<SpacePE> groups = Arrays.asList(createSpace(groupIdentifier));
-        prepareProvider(INSTANCE_CODE, createDatabaseInstance(), groups);
+        prepareProvider(groups);
         predicate.init(provider);
 
         Status status = predicate.evaluate(createPerson(), createRoles(false), sample);

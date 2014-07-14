@@ -26,7 +26,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ISpaceUpdates;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -98,8 +97,6 @@ public final class SpaceBO extends AbstractBusinessObject implements ISpaceBO
         space = new SpacePE();
         final SpaceIdentifier groupIdentifier =
                 new SpaceIdentifier(DatabaseInstanceIdentifier.HOME, groupCode);
-        final DatabaseInstancePE databaseInstance =
-                SpaceIdentifierHelper.getDatabaseInstance(groupIdentifier, this);
         space.setCode(groupIdentifier.getSpaceCode());
         space.setDescription(descriptionOrNull);
         space.setRegistrator(findPerson());

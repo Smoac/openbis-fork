@@ -20,7 +20,6 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleLevel;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
@@ -41,14 +40,12 @@ public final class RoleWithIdentifier
     private final SpacePE spaceOrNull;
 
     @Private
-    RoleWithIdentifier(final RoleLevel roleLevel, final RoleCode roleName,
-            final DatabaseInstancePE databaseInstanceOrNull, final SpacePE spaceOrNull)
+    RoleWithIdentifier(final RoleLevel roleLevel, final RoleCode roleName, final SpacePE spaceOrNull)
     {
         role = RoleWithHierarchy.valueOf(roleLevel, roleName);
         if (RoleLevel.SPACE.equals(roleLevel))
         {
             assert spaceOrNull != null : "Unspecified identifier";
-            assert databaseInstanceOrNull == null;
         } else
         {
             assert spaceOrNull == null;
@@ -76,7 +73,7 @@ public final class RoleWithIdentifier
         final RoleLevel roleLevel = figureRoleLevel(roleAssignment);
         final RoleCode roleName = roleAssignment.getRole();
         final SpacePE space = roleAssignment.getSpace();
-        return new RoleWithIdentifier(roleLevel, roleName, null, space);
+        return new RoleWithIdentifier(roleLevel, roleName, space);
     }
 
     private static RoleLevel figureRoleLevel(final RoleAssignmentPE roleAssignment)

@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -33,11 +32,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDatabaseInstanceDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IAuthSession;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
@@ -69,24 +66,10 @@ public final class AuthorizationTestUtil
                 context.mock(IAuthorizationDAOFactory.class, "authorization IDAOFactory mock");
         final T proxyInstance =
                 createAuthorizationProxy(createUncheckedMock(proxyInterface), daoFactory);
-        final DatabaseInstancePE homeDb = createDatabaseInstance(homeDbCode);
-        final DatabaseInstancePE db = createDatabaseInstance(dbCode);
-        final IDatabaseInstanceDAO databaseInstanceDAO =
-                context.mock(IDatabaseInstanceDAO.class, "authorization IDatabaseInstanceDAO mock");
         final ISpaceDAO groupDAO = context.mock(ISpaceDAO.class, "authorization IGroupDAO mock");
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
-
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(homeDb));
-
-                    allowing(databaseInstanceDAO).tryFindDatabaseInstanceByCode(
-                            dbCode.toUpperCase());
-                    will(returnValue(db));
-
                     allowing(daoFactory).getSpaceDAO();
                     will(returnValue(groupDAO));
 
@@ -188,35 +171,16 @@ public final class AuthorizationTestUtil
             final IAuthorizationDAOFactory daoFactory, final List<SpacePE> groups,
             final String homeDbCode, final String... otherDatabasesCodes)
     {
-        final DatabaseInstancePE homeDb = createDatabaseInstance(homeDbCode);
-        final List<DatabaseInstancePE> databases = new ArrayList<DatabaseInstancePE>();
-        databases.add(homeDb);
-        for (final String dbCode : otherDatabasesCodes)
-        {
-            databases.add(createDatabaseInstance(dbCode));
-        }
-        prepareAuthorizationCalls(context, daoFactory, groups, homeDb, databases);
+        prepareAuthorizationCalls(context, daoFactory, groups);
     }
 
     private final static void prepareAuthorizationCalls(final Mockery context,
-            final IAuthorizationDAOFactory daoFactory, final List<SpacePE> groups,
-            final DatabaseInstancePE homeDb, final List<DatabaseInstancePE> databases)
+            final IAuthorizationDAOFactory daoFactory, final List<SpacePE> groups)
     {
-        final IDatabaseInstanceDAO databaseInstanceDAO =
-                context.mock(IDatabaseInstanceDAO.class, "authorizarion IDatabaseInstanceDAO mock");
         final ISpaceDAO groupDAO = context.mock(ISpaceDAO.class, "authorizarion IGroupDAO mock");
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getDatabaseInstanceDAO();
-                    will(returnValue(databaseInstanceDAO));
-
-                    allowing(databaseInstanceDAO).listDatabaseInstances();
-                    will(returnValue(databases));
-
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(homeDb));
-
                     allowing(daoFactory).getSpaceDAO();
                     will(returnValue(groupDAO));
 
@@ -234,9 +198,6 @@ public final class AuthorizationTestUtil
         person.setLastName("Doe");
         person.setEmail("John.Doe@group.org");
         person.setId(new Long(42));
-        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode("my database instance");
-        databaseInstance.setId(841L);
         person.setRoleAssignments(new HashSet<RoleAssignmentPE>(Arrays.asList(roleAssignments)));
         return new IAuthSession()
             {
@@ -280,15 +241,6 @@ public final class AuthorizationTestUtil
         final SpacePE group = createGroup(instanceCode, groupCode);
         roleAssignment.setSpace(group);
         return roleAssignment;
-    }
-
-    public final static DatabaseInstancePE createDatabaseInstance(final String instanceCode)
-    {
-        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        final String code = CodeConverter.tryToDatabase(instanceCode);
-        databaseInstance.setCode(code);
-        databaseInstance.setUuid(code);
-        return databaseInstance;
     }
 
     public final static SpacePE createGroup(final String dbCode, final String groupCode)

@@ -49,7 +49,7 @@ public class SampleValidatorTest extends AuthorizationTestCase
         SampleValidator validator = new SampleValidator();
         PersonPE person = createPersonWithRoleAssignments();
         assertEquals(true, validator.isValid(person, SampleTranslator.translate(
-                createSample(createDatabaseInstance()), BASE_URL, null,
+                createSample(), BASE_URL, null,
                 new ManagedPropertyEvaluatorFactory(null, new TestJythonEvaluatorPool()))));
     }
 

@@ -35,7 +35,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleCode;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.RoleAssignmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -97,9 +96,6 @@ public class AbstractServerTest extends AssertJUnit
 
                     allowing(daoFactory).getRoleAssignmentDAO();
                     will(returnValue(roleAssigmentDAO));
-
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(new DatabaseInstancePE()));
                 }
             });
     }

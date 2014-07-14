@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.samplelister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.QueryTool;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
@@ -28,21 +27,19 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
- * The DAO for business objects implementing {@link ISampleLister}. Note: Even though this class is
- * public its constructors and instance methods have to be package protected.
+ * The DAO for business objects implementing {@link ISampleLister}. Note: Even though this class is public its constructors and instance methods have
+ * to be package protected.
  * 
  * @author Bernd Rinn
  */
 @Friend(toClasses =
-    { ISampleListingQuery.class })
+{ ISampleListingQuery.class })
 public final class SampleListerDAO extends AbstractDAO
 {
     /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
+     * Creates a new instance based on {@link PersistencyResources} and home {@link DatabaseInstancePE} of specified DAO factory.
      */
     public static SampleListerDAO create(IDAOFactory daoFactory)
     {
@@ -53,17 +50,16 @@ public final class SampleListerDAO extends AbstractDAO
     @Private
     static SampleListerDAO create(IDAOFactory daoFactory, ISampleListingQuery query)
     {
-        DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new SampleListerDAO(query, homeDatabaseInstance);
+        return new SampleListerDAO(query);
     }
 
     private final ISampleListingQuery query;
 
     private final IEntityPropertySetListingQuery propertySetQuery;
 
-    SampleListerDAO(ISampleListingQuery query, final DatabaseInstancePE databaseInstance)
+    SampleListerDAO(ISampleListingQuery query)
     {
-        super(databaseInstance);
+        super();
         this.query = query;
         this.propertySetQuery = asEntityPropertySetListingQuery(query);
     }

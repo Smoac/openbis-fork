@@ -66,9 +66,6 @@ public final class SampleIdentifierTest
     @Test
     public final void testCompareIdentifiers()
     {
-        DatabaseInstanceIdentifier homeDb = DatabaseInstanceIdentifier.createHome();
-        DatabaseInstanceIdentifier otherDb = new DatabaseInstanceIdentifier("db");
-
         String g1 = "AG";
         String g2 = "BG";
         String c1 = "A";
@@ -76,13 +73,11 @@ public final class SampleIdentifierTest
         SampleIdentifier[] expectedOrder =
                 new SampleIdentifier[]
                 { SampleIdentifier.createHomeGroup(c1), SampleIdentifier.createHomeGroup(c2),
-                        new SampleIdentifier(new SpaceIdentifier(homeDb, g1), c1),
-                        new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c1),
-                        new SampleIdentifier(new SpaceIdentifier(homeDb, g2), c2),
-                        new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c1),
-                        new SampleIdentifier(new SpaceIdentifier(otherDb, g1), c2),
-                        new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c1),
-                        new SampleIdentifier(new SpaceIdentifier(otherDb, g2), c2) };
+                        new SampleIdentifier(new SpaceIdentifier(g1), c1),
+                        new SampleIdentifier(new SpaceIdentifier(g1), c2),
+                        new SampleIdentifier(new SpaceIdentifier(g2), c1),
+                        new SampleIdentifier(new SpaceIdentifier(g2), c2)
+                };
 
         SampleIdentifier[] idents = revert(expectedOrder);
         Arrays.sort(idents);
@@ -105,7 +100,7 @@ public final class SampleIdentifierTest
         assertEquals("/SPACE/SAMP", identifier1.toString());
 
         SampleIdentifier identifier2 =
-                new SampleIdentifier(new SpaceIdentifier(DatabaseInstanceIdentifier.HOME_INSTANCE,
+                new SampleIdentifier(new SpaceIdentifier(
                         "SPACE"), "SAMP");
         assertEquals(identifier1, identifier2);
     }

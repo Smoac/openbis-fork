@@ -202,8 +202,8 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
     @Select(sql = "select id, code, data_set_kind from data_set_types")
     public DataSetTypeRecord[] getDatasetTypes();
 
-    @Select(sql = "select id, code, download_url from data_stores where dbin_id=?{1}")
-    public DataStoreRecord[] getDataStores(long databaseInstanceId);
+    @Select(sql = "select id, code, download_url from data_stores")
+    public DataStoreRecord[] getDataStores();
 
     @Select(sql = "select id, code from file_format_types")
     public CodeRecord[] getFileFormatTypes();

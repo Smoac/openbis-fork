@@ -60,7 +60,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedBasicExperiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.UpdatedExperimentsWithType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentBatchUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -122,8 +121,6 @@ public final class GenericServerTest extends AbstractServerTestCase
     {
         ExperimentTypePE experimentTypePE = new ExperimentTypePE();
         experimentTypePE.setCode(code);
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode("DB");
         return experimentTypePE;
     }
 

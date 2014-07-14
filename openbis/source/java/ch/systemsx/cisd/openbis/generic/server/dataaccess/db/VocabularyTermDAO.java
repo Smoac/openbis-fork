@@ -23,7 +23,6 @@ import org.springframework.jdbc.support.JdbcAccessor;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IVocabularyTermDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -39,16 +38,16 @@ final class VocabularyTermDAO extends AbstractGenericEntityDAO<VocabularyTermPE>
 {
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}.
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}.
      */
     @SuppressWarnings("unused")
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             VocabularyTermDAO.class);
 
-    VocabularyTermDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    VocabularyTermDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, VocabularyTermPE.class);
+        super(sessionFactory, VocabularyTermPE.class);
     }
 
     @Override

@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEventDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventParser;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -49,15 +48,15 @@ public class EventDAO extends AbstractGenericEntityDAO<EventPE> implements IEven
     private static final Class<EventPE> ENTITY_CLASS = EventPE.class;
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EventPE.class);
 
-    public EventDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    public EventDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, ENTITY_CLASS);
+        super(sessionFactory, ENTITY_CLASS);
     }
 
     @Override

@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto.builders;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -31,11 +30,6 @@ public class SpacePEBuilder
     public SpacePE getSpace()
     {
         return space;
-    }
-
-    public SpacePEBuilder databaseInstance(DatabaseInstancePE databaseInstance)
-    {
-        return this;
     }
 
     public SpacePEBuilder code(String code)

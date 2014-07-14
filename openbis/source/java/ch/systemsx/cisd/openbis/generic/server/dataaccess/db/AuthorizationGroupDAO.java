@@ -30,7 +30,6 @@ import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationGroupDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
  * Implementation of {@link IAuthorizationGroupDAO}.
@@ -47,10 +46,9 @@ public class AuthorizationGroupDAO extends AbstractGenericEntityDAO<Authorizatio
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, AuthorizationGroupDAO.class);
 
-    protected AuthorizationGroupDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+    protected AuthorizationGroupDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, ENTITY_CLASS);
+        super(sessionFactory, ENTITY_CLASS);
     }
 
     @Override

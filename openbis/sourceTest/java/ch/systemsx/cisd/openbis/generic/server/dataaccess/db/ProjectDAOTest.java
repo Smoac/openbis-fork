@@ -263,7 +263,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         projectDAO.delete(deletedProject);
     }
 
-    private final ProjectPE findProject(String projectCode, String groupCode)
+    public final ProjectPE findProject(String projectCode, String groupCode)
     {
         final IProjectDAO projectDAO = daoFactory.getProjectDAO();
         final ProjectPE project = projectDAO.tryFindProject(groupCode, projectCode);

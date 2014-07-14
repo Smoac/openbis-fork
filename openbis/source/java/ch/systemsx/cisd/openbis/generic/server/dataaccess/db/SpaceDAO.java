@@ -31,7 +31,6 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.reflection.MethodUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -49,9 +48,9 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SpaceDAO.class);
 
-    SpaceDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance)
+    SpaceDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, SpacePE.class);
+        super(sessionFactory, SpacePE.class);
     }
 
     //

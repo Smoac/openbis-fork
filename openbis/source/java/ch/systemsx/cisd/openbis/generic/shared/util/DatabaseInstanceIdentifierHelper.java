@@ -16,61 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.util;
 
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.IDatabaseInstanceFinder;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
-
 /**
- * 
- *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class DatabaseInstanceIdentifierHelper
 {
     private DatabaseInstanceIdentifierHelper()
     {
-    }
-    
-    public final static DatabaseInstancePE getDatabaseInstance(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IDatabaseInstanceFinder instanceFinder) throws UserFailureException
-    {
-        final DatabaseInstancePE instancePE =
-                tryGetDatabaseInstance(databaseInstanceIdentifier, instanceFinder);
-        if (instancePE == null)
-        {
-            throw UserFailureException.fromTemplate("Database instance '%s' does not exist.",
-                    databaseInstanceIdentifier);
-        }
-        return instancePE;
-    }
-
-    public final static DatabaseInstancePE tryGetDatabaseInstance(
-            final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final IDatabaseInstanceFinder instanceFinder) throws UserFailureException
-    {
-        if (databaseInstanceIdentifier.isHomeDatabase())
-        {
-            return instanceFinder.getHomeDatabaseInstance();
-        } else
-        {
-            final String databaseInstanceCode =
-                    databaseInstanceIdentifier.getDatabaseInstanceCode();
-            return tryGetDatabaseInstanceByCode(instanceFinder, databaseInstanceCode);
-        }
-    }
-
-    private static DatabaseInstancePE tryGetDatabaseInstanceByCode(
-            final IDatabaseInstanceFinder instanceFinder, final String code)
-    {
-        final boolean isUUID = UuidUtil.isValidUUID(code);
-        if (isUUID)
-        {
-            return instanceFinder.tryFindDatabaseInstanceByUUID(code);
-        } else
-        {
-            return instanceFinder.tryFindDatabaseInstanceByCode(code);
-        }
     }
 }

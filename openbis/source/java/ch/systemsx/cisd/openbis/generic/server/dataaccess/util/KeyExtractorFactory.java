@@ -20,7 +20,6 @@ import ch.systemsx.cisd.common.collection.IKeyExtractor;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ICodeHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
@@ -36,12 +35,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
  */
 public final class KeyExtractorFactory
 {
-    private final static IKeyExtractor<String, DatabaseInstancePE> DATABASE_INSTANCE_BY_CODE_KEY_EXTRACTOR =
-            createCodeKeyExtractor();
-
-    private final static IKeyExtractor<String, DatabaseInstancePE> DATABASE_INSTANCE_BY_UUID_KEY_EXTRACTOR =
-            new UUIDKeyExtractor();
-
     private final static IKeyExtractor<Long, ExperimentPE> BASE_EXPERIMENT_BY_ID_KEY_EXTRACTOR =
             createIdKeyExtractor();
 
@@ -86,23 +79,6 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for <i>DatabaseInstancePE</i> based on
-     * <code>local code</code>.
-     */
-    public final static IKeyExtractor<String, DatabaseInstancePE> getDatabaseInstanceByCodeKeyExtractor()
-    {
-        return DATABASE_INSTANCE_BY_CODE_KEY_EXTRACTOR;
-    }
-
-    /**
-     * Returns an <code>IKeyExtractor</code> for <i>DatabaseInstancePE</i> based on <i>UUID</i>.
-     */
-    public final static IKeyExtractor<String, DatabaseInstancePE> getDatabaseInstanceByUUIDKeyExtractor()
-    {
-        return DATABASE_INSTANCE_BY_UUID_KEY_EXTRACTOR;
-    }
-
-    /**
      * Returns an <code>IKeyExtractor</code> for <i>BaseExperimentDTO</i> based on <code>Id</code>.
      */
     public final static IKeyExtractor<Long, ExperimentPE> getBaseExperimentByIdKeyExtractor()
@@ -111,8 +87,7 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for <i>VocabularyTermDTO</i> based on <code>code</code>
-     * .
+     * Returns an <code>IKeyExtractor</code> for <i>VocabularyTermDTO</i> based on <code>code</code> .
      */
     public final static IKeyExtractor<String, VocabularyTermPE> getVocabularyTermByCodeKeyExtractor()
     {
@@ -120,8 +95,7 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for <i>PropertyTypePE</i> based on
-     * {@link PropertyTypePE#getCode()}.
+     * Returns an <code>IKeyExtractor</code> for <i>PropertyTypePE</i> based on {@link PropertyTypePE#getCode()}.
      */
     public final static IKeyExtractor<String, PropertyTypePE> getPropertyTypeByCodeKeyExtractor()
     {
@@ -135,8 +109,7 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for <i>PersonPE</i> based on
-     * {@link PersonPE#getUserId()}.
+     * Returns an <code>IKeyExtractor</code> for <i>PersonPE</i> based on {@link PersonPE#getUserId()}.
      */
     public final static IKeyExtractor<String, PersonPE> getPersonByUserIdKeyExtractor()
     {
@@ -144,8 +117,7 @@ public final class KeyExtractorFactory
     }
 
     /**
-     * Returns an <code>IKeyExtractor</code> for authorization group based on
-     * {@link AuthorizationGroupPE#getCode()}.
+     * Returns an <code>IKeyExtractor</code> for authorization group based on {@link AuthorizationGroupPE#getCode()}.
      */
     public final static IKeyExtractor<String, AuthorizationGroupPE> getAuthorizationGroupByCodeKeyExtractor()
     {
@@ -230,20 +202,4 @@ public final class KeyExtractorFactory
             return e.getCode();
         }
     }
-
-    private final static class UUIDKeyExtractor implements
-            IKeyExtractor<String, DatabaseInstancePE>
-    {
-
-        //
-        // IKeyExtractor
-        //
-
-        @Override
-        public final String getKey(final DatabaseInstancePE e)
-        {
-            return e.getUuid();
-        }
-    }
-
 }

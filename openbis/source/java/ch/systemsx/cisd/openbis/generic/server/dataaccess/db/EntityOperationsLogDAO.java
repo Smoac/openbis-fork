@@ -9,7 +9,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityOperationsLogEntryPE;
 
 public class EntityOperationsLogDAO extends AbstractGenericEntityDAO<EntityOperationsLogEntryPE>
@@ -18,10 +17,9 @@ public class EntityOperationsLogDAO extends AbstractGenericEntityDAO<EntityOpera
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             EntityOperationsLogDAO.class);
 
-    protected EntityOperationsLogDAO(SessionFactory sessionFactory,
-            DatabaseInstancePE databaseInstance)
+    protected EntityOperationsLogDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, EntityOperationsLogEntryPE.class);
+        super(sessionFactory, EntityOperationsLogEntryPE.class);
     }
 
     @Override

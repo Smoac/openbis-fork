@@ -28,7 +28,6 @@ import org.hibernate.criterion.Restrictions;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationHolderDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SequenceNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -46,10 +45,9 @@ public class PermIdDAO extends AbstractDAO implements IPermIdDAO
 
     private final static String PERM_ID_DATE_FORMAT_PATTERN = "yyyyMMddHHmmssSSS";
 
-    protected PermIdDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+    protected PermIdDAO(final SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance);
+        super(sessionFactory);
     }
 
     @Override

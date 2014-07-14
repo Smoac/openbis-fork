@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo.materiallister;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.lemnik.eodsql.QueryTool;
-
 import ch.rinn.restrictions.Friend;
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.AbstractDAO;
@@ -28,21 +27,19 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.common.MaterialEntity
 import ch.systemsx.cisd.openbis.generic.server.business.bo.common.VocabularyTermRecord;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.PersistencyResources;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 
 /**
- * The DAO for business objects implementing {@link IMaterialLister}. Note: Even though this class
- * is public its constructors and instance methods have to be package protected.
+ * The DAO for business objects implementing {@link IMaterialLister}. Note: Even though this class is public its constructors and instance methods
+ * have to be package protected.
  * 
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { IMaterialListingQuery.class })
+{ IMaterialListingQuery.class })
 public final class MaterialListerDAO extends AbstractDAO
 {
     /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
+     * Creates a new instance based on {@link PersistencyResources} and home {@link DatabaseInstancePE} of specified DAO factory.
      */
     public static MaterialListerDAO create(IDAOFactory daoFactory)
     {
@@ -54,17 +51,16 @@ public final class MaterialListerDAO extends AbstractDAO
     // only for tests
     static MaterialListerDAO create(IDAOFactory daoFactory, IMaterialListingQuery query)
     {
-        DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
-        return new MaterialListerDAO(query, homeDatabaseInstance);
+        return new MaterialListerDAO(query);
     }
 
     private final IMaterialListingQuery query;
 
     private final IEntityPropertySetListingQuery propertySetQuery;
 
-    MaterialListerDAO(IMaterialListingQuery query, final DatabaseInstancePE databaseInstance)
+    MaterialListerDAO(IMaterialListingQuery query)
     {
-        super(databaseInstance);
+        super();
         this.query = query;
         this.propertySetQuery = asEntityPropertySetListingQuery(query);
     }

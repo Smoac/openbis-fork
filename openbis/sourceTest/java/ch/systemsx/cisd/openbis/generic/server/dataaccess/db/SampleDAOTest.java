@@ -46,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventType;
@@ -315,19 +314,18 @@ public final class SampleDAOTest extends AbstractDAOTest
     @Test
     public final void testTryFindByCodeAndDatabaseInstance()
     {
-        final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         final ISampleDAO sampleDAO = daoFactory.getSampleDAO();
         boolean fail = true;
         try
         {
-            sampleDAO.tryFindByCodeAndDatabaseInstance(null, null);
+            sampleDAO.tryFindByCodeAndDatabaseInstance(null);
         } catch (final AssertionError e)
         {
             fail = false;
         }
         assertFalse(fail);
-        assertNotNull(sampleDAO.tryFindByCodeAndDatabaseInstance("MP", homeDatabaseInstance));
-        assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance("", homeDatabaseInstance));
+        assertNotNull(sampleDAO.tryFindByCodeAndDatabaseInstance("MP"));
+        assertNull(sampleDAO.tryFindByCodeAndDatabaseInstance(""));
     }
 
     @Test
@@ -575,11 +573,10 @@ public final class SampleDAOTest extends AbstractDAOTest
         samplePE.setPermId(daoFactory.getPermIdDAO().createPermId());
         samplePE.setSampleType(daoFactory.getSampleTypeDAO()
                 .tryFindSampleTypeByCode(DILUTION_PLATE));
-        final DatabaseInstancePE homeDatabaseInstance = daoFactory.getHomeDatabaseInstance();
         samplePE.setRegistrator(getSystemPerson());
         sampleDAO.createOrUpdateSample(samplePE, getTestPerson());
         // Following line throws a NonUniqueResultException if sample code not unique.
-        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode, homeDatabaseInstance);
+        sampleDAO.tryFindByCodeAndDatabaseInstance(sampleCode);
     }
 
     //

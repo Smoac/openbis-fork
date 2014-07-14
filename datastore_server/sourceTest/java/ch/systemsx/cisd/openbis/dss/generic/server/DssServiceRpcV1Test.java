@@ -280,7 +280,7 @@ public class DssServiceRpcV1Test extends AbstractFileSystemTestCase
     {
         // Expectations for put
         final SpaceIdentifier spaceIdentifier =
-                new SpaceIdentifier(new DatabaseInstanceIdentifier("TEST"), NEW_DATA_SET_SPACE);
+                new SpaceIdentifier(NEW_DATA_SET_SPACE);
         final SessionContextDTO session = new SessionContextDTO();
         final Sample sample = new Sample();
         Experiment experiment = new Experiment();

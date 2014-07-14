@@ -227,7 +227,7 @@ public final class SampleIdentifierFactory extends AbstractIdentifierFactory
         {
             // case: originalText is e.g. "db:/space/CP1" or "/space/CP1"
             String spaceCode = tokens[1];
-            return new SampleOwnerIdentifier(new SpaceIdentifier(dbIdent,
+            return new SampleOwnerIdentifier(new SpaceIdentifier(
                     assertValidCode(spaceCode)));
         } else
             throw createTooManyTokensExcp(originalText);

@@ -28,7 +28,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdentifierHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePropertyPE;
@@ -109,7 +108,6 @@ public class EntityInformationProvider implements IEntityInformationProvider
 
     private SpacePE tryGetSpaceByCode(String spaceCode)
     {
-        DatabaseInstancePE homeInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
         SpacePE space =
                 daoFactory.getSpaceDAO().tryFindSpaceByCode(spaceCode);
         if (space == null)
@@ -139,10 +137,8 @@ public class EntityInformationProvider implements IEntityInformationProvider
             return getSamplePermId(spaceCode, sampleCode);
         } else
         {
-            DatabaseInstancePE homeInstance = daoFactory.getDatabaseInstanceDAO().getHomeInstance();
             SamplePE sample =
-                    daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(sampleCode,
-                            homeInstance);
+                    daoFactory.getSampleDAO().tryFindByCodeAndDatabaseInstance(sampleCode);
             return (sample != null) ? sample.getPermId() : null;
         }
     }

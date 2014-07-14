@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleAccessPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleOwnerIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
@@ -87,8 +86,7 @@ public class DeletionTechIdCollectionPredicate extends AbstractSpacePredicate<Li
             switch (accessDatum.getOwnerType())
             {
                 case SPACE:
-                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(
-                            DatabaseInstanceIdentifier.createHome(), ownerCode)));
+                    ownerIds.add(new SampleOwnerIdentifier(new SpaceIdentifier(ownerCode)));
                     break;
                 case DATABASE_INSTANCE:
                     ownerIds.add(new SampleOwnerIdentifier());

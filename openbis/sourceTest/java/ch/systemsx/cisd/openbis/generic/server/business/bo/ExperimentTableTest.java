@@ -57,9 +57,6 @@ public final class ExperimentTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
-
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
 
@@ -92,9 +89,6 @@ public final class ExperimentTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getHomeDatabaseInstance();
-                    will(returnValue(CommonTestUtils.createHomeDatabaseInstance()));
-
                     allowing(daoFactory).getEntityTypeDAO(EntityKind.EXPERIMENT);
                     will(returnValue(entityTypeDAO));
 

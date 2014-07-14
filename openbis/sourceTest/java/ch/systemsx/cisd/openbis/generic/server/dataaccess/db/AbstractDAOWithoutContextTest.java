@@ -32,7 +32,6 @@ import junit.framework.Assert;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -52,7 +51,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataTypePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -66,10 +64,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ScriptPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.TableNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
  * Abstract test case for database related unit testing.
@@ -145,18 +141,7 @@ public abstract class AbstractDAOWithoutContextTest extends
     {
         assertNull(origDatabaseInstanceId);
         assertTrue(dao instanceof AbstractDAO);
-        final DatabaseInstancePE databaseInstance = getDatabaseInstanceReference(dao);
-        origDatabaseInstanceId = databaseInstance.getId();
-        databaseInstance.setId(ANOTHER_DATABASE_INSTANCE_ID);
         currentDAO = dao;
-    }
-
-    private DatabaseInstancePE getDatabaseInstanceReference(final Object dao)
-    {
-        final AbstractDAO abstractDAO = (AbstractDAO) dao;
-        final DatabaseInstancePE databaseInstance = abstractDAO.getDatabaseInstance();
-        assertNotNull(databaseInstance);
-        return databaseInstance;
     }
 
     /**
@@ -166,8 +151,6 @@ public abstract class AbstractDAOWithoutContextTest extends
     {
         assertTrue(dao instanceof AbstractDAO);
         assertNotNull(origDatabaseInstanceId);
-        final DatabaseInstancePE databaseInstance = getDatabaseInstanceReference(dao);
-        databaseInstance.setId(origDatabaseInstanceId);
         origDatabaseInstanceId = null;
         currentDAO = null;
     }
@@ -177,18 +160,7 @@ public abstract class AbstractDAOWithoutContextTest extends
      */
     private final Long createAnotherDatabaseInstanceId()
     {
-        try
-        {
-            return simpleJdbcTemplate.queryForLong(String.format("select id from %s where id = ?",
-                    TableNames.DATABASE_INSTANCES_TABLE), ANOTHER_DATABASE_INSTANCE_ID);
-        } catch (final DataAccessException ex)
-        {
-            simpleJdbcTemplate.update(String.format(
-                    "insert into %s (id, code, uuid) values (?, ?, ?)",
-                    TableNames.DATABASE_INSTANCES_TABLE), ANOTHER_DATABASE_INSTANCE_ID,
-                    "MY_INSTANCE", UuidUtil.generateUUID());
-            return ANOTHER_DATABASE_INSTANCE_ID;
-        }
+        return 2L;
     }
 
     protected PersonPE getSystemPerson()
@@ -206,20 +178,6 @@ public abstract class AbstractDAOWithoutContextTest extends
         final PersonPE person = daoFactory.getPersonDAO().tryFindPersonByUserId(userID);
         assertNotNull("Person '" + userID + "' does not exists.", person);
         return person;
-    }
-
-    protected DatabaseInstancePE createDatabaseInstance(final String databaseInstanceCode)
-    {
-        final DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode(databaseInstanceCode);
-        daoFactory.getDatabaseInstanceDAO().createDatabaseInstance(databaseInstance);
-        return databaseInstance;
-    }
-
-    protected SpacePE createSpace(final String spaceCode)
-    {
-        final DatabaseInstancePE databaseInstance = daoFactory.getHomeDatabaseInstance();
-        return createSpace(spaceCode, databaseInstance);
     }
 
     protected ScriptPE createScriptInDB(final ScriptType scriptType, final String name,
@@ -251,7 +209,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         return result;
     }
 
-    protected SpacePE createSpace(final String spaceCode, final DatabaseInstancePE databaseInstance)
+    protected SpacePE createSpace(final String spaceCode)
     {
         final SpacePE space = new SpacePE();
         space.setCode(spaceCode);
@@ -302,7 +260,7 @@ public abstract class AbstractDAOWithoutContextTest extends
         return experiment;
     }
 
-    protected ProjectPE findProject(String db, String group, String project)
+    protected ProjectPE findProject(String group, String project)
     {
         return daoFactory.getProjectDAO().tryFindProject(group, project);
     }
@@ -313,14 +271,14 @@ public abstract class AbstractDAOWithoutContextTest extends
                 .tryToFindEntityTypeByCode(expType);
     }
 
-    protected ExperimentPE createExperiment(String db, String group, String project,
+    protected ExperimentPE createExperiment(String group, String project,
             String expCode, String expType)
     {
         final ExperimentPE result = new ExperimentPE();
         result.setCode(expCode);
         result.setPermId(daoFactory.getPermIdDAO().createPermId());
         result.setExperimentType(findExperimentType(expType));
-        result.setProject(findProject(db, group, project));
+        result.setProject(findProject(group, project));
         result.setRegistrator(getTestPerson());
         result.setRegistrationDate(new Date());
         result.setModificationDate(new Date());

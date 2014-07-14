@@ -25,12 +25,10 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.exceptions.StatusFlag;
 import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationTestCase;
 import ch.systemsx.cisd.openbis.generic.server.authorization.SpaceOwnerKind;
-import ch.systemsx.cisd.openbis.generic.server.authorization.predicate.AbstractTechIdPredicate;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * Test cases for corresponding {@link AbstractTechIdPredicate} class implementation.
@@ -93,8 +91,7 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
         final AbstractTechIdPredicate predicate = createPredicate();
         final PersonPE person = createPerson();
         person.setHomeSpace(createSpace());
-        final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
-        final SpacePE homeGroup = createSpace(null, homeDatabaseInstance);
+        final SpacePE homeGroup = createSpace();
         prepareProvider(createSpaces(), homeGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);
         final Status evaluation = predicate.doEvaluation(person, createRoles(false), TECH_ID);
@@ -120,9 +117,8 @@ public final class AbstractTechIdPredicateTest extends AuthorizationTestCase
     public final void testAccessAnotherGroup()
     {
         final AbstractTechIdPredicate predicate = createPredicate();
-        final DatabaseInstancePE homeDatabaseInstance = createDatabaseInstance();
         final List<SpacePE> groups = createSpaces();
-        final SpacePE anotherGroup = createSpace(ANOTHER_SPACE_CODE, homeDatabaseInstance);
+        final SpacePE anotherGroup = createSpace(ANOTHER_SPACE_CODE);
         groups.add(anotherGroup);
         prepareProvider(groups, anotherGroup, ENTITY_KIND, TECH_ID);
         predicate.init(provider);

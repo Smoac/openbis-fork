@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IFullTextInd
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.IndexUpdateOperation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IDeletablePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectAssignmentPE;
@@ -71,18 +70,18 @@ final class DeletionDAO extends AbstractGenericEntityDAO<DeletionPE> implements 
     private static final String ORIGINAL_DELETION = "originalDeletion";
 
     /**
-     * This logger does not output any SQL statement. If you want to do so, you had better set an
-     * appropriate debugging level for class {@link JdbcAccessor}. </p>
+     * This logger does not output any SQL statement. If you want to do so, you had better set an appropriate debugging level for class
+     * {@link JdbcAccessor}. </p>
      */
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DeletionDAO.class);
 
     private final PersistencyResources persistencyResources;
 
-    DeletionDAO(final SessionFactory sessionFactory, final DatabaseInstancePE databaseInstance,
+    DeletionDAO(final SessionFactory sessionFactory,
             final PersistencyResources persistencyResources)
     {
-        super(sessionFactory, databaseInstance, DeletionPE.class);
+        super(sessionFactory, DeletionPE.class);
 
         this.persistencyResources = persistencyResources;
     }

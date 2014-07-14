@@ -151,8 +151,6 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode("STANDARD");
-        dataStore.setDatabaseInstance(this.daoFactory.getDatabaseInstanceDAO()
-                .getDatabaseInstanceById(1));
         dataStore.setDownloadUrl("http://localhost");
         dataStore.setRemoteUrl("http://remotehost");
         dataStore.setSessionToken("");
@@ -468,7 +466,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
 
     public static SpaceIdentifier id(Space space)
     {
-        return new SpaceIdentifier(id(space.getInstance()), space.getCode());
+        return new SpaceIdentifier(space.getCode());
     }
 
     public static DatabaseInstanceIdentifier id(DatabaseInstance dbin)

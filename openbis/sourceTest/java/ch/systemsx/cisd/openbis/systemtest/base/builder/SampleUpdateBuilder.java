@@ -29,7 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleUpdatesDTO;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
@@ -93,7 +92,7 @@ public class SampleUpdateBuilder extends UpdateBuilder<SampleUpdatesDTO>
     {
         this.experimentId = null;
         this.sampleIdentifier =
-                new SampleIdentifier(new SpaceIdentifier(new DatabaseInstanceIdentifier("CISD"),
+                new SampleIdentifier(new SpaceIdentifier(
                         space.getCode()), this.sampleCode);
         return this;
     }

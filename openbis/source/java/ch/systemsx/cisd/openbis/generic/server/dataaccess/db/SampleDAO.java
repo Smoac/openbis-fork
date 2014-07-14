@@ -47,7 +47,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ColumnNames;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EventPE.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -74,10 +73,9 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             SampleDAO.class);
 
-    SampleDAO(final PersistencyResources persistencyResources,
-            final DatabaseInstancePE databaseInstance)
+    SampleDAO(final PersistencyResources persistencyResources)
     {
-        super(persistencyResources, databaseInstance, SamplePE.class);
+        super(persistencyResources, SamplePE.class);
     }
 
     // LockSampleModificationsInterceptor automatically obtains lock
@@ -205,8 +203,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     @Override
-    public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode,
-            final DatabaseInstancePE databaseInstance)
+    public final SamplePE tryFindByCodeAndDatabaseInstance(final String sampleCode)
     {
         assert sampleCode != null : "Unspecified sample code.";
 
@@ -224,20 +221,18 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         {
             operationLog.debug(String
                     .format("Following sample '%s' has been found for "
-                            + "code '%s' and database instance '%s'.", sample, sampleCode,
-                            databaseInstance));
+                            + "code '%s'.", sample, sampleCode));
         }
         return sample;
     }
 
     @Override
     public final List<SamplePE> listByCodesAndDatabaseInstance(final List<String> sampleCodes,
-            final String containerCodeOrNull, final DatabaseInstancePE databaseInstance)
+            final String containerCodeOrNull)
     {
         assert sampleCodes != null : "Unspecified sample codes.";
-        assert databaseInstance != null : "Unspecified database instance.";
 
-        Criteria criteria = createDatabaseInstanceCriteria(databaseInstance);
+        final Criteria criteria = getSession().createCriteria(ENTITY_CLASS);
         addSampleCodesCriterion(criteria, sampleCodes, containerCodeOrNull);
         List<SamplePE> result = cast(criteria.list());
         if (operationLog.isDebugEnabled())
@@ -306,11 +301,6 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
         criteria.setFetchMode("sampleType.sampleTypePropertyTypesInternal", FetchMode.JOIN);
         criteria.add(criterion);
         return criteria;
-    }
-
-    private Criteria createDatabaseInstanceCriteria(final DatabaseInstancePE databaseInstance)
-    {
-        return createFindCriteria(Restrictions.eq("databaseInstance", databaseInstance));
     }
 
     private Criteria createSpaceCriteria(final SpacePE space)

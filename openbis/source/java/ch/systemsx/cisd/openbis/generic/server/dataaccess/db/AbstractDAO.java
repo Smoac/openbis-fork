@@ -53,13 +53,11 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ExceptionUtils;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.DynamicPropertyEvaluationOperation;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDynamicPropertyEvaluationScheduler;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropertiesHolder;
 
 /**
@@ -70,30 +68,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityInformationWithPropert
 public abstract class AbstractDAO extends HibernateDaoSupport
 {
 
-    /** The original source database instance. */
-    private DatabaseInstancePE databaseInstance;
-
     private static ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 
-    protected AbstractDAO(final SessionFactory sessionFactory,
-            final DatabaseInstancePE databaseInstance)
+    protected AbstractDAO(final SessionFactory sessionFactory)
     {
         assert sessionFactory != null : "Unspecified session factory";
-        assert databaseInstance != null || this instanceof DatabaseInstanceDAO : "Unspecified "
-                + "database instance (only permitted for DatabaseInstancesDAO).";
-        setDatabaseInstance(databaseInstance);
         setSessionFactory(sessionFactory);
     }
 
     /*
-     * private static Map<Class<?>, ClassValidator<?>> validators = new HashMap<Class<?>,
-     * ClassValidator<?>>();
+     * private static Map<Class<?>, ClassValidator<?>> validators = new HashMap<Class<?>, ClassValidator<?>>();
      */
     /**
      * Validates given <i>Persistence Entity</i> using an appropriate {@link Validator}.
      */
     @SuppressWarnings(
-        { "rawtypes" })
+    { "rawtypes" })
     protected final static <E> void validatePE(final E pe) throws DataIntegrityViolationException
     {
 
@@ -113,25 +103,10 @@ public abstract class AbstractDAO extends HibernateDaoSupport
         }
     }
 
-    @Private
-    public final void setDatabaseInstance(final DatabaseInstancePE databaseInstance)
-    {
-        this.databaseInstance = databaseInstance;
-    }
-
-    /**
-     * Returns home database instance.
-     */
-    public final DatabaseInstancePE getDatabaseInstance()
-    {
-        return databaseInstance;
-    }
-
     /**
      * Casts given <var>list</var> to specified type.
      * <p>
-     * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in calling
-     * methods.
+     * The purpose of this method is to avoid <code>SuppressWarnings("unchecked")</code> in calling methods.
      * </p>
      */
     @SuppressWarnings("unchecked")
@@ -143,10 +118,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     /**
      * Ensures that given {@link List} contains one and only one entity.
      * 
-     * @throws EmptyResultDataAccessException if given <var>entities</var> are <code>null</code> or
-     *             empty.
-     * @throws IncorrectResultSizeDataAccessException if more than one entity is found in given
-     *             {@link List}.
+     * @throws EmptyResultDataAccessException if given <var>entities</var> are <code>null</code> or empty.
+     * @throws IncorrectResultSizeDataAccessException if more than one entity is found in given {@link List}.
      */
     @SuppressWarnings("unchecked")
     protected final static <T> T getEntity(final List<T> entities) throws DataAccessException
@@ -180,8 +153,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     /**
-     * Checks given <var>entities</var> and throws a {@link IncorrectResultSizeDataAccessException}
-     * if it contains more than one item.
+     * Checks given <var>entities</var> and throws a {@link IncorrectResultSizeDataAccessException} if it contains more than one item.
      * 
      * @return <code>null</code> or the entity found at index <code>0</code>.
      */
@@ -250,8 +222,7 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     /**
-     * Natively performs given <var>sql</var> and returns an unique result by calling
-     * {@link Query#uniqueResult()}.
+     * Natively performs given <var>sql</var> and returns an unique result by calling {@link Query#uniqueResult()}.
      */
     @SuppressWarnings("unchecked")
     protected final <T> T getUniqueResult(final String sql, final Object... parameters)
@@ -377,9 +348,8 @@ public abstract class AbstractDAO extends HibernateDaoSupport
     }
 
     /**
-     * Callback interface for Hibernate code requiring a {@link org.hibernate.StatelessSession}. To
-     * be used with {@link HibernateTemplate}'s execution methods, often as anonymous classes within
-     * a method implementation.
+     * Callback interface for Hibernate code requiring a {@link org.hibernate.StatelessSession}. To be used with {@link HibernateTemplate}'s execution
+     * methods, often as anonymous classes within a method implementation.
      */
     protected interface StatelessHibernateCallback
     {

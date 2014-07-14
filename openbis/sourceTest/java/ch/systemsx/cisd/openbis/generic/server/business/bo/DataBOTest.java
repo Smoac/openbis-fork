@@ -55,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePropertyTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUpdatesDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataManagementSystemPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -73,7 +72,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
@@ -92,11 +90,7 @@ public class DataBOTest extends AbstractBOTest
 
     private static final TechId TECH_ID = new TechId(42l);
 
-    private static final DatabaseInstanceIdentifier DATABASE_INSTANCE_IDENTIFIER =
-            new DatabaseInstanceIdentifier(ManagerTestTool.EXAMPLE_DATABASE_INSTANCE.getCode());
-
-    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier(
-            DATABASE_INSTANCE_IDENTIFIER, ManagerTestTool.EXAMPLE_GROUP.getCode());
+    private static final SpaceIdentifier SPACE_IDENTIFIER = new SpaceIdentifier(ManagerTestTool.EXAMPLE_GROUP.getCode());
 
     private static final SampleIdentifier SAMPLE_IDENTIFIER = new SampleIdentifier(
             SPACE_IDENTIFIER, "EXAMPLE_SAMPLE");
@@ -960,8 +954,6 @@ public class DataBOTest extends AbstractBOTest
         dataSet.setExperiment(experimentOrNull);
         DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
         dataSetType.setCode(DATA_SET_TYPE.getCode());
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode("db");
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
         return dataSet;
@@ -984,8 +976,6 @@ public class DataBOTest extends AbstractBOTest
         dataSet.setExperiment(experimentOrNull);
         DataSetTypePE dataSetType = createDataSetType(DataSetKind.PHYSICAL);
         dataSetType.setCode(DATA_SET_TYPE.getCode());
-        DatabaseInstancePE databaseInstance = new DatabaseInstancePE();
-        databaseInstance.setCode("db");
         dataSetType.setDataSetTypePropertyTypes(new HashSet<DataSetTypePropertyTypePE>());
         dataSet.setDataSetType(dataSetType);
         return dataSet;

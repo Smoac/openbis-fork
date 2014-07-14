@@ -47,12 +47,6 @@ public class SpaceIdentifier extends DatabaseInstanceIdentifier implements
         this(DatabaseInstanceIdentifier.HOME, spaceCode);
     }
 
-    public SpaceIdentifier(final DatabaseInstanceIdentifier databaseInstanceIdentifier,
-            final String spaceCode)
-    {
-        this(databaseInstanceIdentifier.getDatabaseInstanceCode(), spaceCode);
-    }
-
     public SpaceIdentifier(final String databaseInstanceCode, final String spaceCode)
     {
         super(databaseInstanceCode);

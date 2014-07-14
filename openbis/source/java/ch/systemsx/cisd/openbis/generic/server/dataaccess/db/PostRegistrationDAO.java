@@ -13,7 +13,6 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPostRegistrationDAO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PostRegistrationPE;
 
 public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrationPE> implements
@@ -22,9 +21,9 @@ public class PostRegistrationDAO extends AbstractGenericEntityDAO<PostRegistrati
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             PostRegistrationDAO.class);
 
-    protected PostRegistrationDAO(SessionFactory sessionFactory, DatabaseInstancePE databaseInstance)
+    protected PostRegistrationDAO(SessionFactory sessionFactory)
     {
-        super(sessionFactory, databaseInstance, PostRegistrationPE.class);
+        super(sessionFactory, PostRegistrationPE.class);
     }
 
     @Override

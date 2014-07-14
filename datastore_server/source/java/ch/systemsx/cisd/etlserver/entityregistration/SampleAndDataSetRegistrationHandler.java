@@ -107,8 +107,7 @@ public class SampleAndDataSetRegistrationHandler implements IDataSetHandlerWithM
         String spaceIdentifierStringOrNull =
                 PropertyUtils.getProperty(specificProperties, DATA_SPACE_PROPERTIES_KEY);
         SpaceIdentifier spaceIdentifier =
-                (null == spaceIdentifierStringOrNull) ? null : new SpaceIdentifier(
-                        DatabaseInstanceIdentifier.createHome(), spaceIdentifierStringOrNull);
+                (null == spaceIdentifierStringOrNull) ? null : new SpaceIdentifier(spaceIdentifierStringOrNull);
 
         String sampleTypeCodeOrNull =
                 PropertyUtils.getProperty(specificProperties, SAMPLE_TYPE_PROPERTIES_KEY);

@@ -110,7 +110,7 @@ public final class MatchingEntityValidatorTest extends AuthorizationTestCase
     public final void testWithInstanceSample()
     {
         final PersonPE person = createPersonWithRoleAssignments();
-        final SamplePE sample = createSample(createDatabaseInstance());
+        final SamplePE sample = createSample();
         final MatchingEntityValidator validator = new MatchingEntityValidator();
         assertEquals(true, validator.isValid(person, asMatchingEntityStub(sample)));
     }

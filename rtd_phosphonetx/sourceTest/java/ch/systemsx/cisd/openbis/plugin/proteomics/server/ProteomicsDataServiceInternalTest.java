@@ -50,7 +50,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStoreServicePE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityPropertyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
@@ -415,8 +414,7 @@ public class ProteomicsDataServiceInternalTest extends AbstractServerTestCase
         ProjectPE project = new ProjectPE();
         project.setCode("p");
         SpacePE group =
-                CommonTestUtils.createSpace(GROUP_CODE,
-                        CommonTestUtils.createHomeDatabaseInstance());
+                CommonTestUtils.createSpace(GROUP_CODE);
         project.setSpace(group);
         experiment.setProject(project);
         experiment.setRegistrationDate(new Date(id * id));
