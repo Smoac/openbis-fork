@@ -72,8 +72,6 @@ public final class ColumnNames
     public static final String DATA_STORE_SERVICES_DATASET_TYPES_PARENT_COLUMN =
             "DATA_STORE_SERVICE_ID";
 
-    public final static String DATABASE_INSTANCE_COLUMN = "dbin_id";
-
     public static final String QUERY_DATABASE_KEY_COLUMN = "db_key";
 
     public static final String QUERY_ENTITY_TYPE_CODE_COLUMN = "entity_type_code";

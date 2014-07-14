@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.systemtest.base;
 
+import java.util.UUID;
+
 import org.hamcrest.Matcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.GenericApplicationContext;
@@ -151,6 +153,7 @@ public abstract class BaseTest extends AbstractTransactionalTestNGSpringContextT
     {
         DataStorePE dataStore = new DataStorePE();
         dataStore.setCode("STANDARD");
+        dataStore.setDatabaseInstanceUUID(UUID.randomUUID().toString());
         dataStore.setDownloadUrl("http://localhost");
         dataStore.setRemoteUrl("http://remotehost");
         dataStore.setSessionToken("");
