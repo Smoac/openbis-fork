@@ -58,7 +58,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
@@ -70,16 +72,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 {
     static final String DATASET_TYPES_PROPERTY = "dataset-types";
-    static final String BLAST_TOOLS_DIRECTORY_PROPERTY = "blast-tools-directory";
-    static final String BLAST_DATABASES_FOLDER_PROPERTY = "blast-databases-folder";
     static final String BLAST_TEMP_FOLDER_PROPERTY = "blast-temp-folder";
     static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
     static final String FILE_TYPES_PROPERTY = "file-types";
     
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set-for-BLAST-database-creation";
     private static final String DEFAULT_FILE_TYPES = ".fasta .fa .fsa .fastq";
-    private static final String DEFAULT_BLAST_DATABASES_FOLDER = "blast-databases";
-
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabaseCreationMaintenanceTask.class);
     private static final Logger machineLog =
@@ -115,12 +113,13 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         lastSeenDataSetFile = getFile(properties, LAST_SEEN_DATA_SET_FILE_PROPERTY, DEFAULT_LAST_SEEN_DATA_SET_FILE);
         setUpBlastDatabasesFolder(properties);
         setUpBlastTempFolder(properties);
-        String blastToolDirectory = getBLASTToolDirectory(properties);
+        String blastToolDirectory = BlastUtils.getBLASTToolDirectory(properties);
         makeblastdb = blastToolDirectory + "makeblastdb";
         if (process(makeblastdb, "-version") == false)
         {
-            operationLog.error("BLAST isn't installed or property '" + BLAST_TOOLS_DIRECTORY_PROPERTY 
+            operationLog.error("BLAST isn't installed or property '" + BlastUtils.BLAST_TOOLS_DIRECTORY_PROPERTY 
                     + "' hasn't been correctly specified.");
+            makeblastdb = null;
         }
         makembindex = blastToolDirectory + "makembindex";
         
@@ -128,7 +127,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 
     private void setUpBlastDatabasesFolder(Properties properties)
     {
-        blastDatabasesFolder = getFile(properties, BLAST_DATABASES_FOLDER_PROPERTY, DEFAULT_BLAST_DATABASES_FOLDER);
+        blastDatabasesFolder = BlastUtils.getBlastDatabaseFolder(properties, getConfigProvider().getStoreRoot());
         operationLog.info("BLAST databases folder: " + blastDatabasesFolder);
         if (blastDatabasesFolder.exists())
         {
@@ -146,7 +145,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
         }
     }
-    
+
     private void setUpBlastTempFolder(Properties properties)
     {
         String tempFolderProperty = properties.getProperty(BLAST_TEMP_FOLDER_PROPERTY);
@@ -174,23 +173,16 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 
     private File getFile(Properties properties, String pathProperty, String defaultPath)
     {
-        String path = properties.getProperty(pathProperty);
-        return path == null ? new File(getConfigProvider().getStoreRoot(), defaultPath) : new File(path);
-    }
-
-    private String getBLASTToolDirectory(Properties properties)
-    {
-        String blastToolsDirectory = properties.getProperty(BLAST_TOOLS_DIRECTORY_PROPERTY, "");
-        if (blastToolsDirectory.endsWith("/") || blastToolsDirectory.isEmpty())
-        {
-            return blastToolsDirectory;
-        }
-        return blastToolsDirectory + "/";
+        return BlastUtils.getFile(properties, pathProperty, defaultPath, getConfigProvider().getStoreRoot());
     }
 
     @Override
     public void execute()
     {
+        if (makeblastdb == null)
+        {
+            return;
+        }
         IEncapsulatedOpenBISService service = getOpenBISService();
         Map<SequenceType, VirtualDatabase> virtualDatabases = loadVirtualDatabases(service);
         
@@ -233,13 +225,14 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         if (dataSetCodes.isEmpty() == false)
         {
-            for (AbstractExternalData dataSet : service.listDataSetsByCode(new ArrayList<String>(dataSetCodes)))
+            Set<String> deletedDataSetCodes = new HashSet<String>();
+            for (DeletedDataSet deletedDataSet : service.listDeletedDataSets(null, null))
             {
-                dataSetCodes.remove(dataSet.getCode());
+                deletedDataSetCodes.add(deletedDataSet.getCode());
             }
             for (VirtualDatabase virtualDatabase : virtualDatabases.values())
             {
-                virtualDatabase.removeDeletedDataSets(dataSetCodes);
+                virtualDatabase.removeDeletedDataSets(deletedDataSetCodes);
             }
         }
         return virtualDatabases;
@@ -470,9 +463,10 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             for (String dataSetCode : deletedDataSets)
             {
-                dataSetCodes.remove(dataSetCode);
-                final String databaseName = dataSetCode + postfix;
-                File[] files = databaseFolder.listFiles(new FilenameFilter()
+                if (dataSetCodes.remove(dataSetCode))
+                {
+                    final String databaseName = dataSetCode + postfix;
+                    File[] files = databaseFolder.listFiles(new FilenameFilter()
                     {
                         @Override
                         public boolean accept(File dir, String name)
@@ -480,19 +474,20 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                             return name.startsWith(databaseName);
                         }
                     });
-                if (files != null)
-                {
-                    boolean success = true;
-                    for (File file : files)
+                    if (files != null)
                     {
-                        if (FileUtilities.delete(file) == false)
+                        boolean success = true;
+                        for (File file : files)
                         {
-                            operationLog.warn("File deletion failed: " + file);
+                            if (FileUtilities.delete(file) == false)
+                            {
+                                operationLog.warn("File deletion failed: " + file);
+                            }
                         }
-                    }
-                    if (success)
-                    {
-                        operationLog.info("BLAST database " + databaseName + " successfully deleted.");
+                        if (success)
+                        {
+                            operationLog.info("BLAST database " + databaseName + " successfully deleted.");
+                        }
                     }
                 }
             }
