@@ -24,17 +24,31 @@ import java.util.Properties;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 
 /**
- * Interface for a database for nucleotid or protein sequences.
- * Implenting classes should have a public constructor with two arguments: First is an instance of
+ * Interface for a database for nucleotid or amonioacid sequences.
+ * Implementing classes should have a public constructor with two arguments: First is an instance of
  * {@link Properties} and second is an instance of {@link File} which points to the root of the data set store.
  *
  * @author Franz-Josef Elmer
  */
 public interface ISequenceDatabase
 {
+    /**
+     * Returns the name of this sequence database instance. 
+     * Will be used to populated {@link SequenceSearchResult} instances of the search result..
+     */
     public String getName();
     
+    /**
+     * Returns <code>true</code> if this sequence database is available. For example, a 
+     * sequence database is available if the external tools are available.
+     */
     public boolean isAvailable();
     
-    public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParameters);
+    /**
+     * Searches for reference sequences matching the specified sequence snippet.
+     * 
+     * @param optionalParametersOrNull Optional parameters which might be used. Can be <code>null</code>.
+     * @return an empty list if nothing be found.
+     */
+    public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull);
 }
