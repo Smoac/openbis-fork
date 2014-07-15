@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
-import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.BLAST_DATABASES_FOLDER_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.BLAST_TEMP_FOLDER_PROPERTY;
-import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.BLAST_TOOLS_DIRECTORY_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.DATASET_TYPES_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.FILE_TYPES_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
@@ -44,6 +42,7 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedH
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
@@ -219,7 +218,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
-                + ERROR_PREFIX + "BLAST isn't installed or property '" + BLAST_TOOLS_DIRECTORY_PROPERTY
+                + ERROR_PREFIX + "BLAST isn't installed or property '" + BlastUtils.BLAST_TOOLS_DIRECTORY_PROPERTY
                 + "' hasn't been correctly specified.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
@@ -378,10 +377,10 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         Properties properties = new Properties();
         properties.setProperty(DATASET_TYPES_PROPERTY, ".*");
         File blastDatabasesFolder = new File(workingDirectory, "blast-dbs");
-        properties.setProperty(BLAST_DATABASES_FOLDER_PROPERTY, blastDatabasesFolder.toString());
+        properties.setProperty(BlastUtils.BLAST_DATABASES_FOLDER_PROPERTY, blastDatabasesFolder.toString());
         File tempFolder = new File(workingDirectory, "temp");
         properties.setProperty(BLAST_TEMP_FOLDER_PROPERTY, tempFolder.toString());
-        properties.setProperty(BLAST_TOOLS_DIRECTORY_PROPERTY, "/usr/bin/blast");
+        properties.setProperty(BlastUtils.BLAST_TOOLS_DIRECTORY_PROPERTY, "/usr/bin/blast");
         properties.setProperty(FILE_TYPES_PROPERTY, ".txt .f");
         File lastSeenFile = new File(workingDirectory, "last.txt");
         properties.setProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY, lastSeenFile.toString());
