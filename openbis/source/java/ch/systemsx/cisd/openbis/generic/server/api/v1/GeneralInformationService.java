@@ -94,6 +94,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
@@ -113,6 +114,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -141,7 +143,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 28;
+    public static final int MINOR_VERSION = 29;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -943,6 +945,26 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             }
             return dataSetList;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    // There is no @ReturnValueFilter because commonServer.searchForDataSetsWithSequences() does already the filtering.
+    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
+            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+            Map<String, String> optionalParametersOrNull)
+    {
+        checkSession(sessionToken);
+
+        List<SequenceSearchResult> result = new ArrayList<SequenceSearchResult>();
+        List<SequenceSearchResultWithFullDataSet> list = commonServer.searchForDataSetsWithSequences(sessionToken,
+                preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull);
+        for (SequenceSearchResultWithFullDataSet sequenceSearchResult : list)
+        {
+            result.add(sequenceSearchResult.getSearchResult());
+        }
+        return result;
     }
 
     @Override

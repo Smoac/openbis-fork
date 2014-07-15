@@ -60,10 +60,12 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
@@ -501,6 +503,49 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         {
             QueueingPathRemoverService.removeRecursively(sessionWorkspace);
         }
+    }
+    
+    @Override
+    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
+            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+            Map<String, String> optionalParametersOrNull)
+    {
+        PluginTaskProvider<ISequenceDatabase> provider = pluginTaskInfoProvider.getSequenceDatabasesProvider();
+        ISequenceDatabase sequenceDatabase = findSequenceDatabase(provider, preferredSequenceDatabaseOrNull);
+        if (sequenceDatabase != null)
+        {
+            List<SequenceSearchResult> result = sequenceDatabase.search(sequenceSnippet, optionalParametersOrNull);
+            for (SequenceSearchResult sequenceSearchResult : result)
+            {
+                sequenceSearchResult.setSequenceDatabaseName(sequenceDatabase.getName());
+            }
+            return result;
+        }
+        operationLog.warn("No available sequence database found.");
+        return new ArrayList<SequenceSearchResult>();
+    }
+    
+    private ISequenceDatabase findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider, 
+            String preferredSequenceDatabaseOrNull)
+    {
+        List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();
+        ISequenceDatabase availableDatabase = null;
+        for (DatastoreServiceDescription description : pluginDescriptions)
+        {
+            ISequenceDatabase database = provider.getPluginInstance(description.getKey());
+            if (database.isAvailable())
+            {
+                if (description.getKey().equals(preferredSequenceDatabaseOrNull))
+                {
+                    return database;
+                }
+                if (availableDatabase == null)
+                {
+                    availableDatabase = database;
+                }
+            }
+        }
+        return availableDatabase;
     }
 
     private PutDataSetService getPutDataSetService()

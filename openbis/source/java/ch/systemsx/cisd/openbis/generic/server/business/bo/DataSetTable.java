@@ -36,6 +36,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.IKeyExtractor;
+import ch.systemsx.cisd.common.collection.TableMap;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -55,8 +57,10 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDele
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
@@ -70,6 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetai
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -267,6 +272,70 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     public void setDataSets(List<DataPE> dataSets)
     {
         this.dataSets = dataSets;
+    }
+
+    @Override
+    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
+            String sequenceSnippet, Map<String, String> optionalParametersOrNull)
+    {
+        List<SequenceSearchResult> result = askAllDataStoreServers(preferredSequenceDatabaseOrNull,
+                sequenceSnippet, optionalParametersOrNull);
+        TableMap<String, AbstractExternalData> fullDataSetsByCode = listFullDataSets(result);
+        return filterSearchResultAndInjectFullDataSets(result, fullDataSetsByCode);
+    }
+
+    private List<SequenceSearchResultWithFullDataSet> filterSearchResultAndInjectFullDataSets(List<SequenceSearchResult> result,
+            TableMap<String, AbstractExternalData> fullDataSetsByCode)
+    {
+        List<SequenceSearchResultWithFullDataSet> filteredResult = new ArrayList<SequenceSearchResultWithFullDataSet>();
+        for (SequenceSearchResult sequenceSearchResult : result)
+        {
+            String dataSetCode = sequenceSearchResult.getDataSetCode();
+            AbstractExternalData fullDataSet = fullDataSetsByCode.tryGet(dataSetCode);
+            if (fullDataSet != null)
+            {
+                SequenceSearchResultWithFullDataSet resultWithFullDataSet = new SequenceSearchResultWithFullDataSet();
+                resultWithFullDataSet.setDataSet(fullDataSet);
+                resultWithFullDataSet.setSearchResult(sequenceSearchResult);
+                filteredResult.add(resultWithFullDataSet);
+            }
+        }
+        return filteredResult;
+    }
+
+    private TableMap<String, AbstractExternalData> listFullDataSets(List<SequenceSearchResult> result)
+    {
+        IKeyExtractor<String, AbstractExternalData> codeKeyExtractor = KeyExtractorFactory.<AbstractExternalData> createCodeKeyExtractor();
+        if (result.isEmpty())
+        {
+            return new TableMap<String, AbstractExternalData>(codeKeyExtractor);
+        }
+        List<String> codes = new ArrayList<String>();
+        for (SequenceSearchResult sequenceSearchResult : result)
+        {
+            codes.add(sequenceSearchResult.getDataSetCode());
+        }
+        List<DataPE> fullDataSetPEs = getDataDAO().tryToFindFullDataSetsByCodes(codes, false, false);
+        List<AbstractExternalData> fullDataSets = DataSetTranslator.translate(fullDataSetPEs, "?", "?",
+                new HashMap<Long, Set<Metaproject>>(), managedPropertyEvaluatorFactory);
+        return new TableMap<String, AbstractExternalData>(fullDataSets, codeKeyExtractor);
+    }
+
+    private List<SequenceSearchResult> askAllDataStoreServers(String preferredSequenceDatabaseOrNull,
+            String sequenceSnippet, Map<String, String> optionalParametersOrNull)
+    {
+        List<SequenceSearchResult> result = new ArrayList<SequenceSearchResult>();
+        List<DataStorePE> stores = getDataStoreDAO().listDataStores();
+        for (DataStorePE dataStore : stores)
+        {
+            IDataStoreService service = tryGetDataStoreService(dataStore);
+            if (service != null)
+            {
+                result.addAll(service.searchForDataSetsWithSequences(dataStore.getSessionToken(),
+                        preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull));
+            }
+        }
+        return result;
     }
 
     @Override

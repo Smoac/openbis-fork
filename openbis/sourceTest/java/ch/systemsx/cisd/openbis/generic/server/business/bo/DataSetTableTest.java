@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,12 +46,14 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -76,6 +79,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 @Friend(toClasses = DataSetTable.class)
 public final class DataSetTableTest extends AbstractBOTest
 {
+    private static final Map<String, String> OPTIONAL_PARAMETERS = Collections.singletonMap("greeting", "hi");
+
+    private static final String SEQUENCE_SNIPPET = "GATTACA";
+
+    private static final String SEQUENCE_DATABASE = "MY_DB";
+
     private IDataStoreServiceFactory dssFactory;
 
     private DataStorePE dss1;
@@ -149,6 +158,76 @@ public final class DataSetTableTest extends AbstractBOTest
                     allowing(conversationClient).getDataStoreService(dss3.getRemoteUrl(),
                             ManagerTestTool.EXAMPLE_SESSION.getSessionToken());
                     will(returnValue(dataStoreServiceConversational3));
+                }
+            });
+    }
+
+    @Test
+    public void testSearchForDataSetsWithSequences()
+    {
+        DataStorePE store1 = new DataStorePE();
+        store1.setRemoteUrl("http://abc1.de");
+        DataStorePE store2 = new DataStorePE();
+        store2.setRemoteUrl("http://abc2.de");
+        store2.setSessionToken("session-2");
+        DataStorePE store3 = new DataStorePE();
+        prepareListDataStores(store1, store2, store3);
+        prepareSearchSequenceDatabase(store1, dataStoreService1, "ds1", "ds2");
+        prepareSearchSequenceDatabase(store2, dataStoreService2, "ds3");
+        ExternalDataPE ds1 = createDataSet("ds1", store1);
+        ExternalDataPE ds2 = createDataSet("ds2", store1);
+        ExternalDataPE ds3 = createDataSet("ds3", store2);
+        prepareFindFullDatasets(new ExternalDataPE[] { ds1, ds2, ds3 }, new ExternalDataPE[] { ds1, ds3 }, false, false);
+
+        List<SequenceSearchResultWithFullDataSet> results =
+                createDataSetTable().searchForDataSetsWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+
+        assertEquals("Database: test-db, Data set: ds1, path: ds1/path, identifier: [id-ds1], position: 42",
+                results.get(0).getSearchResult().toString());
+        assertEquals(ds1.getCode(), results.get(0).getDataSet().getCode());
+        assertEquals("/G1/P1/exp1", results.get(0).getDataSet().getExperiment().getIdentifier());
+        assertEquals("Database: test-db, Data set: ds3, path: ds3/path, identifier: [id-ds3], position: 42",
+                results.get(1).getSearchResult().toString());
+        assertEquals(ds3.getCode(), results.get(1).getDataSet().getCode());
+        assertEquals("/G1/P1/exp1", results.get(1).getDataSet().getExperiment().getIdentifier());
+        assertEquals(2, results.size());
+        context.assertIsSatisfied();
+    }
+
+    private void prepareListDataStores(final DataStorePE... dataStores)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataStoreDAO).listDataStores();
+                    will(returnValue(Arrays.asList(dataStores)));
+                }
+            });
+    }
+
+    private void prepareSearchSequenceDatabase(final DataStorePE dataStore, final IDataStoreService service,
+            final String... foundDataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    one(dssFactory).create(dataStore.getRemoteUrl());
+                    will(returnValue(service));
+
+                    one(service).searchForDataSetsWithSequences(dataStore.getSessionToken(),
+                            SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+                    List<SequenceSearchResult> results = new ArrayList<SequenceSearchResult>();
+                    for (String foundDataSet : foundDataSets)
+                    {
+                        SequenceSearchResult result = new SequenceSearchResult();
+                        result.setSequenceDatabaseName("test-db");
+                        result.setDataSetCode(foundDataSet);
+                        result.setPathInDataSet(foundDataSet + "/path");
+                        result.setPositionInSequence(42);
+                        result.setSequenceIdentifier("id-" + foundDataSet);
+                        results.add(result);
+                    }
+                    will(returnValue(results));
                 }
             });
     }

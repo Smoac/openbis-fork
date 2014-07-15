@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.io.File;
 
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 
 /**
@@ -41,6 +42,8 @@ public interface IPluginTaskInfoProvider
     public PluginTaskProvider<IReportingPluginTask> getReportingPluginsProvider();
 
     public PluginTaskProvider<IProcessingPluginTask> getProcessingPluginsProvider();
+    
+    public PluginTaskProvider<ISequenceDatabase> getSequenceDatabasesProvider();
 
     public ArchiverPluginFactory getArchiverPluginFactory();
 

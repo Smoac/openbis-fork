@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -41,7 +42,7 @@ public interface IDataStoreService
     /**
      * Every time this interface and related DTO's are changed, we should increment this number.
      */
-    public static final int VERSION = 9; // for release 142
+    public static final int VERSION = 10; // for S185
 
     /**
      * Returns the version of this service.
@@ -81,8 +82,8 @@ public interface IDataStoreService
     /**
      * Runs the reporting task with the specified id for provided datasets.
      * <p>
-     * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion
-     * <var>userSessionToken</var> so that DSS gets the chance to cleanup session files. </i>
+     * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion <var>userSessionToken</var> so that DSS gets the
+     * chance to cleanup session files. </i>
      */
     @Conversational(progress = Progress.AUTOMATIC)
     public TableModel createReportFromDatasets(String sessionToken, String userSessionToken,
@@ -90,16 +91,13 @@ public interface IDataStoreService
             String userEmailOrNull);
 
     /**
-     * Schedules the processing task with the specified id for provided datasets and specified
-     * parameter bindings.
+     * Schedules the processing task with the specified id for provided datasets and specified parameter bindings.
      * 
      * @param userSessionToken The session token of the user that initiated the processing.
-     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER}
-     *            with the ID of the user who initiated processing.
+     * @param parameterBindings Contains at least the parameter {@link Constants#USER_PARAMETER} with the ID of the user who initiated processing.
      * @param userId id of user who initiated the processing.
-     * @param userEmailOrNull Email of user who initiated processing and will get a message after
-     *            the processing is finished. It may be null if the user doesn't have email and no
-     *            message will be send in such case.
+     * @param userEmailOrNull Email of user who initiated processing and will get a message after the processing is finished. It may be null if the
+     *            user doesn't have email and no message will be send in such case.
      */
     public void processDatasets(String sessionToken, String userSessionToken, String serviceKey,
             List<DatasetDescription> datasets, Map<String, String> parameterBindings,
@@ -109,11 +107,10 @@ public interface IDataStoreService
      * Schedules archiving of provided datasets.
      * 
      * @param userId id of user who initiated archiving.
-     * @param userEmailOrNull Email of user who initiated archiving and will get a message after the
-     *            task is finished. It may be null if the user doesn't have email and no message
-     *            will be send in such case.
-     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from
-     *            the data store after a successful archiving operation.
+     * @param userEmailOrNull Email of user who initiated archiving and will get a message after the task is finished. It may be null if the user
+     *            doesn't have email and no message will be send in such case.
+     * @param removeFromDataStore when set to <code>true</code> the data sets will be removed from the data store after a successful archiving
+     *            operation.
      */
     public void archiveDatasets(String sessionToken, String userSessionToken,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull,
@@ -123,9 +120,8 @@ public interface IDataStoreService
      * Schedules unarchiving of provided datasets.
      * 
      * @param userId id of user who initiated unarchiving.
-     * @param userEmailOrNull Email of user who initiated unarchiving and will get a message after
-     *            the task is finished. It may be null if the user doesn't have email and no message
-     *            will be send in such case.
+     * @param userEmailOrNull Email of user who initiated unarchiving and will get a message after the task is finished. It may be null if the user
+     *            doesn't have email and no message will be send in such case.
      */
     public void unarchiveDatasets(String sessionToken, String userSessionToken,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull);
@@ -136,8 +132,7 @@ public interface IDataStoreService
      * @param sessionToken The sessionToken
      * @param serviceKey The service that should compute the link
      * @param dataSet The data set we want the link for
-     * @return A LinkModel that describes the link. The session Id needs to be filled in to retrieve
-     *         the link.
+     * @return A LinkModel that describes the link. The session Id needs to be filled in to retrieve the link.
      */
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet);
@@ -145,8 +140,8 @@ public interface IDataStoreService
     /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
      * <p>
-     * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion
-     * <var>userSessionToken</var> so that DSS gets the chance to cleanup session files. </i>
+     * <i> Ensure that you call {@link #cleanupSession(String)} on closing of the user sesssion <var>userSessionToken</var> so that DSS gets the
+     * chance to cleanup session files. </i>
      * 
      * @param sessionToken The sessionToken.
      * @param userSessionToken The session token of the user that initiated the processing.
@@ -169,5 +164,19 @@ public interface IDataStoreService
      * @since 8
      */
     public void cleanupSession(String userSessionToken);
+
+    /**
+     * Searches for the specified sequence snippet. If no preferred sequence database is specified the first available one will be used. If the
+     * preferred sequence database doesn't exist or isn't available also the first available database will be used.
+     * 
+     * @param preferredSequenceDatabaseOrNull The key of the preferred sequence database or <code>null</code>.
+     * @param sequenceSnippet Snippet of nucleotid or aminoacid sequence.
+     * @param optionalParametersOrNull Optional parameters. Can be <code>null</code>. The semantics depends on the type of the used sequence database.
+     * @since 10
+     */
+    @Conversational(progress = Progress.AUTOMATIC)
+    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
+            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+            Map<String, String> optionalParametersOrNull);
 
 }

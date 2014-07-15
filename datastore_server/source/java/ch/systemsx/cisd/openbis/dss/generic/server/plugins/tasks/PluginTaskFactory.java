@@ -40,22 +40,18 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
 
 /**
- * Abstract class for a factory of plugin tasks.
+ * Factory of plugin tasks.
  * 
  * @author Tomasz Pylak
  */
-public abstract class AbstractPluginTaskFactory<T>
+public class PluginTaskFactory<T>
 {
-    /**
-     * Logs the current parameters to the {@link LogCategory#OPERATION} log.
-     */
-    abstract public void logConfiguration();
-
     /** Property name which stores a plugin label. */
     @Private
     public final static String LABEL_PROPERTY_NAME = "label";
@@ -81,7 +77,7 @@ public abstract class AbstractPluginTaskFactory<T>
     public final static String PARAMS_FILE_PATH_PROPERTY_NAME = "properties-file";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
-            AbstractPluginTaskFactory.class);
+            PluginTaskFactory.class);
 
     private final DatastoreServiceDescription description;
 
@@ -91,10 +87,13 @@ public abstract class AbstractPluginTaskFactory<T>
 
     private final T pluginInstance;
 
-    protected AbstractPluginTaskFactory(IServletPropertiesManager servletPropertiesManager,
-            SectionProperties sectionProperties, String datastoreCode, Class<T> clazz,
+    private final String pluginTaskName;
+
+    public PluginTaskFactory(IServletPropertiesManager servletPropertiesManager,
+            SectionProperties sectionProperties, String datastoreCode, Class<T> clazz, String pluginTaskName,
             File storeRoot)
     {
+        this.pluginTaskName = pluginTaskName;
         Properties pluginProperties = sectionProperties.getProperties();
         String label = PropertyUtils.getMandatoryProperty(pluginProperties, LABEL_PROPERTY_NAME);
         Properties props =
@@ -129,6 +128,11 @@ public abstract class AbstractPluginTaskFactory<T>
             this.description =
                     DatastoreServiceDescription.reporting(pluginKey, label, datasetCodes,
                             datastoreCode, type);
+        } else if (pluginInstance instanceof ISequenceDatabase)
+        {
+            this.description =
+                    DatastoreServiceDescription.processing(pluginKey, label, new String[0],
+                            datastoreCode);
         } else
         {
             String[] datasetCodes = extractDatasetCodes(pluginProperties);
@@ -137,6 +141,17 @@ public abstract class AbstractPluginTaskFactory<T>
                             datastoreCode);
         }
     }
+    
+    /**
+     * Logs the current parameters to the {@link LogCategory#OPERATION} log.
+     */
+    public void logConfiguration()
+    {
+        String key = getPluginDescription().getKey();
+        operationLog.info(String.format(pluginTaskName + " '%s' configuration:", key));
+        logPropertiesConfiguration();
+    }
+
 
     /**
      * Returns an instance of a plugin task

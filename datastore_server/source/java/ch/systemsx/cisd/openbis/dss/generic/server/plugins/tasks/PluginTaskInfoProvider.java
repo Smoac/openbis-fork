@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
@@ -25,6 +27,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperti
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -46,11 +49,14 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
 
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
 
+    private final PluginTaskProvider<ISequenceDatabase> sequenceDatabasePlugins;
+    
     private final ArchiverPluginFactory archiverTaskFactory;
 
     private final File storeRoot;
 
     private final File sessionWorkspaceRootDir;
+
 
     /** for external injections */
     public static IPluginTaskInfoProvider create()
@@ -83,6 +89,9 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
         this.processingPlugins =
                 createProcessingPluginsFactories(serviceProperties, servletPropertiesManager,
                         datastoreCode, storeRoot);
+        sequenceDatabasePlugins = createPluginsFactories(serviceProperties, servletPropertiesManager, 
+                datastoreCode, storeRoot, ISequenceDatabase.class, "Sequence database", 
+                Constants.SEQUENCE_DATABASES_NAMES);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 
@@ -117,6 +126,12 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     }
 
     @Override
+    public PluginTaskProvider<ISequenceDatabase> getSequenceDatabasesProvider()
+    {
+        return sequenceDatabasePlugins;
+    }
+
+    @Override
     public ArchiverPluginFactory getArchiverPluginFactory()
     {
         return archiverTaskFactory;
@@ -126,6 +141,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     {
         processingPlugins.check(true);
         reportingPlugins.check(false);
+        sequenceDatabasePlugins.check(false);
         archiverTaskFactory.check(storeRoot);
     }
 
@@ -134,6 +150,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     {
         processingPlugins.logConfigurations();
         reportingPlugins.logConfigurations();
+        sequenceDatabasePlugins.logConfigurations();
         archiverTaskFactory.logConfiguration();
     }
 
@@ -142,17 +159,8 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
             Properties serviceProperties, IServletPropertiesManager configParameters,
             String datastoreCode, File storeRoot)
     {
-        SectionProperties[] sectionsProperties =
-                extractSectionProperties(serviceProperties, Constants.REPORTING_PLUGIN_NAMES);
-        ReportingPluginTaskFactory[] factories =
-                new ReportingPluginTaskFactory[sectionsProperties.length];
-        for (int i = 0; i < factories.length; i++)
-        {
-            factories[i] =
-                    new ReportingPluginTaskFactory(configParameters, sectionsProperties[i],
-                            datastoreCode, storeRoot);
-        }
-        return new PluginTaskProvider<IReportingPluginTask>(factories);
+        return createPluginsFactories(serviceProperties, configParameters, datastoreCode, storeRoot, 
+                IReportingPluginTask.class, "Reporting plugin", Constants.REPORTING_PLUGIN_NAMES);
     }
 
     @Private
@@ -160,17 +168,22 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
             Properties serviceProperties, IServletPropertiesManager configParameters,
             String datastoreCode, File storeRoot)
     {
-        SectionProperties[] sectionsProperties =
-                extractSectionProperties(serviceProperties, Constants.PROCESSING_PLUGIN_NAMES);
-        ProcessingPluginTaskFactory[] factories =
-                new ProcessingPluginTaskFactory[sectionsProperties.length];
-        for (int i = 0; i < factories.length; i++)
+        return createPluginsFactories(serviceProperties, configParameters, datastoreCode, storeRoot,
+                IProcessingPluginTask.class, "Processing plugin", Constants.PROCESSING_PLUGIN_NAMES);
+    }
+    
+    private static <T> PluginTaskProvider<T> createPluginsFactories(Properties serviceProperties,
+            IServletPropertiesManager configParameters, String datastoreCode, File storeRoot, Class<T> clazz,
+            String pluginTaskName, String propertySectionName)
+    {
+        SectionProperties[] sectionsProperties = extractSectionProperties(serviceProperties, propertySectionName);
+        List<PluginTaskFactory<T>> factories = new ArrayList<PluginTaskFactory<T>>();
+        for (SectionProperties sectionProps : sectionsProperties)
         {
-            factories[i] =
-                    new ProcessingPluginTaskFactory(configParameters, sectionsProperties[i],
-                            datastoreCode, storeRoot);
+            factories.add(new PluginTaskFactory<T>(configParameters, sectionProps,
+                    datastoreCode, clazz, pluginTaskName, storeRoot));
         }
-        return new PluginTaskProvider<IProcessingPluginTask>(factories);
+        return new PluginTaskProvider<T>(factories);
     }
 
     private ArchiverPluginFactory createArchiverTaskFactory(Properties serviceProperties,
