@@ -45,6 +45,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -393,7 +394,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         FileUtilities.writeToFile(new File(dataSetFolder1, "fasta.txt"), ">1\nGATTACA\n");
         prepareContentProvider(ds1, dataSetFolder1);
         maintenanceTask.execute();
-        prepareListsDataSets("-" + ds1.getCode());
+        prepareListsDeletedDataSets(ds1.getCode());
         AbstractExternalData ds2 = new DataSetBuilder(12L).type("BLAST").code("DS2")
                 .status(DataSetArchivingStatus.AVAILABLE).getDataSet();
         lastSeenIdMatcher = prepareListNewerDataSet(ds2);
@@ -406,7 +407,6 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
                 + INFO_PREFIX + "Temp folder '" + tempFolder + "' created.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.\n"
                 + INFO_PREFIX + "BLAST database DS1-nucl successfully deleted.\n" 
-                + INFO_PREFIX + "BLAST database DS1-prot successfully deleted.\n" 
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.", logRecorder.getLogContent());
         assertEquals("/usr/bin/blast/makeblastdb -version\n"
                 + "/usr/bin/blast/makeblastdb -in " + tempFolder.getAbsolutePath() + "/DS1-nucl.fa"
@@ -434,25 +434,17 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
             });
     }
 
-    private void prepareListsDataSets(final String... dataSetCodes)
+    private void prepareListsDeletedDataSets(final String... dataSetCodes)
     {
         context.checking(new Expectations()
             {
                 {
-                    List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
-                    List<String> codes = new ArrayList<String>();
+                    List<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
                     for (String dataSetCode : dataSetCodes)
                     {
-                        if (dataSetCode.startsWith("-") == false)
-                        {
-                            result.add(new DataSetBuilder().code(dataSetCode).getDataSet());
-                            codes.add(dataSetCode);
-                        } else
-                        {
-                            codes.add(dataSetCode.substring(1));
-                        }
+                        result.add(new DeletedDataSet(0, dataSetCode));
                     }
-                    one(service).listDataSetsByCode(codes);
+                    one(service).listDeletedDataSets(null, null);
                     will(returnValue(result));
                 }
             });
