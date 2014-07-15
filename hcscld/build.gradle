@@ -107,11 +107,11 @@ task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, 
         rename '(.*)', 'sis-hcscld-examples-src.zip'
     }
 
-    from (project(':jhdf5').nativeJarLinux.archivePath) {
+    from (project(':jhdf5').nativeJarLinuxIntel.archivePath) {
         into 'sis-hcscld/lib'
     }
 
-    from (project(':jhdf5').nativeJarMac.archivePath) {
+    from (project(':jhdf5').nativeJarMacIntel.archivePath) {
         into 'sis-hcscld/lib'
     }
 
