@@ -207,10 +207,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             }
             updateLastSeenEventId(dataSet.getId());
         }
-        for (VirtualDatabase virtualDatabase : virtualDatabases.values())
-        {
-            virtualDatabase.save();
-        }
     }
 
     private Map<SequenceType, VirtualDatabase> loadVirtualDatabases(IEncapsulatedOpenBISService service)
@@ -285,7 +281,9 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             {
                 process(makembindex, "-iformat", "blastdb", "-input", databaseFile, "-old_style_index", "false");
             }
-            virtualDatabases.get(sequenceType).addDataSet(dataSetCode);
+            VirtualDatabase virtualDatabase = virtualDatabases.get(sequenceType);
+            virtualDatabase.addDataSet(dataSetCode);
+            virtualDatabase.save();
         }
         builder.cleanUp();
     }
@@ -461,10 +459,12 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         
         void removeDeletedDataSets(Collection<String> deletedDataSets)
         {
+            boolean dataChanged = false;
             for (String dataSetCode : deletedDataSets)
             {
                 if (dataSetCodes.remove(dataSetCode))
                 {
+                    dataChanged = true;
                     final String databaseName = dataSetCode + postfix;
                     File[] files = databaseFolder.listFiles(new FilenameFilter()
                     {
@@ -482,6 +482,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                             if (FileUtilities.delete(file) == false)
                             {
                                 operationLog.warn("File deletion failed: " + file);
+                                success = false;
                             }
                         }
                         if (success)
@@ -491,11 +492,16 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                     }
                 }
             }
+            if (dataChanged)
+            {
+                save();
+            }
         }
         
         void save()
         {
             File allDatabaseFile = new File(databaseFolder, "all-" + dbtype + ".nal");
+            File newAllDatabaseFile = new File(databaseFolder, "all-" + dbtype + ".nal.new");
             if (dataSetCodes.isEmpty())
             {
                 if (allDatabaseFile.exists())
@@ -517,7 +523,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 {
                     builder.append(' ').append(dataSetCode).append(postfix);
                 }
-                FileUtilities.writeToFile(allDatabaseFile, builder.toString());
+                FileUtilities.writeToFile(newAllDatabaseFile, builder.toString());
+                newAllDatabaseFile.renameTo(allDatabaseFile);
             }
         }
     }

@@ -406,7 +406,9 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
                 + INFO_PREFIX + "BLAST databases folder: " + blastDatabasesFolder + "\n"
                 + INFO_PREFIX + "Temp folder '" + tempFolder + "' created.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.\n"
-                + INFO_PREFIX + "BLAST database DS1-nucl successfully deleted.\n" 
+                + INFO_PREFIX + "BLAST database DS1-nucl successfully deleted.\n"
+                + INFO_PREFIX + "Virtual BLAST database file " + blastDatabasesFolder
+                + "/all-nucl.nal deleted because it was empty.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.", logRecorder.getLogContent());
         assertEquals("/usr/bin/blast/makeblastdb -version\n"
                 + "/usr/bin/blast/makeblastdb -in " + tempFolder.getAbsolutePath() + "/DS1-nucl.fa"
