@@ -318,6 +318,9 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
+                    
+                    one(dataStoreDAO).listDataStores();
+                    will(returnValue(Arrays.asList()));
 
                     one(dssfactory).create(URL);
                     will(returnValue(dataStoreService));
