@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.CODE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.CONTAINER_SAMPLE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.SampleGridColumnIDs.IS_DELETED;
@@ -47,7 +46,6 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.DeletionUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.SimpleYesNoRenderer;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseInstance;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -76,7 +74,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
         TypedTableModelBuilder<Sample> builder = new TypedTableModelBuilder<Sample>();
         builder.addColumn(CODE);
         builder.addColumn(SUBCODE).hideByDefault();
-        builder.addColumn(DATABASE_INSTANCE).hideByDefault();
         builder.addColumn(SPACE).hideByDefault();
         builder.addColumn(SAMPLE_IDENTIFIER).withDefaultWidth(150).hideByDefault();
         builder.addColumn(SAMPLE_TYPE).withDefaultWidth(150).hideByDefault();
@@ -108,7 +105,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
             {
                 builder.column(CODE).addEntityLink(sample, sample.getCode());
                 builder.column(SUBCODE).addEntityLink(sample, sample.getSubCode());
-                builder.column(DATABASE_INSTANCE).addString("");
                 builder.column(SPACE).addString(
                         sample.getSpace() == null ? "" : sample.getSpace().getCode());
                 builder.column(SAMPLE_IDENTIFIER).addEntityLink(sample, sample.getIdentifier());
@@ -177,16 +173,6 @@ public class SampleProvider extends AbstractCommonTableModelProvider<Sample>
     {
         Experiment experiment = sample.getExperiment();
         return experiment == null ? "" : experiment.getProject().getCode();
-    }
-
-    private DatabaseInstance getDatabaseInstance(Sample sample)
-    {
-        DatabaseInstance databaseInstance = sample.getDatabaseInstance();
-        if (databaseInstance == null)
-        {
-            databaseInstance = sample.getSpace().getInstance();
-        }
-        return databaseInstance;
     }
 
     private final List<Sample> getSamples()

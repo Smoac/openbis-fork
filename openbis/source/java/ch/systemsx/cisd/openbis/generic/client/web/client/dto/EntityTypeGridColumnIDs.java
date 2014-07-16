@@ -27,7 +27,5 @@ public class EntityTypeGridColumnIDs
 
     public static final String DESCRIPTION = "DESCRIPTION";
 
-    public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
-
     public static final String VALIDATION_SCRIPT = "VALIDATION_SCRIPT";
 }

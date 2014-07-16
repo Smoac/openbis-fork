@@ -19,7 +19,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.CODE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_IDENTIFIER;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.EXPERIMENT_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExperimentBrowserGridColumnIDs.IS_DELETED;
@@ -92,7 +91,6 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
         builder.addColumn(CODE);
         builder.addColumn(EXPERIMENT_TYPE).hideByDefault();
         builder.addColumn(EXPERIMENT_IDENTIFIER).hideByDefault().withDefaultWidth(150);
-        builder.addColumn(DATABASE_INSTANCE).hideByDefault();
         builder.addColumn(SPACE).hideByDefault();
         builder.addColumn(PROJECT).hideByDefault();
         builder.addColumn(REGISTRATOR);
@@ -117,8 +115,6 @@ public class ExperimentProvider extends AbstractCommonTableModelProvider<Experim
                 builder.column(EXPERIMENT_TYPE).addString(experiment.getExperimentType().getCode());
                 builder.column(EXPERIMENT_IDENTIFIER).addEntityLink(experiment,
                         experiment.getIdentifier());
-                builder.column(DATABASE_INSTANCE).addString(
-                        experiment.getProject().getSpace().getInstance().getCode());
                 builder.column(SPACE).addString(experiment.getProject().getSpace().getCode());
                 builder.column(PROJECT).addString(experiment.getProject().getCode());
                 builder.column(REGISTRATOR).addPerson(experiment.getRegistrator());

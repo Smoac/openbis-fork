@@ -29,8 +29,6 @@ public class ExperimentBrowserGridColumnIDs
 
     public static final String EXPERIMENT_IDENTIFIER = "EXPERIMENT_IDENTIFIER";
 
-    public static final String DATABASE_INSTANCE = "DATABASE_INSTANCE";
-
     public static final String SPACE = "SPACE";
 
     public static final String PROJECT = "PROJECT";

@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.generic.client.web.server.resultset;
 
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridColumnIDs.MODIFICATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.CODE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.DESCRIPTION;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.EntityTypeGridColumnIDs.VALIDATION_SCRIPT;
 
@@ -49,7 +48,6 @@ public abstract class EntityTypeProvider<T extends EntityType> extends
         TypedTableModelBuilder<T> builder = new TypedTableModelBuilder<T>();
         builder.addColumn(CODE);
         builder.addColumn(DESCRIPTION).withDefaultWidth(300);
-        builder.addColumn(DATABASE_INSTANCE).hideByDefault();
         builder.addColumn(MODIFICATION_DATE).withDefaultWidth(300).hideByDefault();
         builder.addColumn(VALIDATION_SCRIPT).hideByDefault();
         addMoreColumns(builder);
@@ -58,7 +56,6 @@ public abstract class EntityTypeProvider<T extends EntityType> extends
             builder.addRow(type);
             builder.column(CODE).addString(type.getCode());
             builder.column(DESCRIPTION).addString(type.getDescription());
-            builder.column(DATABASE_INSTANCE).addString(type.getDatabaseInstance().getCode());
             builder.column(MODIFICATION_DATE).addDate(type.getModificationDate());
             builder.column(VALIDATION_SCRIPT).addString(
                     type.getValidationScript() != null ? type.getValidationScript().getName() : "");

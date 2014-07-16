@@ -50,7 +50,6 @@ public class SampleRow extends RowWithProperties
 
     public SampleRow identifier(final String instanceCode, final String groupCodeOrNull)
     {
-        withCell(SampleGridColumnIDs.DATABASE_INSTANCE, instanceCode);
         if (groupCodeOrNull == null)
         {
             withCell(SampleGridColumnIDs.SPACE, "");

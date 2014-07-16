@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.CommonGridC
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.REGISTRATION_DATE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.ExternalDataGridColumnIDs.REGISTRATOR;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.CODE;
-import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.DATABASE_INSTANCE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.MATERIAL_TYPE;
 import static ch.systemsx.cisd.openbis.generic.client.web.client.dto.MaterialGridColumnIDs.METAPROJECTS;
 
@@ -48,7 +47,6 @@ public abstract class AbstractMaterialProvider extends AbstractTableModelProvide
         TypedTableModelBuilder<Material> builder = new TypedTableModelBuilder<Material>();
         builder.addColumn(CODE);
         builder.addColumn(MATERIAL_TYPE).hideByDefault();
-        builder.addColumn(DATABASE_INSTANCE).hideByDefault();
         builder.addColumn(REGISTRATOR);
         builder.addColumn(REGISTRATION_DATE).withDefaultWidth(200);
         builder.addColumn(MODIFICATION_DATE).withDefaultWidth(200).hideByDefault();
@@ -59,7 +57,6 @@ public abstract class AbstractMaterialProvider extends AbstractTableModelProvide
             builder.column(CODE).addEntityLink(material, material.getCode());
             MaterialType materialType = material.getMaterialType();
             builder.column(MATERIAL_TYPE).addString(materialType.getCode());
-            builder.column(DATABASE_INSTANCE).addString(material.getDatabaseInstance().getCode());
             builder.column(REGISTRATOR).addPerson(material.getRegistrator());
             builder.column(REGISTRATION_DATE).addDate(material.getRegistrationDate());
             builder.column(MODIFICATION_DATE).addDate(material.getModificationDate());
