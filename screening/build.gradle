@@ -17,14 +17,6 @@ dependencies {
     runtime 'bioformats:bioformats:+'
 
     testCompile project(path: ':datastore_server', configuration: 'tests')
-
-}
-
-eclipse {
-    classpath {
-        downloadSources=true
-        defaultOutputDir = file('targets/www/WEB-INF/classes')
-    }
 }
 
 sourceSets { 
