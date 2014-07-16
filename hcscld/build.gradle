@@ -1,7 +1,6 @@
 apply from: '../gradle/javaproject.gradle'
 
 group="cisd"
-buildInfo=project.name
 
 dependencies {
     compile project(':jhdf5'),
@@ -37,60 +36,16 @@ tasks.withType(Test) {
     systemProperty "java.library.path", "../jhdf5/libs/native/jhdf5/amd64-Linux:../jhdf5/libs/native/jhdf5/amd64-Linux:../jhdf5/libs/native/jhdf5/x86_64-Mac OS X:../jhdf5/libs/native/jhdf5/x86_64-Mac OS X"
 }
 
-
-new ByteArrayOutputStream().withStream { os ->
-    def result = exec {
-        executable = 'svn'
-        args = ['info']
-        standardOutput = os
-    }
-    def outputAsString = os.toString()
-    def matchLastChangedRevMatcher = outputAsString =~ /Last Changed Rev: (\d+)/
-    def urlMatcher = outputAsString =~ /URL: .*\/(.+)/
-
-    def revision = "r${matchLastChangedRevMatcher[0][1]}"
-    def branch = urlMatcher[0][1]
-
-    if (branch.equals('trunk')) {
-        project.version = revision
-    } else {
-        project.version = branch
-    }
-}
-
-task isClean(type: Exec) {
-    workingDir = '.'
-    commandLine = ['svn', 'status']
-    standardOutput = new ByteArrayOutputStream()
-
-    ext.output = { 
-        return standardOutput.toString().length() == 0
-    }    
-}
-
-task createBuildInfo(dependsOn: [isClean]){
-    
-    ext.output = "${buildDir}/BUILD-${buildInfo}.INFO"
-    
-    doLast {
-        def writer = new FileWriter(ext.output)
-        try {
-            writer.println("SNAPSHOT:"+project.version.substring(1)+":"+(isClean.output()?"clean":"dirty"))
-        } finally {
-            writer.close()
-        }
-    }
-}
-
 jar {
     manifest {
         attributes 'Main-Class': 'ch.ethz.sis.hcscld.BuildAndEnvironmentInfo'
         attributes 'Class-Path': configurations.runtime.collect { it.getName() }.join(' ')
     }
 
-    from (createBuildInfo.output)
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }    
 }
-jar.dependsOn createBuildInfo
 
 task javadocZip(type: Zip, dependsOn: javadoc) {
     archiveName 'sis-hcscld-javadoc.zip'
