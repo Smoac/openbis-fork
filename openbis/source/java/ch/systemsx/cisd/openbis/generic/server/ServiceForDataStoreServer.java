@@ -389,7 +389,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         if (dataStore == null)
         {
             dataStore = new DataStorePE();
-            dataStore.setDatabaseInstanceUUID(UUID.randomUUID().toString().toUpperCase());
+            dataStore.setDatabaseInstanceUUID(getDatabaseInstanceUUID());
         }
         dataStore.setCode(info.getDataStoreCode());
         dataStore.setDownloadUrl(info.getDownloadUrl());
