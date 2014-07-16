@@ -776,6 +776,18 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					}
 					
 					if(this.sampleTypeCode === "SEARCH") {
+						//Fix for not populated field, (not shown samples)
+						if(!this.samples[i]["PROPERTIES_JSON"]) {
+							var propertiesString = "";
+							for(propertyKey in this.samples[i].properties) {
+								if(propertiesString.length > 0) {
+									propertiesString += " , ";
+								}
+								propertiesString += "<b>" + propertyKey + "</b> : " + this.samples[i].properties[propertyKey];
+							}
+							this.samples[i]["PROPERTIES_JSON"] = propertiesString;
+						}
+						
 						filterValueTokensPassed[j] = this.samples[i].sampleTypeCode.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||
 													this.samples[i].code.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||
 													this.samples[i]["PROPERTIES_JSON"].toLowerCase().indexOf(filterValueTokens[j]) !== -1;
