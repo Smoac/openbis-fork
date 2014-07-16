@@ -117,10 +117,10 @@ public class DataStoreServiceTest extends AssertJUnit
         }
 
         @Override
-        public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParameters)
+        public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
         {
             assertSame(SEQUENCE_SNIPPET, sequenceSnippet);
-            assertSame(OPTIONAL_PARAMETERS, optionalParameters);
+            assertSame(OPTIONAL_PARAMETERS, optionalParametersOrNull);
             SequenceSearchResult sequenceSearchResult = new SequenceSearchResult();
             sequenceSearchResult.setDataSetCode(dataSetCode);
             return Arrays.asList(sequenceSearchResult);
