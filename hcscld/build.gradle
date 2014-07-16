@@ -11,6 +11,33 @@ dependencies {
     testCompile 'testng:testng:+'
 } 
 
+sourceSets { 
+    test {
+        java {
+            srcDirs = ['sourceTest']
+        }
+        resources {
+            srcDirs = ['sourceTest']
+        }
+    }
+}
+
+test {
+    useTestNG()
+    options.suites('sourceTest/tests.xml')    
+
+    jvmArgs '-Xmx2048m', '-XX:MaxPermSize=256m', '-Duser.timezone=Europe/Zurich'
+    
+    testLogging.showStandardStreams = true
+    ignoreFailures = true
+}
+test.dependsOn checkRestrictions
+
+tasks.withType(Test) {
+    systemProperty "java.library.path", "../jhdf5/libs/native/jhdf5/amd64-Linux:../jhdf5/libs/native/jhdf5/amd64-Linux:../jhdf5/libs/native/jhdf5/x86_64-Mac OS X:../jhdf5/libs/native/jhdf5/x86_64-Mac OS X"
+}
+
+
 new ByteArrayOutputStream().withStream { os ->
     def result = exec {
         executable = 'svn'
