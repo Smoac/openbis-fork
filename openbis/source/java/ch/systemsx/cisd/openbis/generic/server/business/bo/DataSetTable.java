@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -310,7 +311,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         {
             return new TableMap<String, AbstractExternalData>(codeKeyExtractor);
         }
-        List<String> codes = new ArrayList<String>();
+        Set<String> codes = new LinkedHashSet<String>();
         for (SequenceSearchResult sequenceSearchResult : result)
         {
             codes.add(sequenceSearchResult.getDataSetCode());

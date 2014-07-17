@@ -26,6 +26,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -173,11 +174,17 @@ public final class DataSetTableTest extends AbstractBOTest
         DataStorePE store3 = new DataStorePE();
         prepareListDataStores(store1, store2, store3);
         prepareSearchSequenceDatabase(store1, dataStoreService1, "ds1", "ds2");
-        prepareSearchSequenceDatabase(store2, dataStoreService2, "ds3");
-        ExternalDataPE ds1 = createDataSet("ds1", store1);
-        ExternalDataPE ds2 = createDataSet("ds2", store1);
-        ExternalDataPE ds3 = createDataSet("ds3", store2);
-        prepareFindFullDatasets(new ExternalDataPE[] { ds1, ds2, ds3 }, new ExternalDataPE[] { ds1, ds3 }, false, false);
+        prepareSearchSequenceDatabase(store2, dataStoreService2, "ds3", "ds3");
+        final ExternalDataPE ds1 = createDataSet("ds1", store1);
+        final ExternalDataPE ds3 = createDataSet("ds3", store2);
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindFullDataSetsByCodes(
+                            new LinkedHashSet<String>(Arrays.asList("ds1", "ds2", "ds3")), false, false);
+                    will(returnValue(Arrays.asList(new ExternalDataPE[] { ds1, ds3 })));
+                }
+            });
 
         List<SequenceSearchResultWithFullDataSet> results =
                 createDataSetTable().searchForDataSetsWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
@@ -190,7 +197,11 @@ public final class DataSetTableTest extends AbstractBOTest
                 results.get(1).getSearchResult().toString());
         assertEquals(ds3.getCode(), results.get(1).getDataSet().getCode());
         assertEquals("/G1/P1/exp1", results.get(1).getDataSet().getExperiment().getIdentifier());
-        assertEquals(2, results.size());
+        assertEquals("Database: test-db, Data set: ds3, path: ds3/path, identifier: [id-ds3], position: 42",
+                results.get(2).getSearchResult().toString());
+        assertEquals(ds3.getCode(), results.get(2).getDataSet().getCode());
+        assertEquals("/G1/P1/exp1", results.get(2).getDataSet().getExperiment().getIdentifier());
+        assertEquals(3, results.size());
         context.assertIsSatisfied();
     }
 
@@ -211,7 +222,7 @@ public final class DataSetTableTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(dssFactory).create(dataStore.getRemoteUrl());
+                    allowing(dssFactory).create(dataStore.getRemoteUrl());
                     will(returnValue(service));
 
                     one(service).searchForDataSetsWithSequences(dataStore.getSessionToken(),
