@@ -421,13 +421,15 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         private final String postfix;
         private final File databaseFile;
         private final Set<String> dataSetCodes = new LinkedHashSet<String>();
+        private final String virtualDatabaseFileType;
 
         VirtualDatabase(File databaseFolder, SequenceType sequenceType)
         {
             this.databaseFolder = databaseFolder;
             dbtype = sequenceType.toString().toLowerCase();
             postfix = "-" + dbtype;
-            databaseFile = new File(databaseFolder, "all-" + dbtype + ".nal");
+            virtualDatabaseFileType = sequenceType == SequenceType.NUCL ? ".nal" : ".pal";
+            databaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType);
             if (databaseFile.isFile())
             {
                 List<String> lines = FileUtilities.loadToStringList(databaseFile);
@@ -500,8 +502,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         
         void save()
         {
-            File allDatabaseFile = new File(databaseFolder, "all-" + dbtype + ".nal");
-            File newAllDatabaseFile = new File(databaseFolder, "all-" + dbtype + ".nal.new");
+            File allDatabaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType);
+            File newAllDatabaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType + ".new");
             if (dataSetCodes.isEmpty())
             {
                 if (allDatabaseFile.exists())

@@ -286,7 +286,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         assertEquals("TITLE all-nucl\nDBLIST DS-3-nucl",
                 FileUtilities.loadToString(new File(store, "blast-databases/all-nucl.nal")).trim());
         assertEquals("TITLE all-prot\nDBLIST DS-3-prot",
-                FileUtilities.loadToString(new File(store, "blast-databases/all-prot.nal")).trim());
+                FileUtilities.loadToString(new File(store, "blast-databases/all-prot.pal")).trim());
         assertEquals("[]", Arrays.asList(new File(store, "blast-databases/tmp").listFiles()).toString());
         assertEquals(0L, lastSeenIdMatcher.recordedObject().getLastSeenDataSetId());
         context.assertIsSatisfied();
