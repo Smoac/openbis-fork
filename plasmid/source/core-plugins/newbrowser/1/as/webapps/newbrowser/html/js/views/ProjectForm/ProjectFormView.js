@@ -18,8 +18,6 @@ function ProjectFormView(projectFormController, projectFormModel) {
 	this._projectFormController = projectFormController;
 	this._projectFormModel = projectFormModel;
 	
-	this._createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
-	
 	this.repaint = function($container) {
 		var _this = this;
 		$container.empty();
