@@ -17,15 +17,14 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework;
 
 import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.StandardPortletNames.HISTORY;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HistoryWidget;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HistoryWidget;
 
 /**
  * Helper methods for creating a panel with welcome information.
@@ -34,9 +33,9 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.
  */
 public class WelcomePanelHelper
 {
-    private static final String APPLICATION_VIEW_MODE_PAGE_BASE_NAME = "welcomePage";
+    private static final String APPLICATION_VIEW_MODE_PAGE_BASE_NAME = "./custom/welcomePage";
 
-    private static final String SIMPLE_VIEW_MODE_PAGE_BASE_NAME = "welcomePageSimple";
+    private static final String SIMPLE_VIEW_MODE_PAGE_BASE_NAME = "./custom/welcomePageSimple";
 
     public static final Component createWelcomePanel(IViewContext<?> viewContext, String idPrefix)
     {
