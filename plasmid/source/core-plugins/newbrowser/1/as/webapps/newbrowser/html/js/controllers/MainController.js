@@ -307,10 +307,14 @@ function MainController(profile) {
 	this._showStorageManager = function() {
 		var storageManagerController = new StorageManagerController(this);
 		storageManagerController.init($("#mainContainer"));
+		this.currentView = storageManagerController;
 	}
 	
 	this._showInspectors = function() {
 		//Show Inspectors
+		//var examineController = new ExamineController(this);
+		//examineController.init($("#mainContainer"));
+		//this.currentView = examineController;
 		this.inspector.repaint();
 	}
 	
@@ -384,9 +388,13 @@ function MainController(profile) {
 
 	this._showProjectPage = function(project) {
 		//Show Form
-		var projectForm = new ProjectForm("mainContainer", this, project);
-		projectForm.init();
-		this.currentView = projectForm;
+		var projectFormController = new ProjectFormController(this, FormMode.VIEW, project);
+		projectFormController.init($("#mainContainer"));
+		this.currentView = projectFormController;
+		
+		//var projectForm = new ProjectForm("mainContainer", this, project);
+		//projectForm.init();
+		//this.currentView = projectForm;
 	}
 	
 	this._showExperimentPage = function(experiment, mode) {

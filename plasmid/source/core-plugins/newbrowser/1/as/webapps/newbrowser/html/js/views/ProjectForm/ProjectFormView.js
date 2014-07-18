@@ -13,29 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function ProjectForm(containerId, mainController, project) {
-	this._containerId = containerId;
-	this._mainController = mainController;
-	this._project = project;
-	this._formColumClass = 'col-md-12'
+
+function ProjectFormView(projectFormModel) {
+	this._projectFormModel = projectFormModel;
 	
-	this.init = function() {
-		this.repaint();
-	}
-	
-	this.repaint = function() {
+	this.repaint = function($container) {
 		var _this = this;
-		$("#" + this._containerId).empty();
+		$container.empty();
 		
 		var $form = $("<div>", { "class" : "form-horizontal row"});
-		var $formColumn = $("<div>", { "class" : this._formColumClass });
+		var $formColumn = $("<div>", { "class" : FormUtil.formColumClass });
 			
 		$form.append($formColumn);
 		
 		//
 		// Title
 		//
-		var $formTitle = $("<h2>").append("Project /" + this._project.spaceCode + "/" + this._project.code);
+		var $formTitle = $("<h2>").append("Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code);
 		$formColumn.append($formTitle);
 		
 		var $createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
@@ -47,7 +41,7 @@ function ProjectForm(containerId, mainController, project) {
 				var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
 				var argsMap = {
 						"experimentTypeCode" : experimentTypeCode,
-						"projectIdentifier" : "/" + _this._project.spaceCode + "/" + _this._project.code
+						"projectIdentifier" : "/" + _this._projectFormModel.project.spaceCode + "/" + _this._projectFormModel.project.code
 				}
 				var argsMapStr = JSON.stringify(argsMap);
 				
@@ -65,15 +59,13 @@ function ProjectForm(containerId, mainController, project) {
 		// Metadata Fields
 		//
 		$formColumn.append($("<legend>").append("Identification Info"));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._project.spaceCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._project.spaceCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Description", this._project.description));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._project.registrationDetails.userId));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", this._project.registrationDetails.registrationDate));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", this._project.registrationDetails.modificationDate));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.spaceCode));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Description", this._projectFormModel.project.description));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._projectFormModel.project.registrationDetails.userId));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", this._projectFormModel.project.registrationDetails.registrationDate));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", this._projectFormModel.project.registrationDetails.modificationDate));
 		
-		$("#" + this._containerId).append($form);
+		$container.append($form);
 	}
-	
-	
 }
