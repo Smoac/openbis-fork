@@ -82,7 +82,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			});
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
 		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.spaceCode));
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.code));
 		}
 		
 		
