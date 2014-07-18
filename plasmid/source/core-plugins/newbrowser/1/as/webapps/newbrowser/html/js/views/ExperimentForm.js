@@ -271,7 +271,7 @@ function ExperimentForm(containerId, mainController, experiment, mode) {
 					}
 					
 					var callbackOk = function() {
-						_this._mainController.sideMenu.refreshExperiment($("#PROJECT").val());
+						_this._mainController.sideMenu.refreshExperiment($("#PROJECT").val(), experimentCode);
 						_this._isFormDirty = false;
 						_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
 						Util.unblockUI();
