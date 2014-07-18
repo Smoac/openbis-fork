@@ -33,6 +33,18 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	this._pointerToMenuNode = this._menuStructure;
 	this.isHidden = false;
 
+	this.refreshProject = function(spaceCode, projectCode) {
+		var menuItemSpace = this._getSpaceNodeForCode(spaceCode);
+		var newMenuIfSelectedProject = {
+				children : []
+		}
+		var projectIdentifier = "/" + spaceCode + "/" + projectCode;
+		var menuItemProject = new SideMenuWidgetComponent(true, false, projectCode, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromIdentifier", projectIdentifier, "(Project)");
+		menuItemSpace.newMenuIfSelected.children.push(menuItemProject);
+		
+		this.repaint();
+	}
+	
 	this.refreshExperiment = function(projectIdentifierToAskForExperiments) {
 		var _this = this;
 		
@@ -106,6 +118,19 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				_this.repaint();
 			});
 		});
+	}
+	
+	this._getSpaceNodeForCode = function(spaceCode) {
+		for(var sIdx = 0; sIdx < this._menuStructure.newMenuIfSelected.children.length; sIdx++) {
+			var spaceNode = this._menuStructure.newMenuIfSelected.children[sIdx];
+			if(spaceNode.isTitle && !spaceNode.isSelectable) {
+				continue;
+			}
+			if(spaceNode.displayName === spaceCode) {
+				return spaceNode;
+			}
+		}
+		return null;
 	}
 	
 	this._getProjectNodeForCode = function(projectCode) {
