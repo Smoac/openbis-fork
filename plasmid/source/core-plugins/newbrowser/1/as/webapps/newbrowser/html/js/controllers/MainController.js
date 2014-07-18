@@ -186,6 +186,14 @@ function MainController(profile) {
 				this._showSearchPage(arg);
 				window.scrollTo(0,0);
 				break;
+			case "showProjectPageFromIdentifier":
+				var _this = this;
+				this.serverFacade.getProjectFromIdentifier(arg, function(project) {
+					document.title = "Project " + project.code;
+					_this._showProjectPage(project);
+					window.scrollTo(0,0);
+				});
+				break;
 			case "showProjectPageFromPermId":
 				var _this = this;
 				this.serverFacade.getProjectFromPermId(arg, function(project) {

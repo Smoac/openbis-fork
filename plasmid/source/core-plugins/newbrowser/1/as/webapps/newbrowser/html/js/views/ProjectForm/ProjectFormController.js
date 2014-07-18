@@ -63,9 +63,9 @@ function ProjectFormController(mainController, mode, project) {
 					Util.showStacktraceAsError(stacktrace);
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					var message = "";
-					if(_this._mode === FormMode.CREATE) {
+					if(_this._projectFormModel.mode === FormMode.CREATE) {
 						message = "Created.";
-					} else if(_this._mode === FormMode.EDIT) {
+					} else if(_this._projectFormModel.mode === FormMode.EDIT) {
 						message = "Updated.";
 					}
 					
