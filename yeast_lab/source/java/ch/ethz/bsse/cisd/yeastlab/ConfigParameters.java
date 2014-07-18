@@ -18,7 +18,7 @@ package ch.ethz.bsse.cisd.yeastlab;
 
 import java.util.Properties;
 
-import ch.systemsx.cisd.common.exception.ConfigurationFailureException;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.io.PropertyIOUtils;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 

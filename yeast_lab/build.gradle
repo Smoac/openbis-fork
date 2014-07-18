@@ -1,0 +1,15 @@
+evaluationDependsOn(':common')
+
+apply from: '../gradle/javaproject.gradle'
+
+dependencies {
+	compile project(':common')
+	
+	testCompile project(path: ':common', configuration: 'tests')
+} 
+
+jar {
+    from('targets/dist') {
+        include 'BUILD*INFO'
+    }  
+}
