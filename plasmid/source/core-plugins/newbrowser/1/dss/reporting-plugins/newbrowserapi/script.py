@@ -26,14 +26,22 @@ def process(tr, parameters, tableBuilder):
 	method = parameters.get("method");
 	
 	isOk = False;
-	if method == "insertSample":
-		isOk = insertUpdateSample(tr, parameters, tableBuilder);
-	if method == "updateSample":
-		isOk = insertUpdateSample(tr, parameters, tableBuilder);
+	
+	if method == "insertProject":
+		isOk = insertUpdateProject(tr, parameters, tableBuilder);
+	if method == "updateProject":
+		isOk = insertUpdateProject(tr, parameters, tableBuilder);
+	
 	if method == "insertExperiment":
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	if method == "updateExperiment":
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
+	
+	if method == "insertSample":
+		isOk = insertUpdateSample(tr, parameters, tableBuilder);
+	if method == "updateSample":
+		isOk = insertUpdateSample(tr, parameters, tableBuilder);
+	
 	if method == "insertDataSet":
 		isOk = insertDataSet(tr, parameters, tableBuilder);
 
@@ -60,6 +68,22 @@ def getThreadProperties(transaction):
       pass
   return threadPropertyDict
   
+def insertUpdateProject(tr, parameters, tableBuilder):
+	method = parameters.get("method"); #String
+	projectIdentifier = parameters.get("projectIdentifier"); #String
+	projectDescription = parameters.get("projectDescription"); #String
+	
+	project = None;
+	if method == "insertProject":
+		project = tr.createNewProject(projectIdentifier);
+	if method == "updateProject":
+		project = tr.getProjectForUpdate(projectIdentifier);
+	
+	project.setDescription(projectDescription);
+	
+	#Return from the call
+	return True;
+	
 def insertDataSet(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String

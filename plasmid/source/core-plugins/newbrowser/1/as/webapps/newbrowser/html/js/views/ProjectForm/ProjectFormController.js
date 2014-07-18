@@ -50,8 +50,7 @@ function ProjectFormController(mainController, mode, project) {
 					//API Method
 					"method" : method,
 					//Identification Info
-					"projectSpace" : this._projectFormModel.project.spaceCode,
-					"projectCode" : this._projectFormModel.project.code,
+					"projectIdentifier" : "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code,
 					"projectDescription" : this._projectFormModel.project.description
 			};
 			
@@ -71,7 +70,7 @@ function ProjectFormController(mainController, mode, project) {
 					}
 					
 					var callbackOk = function() {
-						_this._mainController.changeView("showProjectPageFromIdentifier", projectIdentifier);
+						_this._mainController.changeView("showProjectPageFromIdentifier", parameters["projectIdentifier"]);
 						Util.unblockUI();
 					}
 					
