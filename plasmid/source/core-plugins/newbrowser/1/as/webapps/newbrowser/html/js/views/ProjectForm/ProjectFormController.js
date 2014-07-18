@@ -37,6 +37,10 @@ function ProjectFormController(mainController, mode, project) {
 		this._mainController.changeView('showEditProjectPageFromPermId', this._projectFormModel.project.permId);
 	}
 	
+	this.isDirty = function() {
+		return this._projectFormModel.isFormDirty;
+	}
+	
 	this.updateProject = function() {
 		if(this._mainController.profile.allDataStores.length > 0) {
 			var method = "";

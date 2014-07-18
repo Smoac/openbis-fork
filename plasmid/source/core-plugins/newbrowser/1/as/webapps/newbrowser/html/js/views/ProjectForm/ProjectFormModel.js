@@ -16,5 +16,6 @@
 
 function ProjectFormModel(mode, project) {
 	this.mode = mode;
+	this.isFormDirty = false;
 	this.project = project;
 }

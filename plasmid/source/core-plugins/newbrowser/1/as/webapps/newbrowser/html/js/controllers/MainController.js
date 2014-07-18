@@ -210,6 +210,11 @@ function MainController(profile) {
 					window.scrollTo(0,0);
 				});
 				break;
+			case "showCreateProjectPage":
+				document.title = "Create Project";
+				this._showCreateProjectPage(arg);
+				window.scrollTo(0,0);
+				break;
 			case "showCreateExperimentPage":
 				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
 				var argsMap = JSON.parse(cleanText);
@@ -400,7 +405,14 @@ function MainController(profile) {
 			localInstance.currentView = sampleForm;
 		});
 	}
-
+	
+	this._showCreateProjectPage = function(spaceCode) {
+		//Show Form
+		var projectFormController = new ProjectFormController(this, FormMode.CREATE, {spaceCode : spaceCode});
+		projectFormController.init($("#mainContainer"));
+		this.currentView = projectFormController;
+	}
+	
 	this._showProjectPage = function(project) {
 		//Show Form
 		var projectFormController = new ProjectFormController(this, FormMode.VIEW, project);

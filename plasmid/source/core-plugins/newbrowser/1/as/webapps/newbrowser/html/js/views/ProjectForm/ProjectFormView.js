@@ -32,8 +32,13 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		//
 		// Title
 		//
-		
-		var $formTitle = $("<h2>").append("Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code);
+		var title = null;
+		if(this._projectFormModel.mode === FormMode.CREATE) {
+			title = "Create Project";
+		} else {
+			title = "Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code;
+		}
+		var $formTitle = $("<h2>").append(title);
 		$formColumn.append($formTitle);
 		
 		if(this._projectFormModel.mode === FormMode.VIEW) {
@@ -69,12 +74,23 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		
 		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
 		
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.spaceCode));
+		if(this._projectFormModel.mode === FormMode.CREATE) {
+			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
+			$textField.keyup(function(event){
+				_this._projectFormModel.project.code = $(this).val();
+				_this._projectFormModel.project.isFormDirty = true;
+			});
+			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+		} else {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.spaceCode));
+		}
 		
-		if(this._projectFormModel.mode === FormMode.EDIT) {
+		
+		if(this._projectFormModel.mode !== FormMode.VIEW) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
 			$textBox.keyup(function(event){
 				_this._projectFormModel.project.description = $(this).val();
+				_this._projectFormModel.project.isFormDirty = true;
 			});
 			$textBox.val(this._projectFormModel.project.description);
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
@@ -82,17 +98,26 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", this._projectFormModel.project.description));
 		}
 		
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._projectFormModel.project.registrationDetails.userId));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", new Date(this._projectFormModel.project.registrationDetails.registrationDate).toLocaleString()));
-		
-		if(this._projectFormModel.project.registrationDetails.modificationDate) {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", new Date(this._projectFormModel.project.registrationDetails.modificationDate).toLocaleString()));
-		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", "Never modified"));
+		if(this._projectFormModel.mode !== FormMode.CREATE) {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._projectFormModel.project.registrationDetails.userId));
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", new Date(this._projectFormModel.project.registrationDetails.registrationDate).toLocaleString()));
+			
+			if(this._projectFormModel.project.registrationDetails.modificationDate) {
+				$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", new Date(this._projectFormModel.project.registrationDetails.modificationDate).toLocaleString()));
+			} else {
+				$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", "Never modified"));
+			}
 		}
 		
-		if(this._projectFormModel.mode === FormMode.EDIT) {
-			var $updateBtn = $("<a>", { "class" : "btn btn-default"}).append("Update Project " + this._projectFormModel.project.code);
+		if(this._projectFormModel.mode !== FormMode.VIEW) {
+			var btnText = null;
+			if(this._projectFormModel.mode === FormMode.CREATE) {
+				btnText = "Create Project";
+			} else if(this._projectFormModel.mode === FormMode.EDIT) {
+				btnText = "Update Project " + this._projectFormModel.project.code;
+			}
+				
+			var $updateBtn = $("<a>", { "class" : "btn btn-default"}).append(btnText);
 			$updateBtn.click(function() {
 				_this._projectFormController.updateProject();
 			});
