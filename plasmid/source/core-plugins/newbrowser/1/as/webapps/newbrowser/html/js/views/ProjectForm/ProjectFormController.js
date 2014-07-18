@@ -17,9 +17,23 @@
 function ProjectFormController(mainController, mode, project) {
 	this._mainController = mainController;
 	this._projectFormModel = new ProjectFormModel(mode, project);
-	this._projectFormView = new ProjectFormView(this._projectFormModel);
+	this._projectFormView = new ProjectFormView(this, this._projectFormModel);
 	
 	this.init = function($container) {
 		this._projectFormView.repaint($container);
+	}
+	
+	this.createNewExperiment = function(experimentTypeCode) {
+		var argsMap = {
+				"experimentTypeCode" : experimentTypeCode,
+				"projectIdentifier" : "/" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code
+		}
+		var argsMapStr = JSON.stringify(argsMap);
+		
+		this._mainController.changeView("showCreateExperimentPage", argsMapStr);
+	}
+	
+	this.enableEditing = function() {
+		
 	}
 }

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-function ProjectFormView(projectFormModel) {
+function ProjectFormView(projectFormController, projectFormModel) {
+	this._projectFormController = projectFormController;
 	this._projectFormModel = projectFormModel;
+	
+	this._createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
 	
 	this.repaint = function($container) {
 		var _this = this;
@@ -29,31 +32,35 @@ function ProjectFormView(projectFormModel) {
 		//
 		// Title
 		//
+		
 		var $formTitle = $("<h2>").append("Project /" + this._projectFormModel.project.spaceCode + "/" + this._projectFormModel.project.code);
 		$formColumn.append($formTitle);
 		
-		var $createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
-		$createExpBtn.click(function() {
-			var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
-			Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
-			
-			$("#experimentTypeDropdown").on("change", function(event) {
-				var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
-				var argsMap = {
-						"experimentTypeCode" : experimentTypeCode,
-						"projectIdentifier" : "/" + _this._projectFormModel.project.spaceCode + "/" + _this._projectFormModel.project.code
-				}
-				var argsMapStr = JSON.stringify(argsMap);
+		if(this._projectFormModel.mode === FormMode.VIEW) {
+			var $createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
+			$createExpBtn.click(function() {
+				var $dropdown = FormUtil.getExperimentTypeDropdown("experimentTypeDropdown", true);
+				Util.blockUI("Select the type for the Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='experimentTypeDropdownCancel'>Cancel</a>");
 				
-				_this._mainController.changeView("showCreateExperimentPage", argsMapStr);
+				$("#experimentTypeDropdown").on("change", function(event) {
+					var experimentTypeCode = $("#experimentTypeDropdown")[0].value;
+					_this._projectFormController.createNewExperiment(experimentTypeCode);
+				});
+				
+				$("#experimentTypeDropdownCancel").on("click", function(event) { 
+					Util.unblockUI();
+				});
 			});
-			
-			$("#experimentTypeDropdownCancel").on("click", function(event) { 
-				Util.unblockUI();
+			$formTitle.append(" ");
+			$formTitle.append($createExpBtn);
+			$formTitle.append(" ");
+			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
+			$editBtn.click(function() {
+				_this._projectFormController.enableEditing();
 			});
-		});
-		$formTitle.append(" ");
-		$formTitle.append($createExpBtn);
+			$formTitle.append($editBtn);
+		}
+		
 		
 		//
 		// Metadata Fields
