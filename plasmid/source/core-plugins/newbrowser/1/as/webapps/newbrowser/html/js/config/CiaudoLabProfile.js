@@ -1,9 +1,9 @@
 
-function CaiudoLabProfile(serverFacade) {
+function CiaudoLabProfile(serverFacade) {
 	this.init(serverFacade);
 }
 
-$.extend(CiaudolLabProfile.prototype, DefaultProfile.prototype, {
+$.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
