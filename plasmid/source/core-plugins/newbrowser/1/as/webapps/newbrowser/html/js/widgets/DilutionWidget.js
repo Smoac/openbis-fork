@@ -30,12 +30,19 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 	this._widgetTableId = "dillution-widget-table";
 	this._totalVolume = null;
 	
-	this._antColIdx = 2;
-	this._conColIdx = 3;
-	this._cloColInx = 4;
-	this._dilColIdx = 7;
-	this._volColIdx = 8;
-	
+	// NOTE: When adding new columns please remember updating this list correctly
+	this._idxColIdx = 0; //This column should always be the 0
+	this._metColIdx = 1; //This column should always be the 1
+	this._antColIdx = 2; //This column should always be the 2
+	this._conColIdx = 3; //This column should always be the 3
+	this._cloColIdx = 4; //This column should always be the 4
+	this._tbnColIdx = 5;
+	this._reaColIdx = 6;
+	this._supColIdx = 7;
+	this._dilColIdx = 8;
+	this._volColIdx = 9; //This column should always be the last
+	// END NOTE
+
 	this.init = function() {
 		$("#"+this._containerId).append("Loading data for Dilution Widget.");
 		var _this = this;
@@ -127,12 +134,10 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 			var proteinPermId = $(this).val();
 			
 			//Clear row
-			_this._updateCell(rowNumber,3, "");
-			_this._updateCell(rowNumber,4, "");
-			_this._updateCell(rowNumber,5, "");
-			_this._updateCell(rowNumber,6, "");
-			_this._updateCell(rowNumber,7, "");
-			_this._updateCell(rowNumber,8, "");
+			for(var clearIdx = _this._conColIdx; clearIdx <= _this._volColIdx; clearIdx++) {
+				_this._updateCell(rowNumber,clearIdx, "");
+			}
+
 			_this._updateCalculatedValues();
 			//Update row
 			if(proteinPermId !== "") {
@@ -222,18 +227,19 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 			}
 			var dilutionVolume = parseFloat(data["conjugatedClone"].properties["CYTOF_STAINING_CONC"]) / parseFloat(data["conjugatedClone"].properties["CYTOF_CONCENTRATION"]);
 
-				if(conjugatedCloneSelected === "") {
-					_this._updateCell(rowNumber,4, "");
-					_this._updateCell(rowNumber,5, "");
-					_this._updateCell(rowNumber,6, "");
-					_this._updateCell(rowNumber,7, "");
-					_this._updateCell(rowNumber,8, "");
-				} else {
-					_this._updateCell(rowNumber,4, data["clone"].code);
-					_this._updateCell(rowNumber,5, data["clone"].properties["REACTIVITY"]);
-					_this._updateCell(rowNumber,6, data["lot"].properties["SUPPLIER"]);
-					_this._updateCell(rowNumber,7, dilutionVolume);
 
+				if(conjugatedCloneSelected === "") {
+					for(var clearIdx = _this._cloColIdx; clearIdx <= _this._volColIdx; clearIdx++) {
+						_this._updateCell(rowNumber,clearIdx, "");
+					}
+				} else {
+					// NOTE : When adding a new column please add it here
+					_this._updateCell(rowNumber,_this._cloColIdx, data["clone"].code);
+					_this._updateCell(rowNumber,_this._tbnColIdx, data["conjugatedClone"].properties["TUBE_NUMBER"]);
+					_this._updateCell(rowNumber,_this._reaColIdx, data["clone"].properties["REACTIVITY"]);
+					_this._updateCell(rowNumber,_this._supColIdx, data["lot"].properties["SUPPLIER"]);
+					_this._updateCell(rowNumber,_this._dilColIdx, dilutionVolume);
+					// END NOTE
 				}
 			_this._updateCalculatedValues();
 		}
@@ -426,23 +432,26 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 
 		//Headers
 		var $tableHeadTr = $("<tr>");
+		// NOTE : Add a TH when adding a new property
 		$tableHeadTr
 			.append("<th><center>Index</center></th>")
 			.append("<th><center>Metal Mass</center></th>")
 			.append("<th><center>Antibody</center></th>")
 			.append("<th><center>Conjugated Clone</center></th>")
 			.append("<th><center>Clone</center></th>")
+			.append("<th><center>Tube Number</center></th>")
 			.append("<th><center>Reactivity</center></th>")
 			.append("<th><center>Supplier</center></th>")
 			.append("<th><center>Dilution Factor</center></th>")
 			.append("<th><center>Volume To Add</center></th>");
 		$tableHead.append($tableHeadTr);
+		// END NOTE
 
 		for(var i = 0; i < this._predefinedMass.length; i++){
 			var $tableRowTr = $("<tr>");
 			
 			var $proteinSelectionTD = $("<td>").append(this._getProteinDropdown(i));
-			
+			// NOTE : Add a TD when adding a new property
 			$tableRowTr
 				.append("<td>" + (i+1) + "</td>")
 				.append("<td>" + this._predefinedMass[i] +"</td>")
@@ -452,8 +461,9 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 				.append("<td></td>")
 				.append("<td></td>")
 				.append("<td></td>")
+				.append("<td></td>")
 				.append("<td></td>");
-			
+			// END NOTE
 			$tableBody.append($tableRowTr);
 		}
 		
@@ -491,18 +501,27 @@ function DilutionWidget(containerId, serverFacade, isEnabled) {
 		
 				
 		var $tableRowTrF1 = $("<tr>");
-		$tableRowTrF1.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
+		for(var i = 0; i < _this._volColIdx - 1; i++) {
+			$tableRowTrF1.append("<td></td>");
+		}
+		$tableRowTrF1
 		.append("<td><b>Total Volume Needed</b></td>")
 		.append($tableRowTrF1TextBoxLastTD);
 		
 		$tableBody.append($tableRowTrF1);
 		var $tableRowTrF2 = $("<tr>");
-		$tableRowTrF2.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
+		for(var i = 0; i < _this._volColIdx - 1; i++) {
+			$tableRowTrF2.append("<td></td>");
+		}
+		$tableRowTrF2
 		.append("<td><b>Buffer Volume</b></td>")
 		.append("<td style='text-align : center;'>" + this._totalVolume + "</td>");
 		$tableBody.append($tableRowTrF2);
 		var $tableRowTrF3 = $("<tr>");
-		$tableRowTrF3.append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>").append("<td></td>")
+		for(var i = 0; i < _this._volColIdx - 1; i++) {
+			$tableRowTrF3.append("<td></td>");
+		}
+		$tableRowTrF3
 		.append("<td><b>Total Antibody</b></td>")
 		.append("<td style='text-align : center;'>0</td>");
 		$tableBody.append($tableRowTrF3);
