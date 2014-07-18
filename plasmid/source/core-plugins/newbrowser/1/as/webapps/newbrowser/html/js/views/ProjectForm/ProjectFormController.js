@@ -34,6 +34,14 @@ function ProjectFormController(mainController, mode, project) {
 	}
 	
 	this.enableEditing = function() {
-		
+		this._mainController.changeView('showEditProjectPageFromPermId', this._projectFormModel.project.permId);
+	}
+	
+	this.updateProject = function() {
+		if(this._mainController.profile.allDataStores.length > 0) {
+			
+		} else {
+			Util.showError("No DSS available.", function() {Util.unblockUI();});
+		}
 	}
 }

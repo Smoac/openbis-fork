@@ -66,13 +66,38 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		// Metadata Fields
 		//
 		$formColumn.append($("<legend>").append("Identification Info"));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.spaceCode));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Description", this._projectFormModel.project.description));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._projectFormModel.project.registrationDetails.userId));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", this._projectFormModel.project.registrationDetails.registrationDate));
-		$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", this._projectFormModel.project.registrationDetails.modificationDate));
 		
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Space", this._projectFormModel.project.spaceCode));
+		
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._projectFormModel.project.spaceCode));
+		
+		if(this._projectFormModel.mode === FormMode.EDIT) {
+			var $textBox = FormUtil._getTextBox(null, "Description", false);
+			$textBox.keyup(function(event){
+				_this._projectFormModel.project.description = $(this).val();
+			});
+			$textBox.val(this._projectFormModel.project.description);
+			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
+		} else {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Description", this._projectFormModel.project.description));
+		}
+		
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Registered By", this._projectFormModel.project.registrationDetails.userId));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", new Date(this._projectFormModel.project.registrationDetails.registrationDate).toLocaleString()));
+		
+		if(this._projectFormModel.project.registrationDetails.modificationDate) {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", new Date(this._projectFormModel.project.registrationDetails.modificationDate).toLocaleString()));
+		} else {
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Modification Date", "Never modified"));
+		}
+		
+		if(this._projectFormModel.mode === FormMode.EDIT) {
+			var $updateBtn = $("<a>", { "class" : "btn btn-default"}).append("Update Project " + this._projectFormModel.project.code);
+			$updateBtn.click(function() {
+				_this._projectFormController.updateProject();
+			});
+			$formColumn.append($updateBtn);
+		}
 		$container.append($form);
 	}
 }

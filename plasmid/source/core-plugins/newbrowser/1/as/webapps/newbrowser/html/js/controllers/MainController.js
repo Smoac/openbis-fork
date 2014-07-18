@@ -194,7 +194,14 @@ function MainController(profile) {
 					window.scrollTo(0,0);
 				});
 				break;
-				
+			case "showEditProjectPageFromPermId":
+				var _this = this;
+				this.serverFacade.getProjectFromPermId(arg, function(project) {
+					document.title = "Project " + project.code;
+					_this._showEditProjectPage(project);
+					window.scrollTo(0,0);
+				});
+				break;
 			case "showCreateExperimentPage":
 				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
 				var argsMap = JSON.parse(cleanText);
@@ -391,10 +398,13 @@ function MainController(profile) {
 		var projectFormController = new ProjectFormController(this, FormMode.VIEW, project);
 		projectFormController.init($("#mainContainer"));
 		this.currentView = projectFormController;
-		
-		//var projectForm = new ProjectForm("mainContainer", this, project);
-		//projectForm.init();
-		//this.currentView = projectForm;
+	}
+	
+	this._showEditProjectPage = function(project) {
+		//Show Form
+		var projectFormController = new ProjectFormController(this, FormMode.EDIT, project);
+		projectFormController.init($("#mainContainer"));
+		this.currentView = projectFormController;
 	}
 	
 	this._showExperimentPage = function(experiment, mode) {
