@@ -39,6 +39,48 @@ function ProjectFormController(mainController, mode, project) {
 	
 	this.updateProject = function() {
 		if(this._mainController.profile.allDataStores.length > 0) {
+			var method = "";
+			if(this._projectFormModel.mode === FormMode.CREATE) {
+				method = "insertProject";
+			} else if(this._projectFormModel.mode === FormMode.EDIT) {
+				method = "updateProject";
+			}
+			
+			var parameters = {
+					//API Method
+					"method" : method,
+					//Identification Info
+					"projectSpace" : this._projectFormModel.project.spaceCode,
+					"projectCode" : this._projectFormModel.project.code,
+					"projectDescription" : this._projectFormModel.project.description
+			};
+			
+			var _this = this;
+			this._mainController.serverFacade.createReportFromAggregationService(this._mainController.profile.allDataStores[0].code, parameters, function(response) {
+				if(response.error) { //Error Case 1
+					Util.showError(response.error.message, function() {Util.unblockUI();});
+				} else if (response.result.columns[1].title === "Error") { //Error Case 2
+					var stacktrace = response.result.rows[0][1].value;
+					Util.showStacktraceAsError(stacktrace);
+				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
+					var message = "";
+					if(_this._mode === FormMode.CREATE) {
+						message = "Created.";
+					} else if(_this._mode === FormMode.EDIT) {
+						message = "Updated.";
+					}
+					
+					var callbackOk = function() {
+						_this._mainController.changeView("showProjectPageFromIdentifier", projectIdentifier);
+						Util.unblockUI();
+					}
+					
+					Util.showSuccess(message, callbackOk);
+				} else { //This should never happen
+					Util.showError("Unknown Error.", function() {Util.unblockUI();});
+				}
+				
+			});
 			
 		} else {
 			Util.showError("No DSS available.", function() {Util.unblockUI();});
