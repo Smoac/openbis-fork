@@ -74,6 +74,7 @@ function ProjectFormController(mainController, mode, project) {
 					}
 					
 					var callbackOk = function() {
+						_this._projectFormModel.isFormDirty = false;
 						_this._mainController.changeView("showProjectPageFromIdentifier", parameters["projectIdentifier"]);
 						Util.unblockUI();
 					}

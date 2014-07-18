@@ -22,4 +22,8 @@ function SpaceFormController(mainController, space) {
 	this.init = function($container) {
 		this._spaceFormView.repaint($container);
 	}
+	
+	this.createProject = function() {
+		this._mainController.changeView('showCreateProjectPage', this._spaceFormModel.space.code);
+	}
 }

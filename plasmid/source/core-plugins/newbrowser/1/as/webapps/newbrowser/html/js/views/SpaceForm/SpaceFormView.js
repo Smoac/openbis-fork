@@ -28,8 +28,16 @@ function SpaceFormView(spaceFormController, spaceFormModel) {
 		$form.append($formColumn);
 		
 		var $formTitle = $("<h2>").append("Space " + this._spaceFormModel.space.code);
-		$formColumn.append($formTitle);
 		
+		var $btn = $("<a>", { "class" : "btn btn-default"}).append("Create Project");
+		$btn.click(function() {
+			_this._spaceFormController.createProject();
+		});
+		
+		$formTitle.append(" ");
+		$formTitle.append($btn);
+		
+		$formColumn.append($formTitle);
 		$container.append($form);
 	}
 }
