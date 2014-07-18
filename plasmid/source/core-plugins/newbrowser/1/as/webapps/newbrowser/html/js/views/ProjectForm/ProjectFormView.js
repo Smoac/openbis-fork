@@ -75,7 +75,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		if(this._projectFormModel.mode === FormMode.CREATE) {
 			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
 			$textField.keyup(function(event){
-				_this._projectFormModel.project.code = $(this).val();
+				var textField = $(this);
+				textField.val(textField.val().toUpperCase());
+				_this._projectFormModel.project.code = textField.val();
 				_this._projectFormModel.isFormDirty = true;
 			});
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));

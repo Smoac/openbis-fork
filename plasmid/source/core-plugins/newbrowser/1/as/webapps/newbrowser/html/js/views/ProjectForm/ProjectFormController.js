@@ -79,6 +79,7 @@ function ProjectFormController(mainController, mode, project) {
 						Util.unblockUI();
 					}
 					
+					_this._mainController.sideMenu.refreshProject(_this._projectFormModel.project.spaceCode, _this._projectFormModel.project.code);
 					Util.showSuccess(message, callbackOk);
 				} else { //This should never happen
 					Util.showError("Unknown Error.", function() {Util.unblockUI();});
