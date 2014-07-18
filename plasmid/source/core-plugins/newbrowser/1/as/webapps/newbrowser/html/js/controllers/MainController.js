@@ -186,6 +186,14 @@ function MainController(profile) {
 				this._showSearchPage(arg);
 				window.scrollTo(0,0);
 				break;
+			case "showSpacePage":
+				var _this = this;
+				this.serverFacade.getSpaceFromCode(arg, function(space) {
+					document.title = "Space " + space.code;
+					_this._showSpacePage(space);
+					window.scrollTo(0,0);
+				});
+				break;
 			case "showProjectPageFromIdentifier":
 				var _this = this;
 				this.serverFacade.getProjectFromIdentifier(arg, function(project) {
@@ -404,6 +412,13 @@ function MainController(profile) {
 			sampleForm.init();
 			localInstance.currentView = sampleForm;
 		});
+	}
+	
+	this._showSpacePage = function(space) {
+		//Show Form
+		var spaceFormController = new SpaceFormController(this, space);
+		spaceFormController.init($("#mainContainer"));
+		this.currentView = spaceFormController;
 	}
 	
 	this._showCreateProjectPage = function(spaceCode) {

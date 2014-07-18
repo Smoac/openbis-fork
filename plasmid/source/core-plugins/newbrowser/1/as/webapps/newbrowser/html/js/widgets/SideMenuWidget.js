@@ -158,7 +158,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				var newMenuIfSelectedSpace = {
 						children : []
 				}
-				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, 'showBlancPage', null, "(Space)");
+				var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code,  _this._menuStructure, newMenuIfSelectedSpace, 'showSpacePage', space.code, "(Space)");
 				_this._menuStructure.newMenuIfSelected.children.push(menuItemSpace);
 				
 				//Fill Projects

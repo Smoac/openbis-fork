@@ -65,6 +65,16 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, callbackFunction);
 	}
 	
+	this.getSpaceFromCode = function(spaceCode, callbackFunction) {
+		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+			data.result.forEach(function(space){
+				if(space.code === spaceCode) {
+					callbackFunction(space);
+				}
+			});
+		});
+	}
+	
 	this.listExperiments = function(projects, callbackFunction) {
 		this.openbisServer.listExperiments(projects, null, callbackFunction);
 	}
