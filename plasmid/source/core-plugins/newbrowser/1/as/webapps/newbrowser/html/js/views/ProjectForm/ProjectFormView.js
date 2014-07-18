@@ -78,7 +78,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $textField = FormUtil._getInputField('text', null, "Project Code", null, true);
 			$textField.keyup(function(event){
 				_this._projectFormModel.project.code = $(this).val();
-				_this._projectFormModel.project.isFormDirty = true;
+				_this._projectFormModel.isFormDirty = true;
 			});
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
 		} else {
@@ -90,7 +90,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			var $textBox = FormUtil._getTextBox(null, "Description", false);
 			$textBox.keyup(function(event){
 				_this._projectFormModel.project.description = $(this).val();
-				_this._projectFormModel.project.isFormDirty = true;
+				_this._projectFormModel.isFormDirty = true;
 			});
 			$textBox.val(this._projectFormModel.project.description);
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textBox, "Description"));
