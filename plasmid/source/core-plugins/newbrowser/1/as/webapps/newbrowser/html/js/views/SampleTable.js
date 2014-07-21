@@ -513,14 +513,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 							}
 						} else if (localReference.isSearch && index == 5) {
 							if(localReference.isSearch && !sampleData["PROPERTIES_JSON"]) {
-								var propertiesString = "";
-								for(propertyKey in sampleData.properties) {
-									if(propertiesString.length > 0) {
-										propertiesString += " , ";
-									}
-									propertiesString += "<b>" + propertyKey + "</b> : " + sampleData.properties[propertyKey];
-								}
-								sampleData["PROPERTIES_JSON"] = propertiesString;
+								sampleData["PROPERTIES_JSON"] = Util.getMapAsString(sampleData.properties);
 							}
 							
 							var toShow = sampleData["PROPERTIES_JSON"];
@@ -778,14 +771,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 					if(this.sampleTypeCode === "SEARCH") {
 						//Fix for not populated field, (not shown samples)
 						if(!this.samples[i]["PROPERTIES_JSON"]) {
-							var propertiesString = "";
-							for(propertyKey in this.samples[i].properties) {
-								if(propertiesString.length > 0) {
-									propertiesString += " , ";
-								}
-								propertiesString += "<b>" + propertyKey + "</b> : " + this.samples[i].properties[propertyKey];
-							}
-							this.samples[i]["PROPERTIES_JSON"] = propertiesString;
+							this.samples[i]["PROPERTIES_JSON"] = Util.getMapAsString(this.samples[i].properties);
 						}
 						
 						filterValueTokensPassed[j] = this.samples[i].sampleTypeCode.toLowerCase().indexOf(filterValueTokens[j]) !== -1 ||

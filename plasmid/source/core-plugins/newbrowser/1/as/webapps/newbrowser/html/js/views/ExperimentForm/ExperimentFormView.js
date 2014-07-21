@@ -186,6 +186,33 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append($fieldset);
 		}
 		
+		if(this._experimentFormModel.mode === FormMode.VIEW || this._experimentFormModel.mode === FormMode.EDIT) {
+			var $subExperiments = $('<div>').append($('<legend>').text("Sub Experiments"));
+			var $subExperimentsList = $('<div>', { "id" : "samplesDataSource" });
+			$subExperiments.append($subExperimentsList);
+			this._experimentFormController._mainController.serverFacade.listSamplesForExperiments([this._experimentFormModel.experiment], function(data) {
+				if(data.result && data.result.length > 0) {
+					//Table Structure
+					var $table = $("<table>", { class : "table" });
+					var $thead = $("<thead>");
+					var $tbody = $("<tbody>");
+					$table.append($thead).append($tbody);
+					$thead.append($("<tr>").append("<th>Code</th>").append("<th>Type</th>").append("<th>Metadata</th>"));
+					for(var i = 0; i < data.result.length; i++) {
+						var subExperiment = data.result[i];
+						var link = $("<a>", { "style" : "cursor:pointer;" }).append(subExperiment.code);
+						link.click(function() {
+							_this._experimentFormController._mainController.changeView("showViewSamplePageFromPermId", subExperiment.permId);
+						});
+						$tbody.append($("<tr>").append($("<td>").append(link)).append("<td>" + subExperiment.sampleTypeCode + "</td>").append("<td>" + Util.getMapAsString(subExperiment.properties, 200) + "</td>"));
+					}
+					$subExperimentsList.append($table);
+				} else {
+					$subExperimentsList.append("This experiment don't have sub experiments.");
+				}
+			});
+			$formColumn.append($subExperiments);
+		}
 		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
 			var label = "";
 			
@@ -204,6 +231,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		
 		$container.append($form);
+		
 		Util.unblockUI();
 	}
 }

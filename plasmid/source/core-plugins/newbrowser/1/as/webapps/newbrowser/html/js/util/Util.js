@@ -240,6 +240,21 @@ var Util = new function() {
 	//
 	// Other
 	//
+	this.getMapAsString = function(map, length) {
+		var mapAsString = "";
+		for(key in map) {
+			if(mapAsString.length > 0) {
+				mapAsString += " , ";
+			}
+			mapAsString += "<b>" + key + "</b> : " + map[key];
+		}
+		
+		if(length && mapAsString.length > length) {
+			mapAsString = mapAsString.substring(0, length) + " ...";
+		}
+		return mapAsString;
+	}
+	
 	this.getEmptyIfNull = function(toCheck) {
 		if(	toCheck === undefined ||
 			toCheck === null ||
