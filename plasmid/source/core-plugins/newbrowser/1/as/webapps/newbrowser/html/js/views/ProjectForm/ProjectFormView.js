@@ -117,7 +117,7 @@ function ProjectFormView(projectFormController, projectFormModel) {
 				btnText = "Update Project " + this._projectFormModel.project.code;
 			}
 				
-			var $updateBtn = $("<a>", { "class" : "btn btn-default"}).append(btnText);
+			var $updateBtn = $("<a>", { "class" : "btn btn-primary"}).append(btnText);
 			$updateBtn.click(function() {
 				_this._projectFormController.updateProject();
 			});

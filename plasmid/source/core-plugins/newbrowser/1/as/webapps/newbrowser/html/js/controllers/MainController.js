@@ -444,9 +444,9 @@ function MainController(profile) {
 	
 	this._showExperimentPage = function(experiment, mode) {
 		//Show Form
-		var experimentForm = new ExperimentForm("mainContainer", this, experiment, mode);
-		experimentForm.init();
-		this.currentView = experimentForm;
+		var experimentFormController = new ExperimentFormController(this, mode, experiment);
+		experimentFormController.init($("#mainContainer"));
+		this.currentView = experimentFormController;
 	}
 	
 	this._showViewSamplePage = function(sample, isELNSubExperiment) {

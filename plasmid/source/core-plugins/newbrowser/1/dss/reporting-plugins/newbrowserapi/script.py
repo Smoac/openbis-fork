@@ -240,9 +240,6 @@ def insertUpdateExperiment(tr, parameters, tableBuilder):
 	
 	#Mandatory parameters
 	experimentType = parameters.get("experimentType"); #String
-	experimentSpace = parameters.get("experimentSpace"); #String
-	experimentProject = parameters.get("experimentProject"); #String
-	experimentCode = parameters.get("experimentCode"); #String
 	experimentIdentifier = parameters.get("experimentIdentifier"); #String
 	experimentProperties = parameters.get("experimentProperties"); #java.util.LinkedHashMap<String, String> where the key is the name
 	
