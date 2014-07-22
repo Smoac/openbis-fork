@@ -152,6 +152,10 @@ def insertDataSet(tr, parameters, tableBuilder):
 	
 def copySample(tr, parameters, tableBuilder):
 	#Store Children to copy later
+	sampleSpace = parameters.get("sampleSpace"); #String
+	sampleCode = parameters.get("sampleCode"); #String
+	sampleIdentifier = '/' + sampleSpace + '/' + sampleCode;
+	
 	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
 	parameters.put("sampleChildren", []); #List<String> Identifiers are in SPACE/CODE format
 	
@@ -160,8 +164,17 @@ def copySample(tr, parameters, tableBuilder):
 	insertUpdateSample(tr, parameters, tableBuilder);
 	
 	#Copy children and attach to Sample
-	
-	
+	if sampleChildren != None:
+		for sampleChildIdentifier in sampleChildren:
+			child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample child to copy
+			copyChildCode = parameters.get("sampleCode") + "_" + child.getCode();
+			copyChildIdentifier = "/" + parameters.get("sampleSpace") + "/" + copyChildCode;
+			
+			# Create new sample children
+			child = tr.createNewSample(copyChildIdentifier, child.getSampleType()); #Create Sample given his id
+			childParents = child.getParentSampleIdentifiers();
+			childParents.add(sampleIdentifier);
+			child.setParentSampleIdentifiers(childParents);
 	return True;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):
@@ -223,7 +236,6 @@ def insertUpdateSample(tr, parameters, tableBuilder):
 	if sampleChildrenNew != None:
 		for newSampleChild in sampleChildrenNew:
 			child = tr.createNewSample(newSampleChild["identifier"], newSampleChild["sampleTypeCode"]); #Create Sample given his id
-			child.setParentSampleIdentifiers([sampleIdentifier]);
 			for key in newSampleChild["properties"].keySet():
 				propertyValue = unicode(newSampleChild["properties"][key]);
 				if propertyValue == "":
