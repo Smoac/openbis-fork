@@ -37,6 +37,8 @@ def process(tr, parameters, tableBuilder):
 	if method == "updateExperiment":
 		isOk = insertUpdateExperiment(tr, parameters, tableBuilder);
 	
+	if method == "copySample":
+		isOk = copySample(tr, parameters, tableBuilder);
 	if method == "insertSample":
 		isOk = insertUpdateSample(tr, parameters, tableBuilder);
 	if method == "updateSample":
@@ -146,6 +148,20 @@ def insertDataSet(tr, parameters, tableBuilder):
 		dss_component.deleteSessionWorkspaceFile(fileName);
 	
 	#Return from the call
+	return True;
+	
+def copySample(tr, parameters, tableBuilder):
+	#Store Children to copy later
+	sampleChildren = parameters.get("sampleChildren"); #List<String> Identifiers are in SPACE/CODE format
+	parameters.put("sampleChildren", []); #List<String> Identifiers are in SPACE/CODE format
+	
+	#Create new Sample
+	parameters.put("method", "insertSample"); #List<String> Identifiers are in SPACE/CODE format
+	insertUpdateSample(tr, parameters, tableBuilder);
+	
+	#Copy children and attach to Sample
+	
+	
 	return True;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):

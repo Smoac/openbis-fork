@@ -300,7 +300,17 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		$( "#copyButton" ).click(function() {
 			var component = "<div class='form-horizontal'>"
 				component += "<legend>Duplicate Entity</legend>";
-				component += "<span class='glyphicon glyphicon-warning-sign'></span> The duplicate will not have parents or children: <br><br>";
+				component += "<div class='form-inline'>";
+				component += "<div class='form-group col-md-9'>";
+				component += "<label class='control-label col-md-2'>Options </label>";
+				component += "<div class='" + localReference.controlColumnClass + "'>";
+				component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy' checked> Link Parents </label></span>";
+				component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+				component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy' checked> Copy Children </label></span>";
+				component += "</div>";
+				component += "</div>";
+				component += "</div>";
+				component += "<br /><br />";
 				component += "<div class='form-group col-md-9'>";
 				component += "<label class='control-label  " + localReference.labelColumnClass+ "'>Code&nbsp;(*):</label>";
 				component += "<div class='" + localReference.controlColumnClass + "'>";
@@ -324,10 +334,12 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				
 			$("#copyAccept").on("click", function(event) {
 				var newSampleCodeForCopy = $("#newSampleCodeForCopy");
+				var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
+				var copyChildrenOnCopy = $("#copyChildrenOnCopy")[0].checked;
 				var isValid = newSampleCodeForCopy[0].checkValidity();
 				if(isValid) {
 					var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
-					localReference.createSample(newSampleCodeForCopyValue);
+					localReference.createSample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
 					Util.unblockUI();
 				} else {
 					Util.showError("Invalid code.", function() {}, true);
@@ -658,7 +670,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 	}
 	
-	this.createSample = function(isCopyWithNewCode) {
+	this.createSample = function(isCopyWithNewCode, linkParentsOnCopy, copyChildrenOnCopy) {
 		Util.blockUI();
 		var localReference = this;
 		
@@ -798,10 +810,14 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		};
 		
 		if(isCopyWithNewCode) {
-			parameters["method"] = "insertSample";
+			parameters["method"] = "copySample";
 			parameters["sampleCode"] = isCopyWithNewCode;
-			parameters["sampleParents"] = [];
-			parameters["sampleChildren"] = [];
+			if(!linkParentsOnCopy) {
+				parameters["sampleParents"] = [];
+			}
+			if(!copyChildrenOnCopy) {
+				parameters["sampleChildren"] = [];
+			}
 			parameters["sampleChildrenNew"] = [];
 			parameters["sampleChildrenRemoved"] = [];
 		}

@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-function ExamineModel() {
+function StickersNavigatorModel() {
 	this.inspectedEntities = new Array();
 }

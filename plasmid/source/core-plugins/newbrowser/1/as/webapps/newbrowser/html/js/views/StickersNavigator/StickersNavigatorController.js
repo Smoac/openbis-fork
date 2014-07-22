@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function ExamineController(mainController) {
+function StickersNavigatorController(mainController) {
 	this._mainController = mainController;
 	this._examineModel = new ExamineModel();
 	this._examineView = new ExamineView(this._examineModel);

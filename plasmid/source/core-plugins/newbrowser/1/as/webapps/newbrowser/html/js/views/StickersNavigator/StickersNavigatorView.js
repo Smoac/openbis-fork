@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-function ExamineView(examineModel) {
+function StickersNavigatorView(examineModel) {
 	this._examineModel = examineModel;
 	
 	this.repaint = function($container) {
