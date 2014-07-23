@@ -25,9 +25,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		var $form = $("<div>", { "class" : "row"});
 		var $formColumn = $("<form>", { 
 			"class" : FormUtil.formColumClass + " form-horizontal", 
-			'role' : "form", 
-			"action" : "javascript:void(0);", 
-			"onsubmit" : "mainController.currentView._updateExperiment();"
+			'role' : "form"
 		});
 			
 		$form.append($formColumn);
@@ -140,29 +138,31 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, this._experimentFormModel.experiment.properties[propertyType.code]);
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
-					var propertyTypeCode = null;
 					//Update values if is into edit mode
 					if(this._experimentFormModel.mode === FormMode.EDIT) {
+						var value = this._experimentFormModel.experiment.properties[propertyType.code];
+						var isSystemProperty = false;
+						if(!value && propertyType.code.charAt(0) === '$') {
+							value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
+							isSystemProperty = true;
+						}
 						if(propertyType.dataType === "BOOLEAN") {
-							$($component.children()[0]).prop('checked', this._experimentFormModel.experiment.properties[propertyType.code] === "true");
-							propertyTypeCode = propertyType.code;
+							$($component.children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {
-							var value = this._experimentFormModel.experiment.properties[propertyType.code];
 							$($($component.children()[0]).children()[0]).val(value);
-							propertyTypeCode = propertyType.code;
 						} else {
-							var value = this._experimentFormModel.experiment.properties[propertyType.code];
-							propertyTypeCode = propertyType.code;
-							if(!value && propertyType.code.charAt(0) === '$') {
-								value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
-								propertyTypeCode = propertyType.code.substr(1);
-							}
 							$component.val(value);
 						}
 					}
 					
-					var changeEvent = function(propertyType, propertyTypeCode) {
+					var changeEvent = function(propertyType, isSystemProperty) {
 						return function() {
+							var propertyTypeCode = null;
+							if(isSystemProperty) {
+								propertyTypeCode = propertyType.code.substr(1);
+							} else {
+								propertyTypeCode = propertyType.code;
+							}
 							_this._experimentFormModel.isFormDirty = true;
 							var field = $(this);
 							if(propertyType.dataType === "BOOLEAN") {
@@ -176,7 +176,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						}
 					}
 					
-					$component.change(changeEvent(propertyType, propertyTypeCode));
+					$component.change(changeEvent(propertyType));
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
 				
