@@ -149,7 +149,7 @@ public class SampleSearchTest extends AbstractSampleTest
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withRegistrationDate().withShortFormat().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, 13);
+        testSearch(TEST_USER, criterion, 14);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class SampleSearchTest extends AbstractSampleTest
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withModificationDate().withShortFormat().thatEquals("2009-08-18");
-        testSearch(TEST_USER, criterion, 12);
+        testSearch(TEST_USER, criterion, 13);
     }
 
     @Test

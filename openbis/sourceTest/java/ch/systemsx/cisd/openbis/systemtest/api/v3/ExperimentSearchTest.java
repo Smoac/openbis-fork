@@ -61,7 +61,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withProject().withCode().thatEquals("NOE");
-        testSearch(TEST_USER, criterion, "/CISD/NOE/EXP-TEST-2");
+        testSearch(TEST_USER, criterion, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
@@ -69,7 +69,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withProject().withSpace().withCode().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
@@ -133,7 +133,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withAnyField().thatEquals("EXP-TEST-2");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
@@ -149,7 +149,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withRegistrationDate().withShortFormat().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 
     @Test
@@ -157,7 +157,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withRegistrationDate().withShortFormat().thatIsLaterThanOrEqualTo("2009-02-09");
-        testSearch(TEST_USER, criterion, 3);
+        testSearch(TEST_USER, criterion, 4);
     }
 
     @Test
@@ -173,7 +173,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withModificationDate().withShortFormat().thatEquals("2009-03-18");
-        testSearch(TEST_USER, criterion, 10);
+        testSearch(TEST_USER, criterion, 11);
     }
 
     @Test
