@@ -166,15 +166,23 @@ def copySample(tr, parameters, tableBuilder):
 	#Copy children and attach to Sample
 	if sampleChildren != None:
 		for sampleChildIdentifier in sampleChildren:
-			child = tr.getSampleForUpdate(sampleChildIdentifier); #Retrieve Sample child to copy
+			child = tr.getSample(sampleChildIdentifier); #Retrieve Sample child to copy
 			copyChildCode = parameters.get("sampleCode") + "_" + child.getCode();
 			copyChildIdentifier = "/" + parameters.get("sampleSpace") + "/" + copyChildCode;
 			
 			# Create new sample children
-			child = tr.createNewSample(copyChildIdentifier, child.getSampleType()); #Create Sample given his id
-			childParents = child.getParentSampleIdentifiers();
+			childCopy = tr.createNewSample(copyChildIdentifier, child.getSampleType()); #Create Sample given his id
+			childParents = childCopy.getParentSampleIdentifiers();
 			childParents.add(sampleIdentifier);
-			child.setParentSampleIdentifiers(childParents);
+			childCopy.setParentSampleIdentifiers(childParents);
+			searchService = tr.getSearchService();
+			propertiesDefinitions = searchService.listPropertiesDefinitionsForSampleType(child.getSampleType());
+			for propertyDefinition in propertiesDefinitions:
+				propCode = propertyDefinition.getPropertyTypeCode();
+				propValue = child.getPropertyValue(propCode);
+				if propValue != None:
+					childCopy.setPropertyValue(propCode, propValue);
+			
 	return True;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):
