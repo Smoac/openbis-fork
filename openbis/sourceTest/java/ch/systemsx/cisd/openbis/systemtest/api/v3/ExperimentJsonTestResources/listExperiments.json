@@ -1,0 +1,12 @@
+{
+	"method":"listExperiments",
+	"params":[
+		"%s",
+		[
+			{"@type" : "ExperimentPermId", "permId" : "%s"}
+		],
+		%s
+	],
+	"id":"1",
+	"jsonrpc":"2.0"
+}

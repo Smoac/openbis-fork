@@ -39,8 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 public interface IServer extends ISessionProvider
 {
     /**
-     * Every time some public class in this package or subpackage is changed, we should increment
-     * the appropriate variable.
+     * Every time some public class in this package or subpackage is changed, we should increment the appropriate variable.
      */
     public static final int VERSION = ServiceVersionHolder.VERSION;
 
@@ -63,6 +62,14 @@ public interface IServer extends ISessionProvider
     @Transactional
     public SessionContextDTO tryAuthenticate(final String user, final String password);
 
+    /**
+     * Tries to authenticate the specified user with given password to act as another user. Only instance admin users are allowed to do it.
+     * 
+     * @return <code>null</code> if authentication failed.
+     */
+    @Transactional
+    public SessionContextDTO tryAuthenticateAs(final String user, final String password, final String asUser);
+
     @Transactional
     public SessionContextDTO tryAuthenticateAnonymously();
 
@@ -77,8 +84,7 @@ public interface IServer extends ISessionProvider
     public void checkSession(final String sessionToken) throws InvalidSessionException;
 
     /**
-     * Sets the base URL (including "index.html") that the web server is reachable at for this
-     * client.
+     * Sets the base URL (including "index.html") that the web server is reachable at for this client.
      */
     @Transactional
     public void setBaseIndexURL(String sessionToken, String baseIndexURL);
@@ -122,7 +128,7 @@ public interface IServer extends ISessionProvider
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value =
-        { ObjectKind.PERSON, ObjectKind.AUTHORIZATION_GROUP, ObjectKind.ROLE_ASSIGNMENT })
+    { ObjectKind.PERSON, ObjectKind.AUTHORIZATION_GROUP, ObjectKind.ROLE_ASSIGNMENT })
     public void deactivatePersons(String sessionToken, List<String> personsCodes);
 
     /**
@@ -132,11 +138,11 @@ public interface IServer extends ISessionProvider
     public int countActivePersons(String sessionToken);
 
     /**
-     * Sets the user that owns this session. All methods called after this method are called with
-     * the privileges of the user specified by <var>userCode</code>.
+     * Sets the user that owns this session. All methods called after this method are called with the privileges of the user specified by
+     * <var>userCode</code>.
      * <p>
-     * This method may only be called by an administrator and only from an explicitly allowed IP
-     * address or else it will throw an {@link AuthorizationFailureException}.
+     * This method may only be called by an administrator and only from an explicitly allowed IP address or else it will throw an
+     * {@link AuthorizationFailureException}.
      */
     @Transactional(readOnly = true)
     public void setSessionUser(String sessionToken, String userID);

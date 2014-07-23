@@ -22,11 +22,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.material.IMaterialId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.ISampleId;
 
 /**
  * @author Jakub Straszewski

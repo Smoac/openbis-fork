@@ -115,8 +115,8 @@ public class JsonTestObjectMapper extends ObjectMapper
 
     private static IJsonBaseTypeToSubTypesMapping getTypeMapping()
     {
-        return new JsonReflectionsBaseTypeToSubTypesMapping(JsonTestObjectMapper.class.getPackage()
-                .getName());
+        return new JsonReflectionsBaseTypeToSubTypesMapping(new String[] { JsonTestObjectMapper.class.getPackage()
+                .getName() });
     }
 
 }

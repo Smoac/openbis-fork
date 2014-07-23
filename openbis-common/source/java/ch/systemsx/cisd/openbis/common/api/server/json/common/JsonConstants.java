@@ -28,8 +28,6 @@ public class JsonConstants
 
     private static final String LEGACY_CLASS_FIELD = "@class";
 
-    private static final String CLASSES_PREFIX = "ch.systemsx";
-
     public static final String getIdField()
     {
         return ID_FIELD;
@@ -43,11 +41,6 @@ public class JsonConstants
     public static final String getLegacyClassField()
     {
         return LEGACY_CLASS_FIELD;
-    }
-
-    public static final String getClassesPrefix()
-    {
-        return CLASSES_PREFIX;
     }
 
 }

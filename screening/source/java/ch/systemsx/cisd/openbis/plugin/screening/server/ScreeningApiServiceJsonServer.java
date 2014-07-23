@@ -21,7 +21,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.json.ObjectMapperResource;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 
@@ -30,15 +33,19 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
  */
 @Controller
 @RequestMapping(
-    { IScreeningApiServer.JSON_SERVICE_URL, "/openbis" + IScreeningApiServer.JSON_SERVICE_URL })
+{ IScreeningApiServer.JSON_SERVICE_URL, "/openbis" + IScreeningApiServer.JSON_SERVICE_URL })
 public class ScreeningApiServiceJsonServer extends AbstractApiJsonServiceExporter
 {
+    @Resource(name = ObjectMapperResource.NAME)
+    private ObjectMapper objectMapper;
+
     @Resource(name = ResourceNames.SCREENING_PLUGIN_SERVER)
     private IScreeningApiServer server;
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
+        setObjectMapper(objectMapper);
         establishService(IScreeningApiServer.class, new ScreeningServerJson(server),
                 IScreeningApiServer.SERVICE_NAME, IScreeningApiServer.JSON_SERVICE_URL);
         super.afterPropertiesSet();

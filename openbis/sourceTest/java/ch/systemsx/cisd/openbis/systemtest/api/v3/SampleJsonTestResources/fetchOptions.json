@@ -1,0 +1,51 @@
+{
+	"@type" : "SampleFetchOptions",
+	
+	"sampleType" : {
+		"@type" : "SampleTypeFetchOptions"
+	},
+	
+	"space" : {
+		"@type" : "SpaceFetchOptions"
+	},
+	
+	"experiment" : {
+		"@type" : "ExperimentFetchOptions"
+	},
+	
+	"properties" : {
+		"@type" : "PropertyFetchOptions"
+	},
+	
+	"parents" : {
+		"@type" : "SampleFetchOptions"
+	},
+	
+	"children" : {
+		"@type" : "SampleFetchOptions"
+	},
+	
+	"container" : {
+		"@type" : "SampleFetchOptions"
+	},
+	
+	"contained" : {
+		"@type" : "SampleFetchOptions"
+	},
+	
+	"tags" : {
+		"@type" : "TagFetchOptions"
+	},
+	
+	"registrator" : {
+		"@type" : "PersonFetchOptions"
+	},
+	
+	"modifier" : {
+		"@type" : "PersonFetchOptions"
+	},
+	
+	"attachments" : {
+		"@type" : "AttachmentFetchOptions"
+	}
+}

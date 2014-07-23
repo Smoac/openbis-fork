@@ -17,27 +17,30 @@
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
 /**
- * 
- *
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public class SimpleSession implements IAuthSession
 {
     private static final long serialVersionUID = 1L;
-    
+
     private String userName;
+
     private String homeGroupCode;
+
     private PersonPE person;
-    
+
+    private PersonPE creatorPerson;
+
     public SimpleSession()
     {
     }
-    
+
     public SimpleSession(IAuthSession session)
     {
         setUserName(session.getUserName());
         setHomeGroupCode(session.tryGetHomeGroupCode());
         setPerson(session.tryGetPerson());
+        setCreatorPerson(session.tryGetCreatorPerson());
     }
 
     public final String getHomeGroupCode()
@@ -58,6 +61,16 @@ public class SimpleSession implements IAuthSession
     public final void setPerson(PersonPE person)
     {
         this.person = person;
+    }
+
+    public PersonPE getCreatorPerson()
+    {
+        return creatorPerson;
+    }
+
+    public final void setCreatorPerson(PersonPE creatorPerson)
+    {
+        this.creatorPerson = creatorPerson;
     }
 
     public final void setUserName(String userName)
@@ -83,5 +96,10 @@ public class SimpleSession implements IAuthSession
         return getPerson();
     }
 
+    @Override
+    public PersonPE tryGetCreatorPerson()
+    {
+        return getCreatorPerson();
+    }
 
 }

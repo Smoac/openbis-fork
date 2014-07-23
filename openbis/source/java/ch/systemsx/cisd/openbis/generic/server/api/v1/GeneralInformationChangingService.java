@@ -36,6 +36,7 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModificatio
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
@@ -177,7 +178,7 @@ public class GeneralInformationChangingService extends
         Metaproject update = new Metaproject();
         update.setName(name);
         update.setDescription(descriptionOrNull);
-        return server.updateMetaproject(sessionToken, metaprojectId, update);
+        return server.updateMetaproject(sessionToken, Translator.translate(metaprojectId), update);
     }
 
     @Override
@@ -185,7 +186,7 @@ public class GeneralInformationChangingService extends
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void deleteMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
-        server.deleteMetaproject(sessionToken, metaprojectId, null);
+        server.deleteMetaproject(sessionToken, Translator.translate(metaprojectId), null);
     }
 
     @Override
@@ -194,7 +195,7 @@ public class GeneralInformationChangingService extends
     public void addToMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToAdd)
     {
-        server.addToMetaproject(sessionToken, metaprojectId, assignmentsToAdd);
+        server.addToMetaproject(sessionToken, Translator.translate(metaprojectId), Translator.translate(assignmentsToAdd));
     }
 
     @Override
@@ -203,7 +204,7 @@ public class GeneralInformationChangingService extends
     public void removeFromMetaproject(String sessionToken, IMetaprojectId metaprojectId,
             MetaprojectAssignmentsIds assignmentsToRemove)
     {
-        server.removeFromMetaproject(sessionToken, metaprojectId, assignmentsToRemove);
+        server.removeFromMetaproject(sessionToken, Translator.translate(metaprojectId), Translator.translate(assignmentsToRemove));
     }
 
     @Override

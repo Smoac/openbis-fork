@@ -405,7 +405,7 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
     }
 
     @Override
-    public List<SamplePE> listByPermID(Set<String> values)
+    public List<SamplePE> listByPermID(Collection<String> values)
     {
         return listByIDsOfName("permId", values);
     }
@@ -657,6 +657,219 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     results.size()));
         }
         return transformNumbers2TechIdList(results);
+    }
+
+    @Override
+    public void setSampleContainer(final Long sampleId, final Long containerId)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery q = session.createSQLQuery("update samples set samp_id_part_of = :containerId where id = :sampleId");
+                    q.setLong("containerId", containerId);
+                    q.setLong("sampleId", sampleId);
+                    q.executeUpdate();
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void setSampleContained(final Long sampleId, final Collection<Long> containedIds)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery clearQuery =
+                            session.createSQLQuery("update samples set samp_id_part_of = null where id not in :containedIds and samp_id_part_of = :containerId");
+                    clearQuery.setLong("containerId", sampleId);
+                    clearQuery.setParameterList("containedIds", containedIds);
+                    clearQuery.executeUpdate();
+
+                    addSampleContained(sampleId, containedIds);
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void addSampleContained(final Long sampleId, final Collection<Long> containedIds)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery setQuery =
+                            session.createSQLQuery("update samples set samp_id_part_of = :containerId where id in :containedIds");
+                    setQuery.setLong("containerId", sampleId);
+                    setQuery.setParameterList("containedIds", containedIds);
+                    setQuery.executeUpdate();
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void removeSampleContained(final Long sampleId, final Collection<Long> containedIds)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery clearQuery =
+                            session.createSQLQuery("update samples set samp_id_part_of = null where id in :containedIds and samp_id_part_of = :containerId");
+                    clearQuery.setLong("containerId", sampleId);
+                    clearQuery.setParameterList("containedIds", containedIds);
+                    clearQuery.executeUpdate();
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void setSampleRelationshipChildren(final Long sampleId, final Collection<Long> childrenIds, final Long relationshipId,
+            final PersonPE author)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery q =
+                            session.createSQLQuery("delete from sample_relationships where sample_id_child not in :childrenIds and sample_id_parent = :parentId and relationship_id = :relationshipId");
+                    q.setParameterList("childrenIds", childrenIds);
+                    q.setLong("parentId", sampleId);
+                    q.setLong("relationshipId", relationshipId);
+
+                    q.executeUpdate();
+
+                    addSampleRelationshipChildren(sampleId, childrenIds, relationshipId, author);
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void addSampleRelationshipChildren(final Long sampleId, final Collection<Long> childrenIds, final Long relationshipId,
+            final PersonPE author)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    for (Long relatedSampleId : childrenIds)
+                    {
+                        SQLQuery q =
+                                session.createSQLQuery("insert into sample_relationships (id, sample_id_parent, sample_id_child, relationship_id, pers_id_author, registration_timestamp, modification_timestamp) "
+                                        + "select nextval('sample_relationship_id_seq'),  :parentId, :childId, :relationshipId, :authorId, now(), now() where not exists "
+                                        + "(select 1 from sample_relationships where sample_id_parent = :parentId and sample_id_child = :childId and relationship_id = :relationshipId)");
+                        q.setLong("parentId", sampleId);
+                        q.setLong("childId", relatedSampleId);
+                        q.setLong("relationshipId", relationshipId);
+                        q.setLong("authorId", author.getId());
+
+                        q.executeUpdate();
+                    }
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void removeSampleRelationshipChildren(final Long sampleId, final Collection<Long> childrenIds, final Long relationshipId,
+            final PersonPE author)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery q =
+                            session.createSQLQuery("delete from sample_relationships where sample_id_parent = :parentId and sample_id_child in :childrenIds and relationship_id = :relationshipId");
+                    q.setLong("parentId", sampleId);
+                    q.setParameterList("childrenIds", childrenIds);
+                    q.setLong("relationshipId", relationshipId);
+
+                    q.executeUpdate();
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void setSampleRelationshipParents(final Long sampleId, final Collection<Long> parentsIds, final Long relationshipId, final PersonPE author)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery q =
+                            session.createSQLQuery("delete from sample_relationships where sample_id_parent not in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
+                    q.setParameterList("parentIds", parentsIds);
+                    q.setLong("childId", sampleId);
+                    q.setLong("relationshipId", relationshipId);
+
+                    q.executeUpdate();
+
+                    addSampleRelationshipParents(sampleId, parentsIds, relationshipId, author);
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void addSampleRelationshipParents(final Long sampleId, final Collection<Long> parentsIds, final Long relationshipId, final PersonPE author)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    for (Long parentId : parentsIds)
+                    {
+                        SQLQuery q =
+                                session.createSQLQuery("insert into sample_relationships (id, sample_id_parent, sample_id_child, relationship_id, pers_id_author, registration_timestamp, modification_timestamp) "
+                                        + "select nextval('sample_relationship_id_seq'),  :parentId, :childId, :relationshipId, :authorId, now(), now() where not exists "
+                                        + "(select 1 from sample_relationships where sample_id_parent = :parentId and sample_id_child = :childId and relationship_id = :relationshipId)");
+                        q.setLong("parentId", parentId);
+                        q.setLong("childId", sampleId);
+                        q.setLong("relationshipId", relationshipId);
+                        q.setLong("authorId", author.getId());
+
+                        q.executeUpdate();
+                    }
+                    return null;
+                }
+            });
+    }
+
+    @Override
+    public void removeSampleRelationshipParents(final Long sampleId, final Collection<Long> parentsIds, final Long relationshipId,
+            final PersonPE author)
+    {
+        getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery q =
+                            session.createSQLQuery("delete from sample_relationships where sample_id_parent in :parentIds and sample_id_child = :childId and relationship_id = :relationshipId");
+                    q.setParameterList("parentIds", parentsIds);
+                    q.setLong("childId", sampleId);
+                    q.setLong("relationshipId", relationshipId);
+
+                    q.executeUpdate();
+                    return null;
+                }
+            });
     }
 
     @Override

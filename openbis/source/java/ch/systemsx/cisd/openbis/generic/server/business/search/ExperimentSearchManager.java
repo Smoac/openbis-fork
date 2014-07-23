@@ -42,11 +42,15 @@ public class ExperimentSearchManager extends AbstractSearchManager<IExperimentTa
 
     public List<ExperimentPE> searchForExperiments(String userId, DetailedSearchCriteria criteria)
     {
-        List<Long> experimentIds =
-                searchDAO.searchForEntityIds(userId, criteria, EXPERIMENT,
-                        Collections.<DetailedSearchAssociationCriteria> emptyList());
+        List<Long> experimentIds = searchForExperimentIDs(userId, criteria);
         lister.loadByIds(experimentIds);
         return lister.getExperiments();
+    }
+
+    public List<Long> searchForExperimentIDs(String userId, DetailedSearchCriteria criteria)
+    {
+        return searchDAO.searchForEntityIds(userId, criteria, EXPERIMENT,
+                Collections.<DetailedSearchAssociationCriteria> emptyList());
     }
 
 }

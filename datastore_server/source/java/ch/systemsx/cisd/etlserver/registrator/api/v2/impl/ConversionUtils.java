@@ -30,10 +30,11 @@ import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.openbis.common.types.BooleanOrUnknown;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IMetaprojectImmutable;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
@@ -421,7 +422,7 @@ public class ConversionUtils
         NewMetaproject newMetaproject =
                 new NewMetaproject(metaproject.getName(), metaproject.getDescription(),
                         metaproject.getOwnerId());
-        newMetaproject.setEntities(metaproject.getAddedEntities());
+        newMetaproject.setEntities(Translator.translate(metaproject.getAddedEntities()));
         return newMetaproject;
     }
 
@@ -430,8 +431,8 @@ public class ConversionUtils
         MetaprojectUpdatesDTO update = new MetaprojectUpdatesDTO();
         update.setMetaprojectId(new TechId(metaproject.getId()));
         update.setDescription(metaproject.getDescription());
-        update.setAddedEntities(metaproject.getAddedEntities());
-        update.setRemovedEntities(metaproject.getRemovedEntities());
+        update.setAddedEntities(Translator.translate(metaproject.getAddedEntities()));
+        update.setRemovedEntities(Translator.translate(metaproject.getRemovedEntities()));
         return update;
     }
 

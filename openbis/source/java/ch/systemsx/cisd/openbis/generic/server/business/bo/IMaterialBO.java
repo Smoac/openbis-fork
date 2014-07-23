@@ -17,10 +17,10 @@
 package ch.systemsx.cisd.openbis.generic.server.business.bo;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.material.IMaterialId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MaterialUpdateDTO;
 
@@ -33,8 +33,8 @@ public interface IMaterialBO extends IEntityBusinessObject
 {
 
     /**
-     * Returns a material found by the given id or null if it does not exist. Does not change the
-     * state of this object, especially the result of {@link #getMaterial()}.
+     * Returns a material found by the given id or null if it does not exist. Does not change the state of this object, especially the result of
+     * {@link #getMaterial()}.
      */
     public MaterialPE tryFindByMaterialId(IMaterialId materialId);
 

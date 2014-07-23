@@ -38,6 +38,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
@@ -90,6 +91,8 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     protected IGenericClientService genericClientService;
 
     protected IServiceForDataStoreServer etlService;
+
+    protected IApplicationServerApi v3api;
 
     protected MockHttpServletRequest request;
 
@@ -171,6 +174,12 @@ public abstract class SystemTestCase extends AbstractTransactionalTestNGSpringCo
     {
         this.etlService = etlService;
 
+    }
+
+    @Autowired
+    public void setApplicationServerApi(IApplicationServerApi applicationServerApi)
+    {
+        this.v3api = applicationServerApi;
     }
 
     protected SessionContext logIntoCommonClientService()

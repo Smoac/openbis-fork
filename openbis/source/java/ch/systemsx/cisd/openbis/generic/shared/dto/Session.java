@@ -44,10 +44,15 @@ public final class Session extends BasicSession implements IAuthSession
     }
 
     /**
-     * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it is
-     * not defined.
+     * The {@link PersonPE} represented by this <code>Session</code> or <code>null</code> if it is not defined.
      */
     private PersonPE personOrNull;
+
+    /**
+     * A person that created this <code>Session</code> or <code>null</code> if it is not defined. For normal sessions <code>getPerson()</code> and
+     * <code>getCreatorPerson()</code> return the same person. They can be different in case of on behalf sessions.
+     */
+    private PersonPE creatorPersonOrNull;
 
     /**
      * The base URL that the web server is reachable at.
@@ -89,6 +94,11 @@ public final class Session extends BasicSession implements IAuthSession
         this.personOrNull = person;
     }
 
+    public final void setCreatorPerson(PersonPE creatorPerson)
+    {
+        this.creatorPersonOrNull = creatorPerson;
+    }
+
     /**
      * Returns the {@link PersonPE} associated to this session or <code>null</code>.
      */
@@ -96,6 +106,12 @@ public final class Session extends BasicSession implements IAuthSession
     public final PersonPE tryGetPerson()
     {
         return personOrNull;
+    }
+
+    @Override
+    public final PersonPE tryGetCreatorPerson()
+    {
+        return creatorPersonOrNull;
     }
 
     /** Returns the home group or <code>null</code>. */
@@ -181,4 +197,11 @@ public final class Session extends BasicSession implements IAuthSession
         return personOrNull == null ? getPrincipal().getEmail() : personOrNull.getEmail();
     }
 
+    public boolean isOnBehalfSession()
+    {
+        String personUserId = tryGetPerson() != null ? tryGetPerson().getUserId() : null;
+        String creatorUserId = tryGetCreatorPerson() != null ? tryGetCreatorPerson().getUserId() : null;
+        boolean areEqual = personUserId == null ? creatorUserId == null : personUserId.equals(creatorUserId);
+        return areEqual == false;
+    }
 }

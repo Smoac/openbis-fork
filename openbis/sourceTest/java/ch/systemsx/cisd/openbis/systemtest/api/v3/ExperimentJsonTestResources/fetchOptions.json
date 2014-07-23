@@ -1,0 +1,31 @@
+{
+	"@type" : "ExperimentFetchOptions",
+	
+	"type" : {
+		"@type" : "ExperimentTypeFetchOptions"
+	},
+	
+	"project" : {
+		"@type" : "ProjectFetchOptions"
+	},
+	
+	"properties" : {
+		"@type" : "PropertyFetchOptions"
+	},
+	
+	"tags" : {
+		"@type" : "TagFetchOptions"
+	},
+	
+	"registrator" : {
+		"@type" : "PersonFetchOptions"
+	},
+	
+	"modifier" : {
+		"@type" : "PersonFetchOptions"
+	},
+	
+	"attachments" : {
+		"@type" : "AttachmentFetchOptions"
+	}
+}

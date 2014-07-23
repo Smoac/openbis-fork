@@ -21,25 +21,32 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.json.ObjectMapperResource;
 
 /**
  * @author Kaloyan Enimanev
  */
 @Controller
 @RequestMapping(
-    { IGeneralInformationService.JSON_SERVICE_URL,
-            "/openbis" + IGeneralInformationService.JSON_SERVICE_URL })
+{ IGeneralInformationService.JSON_SERVICE_URL,
+        "/openbis" + IGeneralInformationService.JSON_SERVICE_URL })
 public class GeneralInformationServiceJsonServer extends AbstractApiJsonServiceExporter
 {
+
+    @Resource(name = ObjectMapperResource.NAME)
+    private ObjectMapper objectMapper;
+
     @Resource(name = ResourceNames.GENERAL_INFORMATION_SERVICE_SERVER)
     private IGeneralInformationService service;
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
-
+        setObjectMapper(objectMapper);
         establishService(IGeneralInformationService.class, service,
                 IGeneralInformationService.SERVICE_NAME,
                 IGeneralInformationService.JSON_SERVICE_URL);

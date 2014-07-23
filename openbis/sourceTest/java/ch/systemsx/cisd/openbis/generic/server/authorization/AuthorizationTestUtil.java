@@ -210,6 +210,12 @@ public final class AuthorizationTestUtil
                 }
 
                 @Override
+                public PersonPE tryGetCreatorPerson()
+                {
+                    return person;
+                }
+
+                @Override
                 public String tryGetHomeGroupCode()
                 {
                     SpacePE homeGroup = person.getHomeSpace();

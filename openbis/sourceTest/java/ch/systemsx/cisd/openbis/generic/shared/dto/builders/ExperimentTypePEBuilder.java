@@ -22,18 +22,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PropertyTypePE;
 
 /**
  * Builder for {@link ExperimentTypePE} instances.
- *
+ * 
  * @author felmer
  */
 public class ExperimentTypePEBuilder extends AbstractEntityTypePEBuilder
 {
     private final ExperimentTypePE experimentType = new ExperimentTypePE();
-    
+
     public ExperimentTypePE getExperimentTypePE()
     {
         return experimentType;
     }
-    
+
+    public ExperimentTypePEBuilder code(String code)
+    {
+        experimentType.setCode(code);
+        return this;
+    }
+
     @Override
     public EntityTypePropertyTypePEBuilder assign(PropertyTypePE propertyType)
     {

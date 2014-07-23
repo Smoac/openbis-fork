@@ -121,7 +121,7 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
     /**
      * Lists samples (with minimal additional information) with permanent identifier in given set of values.
      */
-    List<SamplePE> listByPermID(Set<String> values);
+    List<SamplePE> listByPermID(Collection<String> values);
 
     List<SamplePE> listByIDs(Collection<Long> ids);
 
@@ -140,5 +140,67 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      * lists all children ids for a set of trashed samples.
      */
     public Set<TechId> listChildrenForTrashedSamples(Collection<TechId> parentIds);
+
+    /**
+     * Sets a container for a sample with the specified sampleId.
+     */
+    public void setSampleContainer(final Long sampleId, final Long containerId);
+
+    /**
+     * Sets contained samples for a sample with the specified sampleId.
+     */
+    public void setSampleContained(final Long sampleId, final Collection<Long> containedIds);
+
+    /**
+     * Adds contained samples for a sample with the specified sampleId.
+     */
+    public void addSampleContained(final Long sampleId, final Collection<Long> containedIds);
+
+    /**
+     * Removes contained samples for a sample with the specified sampleId.
+     */
+    public void removeSampleContained(final Long sampleId, final Collection<Long> containedIds);
+
+    /**
+     * Sets relationship children for a sample with the specified sampleId. Relationships are set between the sample and samples given by childrenIds.
+     * Type of the relationship is controlled by the relationshipId parameter.
+     */
+    public void setSampleRelationshipChildren(final Long sampleId, final Collection<Long> childrenIds, final Long relationshipId,
+            final PersonPE author);
+
+    /**
+     * Adds relationship children for a sample with the specified sampleId. Relationships are set between the sample and samples given by childrenIds.
+     * Type of the relationship is controlled by the relationshipId parameter.
+     */
+    public void addSampleRelationshipChildren(final Long sampleId, final Collection<Long> childrenIds, final Long relationshipId,
+            final PersonPE author);
+
+    /**
+     * Removes relationship children for a sample with the specified sampleId. Relationships are set between the sample and samples given by
+     * childrenIds. Type of the relationship is controlled by the relationshipId parameter.
+     */
+    public void removeSampleRelationshipChildren(final Long sampleId, final Collection<Long> childrenIds, final Long relationshipId,
+            final PersonPE author);
+
+    /**
+     * Sets relationship parents for a sample with the specified sampleId. Relationships are set between the sample and samples given by parentsIds.
+     * Type of the relationship is controlled by the relationshipId parameter.
+     */
+    public void setSampleRelationshipParents(final Long sampleId, final Collection<Long> parentsIds, final Long relationshipId,
+            final PersonPE author);
+
+    /**
+     * Adds relationship parents for a sample with the specified sampleId. Relationships are set between the sample and samples given by parentsIds.
+     * Type of the relationship is controlled by the relationshipId parameter.
+     */
+    public void addSampleRelationshipParents(final Long sampleId, final Collection<Long> parentsIds, final Long relationshipId,
+            final PersonPE author);
+
+    /**
+     * Removes relationship parents for a sample with the specified sampleId. Relationships are set between the sample and samples given by
+     * parentsIds. Type of the relationship is controlled by the relationshipId parameter.
+     */
+    public void removeSampleRelationshipParents(final Long sampleId, final Collection<Long> parentsIds, final Long relationshipId,
+            final PersonPE author);
 
 }

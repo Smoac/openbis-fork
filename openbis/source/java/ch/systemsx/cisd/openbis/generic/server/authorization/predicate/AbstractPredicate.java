@@ -33,7 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Christian Ribeaud
  */
-abstract class AbstractPredicate<T> implements IPredicate<T>
+public abstract class AbstractPredicate<T> implements IPredicate<T>
 {
     /**
      * Returns a simple description for the exception to be thrown.

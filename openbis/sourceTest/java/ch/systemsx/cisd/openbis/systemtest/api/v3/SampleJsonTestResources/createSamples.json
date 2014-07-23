@@ -1,0 +1,36 @@
+{
+	"method":"createSamples",
+	"params":[
+		"%s",
+		[
+			{
+				"@type" : "SampleCreation",
+
+				"typeId" : {
+					"@type" : "EntityTypePermId",
+					"permId" : "CELL_PLATE"
+					
+				},
+				
+				"code" : "%s",
+
+				"spaceId" : {
+					"@type" : "SpacePermId",
+					"permId" : "CISD"
+				},
+				
+				"experimentId" : {
+					"@type" : "ExperimentPermId",
+					"permId" : "200811050952663-1029" 
+				},
+				
+				"properties" : {
+					"COMMENT" : "hello"
+				}
+				
+			}
+		]
+	],
+	"id":"1",
+	"jsonrpc":"2.0"
+}

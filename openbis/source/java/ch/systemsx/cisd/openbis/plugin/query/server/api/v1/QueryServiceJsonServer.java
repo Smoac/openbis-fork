@@ -21,8 +21,11 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import ch.systemsx.cisd.openbis.common.api.server.AbstractApiJsonServiceExporter;
 import ch.systemsx.cisd.openbis.generic.server.api.v1.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.json.ObjectMapperResource;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
 
 /**
@@ -30,16 +33,20 @@ import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer;
  */
 @Controller
 @RequestMapping(
-    { IQueryApiServer.JSON_SERVICE_URL, "/openbis" + IQueryApiServer.JSON_SERVICE_URL })
+{ IQueryApiServer.JSON_SERVICE_URL, "/openbis" + IQueryApiServer.JSON_SERVICE_URL })
 public class QueryServiceJsonServer extends AbstractApiJsonServiceExporter
 {
+
+    @Resource(name = ObjectMapperResource.NAME)
+    private ObjectMapper objectMapper;
+
     @Resource(name = ResourceNames.QUERY_API_SERVICE_SERVER)
     private IQueryApiServer service;
 
     @Override
     public void afterPropertiesSet() throws Exception
     {
-
+        setObjectMapper(objectMapper);
         establishService(IQueryApiServer.class, service, IQueryApiServer.SERVICE_NAME,
                 IQueryApiServer.JSON_SERVICE_URL);
         super.afterPropertiesSet();

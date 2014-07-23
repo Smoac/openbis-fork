@@ -250,3 +250,10 @@ check sets [dynamic-properties-api] [managed-properties-api] [hotdeploy-api]
 
 check [dynamic-properties-api] independentOf [cisd-except-dynamic-properties-api]
 check [managed-properties-api] independentOf [cisd-except-managed-properties-api]
+
+###########################################
+# Check right UserFailureException dependency
+#
+[not-web-client-classes] = * excluding *.client.web.*  *.General*Info*Service 
+check sets [not-web-client-classes]
+check [not-web-client-classes] independentOf *.client.web.client.exception.UserFailureException

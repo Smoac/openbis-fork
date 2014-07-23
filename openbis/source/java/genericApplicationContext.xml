@@ -261,6 +261,7 @@
         <constructor-arg ref="dao-factory" />
         <constructor-arg value="${jython-evaluator-pool-size}" />
     </bean>
+    
     <!-- 
         // Transaction
     -->
@@ -376,8 +377,8 @@
         <constructor-arg value="${trusted-cross-origin-domains}"/>
     </bean>
 
-    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.generic.shared.api.json.GenericObjectMapper">
-    </bean>
+    <bean id="objectMapper-v1" class="ch.systemsx.cisd.openbis.generic.shared.api.v1.json.GenericObjectMapper" />
+    <bean id="objectMapper-v3" class="ch.systemsx.cisd.openbis.generic.shared.api.v3.json.GenericObjectMapper" />
 
     <!--
         // Plugins
@@ -387,6 +388,10 @@
 	  <bean class="ch.systemsx.cisd.openbis.common.spring.AnnotationBeanPostProcessorIgnoringMissingBeans"/>
 	
     <plugins:component-scan base-package="ch.systemsx.cisd.openbis" annotation-config="false">
+        <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </plugins:component-scan>
+    
+    <plugins:component-scan base-package="ch.ethz.sis.openbis" annotation-config="false">
         <plugins:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </plugins:component-scan>
     

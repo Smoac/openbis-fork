@@ -20,6 +20,11 @@
         <context:include-filter type="annotation"
             expression="org.springframework.stereotype.Controller" />
     </context:component-scan>
+    
+    <context:component-scan base-package="ch.ethz.sis.openbis" use-default-filters="false">
+        <context:include-filter type="annotation"
+            expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
 
     <!-- 
         // Commons-based implementation of the MultipartResolver interface.

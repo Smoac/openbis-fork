@@ -22,11 +22,10 @@ import java.util.List;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetTypeWithVocabularyTerms;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityTypePropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
@@ -37,14 +36,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 
 /**
- * The basic subset of the {@link IEncapsulatedOpenBISService}, that requires only service and a
- * sessionToken.
+ * The basic subset of the {@link IEncapsulatedOpenBISService}, that requires only service and a sessionToken.
  * 
  * @author Jakub Straszewski
  */
@@ -63,15 +62,13 @@ public interface IEncapsulatedBasicOpenBISService
     public Project tryGetProject(ProjectIdentifier projectIdentifier) throws UserFailureException;
 
     /**
-     * Returns the data set type together with assigned property types for the specified data set
-     * type code.
+     * Returns the data set type together with assigned property types for the specified data set type code.
      */
     @ManagedAuthentication
     public DataSetTypeWithVocabularyTerms getDataSetType(String dataSetTypeCode);
 
     /**
-     * Tries to get the data set for the specified data set code, using the ETL server's session
-     * token.
+     * Tries to get the data set for the specified data set code, using the ETL server's session token.
      */
     @ManagedAuthentication
     public AbstractExternalData tryGetDataSet(final String dataSetCode) throws UserFailureException;
@@ -99,8 +96,7 @@ public interface IEncapsulatedBasicOpenBISService
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
 
     /**
-     * Gets a sample with the specified identifier. Sample is enriched with properties and the
-     * experiment with properties.
+     * Gets a sample with the specified identifier. Sample is enriched with properties and the experiment with properties.
      * 
      * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.
      */

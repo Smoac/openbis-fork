@@ -27,7 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
  * Sample related business rules.
  * <ul>
  * <li>A database instance sample can be derived from a database instance sample.
- * <li>A group sample can be derived from a group sample of the same group only.
  * <li>A group sample can be derived from a database instance sample.
  * </ul>
  * 

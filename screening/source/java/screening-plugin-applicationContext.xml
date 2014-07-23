@@ -22,7 +22,7 @@
         <property name="smtpPassword" value="${mail.smtp.password}"/>
     </bean>
     
-    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.json.ScreeningObjectMapper">
-    </bean>
+    <bean id="objectMapper-v1" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.json.ScreeningObjectMapper" />
+    <bean id="objectMapper-v3" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.v3.json.ScreeningObjectMapper" />
     
 </beans>

@@ -72,6 +72,7 @@ public class OpenBisSessionManager extends DefaultSessionManager<Session> implem
                         {
                             HibernateUtils.initialize(person.getAllPersonRoles());
                             session.setPerson(person);
+                            session.setCreatorPerson(person);
                         }
                     }
                 }

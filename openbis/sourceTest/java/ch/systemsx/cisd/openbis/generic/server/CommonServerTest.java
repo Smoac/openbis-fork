@@ -499,7 +499,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        createServer().registerInstanceRole(SESSION_TOKEN, RoleCode.ADMIN, Grantee.createPerson(CommonTestUtils.USER_ID));
+        createServer().registerInstanceRole(SESSION_TOKEN, RoleCode.ADMIN,
+                Grantee.createPerson(CommonTestUtils.USER_ID));
 
         assertEquals("PERSON:test=ADMIN@", assignmentMatcher.recordedObject().toString());
         context.assertIsSatisfied();
@@ -522,7 +523,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                 }
             });
 
-        createServer().deleteSpaceRole(SESSION_TOKEN, RoleCode.USER, new SpaceIdentifier("S42"), person);
+        createServer().deleteSpaceRole(SESSION_TOKEN, RoleCode.USER, new SpaceIdentifier("S42"),
+                person);
 
         context.assertIsSatisfied();
     }
@@ -818,8 +820,8 @@ public final class CommonServerTest extends AbstractServerTestCase
                     one(commonBusinessObjectFactory).createExperimentTable(session);
                     will(returnValue(experimentTable));
 
-                    one(experimentTable).load(experimentType.getCode(), Collections.singletonList(projectIdentifier), false,
-                            false);
+                    one(experimentTable).load(experimentType.getCode(),
+                            Collections.singletonList(projectIdentifier), false, false);
 
                     one(experimentTable).getExperiments();
                     will(returnValue(new ArrayList<ExperimentPE>()));
@@ -908,9 +910,6 @@ public final class CommonServerTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(daoFactory).getPropertyTypeDAO();
-                    will(returnValue(propertyTypeDAO));
-
                     one(propertyTypeDAO).listDataTypes();
                     will(returnValue(Collections.singletonList(dataTypePE)));
                 }

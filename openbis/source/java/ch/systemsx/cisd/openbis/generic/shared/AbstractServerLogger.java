@@ -179,12 +179,13 @@ public abstract class AbstractServerLogger implements IServer
 
     private final void logMessage(final Logger logger, final Level level,
             final String sessionToken, final String commandName,
-            final String parameterDisplayFormat, final Object[] parameters)
+            String parameterDisplayFormat, Object[] parameters)
     {
         if (logger.isEnabledFor(level) == false)
         {
             return;
         }
+
         for (int i = 0; i < parameters.length; i++)
         {
             final Object parameter = parameters[i];
@@ -196,7 +197,33 @@ public abstract class AbstractServerLogger implements IServer
                 parameters[i] = "'" + parameter + "'";
             }
         }
-        final String message = String.format(parameterDisplayFormat, parameters);
+
+        String theParameterDisplayFormat = parameterDisplayFormat;
+        Object[] theParameters = parameters;
+
+        if (sessionManagerOrNull != null && sessionManagerOrNull.isAWellFormedSessionToken(sessionToken))
+        {
+            Session session = sessionManagerOrNull.getSession(sessionToken);
+
+            if (session != null && session.isOnBehalfSession())
+            {
+                String creatorUserId = session.tryGetCreatorPerson() != null ? session.tryGetCreatorPerson().getUserId() : null;
+                String userId = session.tryGetPerson() != null ? session.tryGetPerson().getUserId() : null;
+
+                theParameters = new Object[parameters.length + 2];
+                theParameters[0] = creatorUserId;
+                theParameters[1] = userId;
+
+                for (int i = 0; i < parameters.length; i++)
+                {
+                    theParameters[i + 2] = parameters[i];
+                }
+
+                theParameterDisplayFormat = "USER_(%s)_ON_BEHALF_OF_(%s) " + parameterDisplayFormat;
+            }
+        }
+
+        final String message = String.format(theParameterDisplayFormat, theParameters);
 
         if (context.invocationFinished())
         {
@@ -254,6 +281,13 @@ public abstract class AbstractServerLogger implements IServer
 
     @Override
     public final SessionContextDTO tryAuthenticate(final String user, final String password)
+    {
+        // No logging because already done by the session manager
+        return null;
+    }
+
+    @Override
+    public SessionContextDTO tryAuthenticateAs(String user, String password, String asUser)
     {
         // No logging because already done by the session manager
         return null;

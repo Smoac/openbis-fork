@@ -16,17 +16,21 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json.mapping;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
 
 import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
-import ch.systemsx.cisd.openbis.common.api.server.json.common.JsonConstants;
 
 /**
  * @author pkupczyk
@@ -34,15 +38,13 @@ import ch.systemsx.cisd.openbis.common.api.server.json.common.JsonConstants;
 public class JsonReflectionsBaseTypeToSubTypesMapping implements IJsonBaseTypeToSubTypesMapping
 {
 
-    private static JsonReflectionsBaseTypeToSubTypesMapping instance;
-
     private Map<Class<?>, Set<NamedType>> baseTypeToSubTypesMap;
 
     private Set<NamedType> allSubTypesSet;
 
-    public JsonReflectionsBaseTypeToSubTypesMapping(String prefix)
+    public JsonReflectionsBaseTypeToSubTypesMapping(String[] prefixes)
     {
-        baseTypeToSubTypesMap = createBaseTypeToSubTypesMap(prefix);
+        baseTypeToSubTypesMap = createBaseTypeToSubTypesMap(prefixes);
         allSubTypesSet = createAllSubTypesSet(baseTypeToSubTypesMap);
     }
 
@@ -58,9 +60,26 @@ public class JsonReflectionsBaseTypeToSubTypesMapping implements IJsonBaseTypeTo
         }
     }
 
-    private static Map<Class<?>, Set<NamedType>> createBaseTypeToSubTypesMap(String prefix)
+    private static Map<Class<?>, Set<NamedType>> createBaseTypeToSubTypesMap(String[] prefixes)
     {
-        Reflections reflections = new Reflections(prefix);
+        ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+
+        FilterBuilder filterBuilder = new FilterBuilder();
+        Set<URL> urls = new HashSet<URL>();
+
+        for (String prefix : prefixes)
+        {
+            urls.addAll(ClasspathHelper.forPackage(prefix));
+            filterBuilder.include(FilterBuilder.prefix(prefix));
+        }
+
+        int numberOfUsedCores = Math.max(1, Runtime.getRuntime().availableProcessors() / 2);
+
+        configBuilder.addUrls(urls);
+        configBuilder.filterInputsBy(filterBuilder);
+        configBuilder.setExecutorService(Executors.newFixedThreadPool(numberOfUsedCores));
+
+        Reflections reflections = new Reflections(configBuilder);
 
         Set<Class<?>> types = reflections.getTypesAnnotatedWith(JsonObject.class);
         Map<Class<?>, Set<NamedType>> subTypesMap = new HashMap<Class<?>, Set<NamedType>>();
@@ -101,17 +120,4 @@ public class JsonReflectionsBaseTypeToSubTypesMapping implements IJsonBaseTypeTo
         return allSubTypes;
     }
 
-    public static final JsonReflectionsBaseTypeToSubTypesMapping getInstance()
-    {
-        synchronized (JsonReflectionsBaseTypeToSubTypesMapping.class)
-        {
-            if (instance == null)
-            {
-                instance =
-                        new JsonReflectionsBaseTypeToSubTypesMapping(
-                                JsonConstants.getClassesPrefix());
-            }
-            return instance;
-        }
-    }
 }

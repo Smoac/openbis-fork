@@ -18,7 +18,7 @@ package ch.systemsx.cisd.openbis.plugin.query.shared;
 
 import java.util.Collection;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 
 /**
  * Provides definition of a database that can be used by custom queries module.

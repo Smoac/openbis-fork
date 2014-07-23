@@ -1,0 +1,49 @@
+{
+	"method":"updateSamples",
+	"params":[
+		"%s",
+		[
+			{
+				"@type" : "SampleUpdate",
+				
+				"sampleId" : {
+					"@type" : "SampleIdentifier",
+					"identifier" : "%s"
+				},
+				
+				"spaceId" : {
+					"@type" : "SpacePermId",
+					"permId" : "CISD"
+				},
+				
+				"experimentId" : {
+					"@type" : "ExperimentPermId",
+					"permId" : "200811050952663-1030" 
+				},
+				
+				"containerId" : {
+					"@type" : "SampleIdentifier",
+					"identifier" : "/CISD/JSON_SAMPLE_TO_UPDATE_CONTAINER"
+				},
+				
+				"containedActions" : [
+					{
+						"@type" : "AddAction",
+						"ids" : [
+							{
+								"@type" : "SampleIdentifier",
+								"identifier" : "/CISD/JSON_SAMPLE_TO_UPDATE_CONTAINED"
+							}
+						]	
+					}
+				],
+				
+				"properties" : {
+					"COMMENT" : "hello 2"
+				}
+			}
+		]
+	],
+	"id":"1",
+	"jsonrpc":"2.0"
+}

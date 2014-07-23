@@ -1165,7 +1165,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     public MetaprojectAssignments getMetaproject(String sessionToken, IMetaprojectId metaprojectId)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
-                commonServer.getMetaprojectAssignments(sessionToken, metaprojectId);
+                commonServer.getMetaprojectAssignments(sessionToken, Translator.translate(metaprojectId));
         return translate(assignments);
     }
 
@@ -1176,7 +1176,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
             IMetaprojectId metaprojectId, String userId)
     {
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignments assignments =
-                commonServer.getMetaprojectAssignmentsOnBehalfOfUser(sessionToken, metaprojectId,
+                commonServer.getMetaprojectAssignmentsOnBehalfOfUser(sessionToken, Translator.translate(metaprojectId),
                         userId);
         return translate(assignments);
     }
@@ -1223,7 +1223,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         Session session = getSession(sessionToken);
 
         IExperimentBO experimentBO = boFactory.createExperimentBO(session);
-        ExperimentPE experiment = experimentBO.tryFindByExperimentId(experimentId);
+        ExperimentPE experiment = experimentBO.tryFindByExperimentId(Translator.translate(experimentId));
         if (experiment == null)
         {
             throw new UserFailureException("No experiment found for id '" + experimentId + "'.");
@@ -1241,7 +1241,7 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         Session session = getSession(sessionToken);
 
         ISampleBO sampleBO = boFactory.createSampleBO(session);
-        SamplePE sample = sampleBO.tryFindBySampleId(sampleId);
+        SamplePE sample = sampleBO.tryFindBySampleId(Translator.translate(sampleId));
         if (sample == null)
         {
             throw new UserFailureException("No sample found for id '" + sampleId + "'.");

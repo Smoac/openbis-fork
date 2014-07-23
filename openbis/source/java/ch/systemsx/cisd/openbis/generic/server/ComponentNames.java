@@ -48,5 +48,7 @@ public final class ComponentNames
     public static final String MANAGED_PROPERTY_EVALUATOR_FACTORY =
             "managed-property-evaluator-factory";
 
+    public static final String RELATIONSHIP_SERVICE = "relationship-service";
+
     public static final String PROPERTIES_BATCH_MANAGER = "properties-batch-manager";
 }

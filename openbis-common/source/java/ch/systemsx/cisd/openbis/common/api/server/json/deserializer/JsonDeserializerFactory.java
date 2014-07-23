@@ -180,9 +180,16 @@ public class JsonDeserializerFactory extends BeanDeserializerFactory
                 return super.deserializeTypedFromObject(jp1, ctxt);
             } catch (IOException e)
             {
-                JsonParser jp2 = factory.createJsonParser(json);
-                jp2.nextToken();
-                return super.deserializeWithoutType(jp2, ctxt, null);
+                try
+                {
+                    JsonParser jp2 = factory.createJsonParser(json);
+                    jp2.nextToken();
+                    return super.deserializeWithoutType(jp2, ctxt, null);
+                } catch (IOException e2)
+                {
+                    throw new IllegalArgumentException("Could not deserialize object.\nAttempt of deserialization with type failed with: \n" + e
+                            + "\nAttempt of deserialization without type failed with: \n" + e2);
+                }
             }
         }
 

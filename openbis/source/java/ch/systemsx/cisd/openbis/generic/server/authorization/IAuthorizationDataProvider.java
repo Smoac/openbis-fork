@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.authorization;
 import java.util.List;
 import java.util.Set;
 
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IAuthorizationDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetAccessPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -42,6 +43,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
  */
 public interface IAuthorizationDataProvider
 {
+    /**
+     * Returns the DAO factory.
+     */
+    public IAuthorizationDAOFactory getDaoFactory();
+
     /**
      * Returns a list of all data spaces.
      */

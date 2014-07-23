@@ -39,6 +39,12 @@ final public class AuthorizationDataProvider implements IAuthorizationDataProvid
     }
 
     @Override
+    public IAuthorizationDAOFactory getDaoFactory()
+    {
+        return daoFactory;
+    }
+
+    @Override
     public List<SpacePE> listSpaces()
     {
         return daoFactory.getSpaceDAO().listSpaces();

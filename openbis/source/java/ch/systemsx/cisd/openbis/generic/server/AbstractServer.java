@@ -45,6 +45,7 @@ import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
+import ch.systemsx.cisd.openbis.generic.server.authorization.AuthorizationServiceUtils;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExpressionValidator;
@@ -467,6 +468,66 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         return tryToAuthenticate(sessionManager.tryToOpenSession(user, password));
     }
 
+    @Override
+    public final SessionContextDTO tryAuthenticateAs(final String user, final String password, final String asUser)
+    {
+        SessionContextDTO userSessionContext = tryAuthenticate(user, password);
+
+        try
+        {
+            if (userSessionContext != null)
+            {
+                Session userSession = sessionManager.getSession(userSessionContext.getSessionToken());
+
+                AuthorizationServiceUtils userAuthorizationUtils = new AuthorizationServiceUtils(daoFactory, user);
+                boolean userIsInstanceAdmin = userAuthorizationUtils.doesUserHaveRole(RoleWithHierarchy.RoleCode.ADMIN.name(), null);
+
+                if (userIsInstanceAdmin == false)
+                {
+                    return null;
+                }
+
+                String asUserSessionToken = sessionManager.tryToOpenSession(asUser, new IPrincipalProvider()
+                    {
+                        @Override
+                        public Principal tryToGetPrincipal(String userID)
+                        {
+                            PersonPE asUserPerson = daoFactory.getPersonDAO().tryFindPersonByUserId(asUser);
+
+                            if (asUserPerson != null)
+                            {
+                                return new Principal(asUser, asUserPerson.getFirstName(), asUserPerson.getLastName(), asUserPerson.getEmail(), true);
+                            } else
+                            {
+                                return null;
+                            }
+                        }
+                    });
+
+                if (asUserSessionToken != null)
+                {
+                    SessionContextDTO asUserSessionContext = tryToAuthenticate(asUserSessionToken);
+
+                    if (asUserSessionContext != null)
+                    {
+                        Session asUserSession = sessionManager.getSession(asUserSessionToken);
+                        asUserSession.setCreatorPerson(userSession.tryGetPerson());
+                        return asUserSessionContext;
+                    }
+                }
+            }
+
+            return null;
+
+        } finally
+        {
+            if (userSessionContext != null)
+            {
+                logout(userSessionContext.getSessionToken());
+            }
+        }
+    }
+
     private SessionContextDTO tryToAuthenticate(final String sessionToken)
     {
         if (sessionToken == null)
@@ -494,6 +555,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         if (session.tryGetPerson() == null)
         {
             session.setPerson(person);
+            session.setCreatorPerson(person);
             displaySettingsProvider.addDisplaySettingsForPerson(person);
         }
 
@@ -868,6 +930,7 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
         HibernateUtils.initialize(person.getAllPersonRoles());
         session.setPerson(person);
+        session.setCreatorPerson(person);
         displaySettingsProvider.addDisplaySettingsForPerson(person);
     }
 

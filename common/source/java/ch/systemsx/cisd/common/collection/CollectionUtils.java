@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Some convenience methods/utilities around {@link Collection}.
@@ -347,4 +348,26 @@ public final class CollectionUtils
                 }
             });
     }
+
+    /**
+     * Transform the original array using given map.
+     * 
+     * @return the list of items from the input collection transformed with the specified map.
+     */
+    public static <I, O> List<O> map(Collection<? extends I> input, Map<I, O> map)
+    {
+        List<O> output = new ArrayList<O>();
+        for (I i : input)
+        {
+            O value = map.get(i);
+
+            if (value == null)
+            {
+                throw new IllegalArgumentException("Element " + i + " is not specified in the transforming map");
+            }
+            output.add(value);
+        }
+        return output;
+    }
+
 }

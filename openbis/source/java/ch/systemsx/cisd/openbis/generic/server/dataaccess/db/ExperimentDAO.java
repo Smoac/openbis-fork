@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import net.lemnik.eodsql.BaseQuery;
 import net.lemnik.eodsql.QueryTool;
@@ -116,8 +115,10 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException
     {
-        List<ProjectPE> projectsOrNull = projectOrNull != null ? Collections.singletonList(projectOrNull) : null;
-        return listExperimentsWithProperties(experimentTypeOrNull, projectsOrNull, spaceOrNull, false, false);
+        List<ProjectPE> projectsOrNull =
+                projectOrNull != null ? Collections.singletonList(projectOrNull) : null;
+        return listExperimentsWithProperties(experimentTypeOrNull, projectsOrNull, spaceOrNull,
+                false, false);
     }
 
     @Override
@@ -346,7 +347,7 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
     }
 
     @Override
-    public List<ExperimentPE> listByPermID(Set<String> permIds)
+    public List<ExperimentPE> listByPermID(Collection<String> permIds)
     {
         return listByIDsOfName("permId", permIds);
     }

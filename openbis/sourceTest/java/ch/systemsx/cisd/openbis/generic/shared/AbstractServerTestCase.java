@@ -62,6 +62,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataSetTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataStoreDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDeletionDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityOperationsLogDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IEntityTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IFileFormatTypeDAO;
@@ -71,6 +72,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPersonDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IPropertyTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IQueryDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRelationshipTypeDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IRoleAssignmentDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleTypeDAO;
@@ -148,6 +150,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityTypeDAO entityTypeDAO;
 
+    protected ISpaceDAO spaceDAO;
+
     protected IProjectDAO projectDAO;
 
     protected IDeletionDAO deletionDAO;
@@ -168,7 +172,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     protected IEntityTypePropertyTypeBO entityTypePropertyTypeBO;
 
-    protected IAttachmentDAO experimentAttachmentDAO;
+    protected IAttachmentDAO attachmentDAO;
 
     protected IDataBO dataBO;
 
@@ -210,6 +214,10 @@ public abstract class AbstractServerTestCase extends AssertJUnit
 
     private MaterialConfigurationProvider oldProvider;
 
+    protected IEntityPropertyTypeDAO entityPropertyTypeDAO;
+
+    protected IRelationshipTypeDAO relationshipTypeDAO;
+
     @BeforeMethod
     @SuppressWarnings("unchecked")
     public void setUp()
@@ -225,13 +233,14 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         daoFactory = context.mock(IDAOFactory.class);
         personDAO = context.mock(IPersonDAO.class);
         groupDAO = context.mock(ISpaceDAO.class);
+        spaceDAO = groupDAO;
         sampleDAO = context.mock(ISampleDAO.class);
         roleAssignmentDAO = context.mock(IRoleAssignmentDAO.class);
         dataSetDAO = context.mock(IDataDAO.class);
         permIdDAO = context.mock(IPermIdDAO.class);
         entityTypeDAO = context.mock(IEntityTypeDAO.class);
         experimentDAO = context.mock(IExperimentDAO.class);
-        experimentAttachmentDAO = context.mock(IAttachmentDAO.class);
+        attachmentDAO = context.mock(IAttachmentDAO.class);
         projectDAO = context.mock(IProjectDAO.class);
         sampleTypeDAO = context.mock(ISampleTypeDAO.class);
         propertyTypeDAO = context.mock(IPropertyTypeDAO.class);
@@ -245,6 +254,8 @@ public abstract class AbstractServerTestCase extends AssertJUnit
         entityOperationsLogDAO = context.mock(IEntityOperationsLogDAO.class);
         metaprojectDAO = context.mock(IMetaprojectDAO.class);
         scriptDAO = context.mock(IScriptDAO.class);
+        entityPropertyTypeDAO = context.mock(IEntityPropertyTypeDAO.class);
+        relationshipTypeDAO = context.mock(IRelationshipTypeDAO.class);
         // BO
         spaceBO = context.mock(ISpaceBO.class);
         entityTypeBO = context.mock(IEntityTypeBO.class);
@@ -291,7 +302,7 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     allowing(daoFactory).getDataDAO();
                     will(returnValue(dataSetDAO));
                     allowing(daoFactory).getAttachmentDAO();
-                    will(returnValue(experimentAttachmentDAO));
+                    will(returnValue(attachmentDAO));
                     allowing(daoFactory).getFileFormatTypeDAO();
                     will(returnValue(fileFormatDAO));
                     allowing(daoFactory).getDataSetTypeDAO();
@@ -308,6 +319,12 @@ public abstract class AbstractServerTestCase extends AssertJUnit
                     will(returnValue(metaprojectDAO));
                     allowing(daoFactory).getScriptDAO();
                     will(returnValue(scriptDAO));
+                    allowing(daoFactory).getPermIdDAO();
+                    will(returnValue(permIdDAO));
+                    allowing(daoFactory).getPropertyTypeDAO();
+                    will(returnValue(propertyTypeDAO));
+                    allowing(daoFactory).getRelationshipTypeDAO();
+                    will(returnValue(relationshipTypeDAO));
                 }
             });
         oldProvider = MaterialConfigurationProvider.initializeForTesting(false);

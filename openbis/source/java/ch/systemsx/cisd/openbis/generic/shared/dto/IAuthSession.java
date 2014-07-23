@@ -35,4 +35,7 @@ public interface IAuthSession extends Serializable
     /** @return currently logged in user */
     PersonPE tryGetPerson();
 
+    /** @return user that created this session */
+    PersonPE tryGetCreatorPerson();
+
 }

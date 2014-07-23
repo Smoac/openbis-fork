@@ -18,6 +18,7 @@ package ch.systemsx.cisd.common.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -159,5 +160,61 @@ public class AssertionUtil
             return t;
         }
         return tryAsErrorCausedByUnexpectedInvocation(t.getCause());
+    }
+
+    /**
+     * Assert that toString() of at least one of objects in given array contains given substring.
+     */
+    public static void assertCollectionContainsString(Collection<?> objects, String subString)
+    {
+        for (Object object : objects)
+        {
+            if (object.toString().contains(subString))
+            {
+                return;
+            }
+        }
+        fail("expected that representation of collection: <" + objects + "> contains: <" + subString + ">");
+    }
+
+    /**
+     * Assert given collection contains given item
+     */
+    public static <T> void assertCollectionContains(Collection<T> objects, T item)
+    {
+        if (false == objects.contains(item))
+        {
+            fail("expected that collection: <" + objects + "> contains: <" + item + ">");
+        }
+    }
+
+    /**
+     * Assert given collection contains only given items
+     */
+    public static <T> void assertCollectionContainsOnly(Collection<T> objects, T... items)
+    {
+        Set<T> objectsSet = new HashSet<T>(objects);
+        Set<T> itemsSet = new HashSet<T>(Arrays.asList(items));
+
+        if (false == objectsSet.equals(itemsSet))
+        {
+            fail("expected that collection: <" + objects + "> contains only: <" + itemsSet + ">");
+        }
+    }
+
+    public static void assertCollectionSize(Collection<?> objects, int size)
+    {
+        if (objects.size() != size)
+        {
+            fail("Collection size expected: <" + size + "> but was: <" + objects.size() + "> " + objects.toString());
+        }
+    }
+
+    public static void assertCollectionIsEmpty(Collection<?> objects)
+    {
+        if (objects.size() != 0)
+        {
+            fail("Collection should be empty but was: " + objects.toString() + "");
+        }
     }
 }

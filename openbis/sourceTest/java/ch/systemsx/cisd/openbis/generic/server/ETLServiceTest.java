@@ -52,12 +52,6 @@ import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -86,6 +80,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.material.MaterialTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -484,9 +484,6 @@ public class ETLServiceTest extends AbstractServerTestCase
             {
                 {
                     one(sessionManager).getSession(SESSION_TOKEN);
-
-                    one(daoFactory).getPermIdDAO();
-                    will(returnValue(permIdDAO));
 
                     one(permIdDAO).createPermId();
                     will(returnValue("permId"));
@@ -1086,7 +1083,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-        { "c1", "c2" });
+            { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
 
@@ -1110,9 +1107,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         NewSpace space = new NewSpace(TEST_SPACE, TEST_SPACE_DESCRIPTION, TEST_SPACE_USER);
 
-        RecordingMatcher<NewRoleAssignment> roleMatcher = prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
-                materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
-                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu, space);
+        RecordingMatcher<NewRoleAssignment> roleMatcher =
+                prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
+                        materialRegistrations, newSamplePE, newSampleIdentifier, newSample,
+                        externalData, updatedDataSetCode, dataSetUpdate, newMetaproject,
+                        metaprojectPE, mtu, space);
 
         AtomicEntityOperationDetails details =
                 new AtomicEntityOperationDetails(null, USER_FOR_ENTITY_OPERATIONS,
@@ -1137,17 +1136,19 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.assertIsSatisfied();
     }
 
-    private RecordingMatcher<NewRoleAssignment> prepareEntityOperationsExpectations(final SamplePE samplePE,
-            final SampleUpdatesDTO sampleUpdate, final MaterialPE material,
-            final MaterialTypePE materialType, final Map<String, List<NewMaterial>> newMaterials,
-            final SamplePE newSamplePE, final SampleIdentifier newSampleIdentifier,
-            final NewSample newSample, final NewExternalData externalData,
-            final String updatedDataSetCode, final DataSetBatchUpdatesDTO dataSetUpdate,
-            final NewMetaproject newMetaproject, final MetaprojectPE metaprojectPE,
-            final MetaprojectUpdatesDTO metaprojectUpdates, final NewSpace newSpace)
+    private RecordingMatcher<NewRoleAssignment> prepareEntityOperationsExpectations(
+            final SamplePE samplePE, final SampleUpdatesDTO sampleUpdate,
+            final MaterialPE material, final MaterialTypePE materialType,
+            final Map<String, List<NewMaterial>> newMaterials, final SamplePE newSamplePE,
+            final SampleIdentifier newSampleIdentifier, final NewSample newSample,
+            final NewExternalData externalData, final String updatedDataSetCode,
+            final DataSetBatchUpdatesDTO dataSetUpdate, final NewMetaproject newMetaproject,
+            final MetaprojectPE metaprojectPE, final MetaprojectUpdatesDTO metaprojectUpdates,
+            final NewSpace newSpace)
     {
         final Session userSession = createSession(USER_FOR_ENTITY_OPERATIONS);
-        final RecordingMatcher<NewRoleAssignment> roleMatcher = new RecordingMatcher<NewRoleAssignment>();
+        final RecordingMatcher<NewRoleAssignment> roleMatcher =
+                new RecordingMatcher<NewRoleAssignment>();
         context.checking(new Expectations()
             {
                 {
@@ -1161,7 +1162,8 @@ public class ETLServiceTest extends AbstractServerTestCase
 
                     one(sessionManagerForEntityOperations).closeSession(sessionToken);
 
-                    one(entityOperationChecker).assertSpaceCreationAllowed(userSession, Arrays.asList(newSpace));
+                    one(entityOperationChecker).assertSpaceCreationAllowed(userSession,
+                            Arrays.asList(newSpace));
                     one(boFactory).createSpaceBO(userSession);
                     will(returnValue(spaceBO));
 
@@ -1351,7 +1353,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         dataSetUpdate.setDatasetId(CommonTestUtils.TECH_ID);
         dataSetUpdate.setFileFormatTypeCode("new-file-format");
         dataSetUpdate.setModifiedContainedDatasetCodesOrNull(new String[]
-        { "c1", "c2" });
+            { "c1", "c2" });
 
         final MetaprojectPE metaprojectPE = new MetaprojectPE();
         metaprojectPE.setOwner(CommonTestUtils.createPersonFromPrincipal(PRINCIPAL));
@@ -1376,9 +1378,11 @@ public class ETLServiceTest extends AbstractServerTestCase
 
         NewSpace space = new NewSpace(TEST_SPACE, TEST_SPACE_DESCRIPTION, TEST_SPACE_USER);
 
-        RecordingMatcher<NewRoleAssignment> roleMatcher = prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
-                materialRegistrations, newSamplePE, newSampleIdentifier, newSample, externalData,
-                updatedDataSetCode, dataSetUpdate, newMetaproject, metaprojectPE, mtu, space);
+        RecordingMatcher<NewRoleAssignment> roleMatcher =
+                prepareEntityOperationsExpectations(samplePE, sampleUpdate, material, materialType,
+                        materialRegistrations, newSamplePE, newSampleIdentifier, newSample,
+                        externalData, updatedDataSetCode, dataSetUpdate, newMetaproject,
+                        metaprojectPE, mtu, space);
         context.checking(new Expectations()
             {
                 {
@@ -1626,7 +1630,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // unknown data set type codes should be silently discarded
         return new DatastoreServiceDescription(key, key, new String[]
-        { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
+            { DATA_SET_TYPE_CODE, UNKNOWN_DATA_SET_TYPE_CODE }, key, serviceKind);
     }
 
     @SuppressWarnings("deprecation")
@@ -1635,7 +1639,7 @@ public class ETLServiceTest extends AbstractServerTestCase
     {
         // wildcards should be handled correctly
         return new DatastoreServiceDescription(key, key, new String[]
-        { regex }, key, serviceKind);
+            { regex }, key, serviceKind);
     }
 
     private void assignRoles(PersonPE person)

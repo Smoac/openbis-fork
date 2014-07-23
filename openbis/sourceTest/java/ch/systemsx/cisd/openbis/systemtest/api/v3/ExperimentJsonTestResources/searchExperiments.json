@@ -1,0 +1,21 @@
+{
+	"method":"searchExperiments",
+	"params":[
+		"%s",
+		{
+			"@type" : "ExperimentSearchCriterion",
+			"criteria" : [
+    			 {
+    			     "@type" : "CodeSearchCriterion",
+    			     "fieldValue" : {
+    			         "@type" : "StringEqualToValue",
+    			         "value" : "%s"
+    			     }
+    			 }
+			]
+		},
+		%s
+	],
+	"id":"1",
+	"jsonrpc":"2.0"
+}

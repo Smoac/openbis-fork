@@ -162,8 +162,7 @@ public class QueryDatabaseDefinitionProvider implements IQueryDatabaseDefinition
     }
 
     @Override
-    public Collection<DatabaseDefinition> getAllDefinitions()
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    public Collection<DatabaseDefinition> getAllDefinitions() throws UserFailureException
     {
         checkInitialization();
         return definitions.values();

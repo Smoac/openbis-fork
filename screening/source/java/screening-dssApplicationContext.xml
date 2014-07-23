@@ -63,8 +63,7 @@
         <property name="serviceInterface" value="ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening" />
     </bean>
 
-    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.json.ScreeningObjectMapper">
-    </bean>
+    <bean id="objectMapper" class="ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.json.ScreeningObjectMapper" />
     
     <!-- 
         // Authorization

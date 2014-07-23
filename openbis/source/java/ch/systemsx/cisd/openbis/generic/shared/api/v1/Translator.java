@@ -24,9 +24,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -51,6 +53,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType.Experim
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material.MaterialInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialTypeIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType.PropertyTypeInitializer;
@@ -67,6 +70,27 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary.VocabularyInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.IDataSetId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.IMaterialId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectPermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.ProjectTechIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleIdentifierId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SamplePermIdId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.SampleTechIdId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -809,4 +833,216 @@ public class Translator
             return new PropertyType(ptInitializer);
         }
     }
+
+    public static Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId> translate(Set<IObjectId> ids)
+    {
+        if (ids == null)
+        {
+            return null;
+        }
+
+        Set<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId> result =
+                new HashSet<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId>();
+
+        for (IObjectId id : ids)
+        {
+            result.add(translate(id));
+        }
+
+        return result;
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId translate(IObjectId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof IProjectId)
+        {
+            return translate((IProjectId) id);
+        } else if (id instanceof IExperimentId)
+        {
+            return translate((IExperimentId) id);
+        } else if (id instanceof ISampleId)
+        {
+            return translate((ISampleId) id);
+        } else if (id instanceof IDataSetId)
+        {
+            return translate((IDataSetId) id);
+        } else if (id instanceof IMaterialId)
+        {
+            return translate((IMaterialId) id);
+        } else if (id instanceof IMetaprojectId)
+        {
+            return translate((IMetaprojectId) id);
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported object id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.project.IProjectId translate(IProjectId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof ProjectTechIdId)
+        {
+            ProjectTechIdId techIdId = (ProjectTechIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.project.ProjectTechIdId(techIdId.getTechId());
+        } else if (id instanceof ProjectIdentifierId)
+        {
+            ProjectIdentifierId identifierId = (ProjectIdentifierId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.project.ProjectIdentifierId(identifierId.getIdentifier());
+        } else if (id instanceof ProjectPermIdId)
+        {
+            ProjectPermIdId permIdId = (ProjectPermIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.project.ProjectPermIdId(permIdId.getPermId());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported project id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.IExperimentId translate(IExperimentId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof ExperimentTechIdId)
+        {
+            ExperimentTechIdId techIdId = (ExperimentTechIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentTechIdId(techIdId.getTechId());
+        } else if (id instanceof ExperimentIdentifierId)
+        {
+            ExperimentIdentifierId identifierId = (ExperimentIdentifierId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentIdentifierId(identifierId.getIdentifier());
+        } else if (id instanceof ExperimentPermIdId)
+        {
+            ExperimentPermIdId permIdId = (ExperimentPermIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.ExperimentPermIdId(permIdId.getPermId());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported experiment id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.ISampleId translate(ISampleId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof SampleTechIdId)
+        {
+            SampleTechIdId techIdId = (SampleTechIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleTechIdId(techIdId.getTechId());
+        } else if (id instanceof SampleIdentifierId)
+        {
+            SampleIdentifierId identifierId = (SampleIdentifierId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SampleIdentifierId(identifierId.getIdentifier());
+        } else if (id instanceof SamplePermIdId)
+        {
+            SamplePermIdId permIdId = (SamplePermIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.SamplePermIdId(permIdId.getPermId());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported sample id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.IDataSetId translate(IDataSetId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof DataSetTechIdId)
+        {
+            DataSetTechIdId techIdId = (DataSetTechIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetTechIdId(techIdId.getTechId());
+        } else if (id instanceof DataSetCodeId)
+        {
+            DataSetCodeId codeId = (DataSetCodeId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.dataset.DataSetCodeId(codeId.getCode());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported data set id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.material.IMaterialId translate(IMaterialId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof MaterialTechIdId)
+        {
+            MaterialTechIdId techIdId = (MaterialTechIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.material.MaterialTechIdId(techIdId.getTechId());
+        } else if (id instanceof MaterialCodeAndTypeCodeId)
+        {
+            MaterialCodeAndTypeCodeId codeAndTypeCodeId = (MaterialCodeAndTypeCodeId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.material.MaterialCodeAndTypeCodeId(codeAndTypeCodeId.getCode(),
+                    codeAndTypeCodeId.getTypeCode());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported material id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.IMetaprojectId translate(IMetaprojectId id)
+    {
+        if (id == null)
+        {
+            return null;
+        }
+        if (id instanceof MetaprojectTechIdId)
+        {
+            MetaprojectTechIdId techIdId = (MetaprojectTechIdId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectTechIdId(techIdId.getTechId());
+        } else if (id instanceof MetaprojectIdentifierId)
+        {
+            MetaprojectIdentifierId identifierId = (MetaprojectIdentifierId) id;
+            return new ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId(identifierId.getIdentifier());
+        } else
+        {
+            throw new IllegalArgumentException("Unsupported metaproject id: " + id.getClass());
+        }
+    }
+
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsIds translate(MetaprojectAssignmentsIds assignments)
+    {
+        if (assignments == null)
+        {
+            return null;
+        }
+
+        ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsIds result =
+                new ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectAssignmentsIds();
+
+        for (IExperimentId experiment : assignments.getExperiments())
+        {
+            result.addExperiment(translate(experiment));
+        }
+        for (ISampleId sample : assignments.getSamples())
+        {
+            result.addSample(translate(sample));
+        }
+        for (IDataSetId dataSet : assignments.getDataSets())
+        {
+            result.addDataSet(translate(dataSet));
+        }
+        for (IMaterialId material : assignments.getMaterials())
+        {
+            result.addMaterial(translate(material));
+        }
+
+        return result;
+    }
+
 }
