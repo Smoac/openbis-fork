@@ -167,7 +167,7 @@ def copySample(tr, parameters, tableBuilder):
 	if sampleChildren != None:
 		for sampleChildIdentifier in sampleChildren:
 			child = tr.getSample(sampleChildIdentifier); #Retrieve Sample child to copy
-			copyChildCode = parameters.get("sampleCode") + "_" + child.getCode();
+			copyChildCode = parameters.get("sampleCode") + child.getCode()[child.getCode().index('_'):];
 			copyChildIdentifier = "/" + parameters.get("sampleSpace") + "/" + copyChildCode;
 			
 			# Create new sample children
@@ -179,11 +179,29 @@ def copySample(tr, parameters, tableBuilder):
 			propertiesDefinitions = searchService.listPropertiesDefinitionsForSampleType(child.getSampleType());
 			for propertyDefinition in propertiesDefinitions:
 				propCode = propertyDefinition.getPropertyTypeCode();
-				propValue = child.getPropertyValue(propCode);
+				propValue = getCopySampleChildrenPropertyValue(
+					propCode,
+					child.getPropertyValue(propCode),
+					parameters.get("notCopyProperties"),
+					parameters.get("defaultBenchPropertyList"),
+					parameters.get("defaultBenchProperties")
+				);
 				if propValue != None:
 					childCopy.setPropertyValue(propCode, propValue);
 			
 	return True;
+
+#This method is used to return the properties, deleting the storage ones and setting the default storage
+def getCopySampleChildrenPropertyValue(propCode, propValue, notCopyProperties, defaultBenchPropertyList, defaultBenchProperties):
+	isPropertyToSkip = any(propCode == s for s in notCopyProperties);
+	isDefaultBenchProperty = any(propCode == s for s in defaultBenchPropertyList);
+	print propCode + " " + str(isPropertyToSkip) + " " + str(isDefaultBenchProperty);
+	if isPropertyToSkip:
+		return None;
+	elif isDefaultBenchProperty:
+		return str(defaultBenchProperties[propCode]);
+	else:
+		return propValue;
 	
 def insertUpdateSample(tr, parameters, tableBuilder):
 	

@@ -817,6 +817,33 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			}
 			if(!copyChildrenOnCopy) {
 				parameters["sampleChildren"] = [];
+			} else if(this.profile.storagesConfiguration["isEnabled"]) {
+				//1. All properties belonging to benches, to not to copy
+				parameters["notCopyProperties"] = [];
+				parameters["defaultBenchPropertyList"] = [];
+				for(var i = 0; i < this.profile.storagesConfiguration["STORAGE_PROPERTIES"].length; i++) {
+					var storagePropertyGroup = this.profile.storagesConfiguration["STORAGE_PROPERTIES"][i];
+					var listToUse = "notCopyProperties";
+					if(i === 0) {
+						listToUse = "defaultBenchPropertyList";
+					}
+					parameters[listToUse].push(storagePropertyGroup["NAME_PROPERTY"]);
+					parameters[listToUse].push(storagePropertyGroup["ROW_PROPERTY"]);
+					parameters[listToUse].push(storagePropertyGroup["COLUMN_PROPERTY"]);
+					parameters[listToUse].push(storagePropertyGroup["BOX_PROPERTY"]);
+					parameters[listToUse].push(storagePropertyGroup["USER_PROPERTY"]);
+				}
+				
+				//2. Default Bench properties
+				var defaultStoragePropertyGroup = this.profile.storagesConfiguration["STORAGE_PROPERTIES"][0];
+				parameters["defaultBenchProperties"] = {};
+				var $benchDropdown = FormUtil.getDefaultBenchDropDown();
+				var defaultBench = $benchDropdown.children()[1].value;
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = $("#sampleSpaceProject").val().replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = this.serverFacade.openbisServer.getSession().split("-")[0];
 			}
 			parameters["sampleChildrenNew"] = [];
 			parameters["sampleChildrenRemoved"] = [];
