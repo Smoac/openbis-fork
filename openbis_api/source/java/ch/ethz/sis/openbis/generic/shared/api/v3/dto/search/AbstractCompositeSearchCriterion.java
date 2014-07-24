@@ -25,7 +25,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 /**
  * @author pkupczyk
  */
-@JsonObject("AbstractStringValue")
+@JsonObject("AbstractCompositeSearchCriterion")
 public abstract class AbstractCompositeSearchCriterion extends AbstractSearchCriterion
 {
 
