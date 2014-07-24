@@ -49,8 +49,8 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServ
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.json.ScreeningObjectMapper;
 
 /**
- * This class contains tests that make sure that Jackson annotations are used correctly and
- * consistently in all the classes that are exposed through openBIS JSON-RPC APIs.
+ * This class contains tests that make sure that Jackson annotations are used correctly and consistently in all the classes that are exposed through
+ * openBIS JSON-RPC APIs.
  * 
  * @author anttil
  */
@@ -69,10 +69,10 @@ public class JsonAnnotationTest
     private void findAllClassesUsedByJsonRpcApi()
     {
         Class<?>[] jsonRpcInterfaces =
-                    { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
-                            IGeneralInformationChangingService.class,
-                            IGeneralInformationService.class, IWebInformationService.class,
-                            IQueryApiServer.class, IDssServiceRpcScreening.class };
+        { IDssServiceRpcGeneric.class, IScreeningApiServer.class,
+                IGeneralInformationChangingService.class,
+                IGeneralInformationService.class, IWebInformationService.class,
+                IQueryApiServer.class, IDssServiceRpcScreening.class };
 
         for (Class<?> jsonClass : jsonRpcInterfaces)
         {
@@ -96,7 +96,7 @@ public class JsonAnnotationTest
     }
 
     @Test
-    public void jsonTypeNamesAreUnique()
+    public void jsonTypeNamesAreUniqueInV1()
     {
         // Classes that are allowed to have already existing @JsonTypeName
         Collection<String> whiteList = new HashSet<String>();
@@ -108,7 +108,30 @@ public class JsonAnnotationTest
         Map<String, Collection<Class<?>>> names = new HashMap<String, Collection<Class<?>>>();
         for (Class<?> clazz : ClassReferences.ref.getTypesAnnotatedWith(JsonObject.class))
         {
-            if (whiteList.contains(clazz.getCanonicalName()) == false)
+            if (whiteList.contains(clazz.getCanonicalName()) == false && clazz.getCanonicalName().contains(".v3.") == false)
+            {
+                String name = clazz.getAnnotation(JsonObject.class).value();
+                addValueToCollectionMap(names, name, clazz);
+            }
+        }
+
+        assertThat(duplicatedValuesIn(names), is(emptyMap));
+    }
+
+    @Test
+    public void jsonTypeNamesAreUniqueInV3()
+    {
+        // Classes that are allowed to have already existing @JsonTypeName
+        Collection<String> whiteList = new HashSet<String>();
+        whiteList
+                .add("ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeALegalDuplicate");
+        whiteList
+                .add("ch.systemsx.cisd.openbis.common.api.server.json.object.ObjectWithTypeBIllegalDuplicate");
+
+        Map<String, Collection<Class<?>>> names = new HashMap<String, Collection<Class<?>>>();
+        for (Class<?> clazz : ClassReferences.ref.getTypesAnnotatedWith(JsonObject.class))
+        {
+            if (whiteList.contains(clazz.getCanonicalName()) == false && clazz.getCanonicalName().contains(".v3."))
             {
                 String name = clazz.getAnnotation(JsonObject.class).value();
                 addValueToCollectionMap(names, name, clazz);
