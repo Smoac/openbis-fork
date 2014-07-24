@@ -70,7 +70,7 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                                     channel);
                         }
                     }
-                    Levels levels = IntensityRescaling.computeLevels(image, threshold);
+                    Levels levels = IntensityRescaling.computeLevels(toGrayScale(image, Channel.RED), threshold);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
             };

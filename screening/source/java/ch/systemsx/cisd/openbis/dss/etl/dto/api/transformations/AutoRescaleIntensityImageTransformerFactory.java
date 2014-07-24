@@ -28,13 +28,11 @@ import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 
 /**
- * Transformation performed by
- * {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)} where levels are
- * computed automatically by {@link IntensityRescaling#computeLevels(BufferedImage, float)}.
+ * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)} where levels are computed automatically
+ * by {@link IntensityRescaling#computeLevels(BufferedImage, float)}.
  * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package or changing it in a backward incompatible way would make
- * all the saved transformations invalid.
+ * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+ * in a backward incompatible way would make all the saved transformations invalid.
  * 
  * @author Tomasz Pylak
  */
@@ -74,7 +72,7 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                                     channel);
                         }
                     }
-                    Levels levels = IntensityRescaling.computeLevels(image, threshold);
+                    Levels levels = IntensityRescaling.computeLevels(toGrayScale(image, Channel.RED), threshold);
                     return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
             };
@@ -92,7 +90,7 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
             {
                 int value = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
                 raster.setPixel(x, y, new int[]
-                    { value });
+                { value });
             }
         }
         return gray;
