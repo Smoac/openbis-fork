@@ -88,7 +88,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			if(spaceNode.isTitle && !spaceNode.isSelectable) {
 				continue;
 			}
-			if(spaceNode.displayName === spaceCode) {
+			if(spaceNode.code === spaceCode) {
 				return spaceNode;
 			}
 		}
@@ -104,7 +104,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			var projectsFromSpace = spaceNode.newMenuIfSelected.children;
 			for(var pIdx = 0; pIdx < projectsFromSpace.length; pIdx++) {
 				var projectNode = projectsFromSpace[pIdx];
-				if(projectNode.displayName === projectCode) {
+				if(projectNode.code === projectCode) {
 					return projectNode;
 				}
 			}
@@ -117,7 +117,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		var experimentsFromProject = projectNode.newMenuIfSelected.children;
 		for(var eIdx = 0; eIdx < experimentsFromProject.length; eIdx++) {
 			var experimentNode = experimentsFromProject[eIdx];
-			if(experimentNode.displayName === experimentCode) {
+			if(experimentNode.code === experimentCode) {
 				return experimentNode;
 			}
 		}
@@ -395,7 +395,12 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			$titleAsTextOrLink.click(clickFunction(menuToPaint));
 		} else {
-			$titleAsTextOrLink = menuToPaint.displayName + " " + menuToPaint.contextTitle;
+			$titleAsTextOrLink = $("<span>").text(menuToPaint.displayName + " " + menuToPaint.contextTitle);
+		}
+		
+		if(menuToPaint.showTooltip) {
+			$titleAsTextOrLink.attr("title", menuToPaint.code + " " + menuToPaint.contextTitle);
+			$titleAsTextOrLink.tooltipster();
 		}
 		
 		var $mainTitle = $("<span>").append($titleAsTextOrLink);
@@ -419,6 +424,12 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			var $menuItem = $("<div>", { "class" : "sideMenuItem" });
 			var $menuItemTitle = $("<span>").append(menuItem.displayName);
+			
+			if(menuItem.showTooltip) {
+				$menuItem.attr("title", menuItem.code);
+				$menuItem.tooltipster();
+			}
+			
 			$menuItem.append($menuItemTitle);
 			
 			if(menuItem.isTitle) {
@@ -455,13 +466,22 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 	
 }
 
-function SideMenuWidgetComponent(isSelectable, isTitle, displayName, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {
+function SideMenuWidgetComponent(isSelectable, isTitle, code, parent, newMenuIfSelected, newViewIfSelected, newViewIfSelectedData, contextTitle) {
 	this.isSelectable = isSelectable;
 	this.isTitle = isTitle;
-	this.displayName = displayName;
+	this.code = code;
 	this.contextTitle = contextTitle;
 	this.parent = parent;
 	this.newMenuIfSelected = newMenuIfSelected;
 	this.newViewIfSelected = newViewIfSelected;
 	this.newViewIfSelectedData = newViewIfSelectedData;
+	
+	// Fix for long names
+	this.cutDisplayNameAtLength = 15;
+	this.showTooltip = code.length > this.cutDisplayNameAtLength;
+	if(this.showTooltip) {
+		this.displayName = code.substring(0, this.cutDisplayNameAtLength) + "...";
+	} else {
+		this.displayName = code;
+	}
 }
