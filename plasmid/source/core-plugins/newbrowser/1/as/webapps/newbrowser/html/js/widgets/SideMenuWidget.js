@@ -364,6 +364,17 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		//
 		// Title
 		//
+		
+		// Fix for long names
+		var cutDisplayNameAtLength = 15;
+		var titleShowTooltip = (menuToPaint.code + " " + menuToPaint.contextTitle).length > cutDisplayNameAtLength;
+		if(titleShowTooltip) {
+			var titleDisplayName = (menuToPaint.code + " " + menuToPaint.contextTitle).substring(0, cutDisplayNameAtLength) + "...";
+		} else {
+			var titleDisplayName = (menuToPaint.code + " " + menuToPaint.contextTitle);
+		}
+		//
+		
 		this._menuDOMTitle.empty();
 		var isBackButtonShown = menuToPaint.parent !== null;
 		if(isBackButtonShown) {
@@ -385,7 +396,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		
 		var $titleAsTextOrLink = null;
 		if(menuToPaint.newViewIfSelected && menuToPaint.newViewIfSelected != "showBlancPage") {
-			$titleAsTextOrLink = $("<a>", { "href" : "javascript:void(0);" }).append(menuToPaint.displayName + " " + menuToPaint.contextTitle)
+			$titleAsTextOrLink = $("<a>", { "href" : "javascript:void(0);" }).append(titleDisplayName)
 			
 			var clickFunction = function(menuToPaint) {
 				return function() {
@@ -395,10 +406,10 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			$titleAsTextOrLink.click(clickFunction(menuToPaint));
 		} else {
-			$titleAsTextOrLink = $("<span>").text(menuToPaint.displayName + " " + menuToPaint.contextTitle);
+			$titleAsTextOrLink = $("<span>").text(titleDisplayName);
 		}
 		
-		if(menuToPaint.showTooltip) {
+		if(titleShowTooltip) {
 			$titleAsTextOrLink.attr("title", menuToPaint.code + " " + menuToPaint.contextTitle);
 			$titleAsTextOrLink.tooltipster();
 		}
@@ -423,9 +434,19 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			
 			
 			var $menuItem = $("<div>", { "class" : "sideMenuItem" });
-			var $menuItemTitle = $("<span>").append(menuItem.displayName);
 			
-			if(menuItem.showTooltip) {
+			//
+			var itemShowTooltip = menuItem.code.length > cutDisplayNameAtLength;
+			if(itemShowTooltip) {
+				var itemDisplayName = menuItem.code.substring(0, cutDisplayNameAtLength) + "...";
+			} else {
+				var itemDisplayName = menuItem.code;
+			}
+			//
+			
+			var $menuItemTitle = $("<span>").append(itemDisplayName);
+			
+			if(itemShowTooltip) {
 				$menuItem.attr("title", menuItem.code);
 				$menuItem.tooltipster();
 			}
@@ -475,13 +496,4 @@ function SideMenuWidgetComponent(isSelectable, isTitle, code, parent, newMenuIfS
 	this.newMenuIfSelected = newMenuIfSelected;
 	this.newViewIfSelected = newViewIfSelected;
 	this.newViewIfSelectedData = newViewIfSelectedData;
-	
-	// Fix for long names
-	this.cutDisplayNameAtLength = 15;
-	this.showTooltip = code.length > this.cutDisplayNameAtLength;
-	if(this.showTooltip) {
-		this.displayName = code.substring(0, this.cutDisplayNameAtLength) + "...";
-	} else {
-		this.displayName = code;
-	}
 }
