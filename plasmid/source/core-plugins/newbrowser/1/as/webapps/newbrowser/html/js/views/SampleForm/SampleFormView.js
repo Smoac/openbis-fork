@@ -62,6 +62,20 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			$formTitle.append(FormUtil.getPINButton(this._sampleFormModel.sample.permId));
+			
+			if(this._sampleFormModel.mode === FormMode.VIEW) {
+				$formTitle.append(" ");
+				var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
+									.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }))
+									.append(' Enable Editing');
+				
+				$editButton.click(function() {
+					mainController.changeView('showEditSamplePageFromPermId', _this._sampleFormModel.sample.permId);
+				});
+				
+				$formTitle.append($editButton);
+			}
+			
 		}
 		
 		$formColumn.append($formTitle);
@@ -151,7 +165,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// GENERATE CHILDREN
 		//
-		if((this._sampleFormModel.mode !== FormMode.VIEW) && !this._sampleFormModel.isELNSubExperiment) {
+		if((this._sampleFormModel.mode !== FormMode.VIEW) && this._sampleFormModel.isELNSubExperiment) {
 			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-left:25px;', 'id' : 'generate_children'}).text("Generate Children");
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
