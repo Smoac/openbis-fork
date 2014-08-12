@@ -125,6 +125,25 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getPINButton = function(permId) {
+		var inspectedClass = "";
+		if(mainController.inspector.containsByPermId(permId) !== -1) {
+			inspectedClass = "inspectorClicked";
+		}
+		
+		var $pinBtn = $("<a>", { 'id' : 'pinButton_' + permId, 'class' : 'btn btn-default ' + inspectedClass });
+		$pinBtn.append($("<img>", { 'src' : './img/pin-icon.png', 'style' : 'width:16px; height:16px;'}));
+		$pinBtn.click(function() {
+			var isInspected = mainController.inspector.toggleInspectPermId(permId);
+			if(isInspected) {
+				$('#pinButton_' + permId).addClass('inspectorClicked');
+			} else {
+				$('#pinButton_' + permId).removeClass('inspectorClicked');
+			}
+		});
+		return $pinBtn;
+	}
+	
 	//
 	// Get Field with container to obtain a correct layout
 	//

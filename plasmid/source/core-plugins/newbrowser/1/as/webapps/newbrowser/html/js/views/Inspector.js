@@ -43,6 +43,15 @@ function Inspector(serverFacade, containerId, profile) {
 		$("#"+containerId).append(allInspectors);
 	}
 	
+	this.containsByPermId = function(permId) {
+		for(var i = 0; i < this.inspectedSamples.length; i++) {
+			if(this.inspectedSamples[i].permId === permId) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	this.containsSample = function(sample) {
 		for(var i = 0; i < this.inspectedSamples.length; i++) {
 			if(this.inspectedSamples[i].permId === sample.permId) {
@@ -61,6 +70,28 @@ function Inspector(serverFacade, containerId, profile) {
 		}
 		
 		return false;
+	}
+	
+	this.toggleInspectPermId = function(permId) {
+		var _this = this;
+		//Already inspected check
+		var samplePosition = this.containsByPermId(permId);
+		var isInspected = null;
+		if(samplePosition !== -1) {
+			this.inspectedSamples.splice(samplePosition, 1);
+			isInspected = false;
+			$("#num-pins").empty();
+			$("#num-pins").append(_this.inspectedSamples.length);
+		} else {
+			mainController.serverFacade.searchWithUniqueId(permId, function(data) {
+				_this.inspectedSamples.push(data[0]);
+				$("#num-pins").empty();
+				$("#num-pins").append(_this.inspectedSamples.length);
+			});
+			
+			isInspected = true;
+		}
+		return isInspected;
 	}
 	
 	//Public method that should be used to add a page, is used by the MainController.js
