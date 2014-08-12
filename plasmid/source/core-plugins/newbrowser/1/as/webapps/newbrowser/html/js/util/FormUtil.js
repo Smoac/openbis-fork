@@ -109,6 +109,22 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getSpaceDropdown = function(id, isRequired) {
+		var spaces = this.profile.allSpaces;
+		
+		var $component = $("<select>", {"id" : id, class : 'form-control'});
+		if (isRequired) {
+			$component.attr('required', '');
+		}
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
+		for(var i = 0; i < spaces.length; i++) {
+			$component.append($("<option>").attr('value', spaces[i]).text(spaces[i]));
+		}
+		
+		return $component;
+	}
+	
 	//
 	// Get Field with container to obtain a correct layout
 	//
