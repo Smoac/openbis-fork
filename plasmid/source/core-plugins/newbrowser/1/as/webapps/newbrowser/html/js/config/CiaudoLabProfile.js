@@ -9,24 +9,29 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 		
 	
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
-		this.inventorySpaces = ["INVENTORY"];
+		this.inventorySpaces = ["ANTIBODIES", "CELLS", "ENZYMES", "EQUIPMENTS", "LAB_MEETINGS", "PLASMIDS", "PRIMERS", "PROTOCOLS", "RESTRICTION_ENZYMES"];
 		this.isShowUnavailablePreviewOnSampleTable = true;
 		this.typeGroups = {
 			"MATERIALS" : {
 				"TYPE" : "MATERIALS",
 				"DISPLAY_NAME" : "Materials",
-				"LIST" : ["INHIBITOR", "ANTIBODY",]
-			},
-			"SAMPLES" : {
-				"TYPE" : "SAMPLES",
-				"DISPLAY_NAME" : "Samples",
-				"LIST" : ["CELL_LINE", "PLASMID"]
+				"LIST" : ["ANTIBODIES", "CELLS", "ENZYMES", "PLASMIDS", "PRIMERS", "STRAINS"]
 			},
 			"METHODS" : {
 				"TYPE" : "METHODS",
 				"DISPLAY_NAME" : "Methods",
-				"LIST" : ["PROTOCOL"]
+				"LIST" : ["PROTOCOLS"]
 			},
+			"EQUIPMENT" : {
+				"TYPE" : "EQUIPMENT",
+				"DISPLAY_NAME" : "Equipment",
+				"LIST" : ["EQUIPMENT"]
+			},	
+			"LAB_MEETINGS" : {
+				"TYPE" : "LAB_MEETINGS",
+				"DISPLAY_NAME" : "Lab meetings",
+				"LIST" : ["LAB_MEETINGS"]
+			},						
 			"OTHERS" : {
 				"TYPE" : "OTHERS",
 				"DISPLAY_NAME" : "Others",
@@ -37,14 +42,24 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 			
 
 		this.getSpaceForSampleType = function(type) {
-			if(type === "ANTIBODY") {
-				return "INVENTORY";
-			} else if(type === "PLASMID") {
-				return "INVENTORY";
-			} else if(type === "INHIBITOR") {
-				return "INVENTORY";
-			} else if(type === "CELL_LINE") {
-				return "INVENTORY";
+			if(type === "ANTIBODIES") {
+				return "ANTIBODIES";
+			} else if(type === "PLASMIDS") {
+				return "PLASMIDS";
+			} else if(type === "STRAINS") {
+				return "PLASMIDS";
+			} else if(type === "PRIMERS") {
+				return "PRIMERS";
+			} else if(type === "CELLS") {
+				return "CELLS";
+			} else if(type === "ENZYMES") {
+				return "ENZYMES";
+			} else if(type === "PROTOCOLS") {
+				return "PROTOCOLS";
+			} else if(type === "LAB_MEETINGS") {
+				return "LAB_MEETINGS";
+			} else if(type === "EQUIPMENT") {
+				return "EQUIPMENT";
 			} else {
 				return null;
 			}
@@ -52,14 +67,26 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 	
 
 		this.getExperimentIdentifierForSample = function(type, code, properties) {
-			if(type === "ANTIBODY") {
-				return "/INVENTORY/SAMPLES/ANTIBODIES";
-			} else if(type === "PLASMID") {
-				return "/INVENTORY/SAMPLES/PLASMIDS";
-			} else if(type === "INHIBITOR") {
-				return "/INVENTORY/SAMPLES/INHIBITORS";
-			} else if(type === "CELL_LINE") {
-				return "/INVENTORY/SAMPLES/CELL_LINES";
+			if(type === "LAB_MEETINGS") {
+				return "/LAB_MEETINGS/LAB_MEETINGS/LAB_MEETINGS";
+			} else if(type === "PROTOCOLS") {
+				return "/PROTOCOLS/PROTOCOLS/PROTOCOLS";
+			} else if(type === "ANTIBODIES") {
+				return "/ANTIBODIES/ANTIBODIES/ANTIBODIES";
+			} else if(type === "CELLS") {
+				return "/CELLS/CELLS/CELLS";
+			} else if(type === "ENZYMES") {
+				return "/ENZYMES/ENZYMES/ENZYMES";
+			} else if(type === "EQUIPMENTS") {
+				return "/EQUIPMENTS/EQUIPMENT/EQUIPMENT";
+			} else if(type === "PLASMIDS") {
+				return "/PLASMIDS/PLASMIDS/PLASMIDS";
+			} else if(type === "STRAINS") {
+				return "/PLASMIDS/PLASMIDS/STRAINS";
+			} else if(type === "PRIMERS") {
+				return "/PRIMERS/PRIMERS/PRIMERS";
+			} else if(type === "RESTRICTION_ENZYMES") {
+				return "/RESTRICTION_ENZYMES/RESTRICTION_ENZYMES/RESTRICTION_ENZYMES";
 			} else {
 				return null;
 			}
@@ -83,12 +110,22 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 				 * Storages map, can hold configurations for several storages.
 				*/
 				"STORAGE_CONFIGS": {
-					"MINUS80_1" : { //Freezer name given by the NAME_PROPERTY
+					"MINUS80" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 5, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},
-					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+					"MINUS20" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 5, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"FRIDGE" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 5, //Number of rows
+									"COLUMN_NUM" : 4, //Number of columns
+									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"RT" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 1, //Number of rows
 									"COLUMN_NUM" : 1, //Number of columns
 									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
@@ -96,40 +133,7 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 				}
 			};
 	
-		/* New Sample definition tests*/
-		this.sampleTypeDefinitionsExtension = {
-				"PLASMID_EXPRESSION" : {
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Protocol",
-														"TYPE": "PROTOCOL",
-														"MIN_COUNT" : 1,
-														"ANNOTATION_PROPERTIES" : []
-													}
-													,
-													{
-														"LABEL" : "Plasmid",
-														"TYPE": "PLASMID",
-														"MIN_COUNT" : 1,
-														"ANNOTATION_PROPERTIES" : []
-													}
-													,
-													{
-														"LABEL" : "Inhibitor",
-														"TYPE": "INHIBITOR",
-														"MIN_COUNT" : 1,
-														"ANNOTATION_PROPERTIES" : []
-													}
-													,
-													{
-														"LABEL" : "Cell Line",
-														"TYPE": "CELL_LINE",
-														"MIN_COUNT" : 1,
-														"ANNOTATION_PROPERTIES" : []
-													}
-												],
-				}
-		}
+
 
 		
 		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
