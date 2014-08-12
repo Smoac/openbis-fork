@@ -44,6 +44,7 @@ $.extend(DefaultProfile.prototype, {
 			"SAMPLE_TYPE_ATTRIBUTES_DISPLAY_NAME" : ["Sample Type", "Matched Text", "Matching Field", "Properties"],	
 		};
 		
+		this.allSpaces = [];
 		this.allSampleTypes = [];
 		this.allExperimentTypes = [];
 		this.allVocabularies = [];
@@ -406,7 +407,11 @@ $.extend(DefaultProfile.prototype, {
 							}
 						}
 					}
-					callback();
+					
+					localReference.serverFacade.listSpaces(function(spaces) {
+						localReference.allSpaces = spaces;
+						callback();
+					})
 				}
 			);
 		}

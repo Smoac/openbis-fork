@@ -60,7 +60,17 @@ function ServerFacade(openbisServer) {
 	this.listDataSetTypes = function(callbackFunction) {
 		this.openbisServer.listDataSetTypes(callbackFunction);
 	}
-
+	
+	this.listSpaces = function(callbackFunction) {
+		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+			var spaces = [];
+			for(var i = 0; i < data.result.length; i++) {
+				spaces.push(data.result[i].code);
+			}
+			callbackFunction(spaces);
+		});
+	}
+	
 	this.listSpacesWithProjectsAndRoleAssignments = function(somethingOrNull, callbackFunction) {
 		this.openbisServer.listSpacesWithProjectsAndRoleAssignments(somethingOrNull, callbackFunction);
 	}
