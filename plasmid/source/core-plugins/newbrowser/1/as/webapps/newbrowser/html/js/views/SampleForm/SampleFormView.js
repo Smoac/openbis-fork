@@ -47,18 +47,23 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var title = null;
 		switch(this._sampleFormModel.mode) {
-	    	case SampleFormMode.CREATE:
+	    	case FormMode.CREATE:
 	    		title = "Create " + this._sampleFormModel.sample.sampleTypeCode;
 	    		break;
-	    	case SampleFormMode.EDIT:
-	    		title = "Update " + sample.code;
+	    	case FormMode.EDIT:
+	    		title = "Update " + this._sampleFormModel.sample.code;
 	    		break;
-	    	case SampleFormMode.VIEW:
-	    		title = "View " + sample.code;
+	    	case FormMode.VIEW:
+	    		title = "View " + this._sampleFormModel.sample.code;
 	    		break;
 		} 
 		
-		var $formTitle = $("<h2>").append(title);
+		var $formTitle = $("<h2>").append(title + " ");
+		
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			$formTitle.append(FormUtil.getPINButton(this._sampleFormModel.sample.permId));
+		}
+		
 		$formColumn.append($formTitle);
 		
 		$formColumn.append($("<legend>").append("Identification Info"));
@@ -68,7 +73,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		
 		if(this._sampleFormModel.isELNSubExperiment) {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifier));
+			$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
 		} else {
 				var defaultSpace = profile.getSpaceForSampleType(sampleTypeCode);
 				if(!defaultSpace) {
@@ -111,7 +116,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleParentsWidgetId = "sampleParentsWidgetId";
 		var $sampleParentsWidget = $("<div>", { "id" : sampleParentsWidgetId });
 		$formColumn.append($sampleParentsWidget);
-		var isDisabled = this._sampleFormModel.mode === SampleFormMode.VIEW;
+		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		
 		var currentParentsLinks = (this.sample)?this.sample.parents:null;
 		this._sampleFormModel.sampleLinksParents = new SampleLinksWidget(sampleParentsWidgetId,
@@ -146,7 +151,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// GENERATE CHILDREN
 		//
-		if((this._sampleFormModel.mode !== SampleFormMode.VIEW) && !this._sampleFormModel.isELNSubExperiment) {
+		if((this._sampleFormModel.mode !== FormMode.VIEW) && !this._sampleFormModel.isELNSubExperiment) {
 			var $generateChildrenBtn = $("<a>", { 'class' : 'btn btn-default', 'style' : 'margin-left:25px;', 'id' : 'generate_children'}).text("Generate Children");
 			$generateChildrenBtn.click(function(event) {
 				_this._generateChildren();
@@ -265,7 +270,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	}
 	
 	//
-	// Generate Children widget
+	// TO-DO: Legacy code to be refactored - Generate Children widget
 	//
 	this._generateChildren = function() {
 		var _this = this;

@@ -20,7 +20,15 @@ function SampleFormModel(mode, sample) {
 	
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
-	this.isELNSubExperiment = false;
+	
+	if(this.mode === FormMode.CREATE && sample.experimentIdentifierOrNull) {
+		this.isELNSubExperiment = true;
+	} else if(!(this.mode === FormMode.CREATE)) {
+		this.isELNSubExperiment = $.inArray(sample.spaceCode, profile.inventorySpaces) === -1 && profile.inventorySpaces.length > 0;;
+	} else {
+		this.isELNSubExperiment = false;
+	}
+	
 	
 	this.storages = [];
 	this.dataSetViewer = null;
