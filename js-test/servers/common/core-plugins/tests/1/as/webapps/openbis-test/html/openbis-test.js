@@ -11,14 +11,14 @@ var testUrl = testProtocol + "//" + testHost + ":" + testPort;
 var testUserId = "openbis_test_js";
 var testUserPassword = "password";
 
-var createFacadeAndLogin = function(action, urlOrNull, timeoutOrNull){
+var createFacadeAndLogin = function(action, urlOrNull, timeoutOrNull) {
 	var url = typeof urlOrNull == "undefined" ? testUrl : urlOrNull;
 	createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, action, url, timeoutOrNull);
 }
 
-var createMaterialIdentifier = function(identifierString){
+var createMaterialIdentifier = function(identifierString) {
 	var parts = identifierString.split("/");
-	
+
 	return {
 		"@type" : "MaterialIdentifierGeneric",
 		"materialTypeIdentifier" : {
@@ -29,35 +29,35 @@ var createMaterialIdentifier = function(identifierString){
 	};
 }
 
-var createMetaprojectIdentifierId = function(identifierString){
+var createMetaprojectIdentifierId = function(identifierString) {
 	return {
 		"@type" : "MetaprojectIdentifierId",
 		"identifier" : identifierString
 	};
 }
 
-var createProjectIdentifierId = function(identifierString){
+var createProjectIdentifierId = function(identifierString) {
 	return {
 		"@type" : "ProjectIdentifierId",
 		"identifier" : identifierString
 	};
 }
 
-var createExperimentIdentifierId = function(identifierString){
+var createExperimentIdentifierId = function(identifierString) {
 	return {
 		"@type" : "ExperimentIdentifierId",
 		"identifier" : identifierString
 	};
 }
 
-var createSampleIdentifierId = function(identifierString){
+var createSampleIdentifierId = function(identifierString) {
 	return {
 		"@type" : "SampleIdentifierId",
 		"identifier" : identifierString
 	};
 }
 
-var createNewVocabularyTerm = function(code, previousTermOrdinal){
+var createNewVocabularyTerm = function(code, previousTermOrdinal) {
 	return {
 		"@type" : "NewVocabularyTerm",
 		"code" : code,
@@ -65,7 +65,7 @@ var createNewVocabularyTerm = function(code, previousTermOrdinal){
 	};
 }
 
-var createWebAppSettings = function(webAppId, settings){
+var createWebAppSettings = function(webAppId, settings) {
 	return {
 		"@type" : "WebAppSettings",
 		"webAppId" : webAppId,
@@ -73,118 +73,115 @@ var createWebAppSettings = function(webAppId, settings){
 	};
 }
 
-var createDataSetFileDTO = function(dataSetCode, path, isRecursive){
+var createDataSetFileDTO = function(dataSetCode, path, isRecursive) {
 	return {
 		"@type" : "DataSetFileDTO",
 		"dataSetCode" : dataSetCode,
 		"path" : path,
-		"isRecursive" : isRecursive 
+		"isRecursive" : isRecursive
 	};
 }
 
-var createNewMetaproject = function(facade, identifierString, action){
+var createNewMetaproject = function(facade, identifierString, action) {
 	var parts = identifierString.split("/");
 	var ownerId = parts[1];
 	var name = parts[2];
 
-	facade.listMetaprojects(function(response){
+	facade.listMetaprojects(function(response) {
 		var metaproject = findMetaproject(response.result, identifierString);
-		
-		if(metaproject){
+
+		if (metaproject) {
 			var id = createMetaprojectIdentifierId(identifierString);
-			
-			facade.deleteMetaproject(id, function(response){
-				facade.createMetaproject(name, null, function(response){
+
+			facade.deleteMetaproject(id, function(response) {
+				facade.createMetaproject(name, null, function(response) {
 					action(response);
 				});
 			});
-		}else{
-			facade.createMetaproject(name, null, function(response){
+		} else {
+			facade.createMetaproject(name, null, function(response) {
 				action(response);
 			});
 		}
 	});
 }
 
-var findMetaproject = function(metaprojects, identifierString){
+var findMetaproject = function(metaprojects, identifierString) {
 	var parts = identifierString.split("/");
 	var ownerId = parts[1];
 	var name = parts[2];
-	
-	return metaprojects.filter(function(metaproject){
+
+	return metaprojects.filter(function(metaproject) {
 		return metaproject.ownerId == ownerId && metaproject.name == name;
 	})[0];
 }
 
-var findVocabulary = function(vocabularies, code){
-	return vocabularies.filter(function(vocabulary){
+var findVocabulary = function(vocabularies, code) {
+	return vocabularies.filter(function(vocabulary) {
 		return vocabulary.code == code;
 	})[0];
 };
 
-var findVocabularyTerm = function(vocabulary, code){
-	return vocabulary.terms.filter(function(term){
+var findVocabularyTerm = function(vocabulary, code) {
+	return vocabulary.terms.filter(function(term) {
 		return term.code == code;
 	})[0];
 };
 
-var findQuery = function(queries, name){
-	return queries.filter(function(query){
+var findQuery = function(queries, name) {
+	return queries.filter(function(query) {
 		return query.name == name;
 	})[0];
 }
 
-var findVocabularyMaxOrdinal = function(vocabulary){
+var findVocabularyMaxOrdinal = function(vocabulary) {
 	var max = 0;
-	vocabulary.terms.forEach(function(term){
+	vocabulary.terms.forEach(function(term) {
 		max = Math.max(max, term.ordinal);
 	});
 	return max;
 };
 
-var downloadFile = function(url, action){
+var downloadFile = function(url, action) {
 	$.ajax({
-		url: url,
-		cache: false,
-		dataType: "text",
-		success: function(data) {
+		url : url,
+		cache : false,
+		dataType : "text",
+		success : function(data) {
 			action(data);
 		},
-		error: function(){
+		error : function() {
 			action(null);
 		}
 	});
 }
 
-var isHtml = function(page){
+var isHtml = function(page) {
 	return page && page.indexOf("<html>") != -1;
 }
 
-var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataStoreCode, action){
-	facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode, function(dataStoreUrl){
-		var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" +
-		"?filename=" + fileName +
-		"&id=0" +
-		"&startByte=0" +
-		"&endByte=0" + 
-		"&sessionID=" + facade.getSession();
-	
+var uploadFileToSessionWorkspace = function(facade, fileName, fileContent, dataStoreCode, action) {
+	facade._internal.getDataStoreUrlForDataStoreCode(dataStoreCode, function(dataStoreUrl) {
+		var uploadUrl = dataStoreUrl + "/session_workspace_file_upload" + "?filename=" + fileName + "&id=0" + "&startByte=0" + "&endByte=0"
+				+ "&sessionID=" + facade.getSession();
+
 		$.ajax({
 			url : uploadUrl,
 			type : "POST",
 			data : fileContent,
 			contentType : "multipart/form-data"
-		}).done(function(response){
+		}).done(function(response) {
 			action(response);
 		});
-	}); 
+	});
 }
 
 var uploadGraphToSessionWorkspace = function(facade, dataStoreCodeOrNull, action) {
 	var fileName = generateRandomString();
-	var fileContent = "" +
+	var fileContent = ""
+			+
 
-"row	col	col1	col2	col3\n\
+			"row	col	col1	col2	col3\n\
 1	A	0	1	2\n\
 1	B	3	4	5\n\
 2	A	6	7	8\n\
@@ -196,103 +193,103 @@ var uploadGraphToSessionWorkspace = function(facade, dataStoreCodeOrNull, action
 5	A	23	25	26\n\
 5	B	27	28	29"
 
-	uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCodeOrNull, function(){
+	uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCodeOrNull, function() {
 		var graphType = "HISTOGRAM";
 		var graphTitle = "Test graph";
-		
+
 		var graphConfig = new openbisGraphConfig(fileName, graphType, graphTitle);
 		graphConfig["col-z"] = "<col1>Bins";
 		graphConfig["bins"] = "13";
 		graphConfig["delimiter"] = "\t";
-		
+
 		action(graphConfig);
 	});
 }
 
-var generateRandomString = function(){
+var generateRandomString = function() {
 	return Math.random().toString();
 }
 
-test("new openbis()", function(){
-	createFacadeAndLogin(function(facade){
+test("new openbis()", function() {
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server without url");
 		facade.close();
 	}, null);
 });
 
-test("new openbis(/openbis)", function(){
+test("new openbis(/openbis)", function() {
 	var url = "/openbis";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(/openbis/openbis)", function(){
+test("new openbis(/openbis/openbis)", function() {
 	var url = "/openbis/openbis";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(protocol, host, port)", function(){
+test("new openbis(protocol, host, port)", function() {
 	var url = testProtocol + "//" + testHost + ":" + testPort;
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(protocol, host, port, /openbis)", function(){
+test("new openbis(protocol, host, port, /openbis)", function() {
 	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(protocol, host, port, /openbis/)", function(){
+test("new openbis(protocol, host, port, /openbis/)", function() {
 	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis/";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(protocol, host, port, /openbis/openbis)", function(){
+test("new openbis(protocol, host, port, /openbis/openbis)", function() {
 	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis/openbis";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(protocol, host, port, /openbis/openbis/)", function(){
+test("new openbis(protocol, host, port, /openbis/openbis/)", function() {
 	var url = testProtocol + "//" + testHost + ":" + testPort + "/openbis/openbis/";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("new openbis(protocol, host, port, /someRandomPath/)", function(){
+test("new openbis(protocol, host, port, /someRandomPath/)", function() {
 	var url = testProtocol + "//" + testHost + ":" + testPort + "/someRandomPath/";
-	createFacadeAndLogin(function(facade){
+	createFacadeAndLogin(function(facade) {
 		ok(true, "Successfully connected to server with url: " + url);
 		facade.close();
 	}, url);
 });
 
-test("logout", function(){
-	createFacade(function(facade){
-		facade.logout(function(){
+test("logout", function() {
+	createFacade(function(facade) {
+		facade.logout(function() {
 			equal(facade.getSession(), null, 'Session is empty after logout');
-			
+
 			facade.restoreSession();
 			equal(facade.getSession(), null, 'Restored session is empty after logout');
-			
-			facade.isSessionActive(function(response){
+
+			facade.isSessionActive(function(response) {
 				equal(response.result, false, 'Session is inactive after logout');
 				facade.close();
 			});
@@ -301,13 +298,13 @@ test("logout", function(){
 });
 
 test("login", function() {
-	createFacade(function(facade){
-		facade.login(testUserId, testUserPassword, function(response){
-			ok(response.result,'Session from server is not empty after login');
+	createFacade(function(facade) {
+		facade.login(testUserId, testUserPassword, function(response) {
+			ok(response.result, 'Session from server is not empty after login');
 			ok(facade.getSession(), 'Session from facade is not empty after login');
 
-			facade.isSessionActive(function(response){
-				equal(response.result, true,'Session is active after login');
+			facade.isSessionActive(function(response) {
+				equal(response.result, true, 'Session is active after login');
 				facade.close();
 			});
 		});
@@ -315,45 +312,45 @@ test("login", function() {
 });
 
 test("cookies", function() {
-	createFacade(function(facade){
+	createFacade(function(facade) {
 		facade.useSession('session-1');
 		facade.rememberSession();
 		equal(facade.getSession(), 'session-1', 'Session 1 used')
-		
+
 		facade.useSession('session-2');
 		equal(facade.getSession(), 'session-2', 'Session 2 used')
-		
+
 		facade.restoreSession();
 		equal(facade.getSession(), 'session-1', 'Session 1 restored')
 		facade.close();
 	}, testUrl);
 });
 
-test("listNamedRoleSets()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listNamedRoleSets(function(response){
+test("listNamedRoleSets()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listNamedRoleSets(function(response) {
 			ok(response.result, 'Got results');
 			facade.close();
 		});
 	});
 });
 
-test("listSpacesWithProjectsAndRoleAssignments()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listSpacesWithProjectsAndRoleAssignments(null, function(response){
+test("listSpacesWithProjectsAndRoleAssignments()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listSpacesWithProjectsAndRoleAssignments(null, function(response) {
 			assertObjectsCount(response.result, 2);
 			facade.close();
 		});
 	});
 });
 
-test("searchForSamples()", function(){
-	createFacadeAndLogin(function(facade){
-		
-		var sampleCodes = ['PLATE-1', 'PLATE-1A'];
+test("searchForSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var sampleCodes = [ 'PLATE-1', 'PLATE-1A' ];
 		var searchCriteria = createSearchCriteriaForCodes(sampleCodes);
-	
-		facade.searchForSamples(searchCriteria, function(response){
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, sampleCodes);
 			assertObjectsWithProperties(response.result);
@@ -362,14 +359,14 @@ test("searchForSamples()", function(){
 	});
 });
 
-test("searchForSamplesWithFetchOptions()", function(){
-	createFacadeAndLogin(function(facade){
+test("searchForSamplesWithFetchOptions()", function() {
+	createFacadeAndLogin(function(facade) {
 
-		var sampleCodes = ['PLATE-1', 'PLATE-1A'];
+		var sampleCodes = [ 'PLATE-1', 'PLATE-1A' ];
 		var searchCriteria = createSearchCriteriaForCodes(sampleCodes);
 		var fetchOptions = [ 'BASIC' ];
 
-		facade.searchForSamplesWithFetchOptions(searchCriteria, fetchOptions, function(response){
+		facade.searchForSamplesWithFetchOptions(searchCriteria, fetchOptions, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, sampleCodes);
 			assertObjectsWithoutProperties(response.result);
@@ -378,15 +375,15 @@ test("searchForSamplesWithFetchOptions()", function(){
 	});
 });
 
-test("searchForSamplesOnBehalfOfUser()", function(){
-	createFacadeAndLogin(function(facade){
-		
-		var sampleCodes = ['PLATE-1', 'PLATE-1A']
+test("searchForSamplesOnBehalfOfUser()", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var sampleCodes = [ 'PLATE-1', 'PLATE-1A' ]
 		var searchCriteria = createSearchCriteriaForCodes(sampleCodes)
 		var fetchOptions = [ 'BASIC' ];
 		var userId = 'test_space_admin';
 
-		facade.searchForSamplesOnBehalfOfUser(searchCriteria, fetchOptions, userId, function(response){
+		facade.searchForSamplesOnBehalfOfUser(searchCriteria, fetchOptions, userId, function(response) {
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithCodes(response.result, [ 'PLATE-1A' ]);
 			assertObjectsWithoutProperties(response.result);
@@ -395,17 +392,17 @@ test("searchForSamplesOnBehalfOfUser()", function(){
 	});
 });
 
-test("filterSamplesVisibleToUser()", function(){
-	createFacadeAndLogin(function(facade){
-		
-		var sampleCodes = ['PLATE-1', 'PLATE-1A'];
+test("filterSamplesVisibleToUser()", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var sampleCodes = [ 'PLATE-1', 'PLATE-1A' ];
 		var searchCriteria = createSearchCriteriaForCodes(sampleCodes);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
 			var userId = 'test_space_admin';
-			
-			facade.filterSamplesVisibleToUser(samples, userId, function(response){
+
+			facade.filterSamplesVisibleToUser(samples, userId, function(response) {
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'PLATE-1A' ]);
 				assertObjectsWithProperties(response.result);
@@ -415,11 +412,11 @@ test("filterSamplesVisibleToUser()", function(){
 	});
 });
 
-test("listSamplesForExperiment()", function(){
-	createFacadeAndLogin(function(facade){
+test("listSamplesForExperiment()", function() {
+	createFacadeAndLogin(function(facade) {
 		var experimentIdentifier = '/PLATONIC/SCREENING-EXAMPLES/EXP-1';
-		
-		facade.listSamplesForExperiment(experimentIdentifier, function(response){
+
+		facade.listSamplesForExperiment(experimentIdentifier, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, [ 'PLATE-1', 'PLATE-2' ]);
 			facade.close();
@@ -427,14 +424,14 @@ test("listSamplesForExperiment()", function(){
 	});
 });
 
-test("listDataSetsForSamples()", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'PLATE-1' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
-			
-			facade.listDataSetsForSamples(samples, function(response){
+
+			facade.listDataSetsForSamples(samples, function(response) {
 				assertObjectsCount(response.result, 11);
 				facade.close();
 			});
@@ -442,15 +439,15 @@ test("listDataSetsForSamples()", function(){
 	});
 });
 
-test("listExperiments()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listProjects(function(response){
-			var projects = response.result.filter(function(project){
+test("listExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listProjects(function(response) {
+			var projects = response.result.filter(function(project) {
 				return project.code == 'SCREENING-EXAMPLES';
 			});
 			var experimentType = 'MICROSCOPY_PLATONIC';
-			
-			facade.listExperiments(projects, experimentType, function(response){
+
+			facade.listExperiments(projects, experimentType, function(response) {
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'EXP-2' ]);
 				facade.close();
@@ -459,15 +456,15 @@ test("listExperiments()", function(){
 	});
 });
 
-test("listExperimentsHavingSamples()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listProjects(function(response){
-			var projects = response.result.filter(function(project){
+test("listExperimentsHavingSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listProjects(function(response) {
+			var projects = response.result.filter(function(project) {
 				return project.code == 'SCREENING-EXAMPLES';
 			});
 			var experimentType = 'MICROSCOPY_PLATONIC';
-			
-			facade.listExperimentsHavingSamples(projects, experimentType, function(response){
+
+			facade.listExperimentsHavingSamples(projects, experimentType, function(response) {
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'EXP-2' ]);
 				facade.close();
@@ -476,15 +473,15 @@ test("listExperimentsHavingSamples()", function(){
 	});
 });
 
-test("listExperimentsHavingDataSets()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listProjects(function(response){
-			var projects = response.result.filter(function(project){
+test("listExperimentsHavingDataSets()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listProjects(function(response) {
+			var projects = response.result.filter(function(project) {
 				return project.code == 'SCREENING-EXAMPLES';
 			});
 			var experimentType = 'MICROSCOPY_PLATONIC';
-			
-			facade.listExperimentsHavingDataSets(projects, experimentType, function(response){
+
+			facade.listExperimentsHavingDataSets(projects, experimentType, function(response) {
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'EXP-2' ]);
 				facade.close();
@@ -493,15 +490,15 @@ test("listExperimentsHavingDataSets()", function(){
 	});
 });
 
-test("filterExperimentsVisibleToUser()", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['EXP-1','TEST-EXPERIMENT']);
-		
-		facade.searchForExperiments(searchCriteria, function(response){
+test("filterExperimentsVisibleToUser()", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'EXP-1', 'TEST-EXPERIMENT' ]);
+
+		facade.searchForExperiments(searchCriteria, function(response) {
 			var experiments = response.result;
 			var userId = 'test_space_admin';
-			
-			facade.filterExperimentsVisibleToUser(experiments, userId, function(response){
+
+			facade.filterExperimentsVisibleToUser(experiments, userId, function(response) {
 				assertObjectsCount(response.result, 1);
 				assertObjectsWithCodes(response.result, [ 'TEST-EXPERIMENT' ]);
 				facade.close();
@@ -510,15 +507,15 @@ test("filterExperimentsVisibleToUser()", function(){
 	});
 });
 
-test("listDataSetsForSample()", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSample()", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'PLATE-1' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var sample = response.result[0];
 			var restrictToDirectlyConnected = true;
-			
-			facade.listDataSetsForSample(sample, restrictToDirectlyConnected, function(response){
+
+			facade.listDataSetsForSample(sample, restrictToDirectlyConnected, function(response) {
 				assertObjectsCount(response.result, 11);
 				facade.close();
 			});
@@ -526,103 +523,103 @@ test("listDataSetsForSample()", function(){
 	});
 });
 
-test("listDataStores()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listDataStores(function(response){
+test("listDataStores()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listDataStores(function(response) {
 			assertObjectsCount(response.result, 2);
-			assertObjectsWithCodes(response.result, [ 'DSS1','DSS2' ]);
+			assertObjectsWithCodes(response.result, [ 'DSS1', 'DSS2' ]);
 			facade.close();
 		});
 	});
 });
 
-test("getDefaultPutDataStoreBaseURL()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.getDefaultPutDataStoreBaseURL(function(response){
+test("getDefaultPutDataStoreBaseURL()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.getDefaultPutDataStoreBaseURL(function(response) {
 			equal(response.result, "http://localhost:20001", 'URL is correct')
 			facade.close();
 		});
 	});
 });
 
-test("tryGetDataStoreBaseURL()", function(){
-	createFacadeAndLogin(function(facade){
+test("tryGetDataStoreBaseURL()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = '20130415093804724-403';
-		
-		facade.tryGetDataStoreBaseURL(dataSetCode, function(response){
+
+		facade.tryGetDataStoreBaseURL(dataSetCode, function(response) {
 			equal(response.result, "http://localhost:20002", 'URL is correct')
 			facade.close();
 		});
 	});
 });
 
-test("getDataStoreBaseURLs()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDataStoreBaseURLs()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCodes = [ '20130412152036861-380', '20130415093804724-403' ];
-		
-		facade.getDataStoreBaseURLs(dataSetCodes, function(response){
-			assertObjectsCount(response.result, 2);
-		
-			assertObjectsWithValuesFunction(response.result, "dataStoreURL", function(result){
-				return result.dataStoreURL;
-			}, ["http://localhost:20001","http://localhost:20002"]);
 
-                        assertObjectsWithValuesFunction(response.result, "dataSetCodes", function(result){
-                                return result.dataSetCodes;
-                        }, ['20130412152036861-380','20130415093804724-403']);
+		facade.getDataStoreBaseURLs(dataSetCodes, function(response) {
+			assertObjectsCount(response.result, 2);
+
+			assertObjectsWithValuesFunction(response.result, "dataStoreURL", function(result) {
+				return result.dataStoreURL;
+			}, [ "http://localhost:20001", "http://localhost:20002" ]);
+
+			assertObjectsWithValuesFunction(response.result, "dataSetCodes", function(result) {
+				return result.dataSetCodes;
+			}, [ '20130412152036861-380', '20130415093804724-403' ]);
 
 			facade.close();
 		});
 	});
 });
 
-test("listDataSetTypes()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listDataSetTypes(function(response){
+test("listDataSetTypes()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listDataSetTypes(function(response) {
 			assertObjectsCount(response.result, 27);
 			facade.close();
 		});
 	});
 });
 
-test("listSampleTypes()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listSampleTypes(function(response){
+test("listSampleTypes()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listSampleTypes(function(response) {
 			assertObjectsCount(response.result, 13);
 			facade.close();
 		});
 	});
 });
 
-test("listExperimentTypes()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listExperimentTypes(function(response){
+test("listExperimentTypes()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listExperimentTypes(function(response) {
 			assertObjectsCount(response.result, 5);
 			facade.close();
 		});
 	});
 });
 
-test("listVocabularies()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listVocabularies(function(response){
+test("listVocabularies()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listVocabularies(function(response) {
 			assertObjectsCount(response.result, 25);
 			facade.close();
 		});
 	});
 });
 
-test("listDataSetsForSamplesWithConnections() with parents", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['TEST-SAMPLE-2']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSamplesWithConnections() with parents", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'TEST-SAMPLE-2' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
 			var connectionsToGet = [ 'PARENTS' ];
-			
-			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
 				assertObjectsCount(response.result, 1);
-                                assertObjectsWithCodes(response.result, ['20130415093804724-403']);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
 				assertObjectsWithParentCodes(response.result);
 				assertObjectsWithoutChildrenCodes(response.result);
 				facade.close();
@@ -631,17 +628,17 @@ test("listDataSetsForSamplesWithConnections() with parents", function(){
 	});
 });
 
-test("listDataSetsForSamplesWithConnections() with children", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['TEST-SAMPLE-2']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSamplesWithConnections() with children", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'TEST-SAMPLE-2' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
 			var connectionsToGet = [ 'CHILDREN' ];
-			
-			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
 				assertObjectsCount(response.result, 1);
-                                assertObjectsWithCodes(response.result, ['20130415093804724-403']);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
 				assertObjectsWithoutParentCodes(response.result);
 				assertObjectsWithChildrenCodes(response.result);
 				facade.close();
@@ -650,17 +647,17 @@ test("listDataSetsForSamplesWithConnections() with children", function(){
 	});
 });
 
-test("listDataSetsForSamplesWithConnections() with parents and children", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['TEST-SAMPLE-2']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSamplesWithConnections() with parents and children", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'TEST-SAMPLE-2' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
 			var connectionsToGet = [ 'PARENTS', 'CHILDREN' ];
-			
-			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
 				assertObjectsCount(response.result, 1);
-                                assertObjectsWithCodes(response.result, ['20130415093804724-403']);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
 				assertObjectsWithParentCodes(response.result);
 				assertObjectsWithChildrenCodes(response.result);
 				facade.close();
@@ -669,17 +666,17 @@ test("listDataSetsForSamplesWithConnections() with parents and children", functi
 	});
 });
 
-test("listDataSetsForSamplesWithConnections() without parents and children", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['TEST-SAMPLE-2']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSamplesWithConnections() without parents and children", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'TEST-SAMPLE-2' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
-			var connectionsToGet = [ ];
-			
-			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response){
+			var connectionsToGet = [];
+
+			facade.listDataSetsForSamplesWithConnections(samples, connectionsToGet, function(response) {
 				assertObjectsCount(response.result, 1);
-				assertObjectsWithCodes(response.result, ['20130415093804724-403']);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
 				assertObjectsWithoutParentCodes(response.result);
 				assertObjectsWithoutChildrenCodes(response.result);
 				facade.close();
@@ -688,18 +685,18 @@ test("listDataSetsForSamplesWithConnections() without parents and children", fun
 	});
 });
 
-test("listDataSetsForSamplesOnBehalfOfUser()", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['PLATE-1, TEST-SAMPLE-2']);
-		
-		facade.searchForSamples(searchCriteria, function(response){
+test("listDataSetsForSamplesOnBehalfOfUser()", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'PLATE-1, TEST-SAMPLE-2' ]);
+
+		facade.searchForSamples(searchCriteria, function(response) {
 			var samples = response.result;
 			var connectionsToGet = [ 'PARENTS' ];
 			var userId = 'test_space_admin';
-			
-			facade.listDataSetsForSamplesOnBehalfOfUser(samples, connectionsToGet, userId, function(response){
+
+			facade.listDataSetsForSamplesOnBehalfOfUser(samples, connectionsToGet, userId, function(response) {
 				assertObjectsCount(response.result, 1);
-                                assertObjectsWithCodes(response.result, ['20130415093804724-403']);
+				assertObjectsWithCodes(response.result, [ '20130415093804724-403' ]);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
 			});
@@ -707,15 +704,15 @@ test("listDataSetsForSamplesOnBehalfOfUser()", function(){
 	});
 });
 
-test("listDataSetsForExperiments()", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['EXP-1','TEST-EXPERIMENT-2']);
-		
-		facade.searchForExperiments(searchCriteria, function(response){
+test("listDataSetsForExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'EXP-1', 'TEST-EXPERIMENT-2' ]);
+
+		facade.searchForExperiments(searchCriteria, function(response) {
 			var experiments = response.result;
 			var connectionsToGet = [ 'PARENTS' ];
-			
-			facade.listDataSetsForExperiments(experiments, connectionsToGet, function(response){
+
+			facade.listDataSetsForExperiments(experiments, connectionsToGet, function(response) {
 				assertObjectsCount(response.result, 15);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
@@ -724,16 +721,16 @@ test("listDataSetsForExperiments()", function(){
 	});
 });
 
-test("listDataSetsForExperimentsOnBehalfOfUser()", function(){
-	createFacadeAndLogin(function(facade){
-		var searchCriteria = createSearchCriteriaForCodes(['EXP-1','TEST-EXPERIMENT-2']);
-		
-		facade.searchForExperiments(searchCriteria, function(response){
+test("listDataSetsForExperimentsOnBehalfOfUser()", function() {
+	createFacadeAndLogin(function(facade) {
+		var searchCriteria = createSearchCriteriaForCodes([ 'EXP-1', 'TEST-EXPERIMENT-2' ]);
+
+		facade.searchForExperiments(searchCriteria, function(response) {
 			var experiments = response.result;
 			var connectionsToGet = [ 'PARENTS' ];
 			var userId = 'test_space_admin';
-			
-			facade.listDataSetsForExperimentsOnBehalfOfUser(experiments, connectionsToGet, userId, function(response){
+
+			facade.listDataSetsForExperimentsOnBehalfOfUser(experiments, connectionsToGet, userId, function(response) {
 				assertObjectsCount(response.result, 4);
 				assertObjectsWithParentCodes(response.result);
 				facade.close();
@@ -742,11 +739,11 @@ test("listDataSetsForExperimentsOnBehalfOfUser()", function(){
 	});
 });
 
-test("getDataSetMetaData()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDataSetMetaData()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCodes = [ '20130415093804724-403', '20130415100158230-407' ];
-		
-		facade.getDataSetMetaData(dataSetCodes, function(response){
+
+		facade.getDataSetMetaData(dataSetCodes, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, dataSetCodes);
 			assertObjectsWithProperties(response.result);
@@ -755,12 +752,12 @@ test("getDataSetMetaData()", function(){
 	});
 });
 
-test("getDataSetMetaDataWithFetchOptions()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDataSetMetaDataWithFetchOptions()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCodes = [ '20130415093804724-403', '20130415100158230-407' ];
 		var fetchOptions = [ 'BASIC' ];
-		
-		facade.getDataSetMetaDataWithFetchOptions(dataSetCodes, fetchOptions, function(response){
+
+		facade.getDataSetMetaDataWithFetchOptions(dataSetCodes, fetchOptions, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, dataSetCodes);
 			assertObjectsWithoutProperties(response.result);
@@ -769,13 +766,13 @@ test("getDataSetMetaDataWithFetchOptions()", function(){
 	});
 });
 
-test("searchForDataSets()", function(){
-	createFacadeAndLogin(function(facade){
-		
+test("searchForDataSets()", function() {
+	createFacadeAndLogin(function(facade) {
+
 		var dataSetCodes = [ '20130412142205843-196', '20130415093804724-403', '20130415100158230-407' ];
 		var searchCriteria = createSearchCriteriaForCodes(dataSetCodes);
-	
-		facade.searchForDataSets(searchCriteria, function(response){
+
+		facade.searchForDataSets(searchCriteria, function(response) {
 			assertObjectsCount(response.result, 3);
 			assertObjectsWithCodes(response.result, dataSetCodes);
 			assertObjectsWithProperties(response.result);
@@ -784,14 +781,14 @@ test("searchForDataSets()", function(){
 	});
 });
 
-test("searchForDataSetsOnBehalfOfUser()", function(){
-	createFacadeAndLogin(function(facade){
-		
+test("searchForDataSetsOnBehalfOfUser()", function() {
+	createFacadeAndLogin(function(facade) {
+
 		var dataSetCodes = [ '20130412142205843-196', '20130415093804724-403', '20130415100158230-407' ];
 		var searchCriteria = createSearchCriteriaForCodes(dataSetCodes);
 		var userId = 'test_space_admin';
-	
-		facade.searchForDataSetsOnBehalfOfUser(searchCriteria, userId, function(response){
+
+		facade.searchForDataSetsOnBehalfOfUser(searchCriteria, userId, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100158230-407' ]);
 			assertObjectsWithProperties(response.result);
@@ -800,17 +797,51 @@ test("searchForDataSetsOnBehalfOfUser()", function(){
 	});
 });
 
-test("filterDataSetsVisibleToUser()", function(){
-	createFacadeAndLogin(function(facade){
-		
+test("searchForDataSetsWithSequences()", function() {
+	createFacadeAndLogin(function(facade) {
+
+		var preferredSequenceDatabaseOrNull = "echo-database";
+		var sequenceSnippet = "SEQ-2";
+		var optionalParametersOrNull = {
+			"SEQ-1" : JSON.stringify({
+				"sequenceDatabaseName" : "Echo database",
+				"dataSetCode" : "20130412142205843-196",
+				"pathInDataSet" : "PATH-1",
+				"sequenceIdentifier" : "ID-1",
+				"positionInSequence" : "1"
+			}),
+			"SEQ-2" : JSON.stringify({
+				"sequenceDatabaseName" : "Echo database",
+				"dataSetCode" : "20130415093804724-403",
+				"pathInDataSet" : "PATH-2",
+				"sequenceIdentifier" : "ID-2",
+				"positionInSequence" : "2"
+			})
+		}
+
+		facade.searchForDataSetsWithSequences(preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull, function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, 'sequenceDatabaseName', [ "Echo database" ]);
+			assertObjectsWithValues(response.result, 'dataSetCode', [ "20130415093804724-403" ]);
+			assertObjectsWithValues(response.result, 'pathInDataSet', [ "PATH-2" ]);
+			assertObjectsWithValues(response.result, 'sequenceIdentifier', [ "ID-2" ]);
+			assertObjectsWithValues(response.result, 'positionInSequence', [ "2" ]);
+			facade.close();
+		});
+	});
+});
+
+test("filterDataSetsVisibleToUser()", function() {
+	createFacadeAndLogin(function(facade) {
+
 		var dataSetCodes = [ '20130412142205843-196', '20130415093804724-403', '20130415100158230-407' ];
 		var searchCriteria = createSearchCriteriaForCodes(dataSetCodes);
-	
-		facade.searchForDataSets(searchCriteria, function(response){
+
+		facade.searchForDataSets(searchCriteria, function(response) {
 			var dataSets = response.result;
 			var userId = "test_space_admin";
-			
-			facade.filterDataSetsVisibleToUser(dataSets, userId, function(response){
+
+			facade.filterDataSetsVisibleToUser(dataSets, userId, function(response) {
 				assertObjectsCount(response.result, 2);
 				assertObjectsWithCodes(response.result, [ '20130415093804724-403', '20130415100158230-407' ]);
 				assertObjectsWithProperties(response.result);
@@ -820,11 +851,11 @@ test("filterDataSetsVisibleToUser()", function(){
 	});
 });
 
-test("listExperimentsForIdentifiers()", function(){
-	createFacadeAndLogin(function(facade){
-		var experimentIdentifiers = [ "/PLATONIC/SCREENING-EXAMPLES/EXP-1", "/TEST/TEST-PROJECT/TEST-EXPERIMENT"  ];
-	
-		facade.listExperimentsForIdentifiers(experimentIdentifiers, function(response){
+test("listExperimentsForIdentifiers()", function() {
+	createFacadeAndLogin(function(facade) {
+		var experimentIdentifiers = [ "/PLATONIC/SCREENING-EXAMPLES/EXP-1", "/TEST/TEST-PROJECT/TEST-EXPERIMENT" ];
+
+		facade.listExperimentsForIdentifiers(experimentIdentifiers, function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithValues(response.result, 'identifier', experimentIdentifiers);
 			facade.close();
@@ -832,22 +863,22 @@ test("listExperimentsForIdentifiers()", function(){
 	});
 });
 
-test("searchForExperiments()", function(){
-	createFacadeAndLogin(function(facade){
+test("searchForExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
 		var experimentCodes = [ 'EXP-1' ];
 		var searchCriteria = createSearchCriteriaForCodes(experimentCodes);
-	
-		facade.searchForExperiments(searchCriteria, function(response){
+
+		facade.searchForExperiments(searchCriteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithValues(response.result, 'identifier', [ "/PLATONIC/SCREENING-EXAMPLES/EXP-1"  ]);
+			assertObjectsWithValues(response.result, 'identifier', [ "/PLATONIC/SCREENING-EXAMPLES/EXP-1" ]);
 			facade.close();
 		});
 	});
 });
 
-test("listProjects()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listProjects(function(response){
+test("listProjects()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listProjects(function(response) {
 			assertObjectsCount(response.result, 2);
 			assertObjectsWithCodes(response.result, [ "SCREENING-EXAMPLES", "TEST-PROJECT" ]);
 			facade.close();
@@ -855,11 +886,11 @@ test("listProjects()", function(){
 	});
 });
 
-test("listProjectsOnBehalfOfUser()", function(){
-	createFacadeAndLogin(function(facade){
+test("listProjectsOnBehalfOfUser()", function() {
+	createFacadeAndLogin(function(facade) {
 		var userId = "test_space_admin";
-		
-		facade.listProjectsOnBehalfOfUser(userId, function(response){
+
+		facade.listProjectsOnBehalfOfUser(userId, function(response) {
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithCodes(response.result, [ "TEST-PROJECT" ]);
 			facade.close();
@@ -867,11 +898,11 @@ test("listProjectsOnBehalfOfUser()", function(){
 	});
 });
 
-test("getMaterialByCodes()", function(){
-	createFacadeAndLogin(function(facade){
+test("getMaterialByCodes()", function() {
+	createFacadeAndLogin(function(facade) {
 		var materialIdentifiers = [ createMaterialIdentifier("/GENE/G1") ];
-		
-		facade.getMaterialByCodes(materialIdentifiers, function(response){
+
+		facade.getMaterialByCodes(materialIdentifiers, function(response) {
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithValues(response.result, 'materialCode', [ "G1" ]);
 			facade.close();
@@ -879,12 +910,12 @@ test("getMaterialByCodes()", function(){
 	});
 });
 
-test("searchForMaterials()", function(){
-	createFacadeAndLogin(function(facade){
+test("searchForMaterials()", function() {
+	createFacadeAndLogin(function(facade) {
 		var materialCodes = [ "G1" ];
 		var searchCriteria = createSearchCriteriaForCodes(materialCodes);
-		
-		facade.searchForMaterials(searchCriteria, function(response){
+
+		facade.searchForMaterials(searchCriteria, function(response) {
 			assertObjectsCount(response.result, 1);
 			assertObjectsWithValues(response.result, 'materialCode', [ "G1" ]);
 			facade.close();
@@ -892,33 +923,33 @@ test("searchForMaterials()", function(){
 	});
 });
 
-test("createMetaproject(), listMetaprojects()", function(){
-	createFacadeAndLogin(function(facade){
-		createNewMetaproject(facade, "/" + testUserId + "/JS_TEST_METAPROJECT", function(response){
-			facade.listMetaprojects(function(response){
+test("createMetaproject(), listMetaprojects()", function() {
+	createFacadeAndLogin(function(facade) {
+		createNewMetaproject(facade, "/" + testUserId + "/JS_TEST_METAPROJECT", function(response) {
+			facade.listMetaprojects(function(response) {
 				assertObjectsCount(response.result, 1);
-				assertObjectsWithValues(response.result, 'name', ['JS_TEST_METAPROJECT']);
+				assertObjectsWithValues(response.result, 'name', [ 'JS_TEST_METAPROJECT' ]);
 				facade.close();
 			});
 		});
 	});
 });
 
-test("createMetaproject(), listMetaprojectsOnBehalfOfUser()", function(){
+test("createMetaproject(), listMetaprojectsOnBehalfOfUser()", function() {
 	var powerUserId = "test_space_admin";
 	var powerUserPassword = "password";
 
-	createFacadeAndLoginForUserAndPassword(powerUserId, powerUserPassword, function(facadePowerUser){
+	createFacadeAndLoginForUserAndPassword(powerUserId, powerUserPassword, function(facadePowerUser) {
 		var powerUserMetaprojectIdentifier = "/" + powerUserId + "/JS_TEST_METAPROJECT_POWER_USER"
-		createNewMetaproject(facadePowerUser, powerUserMetaprojectIdentifier, function(response){
-			
-			createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, function(facadeTestUser){
+		createNewMetaproject(facadePowerUser, powerUserMetaprojectIdentifier, function(response) {
+
+			createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, function(facadeTestUser) {
 				var testUserMetaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
-				createNewMetaproject(facadeTestUser, testUserMetaprojectIdentifier, function(response){
-					
-					facadeTestUser.listMetaprojectsOnBehalfOfUser(powerUserId, function(response){
+				createNewMetaproject(facadeTestUser, testUserMetaprojectIdentifier, function(response) {
+
+					facadeTestUser.listMetaprojectsOnBehalfOfUser(powerUserId, function(response) {
 						assertObjectsCount(response.result, 1);
-						assertObjectsWithValues(response.result, 'name', ['JS_TEST_METAPROJECT_POWER_USER']);
+						assertObjectsWithValues(response.result, 'name', [ 'JS_TEST_METAPROJECT_POWER_USER' ]);
 						facadePowerUser.close();
 						facadeTestUser.close();
 					});
@@ -928,14 +959,14 @@ test("createMetaproject(), listMetaprojectsOnBehalfOfUser()", function(){
 	}, testUrl);
 });
 
-test("createMetaproject(), getMetaproject()", function(){
-	createFacadeAndLogin(function(facade){
+test("createMetaproject(), getMetaproject()", function() {
+	createFacadeAndLogin(function(facade) {
 		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
-		
-		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+
+		createNewMetaproject(facade, metaprojectIdentifier, function(response) {
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
-			
-			facade.getMetaproject(metaprojectId, function(response){
+
+			facade.getMetaproject(metaprojectId, function(response) {
 				equal(response.result.metaproject.identifier, metaprojectIdentifier, 'Metaproject identifier is correct');
 				facade.close();
 			});
@@ -943,20 +974,20 @@ test("createMetaproject(), getMetaproject()", function(){
 	});
 });
 
-test("createMetaproject(), getMetaprojectOnBehalfOfUser()", function(){
+test("createMetaproject(), getMetaprojectOnBehalfOfUser()", function() {
 	var powerUserId = "test_space_admin";
 	var powerUserPassword = "password";
 
-	createFacadeAndLoginForUserAndPassword(powerUserId, powerUserPassword, function(facadePowerUser){
+	createFacadeAndLoginForUserAndPassword(powerUserId, powerUserPassword, function(facadePowerUser) {
 		var powerUserMetaprojectIdentifier = "/" + powerUserId + "/JS_TEST_METAPROJECT_POWER_USER";
 		var powerUserMetaprojectId = createMetaprojectIdentifierId(powerUserMetaprojectIdentifier);
-		createNewMetaproject(facadePowerUser, powerUserMetaprojectIdentifier, function(response){
-			
-			createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, function(facadeTestUser){
+		createNewMetaproject(facadePowerUser, powerUserMetaprojectIdentifier, function(response) {
+
+			createFacadeAndLoginForUserAndPassword(testUserId, testUserPassword, function(facadeTestUser) {
 				var testUserMetaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
-				createNewMetaproject(facadeTestUser, testUserMetaprojectIdentifier, function(response){
-					
-					facadeTestUser.getMetaprojectOnBehalfOfUser(powerUserMetaprojectId, powerUserId, function(response){
+				createNewMetaproject(facadeTestUser, testUserMetaprojectIdentifier, function(response) {
+
+					facadeTestUser.getMetaprojectOnBehalfOfUser(powerUserMetaprojectId, powerUserId, function(response) {
 						equal(response.result.metaproject.identifier, powerUserMetaprojectIdentifier, 'Metaproject identifier is correct');
 						facadePowerUser.close();
 						facadeTestUser.close();
@@ -967,19 +998,19 @@ test("createMetaproject(), getMetaprojectOnBehalfOfUser()", function(){
 	}, testUrl);
 });
 
-test("createMetaproject(), updateMetaproject()", function(){
-	createFacadeAndLogin(function(facade){
+test("createMetaproject(), updateMetaproject()", function() {
+	createFacadeAndLogin(function(facade) {
 		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
-		
-		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+
+		createNewMetaproject(facade, metaprojectIdentifier, function(response) {
 			var metaproject = response.result;
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
 			var description = generateRandomString();
-			
+
 			ok(!metaproject.description, "Metaproject description was empty");
-			
-			facade.updateMetaproject(metaprojectId, metaproject.name, description, function(response){
-				facade.getMetaproject(metaprojectId, function(response){
+
+			facade.updateMetaproject(metaprojectId, metaproject.name, description, function(response) {
+				facade.getMetaproject(metaprojectId, function(response) {
 					equal(response.result.metaproject.description, description, "Metaproject description properly updated");
 					facade.close();
 				});
@@ -988,15 +1019,15 @@ test("createMetaproject(), updateMetaproject()", function(){
 	});
 });
 
-test("createMetaproject(), deleteMetaproject()", function(){
-	createFacadeAndLogin(function(facade){
+test("createMetaproject(), deleteMetaproject()", function() {
+	createFacadeAndLogin(function(facade) {
 		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
-		
-		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+
+		createNewMetaproject(facade, metaprojectIdentifier, function(response) {
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
-			
-			facade.deleteMetaproject(metaprojectId, function(response){
-				facade.listMetaprojects(function(response){
+
+			facade.deleteMetaproject(metaprojectId, function(response) {
+				facade.listMetaprojects(function(response) {
 					ok(!findMetaproject(response.result, metaprojectIdentifier), "Metaproject has been deleted");
 					facade.close();
 				});
@@ -1005,30 +1036,30 @@ test("createMetaproject(), deleteMetaproject()", function(){
 	});
 });
 
-test("createMetaproject(), addToMetaproject(), removeFromMetaproject()", function(){
-	createFacadeAndLogin(function(facade){
+test("createMetaproject(), addToMetaproject(), removeFromMetaproject()", function() {
+	createFacadeAndLogin(function(facade) {
 		var metaprojectIdentifier = "/" + testUserId + "/JS_TEST_METAPROJECT";
-		
-		createNewMetaproject(facade, metaprojectIdentifier, function(response){
+
+		createNewMetaproject(facade, metaprojectIdentifier, function(response) {
 			var metaprojectId = createMetaprojectIdentifierId(metaprojectIdentifier);
-			
-			facade.getMetaproject(metaprojectId, function(response){
+
+			facade.getMetaproject(metaprojectId, function(response) {
 				var assignments = response.result;
 				assertObjectsCount(response.result.samples, 0);
-				
+
 				var assignmentsIds = {
 					"@type" : "MetaprojectAssignmentsIds",
 					"samples" : [ createSampleIdentifierId("/PLATONIC/PLATE-1") ]
 				};
-				
-				facade.addToMetaproject(metaprojectId, assignmentsIds, function(response){
-					facade.getMetaproject(metaprojectId, function(response){
+
+				facade.addToMetaproject(metaprojectId, assignmentsIds, function(response) {
+					facade.getMetaproject(metaprojectId, function(response) {
 						var assignments = response.result;
 						assertObjectsCount(assignments.samples, 1);
-						assertObjectsWithCodes(assignments.samples, ['PLATE-1']);
-						
-						facade.removeFromMetaproject(metaprojectId, assignmentsIds, function(response){
-							facade.getMetaproject(metaprojectId, function(response){
+						assertObjectsWithCodes(assignments.samples, [ 'PLATE-1' ]);
+
+						facade.removeFromMetaproject(metaprojectId, assignmentsIds, function(response) {
+							facade.getMetaproject(metaprojectId, function(response) {
 								var assignments = response.result;
 								assertObjectsCount(assignments.samples, 0);
 								facade.close();
@@ -1041,58 +1072,56 @@ test("createMetaproject(), addToMetaproject(), removeFromMetaproject()", functio
 	});
 });
 
-
-
-test("listAttachmentsForProject()", function(){
-	createFacadeAndLogin(function(facade){
+test("listAttachmentsForProject()", function() {
+	createFacadeAndLogin(function(facade) {
 		var projectId = createProjectIdentifierId("/TEST/TEST-PROJECT");
-		
-		facade.listAttachmentsForProject(projectId, false, function(response){
+
+		facade.listAttachmentsForProject(projectId, false, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithValues(response.result, 'fileName', ['projectAttachment']);
+			assertObjectsWithValues(response.result, 'fileName', [ 'projectAttachment' ]);
 			facade.close();
 		});
 	});
 });
 
-test("listAttachmentsForExperiment()", function(){
-	createFacadeAndLogin(function(facade){
+test("listAttachmentsForExperiment()", function() {
+	createFacadeAndLogin(function(facade) {
 		var experimentId = createExperimentIdentifierId("/TEST/TEST-PROJECT/TEST-EXPERIMENT");
-		
-		facade.listAttachmentsForExperiment(experimentId, false, function(response){
+
+		facade.listAttachmentsForExperiment(experimentId, false, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithValues(response.result, "fileName", ["experimentAttachment"]);
+			assertObjectsWithValues(response.result, "fileName", [ "experimentAttachment" ]);
 			facade.close();
 		});
 	});
 });
 
-test("listAttachmentsForSample()", function(){
-	createFacadeAndLogin(function(facade){
+test("listAttachmentsForSample()", function() {
+	createFacadeAndLogin(function(facade) {
 		var sampleId = createSampleIdentifierId("/TEST/TEST-SAMPLE-2");
-		
-		facade.listAttachmentsForSample(sampleId, false, function(response){
+
+		facade.listAttachmentsForSample(sampleId, false, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithValues(response.result, "fileName", ["sampleAttachment"]);
+			assertObjectsWithValues(response.result, "fileName", [ "sampleAttachment" ]);
 			facade.close();
 		});
 	});
 });
 
-test("updateSampleProperties(), searchForSamples()", function(){
-	createFacadeAndLogin(function(facade){
-		var sampleCodes = ['TEST-SAMPLE-2'];
+test("updateSampleProperties(), searchForSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		var sampleCodes = [ 'TEST-SAMPLE-2' ];
 		var searchCriteria = createSearchCriteriaForCodes(sampleCodes);
 
-		facade.searchForSamples(searchCriteria, function(response){
+		facade.searchForSamples(searchCriteria, function(response) {
 			var sample = response.result[0];
 			var description = generateRandomString();
 			var properties = {
 				"DESCRIPTION" : description
 			};
-			
-			facade.updateSampleProperties(sample.id, properties, function(response){
-				facade.searchForSamples(searchCriteria, function(response){
+
+			facade.updateSampleProperties(sample.id, properties, function(response) {
+				facade.searchForSamples(searchCriteria, function(response) {
 					var sample = response.result[0];
 					equal(sample.properties["DESCRIPTION"], description, "Property value has been changed")
 					facade.close();
@@ -1102,27 +1131,27 @@ test("updateSampleProperties(), searchForSamples()", function(){
 	});
 });
 
-test("addUnofficialVocabularyTerm(), listVocabularies()", function(){
-	createFacadeAndLogin(function(facade){
+test("addUnofficialVocabularyTerm(), listVocabularies()", function() {
+	createFacadeAndLogin(function(facade) {
 		var vocabularyCode = "TEST-VOCABULARY";
 		var termCode = generateRandomString();
 
-		facade.listVocabularies(function(response){
+		facade.listVocabularies(function(response) {
 			var originalVocabulary = findVocabulary(response.result, vocabularyCode);
 			var originalTerm = findVocabularyTerm(originalVocabulary, termCode);
-			
+
 			ok(!originalTerm, 'Term did not exist');
-			
+
 			var term = createNewVocabularyTerm(termCode, findVocabularyMaxOrdinal(originalVocabulary));
-			
-			facade.addUnofficialVocabularyTerm(originalVocabulary.id, term, function(response){
-				facade.listVocabularies(function(response){
+
+			facade.addUnofficialVocabularyTerm(originalVocabulary.id, term, function(response) {
+				facade.listVocabularies(function(response) {
 					var updatedVocabulary = findVocabulary(response.result, vocabularyCode);
 					var updatedTerm = findVocabularyTerm(updatedVocabulary, termCode);
-					
+
 					ok(updatedTerm, 'Term has been added');
 					equal(updatedTerm.code, termCode, 'Term has correct code');
-					
+
 					facade.close();
 				});
 			});
@@ -1130,21 +1159,21 @@ test("addUnofficialVocabularyTerm(), listVocabularies()", function(){
 	});
 });
 
-test("setWebAppSettings(), getWebAppSettings()", function(){
-	createFacadeAndLogin(function(facade){
+test("setWebAppSettings(), getWebAppSettings()", function() {
+	createFacadeAndLogin(function(facade) {
 		var webAppId = generateRandomString();
-		
-		facade.getWebAppSettings(webAppId, function(response){
+
+		facade.getWebAppSettings(webAppId, function(response) {
 			deepEqual(response.result.settings, {}, 'Web app settings are empty');
-			
+
 			var settings = {
 				"param1" : "value1",
 				"param2" : "value2"
 			};
 			var webAppSettings = createWebAppSettings(webAppId, settings);
-			
-			facade.setWebAppSettings(webAppSettings, function(response){
-				facade.getWebAppSettings(webAppId, function(response){
+
+			facade.setWebAppSettings(webAppSettings, function(response) {
+				facade.getWebAppSettings(webAppId, function(response) {
 					deepEqual(response.result.settings, settings, "Web app settings properly updated");
 					facade.close();
 				});
@@ -1153,104 +1182,104 @@ test("setWebAppSettings(), getWebAppSettings()", function(){
 	});
 });
 
-test("listQueries()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listQueries(function(response){
+test("listQueries()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listQueries(function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithValues(response.result, "name", ["Test Query"]);
+			assertObjectsWithValues(response.result, "name", [ "Test Query" ]);
 			facade.close();
 		});
 	});
 });
 
-test("executeQuery()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listQueries(function(response){
+test("executeQuery()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listQueries(function(response) {
 			var queryId = findQuery(response.result, "Test Query").id;
 			var parameterBindings = {};
-			
-			facade.executeQuery(queryId, parameterBindings, function(response){
+
+			facade.executeQuery(queryId, parameterBindings, function(response) {
 				ok(response.result, "Query has been executed");
-				equal(response.result.columns[0].title , "test_column", "Returned column has correct title");
-				equal(response.result.rows[0][0].value , "test_value", "Returned row has correct value");
+				equal(response.result.columns[0].title, "test_column", "Returned column has correct title");
+				equal(response.result.rows[0][0].value, "test_value", "Returned row has correct value");
 				facade.close();
 			});
 		});
 	});
 });
 
-test("listTableReportDescriptions()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listTableReportDescriptions(function(response){
+test("listTableReportDescriptions()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listTableReportDescriptions(function(response) {
 			assertObjectsCount(response.result, 2);
 			facade.close();
 		});
 	});
 });
 
-test("createReportFromDataSets()", function(){
-	createFacadeAndLogin(function(facade){
+test("createReportFromDataSets()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataStoreCode = "DSS1";
 		var serviceKey = "default-plate-image-analysis";
 		var dataSetCodes = [ "20130412153659994-391" ];
-		
-		facade.createReportFromDataSets(dataStoreCode, serviceKey, dataSetCodes, function(response){
+
+		facade.createReportFromDataSets(dataStoreCode, serviceKey, dataSetCodes, function(response) {
 			ok(response.result, "Report has been created");
 			facade.close();
 		});
 	});
 });
 
-test("listAggregationServices()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.listAggregationServices(function(response){
+test("listAggregationServices()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.listAggregationServices(function(response) {
 			assertObjectsCount(response.result, 4);
 			facade.close();
 		});
 	});
 });
 
-test("createReportFromAggregationService()", function(){
-	createFacadeAndLogin(function(facade){
+test("createReportFromAggregationService()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataStoreCode = "DSS2";
 		var serviceKey = "test-aggregation-service";
 		var parameters = {};
-		
-		facade.createReportFromAggregationService(dataStoreCode, serviceKey, parameters, function(response){
+
+		facade.createReportFromAggregationService(dataStoreCode, serviceKey, parameters, function(response) {
 			ok(response.result, "Report has been created");
 			facade.close();
 		});
 	});
 });
 
-test("getSessionTokenFromServer()", function(){
-	createFacadeAndLogin(function(facade){
-		facade.getSessionTokenFromServer(function(response){
+test("getSessionTokenFromServer()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.getSessionTokenFromServer(function(response) {
 			ok(response.result, "Got session token");
 			facade.close();
 		});
 	});
 });
 
-test("listFilesForDataSetFile()", function(){
-	createFacadeAndLogin(function(facade){
+test("listFilesForDataSetFile()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileOrFolder = createDataSetFileDTO("20130412152036861-380", "/original/PLATE-1A", true);
-		
-		facade.listFilesForDataSetFile(fileOrFolder, function(response){
+
+		facade.listFilesForDataSetFile(fileOrFolder, function(response) {
 			assertObjectsCount(response.result, 864);
 			facade.close();
 		});
 	});
 });
 
-test("getDownloadUrlForFileForDataSetFile()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDownloadUrlForFileForDataSetFile()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileOrFolder = createDataSetFileDTO("20130412152036861-380", "/original/PLATE-1A/bPLATE_wA10_s1_cRGB.png", false);
-		
-		facade.getDownloadUrlForFileForDataSetFile(fileOrFolder, function(response){
+
+		facade.getDownloadUrlForFileForDataSetFile(fileOrFolder, function(response) {
 			ok(response.result, "Got download url");
-			
-			downloadFile(response.result, function(data){
+
+			downloadFile(response.result, function(data) {
 				ok(data, "Download url works");
 				facade.close();
 			});
@@ -1258,41 +1287,41 @@ test("getDownloadUrlForFileForDataSetFile()", function(){
 	});
 });
 
-test("getDownloadUrlForFileForDataSetFileWithTimeout()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDownloadUrlForFileForDataSetFileWithTimeout()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileOrFolder = createDataSetFileDTO("20130412152036861-380", "/original/PLATE-1A/bPLATE_wA10_s1_cRGB.png", false);
 		var validityDurationInSeconds = 10;
-		
-		facade.getDownloadUrlForFileForDataSetFileWithTimeout(fileOrFolder, validityDurationInSeconds, function(response){
+
+		facade.getDownloadUrlForFileForDataSetFileWithTimeout(fileOrFolder, validityDurationInSeconds, function(response) {
 			ok(response.result, "Got download url");
 
-			downloadFile(response.result, function(data){
+			downloadFile(response.result, function(data) {
 				ok(data, "Download url works once");
-				
-				downloadFile(response.result, function(data){
+
+				downloadFile(response.result, function(data) {
 					ok(!data, "Download url does not work anymore");
-					facade.close();	
+					facade.close();
 				});
 			});
 		});
 	});
 });
 
-test("getDownloadUrlForFileForDataSetFileInSession()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDownloadUrlForFileForDataSetFileInSession()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileOrFolder = createDataSetFileDTO("20130412152036861-380", "/original/PLATE-1A/bPLATE_wA10_s1_cRGB.png", false);
-		
-		facade.getDownloadUrlForFileForDataSetFileInSession(fileOrFolder, function(response){
+
+		facade.getDownloadUrlForFileForDataSetFileInSession(fileOrFolder, function(response) {
 			ok(response, "Got download url");
-			
-			downloadFile(response, function(data){
+
+			downloadFile(response, function(data) {
 				ok(!isHtml(data), "Download url works");
 
-				downloadFile(response, function(data){
+				downloadFile(response, function(data) {
 					ok(!isHtml(data), "Download url works more than once");
-					
-					facade.logout(function(){
-						downloadFile(response, function(data){
+
+					facade.logout(function() {
+						downloadFile(response, function(data) {
 							ok(isHtml(data), "Download url does not work after logout");
 							facade.close();
 						});
@@ -1303,28 +1332,28 @@ test("getDownloadUrlForFileForDataSetFileInSession()", function(){
 	});
 });
 
-test("listFilesForDataSet()", function(){
-	createFacadeAndLogin(function(facade){
+test("listFilesForDataSet()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130412152036861-380";
 		var path = "/original";
 		var recursive = true;
-		
-		facade.listFilesForDataSet(dataSetCode, path, recursive, function(response){
+
+		facade.listFilesForDataSet(dataSetCode, path, recursive, function(response) {
 			assertObjectsCount(response.result, 865);
 			facade.close();
 		});
 	});
 });
 
-test("getDownloadUrlForFileForDataSet()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDownloadUrlForFileForDataSet()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130412152036861-380";
 		var path = "/original/PLATE-1A/bPLATE_wA10_s1_cRGB.png";
-		
-		facade.getDownloadUrlForFileForDataSet(dataSetCode, path, function(response){
+
+		facade.getDownloadUrlForFileForDataSet(dataSetCode, path, function(response) {
 			ok(response.result, "Got download url");
-			
-			downloadFile(response.result, function(data){
+
+			downloadFile(response.result, function(data) {
 				ok(data, "Download url works");
 				facade.close();
 			});
@@ -1332,22 +1361,22 @@ test("getDownloadUrlForFileForDataSet()", function(){
 	});
 });
 
-test("getDownloadUrlForFileForDataSetInSession()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDownloadUrlForFileForDataSetInSession()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130412152036861-380";
 		var path = "/original/PLATE-1A/bPLATE_wA10_s1_cRGB.png";
-		
-		facade.getDownloadUrlForFileForDataSetInSession(dataSetCode, path, function(response){
+
+		facade.getDownloadUrlForFileForDataSetInSession(dataSetCode, path, function(response) {
 			ok(response, "Got download url");
-			
-			downloadFile(response, function(data){
+
+			downloadFile(response, function(data) {
 				ok(!isHtml(data), "Download url works");
 
-				downloadFile(response, function(data){
+				downloadFile(response, function(data) {
 					ok(!isHtml(data), "Download url works more than once");
-					
-					facade.logout(function(){
-						downloadFile(response, function(data){
+
+					facade.logout(function() {
+						downloadFile(response, function(data) {
 							ok(isHtml(data), "Download url does not work after logout");
 							facade.close();
 						});
@@ -1358,41 +1387,41 @@ test("getDownloadUrlForFileForDataSetInSession()", function(){
 	});
 });
 
-test("getDownloadUrlForFileForDataSetWithTimeout()", function(){
-	createFacadeAndLogin(function(facade){
+test("getDownloadUrlForFileForDataSetWithTimeout()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130412152036861-380";
 		var path = "/original/PLATE-1A/bPLATE_wA10_s1_cRGB.png";
 		var validityDurationInSeconds = 10;
-		
-		facade.getDownloadUrlForFileForDataSetWithTimeout(dataSetCode, path, validityDurationInSeconds, function(response){
+
+		facade.getDownloadUrlForFileForDataSetWithTimeout(dataSetCode, path, validityDurationInSeconds, function(response) {
 			ok(response.result, "Got download url");
 
-			downloadFile(response.result, function(data){
+			downloadFile(response.result, function(data) {
 				ok(data, "Download url works once");
-				
-				downloadFile(response.result, function(data){
+
+				downloadFile(response.result, function(data) {
 					ok(!data, "Download url does not work anymore");
-					facade.close();	
+					facade.close();
 				});
 			});
 		});
 	});
 });
 
-test("createSessionWorkspaceDownloadUrl()", function(){
-	createFacadeAndLogin(function(facade){
+test("createSessionWorkspaceDownloadUrl()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var fileContent = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			try{
-				facade.createSessionWorkspaceDownloadUrl(fileName, function(downloadUrl){
-					downloadFile(downloadUrl, function(response){
+
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function() {
+			try {
+				facade.createSessionWorkspaceDownloadUrl(fileName, function(downloadUrl) {
+					downloadFile(downloadUrl, function(response) {
 						ok(false);
 					});
 				});
-			}catch(e){
+			} catch (e) {
 				ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
 				facade.close();
 			}
@@ -1400,15 +1429,15 @@ test("createSessionWorkspaceDownloadUrl()", function(){
 	});
 });
 
-test("createSessionWorkspaceDownloadUrlForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("createSessionWorkspaceDownloadUrlForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var fileContent = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl){
-				downloadFile(downloadUrl, function(response){
+
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function() {
+			facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl) {
+				downloadFile(downloadUrl, function(response) {
 					equal(response, fileContent, "Download url is correct");
 					facade.close();
 				});
@@ -1417,18 +1446,18 @@ test("createSessionWorkspaceDownloadUrlForDataStore()", function(){
 	});
 });
 
-test("createSessionWorkspaceDownloadLink()", function(){
-	createFacadeAndLogin(function(facade){
+test("createSessionWorkspaceDownloadLink()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var linkText = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl){
-			try{
-				facade.createSessionWorkspaceDownloadLink(fileName, linkText, function(link){
+
+		facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl) {
+			try {
+				facade.createSessionWorkspaceDownloadLink(fileName, linkText, function(link) {
 					ok(false);
 				});
-			}catch(e){
+			} catch (e) {
 				ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
 				facade.close();
 			}
@@ -1436,14 +1465,14 @@ test("createSessionWorkspaceDownloadLink()", function(){
 	});
 });
 
-test("createSessionWorkspaceDownloadLinkForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("createSessionWorkspaceDownloadLinkForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var linkText = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl){
-			facade.createSessionWorkspaceDownloadLinkForDataStore(fileName, linkText, dataStoreCode, function(link){
+
+		facade.createSessionWorkspaceDownloadUrlForDataStore(fileName, dataStoreCode, function(downloadUrl) {
+			facade.createSessionWorkspaceDownloadLinkForDataStore(fileName, linkText, dataStoreCode, function(link) {
 				equal($(link).attr("href"), downloadUrl, "Link has correct url");
 				equal($(link).text(), linkText, "Link has correct text");
 				facade.close();
@@ -1452,33 +1481,33 @@ test("createSessionWorkspaceDownloadLinkForDataStore()", function(){
 	});
 });
 
-test("downloadSessionWorkspaceFile()", function(){
-	createFacadeAndLogin(function(facade){
+test("downloadSessionWorkspaceFile()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var fileContent = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			try{
-				facade.downloadSessionWorkspaceFile(fileName, function(response){
+
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function() {
+			try {
+				facade.downloadSessionWorkspaceFile(fileName, function(response) {
 					ok(false);
 				});
-			}catch(e){
+			} catch (e) {
 				ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
-                                facade.close();
+				facade.close();
 			}
 		});
 	});
 });
 
-test("downloadSessionWorkspaceFileForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("downloadSessionWorkspaceFileForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var fileContent = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			facade.downloadSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(response){
+
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function() {
+			facade.downloadSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(response) {
 				equal(response, fileContent, "File has been downloaded");
 				facade.close();
 			});
@@ -1486,34 +1515,34 @@ test("downloadSessionWorkspaceFileForDataStore()", function(){
 	});
 });
 
-test("deleteSessionWorkspaceFile()", function(){
-	createFacadeAndLogin(function(facade){
+test("deleteSessionWorkspaceFile()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var fileContent = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			try{
-				facade.deleteSessionWorkspaceFile(fileName, function(){
+
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function() {
+			try {
+				facade.deleteSessionWorkspaceFile(fileName, function() {
 					ok(false);
 				});
-			}catch(e){
+			} catch (e) {
 				ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
-                                facade.close();
+				facade.close();
 			}
 		});
 	});
 });
 
-test("deleteSessionWorkspaceFileForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("deleteSessionWorkspaceFileForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var fileName = generateRandomString();
 		var fileContent = generateRandomString();
 		var dataStoreCode = "DSS2";
-		
-		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function(){
-			facade.deleteSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(){
-				facade.downloadSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(response){
+
+		uploadFileToSessionWorkspace(facade, fileName, fileContent, dataStoreCode, function() {
+			facade.deleteSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function() {
+				facade.downloadSessionWorkspaceFileForDataStore(fileName, dataStoreCode, function(response) {
 					ok(response.error.indexOf("No such file or directory"), "File has been deleted");
 					facade.close();
 				});
@@ -1522,76 +1551,76 @@ test("deleteSessionWorkspaceFileForDataStore()", function(){
 	});
 });
 
-test("getPathToDataSet()", function(){
-	createFacadeAndLogin(function(facade){
+test("getPathToDataSet()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130412152036861-380";
 		var overrideStoreRootPathOrNull = "";
-		
-		facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+
+		facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response) {
 			equal(response.result, "/1/1FD3FF61-1576-4908-AE3D-296E60B4CE06/7e/71/80/20130412152036861-380", "Data set path is correct");
 			facade.close();
 		});
 	});
 });
 
-test("tryGetPathToDataSet()", function(){
-	createFacadeAndLogin(function(facade){
+test("tryGetPathToDataSet()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130412152036861-380";
 		var overrideStoreRootPathOrNull = "";
-		
-		facade.tryGetPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+
+		facade.tryGetPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response) {
 			equal(response.result, "/1/1FD3FF61-1576-4908-AE3D-296E60B4CE06/7e/71/80/20130412152036861-380", "Data set path is correct");
 			facade.close();
 		});
 	});
 });
 
-test("listAllShares()", function(){
-	createFacadeAndLogin(function(facade){
-		try{
-			facade.listAllShares(function(response){
+test("listAllShares()", function() {
+	createFacadeAndLogin(function(facade) {
+		try {
+			facade.listAllShares(function(response) {
 				ok(false);
 			});
-		}catch(e){
+		} catch (e) {
 			ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
 			facade.close();
 		}
 	});
 });
 
-test("listAllSharesForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("listAllSharesForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataStoreCode = "DSS2";
-		
-		facade.listAllSharesForDataStore(dataStoreCode, function(response){
+
+		facade.listAllSharesForDataStore(dataStoreCode, function(response) {
 			assertObjectsCount(response.result, 2);
-			assertObjectsWithValues(response.result, "shareId", ["1","2"]);
+			assertObjectsWithValues(response.result, "shareId", [ "1", "2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("shuffleDataSet()", function(){
-	createFacadeAndLogin(function(facade){
+test("shuffleDataSet()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetCode = "20130415100308111-409";
 		var share1Id = "1";
 		var share2Id = "2";
 		var overrideStoreRootPathOrNull = "";
-		var isInShare = function(dataSetPath, shareId){
+		var isInShare = function(dataSetPath, shareId) {
 			return dataSetPath.indexOf("/" + shareId + "/") == 0
 		}
-		
-		facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+
+		facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response) {
 			var toShareId = null;
-			
-			if(isInShare(response.result, share1Id)){
+
+			if (isInShare(response.result, share1Id)) {
 				toShareId = share2Id;
-			}else{
+			} else {
 				toShareId = share1Id;
 			}
-			
-			facade.shuffleDataSet(dataSetCode, toShareId, function(response){
-				facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response){
+
+			facade.shuffleDataSet(dataSetCode, toShareId, function(response) {
+				facade.getPathToDataSet(dataSetCode, overrideStoreRootPathOrNull, function(response) {
 					ok(isInShare(response.result, toShareId), "Data set has been moved to a different share");
 					facade.close();
 				});
@@ -1600,57 +1629,57 @@ test("shuffleDataSet()", function(){
 	});
 });
 
-test("getValidationScript()", function(){
-	createFacadeAndLogin(function(facade){
+test("getValidationScript()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetTypeOrNull = "HCS_IMAGE";
 
-		try{
-			facade.getValidationScript(dataSetTypeOrNull, function(response){
+		try {
+			facade.getValidationScript(dataSetTypeOrNull, function(response) {
 				ok(false);
 			});
-		}catch(e){
+		} catch (e) {
 			ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
 			facade.close();
 		}
 	});
 });
 
-test("getValidationScriptForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("getValidationScriptForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetTypeOrNull = "HCS_IMAGE";
 		var dataStoreCode = "DSS2";
-		
-		facade.getValidationScriptForDataStore(dataSetTypeOrNull, dataStoreCode, function(response){
+
+		facade.getValidationScriptForDataStore(dataSetTypeOrNull, dataStoreCode, function(response) {
 			ok(response.result, "Got a validation script");
 			facade.close();
 		});
 	});
 });
 
-test("getGraphUrl()", function(){
-	createFacadeAndLogin(function(facade){
+test("getGraphUrl()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataStoreCodeOrNull = "DSS2";
-		
-		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig){
-			try{
-				facade.getGraphUrl(graphConfig, function(graphUrl){
+
+		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig) {
+			try {
+				facade.getGraphUrl(graphConfig, function(graphUrl) {
 					ok(false);
 				});
-			}catch(e){
+			} catch (e) {
 				ok(e == "There is more than one data store configured. Please specify a data store code to get a data store url.");
-                                facade.close();
+				facade.close();
 			}
 		});
 	});
 });
 
-test("getGraphUrlForDataStore()", function(){
-	createFacadeAndLogin(function(facade){
+test("getGraphUrlForDataStore()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataStoreCodeOrNull = "DSS2";
-		
-		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig){
-			facade.getGraphUrlForDataStore(graphConfig, dataStoreCodeOrNull, function(graphUrl){
-				downloadFile(graphUrl, function(data){
+
+		uploadGraphToSessionWorkspace(facade, dataStoreCodeOrNull, function(graphConfig) {
+			facade.getGraphUrlForDataStore(graphConfig, dataStoreCodeOrNull, function(graphUrl) {
+				downloadFile(graphUrl, function(data) {
 					ok(!isHtml(data), "Graph has been generated");
 					facade.close();
 				})
@@ -1659,230 +1688,228 @@ test("getGraphUrlForDataStore()", function(){
 	});
 });
 
-test("openbisWebAppContext()", function(){
-	createFacadeAndLogin(function(facade){
+test("openbisWebAppContext()", function() {
+	createFacadeAndLogin(function(facade) {
 		var context = new openbisWebAppContext();
 		equal(context.getWebappCode(), "openbis-test", "Webapp code is correct");
 		ok(!context.getEntityKind(), "Entity kind is correct");
 		ok(!context.getEntityType(), "Entity type is correct");
 		ok(!context.getEntityIdentifier(), "Entity identifier is correct");
 		ok(!context.getEntityPermId(), "Entity perm id is correct");
-		
-		facade.getSessionTokenFromServer(function(response){
+
+		facade.getSessionTokenFromServer(function(response) {
 			equal(context.getSessionId(), response.result, "Session token is correct");
 			facade.close();
 		});
 	});
 });
 
-test("SearchCriteriaMatchClause.createPropertyMatch()", function(){
-	createFacadeAndLogin(function(facade){
-		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY","96_WELLS_8X12");  
+test("SearchCriteriaMatchClause.createPropertyMatch()", function() {
+	createFacadeAndLogin(function(facade) {
+		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY", "96_WELLS_8X12");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 4);
-			assertObjectsWithCodes(response.result, ["PLATE-1", "PLATE-1A", "PLATE-2"]);
+			assertObjectsWithCodes(response.result, [ "PLATE-1", "PLATE-1A", "PLATE-2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchCriteriaMatchClause.createPropertyMatch()", function(){
-	createFacadeAndLogin(function(facade){
-		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY","96_WELLS_8X12");  
+test("SearchCriteriaMatchClause.createPropertyMatch()", function() {
+	createFacadeAndLogin(function(facade) {
+		var clause = SearchCriteriaMatchClause.createPropertyMatch("$PLATE_GEOMETRY", "96_WELLS_8X12");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 4);
-			assertObjectsWithCodes(response.result, ["PLATE-1", "PLATE-1A", "PLATE-2"]);
+			assertObjectsWithCodes(response.result, [ "PLATE-1", "PLATE-1A", "PLATE-2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchCriteriaMatchClause.createAttributeMatch()", function(){
-	createFacadeAndLogin(function(facade){
-		var clause = SearchCriteriaMatchClause.createAttributeMatch("CODE","PLATE-1");  
+test("SearchCriteriaMatchClause.createAttributeMatch()", function() {
+	createFacadeAndLogin(function(facade) {
+		var clause = SearchCriteriaMatchClause.createAttributeMatch("CODE", "PLATE-1");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["PLATE-1"]);
+			assertObjectsWithCodes(response.result, [ "PLATE-1" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchCriteriaMatchClause.createTimeAttributeMatch()", function(){
-	createFacadeAndLogin(function(facade){
-		var clause = SearchCriteriaMatchClause.createTimeAttributeMatch("REGISTRATION_DATE","EQUALS", "2013-04-17", "0");  
+test("SearchCriteriaMatchClause.createTimeAttributeMatch()", function() {
+	createFacadeAndLogin(function(facade) {
+		var clause = SearchCriteriaMatchClause.createTimeAttributeMatch("REGISTRATION_DATE", "EQUALS", "2013-04-17", "0");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["SERIES-1"]);
+			assertObjectsWithCodes(response.result, [ "SERIES-1" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchCriteriaMatchClause.createAnyPropertyMatch()", function(){
-	createFacadeAndLogin(function(facade){
-		var clause = SearchCriteriaMatchClause.createAnyPropertyMatch("96_WELLS_8X12");  
+test("SearchCriteriaMatchClause.createAnyPropertyMatch()", function() {
+	createFacadeAndLogin(function(facade) {
+		var clause = SearchCriteriaMatchClause.createAnyPropertyMatch("96_WELLS_8X12");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 4);
-			assertObjectsWithCodes(response.result, ["PLATE-1", "PLATE-1A", "PLATE-2"]);
+			assertObjectsWithCodes(response.result, [ "PLATE-1", "PLATE-1A", "PLATE-2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchCriteriaMatchClause.createAnyFieldMatch()", function(){
-	createFacadeAndLogin(function(facade){
-		var clause = SearchCriteriaMatchClause.createAnyFieldMatch("PLATE-1");  
+test("SearchCriteriaMatchClause.createAnyFieldMatch()", function() {
+	createFacadeAndLogin(function(facade) {
+		var clause = SearchCriteriaMatchClause.createAnyFieldMatch("PLATE-1");
 		var criteria = new SearchCriteria();
 		criteria.addMatchClause(clause);
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["PLATE-1"]);
+			assertObjectsWithCodes(response.result, [ "PLATE-1" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createSampleParentCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createSampleParentCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var parentCriteria = new SearchCriteria();
-		parentCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","TEST-SAMPLE-2"));
-		
+		parentCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "TEST-SAMPLE-2"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createSampleParentCriteria(parentCriteria));
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 2);
-			assertObjectsWithCodes(response.result, ["TEST-SAMPLE-2-CHILD-1", "TEST-SAMPLE-2-CHILD-2"]);
+			assertObjectsWithCodes(response.result, [ "TEST-SAMPLE-2-CHILD-1", "TEST-SAMPLE-2-CHILD-2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createSampleChildCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createSampleChildCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var childCriteria = new SearchCriteria();
-		childCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","TEST-SAMPLE-2-CHILD-1"));
-		
+		childCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "TEST-SAMPLE-2-CHILD-1"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createSampleChildCriteria(childCriteria));
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["TEST-SAMPLE-2"]);
+			assertObjectsWithCodes(response.result, [ "TEST-SAMPLE-2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createSampleContainerCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createSampleContainerCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var containerCriteria = new SearchCriteria();
-		containerCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","TEST-SAMPLE-1"));
-		
+		containerCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "TEST-SAMPLE-1"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createSampleContainerCriteria(containerCriteria));
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 2);
-			assertObjectsWithCodes(response.result, ["TEST-SAMPLE-1:TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1:TEST-SAMPLE-1-CONTAINED-2"]);
+			assertObjectsWithCodes(response.result, [ "TEST-SAMPLE-1:TEST-SAMPLE-1-CONTAINED-1", "TEST-SAMPLE-1:TEST-SAMPLE-1-CONTAINED-2" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createSampleCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createSampleCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var sampleCriteria = new SearchCriteria();
-		sampleCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","PLATE-1"));
-		
+		sampleCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "PLATE-1"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createSampleCriteria(sampleCriteria));
-		
-		facade.searchForDataSets(criteria, function(response){
+
+		facade.searchForDataSets(criteria, function(response) {
 			assertObjectsCount(response.result, 11);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createExperimentCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createExperimentCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var sampleCriteria = new SearchCriteria();
-		sampleCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","EXP-2"));
-		
+		sampleCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "EXP-2"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createExperimentCriteria(sampleCriteria));
-		
-		facade.searchForSamples(criteria, function(response){
+
+		facade.searchForSamples(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["SERIES-1"]);
+			assertObjectsWithCodes(response.result, [ "SERIES-1" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createDataSetContainerCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createDataSetContainerCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetContainerCriteria = new SearchCriteria();
-		dataSetContainerCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","20130412143121081-200"));
-		
+		dataSetContainerCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "20130412143121081-200"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createDataSetContainerCriteria(dataSetContainerCriteria));
-		
-		facade.searchForDataSets(criteria, function(response){
+
+		facade.searchForDataSets(criteria, function(response) {
 			assertObjectsCount(response.result, 4);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createDataSetParentCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createDataSetParentCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetParentCriteria = new SearchCriteria();
-		dataSetParentCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","20130412143121081-200"));
-		
+		dataSetParentCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "20130412143121081-200"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createDataSetParentCriteria(dataSetParentCriteria));
-		
-		facade.searchForDataSets(criteria, function(response){
+
+		facade.searchForDataSets(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["20130412153119864-385"]);
+			assertObjectsWithCodes(response.result, [ "20130412153119864-385" ]);
 			facade.close();
 		});
 	});
 });
 
-test("SearchSubCriteria.createDataSetChildCriteria()", function(){
-	createFacadeAndLogin(function(facade){
+test("SearchSubCriteria.createDataSetChildCriteria()", function() {
+	createFacadeAndLogin(function(facade) {
 		var dataSetChildCriteria = new SearchCriteria();
-		dataSetChildCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE","20130412153119864-385"));
-		
+		dataSetChildCriteria.addMatchClause(SearchCriteriaMatchClause.createAttributeMatch("CODE", "20130412153119864-385"));
+
 		var criteria = new SearchCriteria();
 		criteria.addSubCriteria(SearchSubCriteria.createDataSetChildCriteria(dataSetChildCriteria));
-		
-		facade.searchForDataSets(criteria, function(response){
+
+		facade.searchForDataSets(criteria, function(response) {
 			assertObjectsCount(response.result, 1);
-			assertObjectsWithCodes(response.result, ["20130412143121081-200"]);
+			assertObjectsWithCodes(response.result, [ "20130412143121081-200" ]);
 			facade.close();
 		});
 	});
 });
-
-

@@ -861,6 +861,21 @@ openbis.prototype.searchForDataSetsOnBehalfOfUser = function(searchCriteria, use
 }
 
 /**
+ * @see IGeneralInformationService.searchForDataSetsWithSequences(String, String, String, Map<String, String>)
+ * @method
+ */
+openbis.prototype.searchForDataSetsWithSequences = function(preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "searchForDataSetsWithSequences",
+				"params" : [ this.getSession(),
+							 preferredSequenceDatabaseOrNull,
+							 sequenceSnippet, optionalParametersOrNull ] },
+		success: action
+	});
+}
+
+/**
  * @see IGeneralInformationService.filterDataSetsVisibleToUser(String, List<DataSet>, String)
  * @method
  */

@@ -97,7 +97,7 @@ public class JsTestCommonSelenium extends SeleniumTest
         runTests("runOpenbisScreeningJsTests", new OpenbisScreeningJsWebappLocation());
     }
 
-    private void runTests(String method, Location<OpenbisJsCommonWebapp> location)
+    protected void runTests(String method, Location<OpenbisJsCommonWebapp> location)
     {
         try
         {
