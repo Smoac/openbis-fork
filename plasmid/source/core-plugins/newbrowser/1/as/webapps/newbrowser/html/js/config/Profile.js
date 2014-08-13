@@ -69,6 +69,14 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.getDefaultDataStoreCode = function() {
+			var dataStoreCode = null;
+			if(this.allDataStores.length > 0) {
+				 var dataStoreCode = this.allDataStores[0].code
+			}
+			return dataStoreCode;
+		}
+		
 		this.getDefaultDataStoreURL = function() {
 			var dataStoreURL = null;
 			if(this.allDataStores.length > 0) {

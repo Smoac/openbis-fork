@@ -123,7 +123,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					$formColumn.append(FormUtil.getFieldForComponentWithLabel(spacesDropDown, "Space"));
 					spacesDropDown.change(function(event){
 						var spacesDropDown = $(this);
-						_this._sampleFormModel.sample.space = spacesDropDown.val();
+						_this._sampleFormModel.sample.spaceCode = spacesDropDown.val();
 						_this._sampleFormModel.isFormDirty = true;
 					});
 				} else {
@@ -297,7 +297,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode !== FormMode.VIEW) {
 			var $updateBtn = $("<a>", { "class" : "btn btn-primary"}).append(title);
 			$updateBtn.click(function() {
-				_this._sampleFormController.createUpdateSample();
+				_this._sampleFormController.createUpdateCopySample();
 			});
 			
 			$formColumn.append($updateBtn);
@@ -397,7 +397,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				var isValid = newSampleCodeForCopy[0].checkValidity();
 				if(isValid) {
 					var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
-					_this._sampleFormController.createUpdateSample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
+					_this._sampleFormController.createUpdateCopySample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
 					Util.unblockUI();
 				} else {
 					Util.showError("Invalid code.", function() {}, true);
