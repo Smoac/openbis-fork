@@ -124,6 +124,43 @@ var createFacadeAndLogin = function(action) {
 	});
 }
 
+var createExperimentFetchOptions = function() {
+	return {
+		"@type" : "ExperimentFetchOptions",
+
+		"type" : {
+			"@type" : "ExperimentTypeFetchOptions"
+		},
+
+		"project" : {
+			"@type" : "ProjectFetchOptions",
+			"space" : {
+				"@type" : "SpaceFetchOptions"
+			}
+		},
+
+		"properties" : {
+			"@type" : "PropertyFetchOptions"
+		},
+
+		"tags" : {
+			"@type" : "TagFetchOptions"
+		},
+
+		"registrator" : {
+			"@type" : "PersonFetchOptions"
+		},
+
+		"modifier" : {
+			"@type" : "PersonFetchOptions"
+		},
+
+		"attachments" : {
+			"@type" : "AttachmentFetchOptions"
+		}
+	}
+}
+
 test("listExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.ajaxRequest({
@@ -133,40 +170,102 @@ test("listExperiments()", function() {
 				"params" : [ facade.sessionToken, [ {
 					"@type" : "ExperimentPermId",
 					"permId" : "20130412105232616-2"
-				} ], {
-					"@type" : "ExperimentFetchOptions",
-
-					"type" : {
-						"@type" : "ExperimentTypeFetchOptions"
-					},
-
-					"project" : {
-						"@type" : "ProjectFetchOptions"
-					},
-
-					"properties" : {
-						"@type" : "PropertyFetchOptions"
-					},
-
-					"tags" : {
-						"@type" : "TagFetchOptions"
-					},
-
-					"registrator" : {
-						"@type" : "PersonFetchOptions"
-					},
-
-					"modifier" : {
-						"@type" : "PersonFetchOptions"
-					},
-
-					"attachments" : {
-						"@type" : "AttachmentFetchOptions"
-					}
-				} ]
+				} ], createExperimentFetchOptions() ]
 			},
 			success : function(experiments) {
-				alert(experiments);
+				assertObjectsCount(experiments, 1);
+
+				var experiment = experiments[0];
+				equal(experiment.code, "EXP-1", "Experiment code");
+				equal(experiment.type.code, "HCS_PLATONIC", "Type code");
+				equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+				equal(experiment.project.space.code, "PLATONIC", "Space code");
+				facade.close();
+			}
+		});
+	});
+});
+
+test("searchExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "searchExperiments",
+				"params" : [ facade.sessionToken, {
+					"@type" : "ExperimentSearchCriterion",
+					"criteria" : [ {
+						"@type" : "CodeSearchCriterion",
+						"fieldValue" : {
+							"@type" : "StringEqualToValue",
+							"value" : "TEST-EXPERIMENT-2"
+						}
+					} ]
+				}, createExperimentFetchOptions() ]
+			},
+			success : function(experiments) {
+				assertObjectsCount(experiments, 1);
+
+				var experiment = experiments[0];
+				equal(experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
+				equal(experiment.type.code, "UNKNOWN", "Type code");
+				equal(experiment.project.code, "TEST-PROJECT", "Project code");
+				equal(experiment.project.space.code, "TEST", "Space code");
+				facade.close();
+			}
+		});
+	});
+});
+
+test("createExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
+		var code = "NEW_JSON_EXPERIMENT_" + (new Date().getTime());
+
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "createExperiments",
+				"params" : [ facade.sessionToken, [ {
+					"@type" : "ExperimentCreation",
+
+					"typeId" : {
+						"@type" : "EntityTypePermId",
+						"permId" : "UNKNOWN"
+					},
+
+					"code" : code,
+
+					"projectId" : {
+						"@type" : "ProjectIdentifier",
+						"identifier" : "/TEST/TEST-PROJECT"
+					},
+
+					"tagIds" : [ {
+						"@type" : "TagNameId",
+						"name" : "NEW_JSON_TAG"
+					} ]
+
+				} ] ]
+			},
+			success : function(experimentPermIds) {
+				facade.ajaxRequest({
+					url : testApiUrl,
+					data : {
+						"method" : "listExperiments",
+						"params" : [ facade.sessionToken, [ experimentPermIds[0] ], createExperimentFetchOptions() ]
+					},
+					success : function(experiments) {
+						assertObjectsCount(experiments, 1);
+
+						var experiment = experiments[0];
+						equal(experiment.code, code, "Experiment code");
+						equal(experiment.type.code, "UNKNOWN", "Type code");
+						equal(experiment.project.code, "TEST-PROJECT", "Project code");
+						equal(experiment.project.space.code, "TEST", "Space code");
+						equal(experiment.tags[0].name, "NEW_JSON_TAG", "Tag code");
+						facade.close();
+					}
+				});
 			}
 		});
 	});
