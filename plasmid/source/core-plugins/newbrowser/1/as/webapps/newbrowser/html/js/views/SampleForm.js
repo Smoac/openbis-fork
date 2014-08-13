@@ -707,7 +707,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 		}
 		var sampleParentsFinal = this.sampleLinksParents.getSamplesIdentifiers();
 		
-		if(!this.sampleLinksParents.isValid()) {
+		if(!this.sampleLinksChildren.isValid()) {
 			Util.showError("Missing Children.");
 			return;
 		}
