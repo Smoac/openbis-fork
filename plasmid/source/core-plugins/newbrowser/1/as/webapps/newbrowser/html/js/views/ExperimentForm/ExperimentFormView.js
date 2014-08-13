@@ -134,18 +134,19 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				
 				var $controlGroup =  null;
 				
+				var value = this._experimentFormModel.experiment.properties[propertyType.code];
+				var isSystemProperty = false;
+				if(!value && propertyType.code.charAt(0) === '$') {
+					value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
+					isSystemProperty = true;
+				}
+				
 				if(this._experimentFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
-					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, this._experimentFormModel.experiment.properties[propertyType.code]);
+					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value);
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
 					//Update values if is into edit mode
 					if(this._experimentFormModel.mode === FormMode.EDIT) {
-						var value = this._experimentFormModel.experiment.properties[propertyType.code];
-						var isSystemProperty = false;
-						if(!value && propertyType.code.charAt(0) === '$') {
-							value = this._experimentFormModel.experiment.properties[propertyType.code.substr(1)];
-							isSystemProperty = true;
-						}
 						if(propertyType.dataType === "BOOLEAN") {
 							$($component.children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {
@@ -176,7 +177,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 						}
 					}
 					
-					$component.change(changeEvent(propertyType));
+					//Avoid modifications in properties managed by scripts
+					if(propertyType.managed || propertyType.dinamic) {
+						$component.prop('disabled', true);
+					}
+					
+					$component.change(changeEvent(propertyType, isSystemProperty));
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
 				
