@@ -18,7 +18,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +29,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v3.json.ObjectMapperResource;
 /**
  * @author Franz-Josef Elmer
  */
-@Controller
+// Do not expose the new api before we make sure it does not introduce any security threats or dangerous bugs
+// @Controller
 @RequestMapping(
 { IApplicationServerApi.JSON_SERVICE_URL, "/openbis" + IApplicationServerApi.JSON_SERVICE_URL })
 public class ApplicationServerApiJsonServer extends AbstractApiJsonServiceExporter
