@@ -219,7 +219,7 @@ test("searchExperiments()", function() {
 
 test("createExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
-		var code = "NEW_JSON_EXPERIMENT_" + (new Date().getTime());
+		var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
 
 		facade.ajaxRequest({
 			url : testApiUrl,
@@ -242,7 +242,7 @@ test("createExperiments()", function() {
 
 					"tagIds" : [ {
 						"@type" : "TagNameId",
-						"name" : "NEW_JSON_TAG"
+						"name" : "CREATE_JSON_TAG"
 					} ]
 
 				} ] ]
@@ -262,8 +262,76 @@ test("createExperiments()", function() {
 						equal(experiment.type.code, "UNKNOWN", "Type code");
 						equal(experiment.project.code, "TEST-PROJECT", "Project code");
 						equal(experiment.project.space.code, "TEST", "Space code");
-						equal(experiment.tags[0].name, "NEW_JSON_TAG", "Tag code");
+						equal(experiment.tags[0].name, "CREATE_JSON_TAG", "Tag code");
 						facade.close();
+					}
+				});
+			}
+		});
+	});
+});
+
+test("updateExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
+		var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "createExperiments",
+				"params" : [ facade.sessionToken, [ {
+					"@type" : "ExperimentCreation",
+
+					"typeId" : {
+						"@type" : "EntityTypePermId",
+						"permId" : "UNKNOWN"
+					},
+
+					"code" : code,
+
+					"projectId" : {
+						"@type" : "ProjectIdentifier",
+						"identifier" : "/TEST/TEST-PROJECT"
+					}
+
+				} ] ]
+			},
+			success : function(experimentPermIds) {
+				facade.ajaxRequest({
+					url : testApiUrl,
+					data : {
+						"method" : "updateExperiments",
+						"params" : [ facade.sessionToken, [ {
+							"@type" : "ExperimentUpdate",
+
+							"experimentId" : experimentPermIds[0],
+
+							"projectId" : {
+								"@type" : "ProjectIdentifier",
+								"identifier" : "/PLATONIC/SCREENING-EXAMPLES"
+							}
+
+						} ] ]
+					},
+					success : function(experiments) {
+
+						facade.ajaxRequest({
+							url : testApiUrl,
+							data : {
+								"method" : "listExperiments",
+								"params" : [ facade.sessionToken, [ experimentPermIds[0] ], createExperimentFetchOptions() ]
+							},
+							success : function(experiments) {
+								assertObjectsCount(experiments, 1);
+
+								var experiment = experiments[0];
+								equal(experiment.code, code, "Experiment code");
+								equal(experiment.type.code, "UNKNOWN", "Type code");
+								equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+								equal(experiment.project.space.code, "PLATONIC", "Space code");
+								facade.close();
+							}
+						});
 					}
 				});
 			}
