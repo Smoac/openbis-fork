@@ -191,7 +191,7 @@ var FormUtil = new function() {
 		$fieldset.append($controlGroup);
 		
 		var $component = $("<span>", {'class' : 'form-control', 'style' : 'border:none; box-shadow:none;'});
-		$component.append(text);
+		$component.text(text);
 		$controls.append($component);
 		
 		return $fieldset;
