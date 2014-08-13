@@ -332,6 +332,10 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 			
 			Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
 				
+			$("#newSampleCodeForCopy").on("keyup", function(event) {
+				$(this).val($(this).val().toUpperCase());
+			});
+			
 			$("#copyAccept").on("click", function(event) {
 				var newSampleCodeForCopy = $("#newSampleCodeForCopy");
 				var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
