@@ -201,9 +201,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					for(var i = 0; i < data.result.length; i++) {
 						var subExperiment = data.result[i];
 						var link = $("<a>", { "style" : "cursor:pointer;" }).append(subExperiment.code);
-						link.click(function() {
-							_this._experimentFormController._mainController.changeView("showViewSamplePageFromPermId", subExperiment.permId);
-						});
+						var clickFunction = function(permId) {
+							return function() {
+								_this._experimentFormController._mainController.changeView("showViewSamplePageFromPermId", permId);
+							}
+						}
+						link.click(clickFunction(subExperiment.permId));
 						$tbody.append($("<tr>").append($("<td>").append(link)).append("<td>" + subExperiment.sampleTypeCode + "</td>").append("<td>" + Util.getMapAsString(subExperiment.properties, 200) + "</td>"));
 					}
 					$subExperimentsList.append($table);
