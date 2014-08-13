@@ -144,6 +144,14 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
+	this.getHierarchyButton = function(permId) {
+		var $hierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
+									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }));
+		$hierarchyButton.click(function() {
+			mainController.changeView('showSampleHierarchyPage', permId);
+		});
+		return $hierarchyButton;
+	}
 	//
 	// Get Field with container to obtain a correct layout
 	//

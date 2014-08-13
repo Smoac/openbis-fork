@@ -64,8 +64,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// TITLE BUTTONS
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			//Pin
 			$formTitle.append(FormUtil.getPINButton(this._sampleFormModel.sample.permId));
-			
+			//Hierarchy
+			$formTitle.append(" ");
+			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));
+			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
 				$formTitle.append(" ");
 				var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
