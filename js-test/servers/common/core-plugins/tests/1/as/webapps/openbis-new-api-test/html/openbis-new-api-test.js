@@ -161,6 +161,50 @@ var createExperimentFetchOptions = function() {
 	}
 }
 
+var createSampleFetchOptions = function() {
+	return {
+		"@type" : "SampleFetchOptions",
+
+		"sampleType" : {
+			"@type" : "SampleTypeFetchOptions"
+		},
+
+		"experiment" : {
+			"@type" : "ExperimentFetchOptions",
+			"project" : {
+				"@type" : "ProjectFetchOptions",
+				"space" : {
+					"@type" : "SpaceFetchOptions"
+				}
+			}
+		},
+
+		"space" : {
+			"@type" : "SpaceFetchOptions"
+		},
+
+		"properties" : {
+			"@type" : "PropertyFetchOptions"
+		},
+
+		"tags" : {
+			"@type" : "TagFetchOptions"
+		},
+
+		"registrator" : {
+			"@type" : "PersonFetchOptions"
+		},
+
+		"modifier" : {
+			"@type" : "PersonFetchOptions"
+		},
+
+		"attachments" : {
+			"@type" : "AttachmentFetchOptions"
+		}
+	}
+}
+
 test("listExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.ajaxRequest({
@@ -180,6 +224,32 @@ test("listExperiments()", function() {
 				equal(experiment.type.code, "HCS_PLATONIC", "Type code");
 				equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
 				equal(experiment.project.space.code, "PLATONIC", "Space code");
+				facade.close();
+			}
+		});
+	});
+});
+
+test("listSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "listSamples",
+				"params" : [ facade.sessionToken, [ {
+					"@type" : "SamplePermId",
+					"permId" : "20130412140147735-20"
+				} ], createSampleFetchOptions() ]
+			},
+			success : function(samples) {
+				assertObjectsCount(samples, 1);
+
+				var sample = samples[0];
+				equal(sample.code, "PLATE-1", "Sample code");
+				equal(sample.sampleType.code, "PLATE", "Type code");
+				equal(sample.experiment.code, "EXP-1", "Experiment code");
+				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+				equal(sample.space.code, "PLATONIC", "Space code");
 				facade.close();
 			}
 		});
@@ -211,6 +281,38 @@ test("searchExperiments()", function() {
 				equal(experiment.type.code, "UNKNOWN", "Type code");
 				equal(experiment.project.code, "TEST-PROJECT", "Project code");
 				equal(experiment.project.space.code, "TEST", "Space code");
+				facade.close();
+			}
+		});
+	});
+});
+
+test("searchSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "searchSamples",
+				"params" : [ facade.sessionToken, {
+					"@type" : "SampleSearchCriterion",
+					"criteria" : [ {
+						"@type" : "CodeSearchCriterion",
+						"fieldValue" : {
+							"@type" : "StringEqualToValue",
+							"value" : "PLATE-1"
+						}
+					} ]
+				}, createSampleFetchOptions() ]
+			},
+			success : function(samples) {
+				assertObjectsCount(samples, 1);
+
+				var sample = samples[0];
+				equal(sample.code, "PLATE-1", "Sample code");
+				equal(sample.sampleType.code, "PLATE", "Type code");
+				equal(sample.experiment.code, "EXP-1", "Experiment code");
+				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+				equal(sample.space.code, "PLATONIC", "Space code");
 				facade.close();
 			}
 		});
@@ -271,6 +373,58 @@ test("createExperiments()", function() {
 	});
 });
 
+test("createSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		var code = "CREATE_JSON_SAMPLE_" + (new Date().getTime());
+
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "createSamples",
+				"params" : [ facade.sessionToken, [ {
+					"@type" : "SampleCreation",
+
+					"typeId" : {
+						"@type" : "EntityTypePermId",
+						"permId" : "UNKNOWN"
+					},
+
+					"code" : code,
+
+					"spaceId" : {
+						"@type" : "SpacePermId",
+						"permId" : "TEST"
+					},
+
+					"tagIds" : [ {
+						"@type" : "TagNameId",
+						"name" : "CREATE_JSON_TAG"
+					} ]
+
+				} ] ]
+			},
+			success : function(samplePermIds) {
+				facade.ajaxRequest({
+					url : testApiUrl,
+					data : {
+						"method" : "listSamples",
+						"params" : [ facade.sessionToken, [ samplePermIds[0] ], createSampleFetchOptions() ]
+					},
+					success : function(samples) {
+						assertObjectsCount(samples, 1);
+
+						var sample = samples[0];
+						equal(sample.code, code, "Sample code");
+						equal(sample.sampleType.code, "UNKNOWN", "Type code");
+						equal(sample.space.code, "TEST", "Space code");
+						facade.close();
+					}
+				});
+			}
+		});
+	});
+});
+
 test("updateExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
 		var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
@@ -313,7 +467,7 @@ test("updateExperiments()", function() {
 
 						} ] ]
 					},
-					success : function(experiments) {
+					success : function() {
 
 						facade.ajaxRequest({
 							url : testApiUrl,
@@ -338,3 +492,71 @@ test("updateExperiments()", function() {
 		});
 	});
 });
+
+test("updateSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		var code = "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
+
+		facade.ajaxRequest({
+			url : testApiUrl,
+			data : {
+				"method" : "createSamples",
+				"params" : [ facade.sessionToken, [ {
+					"@type" : "SampleCreation",
+
+					"typeId" : {
+						"@type" : "EntityTypePermId",
+						"permId" : "UNKNOWN"
+					},
+
+					"code" : code,
+
+					"spaceId" : {
+						"@type" : "SpacePermId",
+						"permId" : "PLATONIC"
+					}
+
+				} ] ]
+			},
+			success : function(samplePermIds) {
+				facade.ajaxRequest({
+					url : testApiUrl,
+					data : {
+						"method" : "updateSamples",
+						"params" : [ facade.sessionToken, [ {
+							"@type" : "SampleUpdate",
+
+							"sampleId" : samplePermIds[0],
+
+							"spaceId" : {
+								"@type" : "SpacePermId",
+								"permId" : "TEST"
+							}
+
+						} ] ]
+					},
+					success : function() {
+
+						facade.ajaxRequest({
+							url : testApiUrl,
+							data : {
+								"method" : "listSamples",
+								"params" : [ facade.sessionToken, [ samplePermIds[0] ], createSampleFetchOptions() ]
+							},
+							success : function(samples) {
+								assertObjectsCount(samples, 1);
+
+								var sample = samples[0];
+								equal(sample.code, code, "Sample code");
+								equal(sample.sampleType.code, "UNKNOWN", "Type code");
+								equal(sample.space.code, "TEST", "Space code");
+								facade.close();
+							}
+						});
+					}
+				});
+			}
+		});
+	});
+});
+
