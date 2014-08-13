@@ -188,8 +188,8 @@ function SampleFormController(mainController, mode, sample) {
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["NAME_PROPERTY"]] = defaultBench;
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = $("#sampleSpaceProject").val().replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = this._sampleFormModel.sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = window.mainController.serverFacade.openbisServer.getSession().split("-")[0];
 			}
 			parameters["sampleChildrenNew"] = [];
 			parameters["sampleChildrenRemoved"] = [];
