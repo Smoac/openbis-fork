@@ -10,8 +10,10 @@ var FormUtil = new function() {
 	//
 	// Form css classes
 	//
+	this.shortformColumClass = 'col-md-9'
 	this.formColumClass = 'col-md-12'
 	this.labelColumnClass = 'col-md-2';
+	this.shortControlColumnClass = 'col-md-5';
 	this.controlColumnClass = 'col-md-6';
 		
 	//

@@ -69,6 +69,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			//Hierarchy
 			$formTitle.append(" ");
 			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));
+			//Copy
+			$formTitle.append(" ");
+			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
+										.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
+			$copyButton.click(_this._getCopyButtonEvent());
+			$formTitle.append($copyButton);
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
 				$formTitle.append(" ");
@@ -154,7 +160,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$formColumn.append($sampleParentsWidget);
 		var isDisabled = this._sampleFormModel.mode === FormMode.VIEW;
 		
-		var currentParentsLinks = (this.sample)?this.sample.parents:null;
+		var currentParentsLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.parents:null;
 		this._sampleFormModel.sampleLinksParents = new SampleLinksWidget(sampleParentsWidgetId,
 																		profile,
 																		mainController.serverFacade,
@@ -175,7 +181,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $sampleChildrenWidget = $("<div>", { "id" : sampleChildrenWidgetId });
 		$formColumn.append($sampleChildrenWidget);
 		
-		var currentChildrenLinks = (this.sample)?this.sample.children:null;
+		var currentChildrenLinks = (this._sampleFormModel.sample)?this._sampleFormModel.sample.children:null;
 		this._sampleFormModel.sampleLinksChildren = new SampleLinksWidget(sampleChildrenWidgetId,
 														profile,
 														mainController.serverFacade,
@@ -285,7 +291,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode !== FormMode.VIEW) {
 			var $updateBtn = $("<a>", { "class" : "btn btn-primary"}).append(title);
 			$updateBtn.click(function() {
-				_this._sampleFormController.updateSample();
+				_this._sampleFormController.createUpdateSample();
 			});
 			
 			$formColumn.append($updateBtn);
@@ -324,6 +330,83 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	//
 	// TO-DO: Legacy code to be refactored
 	//
+	
+	//
+	// Copy Sample pop up
+	//
+	this._getCopyButtonEvent = function() {
+		var _this = this;
+		return function() {
+			var component = "<div class='form-horizontal'>"
+				component += "<legend>Duplicate Entity</legend>";
+				component += "<div class='form-inline'>";
+				component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
+				component += "<label class='control-label " + FormUtil.labelColumnClass + "'>Options </label>";
+				component += "<div class='" + FormUtil.controlColumnClass + "'>";
+				component += "<span class='checkbox'><label><input type='checkbox' id='linkParentsOnCopy' checked> Link Parents </label></span>";
+				component += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+				component += "<span class='checkbox'><label><input type='checkbox' id='copyChildrenOnCopy' checked> Copy Children </label></span>";
+				component += "</div>";
+				component += "</div>";
+				component += "</div>";
+				component += "<br /><br />";
+				component += "<div class='form-group " + FormUtil.shortformColumClass + "'>";
+				component += "<label class='control-label  " + FormUtil.labelColumnClass+ "'>Code&nbsp;(*):</label>";
+				component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+				component += "<input type='text' class='form-control' placeholder='Code' id='newSampleCodeForCopy' pattern='[a-zA-Z0-9_\\-\\.]+' required>";
+				component += "</div>";
+				component += "<div class='" + FormUtil.shortControlColumnClass + "'>";
+				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
+				component += "</div>";
+				component += "</div>";
+				
+			var css = {
+					'text-align' : 'left',
+					'top' : '15%',
+					'width' : '70%',
+					'left' : '15%',
+					'right' : '20%',
+					'overflow' : 'auto'
+			};
+				
+			var css = {
+					'text-align' : 'left',
+					'top' : '15%',
+					'width' : '70%',
+					'left' : '15%',
+					'right' : '20%',
+					'overflow' : 'auto'
+			};
+			
+			Util.blockUI(component + "<br><br><br> <a class='btn btn-default' id='copyAccept'>Accept</a> <a class='btn btn-default' id='copyCancel'>Cancel</a>", css);
+			
+			$("#newSampleCodeForCopy").on("keyup", function(event) {
+				$(this).val($(this).val().toUpperCase());
+			});
+			
+			$("#copyAccept").on("click", function(event) {
+				var newSampleCodeForCopy = $("#newSampleCodeForCopy");
+				var linkParentsOnCopy = $("#linkParentsOnCopy")[0].checked;
+				var copyChildrenOnCopy = $("#copyChildrenOnCopy")[0].checked;
+				var isValid = newSampleCodeForCopy[0].checkValidity();
+				if(isValid) {
+					var newSampleCodeForCopyValue = newSampleCodeForCopy.val();
+					_this._sampleFormController.createUpdateSample(newSampleCodeForCopyValue, linkParentsOnCopy, copyChildrenOnCopy);
+					Util.unblockUI();
+				} else {
+					Util.showError("Invalid code.", function() {}, true);
+				}
+			});
+			
+			$("#copyCancel").on("click", function(event) { 
+				Util.unblockUI();
+			});
+		}
+	}
+	
+	//
+	// Preview Image
+	//
 	this._reloadPreviewImage = function() {
 		var _this = this;
 		var previewCallback = 
@@ -358,6 +441,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		notLoadedImages.attr('src', "./img/image_unavailable.png");
 	}
 	
+	//
+	// Children Generator
+	//
 	this._generateChildren = function() {
 		var _this = this;
 		// Utility self contained methods

@@ -31,7 +31,7 @@ function SampleFormController(mainController, mode, sample) {
 		return this._sampleFormModel.isFormLoaded;
 	}
 	
-	this.updateSample = function() {
+	this.createUpdateSample = function() {
 		
 	}
 }
