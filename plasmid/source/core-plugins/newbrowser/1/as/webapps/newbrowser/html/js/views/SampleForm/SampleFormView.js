@@ -41,7 +41,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var sampleTypeDefinitionsExtension = profile.sampleTypeDefinitionsExtension[this._sampleFormModel.sampleTypeCode];
 		
 		//
-		// Title
+		// TITLE
 		//
 		var $formTitle = null;
 		
@@ -60,6 +60,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		var $formTitle = $("<h2>").append(title + " ");
 		
+		//
+		// TITLE BUTTONS
+		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			$formTitle.append(FormUtil.getPINButton(this._sampleFormModel.sample.permId));
 			
@@ -80,12 +83,27 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		
 		$formColumn.append($formTitle);
 		
-		$formColumn.append($("<legend>").append("Identification Info"));
+		//
+		// PREVIEW IMAGE
+		//
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			var $previewImage = $("<img>", { 'data-preview-loaded' : 'false',
+											 'class' : 'zoomableImage',
+											 'id' : 'preview-image',
+											 'src' : './img/image_loading.gif',
+											 'style' : 'height:300px; margin-right:20px; display:none;'
+											});
+			$previewImage.click(function() {
+				Util.showImage($("#preview-image").attr("src"));
+			});
+			
+			$formColumn.append($previewImage);
+		}
 		
 		//
 		// SELECT EXPERIMENT/SPACE
 		//
-		
+		$formColumn.append($("<legend>").append("Identification Info"));
 		if(this._sampleFormModel.isELNSubExperiment) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
 		} else {
@@ -187,10 +205,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			var $legend = $('<legend>'); 
 			$fieldset.append($legend);
 			
-			if(propertyTypeGroup.name) {
+			if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
 				$legend.text(propertyTypeGroup.name);
-			} else if(sampleType.propertyTypeGroups.length === 1) { //Only when there is only one group without name to render it with a default title.
-				$legend.text("Metadata Fields");
+			} else if((i === 0) || ((i !== 0) && (sampleType.propertyTypeGroups[i-1].name !== null) && (sampleType.propertyTypeGroups[i-1].name !== ""))) {
+				$legend.text("Metadata");
 			} else {
 				$legend.remove();
 			}
@@ -270,6 +288,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		}
 		
 		//
+		// DATASETS
+		//
+		
+		var $dataSetViewerContainer = $("<div>", { 'id' : 'dataSetViewerContainer', 'style' : 'margin-top:10px;'});
+		$formColumn.append($dataSetViewerContainer);
+		
+		//
 		// INIT
 		//
 		$container.append($form);
@@ -281,11 +306,54 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//Repaint parents and children after updating the property state to show the annotations
 		this._sampleFormModel.sampleLinksParents.repaint();
 		this._sampleFormModel.sampleLinksChildren.repaint();
+		
+		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			//Preview image
+			this._reloadPreviewImage();
+			
+			// Dataset Viewer
+			this._sampleFormModel.dataSetViewer = new DataSetViewer("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL());
+			this._sampleFormModel.dataSetViewer.init();
+		}
 	}
 	
 	//
-	// TO-DO: Legacy code to be refactored - Generate Children widget
+	// TO-DO: Legacy code to be refactored
 	//
+	this._reloadPreviewImage = function() {
+		var _this = this;
+		var previewCallback = 
+			function(data) {
+				if (data.result.length == 0) {
+					_this._updateLoadingToNotAvailableImage();
+				} else {
+					var x = "123";
+					var listFilesForDataSetCallback = 
+						function(dataFiles) {
+							if(!dataFiles.result) {
+								//DSS Is not running probably
+							} else {
+								var elementId = 'preview-image';
+								var downloadUrl = profile.getDefaultDataStoreURL() + '/' + data.result[0].code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+								
+								var img = $("#" + elementId);
+								img.attr('src', downloadUrl);
+								img.attr('data-preview-loaded', 'true');
+								img.show();
+							}
+						};
+					mainController.serverFacade.listFilesForDataSet(data.result[0].code, "/", true, listFilesForDataSetCallback);
+				}
+			};
+		
+		mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [this._sampleFormModel.sample.permId], previewCallback);
+	}
+	
+	this._updateLoadingToNotAvailableImage = function() {
+		var notLoadedImages = $("[data-preview-loaded='false']");
+		notLoadedImages.attr('src', "./img/image_unavailable.png");
+	}
+	
 	this._generateChildren = function() {
 		var _this = this;
 		// Utility self contained methods

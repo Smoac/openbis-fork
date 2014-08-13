@@ -30,4 +30,8 @@ function SampleFormController(mainController, mode, sample) {
 	this.isLoaded = function() {
 		return this._sampleFormModel.isFormLoaded;
 	}
+	
+	this.updateSample = function() {
+		
+	}
 }

@@ -69,6 +69,14 @@ $.extend(DefaultProfile.prototype, {
 			"isEnabled" : false
 		};
 		
+		this.getDefaultDataStoreURL = function() {
+			var dataStoreURL = null;
+			if(this.allDataStores.length > 0) {
+				 var dataStoreURL = this.allDataStores[0].downloadUrl
+			}
+			return dataStoreURL;
+		}
+		
 		this.getStoragePropertyGroup = function(storagePropertyGroupDisplayName) {
 			if(!this.storagesConfiguration["isEnabled"]) {
 				return null;

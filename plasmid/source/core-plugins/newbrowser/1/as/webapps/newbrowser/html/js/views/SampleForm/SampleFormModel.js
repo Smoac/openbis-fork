@@ -29,13 +29,11 @@ function SampleFormModel(mode, sample) {
 		this.isELNSubExperiment = false;
 	}
 	
-	
-	this.storages = [];
-	this.dataSetViewer = null;
-	
 	//
 	// TO-DO: Legacy code to be refactored
 	//
+	this.storages = [];
+	this.dataSetViewer = null;
 	this.sampleLinksParents = null;
 	this.sampleLinksChildren = null;
 }
