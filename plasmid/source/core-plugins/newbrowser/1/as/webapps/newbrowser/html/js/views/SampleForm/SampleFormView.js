@@ -316,6 +316,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		$container.append($form);
 		
 		//
+		// Extra content
+		//
+		//Extra components
+		profile.sampleFormContentExtra(this._sampleFormModel.sample.sampleTypeCode, this._sampleFormModel.sample, "sample-form-content-extra");
+		
+		//
 		// TO-DO: Legacy code to be refactored
 		//
 		

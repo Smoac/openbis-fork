@@ -189,7 +189,7 @@ function SampleFormController(mainController, mode, sample) {
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["ROW_PROPERTY"]] = 1;
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["COLUMN_PROPERTY"]] = 1;
 				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["BOX_PROPERTY"]] = this._sampleFormModel.sample.experimentIdentifierOrNull.replace(/\//g,'\/') + "_" + isCopyWithNewCode + "_EXP_RESULTS";
-				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = window.mainController.serverFacade.openbisServer.getSession().split("-")[0];
+				parameters["defaultBenchProperties"][defaultStoragePropertyGroup["USER_PROPERTY"]] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 			}
 			parameters["sampleChildrenNew"] = [];
 			parameters["sampleChildrenRemoved"] = [];
@@ -199,7 +199,7 @@ function SampleFormController(mainController, mode, sample) {
 		// Sending the request to the server
 		//
 		if(profile.getDefaultDataStoreCode()) {
-			window.mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
+			mainController.serverFacade.createReportFromAggregationService(profile.getDefaultDataStoreCode(), parameters, function(response) {
 				_this._createUpdateCopySampleCallback(_this, isCopyWithNewCode, response);
 			});
 		} else {
@@ -234,7 +234,7 @@ function SampleFormController(mainController, mode, sample) {
 			var callbackOk = function() {
 				Util.unblockUI();
 				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE) && _this._sampleFormModel.sample.experimentIdentifierOrNull) {
-					window.mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
+					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
 //				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
 //				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
