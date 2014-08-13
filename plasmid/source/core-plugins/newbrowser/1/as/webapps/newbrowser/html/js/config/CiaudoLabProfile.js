@@ -77,8 +77,8 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 				return "/CELLS/CELLS/CELLS";
 			} else if(type === "ENZYMES") {
 				return "/ENZYMES/ENZYMES/ENZYMES";
-			} else if(type === "EQUIPMENTS") {
-				return "/EQUIPMENTS/EQUIPMENT/EQUIPMENT";
+			} else if(type === "EQUIPMENT") {
+				return "/EQUIPMENT/EQUIPMENT/EQUIPMENT";
 			} else if(type === "PLASMIDS") {
 				return "/PLASMIDS/PLASMIDS/PLASMIDS";
 			} else if(type === "STRAINS") {
