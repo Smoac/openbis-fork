@@ -228,18 +228,19 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				
 				var $controlGroup =  null;
 				
+				var value = this._sampleFormModel.sample.properties[propertyType.code];
+				var isSystemProperty = false;
+				if(!value && propertyType.code.charAt(0) === '$') {
+					value = this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
+					isSystemProperty = true;
+				}
+				
 				if(this._sampleFormModel.mode === FormMode.VIEW) { //Show values without input boxes if the form is in view mode
-					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, this._sampleFormModel.sample.properties[propertyType.code]);
+					$controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value);
 				} else {
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
 					//Update values if is into edit mode
 					if(this._sampleFormModel.mode === FormMode.EDIT) {
-						var value = this._sampleFormModel.sample.properties[propertyType.code];
-						var isSystemProperty = false;
-						if(!value && propertyType.code.charAt(0) === '$') {
-							value = this._sampleFormModel.sample.properties[propertyType.code.substr(1)];
-							isSystemProperty = true;
-						}
 						if(propertyType.dataType === "BOOLEAN") {
 							$($component.children()[0]).prop('checked', value === "true");
 						} else if(propertyType.dataType === "TIMESTAMP") {
@@ -270,7 +271,12 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 						}
 					}
 					
-					$component.change(changeEvent(propertyType));
+					//Avoid modifications in properties managed by scripts
+					if(propertyType.managed || propertyType.dinamic) {
+						$component.prop('disabled', true);
+					}
+					
+					$component.change(changeEvent(propertyType, isSystemProperty));
 					$controlGroup = FormUtil.getFieldForComponentWithLabel($component, propertyType.label);
 				}
 				
@@ -444,6 +450,14 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 	//
 	// Children Generator
 	//
+	this._childrenAdded = function() {
+		var $childrenStorageDropdown = FormUtil.getDefaultBenchDropDown('childrenStorageSelector', true);
+		if($childrenStorageDropdown && !$("#childrenStorageSelector").length) {
+			var $childrenStorageDropdownWithLabel = FormUtil.getFieldForComponentWithLabel($childrenStorageDropdown, 'Storage');
+			$("#newChildrenOnBenchDropDown").append($childrenStorageDropdownWithLabel);
+		}
+	}
+	
 	this._generateChildren = function() {
 		var _this = this;
 		// Utility self contained methods
@@ -464,7 +478,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			}
 			//Generate Children from parents
 			var generatedChildren = [];
-			var parentSampleCode = $("#sampleCode").val();
+			var parentSampleCode = _this._sampleFormModel.sample.code;
 			for(var sampleTypeCode in selectedParentsByType) {
 				var parentsOfType = selectedParentsByType[sampleTypeCode];
 				
@@ -535,10 +549,10 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 					virtualSample.code = generatedChildrenCodes[i];
 					virtualSample.identifier = "/" + generatedChildrenSpace + "/" + virtualSample.code;
 					virtualSample.sampleTypeCode = generatedChildrenType;
-					_this.sampleLinksChildren.addSample(virtualSample);
+					_this._sampleFormModel.sampleLinksChildren.addSample(virtualSample);
 				}
 				
-				_this.childrenAdded();
+				_this._childrenAdded();
 				Util.unblockUI();
 			}
 			
