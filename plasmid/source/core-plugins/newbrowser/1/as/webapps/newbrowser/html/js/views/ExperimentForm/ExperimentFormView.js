@@ -121,10 +121,10 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			var $legend = $('<legend>'); 
 			$fieldset.append($legend);
 			
-			if(propertyTypeGroup.name) {
+			if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
 				$legend.text(propertyTypeGroup.name);
-			} else if(experimentType.propertyTypeGroups.length === 1) { //Only when there is only one group without name to render it with a default title.
-				$legend.text("Metadata Fields");
+			} else if((i === 0) || ((i !== 0) && (experimentType.propertyTypeGroups[i-1].name !== null) && (experimentType.propertyTypeGroups[i-1].name !== ""))) {
+				$legend.text("Metadata");
 			} else {
 				$legend.remove();
 			}
