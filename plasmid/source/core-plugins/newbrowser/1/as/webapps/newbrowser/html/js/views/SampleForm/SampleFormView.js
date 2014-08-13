@@ -331,6 +331,8 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 			this._sampleFormModel.dataSetViewer = new DataSetViewer("dataSetViewerContainer", profile, this._sampleFormModel.sample, mainController.serverFacade, profile.getDefaultDataStoreURL());
 			this._sampleFormModel.dataSetViewer.init();
 		}
+		
+		this._sampleFormModel.isFormLoaded = true;
 	}
 	
 	//
