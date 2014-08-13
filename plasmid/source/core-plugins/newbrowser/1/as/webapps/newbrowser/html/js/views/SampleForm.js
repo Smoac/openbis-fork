@@ -513,7 +513,7 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 				var propertyTypeGroup = sampleType.propertyTypeGroups[i];
 				component += "<div>";
 				
-				if(propertyTypeGroup.name) {
+				if((propertyTypeGroup.name !== null) && (propertyTypeGroup.name !== "")) {
 					component += "<legend>" + propertyTypeGroup.name + "</legend>";
 					var storagePropertyGroup = this.profile.getPropertyGroupFromStorage(propertyTypeGroup.name);
 					if(storagePropertyGroup) {
@@ -523,7 +523,9 @@ function SampleForm(serverFacade, inspector, containerId, profile, sampleTypeCod
 						this.storages.push(storage);
 						component += "<div id='" + containerId + "'></div>"; // When a storage is used, the storage needs a container
 					}
-				} else {
+				} else if(	(i === 0) || 
+							((i !== 0) && (sampleType.propertyTypeGroups[i-1].name !== null) && (sampleType.propertyTypeGroups[i-1].name !== ""))
+						){
 					component += "<legend> Metadata</legend>";
 				}
 				
