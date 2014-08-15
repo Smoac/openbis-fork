@@ -105,10 +105,15 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			//Update Values
 			this.stateObj = {};
 			var stateFieldValue = Util.getEmptyIfNull(stateField.val());
+			//Hack to fix for new sample form on view mode
+			if(mainController.currentView._sampleFormModel && mainController.currentView._sampleFormModel.mode === FormMode.VIEW) {
+				stateFieldValue = Util.getEmptyIfNull(stateField.text());
+			}
+			//
 			if(stateFieldValue === "") {
 				return;
 			}
-			var xmlDoc = new DOMParser().parseFromString(stateField.val() , 'text/xml');
+			var xmlDoc = new DOMParser().parseFromString(stateFieldValue, 'text/xml');
 			var samples = xmlDoc.getElementsByTagName("Sample");
 			for(var i = 0; i < samples.length; i++) {
 				var sample = samples[i];
