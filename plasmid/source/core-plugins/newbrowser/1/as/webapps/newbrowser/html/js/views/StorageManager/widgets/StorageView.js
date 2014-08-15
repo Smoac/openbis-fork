@@ -32,7 +32,9 @@ function StorageView(storageController, storageModel, gridView) {
 		//
 		var _this = this;
 		$container.empty();
-		$container.append("<h2>" + this._storageModel.config.title + "</h2>");
+		if( this._storageModel.config.title) { //It can be null
+			$container.append("<h2>" + this._storageModel.config.title + "</h2>");
+		}
 		
 		if(this._storageModel.config.storagePropertyGroupSelector === "on") {
 			//Paint

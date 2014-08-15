@@ -18,6 +18,7 @@ function SampleFormController(mainController, mode, sample) {
 	this._mainController = mainController;
 	this._sampleFormModel = new SampleFormModel(mode, sample);
 	this._sampleFormView = new SampleFormView(this, this._sampleFormModel);
+	this._storageControllers = [];
 	
 	this.init = function($container) {
 		this._sampleFormView.repaint($container);
@@ -29,6 +30,24 @@ function SampleFormController(mainController, mode, sample) {
 	
 	this.isLoaded = function() {
 		return this._sampleFormModel.isFormLoaded;
+	}
+	
+	this.getLastStorageControllerView = function() {
+		return this._storageControllers[this._storageControllers.length-1].getView();
+	}
+	
+	this.addStorageController = function(storagePropertyGroupName) {
+		var storageController = new StorageController({
+			title : null,
+			storagePropertyGroupSelector : "off",
+			storageSelector : "on",
+			userSelector : "off",
+			boxSelector: "on",
+			rackSelector: "on",
+			contentsSelector: "off"
+		});
+		storageController.getModel().storagePropertyGroup = profile.getStoragePropertyGroup(storagePropertyGroupName);
+		this._storageControllers.push(storageController);
 	}
 	
 	this.createUpdateCopySample = function(isCopyWithNewCode, linkParentsOnCopy, copyChildrenOnCopy) {

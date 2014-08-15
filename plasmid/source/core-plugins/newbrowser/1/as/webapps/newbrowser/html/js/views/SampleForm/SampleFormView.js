@@ -223,6 +223,16 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$legend.remove();
 			}
 			
+			var storagePropertyGroup = profile.getPropertyGroupFromStorage(propertyTypeGroup.name);
+			if(storagePropertyGroup) {
+				var storageContainer = $("<div>");
+				$fieldset.append(storageContainer);
+				$formColumn.append($fieldset);
+				this._sampleFormController.addStorageController(storagePropertyGroup["STORAGE_GROUP_DISPLAY_NAME"]);
+				this._sampleFormController.getLastStorageControllerView().repaint(storageContainer);
+				continue;
+			}
+			
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
 				
