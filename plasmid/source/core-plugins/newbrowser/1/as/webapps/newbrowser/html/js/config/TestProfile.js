@@ -174,10 +174,10 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 		 * Used by Sample Form
 		 */
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
-			if(sampleTypeCode === "ANTIBODY_PANEL") {
-				var isEnabled = mainController.currentView.mode !== SampleFormMode.VIEW;
-				var dilutionWidget = new DilutionWidget(containerId, this.serverFacade, isEnabled);
-				dilutionWidget.init();
+			if(sampleTypeCode === "SYSTEM_EXPERIMENT") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+				var dilutionWidgetController = new DilutionTableController(sample, isEnabled);
+				dilutionWidgetController.init($("#" + containerId));
 			}
 		}
 	}
