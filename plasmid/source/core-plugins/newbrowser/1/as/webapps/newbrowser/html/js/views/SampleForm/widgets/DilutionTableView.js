@@ -34,14 +34,11 @@ function DilutionTableView(dilutionTableController, dilutionTableModel) {
 			if(!profile.isPropertyPressent(sampleType,"DILUTION_STATE" )) {
 				Util.showError("You need a property with code DILUTION_STATE on this entity to store the state of the dilution widget.");
 			} else {
-				var stateField = $("#DILUTION_STATE");
-				
 				//Hide State Field
-				var fieldset = stateField.parent().parent().parent();
-				fieldset.hide();
+				$("#DILUTION_STATE").parent().parent().hide();
 				
 				//Update Values
-				var stateFieldVar = stateField.val();
+				var stateFieldVar = _this._dilutionTableModel.sample.properties["DILUTION_STATE"];
 				var stateObj = null;
 				if(stateFieldVar) {
 					stateObj = JSON.parse(stateFieldVar);

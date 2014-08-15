@@ -179,7 +179,7 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
-	this.getFieldForLabelWithText = function(label, text) {
+	this.getFieldForLabelWithText = function(label, text, id) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -192,6 +192,9 @@ var FormUtil = new function() {
 		
 		var $component = $("<span>", {'class' : 'form-control', 'style' : 'border:none; box-shadow:none;'});
 		$component.text(text);
+		if(id) {
+			$component.attr('id', id);
+		}
 		$controls.append($component);
 		
 		return $fieldset;
