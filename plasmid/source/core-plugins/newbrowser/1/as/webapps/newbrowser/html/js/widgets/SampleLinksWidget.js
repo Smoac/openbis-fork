@@ -222,6 +222,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					var propertyType = this.profile.getPropertyType(annotations[i]["TYPE"]);
 					propertyType.mandatory = annotations[i]["MANDATORY"];
 					var $propertyField = FormUtil.getFieldForPropertyType(propertyType);
+					if (propertyType.dataType === "BOOLEAN") {
+						$($propertyField.children()[0]).css({
+							'margin-bottom' : '15px'
+						});
+					}
 					$propertyField.attr("property-type-code" , annotations[i]["TYPE"]);
 					$propertyField.prop("disabled", true);
 					$propertyField.change(function() {
