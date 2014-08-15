@@ -36,10 +36,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this.samples = {};
 	this.samplesRemoved = {};
 	this.stateObj = {};
-	
-	this.formColumnClass = 'col-md-12';
-	this.labelColumnClass = 'col-md-2';
-	this.dataColumnClass = 'col-md-6';
 		
 	this._lastUsedId = null;
 	this._lastIndex = 0;
@@ -87,6 +83,11 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		xmlDoc	+= "</root>";
 		
 		$("#ANNOTATIONS_STATE").val(xmlDoc);
+		
+		//Compatibility mode for refactored sample form
+		if(mainController.currentView._sampleFormModel) {
+			mainController.currentView._sampleFormModel.sample.properties["ANNOTATIONS_STATE"] = xmlDoc;
+		}
 	}
 	
 	this._readState = function() {
@@ -189,7 +190,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		var _this = this;
 		var tableId = id + "-table";
 		var sampleId = id + "-sample";
-		var $component = $("<div>", {"id" : id , "class" : "control-group row", "sample-type-code" : sampleTypeHint["TYPE"], "sample-min-count" : sampleTypeHint["MIN_COUNT"] } );
+		var $component = $("<div>", {"id" : id , "class" : "form-inline control-group row", "sample-type-code" : sampleTypeHint["TYPE"], "sample-min-count" : sampleTypeHint["MIN_COUNT"] } );
 		$component.css({"border-radius" : "10px", "padding-left" : "10px", "margin-top" : "10px"});
 		
 		var requiredText = "";
@@ -201,8 +202,8 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		if(sampleTypeHint["LABEL"] === null) {
 			labelText = "";
 		}
-		var $label = $("<label>", { "class" : "control-label " + this.labelColumnClass }).text(labelText);	
-		var $controls = $("<div>", { "class" : "controls " + this.dataColumnClass});
+		var $label = $("<label>", { "class" : "control-label " + FormUtil.labelColumnClass }).text(labelText);	
+		var $controls = $("<div>", { "class" : "controls " + FormUtil.controlColumnClass});
 			
 			var $buttonTextField = $("<a>", {"class" : "btn btn-default", "type" : "button", "id" : sampleId});
 			$buttonTextField.css({
@@ -230,7 +231,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						var propertyType = _this.profile.getPropertyType(propertyTypeCode)
 						var propertyTypeValue;
 						if (propertyType.dataType === "BOOLEAN") {
-							propertyTypeValue = $field[0].checked;
+							propertyTypeValue = $field.children().is(":checked");
 						} else {
 							propertyTypeValue = $field.val();
 						}
@@ -466,7 +467,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				var propertyTypeCode = item.attr("property-type-code");
 				if(propertyTypeCode && sampleState && sampleState[propertyTypeCode]) {
 					if (this.profile.getPropertyType(propertyTypeCode).dataType === "BOOLEAN") {
-						item[0].checked = sampleState[propertyTypeCode] === "true";
+						item.children()[0].checked = sampleState[propertyTypeCode] === "true";
 					} else {
 						item.val(sampleState[propertyTypeCode]);
 					}
