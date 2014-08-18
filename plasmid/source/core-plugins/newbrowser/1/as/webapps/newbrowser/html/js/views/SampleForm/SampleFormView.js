@@ -229,7 +229,9 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				$fieldset.append(storageContainer);
 				$formColumn.append($fieldset);
 				this._sampleFormController.addStorageController(storagePropertyGroup["STORAGE_GROUP_DISPLAY_NAME"]);
-				this._sampleFormController.getLastStorageControllerView().repaint(storageContainer);
+				var isDisabled =  this._sampleFormModel.mode === FormMode.VIEW;
+				this._sampleFormController.getLastStorageController().bindSample(this._sampleFormModel.sample, isDisabled);
+				this._sampleFormController.getLastStorageController().getView().repaint(storageContainer);
 				continue;
 			}
 			

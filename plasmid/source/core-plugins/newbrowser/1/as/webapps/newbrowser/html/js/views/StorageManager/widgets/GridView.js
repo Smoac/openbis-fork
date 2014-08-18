@@ -60,7 +60,10 @@ function GridView(gridModel) {
 					}
 				}
 				
-				$newColumn.click(clickEvent(i, j));
+				if(!this._gridModel.isDisabled) {
+					$newColumn.click(clickEvent(i, j));
+				}
+				
 				this._addLabels($newColumn, i + 1, j + 1);
 				
 				$newRow.append($newColumn);
@@ -84,7 +87,9 @@ function GridView(gridModel) {
 					}
 				}
 				
-				labelContainer.click(clickEvent(posX, posY, labels[i]));
+				if(!this._gridModel.isDisabled) {
+					labelContainer.click(clickEvent(posX, posY, labels[i]));
+				}
 				
 				$component.append(labelContainer);
 			}

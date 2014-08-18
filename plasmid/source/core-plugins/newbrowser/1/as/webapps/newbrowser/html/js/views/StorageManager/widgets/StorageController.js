@@ -26,6 +26,12 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.boxSelector === "on") {
 		this._gridController.getView().setLabelSelectedEventHandler(function(posX, posY, label) {
+			//Binded sample
+			if(_this._storageModel.sample) {
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.rowProperty] = posX;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = label;
+			}
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, label, null);
 			_this._storageView.showBoxName();
@@ -40,6 +46,12 @@ function StorageController(configOverride) {
 	
 	if(this._storageModel.config.rackSelector === "on") {
 		this._gridController.getView().setPosSelectedEventHandler(function(posX, posY) {
+			//Binded sample
+			if(_this._storageModel.sample) {
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.rowProperty] = posX;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.columnProperty] = posY;
+				_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = null;
+			}
 			// Delete old state in model and view and set new sate in model and view
 			_this._storageModel.resetBoxInfo(posX, posY, null, null);
 			_this._storageView.showBoxField();
@@ -189,6 +201,14 @@ function StorageController(configOverride) {
 		});
 	}
 	
+	//
+	// Set the sample to bind before painting the view
+	//
+	this.bindSample = function(sample, isDisabled) {
+		this._storageModel.sample = sample;
+		this._storageModel.isDisabled = isDisabled;
+		this._gridController.getModel().isDisabled = isDisabled;
+	}
 	//
 	// Getters
 	//

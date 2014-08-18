@@ -15,6 +15,7 @@
  */
 
 function GridModel() {
+	this.isDisabled = false;
 	this.numRows = null;
 	this.numColumns = null;
 	this.labels = null;

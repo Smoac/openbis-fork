@@ -32,8 +32,8 @@ function SampleFormController(mainController, mode, sample) {
 		return this._sampleFormModel.isFormLoaded;
 	}
 	
-	this.getLastStorageControllerView = function() {
-		return this._storageControllers[this._storageControllers.length-1].getView();
+	this.getLastStorageController = function() {
+		return this._storageControllers[this._storageControllers.length-1];
 	}
 	
 	this.addStorageController = function(storagePropertyGroupName) {

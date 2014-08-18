@@ -48,16 +48,23 @@ function StorageView(storageController, storageModel, gridView) {
 		}
 		
 		if(this._storageModel.config.storageSelector === "on") {
+			//Sample to bind
+			if(this._storageModel.sample) {
+				this._defaultStoragesDropDown.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
+			}
 			//Paint
 			var $controlGroupStorages = FormUtil.getFieldForComponentWithLabel(this._defaultStoragesDropDown, "Storage");
 			$container.append($controlGroupStorages);
 			//Attach Event
 			this._defaultStoragesDropDown.change(function(event) {
+				if(_this._storageModel.sample) { //Sample to bind
+					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.nameProperty] = $(this).val();
+				}
 				_this._storageController.setSelectStorage($(this).val());
 			});
 		}
 		
-		if(this._storageModel.config.userSelector === "on") {
+		if(this._storageModel.config.userSelector === "on" && !this._storageModel.sample) {
 			//Paint
 			var $controlGroupUserId = FormUtil.getFieldForComponentWithLabel(this._userIdDropdown, "User Id Filter");
 			$container.append($controlGroupUserId);
@@ -67,9 +74,14 @@ function StorageView(storageController, storageModel, gridView) {
 				var selectedUserIds = $(this).val();
 				_this._storageController.setUserIdsSelected(selectedUserIds);
 			});
+		} else if(this._storageModel.sample) { //If someone is updating a sample, his user should go with it
+			this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.userProperty] = mainController.serverFacade.openbisServer.getSession().split("-")[0];
 		}
 		
 		$container.append(FormUtil.getFieldForComponentWithLabel(this._gridContainer, "Rack"));
+		if(this._storageModel.sample) { //If someone is updating a sample, his user should go with it
+			this._storageController.setSelectStorage(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.nameProperty]);
+		}
 		
 		if(this._storageModel.config.boxSelector === "on" || this._storageModel.config.rackSelector === "on") {
 			//Paint
@@ -78,8 +90,16 @@ function StorageView(storageController, storageModel, gridView) {
 			$container.append($controlGroupBox);
 			//Attach Event
 			this._boxField.keyup(function() {
+				if(_this._storageModel.sample) { // Sample to bind
+					_this._storageModel.sample.properties[_this._storageModel.storagePropertyGroup.boxProperty] = $(this).val();
+				}
 				_this._storageController.setBoxSelected($(this).val());
 			});
+			// Sample to bind
+			if(this._storageModel.sample) {
+				this._boxField.show();
+				this._boxField.val(this._storageModel.sample.properties[this._storageModel.storagePropertyGroup.boxProperty]);
+			}
 		}
 		
 		if(this._storageModel.config.contentsSelector === "on") {
@@ -100,6 +120,14 @@ function StorageView(storageController, storageModel, gridView) {
 				}
 				_this._storageController.setBoxContentsSelected(selectedSamples);
 			});
+		}
+		
+		if(this._storageModel.isDisabled) {
+			this._storageGroupsDropDown.attr("disabled", "");
+			this._defaultStoragesDropDown.attr("disabled", "");
+			this._userIdDropdown.attr("disabled", "");
+			this._boxField.attr("disabled", "");
+			this._boxContentsDropDown.attr("disabled", "");
 		}
 	}
 	
