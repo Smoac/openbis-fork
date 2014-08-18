@@ -12,28 +12,28 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 		this.inventorySpaces = ["BODENMILLER_LAB"];
 		
 		//For testing	
-//		this.sampleTypeDefinitionsExtension = {
-//				"SYSTEM_EXPERIMENT" : {
-//					"SAMPLE_PARENTS_HINT" : [
-//					                             	{
-//														"LABEL" : "Protein",
-//														"TYPE": "PROTEIN",
-//														"MIN_COUNT" : 1,
-//														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "PHOSPHO", "MANDATORY" : true }
-//														                           ,{"TYPE" : "ISOTYPE", "MANDATORY" : false }]
-//													}
-//												],
-//					"SAMPLE_CHILDREN_HINT" : [
-//											                             	{
-//																				"LABEL" : "Protein",
-//																				"TYPE": "PROTEIN",
-//																				"MIN_COUNT" : 1,
-//																				"ANNOTATION_PROPERTIES" : [ {"TYPE" : "PHOSPHO", "MANDATORY" : true }
-//																				                           ,{"TYPE" : "ISOTYPE", "MANDATORY" : false }]
-//																			}
-//																		]
-//				}
-//		}
+		this.sampleTypeDefinitionsExtension = {
+				"SYSTEM_EXPERIMENT" : {
+					"SAMPLE_PARENTS_HINT" : [
+					                             	{
+														"LABEL" : "Protein",
+														"TYPE": "PROTEIN",
+														"MIN_COUNT" : 1,
+														"ANNOTATION_PROPERTIES" : [ {"TYPE" : "PHOSPHO", "MANDATORY" : true }
+														                           ,{"TYPE" : "ISOTYPE", "MANDATORY" : false }]
+													}
+												],
+					"SAMPLE_CHILDREN_HINT" : [
+											                             	{
+																				"LABEL" : "Protein",
+																				"TYPE": "PROTEIN",
+																				"MIN_COUNT" : 1,
+																				"ANNOTATION_PROPERTIES" : [ {"TYPE" : "PHOSPHO", "MANDATORY" : true }
+																				                           ,{"TYPE" : "ISOTYPE", "MANDATORY" : false }]
+																			}
+																		]
+				}
+		}
 //		
 //		this.typePropertiesForSmallTable = {
 //				"SYSTEM_EXPERIMENT" : ["NAME"],
