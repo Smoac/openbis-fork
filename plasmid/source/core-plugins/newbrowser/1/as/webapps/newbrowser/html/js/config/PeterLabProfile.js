@@ -24,7 +24,7 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 			},
 			"METHODS" : {
 				"TYPE" : "METHODS",
-				"DISPLAY_NAME" : "Protocols",
+				"DISPLAY_NAME" : "Methods",
 				"LIST" : ["PROTOCOL"]
 			},
 			"OTHERS" : {
@@ -78,6 +78,15 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 					"COLUMN_PROPERTY" : "COLUMN",  //Should be an integer.
 					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
 					"USER_PROPERTY" : "USER_PROPERTY" //Should be text.
+				},
+				{
+					"STORAGE_PROPERTY_GROUP" : "Storage 2", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Group 2", //Storage Group Name
+					"NAME_PROPERTY" : "FREEZER_NAME_2", //Should be a Vocabulary.
+					"ROW_PROPERTY" : "ROW_2", //Should be an integer.
+					"COLUMN_PROPERTY" : "COLUMN_2", //Should be an integer.
+					"BOX_PROPERTY" : "BOX_NUMBER_2", //Should be text.
+					"USER_PROPERTY" : "USER_PROPERTY_2" //Should be text.
 				}],
 				/*
 				 * Storages map, can hold configurations for several storages.
@@ -213,7 +222,22 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},												
-					"USER_BENCH_FRANK" : { //Freezer name given by the NAME_PROPERTY
+					"USER_BENCH" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},												
+					"USER_BENCH-80" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},												
+					"USER_BENCH-20" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},												
+					"USER_BENCH-RT" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 1, //Number of rows
 									"COLUMN_NUM" : 1, //Number of columns
 									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
@@ -257,10 +281,10 @@ $.extend(PeterLabProfile.prototype, DefaultProfile.prototype, {
 		}
 
 		
-		//The properties you want to appear on the tables, if you donÇt specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you don‚t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
 		
-		//The colors for the notes, if you donÇt specify the color, light yellow will be used by default.
+		//The colors for the notes, if you don‚t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 }
 });
