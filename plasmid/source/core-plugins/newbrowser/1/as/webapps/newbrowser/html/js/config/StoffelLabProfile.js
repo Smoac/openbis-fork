@@ -83,21 +83,31 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 				 * Storages map, can hold configurations for several storages.
 				*/
 				"STORAGE_CONFIGS": {
-					"MINUS80_1" : { //Freezer name given by the NAME_PROPERTY
+					"H20.1_STOFFEL-1" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 5, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},
-					"H20.2_KREK-2" : { //Freezer name given by the NAME_PROPERTY
+					"H20.1_STOFFEL-2" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 5, //Number of rows
 									"COLUMN_NUM" : 4, //Number of columns
 									"BOX_NUM" : 9999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
 								},	
-					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+					"USER_BENCH-80" : { //Freezer name given by the NAME_PROPERTY
 									"ROW_NUM" : 1, //Number of rows
 									"COLUMN_NUM" : 1, //Number of columns
 									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								}
+								},
+					"USER_BENCH-20" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								},
+					"USER_BENCH-RT" : { //Freezer name given by the NAME_PROPERTY
+									"ROW_NUM" : 1, //Number of rows
+									"COLUMN_NUM" : 1, //Number of columns
+									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+								}												
 				}
 			};
 	
@@ -137,10 +147,10 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 		}
 
 		
-		//The properties you want to appear on the tables, if you donÇt specify the list, all of them will appear by default.
+		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};
 		
-		//The colors for the notes, if you donÇt specify the color, light yellow will be used by default.
+		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
 }
 });
