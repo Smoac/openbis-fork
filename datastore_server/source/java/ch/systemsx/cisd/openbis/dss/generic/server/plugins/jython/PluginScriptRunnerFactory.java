@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,13 +23,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.jython.JythonUtils;
 import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AuthorizationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.SearchService;
@@ -95,7 +92,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     public IAggregationServiceReportingPluginScriptRunner createAggregationServiceReportingPluginRunner(
             DataSetProcessingContext context)
     {
-        String scriptString = extractScriptFromPath(scriptPath);
+        String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
         String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
 
         try
@@ -114,7 +111,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     public IDbModifyingAggregationServiceReportingPluginScriptRunner createDbModifyingAggregationServiceReportingPluginRunner(
             DataSetProcessingContext context)
     {
-        String scriptString = extractScriptFromPath(scriptPath);
+        String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
         String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
 
         try
@@ -154,7 +151,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     @Override
     public IReportingPluginScriptRunner createReportingPluginRunner(DataSetProcessingContext context)
     {
-        String scriptString = extractScriptFromPath(scriptPath);
+        String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
         String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
 
         try
@@ -173,7 +170,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
     public IProcessingPluginScriptRunner createProcessingPluginRunner(
             DataSetProcessingContext context)
     {
-        String scriptString = extractScriptFromPath(scriptPath);
+        String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
         String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
 
         try
@@ -182,37 +179,6 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
-        }
-    }
-
-    /**
-     * @return script string from file with given path
-     * @throws EvaluatorException if the file doesn't exist or is empty
-     */
-    static String extractScriptFromPath(String scriptPath) throws EvaluatorException
-    {
-        File scriptFile = new File(scriptPath);
-        if (false == scriptFile.exists())
-        {
-            throw new EvaluatorException("Plugin script [" + scriptPath
-                    + "] specified in the configuration doesn't exist.");
-        } else
-        {
-            String scriptString = FileUtilities.loadToString(scriptFile);
-            if (StringUtils.isBlank(scriptString))
-            {
-                throw new EvaluatorException("Plugin script [" + scriptPath
-                        + "] specified in the configuration is empty.");
-            } else
-            {
-                try
-                {
-                    return scriptString + "\n";
-                } catch (EvaluatorException ex)
-                {
-                    throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
-                }
-            }
         }
     }
 

@@ -28,6 +28,10 @@ import org.python.core.PyFunction;
 import org.python.core.PyObject;
 import org.python.core.PySequenceList;
 
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
+import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
+
 /**
  * Jython utility methods.
  * 
@@ -80,6 +84,37 @@ public class JythonUtils
             pyArgs[i] = Py.java2py(args[i]);
         }
         return function.__call__(pyArgs);
+    }
+
+    /**
+     * @return script string from file with given path
+     * @throws EvaluatorException if the file doesn't exist or is empty
+     */
+    public static String extractScriptFromPath(String scriptPath) throws EvaluatorException
+    {
+        File scriptFile = new File(scriptPath);
+        if (false == scriptFile.exists())
+        {
+            throw new EvaluatorException("Plugin script [" + scriptPath
+                    + "] specified in the configuration doesn't exist.");
+        } else
+        {
+            String scriptString = FileUtilities.loadToString(scriptFile);
+            if (StringUtils.isBlank(scriptString))
+            {
+                throw new EvaluatorException("Plugin script [" + scriptPath
+                        + "] specified in the configuration is empty.");
+            } else
+            {
+                try
+                {
+                    return scriptString + "\n";
+                } catch (EvaluatorException ex)
+                {
+                    throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
+                }
+            }
+        }
     }
 
     /**
