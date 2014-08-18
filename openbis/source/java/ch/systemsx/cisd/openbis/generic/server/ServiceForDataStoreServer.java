@@ -1197,7 +1197,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     }
 
     @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    @RolesAllowed(
+            { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void checkDataSetAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode) throws UserFailureException
