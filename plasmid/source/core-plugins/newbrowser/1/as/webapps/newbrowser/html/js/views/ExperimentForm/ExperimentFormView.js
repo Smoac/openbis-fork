@@ -58,6 +58,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					}
 					var argsMapStr = JSON.stringify(argsMap);
 					
+					Util.unblockUI();
 					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
 				});
 				
