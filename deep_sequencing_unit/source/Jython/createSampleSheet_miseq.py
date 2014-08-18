@@ -397,6 +397,13 @@ def writeMiSeqSampleSheet(sampleSheetDict, headerList, flowCellName, myoptions, 
 
   return fileName
 
+def get_reverse_complement(sequence):
+    lookup_table = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    reverse_complement = ''
+    for nucleotide in reversed(sequence):
+        reverse_complement += lookup_table[nucleotide]
+    return reverse_complement
+
 
 def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary, index2Vocabulary,
                             flowCellName, logger, myoptions):
@@ -465,9 +472,9 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
   miSeqSettingsSection = configMap['miSeqSettingsSection'].split(separator)
   miSeqSettingsSection.reverse()
   headerList.append(miSeqSettingsSection.pop())
-  if ('nextera' in (separator + parentDict.itervalues().next()['KIT'].lower())):
+  if ('nextera' in assay.lower()):
     headerList.append(configMap['nexteraAdapter'])
-  if ('truseq' in (separator + parentDict.itervalues().next()['KIT'].lower())):
+  if ('truseq' in assay.lower()):
     headerList.append(configMap['truSeqAdapter1'])
     headerList.append(configMap['truSeqAdapter2'])
   headerList.append('')
@@ -490,7 +497,7 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
 
     if configMap['index2Name'] in parentDict[key]:
       index2 = parentDict[key][configMap['index2Name']]
-      indexNumber = index2Vocabulary[index2].split()[2]
+      indexNumber = index2Vocabulary[parentDict[key][configMap['index2Name']]].split()[2]
 
     try:
       kit = parentDict[key][configMap['kit']]
@@ -499,27 +506,28 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
       print "Missing Kit on " + str(key)
       prefix = ""
 
+    len_index1 = int(flowCellDict['INDEXREAD'])
+    len_index2 = int(flowCellDict['INDEXREAD2'])
+
     if int(flowCellDict['INDEXREAD2']) > 0:
       sampleSheetDict[lane + '_' + key] = [key + separator
-                            + sanitizeString(parentDict[key][configMap['externalSampleName']]) + separator
+                            + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + '_' + index2[0:len_index2] + separator
                             + separator
                             + separator
                             + index1Vocabulary[index1].split()[1] + separator
-                            + index1 + separator
+                            + index1[0:len_index1] + separator
                             + prefix + indexNumber + separator
-                            + index2 + separator
-                            + separator
-                            + key + '_' + flowCellName
+                            + get_reverse_complement(index2[0:len_index2]) + separator
+                            + key + separator
                             ]
     else:
             sampleSheetDict[lane + '_' + key] = [key + separator
-                            + sanitizeString(parentDict[key][configMap['externalSampleName']]) + separator
+                            + key + '_' + sanitizeString(parentDict[key][configMap['externalSampleName']]) + '_' + index1[0:len_index1] + separator
                             + separator
                             + separator
                             + index1Vocabulary[index1].split()[1] + separator
-                            + index1[:-1] + separator
-                            + separator
-                            + key + '_' + flowCellName
+                            + index1[0:len_index1] + separator
+                            + key + separator
                             ]
     
   myFileName = myoptions.outdir + configMap['SampleSheetFileName'] + '_' + \
@@ -554,8 +562,10 @@ def main ():
   flowCellName = foundFlowCell.getCode()
   if '-' in flowCellName:
     flowCellName = flowCellName.split('_')[3]
-  else:
+  elif len(flowCellName) > 12:
     flowCellName = flowCellName.split('_')[3][1:]
+  else:
+    pass
 
   flowCellDict = convertSampleToDict(foundFlowCell)
 
