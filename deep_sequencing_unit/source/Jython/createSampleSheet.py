@@ -1,6 +1,6 @@
 '''
 @copyright:
-Copyright 2012 ETH Zuerich, CISD
+Copyright 2014 ETH Zuerich, SIS
  
 @license:
 Licensed under the Apache License, Version 2.0 (the 'License');
@@ -356,7 +356,7 @@ def convertSampleToDict(foundFlowCell):
 
 
 def createDemultiplexCommands(myoptions, configMap, laneIndexDict, endType, cycles, lane,
-                              myFileName):
+                              myFileName, indexRead1Length, indexRead2Length):
   '''
   Builds up a command line for the demultiplexing of a single flow lane
   '''
@@ -367,13 +367,13 @@ def createDemultiplexCommands(myoptions, configMap, laneIndexDict, endType, cycl
     basesMask = 'Y' + cycles + COMMA + 'I' + str(indexlength / 2) + 'n' + COMMA + 'I' + \
                 str(indexlength / 2) + 'n'
   else:
-    basesMask = 'Y' + cycles + COMMA + 'I' + str(indexlength) + 'n' + COMMA + (indexlength + 1) * 'n'
+    basesMask = 'Y' + cycles + COMMA + 'I' + str(indexlength) + (indexRead1Length - indexlength + 1)*'n'
   if endType == 'PAIRED_END':
     basesMask = basesMask + COMMA + 'Y' + cycles
   return ([' '.join([configMap['configureBclToFastqPath'], configMap['failedReads'],
                      configMap['clusterCount'], configMap['clusterCountNumber'],
                      configMap['outputDir'], '../../../Unaligned_' + str(lane), configMap['sampleSheetName'],
-                     myFileName, configMap['baseMask'], basesMask, newline])])
+                     myFileName, configMap['baseMask'], basesMask, "--no-eamss", newline])])
 
 def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCellName, configMap,
                            logger, myoptions):
@@ -422,7 +422,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
       # more than one samples in an non-indexed lane 
       if samplesPerLaneDict[lane] > 1:
         # if it is not a PhiX  and not a Pool Sample
-        if (parentDict[key]['NCBI_ORGANISM_TAXONOMY'] != '10847') and parentDict[key]['BARCODE_COMPLEXITY_CHECKER'] != 'OK':
+        if (parentDict[key]['NCBI_ORGANISM_TAXONOMY'] != '10847') and parentDict[key]['BARCODE_COMPLEXITY_CHECKER'] == 'No Pool':
           # then just use this sample and skip the others if there are more
           samplesPerLaneDict[lane] = 0
           index = ' '
@@ -473,7 +473,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
                    flowCellName + '.csv'
 
       demultiplexCommandList.append(createDemultiplexCommands(myoptions, configMap, laneIndexDict,
-                                         endType, cycles, lane, myFileName))
+                                         endType, cycles, lane, myFileName, indexRead1Length, indexRead2Length))
       SamplesheetFile = writeSampleSheet(myoptions, logger, sampleSheetDict, laneSeparatedList,
                        fileName=myFileName)
     writeDemultiplexCommandList(logger, demultiplexCommandList,
@@ -485,7 +485,7 @@ def createHiseqSampleSheet(parentDict, flowCellDict, samplesPerLaneDict, flowCel
                    flowCellName + '.csv'
     writeSampleSheet(myoptions, logger, sampleSheetDict, sortedSampleSheetList,
                      fileName=myFileName)
-    return sampleSheetDict, myFileName
+  return sampleSheetDict, myFileName
 
 def writeDemultiplexCommandList(logger, demultiplexCommandList,
                                 fileName):
