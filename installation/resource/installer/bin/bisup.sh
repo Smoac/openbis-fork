@@ -51,6 +51,11 @@ TIMEOUT=120
 echo Starting openBIS...
 echo $STARTING_MESSAGE >> $OPENBIS_LOG
 
+# This variable suits as a workaround for cases where newly created files
+# have non-zero age according to our age measuring function
+fileAgeInSeconds $OPENBIS_LOG
+ageOfNewFile=$?
+
 $JETTY_HOME/bin/startup.sh
 
 bisLogAgeInSeconds=5
@@ -90,10 +95,11 @@ while [ "$bisLogAgeInSeconds" -lt $TIMEOUT ] || [ "$jettyLogAgeInSeconds" -lt $T
     fi
     
     fileAgeInSeconds $OPENBIS_LOG
-    bisLogAgeInSeconds=$?
+    bisLogAgeInSeconds=$(expr $? - $ageOfNewFile)
     
     fileAgeInSeconds $JETTY_LOG
-    jettyLogAgeInSeconds=$?
+    jettyLogAgeInSeconds=$(expr $? - $ageOfNewFile)
+
 done
 
 
