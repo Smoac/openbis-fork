@@ -133,8 +133,12 @@ def writeExcel(myoptions, configMap, service, piName, laneDict, sampleDict, piDi
   myRows = uniqueRow()
   sequencerVocabulary = getVocabulary(service, "SEQUENCER")
   setOfFlowcells = set ()
-  runDate, seqId, runningNumber, flowcell = flowcellName.split("_")
-  flowcell = flowcell[1:]
+  try:
+    # expecting the old running folder name
+    runDate, seqId, runningNumber, flowcell = flowcellName.split("_")
+    flowcell = flowcell[1:]
+  except:
+    flowcell = flowcellName
 
   def writeHeader():
     # Write header
@@ -448,7 +452,7 @@ def main():
                piDict, spaceDict[piName], flowCellProperties,
                flowcellName, logger, format)
   
-  for invoicePi in invoiceDict: 
+  for invoicePi in invoiceDict:
     print (magicString + invoicePi)
 
   service.logout()
