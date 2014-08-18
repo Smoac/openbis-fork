@@ -214,6 +214,17 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			return;
 		}
 		
+		for(var datasetCode in this.sampleDataSets) {
+			var dataset = this.sampleDataSets[datasetCode];
+			var datasetFiles = this.sampleDataSetsFiles[datasetCode];
+			
+			if(!datasetFiles) {
+				$container.append($("<p>")
+						.append($("<span>", { class: "glyphicon glyphicon-ban-circle" }))
+						.append(" Please configure properly trusted-cross-origin-domains for this web app, datasets can't be retrieved from the DSS server."));
+				return;
+			}
+		}
 		//
 		_this = this;
 		var maxImages = 30;

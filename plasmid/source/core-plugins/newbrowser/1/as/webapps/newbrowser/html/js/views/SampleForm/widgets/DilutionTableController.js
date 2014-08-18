@@ -26,7 +26,7 @@ function DilutionTableController(sample, isEnabled) {
 	// Getters
 	//
 	this.getModel = function() {
-		return this._dilutionTableView;
+		return this._dilutionTableModel;
 	}
 	
 	this.getView = function() {
