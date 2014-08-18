@@ -29,9 +29,16 @@ function DilutionTableModel(sample, isEnabled) {
 	this.widgetTableId = "dilution-widget-table";
 	this.totalVolume = null;
 	
-	this.antColIdx = 2;
-	this.conColIdx = 3;
-	this.cloColInx = 4;
-	this.dilColIdx = 7;
-	this.volColIdx = 8;
+	// NOTE: When adding new columns please remember updating this list correctly
+	this.idxColIdx = 0; //This column should always be the 0
+	this.metColIdx = 1; //This column should always be the 1
+	this.antColIdx = 2; //This column should always be the 2
+	this.conColIdx = 3; //This column should always be the 3
+	this.cloColIdx = 4; //This column should always be the 4
+	this.tbnColIdx = 5;
+	this.reaColIdx = 6;
+	this.supColIdx = 7;
+	this.dilColIdx = 8;
+	this.volColIdx = 9; //This column should always be the last
+	// END NOTE
 }
