@@ -19,12 +19,25 @@ function FreeFormTableController(sample, isEnabled) {
 	this._freeFormTableView = new FreeFormTableView(this, this._freeFormTableModel);
 	
 	this.init = function($container) {
+		this.load();
 		this._freeFormTableView.repaint($container);
 	}
 	
 	//
 	// API
 	//
+	this.save = function() {
+		sample.properties[this._freeFormTableModel.samplePropertyCode] = JSON.stringify(this._freeFormTableModel.tables);
+	}
+	
+	this.load = function() {
+		$("#" + this._freeFormTableModel.samplePropertyCode).parent().parent().hide(); //Hide State Field
+		var state = sample.properties[this._freeFormTableModel.samplePropertyCode];
+		if(state && state !== "") {
+			this._freeFormTableModel.tables = JSON.parse(state);
+		}
+	}
+	
 	this.addTable = function(tableIdx) {
 		
 	}

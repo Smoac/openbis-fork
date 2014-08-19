@@ -53,6 +53,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	}
 	
 	this._getMiniTable = function(modelMini) {
+		var _this = this;
 		var $colsTitle = $("<h4>").append("Columns");
 		var $colsContainer = $("<div>");
 		for(var i = 0; i < modelMini.columns.length; i++) {
@@ -62,6 +63,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				var keyUpEvent = function(columIdx, modelMini) {
 					return function() {
 						modelMini.columns[columIdx] = $(this).val();
+						_this._dilutionTableController.save();
 					};
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
@@ -97,6 +99,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	}
 	
 	this._getDetailedTable = function(modelDetailed) {
+		var _this = this;
 		var $table = $("<table>", { 'class' : 'table table-bordered' });
 		for(var i = 0; i < modelDetailed.length; i++) {
 			var $row = $("<tr>");
@@ -112,6 +115,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					var keyUpEvent = function(rowIdx, columIdx, modelDetailed) {
 						return function() {
 							modelDetailed[rowIdx][columIdx] = $(this).val();
+							_this._dilutionTableController.save();
 						};
 					}
 					$textField.keyup(keyUpEvent(i, j, modelDetailed));
@@ -127,6 +131,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	}
 	
 	this.repaint = function($container) {
+		var _this = this;
 		$container.empty();
 		for(var tableIdx = 0; tableIdx < this._freeFormTableModel.tables.length; tableIdx++) {
 			var tableData = this._freeFormTableModel.tables[tableIdx];
@@ -141,6 +146,13 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			if(this._freeFormTableModel.isEnabled) {
 				$title = $("<input>", { 'type' : 'text', 'style' : 'width:250px;' });
 				$title.val(tableData.name);
+				var keyUpEvent = function(tableData) {
+					return function() {
+						tableData.name = $(this).val();
+						_this._dilutionTableController.save();
+					};
+				}
+				$title.keyup(keyUpEvent(tableData));
 			} else {
 				$title = $("<h3>");
 				$title.append(tableData.name);
