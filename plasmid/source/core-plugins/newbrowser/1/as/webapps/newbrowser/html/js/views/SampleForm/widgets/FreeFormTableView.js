@@ -59,6 +59,12 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Column " + (i+1), null, false);
 				$textField.val(modelMini.columns[i]);
+				var keyUpEvent = function(columIdx, modelMini) {
+					return function() {
+						modelMini.columns[columIdx] = $(this).val();
+					};
+				}
+				$textField.keyup(keyUpEvent(i, modelMini));
 				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Column " + (i+1)));
 			} else {
 				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), modelMini.columns[i]));
@@ -69,8 +75,13 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		for(var i = 0; i < modelMini.columns.length; i++) {
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Row " + (i+1), null, false);
-				$textField.keyup(function() {});
 				$textField.val(modelMini.rows[i]);
+				var keyUpEvent = function(rowIdx, modelMini) {
+					return function() {
+						modelMini.rows[rowIdx] = $(this).val();
+					};
+				}
+				$textField.keyup(keyUpEvent(i, modelMini));
 				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Row " + (i+1)));
 			} else {
 				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), modelMini.rows[i]));
@@ -86,7 +97,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	}
 	
 	this._getDetailedTable = function(modelDetailed) {
-		var $table = $("<table>");
+		var $table = $("<table>", { 'class' : 'table table-bordered' });
 		for(var i = 0; i < modelDetailed.length; i++) {
 			var $row = $("<tr>");
 			$table.append($row);
@@ -97,6 +108,14 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				if(this._freeFormTableModel.isEnabled) {
 					var $textField = FormUtil._getInputField('text', null, "Pos (" + (i+1) + "," + (j+1) + ")", null, false);
 					$textField.val(modelDetailed[i][j]);
+					
+					var keyUpEvent = function(rowIdx, columIdx, modelDetailed) {
+						return function() {
+							modelDetailed[rowIdx][columIdx] = $(this).val();
+						};
+					}
+					$textField.keyup(keyUpEvent(i, j, modelDetailed));
+					
 					$column.append($textField);
 				} else {
 					$column.append(modelDetailed[i][j]);
@@ -167,6 +186,4 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			$container.append($tableContainer);
 		}
 	}
-	
-	
 }
