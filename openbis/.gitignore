@@ -5,3 +5,5 @@
 /.gwt-tmp*
 /db
 /.dynamic_property_evaluator_queue
+/build
+/bin
