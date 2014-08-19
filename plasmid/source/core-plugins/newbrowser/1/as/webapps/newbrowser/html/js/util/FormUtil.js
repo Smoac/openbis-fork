@@ -146,6 +146,20 @@ var FormUtil = new function() {
 		return $pinBtn;
 	}
 	
+	this.getButtonWithImage = function(src, clickEvent) {
+		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' });
+		$pinBtn.append($("<img>", { 'src' : src, 'style' : 'width:16px; height:16px;'}));
+		$pinBtn.click(clickEvent);
+		return $pinBtn;
+	}
+	
+	this.getButtonWithText = function(text, clickEvent) {
+		var $pinBtn = $("<a>", { 'class' : 'btn btn-default' });
+		$pinBtn.append(text);
+		$pinBtn.click(clickEvent);
+		return $pinBtn;
+	}
+	
 	this.getHierarchyButton = function(permId) {
 		var $hierarchyButton = $("<a>", { 'class' : 'btn btn-default'} )
 									.append($('<img>', { 'src' : './img/hierarchy-icon.png', 'style' : 'width:16px; height:17px;' }));
@@ -154,6 +168,7 @@ var FormUtil = new function() {
 		});
 		return $hierarchyButton;
 	}
+	
 	//
 	// Get Field with container to obtain a correct layout
 	//

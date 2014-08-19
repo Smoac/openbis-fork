@@ -22,8 +22,8 @@ function FreeFormTableModel(sample, isEnabled) {
 	
 	this.tables = [{
 		name : "Untitled",
-		modelDetailed : [1][1],
-		modelMini : { rows : [1], columns : [1] }
+		modelDetailed : [['1,1']],
+		modelMini : { rows : ['1'], columns : ['1'] }
 	}];
 	
 }
