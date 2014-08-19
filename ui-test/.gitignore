@@ -5,3 +5,4 @@ targets
 \.updater
 dss-root
 log-registrations
+/bin
