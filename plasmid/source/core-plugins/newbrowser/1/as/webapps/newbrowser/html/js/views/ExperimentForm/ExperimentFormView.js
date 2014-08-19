@@ -104,7 +104,8 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Registration Date", (new Date(this._experimentFormModel.experiment.registrationDetails.registrationDate)).toLocaleString()));
 		} else if(this._experimentFormModel.mode === FormMode.CREATE){
 			var $codeField = FormUtil._getInputField("text", null, "code", null, true);
-			$codeField.change(function() {
+			$codeField.keyup(function() {
+				$(this).val($(this).val().toUpperCase());
 				_this._experimentFormModel.experiment.code = $(this).val();
 			})
 			$formColumn.append(FormUtil.getFieldForComponentWithLabel($codeField, "Code"));
