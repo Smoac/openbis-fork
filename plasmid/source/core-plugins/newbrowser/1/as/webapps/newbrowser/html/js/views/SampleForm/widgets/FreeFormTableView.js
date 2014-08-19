@@ -162,6 +162,9 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			
 			var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
 			
+			var $toolBarBtnUcsv = FormUtil.getButtonWithText('Upload CSV' ,null);
+			var $toolBarBtnDcsv = FormUtil.getButtonWithText('Download CSV' ,null);
+			
 			var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null);
 			var $toolBarBtnTACR = FormUtil.getButtonWithImage('./img/table-add-column-right.png' ,null);
 			var $toolBarBtnTDC = FormUtil.getButtonWithImage('./img/table-delete-column.png' ,null);
@@ -174,6 +177,8 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			
 			if(this._freeFormTableModel.isEnabled) {
 				$toolBar
+					.append($toolBarBtnUcsv).append(' ')
+					.append($toolBarBtnDcsv).append(' ')
 					.append($toolBarBtnTACL).append(' ')
 					.append($toolBarBtnTACR).append(' ')
 					.append($toolBarBtnTDC).append(' ')
@@ -188,7 +193,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 								.append($title)
 								.append($toolBar);
 			
-			var $wrappedTable = $("<div>").append(this._getMiniTable(tableData.modelMini));
+			var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getMiniTable(tableData.modelMini));
 			this._tableViews.push($wrappedTable);
 			
 			$tableContainer
