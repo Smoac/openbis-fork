@@ -25,7 +25,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -57,12 +62,14 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
+import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -70,6 +77,42 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
+    private static final class LogEntry
+    {
+        private Date timestamp;
+        private String logLevel;
+        private String threadName;
+        private String logMessage;
+
+        LogEntry(Date timestamp, String logLevel, String threadName, String logMessage)
+        {
+            this.timestamp = timestamp;
+            this.logLevel = logLevel;
+            this.threadName = threadName;
+            this.logMessage = logMessage;
+        }
+
+        public Date getTimestamp()
+        {
+            return timestamp;
+        }
+
+        public String getLogLevel()
+        {
+            return logLevel;
+        }
+
+        public String getThreadName()
+        {
+            return threadName;
+        }
+
+        public String getLogMessage()
+        {
+            return logMessage;
+        }
+    }
+    
     private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private static final Pattern PATTERN = Pattern.compile("::(\\d+-\\d+);.*");
@@ -249,29 +292,48 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected void waitUntilDataSetImported() throws Exception
     {
-        boolean dataSetImported = false;
-        String logContent = "";
         final int maxLoops = dataSetImportWaitDurationInSeconds();
 
-        for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
+        for (int loops = 0; loops < maxLoops; loops++)
         {
             Thread.sleep(1000);
-            logContent = getLogAppender().getLogContent();
-            if (checkLogContentForFinishedDataSetRegistration(logContent))
+            List<LogEntry> logEntries = getLogEntries();
+            for (LogEntry logEntry : logEntries)
             {
-                dataSetImported = true;
-            } else
-            {
-                assertFalse("ERROR message found in log.\n" + logContent,
-                        logContent.contains("ERROR"));
+                if (checkLogContentForFinishedDataSetRegistration(logEntry.getLogMessage()))
+                {
+                    return;
+                }
             }
         }
 
-        if (dataSetImported == false)
+    }
+    
+    private List<LogEntry> getLogEntries()
+    {
+        List<LogEntry> result = new ArrayList<LogEntry>();
+        String[] logLines = getLogAppender().getLogContent().split("\n");
+        Pattern pattern = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}),\\d{3} ([^ ]*) \\[(.*)\\] (.*)$");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
+        for (String logLine : logLines)
         {
-            fail("Failed to determine whether data set import was successful:" + logContent);
+            Matcher matcher = pattern.matcher(logLine);
+            if (matcher.matches())
+            {
+                try
+                {
+                    Date timestamp = dateFormat.parse(matcher.group(1));
+                    String logLevel = matcher.group(2);
+                    String threadName = matcher.group(3);
+                    String logMessage = matcher.group(4);
+                    result.add(new LogEntry(timestamp, logLevel, threadName, logMessage));
+                } catch (ParseException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            }
         }
-
+        return result;
     }
 
     protected void waitUntilDataSetImportedWithError(String dropboxName) throws Exception
@@ -298,7 +360,7 @@ public abstract class SystemTestCase extends AssertJUnit
                 || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER);
     }
 
-    protected Set<String> getSuccessfullyRegisteredDataSets(String logContent)
+    private Set<String> getSuccessfullyRegisteredDataSets(String logContent)
     {
         BufferedReader reader = new BufferedReader(new StringReader(logContent));
         Set<String> codes = new TreeSet<String>();
@@ -377,7 +439,7 @@ public abstract class SystemTestCase extends AssertJUnit
         FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
     }
 
-    protected boolean checkForFinalPostRegistrationLogEntry(String logContent,
+    private boolean checkForFinalPostRegistrationLogEntry(String logContent,
             Set<String> registeredDataSets)
     {
         Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets: (.*)");
@@ -395,19 +457,16 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected boolean checkOnFinishedPostRegistration(String logContent)
     {
-        Set<String> dataSets = getSuccessfullyRegisteredDataSets(logContent);
-        if (dataSets.size() < 1)
-        {
-            return false;
-        }
-        return checkForFinalPostRegistrationLogEntry(logContent, dataSets);
+        Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets: (.*)");
+        Matcher matcher = pattern.matcher(logContent);
+        return matcher.matches();
     }
 
     private BufferedAppender getLogAppender()
     {
         if (logAppender == null)
         {
-            logAppender = new BufferedAppender("%t: %c - %m%n", Level.INFO);
+            logAppender = new BufferedAppender("%d %p [%t] %c - %m%n", Level.INFO);
         }
         return logAppender;
     }
