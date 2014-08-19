@@ -17,17 +17,30 @@
 function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	this._dilutionTableController = freeFormTableController;
 	this._freeFormTableModel = freeFormTableModel;
-
+	this._tableViews = [];
+	
 	this._getSwitchForTable = function(tableIdx) {
+		var _this = this;
 		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
-		$switch.change(function(event) {
-			var isMini = $(this).children()[0].checked;
-			if(isMini) {
-				alert('Mini!');
-			} else {
-				alert('Detailed!');
+		var changeEvent = function(index) {
+			return function(event) {
+				var isMini = $(this).children()[0].checked;
+				var tableData = _this._freeFormTableModel.tables[index];
+				var tableView = null;
+				var tableViewWrapper = _this._tableViews[index];
+				tableViewWrapper.empty();
+				
+				if(isMini) {
+					tableView = _this._getMiniTable(tableData.modelMini);
+				} else {
+					tableView = _this._getDetailedTable(tableData.modelDetailed);
+				}
+				
+				tableViewWrapper.append(tableView);
 			}
-		});
+		}
+		
+		$switch.change(changeEvent(tableIdx));
 		
 		$switch
 			.append($("<input>", {"value" : "mini", "id" : "tableModeMini", "name" : "tableMode", "type" : "radio", "checked" : ""}))
@@ -46,7 +59,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Column " + (i+1), null, false);
 				$textField.val(modelMini.columns[i]);
-				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Column " + (i+1)));
 			} else {
 				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), modelMini.columns[i]));
 			}
@@ -56,8 +69,9 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		for(var i = 0; i < modelMini.columns.length; i++) {
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Row " + (i+1), null, false);
+				$textField.keyup(function() {});
 				$textField.val(modelMini.rows[i]);
-				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Row " + (i+1)));
 			} else {
 				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), modelMini.rows[i]));
 			}
@@ -143,9 +157,12 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 								.append($title)
 								.append($toolBar);
 			
-			$tableContainer.append($titleAndToolbar);
-			//$tableContainer.append(this._getMiniTable(tableData.modelMini));
-			$tableContainer.append(this._getDetailedTable(tableData.modelDetailed));
+			var $wrappedTable = $("<div>").append(this._getMiniTable(tableData.modelMini));
+			this._tableViews.push($wrappedTable);
+			
+			$tableContainer
+				.append($titleAndToolbar)
+				.append($wrappedTable);
 			
 			$container.append($tableContainer);
 		}
