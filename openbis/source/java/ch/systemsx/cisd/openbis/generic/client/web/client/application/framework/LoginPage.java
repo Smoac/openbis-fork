@@ -18,13 +18,8 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 
 import java.util.Date;
 
-import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
-
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -34,6 +29,13 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
+
+import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginPanelAutofill;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.LoginWidget;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 
 /**
  * The login page.
@@ -55,10 +57,17 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         this.setHeight("100%");
         setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         final Widget loginPanel = createLoginPanel(viewContext);
-        final Anchor logo = createLogo(viewContext);
+        final Widget logo = createLogo(viewContext);
         final Widget footerPanel = createFooter(viewContext);
-        final HTML welcomePanel =
-                new HTML(viewContext.getMessage(Dict.OPENBIS_INSTANCE, new Date()));
+        Element openbisInstanceElement = Document.get().getElementById(Dict.OPENBIS_INSTANCE);
+        HTML welcomePanel;
+        if (openbisInstanceElement != null)
+        {
+            welcomePanel = HTML.wrap(openbisInstanceElement);
+        } else
+        {
+            welcomePanel = new HTML(viewContext.getMessage(Dict.OPENBIS_INSTANCE, new Date()));
+        }
         welcomePanel.setStyleName("login-welcome-text");
         final CellPanel northPanel = createNorthPanel();
         northPanel.add(logo);
@@ -89,7 +98,7 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
         return loginPanel;
     }
 
-    private Anchor createLogo(final IViewContext<ICommonClientServiceAsync> viewContext)
+    private Widget createLogo(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         Image image = new Image(viewContext.getImageBundle().getOpenBISLogo());
         image.setTitle(viewContext.getMessage(Dict.OPENBIS_LOGO_TITLE));
@@ -108,6 +117,11 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
 
     private Widget createFooter(IViewContext<ICommonClientServiceAsync> viewContext)
     {
+        Element footerElement = Document.get().getElementById("footer");
+        if (footerElement != null)
+        {
+            return HTML.wrap(footerElement);
+        }
         HorizontalPanel footer = new HorizontalPanel();
         final HTML html = new HTML("Click <a href='./custom/help.html' target='_blank'>here</a> for help.");
         footer.add(html);
@@ -116,6 +130,11 @@ final class LoginPage extends com.google.gwt.user.client.ui.VerticalPanel
 
     private HTML getBannersPage()
     {
+        Element headerElement = Document.get().getElementById("header");
+        if (headerElement != null)
+        {
+            return HTML.wrap(headerElement);
+        }
         HTML html = new HtmlPage("./custom/loginHeader");
         html.setStyleName("login-header");
         return html;
