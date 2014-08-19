@@ -135,9 +135,9 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		$container.empty();
 		for(var tableIdx = 0; tableIdx < this._freeFormTableModel.tables.length; tableIdx++) {
 			var tableData = this._freeFormTableModel.tables[tableIdx];
-			var $tableContainer = $("<div>");
+			var $tableContainer = $("<div>", {"style" : "margin:5px; border-radius:4px 4px 4px 4px;" });
 			$tableContainer.css({
-				//'background-color' : 'lightgrey',
+				'background-color' : '#EEEEEE',
 				'padding' : '10px'
 			});
 			
