@@ -129,7 +129,7 @@ get_patch_number()
 #
 # Creates specified branch for specified project if it not already exists. 
 # Copies main project and all dependent project (determined by file 'settings.gradle' of main project)
-# from trunk into the new branch.
+# from trunk into the new branch. Also library dependencies in gradle files are freezed.
 #
 create_branch_if_necessary()
 {
@@ -149,6 +149,33 @@ create_branch_if_necessary()
     local log_message="Create $branch branch '$dir_name' for project $project"
     echo $log_message
     _submit_batch "$log_message"
+    rm -rf tmp-checkout
+    mkdir -p tmp-checkout
+    _svn_with_echo -q checkout "$REPOSITORY_URL/$path" tmp-checkout
+    for p in $projects; do
+      cd "tmp-checkout/$p"
+      if [ -f gradlew ]; then
+        echo "======== freeze library dependencies for project $p"
+        ./gradlew dependencyReport
+        if [ -f targets/gradle/reports/project/dependencies.txt ]; then
+          cat targets/gradle/reports/project/dependencies.txt|egrep ^.---|grep \>|sort|uniq\
+               |awk '{print $2 ":" $4}'|awk -F: '{print "s/" $1 ":" $2 ":" $3 "/" $1 ":" $2 ":" $4 "/g"}' > sed_commands;
+          for file in *.gradle; do
+            if [ -s $file ]; then
+              sed -f sed_commands $file > $file.tmp
+              mv $file.tmp $file
+            fi
+          done
+          rm sed_commands
+        fi
+        echo "======== library dependencies for project $p are freezed"
+      fi
+      cd -
+    done
+    cd tmp-checkout
+    _svn_with_echo commit -m "freeze dependencies of projects in $path"
+    cd -
+    rm -rf tmp-checkout
   fi
 }
 
