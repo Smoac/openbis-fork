@@ -39,7 +39,11 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 	
 	this.addTable = function(tableIdx) {
-		
+		var newTableIndex = tableIdx + 1;
+		this._freeFormTableModel.tables.splice(newTableIndex, 0, this._freeFormTableModel.getDefaultTableToAdd()); //Adds to model
+		var newTableModel = this._freeFormTableModel.tables[newTableIndex]; //New model
+		var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel, newTableIndex); //Creates Table from model
+		this._freeFormTableView.addTable(newTableIndex, $newTableContainer);
 	}
 	
 	this.setTableSize = function(tableIdx, numRow, numCols) {

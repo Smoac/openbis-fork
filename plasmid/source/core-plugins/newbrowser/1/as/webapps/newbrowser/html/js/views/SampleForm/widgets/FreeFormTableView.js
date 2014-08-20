@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 function FreeFormTableView(freeFormTableController, freeFormTableModel) {
-	this._dilutionTableController = freeFormTableController;
+	this._freeFormTableController = freeFormTableController;
 	this._freeFormTableModel = freeFormTableModel;
-	this._tableViews = [];
+	this._container = null;
+	this._tableContainers = [];
 	
-	this._getSwitchForTable = function(tableIdx) {
+	this._getSwitchForTable = function(tableIdx, $wrappedTable) {
 		var _this = this;
 		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
-		var changeEvent = function(index) {
+		var changeEvent = function(index, $tableContainer) {
 			return function(event) {
 				var isMini = $(this).children()[0].checked;
 				var tableData = _this._freeFormTableModel.tables[index];
 				var tableView = null;
-				var tableViewWrapper = _this._tableViews[index];
-				tableViewWrapper.empty();
+				$tableContainer.empty();
 				
 				if(isMini) {
 					tableView = _this._getMiniTable(tableData.modelMini);
@@ -36,17 +35,17 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					tableView = _this._getDetailedTable(tableData.modelDetailed);
 				}
 				
-				tableViewWrapper.append(tableView);
+				$tableContainer.append(tableView);
 			}
 		}
 		
-		$switch.change(changeEvent(tableIdx));
+		$switch.change(changeEvent(tableIdx, $wrappedTable));
 		
 		$switch
-			.append($("<input>", {"value" : "mini", "id" : "tableModeMini", "name" : "tableMode", "type" : "radio", "checked" : ""}))
-			.append($("<label>", {"for" : "tableModeMini", "onclick" : "", "style" : "padding-top:3px;"}).append("Mini"))
-			.append($("<input>", {"value" : "detailed", "id" : "tableModeDetailed","name" : "tableMode", "type" : "radio"}))
-			.append($("<label>", {"for" : "tableModeDetailed", "onclick" : "", "style" : "padding-top:3px;"}).append("Detailed"));
+			.append($("<input>", {"value" : "mini", "id" : "tableModeMini_" + tableIdx, "name" : "tableMode_" + tableIdx, "type" : "radio", "checked" : ""}))
+			.append($("<label>", {"for" : "tableModeMini_" + tableIdx, "onclick" : "", "style" : "padding-top:3px;"}).append("Mini"))
+			.append($("<input>", {"value" : "detailed", "id" : "tableModeDetailed_" + tableIdx,"name" : "tableMode_" + tableIdx, "type" : "radio"}))
+			.append($("<label>", {"for" : "tableModeDetailed_" + tableIdx, "onclick" : "", "style" : "padding-top:3px;"}).append("Detailed"));
 		
 		$switch.append($("<a>", {"class" : "btn btn-primary"}));
 		return $switch;
@@ -63,7 +62,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				var keyUpEvent = function(columIdx, modelMini) {
 					return function() {
 						modelMini.columns[columIdx] = $(this).val();
-						_this._dilutionTableController.save();
+						_this._freeFormTableController.save();
 					};
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
@@ -81,6 +80,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				var keyUpEvent = function(rowIdx, modelMini) {
 					return function() {
 						modelMini.rows[rowIdx] = $(this).val();
+						_this._freeFormTableController.save();
 					};
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
@@ -115,7 +115,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					var keyUpEvent = function(rowIdx, columIdx, modelDetailed) {
 						return function() {
 							modelDetailed[rowIdx][columIdx] = $(this).val();
-							_this._dilutionTableController.save();
+							_this._freeFormTableController.save();
 						};
 					}
 					$textField.keyup(keyUpEvent(i, j, modelDetailed));
@@ -130,79 +130,98 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		return $table;
 	}
 	
-	this.repaint = function($container) {
+	this._getTableWithContainer = function(tableData, tableIdx) {
 		var _this = this;
-		$container.empty();
-		for(var tableIdx = 0; tableIdx < this._freeFormTableModel.tables.length; tableIdx++) {
-			var tableData = this._freeFormTableModel.tables[tableIdx];
-			var $tableContainer = $("<div>", {"style" : "margin:5px; border-radius:4px 4px 4px 4px;" });
-			$tableContainer.css({
-				'background-color' : '#EEEEEE',
-				'padding' : '10px'
-			});
-			
-			var $title = null;
-			
-			if(this._freeFormTableModel.isEnabled) {
-				$title = $("<input>", { 'type' : 'text', 'style' : 'width:250px;' });
-				$title.val(tableData.name);
-				var keyUpEvent = function(tableData) {
-					return function() {
-						tableData.name = $(this).val();
-						_this._dilutionTableController.save();
-					};
-				}
-				$title.keyup(keyUpEvent(tableData));
-			} else {
-				$title = $("<h3>");
-				$title.append(tableData.name);
+		var $tableContainer = $("<div>", {"style" : "margin:5px; border-radius:4px 4px 4px 4px;" });
+		$tableContainer.css({
+			'background-color' : '#EEEEEE',
+			'padding' : '10px'
+		});
+		
+		var $title = null;
+		
+		if(this._freeFormTableModel.isEnabled) {
+			$title = $("<input>", { 'type' : 'text', 'style' : 'width:250px;' });
+			$title.val(tableData.name);
+			var keyUpEvent = function(tableData) {
+				return function() {
+					tableData.name = $(this).val();
+					_this._freeFormTableController.save();
+				};
 			}
-			
-			var $switch = this._getSwitchForTable(tableIdx);
-			
-			var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
-			
-			var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
-			var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
-			
-			var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null).attr('title', 'Add Column on the left.').tooltipster();
-			var $toolBarBtnTACR = FormUtil.getButtonWithImage('./img/table-add-column-right.png' ,null).attr('title', 'Add Column on the right.').tooltipster();
-			var $toolBarBtnTDC = FormUtil.getButtonWithImage('./img/table-delete-column.png' ,null).attr('title', 'Delete Column.').tooltipster();
-			
-			var $toolBarBtnTARA = FormUtil.getButtonWithImage('./img/table-add-row-above.png' ,null).attr('title', 'Add Row above.').tooltipster();
-			var $toolBarBtnTARB = FormUtil.getButtonWithImage('./img/table-add-row-below.png' ,null).attr('title', 'Add Row below.').tooltipster();
-			var $toolBarBtnTDR = FormUtil.getButtonWithImage('./img/table-delete-row.png' ,null).attr('title', 'Delete Row.').tooltipster();
-			
-			var $toolBarBtnAT = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
-			var $toolBarBtnDT = FormUtil.getButtonWithText('- Table' ,null).attr('title', 'Delete Table.').tooltipster();
-			
-			if(this._freeFormTableModel.isEnabled) {
-				$toolBar
-					.append($toolBarBtnUcsv).append(' ')
-					.append($toolBarBtnDcsv).append(' ')
-					.append($toolBarBtnTACL).append(' ')
-					.append($toolBarBtnTACR).append(' ')
-					.append($toolBarBtnTDC).append(' ')
-					.append($toolBarBtnTARA).append(' ')
-					.append($toolBarBtnTARB).append(' ')
-					.append($toolBarBtnTDR).append(' ')
-					.append($toolBarBtnAT).append(' ')
-					.append($toolBarBtnDT);
-			}
-			
-			var $titleAndToolbar = $("<div>")
-								.append($switch)
-								.append($title)
-								.append($toolBar);
-			
-			var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getMiniTable(tableData.modelMini));
-			this._tableViews.push($wrappedTable);
-			
-			$tableContainer
-				.append($titleAndToolbar)
-				.append($wrappedTable);
-			
-			$container.append($tableContainer);
+			$title.keyup(keyUpEvent(tableData));
+		} else {
+			$title = $("<h3>");
+			$title.append(tableData.name);
+		}
+		
+		var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getMiniTable(tableData.modelMini));
+		
+		var $switch = this._getSwitchForTable(tableIdx, $wrappedTable);
+		
+		var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
+		
+		var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
+		var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
+		
+		var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null).attr('title', 'Add Column on the left.').tooltipster();
+		var $toolBarBtnTACR = FormUtil.getButtonWithImage('./img/table-add-column-right.png' ,null).attr('title', 'Add Column on the right.').tooltipster();
+		var $toolBarBtnTDC = FormUtil.getButtonWithImage('./img/table-delete-column.png' ,null).attr('title', 'Delete Column.').tooltipster();
+		
+		var $toolBarBtnTARA = FormUtil.getButtonWithImage('./img/table-add-row-above.png' ,null).attr('title', 'Add Row above.').tooltipster();
+		var $toolBarBtnTARB = FormUtil.getButtonWithImage('./img/table-add-row-below.png' ,null).attr('title', 'Add Row below.').tooltipster();
+		var $toolBarBtnTDR = FormUtil.getButtonWithImage('./img/table-delete-row.png' ,null).attr('title', 'Delete Row.').tooltipster();
+		
+		var $toolBarBtnAT = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
+		var addTableFunc = function(tableIdx) {
+			return function() { _this._freeFormTableController.addTable(tableIdx); };
+		}
+		$toolBarBtnAT.click(addTableFunc(tableIdx));
+		
+		var $toolBarBtnDT = FormUtil.getButtonWithText('- Table' ,null).attr('title', 'Delete Table.').tooltipster();
+		
+		if(this._freeFormTableModel.isEnabled) {
+			$toolBar
+				.append($toolBarBtnUcsv).append(' ')
+				.append($toolBarBtnDcsv).append(' ')
+				.append($toolBarBtnTACL).append(' ')
+				.append($toolBarBtnTACR).append(' ')
+				.append($toolBarBtnTDC).append(' ')
+				.append($toolBarBtnTARA).append(' ')
+				.append($toolBarBtnTARB).append(' ')
+				.append($toolBarBtnTDR).append(' ')
+				.append($toolBarBtnAT).append(' ')
+				.append($toolBarBtnDT);
+		}
+		
+		var $titleAndToolbar = $("<div>")
+							.append($switch)
+							.append($title)
+							.append($toolBar);
+		
+		$tableContainer
+			.append($titleAndToolbar)
+			.append($wrappedTable);
+		
+		return $tableContainer;
+	}
+	
+	this.addTable = function(tableIdx, $tableContainer) {
+		if(tableIdx === 0) {
+			this._container.append($tableContainer); //Update View adding Table
+		} else {
+			this._tableContainers[tableIdx-1].after($tableContainer); //Update View adding Table
+		}
+		this._tableContainers.push($tableContainer); //Update View Structure
+	}
+	
+	this.repaint = function($container) {
+		this._container = $container;
+		var tables = this._freeFormTableModel.tables;
+		for(var tableIdx = 0; tableIdx < tables.length; tableIdx++) {
+			var tableData = tables[tableIdx];
+			var $tableContainer = this._getTableWithContainer(tableData, tableIdx);
+			this.addTable(tableIdx, $tableContainer);
 		}
 	}
 }

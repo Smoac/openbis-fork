@@ -16,14 +16,19 @@
 
 function FreeFormTableModel(sample, isEnabled) {
 	this.samplePropertyCode = "FREEFORM_TABLE_STATE";
+	this.defaultTable = {
+			name : "Untitled",
+			modelDetailed : [['1,1']],
+			modelMini : { rows : ['1'], columns : ['1'] }
+	};
+	
+	this.getDefaultTableToAdd = function() {
+		return JSON.parse(JSON.stringify( this.defaultTable ));
+	}
 	
 	this.sample = sample;
 	this.isEnabled = isEnabled;
 	
-	this.tables = [{
-		name : "Untitled",
-		modelDetailed : [['1,1']],
-		modelMini : { rows : ['1'], columns : ['1'] }
-	}];
+	this.tables = [this.getDefaultTableToAdd()];
 	
 }
