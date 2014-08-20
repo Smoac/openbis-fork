@@ -62,12 +62,29 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		};
 	}
 	
-	this._getBlurEvent = function() {
+	this._getFocusEventAction = function(tIdx, isActionPossible, action) {
 		var _this = this;
 		return function() {
-			_this._freeFormTableModel.selectedField = null;
-		};
+			var selectedField = _this._freeFormTableModel.selectedField;
+			if (selectedField && 
+				tIdx === selectedField.tableIdx &&
+				isActionPossible(selectedField)) {
+				action(selectedField);
+			} else {
+				alert('Please select a valid position to do this action on this table');
+			}
+		}
 	}
+	
+//	this._getBlurEvent = function() {
+//		var _this = this;
+//		return function() {
+//			var blurWithTimeout = function() {
+//				_this._freeFormTableModel.selectedField = null;
+//			}
+//			setTimeout(blurWithTimeout, 1000);
+//		};
+//	}
 	
 	this._getMiniTable = function(tableIdx, modelMini) {
 		var _this = this;
@@ -85,7 +102,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
 				$textField.focus(_this._getFocusEvent(tableIdx, null, i));
-				$textField.blur(_this._getBlurEvent());
+//				$textField.blur(_this._getBlurEvent());
 				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Column " + (i+1)));
 			} else {
 				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), modelMini.columns[i]));
@@ -105,7 +122,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
 				$textField.focus(_this._getFocusEvent(tableIdx, i, null));
-				$textField.blur(_this._getBlurEvent());
+//				$textField.blur(_this._getBlurEvent());
 				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Row " + (i+1)));
 			} else {
 				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), modelMini.rows[i]));
@@ -142,7 +159,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					}
 					$textField.keyup(keyUpEvent(i, j, modelDetailed));
 					$textField.focus(_this._getFocusEvent(tableIdx, i, j));
-					$textField.blur(_this._getBlurEvent());
+//					$textField.blur(_this._getBlurEvent());
 					
 					$column.append($textField);
 				} else {
@@ -185,17 +202,69 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		
 		var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
 		
+		//
+		// CSV events
+		//
 		var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
 		var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
 		
+		//
+		// Column events
+		//
 		var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null).attr('title', 'Add Column on the left.').tooltipster();
+		var focusEventTACL = this._getFocusEventAction(
+				tableIdx,
+				function(selectedField) { return selectedField.columnIdx !== null; },
+				function(selectedField) { _this._freeFormTableController.addColumn(selectedField.tableIdx, selectedField.columnIdx - 1); }
+		);
+		$toolBarBtnTACL.click(focusEventTACL);
+		
 		var $toolBarBtnTACR = FormUtil.getButtonWithImage('./img/table-add-column-right.png' ,null).attr('title', 'Add Column on the right.').tooltipster();
+		var focusEventTACR = this._getFocusEventAction(
+				tableIdx,
+				function(selectedField) { return selectedField.columnIdx !== null; },
+				function(selectedField) { _this._freeFormTableController.addColumn(selectedField.tableIdx, selectedField.columnIdx + 1); }
+		);
+		$toolBarBtnTACR.click(focusEventTACR);
+		
 		var $toolBarBtnTDC = FormUtil.getButtonWithImage('./img/table-delete-column.png' ,null).attr('title', 'Delete Column.').tooltipster();
+		var focusEventTDC = this._getFocusEventAction(
+				tableIdx,
+				function(selectedField) { return selectedField.columnIdx !== null; },
+				function(selectedField) { _this._freeFormTableController.delColumn(selectedField.tableIdx, selectedField.columnIdx); }
+		);
+		$toolBarBtnTDC.click(focusEventTDC);
 		
+		//
+		// Row events
+		//
 		var $toolBarBtnTARA = FormUtil.getButtonWithImage('./img/table-add-row-above.png' ,null).attr('title', 'Add Row above.').tooltipster();
-		var $toolBarBtnTARB = FormUtil.getButtonWithImage('./img/table-add-row-below.png' ,null).attr('title', 'Add Row below.').tooltipster();
-		var $toolBarBtnTDR = FormUtil.getButtonWithImage('./img/table-delete-row.png' ,null).attr('title', 'Delete Row.').tooltipster();
+		var focusEventTARA = this._getFocusEventAction(
+				tableIdx,
+				function(selectedField) { return selectedField.rowIdx !== null; },
+				function(selectedField) { _this._freeFormTableController.addRow(selectedField.tableIdx, selectedField.rowIdx - 1); }
+		);
+		$toolBarBtnTARA.click(focusEventTARA);
 		
+		var $toolBarBtnTARB = FormUtil.getButtonWithImage('./img/table-add-row-below.png' ,null).attr('title', 'Add Row below.').tooltipster();
+		var focusEventTARB = this._getFocusEventAction(
+				tableIdx,
+				function(selectedField) { return selectedField.rowIdx !== null; },
+				function(selectedField) { _this._freeFormTableController.addRow(selectedField.tableIdx, selectedField.rowIdx + 1); }
+		);
+		$toolBarBtnTARB.click(focusEventTARB);
+		
+		var $toolBarBtnTDR = FormUtil.getButtonWithImage('./img/table-delete-row.png' ,null).attr('title', 'Delete Row.').tooltipster();
+		var focusEventTDR = this._getFocusEventAction(
+				tableIdx,
+				function(selectedField) { return selectedField.rowIdx !== null; },
+				function(selectedField) { _this._freeFormTableController.delRow(selectedField.tableIdx, selectedField.rowIdx); }
+		);
+		$toolBarBtnTDR.click(focusEventTDR);
+		
+		//
+		// Table events
+		//
 		var $toolBarBtnAT = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
 		var addTableFunc = function(tableIdx) {
 			return function() { _this._freeFormTableController.addTable(tableIdx); };

@@ -59,11 +59,11 @@ function FreeFormTableController(sample, isEnabled) {
 		
 	}
 	
-	this.addColumn = function(tableIdx, rowIdx) {
+	this.addColumn = function(tableIdx, colIdx) {
 		
 	}
 	
-	this.delColumn = function(tableIdx, rowIdx) {
+	this.delColumn = function(tableIdx, colIdx) {
 		
 	}
 	
