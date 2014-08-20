@@ -19,20 +19,29 @@ package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 import java.util.regex.Pattern;
 
 /**
- * 
+ * Stop condition using a regular expression for the log message.
  *
  * @author Franz-Josef Elmer
  */
-public class FinishedPostRegistrationCondition implements ILogMonitoringStopCondition
+public class RegexCondition implements ILogMonitoringStopCondition
 {
-    public static final ILogMonitoringStopCondition INSTANCE = new FinishedPostRegistrationCondition();
-    
-    private static Pattern PATTERN = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets: (.*)");
-    
+    private Pattern pattern;
+
+    public RegexCondition(String regex)
+    {
+        pattern = Pattern.compile(regex);
+    }
+
     @Override
     public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
     {
-        return PATTERN.matcher(logEntry.getLogMessage()).matches();
+        return pattern.matcher(logEntry.getLogMessage()).matches();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Regex: " + pattern.pattern();
     }
 
 }

@@ -93,6 +93,9 @@ public abstract class SystemTestCase extends AssertJUnit
     private static final String ROOT_DIR_KEY = "root-dir";
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
+    
+    public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION 
+            = new RegexCondition(".*Post registration of (\\d*). of \\1 data sets: (.*)");
 
     // this message appears if the dropbox has successfully completed the registration, even if no
     // datasets have been imported
@@ -107,7 +110,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected File store;
 
-    protected BufferedAppender logAppender;
+    private BufferedAppender logAppender;
 
     protected SystemTestCase()
     {
@@ -138,6 +141,7 @@ public abstract class SystemTestCase extends AssertJUnit
     public void beforeTest(Method method)
     {
         System.out.println("BEFORE " + render(method));
+        getLogAppender().resetLogContent();
     }
 
     @AfterMethod
@@ -265,6 +269,13 @@ public abstract class SystemTestCase extends AssertJUnit
                     return logMessage.contains(DATA_SET_IMPORTED_LOG_MARKER)
                             || logMessage.contains(REGISTRATION_FINISHED_LOG_MARKER);
                 }
+
+                @Override
+                public String toString()
+                {
+                    return "Log message contains '" + DATA_SET_IMPORTED_LOG_MARKER 
+                            + "' or '" + REGISTRATION_FINISHED_LOG_MARKER + "'";
+                }
             });
     }
 
@@ -285,16 +296,17 @@ public abstract class SystemTestCase extends AssertJUnit
                 }
             }
         }
-        fail("Log monitoring stop condition (" + stopCondition + ") never fulfilled after " + maxLoops + " seconds.");
+        fail("Log monitoring stop condition [" + stopCondition + "] never fulfilled after " + maxLoops + " seconds.");
 
     }
     
-    private List<ParsedLogEntry> getLogEntries()
+    protected List<ParsedLogEntry> getLogEntries()
     {
         List<ParsedLogEntry> result = new ArrayList<ParsedLogEntry>();
         String[] logLines = getLogAppender().getLogContent().split("\n");
-        Pattern pattern = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}),\\d{3} ([^ ]*) \\[(.*)\\] (.*)$");
+        Pattern pattern = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}),\\d{3} ([^ ]*) \\[([^\\]]*)\\] (.*)$");
         SimpleDateFormat dateFormat = new SimpleDateFormat(BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
+        ParsedLogEntry logEntry = null;
         for (String logLine : logLines)
         {
             Matcher matcher = pattern.matcher(logLine);
@@ -306,63 +318,25 @@ public abstract class SystemTestCase extends AssertJUnit
                     String logLevel = matcher.group(2);
                     String threadName = matcher.group(3);
                     String logMessage = matcher.group(4);
-                    result.add(new ParsedLogEntry(timestamp, logLevel, threadName, logMessage));
+                    logEntry = new ParsedLogEntry(timestamp, logLevel, threadName, logMessage);
+                    result.add(logEntry);
+//                    System.out.println("LOG ENTRY: " + logEntry);
                 } catch (ParseException ex)
                 {
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);
                 }
+            } else if (logEntry != null)
+            {
+                logEntry.appendToMessage(logLine);
             }
         }
         return result;
-    }
-
-    protected void waitUntilDataSetImportedWithError(String dropboxName) throws Exception
-    {
-        final int maxLoops = dataSetImportWaitDurationInSeconds();
-
-        for (int loops = 0; loops < maxLoops; loops++)
-        {
-            Thread.sleep(1000);
-
-            String logContent = getLogAppender().getLogContent();
-            if (logContent.contains("ERROR") && logContent.contains(dropboxName))
-            {
-                return;
-            }
-        }
-
-        fail("Failed to determine whether data set import was executed with error");
-    }
-    
-    protected void waitUntilIndexedByLucene(Class<?> entityPeClass, Long entityId) throws Exception
-    {
-        operationLog.info("Waiting for " + entityPeClass.getName() + " with id: " + entityId + " to be indexed by Lucene");
-
-        final int maxLoops = indexByLuceneWaitDurationInSeconds();
-
-        for (int loops = 0; loops < maxLoops; loops++)
-        {
-            Thread.sleep(1000);
-
-            if (getLogAppender().getLogContent().contains("REINDEX " + entityPeClass.getName() + ": [" + entityId + "]"))
-            {
-                operationLog.info("Stopped waiting for " + entityPeClass.getName() + " with id: " + entityId + " to be indexed by Lucene");
-                return;
-            }
-        }
-
-        fail("Failed to determine whether enity: " + entityPeClass.getName() + " with id: " + entityId + " was indexed by Lucene");
     }
 
     /**
      * Time to wait to determine if a data set has been registered or not. Subclasses may override.
      */
     protected int dataSetImportWaitDurationInSeconds()
-    {
-        return 20;
-    }
-
-    protected int indexByLuceneWaitDurationInSeconds()
     {
         return 20;
     }
@@ -376,9 +350,14 @@ public abstract class SystemTestCase extends AssertJUnit
     {
         if (logAppender == null)
         {
-            logAppender = new BufferedAppender("%d %p [%t] %c - %m%n", Level.INFO);
+            logAppender = new BufferedAppender("%d %p [%t] %c - %m%n", getLogLevel());
         }
         return logAppender;
+    }
+
+    protected Level getLogLevel()
+    {
+        return Level.INFO;
     }
 
     @SuppressWarnings("unchecked")

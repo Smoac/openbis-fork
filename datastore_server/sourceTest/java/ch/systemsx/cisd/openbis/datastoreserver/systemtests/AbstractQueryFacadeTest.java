@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -27,12 +26,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Level;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.IDssServiceRpcGeneric;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
@@ -82,16 +78,10 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
      */
     public abstract String getTestId();
 
-    @BeforeMethod
-    public void beforeMethod(Method method)
+    @Override
+    protected Level getLogLevel()
     {
-        logAppender = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
-    }
-
-    @AfterMethod
-    public void afterMethod(Method method)
-    {
-        logAppender.reset();
+        return Level.DEBUG;
     }
 
     public AggregationServiceDescription getAggregationServiceDescription(String key)
@@ -257,7 +247,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
         {
             if (code.equalsIgnoreCase(sample.getCode()))
             {
-                waitUntilIndexedByLucene(SamplePE.class, sample.getId());
+                waitUntilDataSetImported(new ContainsCondition("REINDEX " + SamplePE.class.getName() + ": [" + sample.getId() + "]"));
                 foundSample = true;
             }
         }

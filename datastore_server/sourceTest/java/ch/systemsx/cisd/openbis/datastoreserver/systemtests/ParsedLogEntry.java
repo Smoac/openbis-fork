@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 
 public final class ParsedLogEntry
 {
-    private static final String FORMAT_TEMPLATE = "{0,date," + BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN + "} {1} [{2}] {3}";
+    private static final String FORMAT_TEMPLATE = "[{0,date," + BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN + "}][{1}][{2}][{3}]";
     
     private Date timestamp;
     private String logLevel;
@@ -36,6 +36,11 @@ public final class ParsedLogEntry
         this.logLevel = logLevel;
         this.threadName = threadName;
         this.logMessage = logMessage;
+    }
+    
+    public void appendToMessage(String logLine)
+    {
+        logMessage += "\n" + logLine;
     }
 
     public Date getTimestamp()

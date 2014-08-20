@@ -17,10 +17,9 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
+import java.util.List;
 
 import org.testng.annotations.Test;
-
-import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
@@ -46,9 +45,16 @@ public class MutableV2Test extends MutableTest
     @Override
     protected void assertAfter()
     {
-        AssertionUtil.assertContainsLines(
-                "Projects updated: 1\nMaterials updated: 1\nExperiments updated: 1\nSamples updated: 1\nData sets updated: 1",
-                logAppender.getLogContent());
+        List<ParsedLogEntry> logEntries = getLogEntries();
+        for (ParsedLogEntry logEntry : logEntries)
+        {
+            if (logEntry.getLogMessage().contains("Projects updated: 1\nMaterials updated: 1\n"
+                    + "Experiments updated: 1\nSamples updated: 1\nData sets updated: 1"))
+            {
+                return;
+            }
+        }
+        fail("Missing Projects update log message.");
     }
 
 }
