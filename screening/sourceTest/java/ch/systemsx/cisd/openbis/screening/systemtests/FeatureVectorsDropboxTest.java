@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.FinishedPostRegistrationCondition;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
@@ -66,13 +67,7 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
     {
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
-    }
-
-    @Override
-    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
-    {
-        return checkOnFinishedPostRegistration(logContent);
+        waitUntilDataSetImported(FinishedPostRegistrationCondition.INSTANCE);
     }
 
     @BeforeMethod

@@ -43,6 +43,7 @@ import com.googlecode.jsonrpc4j.ProxyUtil;
 import ch.systemsx.cisd.common.collection.IModifiable;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
+import ch.systemsx.cisd.openbis.datastoreserver.systemtests.FinishedPostRegistrationCondition;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
@@ -82,7 +83,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     {
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
+        waitUntilDataSetImported(FinishedPostRegistrationCondition.INSTANCE);
     }
 
     @BeforeMethod
@@ -190,13 +191,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
-        return 6000;
-    }
-
-    @Override
-    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
-    {
-        return checkOnFinishedPostRegistration(logContent);
+        return 600;
     }
 
     private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements
