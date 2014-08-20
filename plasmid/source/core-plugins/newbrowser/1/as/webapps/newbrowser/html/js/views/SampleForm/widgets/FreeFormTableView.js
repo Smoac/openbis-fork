@@ -21,7 +21,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	
 	this._getSwitchForTable = function(tableIdx, $wrappedTable) {
 		var _this = this;
-		var $switch = $("<div>", {"class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
+		var $switch = $("<div>", {'id' : 'SwitchFreeFormTable_' + tableIdx, "class" : "switch-toggle well", "style" : "width:33%; margin-left: auto; margin-right: auto; min-height: 38px !important;"});
 		var changeEvent = function(index, $tableContainer) {
 			return function(event) {
 				var isMini = $(this).children()[0].checked;

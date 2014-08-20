@@ -55,26 +55,46 @@ function FreeFormTableController(sample, isEnabled) {
 		this.save();
 	}
 	
+	this._updateChangesOnDOMandView = function(tableIdx) {
+		this.save();
+		var tableModel = this._freeFormTableModel.tables[tableIdx];
+		var $tableContainer = $(this._freeFormTableView._tableContainers[tableIdx].children()[1]);
+		$tableContainer.empty();
+		var isMini = $('#' + 'SwitchFreeFormTable_' + tableIdx).children()[0].checked;
+		if(isMini) {
+			tableView = this._freeFormTableView._getMiniTable(tableIdx, tableModel.modelMini);
+		} else {
+			tableView = this._freeFormTableView._getDetailedTable(tableIdx, tableModel.modelDetailed);
+		}
+		$tableContainer.append(tableView);
+	}
+	
 	this.addRow = function(tableIdx, rowIdx) {
 		var tableModel = this._freeFormTableModel.tables[tableIdx];
-		var numColumns = tableModel.modelDetailed[0].length;
-		tableModel.modelDetailed.splice(rowIdx, 0, [numColumns]);
 		
-		this.save();
+		//Detailed Model
+		var numColumns = tableModel.modelDetailed[0].length;
+		tableModel.modelDetailed.splice(rowIdx, 0, new Array(numColumns));
+		//Mini Model
+		tableModel.modelMini.rows.splice(rowIdx, 0, '');
+		
+		this._updateChangesOnDOMandView(tableIdx);
 	}
 	
 	this.delRow = function(tableIdx, rowIdx) {
 		tableModel.modelDetailed.splice(rowIdx, 1);
 		
-		this.save();
+		this._updateChangesOnDOMandView(tableIdx);
 	}
 	
 	this.addColumn = function(tableIdx, colIdx) {
 		
+		this._updateChangesOnDOMandView(tableIdx);
 	}
 	
 	this.delColumn = function(tableIdx, colIdx) {
 		
+		this._updateChangesOnDOMandView(tableIdx);
 	}
 	
 	this.importCSV = function(tableIdx) {
