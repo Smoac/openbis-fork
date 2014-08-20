@@ -179,6 +179,10 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		$toolBarBtnAT.click(addTableFunc(tableIdx));
 		
 		var $toolBarBtnDT = FormUtil.getButtonWithText('- Table' ,null).attr('title', 'Delete Table.').tooltipster();
+		var removeTableFunc = function(tableIdx) {
+			return function() { _this._freeFormTableController.deleteTable(tableIdx); };
+		}
+		$toolBarBtnDT.click(removeTableFunc(tableIdx));
 		
 		if(this._freeFormTableModel.isEnabled) {
 			$toolBar
@@ -212,7 +216,12 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		} else {
 			this._tableContainers[tableIdx-1].after($tableContainer); //Update View adding Table
 		}
-		this._tableContainers.push($tableContainer); //Update View Structure
+		this._tableContainers.splice(tableIdx, 0, $tableContainer); //Update View Structure
+	}
+	
+	this.deleteTable = function(tableIdx) {
+		this._tableContainers[tableIdx].remove();
+		this._tableContainers.splice(tableIdx, 1); //Update View Structure
 	}
 	
 	this.repaint = function($container) {

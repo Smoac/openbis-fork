@@ -46,6 +46,11 @@ function FreeFormTableController(sample, isEnabled) {
 		this._freeFormTableView.addTable(newTableIndex, $newTableContainer);
 	}
 	
+	this.deleteTable = function(tableIdx) {
+		this._freeFormTableModel.tables.splice(tableIdx, 1); //Removes from model
+		this._freeFormTableView.deleteTable(tableIdx); //Removes from view
+	}
+	
 	this.setTableSize = function(tableIdx, numRow, numCols) {
 		
 	}
