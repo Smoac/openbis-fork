@@ -51,10 +51,6 @@ function FreeFormTableController(sample, isEnabled) {
 		this._freeFormTableView.deleteTable(tableIdx); //Removes from view
 	}
 	
-	this.setTableSize = function(tableIdx, numRow, numCols) {
-		
-	}
-	
 	this.addRow = function(tableIdx, rowIdx) {
 		
 	}
@@ -71,6 +67,13 @@ function FreeFormTableController(sample, isEnabled) {
 		
 	}
 	
+	this.importCSV = function(tableIdx) {
+		
+	}
+	
+	this.exportCSV = function(tableIdx) {
+		
+	}
 	//
 	// Getters
 	//
