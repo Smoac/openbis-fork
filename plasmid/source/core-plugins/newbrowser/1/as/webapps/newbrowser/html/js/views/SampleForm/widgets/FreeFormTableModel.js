@@ -18,8 +18,8 @@ function FreeFormTableModel(sample, isEnabled) {
 	this.samplePropertyCode = "FREEFORM_TABLE_STATE";
 	this.defaultTable = {
 			name : "Untitled",
-			modelDetailed : [['1,1']],
-			modelMini : { rows : ['1'], columns : ['1'] }
+			modelDetailed : [['1,1', '1,2']],
+			modelMini : { rows : ['1'], columns : ['1', '2'] }
 	};
 	
 	this.getDefaultTableToAdd = function() {

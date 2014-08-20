@@ -37,26 +37,36 @@ function FreeFormTableController(sample, isEnabled) {
 			this._freeFormTableModel.tables = JSON.parse(state);
 		}
 	}
-	
+
 	this.addTable = function(tableIdx) {
 		var newTableIndex = tableIdx + 1;
 		this._freeFormTableModel.tables.splice(newTableIndex, 0, this._freeFormTableModel.getDefaultTableToAdd()); //Adds to model
 		var newTableModel = this._freeFormTableModel.tables[newTableIndex]; //New model
 		var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel, newTableIndex); //Creates Table from model
 		this._freeFormTableView.addTable(newTableIndex, $newTableContainer);
+		
+		this.save();
 	}
 	
 	this.deleteTable = function(tableIdx) {
 		this._freeFormTableModel.tables.splice(tableIdx, 1); //Removes from model
 		this._freeFormTableView.deleteTable(tableIdx); //Removes from view
+		
+		this.save();
 	}
 	
 	this.addRow = function(tableIdx, rowIdx) {
+		var tableModel = this._freeFormTableModel.tables[tableIdx];
+		var numColumns = tableModel.modelDetailed[0].length;
+		tableModel.modelDetailed.splice(rowIdx, 0, [numColumns]);
 		
+		this.save();
 	}
 	
 	this.delRow = function(tableIdx, rowIdx) {
+		tableModel.modelDetailed.splice(rowIdx, 1);
 		
+		this.save();
 	}
 	
 	this.addColumn = function(tableIdx, colIdx) {

@@ -110,7 +110,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		}
 		var $rowsTitle = $("<h4>").append("Rows");
 		var $rowsContainer = $("<div>");
-		for(var i = 0; i < modelMini.columns.length; i++) {
+		for(var i = 0; i < modelMini.rows.length; i++) {
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Row " + (i+1), null, false);
 				$textField.val(modelMini.rows[i]);
@@ -166,7 +166,6 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					$column.append(modelDetailed[i][j]);
 				}
 			}
-			
 		}
 		return $table;
 	}
@@ -231,7 +230,10 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var focusEventTDC = this._getFocusEventAction(
 				tableIdx,
 				function(selectedField) { return selectedField.columnIdx !== null; },
-				function(selectedField) { _this._freeFormTableController.delColumn(selectedField.tableIdx, selectedField.columnIdx); }
+				function(selectedField) { 
+					_this._freeFormTableController.delColumn(selectedField.tableIdx, selectedField.columnIdx);
+					_this._freeFormTableModel.selectedField = null;
+				}
 		);
 		$toolBarBtnTDC.click(focusEventTDC);
 		
@@ -258,7 +260,10 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var focusEventTDR = this._getFocusEventAction(
 				tableIdx,
 				function(selectedField) { return selectedField.rowIdx !== null; },
-				function(selectedField) { _this._freeFormTableController.delRow(selectedField.tableIdx, selectedField.rowIdx); }
+				function(selectedField) { 
+					_this._freeFormTableController.delRow(selectedField.tableIdx, selectedField.rowIdx);
+					_this._freeFormTableModel.selectedField = null;
+				}
 		);
 		$toolBarBtnTDR.click(focusEventTDR);
 		
