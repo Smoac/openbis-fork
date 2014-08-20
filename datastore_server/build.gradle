@@ -25,7 +25,8 @@ dependencies {
 			'shriop:javacsv:+',
 			'cisd:cisd-image-readers:+',
 			'hjg:pngj:+',
-			'apache:commons-fileupload:+'
+			'apache:commons-fileupload:+',
+			'lyncode:xoai-data-provider:+'
 
 	runtime 'sun:jai:+'
 				

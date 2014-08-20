@@ -16,9 +16,9 @@
 
 package ch.systemsx.cisd.openbis.common.api.server.json;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat; 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.collection.IsCollectionContaining.hasItems;
+import static org.hamcrest.core.IsCollectionContaining.hasItems;
 
 import java.util.Collection;
 import java.util.List;
