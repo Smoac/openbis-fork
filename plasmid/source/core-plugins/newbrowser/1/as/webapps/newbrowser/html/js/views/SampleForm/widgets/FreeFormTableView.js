@@ -163,7 +163,6 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
 			
 			var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
-			
 			var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
 			
 			var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null).attr('title', 'Add Column on the left.').tooltipster();
