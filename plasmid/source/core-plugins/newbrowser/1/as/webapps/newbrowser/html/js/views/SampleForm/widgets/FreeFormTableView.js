@@ -162,18 +162,20 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			
 			var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
 			
-			var $toolBarBtnUcsv = FormUtil.getButtonWithText('Upload CSV' ,null);
-			var $toolBarBtnDcsv = FormUtil.getButtonWithText('Download CSV' ,null);
+			var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
 			
-			var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null);
-			var $toolBarBtnTACR = FormUtil.getButtonWithImage('./img/table-add-column-right.png' ,null);
-			var $toolBarBtnTDC = FormUtil.getButtonWithImage('./img/table-delete-column.png' ,null);
+			var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
 			
-			var $toolBarBtnTARA = FormUtil.getButtonWithImage('./img/table-add-row-above.png' ,null);
-			var $toolBarBtnTARB = FormUtil.getButtonWithImage('./img/table-add-row-below.png' ,null);
-			var $toolBarBtnTDR = FormUtil.getButtonWithImage('./img/table-delete-row.png' ,null);
+			var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null).attr('title', 'Add Column on the left.').tooltipster();
+			var $toolBarBtnTACR = FormUtil.getButtonWithImage('./img/table-add-column-right.png' ,null).attr('title', 'Add Column on the right.').tooltipster();
+			var $toolBarBtnTDC = FormUtil.getButtonWithImage('./img/table-delete-column.png' ,null).attr('title', 'Delete Column.').tooltipster();
 			
-			var $toolBarBtnAT = FormUtil.getButtonWithText('Add Table' ,null);
+			var $toolBarBtnTARA = FormUtil.getButtonWithImage('./img/table-add-row-above.png' ,null).attr('title', 'Add Row above.').tooltipster();
+			var $toolBarBtnTARB = FormUtil.getButtonWithImage('./img/table-add-row-below.png' ,null).attr('title', 'Add Row below.').tooltipster();
+			var $toolBarBtnTDR = FormUtil.getButtonWithImage('./img/table-delete-row.png' ,null).attr('title', 'Delete Row.').tooltipster();
+			
+			var $toolBarBtnAT = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
+			var $toolBarBtnDT = FormUtil.getButtonWithText('- Table' ,null).attr('title', 'Delete Table.').tooltipster();
 			
 			if(this._freeFormTableModel.isEnabled) {
 				$toolBar
@@ -185,7 +187,8 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					.append($toolBarBtnTARA).append(' ')
 					.append($toolBarBtnTARB).append(' ')
 					.append($toolBarBtnTDR).append(' ')
-					.append($toolBarBtnAT);
+					.append($toolBarBtnAT).append(' ')
+					.append($toolBarBtnDT);
 			}
 			
 			var $titleAndToolbar = $("<div>")
