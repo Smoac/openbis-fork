@@ -30,9 +30,9 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 				$tableContainer.empty();
 				
 				if(isMini) {
-					tableView = _this._getMiniTable(tableData.modelMini);
+					tableView = _this._getMiniTable(index, tableData.modelMini);
 				} else {
-					tableView = _this._getDetailedTable(tableData.modelDetailed);
+					tableView = _this._getDetailedTable(index, tableData.modelDetailed);
 				}
 				
 				$tableContainer.append(tableView);
@@ -51,7 +51,25 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		return $switch;
 	}
 	
-	this._getMiniTable = function(modelMini) {
+	this._getFocusEvent = function(tIdx, rIdx, cIdx) {
+		var _this = this;
+		return function() {
+			_this._freeFormTableModel.selectedField = {
+				tableIdx : tIdx,
+				rowIdx : rIdx,
+				columnIdx : cIdx
+			};
+		};
+	}
+	
+	this._getBlurEvent = function() {
+		var _this = this;
+		return function() {
+			_this._freeFormTableModel.selectedField = null;
+		};
+	}
+	
+	this._getMiniTable = function(tableIdx, modelMini) {
 		var _this = this;
 		var $colsTitle = $("<h4>").append("Columns");
 		var $colsContainer = $("<div>");
@@ -66,6 +84,8 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					};
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
+				$textField.focus(_this._getFocusEvent(tableIdx, null, i));
+				$textField.blur(_this._getBlurEvent());
 				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Column " + (i+1)));
 			} else {
 				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), modelMini.columns[i]));
@@ -84,6 +104,8 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 					};
 				}
 				$textField.keyup(keyUpEvent(i, modelMini));
+				$textField.focus(_this._getFocusEvent(tableIdx, i, null));
+				$textField.blur(_this._getBlurEvent());
 				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Row " + (i+1)));
 			} else {
 				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), modelMini.rows[i]));
@@ -98,7 +120,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		return $container;
 	}
 	
-	this._getDetailedTable = function(modelDetailed) {
+	this._getDetailedTable = function(tableIdx, modelDetailed) {
 		var _this = this;
 		var $table = $("<table>", { 'class' : 'table table-bordered' });
 		for(var i = 0; i < modelDetailed.length; i++) {
@@ -119,6 +141,8 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 						};
 					}
 					$textField.keyup(keyUpEvent(i, j, modelDetailed));
+					$textField.focus(_this._getFocusEvent(tableIdx, i, j));
+					$textField.blur(_this._getBlurEvent());
 					
 					$column.append($textField);
 				} else {
@@ -155,7 +179,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			$title.append(tableData.name);
 		}
 		
-		var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getMiniTable(tableData.modelMini));
+		var $wrappedTable = $("<div>", { 'style' : 'margin-top:10px;' }).append(this._getMiniTable(tableIdx, tableData.modelMini));
 		
 		var $switch = this._getSwitchForTable(tableIdx, $wrappedTable);
 		

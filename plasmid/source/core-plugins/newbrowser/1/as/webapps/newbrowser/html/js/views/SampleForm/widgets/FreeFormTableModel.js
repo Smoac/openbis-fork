@@ -31,4 +31,5 @@ function FreeFormTableModel(sample, isEnabled) {
 	
 	this.tables = [this.getDefaultTableToAdd()];
 	
+	this.selectedField = null;
 }
