@@ -88,6 +88,12 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 	
 	this.addColumn = function(tableModel, $wrappedTable, colIdx) {
+		//Detailed Model
+		for(var i = 0; i < tableModel.modelDetailed.length; i++) {
+			tableModel.modelDetailed[i].splice(colIdx, 0, '');
+		}
+		//Mini Model
+		tableModel.modelMini.columns.splice(colIdx, 0, '');
 		
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}

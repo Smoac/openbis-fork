@@ -213,7 +213,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var focusEventTACL = this._getFocusEventAction(
 				tableData,
 				function(selectedField) { return selectedField.columnIdx !== null; },
-				function(selectedField) { _this._freeFormTableController.addColumn(tableData, $wrappedTable, selectedField.columnIdx - 1); }
+				function(selectedField) { _this._freeFormTableController.addColumn(tableData, $wrappedTable, selectedField.columnIdx); }
 		);
 		$toolBarBtnTACL.click(focusEventTACL);
 		
@@ -243,7 +243,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var focusEventTARA = this._getFocusEventAction(
 				tableData,
 				function(selectedField) { return selectedField.rowIdx !== null; },
-				function(selectedField) { _this._freeFormTableController.addRow(tableData, $wrappedTable, selectedField.rowIdx - 1); }
+				function(selectedField) { _this._freeFormTableController.addRow(tableData, $wrappedTable, selectedField.rowIdx); }
 		);
 		$toolBarBtnTARA.click(focusEventTARA);
 		
