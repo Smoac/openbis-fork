@@ -25,6 +25,16 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		$component.append($("<option>").attr('value', '1x1').text('1x1'));
 		$component.append($("<option>").attr('value', '20x8').text('20x8'));
 		
+		var changeEvent = function(tableData, $wrappedTable) {
+			return function(){
+				var newSize = $(this).val().split('x');
+				if(newSize.length === 2) {
+					alert('new size');
+				}
+			}
+		}
+		$component.change(changeEvent(tableData, $wrappedTable));
+		
 		return $component;
 	}
 	
