@@ -40,8 +40,9 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSystemTestCase
 {
 
-    private static final String LOG_INFO_PREFIX = "INFO  OPERATION."
-            + PathInfoDatabaseChecksumCalculationTask.class.getSimpleName() + " - ";
+    private static final String LOGGER_NAME = "OPERATION." + PathInfoDatabaseChecksumCalculationTask.class.getSimpleName();
+
+    private static final String LOG_INFO_PREFIX = "INFO  " + LOGGER_NAME + " - ";
 
     private BufferedAppender logRecorder;
 
@@ -79,7 +80,7 @@ public class PathInfoDatabaseChecksumCalculationTaskTest extends AbstractFileSys
     @BeforeMethod
     public void setUpMocks()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, LOGGER_NAME);
         context = new Mockery();
         dao = context.mock(IPathsInfoDAO.class);
         contentProvider = context.mock(IHierarchicalContentProvider.class);
