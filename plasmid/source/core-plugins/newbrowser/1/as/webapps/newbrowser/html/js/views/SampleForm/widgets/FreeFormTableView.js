@@ -17,7 +17,6 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	this._freeFormTableController = freeFormTableController;
 	this._freeFormTableModel = freeFormTableModel;
 	this._container = null;
-//	this._tableContainers = [];
 	
 	this._getSwitchForTable = function(tableData, $wrappedTable) {
 		var uniqueId = Util.guid();
