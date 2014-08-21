@@ -18,6 +18,16 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	this._freeFormTableModel = freeFormTableModel;
 	this._container = null;
 	
+	this._getDefaultSizesDropdown = function(tableData, $wrappedTable) {
+		var $component = $("<select>", { class : 'form-control', 'style' : 'width:250px; height:37px; display:inline;'});
+		
+		$component.append($("<option>").attr('value', '').attr('selected', '').text('Default Sizes'));
+		$component.append($("<option>").attr('value', '1x1').text('1x1'));
+		$component.append($("<option>").attr('value', '20x8').text('20x8'));
+		
+		return $component;
+	}
+	
 	this._getSwitchForTable = function(tableData, $wrappedTable) {
 		var uniqueId = Util.guid();
 		var _this = this;
@@ -104,7 +114,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 //				$textField.blur(_this._getBlurEvent());
 				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Column " + (i+1)));
 			} else {
-				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), modelMini.columns[i]));
+				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), tableData.modelMini.columns[i]));
 			}
 		}
 		var $rowsTitle = $("<h4>").append("Rows");
@@ -124,7 +134,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 //				$textField.blur(_this._getBlurEvent());
 				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Row " + (i+1)));
 			} else {
-				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), modelMini.rows[i]));
+				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), tableData.modelMini.rows[i]));
 			}
 		}
 		var $container = $("<div>")
@@ -213,6 +223,11 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		$toolBarBtnDcsv.click(clickDcsvFunc(tableData, $wrappedTable));
 		
 		//
+		// Size Modifier
+		//
+		var $dropDown = this._getDefaultSizesDropdown(tableData, $wrappedTable);
+		
+		//
 		// Column events
 		//
 		var $toolBarBtnTACL = FormUtil.getButtonWithImage('./img/table-add-column-left.png' ,null).attr('title', 'Add Column on the left.').tooltipster();
@@ -291,6 +306,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			$toolBar
 				.append($toolBarBtnUcsv).append(' ')
 				.append($toolBarBtnDcsv).append(' ')
+				.append($dropDown).append(' ')
 				.append($toolBarBtnTACL).append(' ')
 				.append($toolBarBtnTACR).append(' ')
 				.append($toolBarBtnTDC).append(' ')
