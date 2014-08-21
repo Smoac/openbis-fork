@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.systemsx.cisd.openbis.systemtest.api.v3;
+package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.fail;
 

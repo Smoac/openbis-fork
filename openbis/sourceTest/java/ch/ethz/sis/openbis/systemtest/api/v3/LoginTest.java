@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.systemtest.api.v3;
+package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import java.util.Collections;
 import java.util.List;

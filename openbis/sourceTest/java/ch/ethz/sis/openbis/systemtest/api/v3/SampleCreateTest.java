@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.api.v3;
+package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
@@ -453,6 +453,19 @@ public class SampleCreateTest extends AbstractSampleTest
         }
     }
 
+    @Test
+    public void testCreateSampleWithoutCode() {
+        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        SampleCreation sample = createSimpleSample(null);
+        try {
+            v3api.createSamples(sessionToken, Arrays.asList(sample));
+            fail("Expected user failure exception");
+        } catch (UserFailureException ufe)
+        {
+            AssertionUtil.assertContains("No code for sample provided", ufe.getMessage());
+        }
+    }
+    
     private SampleCreation createSimpleSample(String code)
     {
         SampleCreation sampleParent = new SampleCreation();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.api.v3;
+package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionSize;
@@ -564,5 +564,70 @@ public class SampleUpdateTest extends AbstractSampleTest
         assertIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
         assertTags(sample2.getTags(), "TEST_TAG_2", "TEST_TAG_3");
     }
+    
+    @Test
+    public void updateSampleRemoveSpace() {
+        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
 
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(new ExperimentPermId("201206190940555-1032"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(null);
+        update.setExperimentId(null);
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchSpace();
+        fetchOptions.fetchExperiment();
+        fetchOptions.fetchProperties();
+
+        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        AssertionUtil.assertCollectionSize(samples, 1);
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getSpace(), null);
+        assertEquals(sample.getExperiment(), null);
+        assertIdentifier(sample, "/SAMPLE");
+    }
+    
+    @Test
+    public void updateSharedSampleSetSpace() {
+        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(new SpacePermId("TEST-SPACE"));
+        update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchSpace();
+        fetchOptions.fetchExperiment();
+        fetchOptions.fetchProperties();
+
+        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        AssertionUtil.assertCollectionSize(samples, 1);
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        assertIdentifier(sample, "/TEST-SPACE/SAMPLE");
+        
+    }
+    
 }

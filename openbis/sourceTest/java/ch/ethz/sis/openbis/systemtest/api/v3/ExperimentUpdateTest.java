@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.systemsx.cisd.openbis.systemtest.api.v3;
+package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 
@@ -65,6 +65,11 @@ public class ExperimentUpdateTest extends AbstractExperimentTest
 
         Experiment experiment = experiments.get(0);
         assertEquals(experiment.getIdentifier().getIdentifier(), "/CISD/NOE/TEST_EXPERIMENT");
+    }
+    
+    @Test
+    public void samplesAreUpdatedWhenNewProjectOfExperimentIsInAnotherSpace() {
+        
     }
 
     @Test
