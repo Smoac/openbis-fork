@@ -93,7 +93,7 @@ done
 
 for project in $GRADLE_PROJECTS; do
 	cd tmp/$project;
-	./gradlew -Dopenbis.jenkins-build=true dependencyReport;
+	./gradlew dependencyReport;
 	cat targets/gradle/reports/project/dependencies.txt|egrep ^.---|grep \>|sort|uniq|awk '{print $2 ":" $4}'|awk -F: '{print "s/" $1 ":" $2 ":" $3 "/" $1 ":" $2 ":" $4 "/g"}' > sed_commands;
 	
 	for file in build.gradle javaproject.gradle gwtdev.gradle query-api.gradle proteomics-api.gradle screening-api.gradle admin-console.gradle clients.gradle; do
