@@ -74,7 +74,7 @@ function FreeFormTableController(sample, isEnabled) {
 		tableModel.modelDetailed.splice(rowIdx, 0, new Array(numColumns));
 		//Mini Model
 		tableModel.modelMini.rows.splice(rowIdx, 0, '');
-		
+		//Trigger Update
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
@@ -83,7 +83,7 @@ function FreeFormTableController(sample, isEnabled) {
 		tableModel.modelDetailed.splice(rowIdx, 1);
 		//Mini Model
 		tableModel.modelMini.rows.splice(rowIdx, 1);
-		
+		//Trigger Update
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
@@ -94,20 +94,26 @@ function FreeFormTableController(sample, isEnabled) {
 		}
 		//Mini Model
 		tableModel.modelMini.columns.splice(colIdx, 0, '');
-		
+		//Trigger Update
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
 	this.delColumn = function(tableModel, $wrappedTable, colIdx) {
-		
+		//Detailed Model
+		for(var i = 0; i < tableModel.modelDetailed.length; i++) {
+			tableModel.modelDetailed[i].splice(colIdx, 1);
+		}
+		//Mini Model
+		tableModel.modelMini.columns.splice(colIdx, 1);
+		//Trigger Update
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
-	this.importCSV = function(tableModel) {
+	this.importCSV = function(tableModel, $wrappedTable) {
 		
 	}
 	
-	this.exportCSV = function(tableModel) {
+	this.exportCSV = function(tableModel, $wrappedTable) {
 		
 	}
 	//
