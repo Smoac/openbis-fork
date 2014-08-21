@@ -76,6 +76,11 @@ public final class FullTextIndexUpdater extends HibernateDaoSupport implements
         operationLog.debug(String.format("Updater queue file: %s.", queueFile));
         updaterQueue = createUpdaterQueue(indexBase, queueFile);
     }
+    
+    public int getQueueSize()
+    {
+        return updaterQueue.size();
+    }
 
     private static IExtendedBlockingQueue<IndexUpdateOperation> createUpdaterQueue(
             final File indexBase, final File queueFile)

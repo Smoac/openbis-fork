@@ -20,24 +20,18 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.SERVER_URL_KEY;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
@@ -62,11 +56,11 @@ import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
-import ch.systemsx.cisd.common.time.DateTimeUtils;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexUpdater;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
@@ -77,9 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
-    private Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
-
-    private static final Pattern PATTERN = Pattern.compile("::(\\d+-\\d+);.*");
+    protected Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
 
@@ -291,7 +283,7 @@ public abstract class SystemTestCase extends AssertJUnit
             {
                 if (stopCondition.stopConditionFulfilled(logEntry))
                 {
-                    operationLog.info("Monitoring log stop after this log entry: " + logEntry);
+                    operationLog.info("Monitoring log stopped after this log entry: " + logEntry);
                     return;
                 }
             }
@@ -320,7 +312,6 @@ public abstract class SystemTestCase extends AssertJUnit
                     String logMessage = matcher.group(4);
                     logEntry = new ParsedLogEntry(timestamp, logLevel, threadName, logMessage);
                     result.add(logEntry);
-//                    System.out.println("LOG ENTRY: " + logEntry);
                 } catch (ParseException ex)
                 {
                     throw CheckedExceptionTunnel.wrapIfNecessary(ex);
@@ -358,6 +349,30 @@ public abstract class SystemTestCase extends AssertJUnit
     protected Level getLogLevel()
     {
         return Level.INFO;
+    }
+
+    protected void waitUntilIndexUpdaterIsIdle()
+    {
+        FullTextIndexUpdater indexUpdater = (FullTextIndexUpdater) applicationContext.getBean("full-text-index-updater");
+        if (indexUpdater != null)
+        {
+            while (true)
+            {
+                int queueSize = indexUpdater.getQueueSize();
+                if (queueSize == 0)
+                {
+                    break;
+                }
+                operationLog.info("Waiting on index updater. Still " + queueSize + " update operations in the queue.");
+                try
+                {
+                    Thread.sleep(1000);
+                } catch (Exception ex)
+                {
+                    // silently ignore
+                }
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

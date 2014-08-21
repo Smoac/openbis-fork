@@ -320,6 +320,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testDataSetSearchServiceInAggregationService() throws Exception
     {
+        waitUntilIndexUpdaterIsIdle();
         int allTest = getSearchServiceAggregationServiceResult("datasetsAll", "test");
         int allObserver = getSearchServiceAggregationServiceResult("datasetsAll", "observer");
 
@@ -342,6 +343,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testSampleSearchServiceInAggregationService() throws Exception
     {
+        waitUntilIndexUpdaterIsIdle();
         int allTest = getSearchServiceAggregationServiceResult("samplesAll", "test");
         int allObserver = getSearchServiceAggregationServiceResult("samplesAll", "observer");
 
@@ -371,6 +373,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testExperimentSearchServiceInAggregationService() throws Exception
     {
+        waitUntilIndexUpdaterIsIdle();
         int allNemoTest =
                 getSearchServiceAggregationServiceResult("experimentsAll", "test", "projectId",
                         "/CISD/NEMO");
