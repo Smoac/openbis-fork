@@ -89,6 +89,10 @@ function FreeFormTableController(sample, isEnabled) {
 		tableModel.modelDetailed.splice(rowIdx, 1);
 		//Mini Model
 		tableModel.modelMini.rows.splice(rowIdx, 1);
+		//Clear if empty, they can't exist columns without rows
+		if(tableModel.modelMini.rows.length === 0) {
+			tableModel.modelMini.columns = [];
+		}
 		//Trigger Update
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
@@ -111,6 +115,10 @@ function FreeFormTableController(sample, isEnabled) {
 		}
 		//Mini Model
 		tableModel.modelMini.columns.splice(colIdx, 1);
+		//Clear if empty, they can't exist rows without columns
+		if(tableModel.modelMini.columns.length === 0) {
+			tableModel.modelMini.rows = [];
+		}
 		//Trigger Update
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
