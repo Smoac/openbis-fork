@@ -1,7 +1,5 @@
 apply from: '../gradle/javaproject.gradle'
 
-group="cisd"
-
 dependencies {
     compile 'apache:commons-io:+',
             'apache:commons-lang:+',
@@ -13,25 +11,6 @@ tasks.withType(Test) {
     systemProperty "java.library.path", "libs/native/unix/amd64-Linux:libs/native/nativedata/amd64-Linux:libs/native/unix/x86_64-Mac OS X:libs/native/nativedata/x86_64-Mac OS X"
 }
 
-new ByteArrayOutputStream().withStream { os ->
-    def result = exec {
-        executable = 'svn'
-        args = ['info']
-        standardOutput = os
-    }
-    def outputAsString = os.toString()
-    def matchLastChangedRevMatcher = outputAsString =~ /Last Changed Rev: (\d+)/
-    def urlMatcher = outputAsString =~ /URL: .*\/(.+)/
-
-    def revision = "r${matchLastChangedRevMatcher[0][1]}"
-    def branch = urlMatcher[0][1]
-
-    if (branch.equals('trunk')) {
-        project.version = revision
-    } else {
-        project.version = branch
-    }
-}
 
 sourceSets {
   test {
@@ -47,7 +26,7 @@ jar {
 }
 
 task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
-    archiveName 'cisd-base-test.jar'
+    archiveName "${project.group}-base-test.jar"
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
     from files(sourceSets.test.output.classesDir)
@@ -61,38 +40,57 @@ task standaloneTestJar(type: Jar, dependsOn: [classes, testClasses]) {
 }
 
 task javadocZip(type: Zip, dependsOn: javadoc) {
-    archiveName 'cisd-base-javadoc.zip'
+    archiveName "${project.group}-base-javadoc.zip"
     from javadoc.destinationDir
 }
 
 task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip, standaloneTestJar]) {
-    baseName = 'cisd-base'
+    baseName = "${project.group}-base"
     from ('dist') {
-        into 'cisd-base'
+        into "${project.group}-base"
     }
 
     from ('doc') {
-        into 'cisd-base/doc'
+        into "${project.group}-base/doc"
     }
 
     from (jar.archivePath) {
-        into 'cisd-base/lib'
-        rename '(.*)', 'cisd-base.jar'
+        into "${project.group}-base/lib"
+        rename '(.*)', "${project.group}-base.jar"
     }
     
     from (sourcesJar.archivePath) {
-        into 'cisd-base/src'
-        rename '(.*)', 'cisd-base-src.jar'
+        into "${project.group}-base/src"
+        rename '(.*)', "${project.group}-base-src.jar"
     }
     
     from (standaloneTestJar.archivePath) {
-        into 'cisd-base/lib'
+        into "${project.group}-base/lib"
     }
     
     from (javadocZip.archivePath) {
-        into 'cisd-base/doc'
+        into "${project.group}-base/doc"
     }
 }
 
 build.dependsOn distributionZip
 
+publishing {
+    publications {
+        ivy(IvyPublication) {
+            module "${project.group}-base"
+            revision project.ext.revisionForPublication
+            from components.java
+            artifact(sourcesJar) {
+                type = 'source'
+            }
+            descriptor {
+                withXml {
+                    for (org in ['testng', 'rinn']) {
+                      asNode().dependencies.dependency.find { it.@org == org }.replaceNode {}
+                    }
+                }
+            }
+        }
+  }
+}

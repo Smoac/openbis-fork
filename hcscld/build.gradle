@@ -1,6 +1,6 @@
 apply from: '../gradle/javaproject.gradle'
 
-group="cisd"
+group='sis'
 
 dependencies {
     compile project(':jhdf5'),
@@ -48,7 +48,7 @@ jar {
 }
 
 task javadocZip(type: Zip, dependsOn: javadoc) {
-    archiveName 'sis-hcscld-javadoc.zip'
+    archiveName "${project.group}-hcscld-javadoc.zip"
     from javadoc.destinationDir
 }
 
@@ -58,48 +58,78 @@ task exampleSourcesJar(type: Jar) {
 }
 
 task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, exampleSourcesJar, javadocZip, project(':jhdf5').distributionZip]) {
-    baseName = 'sis-hcscld'
+    baseName = "${project.group}-hcscld"
 
     from ('dist') {
-        into 'sis-hcscld'
+        into "${project.group}-hcscld"
     }
 
     from (javadocZip.archivePath) {
-        into 'sis-hcscld/doc'
+        into "${project.group}-hcscld/doc"
     }
 
     from (jar.archivePath) {
-        into 'sis-hcscld/lib'
-        rename '(.*)', 'sis-hcscld.jar'
+        into "${project.group}-hcscld/lib"
+        rename '(.*)', "${project.group}-hcscld.jar"
     }
     
     from (configurations.runtime) {
         exclude '*restriction*'
         exclude '*bcel*'
-        into 'sis-hcscld/lib'
+        into "${project.group}-hcscld/lib"
     }
     
     from (sourcesJar.archivePath) {
-        into 'sis-hcscld/src'
-        rename '(.*)', 'sis-hcscld-src.zip'
+        into "${project.group}-hcscld/src"
+        rename '(.*)', "${project.group}-hcscld-src.zip"
     }
 
     from (exampleSourcesJar.archivePath) {
-        into 'sis-hcscld/doc'
-        rename '(.*)', 'sis-hcscld-examples-src.zip'
+        into "${project.group}-hcscld/doc"
+        rename '(.*)', "${project.group}-hcscld-examples-src.zip"
     }
 
     from (project(':jhdf5').nativeJarLinuxIntel.archivePath) {
-        into 'sis-hcscld/lib'
+        into "${project.group}-hcscld/lib"
     }
 
     from (project(':jhdf5').nativeJarMacIntel.archivePath) {
-        into 'sis-hcscld/lib'
+        into "${project.group}-hcscld/lib"
     }
 
     from (project(':jhdf5').nativeJarWindowsIntel.archivePath) {
-        into 'sis-hcscld/lib'
+        into "${project.group}-hcscld/lib"
     }
 }
 
 build.dependsOn distributionZip
+
+publishing {
+    publications {
+        artifacts(IvyPublication) {
+            module "${project.group}-hcscld"
+            revision project.ext.revisionForPublication
+            from components.java
+            artifact(nativeJarLinuxIntel) {
+                name = "hdf5-linux-intel"
+                conf = "runtime"
+            }
+            artifact(nativeJarMacIntel) {
+                name = "hdf5-macosx-intel"
+                conf = "runtime"
+            }
+            artifact(nativeJarWindowsIntel) {
+                name = "hdf5-windows-intel"
+                conf = "runtime"
+            }
+            artifact(sourcesJar) {
+                type = "source"
+            }
+            descriptor {
+                withXml {
+                    asNode().dependencies.dependency.find { it.@org == 'rinn' }.replaceNode {}
+                }
+            }
+        }
+    }
+}

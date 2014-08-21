@@ -1,7 +1,5 @@
 apply from: '../gradle/javaproject.gradle'
 
-group="cisd"
-
 dependencies {
     compile 'cisd:cisd-base:+',
             'rinn:restrictions:+'
@@ -10,30 +8,48 @@ dependencies {
 } 
 
 task javadocZip(type: Zip, dependsOn: javadoc) {
-    archiveName 'cisd-args4j-javadoc.zip'
+    archiveName "${project.group}-args4j-javadoc.zip"
     from javadoc.destinationDir
 }
 
 task distributionZip(type: Zip, dependsOn: [jar, sourcesJar, javadocZip]) {
-    baseName = 'cisd-args4j'
+    baseName = "$project.group-args4j"
 
     from ('dist') {
-        into 'cisd-args4j'
+        into "${project.group}-args4j"
     }
 
     from (javadocZip.archivePath) {
-        into 'cisd-args4j/doc'
+        into "${project.group}-args4j/doc"
     }
 
     from (jar.archivePath) {
-        into 'cisd-args4j/lib'
-        rename '(.*)', 'cisd-args4j.jar'
+        into "${project.group}-args4j/lib"
+        rename '(.*)', "${project.group}-args4j.jar"
     }
     
     from (sourcesJar.archivePath) {
-        into 'cisd-args4j/src'
-        rename '(.*)', 'cisd-args4j-src.zip'
+        into "${project.group}-args4j/src"
+        rename '(.*)', "${project.group}-args4j-src.zip"
     }
 }
 
 build.dependsOn distributionZip
+
+publishing {
+    publications {
+        ivy(IvyPublication) {
+            module "${project.group}-args4j"
+            revision project.ext.revisionForPublication
+            from components.java
+            artifact(sourcesJar) {
+                type = 'source'
+            }
+            descriptor {
+                withXml {
+                    asNode().dependencies.dependency.find { it.@org == 'rinn' }.replaceNode {}
+                }
+            }
+        }
+  }
+}

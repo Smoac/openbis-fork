@@ -168,6 +168,7 @@ def calculateBuildInfo() {
         } 
     }
     version = "${project.ext.versionNumber}-r${project.ext.revisionNumber}"
+    project.ext.revisionForPublication = project.ext.versionNumber.startsWith('SNAPSHOT') ? "r${project.ext.revisionNumber}" : project.ext.versionNumber
     project.ext.cleanFlag = calculateCleanFlag()
     def buildInfo = "${project.ext.versionNumber}:${project.ext.revisionNumber}:${project.ext.cleanFlag}"
     println "BUILD INFO for $project: $buildInfo"
@@ -180,7 +181,7 @@ def calculateBuildInfo() {
 
 calculateBuildInfo()
 
-group="cisd"
+group='cisd'
 
 task checkRestrictions(type: Exec, dependsOn: [classes, testClasses]) {
     doFirst {
