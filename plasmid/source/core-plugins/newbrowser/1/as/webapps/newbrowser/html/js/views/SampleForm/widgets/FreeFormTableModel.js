@@ -31,5 +31,25 @@ function FreeFormTableModel(sample, isEnabled) {
 	
 	this.tables = [this.getDefaultTableToAdd()];
 	
+	this.removeTable = function(tableData) {
+		for(var i = 0; i < this.tables.length; i++) {
+			if(this.tables[i] === tableData) {
+				this.tables.splice(i, 1); //Removes from model
+				break;
+			}
+		}
+	}
+	
+	this.addTableAfter = function(tableData) {
+		for(var i = 0; i < this.tables.length; i++) {
+			if(this.tables[i] === tableData) {
+				var newTableIndex = i + 1;
+				this.tables.splice(newTableIndex, 0, this.getDefaultTableToAdd()); //Adds to model
+				var newTableModel = this.tables[newTableIndex]; //New model
+				return newTableModel;
+			}
+		}
+	}
+	
 	this.selectedField = null;
 }

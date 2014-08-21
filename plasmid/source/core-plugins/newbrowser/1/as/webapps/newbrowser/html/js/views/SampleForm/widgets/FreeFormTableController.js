@@ -38,70 +38,70 @@ function FreeFormTableController(sample, isEnabled) {
 		}
 	}
 
-	this.addTable = function(tableIdx) {
-		var newTableIndex = tableIdx + 1;
-		this._freeFormTableModel.tables.splice(newTableIndex, 0, this._freeFormTableModel.getDefaultTableToAdd()); //Adds to model
-		var newTableModel = this._freeFormTableModel.tables[newTableIndex]; //New model
-		var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel, newTableIndex); //Creates Table from model
-		this._freeFormTableView.addTable(newTableIndex, $newTableContainer);
+	this.addTable = function(tableBefore, $tableBefore) {
+		var newTableModel = this._freeFormTableModel.addTableAfter(tableBefore); //Add new table after
+		var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel); //Creates Table from model
+		this._freeFormTableView.addTable($newTableContainer, $tableBefore);
 		
 		this.save();
 	}
 	
-	this.deleteTable = function(tableIdx) {
-		this._freeFormTableModel.tables.splice(tableIdx, 1); //Removes from model
-		this._freeFormTableView.deleteTable(tableIdx); //Removes from view
+	this.deleteTable = function(tableData, $tableContainer) {
+		this._freeFormTableModel.removeTable(tableData); //Removes from model
+		this._freeFormTableView.deleteTable($tableContainer); //Removes from view
 		
 		this.save();
 	}
 	
-	this._updateChangesOnDOMandView = function(tableIdx) {
+	this._updateChangesOnDOMandView = function(tableModel, $wrappedTable) {
+		//Update DOM
 		this.save();
-		var tableModel = this._freeFormTableModel.tables[tableIdx];
-		var $tableContainer = $(this._freeFormTableView._tableContainers[tableIdx].children()[1]);
-		$tableContainer.empty();
-		var isMini = $('#' + 'SwitchFreeFormTable_' + tableIdx).children()[0].checked;
+		
+		//Update View
+		var isMini = $($wrappedTable.parent().children()[0]).children()[0].childNodes[0].checked;
+		$wrappedTable.empty();
 		if(isMini) {
-			tableView = this._freeFormTableView._getMiniTable(tableIdx, tableModel.modelMini);
+			tableView = this._freeFormTableView._getMiniTable(tableModel);
 		} else {
-			tableView = this._freeFormTableView._getDetailedTable(tableIdx, tableModel.modelDetailed);
+			tableView = this._freeFormTableView._getDetailedTable(tableModel);
 		}
-		$tableContainer.append(tableView);
+		$wrappedTable.append(tableView);
 	}
 	
-	this.addRow = function(tableIdx, rowIdx) {
-		var tableModel = this._freeFormTableModel.tables[tableIdx];
-		
+	this.addRow = function(tableModel, $wrappedTable, rowIdx) {
 		//Detailed Model
 		var numColumns = tableModel.modelDetailed[0].length;
 		tableModel.modelDetailed.splice(rowIdx, 0, new Array(numColumns));
 		//Mini Model
 		tableModel.modelMini.rows.splice(rowIdx, 0, '');
 		
-		this._updateChangesOnDOMandView(tableIdx);
+		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
-	this.delRow = function(tableIdx, rowIdx) {
+	this.delRow = function(tableModel, $wrappedTable, rowIdx) {
+		//Detailed Model
 		tableModel.modelDetailed.splice(rowIdx, 1);
+		//Mini Model
+		tableModel.modelMini.rows.splice(rowIdx, 1);
 		
-		this._updateChangesOnDOMandView(tableIdx);
+		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
-	this.addColumn = function(tableIdx, colIdx) {
+	this.addColumn = function(tableModel, $wrappedTable, colIdx) {
 		
-		this._updateChangesOnDOMandView(tableIdx);
+		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
-	this.delColumn = function(tableIdx, colIdx) {
+	this.delColumn = function(tableModel, $wrappedTable, colIdx) {
 		
-		this._updateChangesOnDOMandView(tableIdx);
+		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
-	this.importCSV = function(tableIdx) {
+	this.importCSV = function(tableModel) {
 		
 	}
 	
-	this.exportCSV = function(tableIdx) {
+	this.exportCSV = function(tableModel) {
 		
 	}
 	//
