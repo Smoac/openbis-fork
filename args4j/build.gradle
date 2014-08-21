@@ -40,7 +40,7 @@ publishing {
     publications {
         ivy(IvyPublication) {
             module "${project.group}-args4j"
-            revision project.ext.revisionForPublication
+            revision project.revisionForPublication
             from components.java
             artifact(sourcesJar) {
                 type = 'source'

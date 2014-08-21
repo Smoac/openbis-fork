@@ -79,7 +79,7 @@ publishing {
     publications {
         ivy(IvyPublication) {
             module "${project.group}-base"
-            revision project.ext.revisionForPublication
+            revision project.revisionForPublication
             from components.java
             artifact(sourcesJar) {
                 type = 'source'

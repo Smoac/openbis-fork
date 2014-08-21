@@ -108,7 +108,7 @@ publishing {
     publications {
         artifacts(IvyPublication) {
             module "${project.group}-hcscld"
-            revision project.ext.revisionForPublication
+            revision project.revisionForPublication
             from components.java
             artifact(nativeJarLinuxIntel) {
                 name = "hdf5-linux-intel"
