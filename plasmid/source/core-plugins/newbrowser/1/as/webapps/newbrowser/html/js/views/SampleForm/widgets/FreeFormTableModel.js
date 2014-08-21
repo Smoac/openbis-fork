@@ -40,6 +40,13 @@ function FreeFormTableModel(sample, isEnabled) {
 		}
 	}
 	
+	this.addTableAtEnd = function() {
+		var newTableIndex = this.tables.length;
+		this.tables.splice(newTableIndex, 0, this.getDefaultTableToAdd()); //Adds to model
+		var newTableModel = this.tables[newTableIndex]; //New model
+		return newTableModel;
+	}
+	
 	this.addTableAfter = function(tableData) {
 		for(var i = 0; i < this.tables.length; i++) {
 			if(this.tables[i] === tableData) {

@@ -39,9 +39,15 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 
 	this.addTable = function(tableBefore, $tableBefore) {
-		var newTableModel = this._freeFormTableModel.addTableAfter(tableBefore); //Add new table after
-		var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel); //Creates Table from model
-		this._freeFormTableView.addTable($newTableContainer, $tableBefore);
+		if(tableBefore && $tableBefore)  {
+			var newTableModel = this._freeFormTableModel.addTableAfter(tableBefore); //Add new table after
+			var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel); //Creates Table from model
+			this._freeFormTableView.addTable($newTableContainer, $tableBefore);
+		} else {
+			var newTableModel = this._freeFormTableModel.addTableAtEnd(); //Add new table after
+			var $newTableContainer = this._freeFormTableView._getTableWithContainer(newTableModel); //Creates Table from model
+			this._freeFormTableView.addTable($newTableContainer, null);
+		}
 		
 		this.save();
 	}

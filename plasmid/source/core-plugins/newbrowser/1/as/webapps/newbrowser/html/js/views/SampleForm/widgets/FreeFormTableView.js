@@ -326,7 +326,18 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	}
 	
 	this.repaint = function($container) {
+		var _this = this;
 		this._container = $container;
+		$container.attr("style", "margin:5px; border-radius:4px 4px 4px 4px;");
+		
+		var $addTableWhenEmptyBtn = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
+		var addTableFunc = function(tableData, $tableContainer) {
+			return function() { _this._freeFormTableController.addTable(tableData, $tableContainer); };
+		}
+		$addTableWhenEmptyBtn.click(addTableFunc(null, null));
+		
+		$container.append($("<legend>").text("Free Form Table ").append($addTableWhenEmptyBtn));
+		
 		var tables = this._freeFormTableModel.tables;
 		var lastTable = null;
 		for(var tableIdx = 0; tableIdx < tables.length; tableIdx++) {
