@@ -114,8 +114,41 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 	
 	this.exportCSV = function(tableModel, $wrappedTable) {
+		var csv = "";
 		
+		//Name Conversion
+		csv += "#Name\n";
+		csv += tableModel.name + "\n";
+		
+		//Mini Conversion
+		csv += "#Mini - Rows\n";
+		for(var i = 0; i < tableModel.modelMini.rows.length; i++) {
+			csv += tableModel.modelMini.rows[i] + "\n";
+		}
+		csv += "#Mini - Columns\n";
+		for(var i = 0; i < tableModel.modelMini.columns.length; i++) {
+			csv += tableModel.modelMini.columns[i] + "\n";
+		}
+		
+		//Detailed Conversion
+		csv += "#Detailed\n";
+		for(var i = 0; i < tableModel.modelDetailed.length; i++) {
+			if(i != 0) {
+				csv += "\n";
+			}
+			for(var j = 0; j < tableModel.modelDetailed[i].length; j++) {
+				if(j != 0) {
+					csv += ", ";
+				}
+				csv += tableModel.modelDetailed[i][j];
+			}
+		}
+		
+		//Download file
+		var blob = new Blob([csv], {type: 'text'});
+		saveAs(blob,'csv.txt');
 	}
+	
 	//
 	// Getters
 	//
