@@ -129,11 +129,23 @@ function FreeFormTableController(sample, isEnabled) {
 		//Mini Conversion
 		csv += "#Mini Rows;\n";
 		for(var i = 0; i < tableModel.modelMini.rows.length; i++) {
-			csv += "\"" + tableModel.modelMini.rows[i] + "\"" + ";\n";
+			var value = tableModel.modelMini.rows[i];
+			if(value) {
+				csv += "\"" + tableModel.modelMini.rows[i] + "\"" + ";\n";
+			} else {
+				csv += "\"" + "" + "\"" + ";\n";
+			}
+			
 		}
+		
 		csv += "#Mini Columns;\n";
 		for(var i = 0; i < tableModel.modelMini.columns.length; i++) {
-			csv += "\"" + tableModel.modelMini.columns[i] + "\"" + ";\n";
+			var value = tableModel.modelMini.columns[i];
+			if(value) {
+				csv += "\"" + tableModel.modelMini.columns[i] + "\"" + ";\n";
+			} else {
+				csv += "\"" + "" + "\"" + ";\n";
+			}
 		}
 		
 		//Detailed Conversion
@@ -146,7 +158,12 @@ function FreeFormTableController(sample, isEnabled) {
 				if(j != 0) {
 					csv += ";";
 				}
-				csv += "\"" + tableModel.modelDetailed[i][j] + "\"";
+				var value = tableModel.modelDetailed[i][j];
+				if(value) {
+					csv += "\"" + tableModel.modelDetailed[i][j] + "\"";
+				} else {
+					csv += "\"" + "" + "\"";
+				}
 			}
 		}
 		
