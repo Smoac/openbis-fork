@@ -138,8 +138,14 @@ function FreeFormTableController(sample, isEnabled) {
 	
 	this.importCSV = function(tableModel, $wrappedTable) {
 		var $fileInput = $("<input>", { "type" : "file"});
-		$fileInput.change(function() {
-			alert('works!');
+		$fileInput.change(function(event) {
+			var file = event.target.files[0];
+			var fileReader = new FileReader();
+			fileReader.onload = function(event) { 
+				var contents = event.target.result;
+				var test = 0;
+			};
+			fileReader.readAsText(file);
 		});
 		$fileInput.click();
 	}
