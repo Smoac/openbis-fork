@@ -19,6 +19,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	this._container = null;
 	
 	this._getDefaultSizesDropdown = function(tableData, $wrappedTable) {
+		var _this = this;
 		var $component = $("<select>", { class : 'form-control', 'style' : 'width:250px; height:37px; display:inline;'});
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text('Default Sizes'));
@@ -29,7 +30,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 			return function(){
 				var newSize = $(this).val().split('x');
 				if(newSize.length === 2) {
-					alert('new size');
+					_this._freeFormTableController.changeSize(parseInt(newSize[0]), parseInt(newSize[1]), tableData, $wrappedTable);
 				}
 			}
 		}

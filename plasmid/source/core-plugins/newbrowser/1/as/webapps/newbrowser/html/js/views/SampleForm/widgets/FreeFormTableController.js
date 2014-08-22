@@ -123,6 +123,19 @@ function FreeFormTableController(sample, isEnabled) {
 		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 	}
 	
+	this.changeSize = function(numRows, numCols, tableModel, $wrappedTable) {
+		//Detailed Model
+		tableModel.modelDetailed = new Array(numRows);
+		for(var i = 0; i < tableModel.modelDetailed.length; i++) {
+			tableModel.modelDetailed[i] = new Array(numCols);
+		}
+		//Mini Model
+		tableModel.modelMini.rows = new Array(numRows);
+		tableModel.modelMini.columns = new Array(numCols);
+		//Trigger Update
+		this._updateChangesOnDOMandView(tableModel, $wrappedTable);
+	}
+	
 	this.importCSV = function(tableModel, $wrappedTable) {
 		
 	}
