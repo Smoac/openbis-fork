@@ -24,6 +24,11 @@ import com.lyncode.xoai.dataprovider.model.Set;
 import com.lyncode.xoai.dataprovider.repository.SetRepository;
 
 /**
+ * <p>
+ * Simple implementation of {@link com.lyncode.xoai.dataprovider.repository.SetRepository} that allows adding new sets via {@link #addSet(Set)}.
+ * method. If no sets are defined then the repository {@link #supportSets()} method returns false.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public class SimpleSetRepository implements SetRepository

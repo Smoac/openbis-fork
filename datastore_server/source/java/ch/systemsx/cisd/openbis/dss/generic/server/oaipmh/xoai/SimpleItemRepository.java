@@ -28,6 +28,12 @@ import com.lyncode.xoai.dataprovider.model.Item;
 import com.lyncode.xoai.dataprovider.repository.ItemRepository;
 
 /**
+ * <p>
+ * Simple implementation of {@link com.lyncode.xoai.dataprovider.repository.ItemRepository} that reduces the number of methods that have to
+ * implemented. It delegates all the calls to the overloaded versions of getItemIdentifiersXXX and getItemsXXX methods down to:
+ * {@link #doGetItemIdentifiers(List, int, int, String, Date, Date)} and {@link #doGetItems(List, int, int, String, Date, Date)}.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public abstract class SimpleItemRepository implements ItemRepository

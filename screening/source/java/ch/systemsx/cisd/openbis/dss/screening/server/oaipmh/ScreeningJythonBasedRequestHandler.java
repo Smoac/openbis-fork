@@ -21,6 +21,14 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptR
 import ch.systemsx.cisd.openbis.dss.screening.server.plugins.jython.ScreeningPluginScriptRunnerFactory;
 
 /**
+ * <p>
+ * Screening version of {@link ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler}. It works exactly the same as the generic
+ * counterpart, but it defines an additional variable that is available in the script:
+ * <ul>
+ * <li>screeningFacade - {@link ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade}</li>
+ * </ul>
+ * </p>
+ * 
  * @author pkupczyk
  */
 public class ScreeningJythonBasedRequestHandler extends JythonBasedRequestHandler

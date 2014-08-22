@@ -24,6 +24,10 @@ import com.lyncode.xoai.model.oaipmh.About;
 import com.lyncode.xoai.model.oaipmh.Metadata;
 
 /**
+ * <p>
+ * Simple implementation of {@link com.lyncode.xoai.dataprovider.model.Item} with setters and getters.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public class SimpleItem extends SimpleItemIdentifier implements Item

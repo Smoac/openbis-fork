@@ -22,11 +22,24 @@ import javax.servlet.http.HttpServletResponse;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
+ * <p>
+ * Handler that is responsible for generating a response for an OAI-PMH request.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public interface IRequestHandler extends IConfigurable
 {
 
-    public void handle(SessionContextDTO session, HttpServletRequest req, HttpServletResponse resp);
+    /**
+     * <p>
+     * Generates a response.
+     * </p>
+     * 
+     * @param session A session of an authenticated user
+     * @param request An HTTP OAI-PMH request
+     * @param response An HTTP OAI-PMH response
+     */
+    public void handle(SessionContextDTO session, HttpServletRequest request, HttpServletResponse response);
 
 }

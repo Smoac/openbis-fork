@@ -31,6 +31,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
+ * <p>
+ * Handler that performs Basic HTTP authentication as described here: http://en.wikipedia.org/wiki/Basic_access_authentication.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public class BasicHttpAuthenticationHandler implements IAuthenticationHandler

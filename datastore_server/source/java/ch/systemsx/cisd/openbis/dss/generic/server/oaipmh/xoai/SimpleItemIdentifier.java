@@ -24,6 +24,10 @@ import com.lyncode.xoai.dataprovider.model.ItemIdentifier;
 import com.lyncode.xoai.dataprovider.model.Set;
 
 /**
+ * <p>
+ * Simple implementation of {@link com.lyncode.xoai.dataprovider.model.ItemIdentifier} with setters and getters.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public class SimpleItemIdentifier implements ItemIdentifier

@@ -19,6 +19,11 @@ package ch.systemsx.cisd.openbis.dss.generic.server.oaipmh;
 import java.util.Properties;
 
 /**
+ * <p>
+ * Interface for configurable objects that expect to be passed {@link java.util.Properties} object via {@link IConfigurable#init(Properties)} method
+ * right after instantiation.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public interface IConfigurable

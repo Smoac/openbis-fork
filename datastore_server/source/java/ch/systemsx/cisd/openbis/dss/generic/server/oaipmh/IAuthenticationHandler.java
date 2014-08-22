@@ -22,11 +22,26 @@ import javax.servlet.http.HttpServletResponse;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
+ * <p>
+ * Handler that is responsible for authenticating a user for an OAI-PMH request.
+ * </p>
+ * 
  * @author pkupczyk
  */
 public interface IAuthenticationHandler extends IConfigurable
 {
 
-    public SessionContextDTO handle(HttpServletRequest req, HttpServletResponse resp);
+    /**
+     * <p>
+     * Authenticates a user.
+     * </p>
+     * 
+     * @param request An HTTP OAI-PMH request
+     * @param response An HTTP OAI-PMH response
+     * @return A session of an authenticated user. Returns null when a user could not be authenticated and the OAI-PMH request must not be further
+     *         handled. For example, on the first request a handler can generate a response with a login page and return null to block further
+     *         processing. Similarly when a user id or password is incorrect a handler can generate a response with an error message and return null.
+     */
+    public SessionContextDTO handle(HttpServletRequest request, HttpServletResponse response);
 
 }

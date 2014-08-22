@@ -29,6 +29,30 @@ import javax.servlet.http.HttpServletResponse;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
+ * <p>
+ * A servlet that handles OAI-PMH protocol requests (see http://www.openarchives.org/OAI/openarchivesprotocol.html for more details on OAI-PMH).
+ * </p>
+ * <p>
+ * <ul>
+ * The requests are handled in two steps:
+ * <li>user authentication</li>
+ * <li>response generation</li>
+ * </ul>
+ * <p>
+ * The user authentication step is handled by {@link ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.IAuthenticationHandler}. The handler is
+ * configured via "authentication-handler" property. The response generation step is handled by
+ * {@link ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.IRequestHandler}. The handler is configured via "request-handler" property. The servlet
+ * is meant to be configured as a DSS core plugin of type "services". An example of such a configuration is presented below:
+ * </p>
+ * 
+ * <pre>
+ * class = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.OaipmhServlet
+ * path = /oaipmh/*
+ * request-handler = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.JythonBasedRequestHandler
+ * request-handler.script-path = handler.py
+ * authentication-handler = ch.systemsx.cisd.openbis.dss.generic.server.oaipmh.BasicHttpAuthenticationHandler
+ * </pre>
+ * 
  * @author pkupczyk
  */
 public class OaipmhServlet extends HttpServlet

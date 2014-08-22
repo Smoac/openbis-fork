@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.oaipmh;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -30,11 +31,33 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
-import de.schlichtherle.io.File;
-
 /**
+ * <p>
+ * OAI-PMH response handler that delegates a response generation to a Jython script. The script can be configured via "script-path" property. The
+ * script should define a function with a following signature:
+ * </p>
+ * <pre>
+ * def handle(request, response)
+ * </pre>
+ * <p>
+ * where request is {@link javax.servlet.http.HttpServletRequest} request and response is {@link javax.servlet.http.HttpServletResponse}. Following
+ * variables are available in the script:
+ * <ul>
+ * <li>searchService - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService}</li>
+ * <li>searchServiceUnfiltered - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchService}</li>
+ * <li>mailService - {@link ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.api.IMailService}</li>
+ * <li>queryService - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.IDataSourceQueryService}</li>
+ * <li>authorizationService - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.authorization.IAuthorizationService}</li>
+ * <li>sessionWorkspaceProvider - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider}</li>
+ * <li>contentProvider - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetContentProvider}</li>
+ * <li>contentProviderUnfiltered - {@link ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.IDataSetContentProvider}</li>
+ * <li>userId</li>
+ * </ul>
+ * </p>
+ * 
  * @author pkupczyk
  */
+
 public class JythonBasedRequestHandler implements IRequestHandler
 {
 
