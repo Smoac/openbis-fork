@@ -176,9 +176,14 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
 			if(sampleTypeCode === "SYSTEM_EXPERIMENT") {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
-				var dilutionWidgetController = new DilutionTableController(sample, isEnabled);
-				dilutionWidgetController.init($("#" + containerId));
+				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
+				freeFormTableController.init($("#" + containerId));
 			}
+//			if(sampleTypeCode === "SYSTEM_EXPERIMENT") {
+//				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+//				var dilutionWidgetController = new DilutionTableController(sample, isEnabled);
+//				dilutionWidgetController.init($("#" + containerId));
+//			}
 		}
 	}
 });

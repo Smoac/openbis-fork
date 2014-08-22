@@ -24,7 +24,10 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		
 		$component.append($("<option>").attr('value', '').attr('selected', '').text('Default Sizes'));
 		$component.append($("<option>").attr('value', '1x1').text('1x1'));
-		$component.append($("<option>").attr('value', '20x8').text('20x8'));
+		$component.append($("<option>").attr('value', '8x12').text('96 wells: 8x12'));
+		$component.append($("<option>").attr('value', '6x8').text('48 wells: 6x8'));
+		$component.append($("<option>").attr('value', '4x6').text('24 wells: 4x6'));
+		$component.append($("<option>").attr('value', '16x24').text('384 wells: 16x24'));
 		
 		var changeEvent = function(tableData, $wrappedTable) {
 			return function(){
