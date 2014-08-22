@@ -175,16 +175,19 @@ function FreeFormTableController(sample, isEnabled) {
 					} else {
 						switch(csvReadingModeSelected) {
 							case CSVReadingMode.NAME:
-								readedTableModel.name = line.split(';')[0];
+								readedTableModel.name = line.split(';')[0].replace(/(^")|("$)/g, "");
 								break;
 							case CSVReadingMode.MINI_ROWS:
-								readedTableModel.modelMini.rows.push(line.split(';')[0]);
+								readedTableModel.modelMini.rows.push(line.split(';')[0].replace(/(^")|("$)/g, ""));
 								break;
 							case CSVReadingMode.MINI_COLUMNS:
-								readedTableModel.modelMini.columns.push(line.split(';')[0]);
+								readedTableModel.modelMini.columns.push(line.split(';')[0].replace(/(^")|("$)/g, ""));
 								break;
 							case CSVReadingMode.DETAILED:
 								var columns = line.split(';');
+								for(var j = 0; j < columns.length; j++) {
+									columns[j] = columns[j].replace(/(^")|("$)/g, "");
+								}
 								readedTableModel.modelDetailed.push(columns);
 								break;
 						}
