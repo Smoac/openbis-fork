@@ -22,7 +22,6 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.SessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.PluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
@@ -88,8 +87,7 @@ public class JythonBasedRequestHandler implements IRequestHandler
             IDataStoreServiceInternal service = ServiceProvider.getDataStoreService();
             DataSetProcessingContext context = new DataSetProcessingContext(ServiceProvider.getHierarchicalContentProvider(),
                     service.getDataSetDirectoryProvider(),
-                    new SessionWorkspaceProvider(service.getPluginTaskInfoProvider()
-                            .getSessionWorkspaceRootDir(), session.getSessionToken()),
+                    service.getSessionWorkspaceProvider(session.getSessionToken()),
                     new HashMap<String, String>(), service.createEMailClient(), session.getUserName(), session.getUserEmail(),
                     session.getSessionToken());
             factory.createRequestHandlerPluginRunner(context).handle(req, resp);

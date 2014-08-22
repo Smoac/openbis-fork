@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
@@ -84,7 +85,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private final SessionTokenManager sessionTokenManager;
 
     private final OpenbisSessionTokenCache sessionTokenCache;
-    
+
     private final IDataSetCommandExecutorFactory commandExecutorFactory;
 
     private final MailClientParameters mailClientParameters;
@@ -387,9 +388,10 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
-    public IPluginTaskInfoProvider getPluginTaskInfoProvider()
+    public ISessionWorkspaceProvider getSessionWorkspaceProvider(String userSessionToken)
     {
-        return pluginTaskInfoProvider;
+        return new SessionWorkspaceProvider(pluginTaskInfoProvider
+                .getSessionWorkspaceRootDir(), userSessionToken);
     }
 
     @Override
@@ -510,7 +512,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             QueueingPathRemoverService.removeRecursively(sessionWorkspace);
         }
     }
-    
+
     @Override
     public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
             String preferredSequenceDatabaseOrNull, String sequenceSnippet,

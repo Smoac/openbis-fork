@@ -448,13 +448,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         @Override
         public void handle(HttpServletRequest request, HttpServletResponse response)
         {
-            try
-            {
-                evaluator.evalFunction(FUNCTION_NAME, request, response);
-            } catch (EvaluatorException ex)
-            {
-                operationLog.error(ex.getMessage());
-            }
+            evaluator.evalFunction(FUNCTION_NAME, request, response);
         }
 
         @Override

@@ -21,7 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.resource.IInitializable;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -54,9 +54,9 @@ public interface IDataStoreServiceInternal extends IInitializable, IDataStoreSer
     IMailClient createEMailClient();
 
     /**
-     * Returns the plugin task provider.
+     * Returns the session workspace provider.
      */
-    IPluginTaskInfoProvider getPluginTaskInfoProvider();
+    ISessionWorkspaceProvider getSessionWorkspaceProvider(String userSessionToken);
 
     /**
      * An internal version of {@link IDataStoreService#createReportFromDatasets(String, String, String, List, String, String)} .
