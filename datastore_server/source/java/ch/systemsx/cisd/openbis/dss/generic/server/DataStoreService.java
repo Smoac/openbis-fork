@@ -74,8 +74,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.util.UuidUtil;
 
 /**
- * Implementation of {@link IDataStoreService} which will be accessed remotely by the openBIS
- * server.
+ * Implementation of {@link IDataStoreService} which will be accessed remotely by the openBIS server.
  * 
  * @author Franz-Josef Elmer
  */
@@ -388,6 +387,12 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
+    public IPluginTaskInfoProvider getPluginTaskInfoProvider()
+    {
+        return pluginTaskInfoProvider;
+    }
+
+    @Override
     public TableModel createReportFromAggregationService(String sessionToken,
             String userSessionToken, String serviceKey, Map<String, Object> parameters,
             String userId, String userEmailOrNull)
@@ -397,7 +402,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
                 userId, userEmailOrNull);
     }
 
-    private IMailClient createEMailClient()
+    @Override
+    public IMailClient createEMailClient()
     {
         return new MailClient(mailClientParameters);
     }
@@ -524,8 +530,8 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         operationLog.warn("No available sequence database found.");
         return new ArrayList<SequenceSearchResult>();
     }
-    
-    private ISequenceDatabase findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider, 
+
+    private ISequenceDatabase findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider,
             String preferredSequenceDatabaseOrNull)
     {
         List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();

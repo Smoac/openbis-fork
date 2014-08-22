@@ -16,19 +16,17 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.oaipmh;
 
-import java.util.Properties;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
 
 /**
  * @author pkupczyk
  */
-public interface IOaipmhHandler
+public interface IAuthenticationHandler extends IConfigurable
 {
 
-    public void init(Properties properties);
-
-    public void handle(HttpServletRequest req, HttpServletResponse resp);
+    public SessionContextDTO handle(HttpServletRequest req, HttpServletResponse resp);
 
 }

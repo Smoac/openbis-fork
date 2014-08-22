@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
+
 /**
  * @author pkupczyk
  */
@@ -34,59 +36,68 @@ public class OaipmhServlet extends HttpServlet
 
     private static final long serialVersionUID = 1L;
 
-    private static final String HANDLER_PARAMETER_NAME = "handler";
+    private static final String AUTHENTICATION_HANDLER_PARAMETER_NAME = "authentication-handler";
 
-    private static final String HANDLER_PARAMETER_PREFIX = HANDLER_PARAMETER_NAME + ".";
+    private static final String REQUEST_HANDLER_PARAMETER_NAME = "request-handler";
 
-    private IOaipmhHandler handler;
+    private IAuthenticationHandler authenticationHandler;
+
+    private IRequestHandler requestHandler;
 
     @Override
     public void init(ServletConfig config) throws ServletException
     {
         super.init(config);
-        this.handler = initHandler(config);
+        this.authenticationHandler = initHandler(config, AUTHENTICATION_HANDLER_PARAMETER_NAME, IAuthenticationHandler.class);
+        this.requestHandler = initHandler(config, REQUEST_HANDLER_PARAMETER_NAME, IRequestHandler.class);
     }
 
-    private IOaipmhHandler initHandler(ServletConfig config) throws ServletException
+    @SuppressWarnings("unchecked")
+    private <T extends IConfigurable> T initHandler(ServletConfig config, String handlerParameterName, Class<T> handlerInterface)
+            throws ServletException
     {
-        String className = config.getInitParameter(HANDLER_PARAMETER_NAME);
+        String className = config.getInitParameter(handlerParameterName);
 
         if (className == null || className.trim().length() == 0)
         {
-            throw new ServletException("Handler class is null or empty");
+            throw new ServletException("Parameter '" + handlerParameterName + "' is null or empty");
         } else
         {
             try
             {
                 Class<?> clazz = Class.forName(className);
 
-                if (false == IOaipmhHandler.class.isAssignableFrom(clazz))
+                if (false == handlerInterface.isAssignableFrom(clazz))
                 {
-                    throw new ServletException("Handler class should implement: '" + IOaipmhHandler.class.getName() + "' interface");
+                    throw new ServletException("Handler class '" + clazz.getName() + "' specified in '" + handlerParameterName
+                            + "' parameter does not implement '"
+                            + handlerInterface.getName() + "' interface");
                 } else
                 {
-                    IOaipmhHandler instance = (IOaipmhHandler) clazz.newInstance();
+                    IConfigurable instance = (IConfigurable) clazz.newInstance();
 
                     Properties properties = new Properties();
                     Enumeration<String> parameterNames = config.getInitParameterNames();
+                    String handlerParameterNamePrefix = handlerParameterName + ".";
 
                     while (parameterNames.hasMoreElements())
                     {
                         String parameterName = parameterNames.nextElement();
-                        if (parameterName.startsWith(HANDLER_PARAMETER_PREFIX))
+
+                        if (parameterName.startsWith(handlerParameterNamePrefix))
                         {
-                            properties
-                                    .setProperty(parameterName.substring(HANDLER_PARAMETER_PREFIX.length()), config.getInitParameter(parameterName));
+                            properties.setProperty(parameterName.substring(handlerParameterNamePrefix.length()),
+                                    config.getInitParameter(parameterName));
                         }
                     }
 
                     instance.init(properties);
-                    return instance;
+                    return (T) instance;
                 }
 
             } catch (Exception ex)
             {
-                throw new ServletException("Cannot create an instance of handler class: '" + className + "'", ex);
+                throw new ServletException("Cannot create an instance of handler class '" + className + "'", ex);
             }
         }
     }
@@ -94,13 +105,24 @@ public class OaipmhServlet extends HttpServlet
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        handler.handle(req, resp);
+        handle(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
     {
-        handler.handle(req, resp);
+        handle(req, resp);
+    }
+
+    private void handle(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    {
+        SessionContextDTO session = authenticationHandler.handle(req, resp);
+
+        if (session != null)
+        {
+            resp.setContentType("text/xml");
+            requestHandler.handle(session, req, resp);
+        }
     }
 
 }

@@ -39,4 +39,6 @@ public interface IPluginScriptRunnerFactory extends Serializable
 
     IProcessingPluginScriptRunner createProcessingPluginRunner(DataSetProcessingContext context);
 
+    IRequestHandlerPluginScriptRunner createRequestHandlerPluginRunner(DataSetProcessingContext context);
+
 }

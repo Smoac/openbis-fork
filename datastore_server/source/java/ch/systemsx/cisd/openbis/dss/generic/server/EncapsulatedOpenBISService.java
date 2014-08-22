@@ -731,6 +731,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public SessionContextDTO tryAuthenticate(String user, String password)
+    {
+        return service.tryAuthenticate(user, password);
+    }
+
+    @Override
     public SessionContextDTO tryGetSession(String sToken)
     {
         return service.tryGetSession(sToken);

@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -28,6 +31,7 @@ import ch.systemsx.cisd.common.jython.evaluator.Evaluator;
 import ch.systemsx.cisd.common.jython.evaluator.EvaluatorException;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
+import ch.systemsx.cisd.common.resource.IReleasable;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSetRegistrationTransactionV2;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.AuthorizationService;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.impl.SearchService;
@@ -97,10 +101,10 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         try
         {
-            AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData =
-                    createInputDataForReportingPluginScriptRunner(context, scriptString, pythonPath);
+            Evaluator evaluator =
+                    createEvaluatorWithContentProviders(context, scriptString, pythonPath);
 
-            return new AggregationServiceReportingPluginScriptRunner(inputData);
+            return new AggregationServiceReportingPluginScriptRunner(evaluator);
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
@@ -116,33 +120,14 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         try
         {
-            AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData =
-                    createInputDataForReportingPluginScriptRunner(context, scriptString, pythonPath);
+            Evaluator evaluator =
+                    createEvaluatorWithContentProviders(context, scriptString, pythonPath);
 
-            return new DbModifyingAggregationServiceReportingPluginScriptRunner(inputData);
+            return new DbModifyingAggregationServiceReportingPluginScriptRunner(evaluator);
         } catch (EvaluatorException ex)
         {
             throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
         }
-    }
-
-    private AbstractAggregationServiceReportingPluginScriptRunner.InputData createInputDataForReportingPluginScriptRunner(
-            DataSetProcessingContext context, String scriptString, String[] pythonPath)
-    {
-        Evaluator evaluator = createEvaluator(scriptString, pythonPath, context);
-
-        DataSetContentProvider contentProvider =
-                new DataSetContentProvider(context.getHierarchicalContentProvider());
-        evaluator.set(CONTENT_PROVIDER_VARIABLE_NAME, contentProvider);
-
-        DataSetContentProvider contentProviderUnfiltered =
-                new DataSetContentProvider(context.getHierarchicalContentProviderUnfiltered());
-        evaluator.set(CONTENT_PROVIDER_UNFILTERED_VARIABLE_NAME, contentProviderUnfiltered);
-
-        AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData =
-                new AbstractAggregationServiceReportingPluginScriptRunner.InputData(evaluator,
-                        contentProvider, contentProviderUnfiltered);
-        return inputData;
     }
 
     /**
@@ -182,6 +167,23 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
     }
 
+    @Override
+    public IRequestHandlerPluginScriptRunner createRequestHandlerPluginRunner(DataSetProcessingContext context)
+    {
+        String scriptString = JythonUtils.extractScriptFromPath(scriptPath);
+        String[] pythonPath = JythonUtils.getScriptDirectoryPythonPath(scriptPath);
+
+        try
+        {
+            Evaluator evaluator = createEvaluatorWithContentProviders(context, scriptString, pythonPath);
+
+            return new RequestHandlerPluginScriptRunner(evaluator);
+        } catch (EvaluatorException ex)
+        {
+            throw new EvaluatorException(ex.getMessage() + " [" + scriptPath + "]");
+        }
+    }
+
     protected Evaluator createEvaluator(String scriptString, String[] pythonPath, DataSetProcessingContext context)
     {
         final Evaluator evaluator = new Evaluator("", pythonPath, null, scriptString, false);
@@ -199,6 +201,22 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         {
             evaluator.set(SESSION_WORKSPACE_PROVIDER_NAME, workspaceProvider);
         }
+        return evaluator;
+    }
+
+    private Evaluator createEvaluatorWithContentProviders(
+            DataSetProcessingContext context, String scriptString, String[] pythonPath)
+    {
+        Evaluator evaluator = createEvaluator(scriptString, pythonPath, context);
+
+        DataSetContentProvider contentProvider =
+                new DataSetContentProvider(context.getHierarchicalContentProvider());
+        evaluator.set(CONTENT_PROVIDER_VARIABLE_NAME, contentProvider);
+
+        DataSetContentProvider contentProviderUnfiltered =
+                new DataSetContentProvider(context.getHierarchicalContentProviderUnfiltered());
+        evaluator.set(CONTENT_PROVIDER_UNFILTERED_VARIABLE_NAME, contentProviderUnfiltered);
+
         return evaluator;
     }
 
@@ -231,7 +249,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         return new MailService(context.getMailClient(), context.getUserEmailOrNull());
     }
 
-    private static final class DataSetContentProvider implements IDataSetContentProvider
+    private static final class DataSetContentProvider implements IDataSetContentProvider, IReleasable
     {
         private final IHierarchicalContentProvider contentProvider;
 
@@ -255,7 +273,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             return content;
         }
 
-        public void closeContents()
+        @Override
+        public void release()
         {
             for (IHierarchicalContent content : contents.values())
             {
@@ -266,29 +285,14 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     private abstract static class AbstractAggregationServiceReportingPluginScriptRunner
     {
-        static class InputData
-        {
-            private final Evaluator evaluator;
-
-            private final DataSetContentProvider[] contentProviders;
-
-            public InputData(Evaluator evaluator, DataSetContentProvider... contentProviders)
-            {
-                this.evaluator = evaluator;
-                this.contentProviders = contentProviders;
-            }
-        }
 
         final Evaluator evaluator;
 
-        final DataSetContentProvider[] contentProviders;
-
         protected abstract String getFunctionName();
 
-        public AbstractAggregationServiceReportingPluginScriptRunner(InputData inputData)
+        public AbstractAggregationServiceReportingPluginScriptRunner(Evaluator evaluator)
         {
-            this.evaluator = inputData.evaluator;
-            this.contentProviders = inputData.contentProviders;
+            this.evaluator = evaluator;
 
             if (false == evaluator.hasFunction(getFunctionName()))
             {
@@ -299,10 +303,6 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
         public void releaseResources()
         {
-            for (DataSetContentProvider contentProvider : contentProviders)
-            {
-                contentProvider.closeContents();
-            }
             evaluator.releaseResources();
         }
     }
@@ -320,9 +320,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
 
         AggregationServiceReportingPluginScriptRunner(
-                AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData)
+                Evaluator evaluator)
         {
-            super(inputData);
+            super(evaluator);
         }
 
         @Override
@@ -341,9 +341,9 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         private final static String FUNCTION_NAME = "process";
 
         DbModifyingAggregationServiceReportingPluginScriptRunner(
-                AbstractAggregationServiceReportingPluginScriptRunner.InputData inputData)
+                Evaluator evaluator)
         {
-            super(inputData);
+            super(evaluator);
         }
 
         @Override
@@ -427,6 +427,41 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
             evaluator.releaseResources();
         }
 
+    }
+
+    private static class RequestHandlerPluginScriptRunner implements IRequestHandlerPluginScriptRunner
+    {
+        private final static String FUNCTION_NAME = "handle";
+
+        private final Evaluator evaluator;
+
+        RequestHandlerPluginScriptRunner(Evaluator evaluator)
+        {
+            this.evaluator = evaluator;
+            if (false == evaluator.hasFunction(FUNCTION_NAME))
+            {
+                throw new EvaluatorException("Function '" + FUNCTION_NAME
+                        + "' was not defined in the request handler");
+            }
+        }
+
+        @Override
+        public void handle(HttpServletRequest request, HttpServletResponse response)
+        {
+            try
+            {
+                evaluator.evalFunction(FUNCTION_NAME, request, response);
+            } catch (EvaluatorException ex)
+            {
+                operationLog.error(ex.getMessage());
+            }
+        }
+
+        @Override
+        public void releaseResources()
+        {
+            evaluator.releaseResources();
+        }
     }
 
     @Override

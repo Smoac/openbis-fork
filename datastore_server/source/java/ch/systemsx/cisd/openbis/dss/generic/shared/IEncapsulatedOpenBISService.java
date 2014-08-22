@@ -395,6 +395,15 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     public void checkSpaceAccess(String sToken, SpaceIdentifier spaceId);
 
     /**
+     * See {@link IServiceForDataStoreServer#tryAuthenticate(String, String)}
+     * 
+     * @param user
+     * @param password
+     */
+    @ManagedAuthentication
+    public SessionContextDTO tryAuthenticate(String user, String password);
+
+    /**
      * See {@link IServiceForDataStoreServer#tryGetSession(String)}
      * 
      * @param sessionToken
