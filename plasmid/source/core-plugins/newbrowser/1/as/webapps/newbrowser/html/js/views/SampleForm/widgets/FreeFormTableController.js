@@ -137,7 +137,11 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 	
 	this.importCSV = function(tableModel, $wrappedTable) {
-		
+		var $fileInput = $("<input>", { "type" : "file"});
+		$fileInput.change(function() {
+			alert('works!');
+		});
+		$fileInput.click();
 	}
 	
 	this.exportCSV = function(tableModel, $wrappedTable) {

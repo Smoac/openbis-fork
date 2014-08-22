@@ -225,6 +225,13 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		// CSV events
 		//
 		var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
+		var clickUcsvFunc = function(tableData, $wrappedTable) {
+			return function() {
+				_this._freeFormTableController.importCSV(tableData, $wrappedTable); 
+			}
+		}
+		$toolBarBtnUcsv.click(clickUcsvFunc(tableData, $wrappedTable));
+		
 		var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
 		var clickDcsvFunc = function(tableData, $wrappedTable) {
 			return function() {
