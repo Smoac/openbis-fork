@@ -137,13 +137,67 @@ function FreeFormTableController(sample, isEnabled) {
 	}
 	
 	this.importCSV = function(tableModel, $wrappedTable) {
+		var _this = this;
 		var $fileInput = $("<input>", { "type" : "file"});
 		$fileInput.change(function(event) {
 			var file = event.target.files[0];
 			var fileReader = new FileReader();
 			fileReader.onload = function(event) { 
+				//Needed for the reading
+				var readedTableModel = {
+						name : "",
+						modelDetailed : [[]],
+						modelMini : { rows : [], columns : [] }
+				}
+				
+				var CSVReadingMode = {
+						NAME : 0,
+						MINI_ROWS : 1,
+						MINI_COLUMNS : 2,
+						DETAILED : 3
+				}
+				
+				//Read model from file
 				var contents = event.target.result;
-				var test = 0;
+				var lines = contents.split(";\n");
+				
+				var csvReadingModeSelected = null;
+				for(var i = 0; i < lines.length; i++) {
+					var line = lines[i];
+					if(line === "#Name") {
+						csvReadingModeSelected = CSVReadingMode.NAME;
+					} else if(line === "#Mini Rows") {
+						csvReadingModeSelected = CSVReadingMode.MINI_ROWS;
+					} else if(line === "#Mini Columns") {
+						csvReadingModeSelected = CSVReadingMode.MINI_COLUMNS;
+					} else if(line === "#Detailed") {
+						csvReadingModeSelected = CSVReadingMode.DETAILED;
+					} else {
+						switch(csvReadingModeSelected) {
+							case CSVReadingMode.NAME:
+								readedTableModel.name = line.split(';')[0];
+								break;
+							case CSVReadingMode.MINI_ROWS:
+								readedTableModel.modelMini.rows.push(line.split(';')[0]);
+								break;
+							case CSVReadingMode.MINI_COLUMNS:
+								readedTableModel.modelMini.columns.push(line.split(';')[0]);
+								break;
+							case CSVReadingMode.DETAILED:
+								var columns = line.split(';');
+								readedTableModel.modelDetailed.push(columns);
+								break;
+						}
+					}
+				}
+				
+				//Update Model
+				tableModel.name = readedTableModel.name;
+				tableModel.modelMini = readedTableModel.modelMini;
+				tableModel.modelDetailed = readedTableModel.modelDetailed;
+				
+				//Update DOM and UI
+				_this._updateChangesOnDOMandView(tableModel, $wrappedTable);
 			};
 			fileReader.readAsText(file);
 		});
@@ -183,7 +237,7 @@ function FreeFormTableController(sample, isEnabled) {
 		csv += "#Detailed;\n";
 		for(var i = 0; i < tableModel.modelDetailed.length; i++) {
 			if(i != 0) {
-				csv += "\n";
+				csv += ";\n";
 			}
 			for(var j = 0; j < tableModel.modelDetailed[i].length; j++) {
 				if(j != 0) {
