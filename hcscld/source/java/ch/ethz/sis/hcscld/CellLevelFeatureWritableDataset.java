@@ -243,7 +243,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toBoolArray(featureValues),
                         HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case INT8:
                 base.writer.int8().writeMDArray(
@@ -251,7 +251,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toByteArray(featureValues),
                         HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case INT16:
                 base.writer.int16().writeMDArray(
@@ -259,7 +259,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toShortArray(featureValues),
                         HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case INT32:
                 base.writer.int32().writeMDArray(
@@ -267,7 +267,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toIntArray(featureValues),
                         HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case INT64:
                 base.writer.int64().writeMDArray(
@@ -275,7 +275,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toLongArray(featureValues),
                         HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case FLOAT32:
                 base.writer.float32().writeMDArray(
@@ -283,7 +283,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toFloatArray(featureValues),
                         HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case FLOAT64:
                 base.writer.float64().writeMDArray(
@@ -291,7 +291,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         toDoubleArray(featureValues),
                         HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
                                 .getStorageFeatures(featureValues.length
-                                        * fg.getType().getRecordSize())));
+                                        * fg.getType().getRecordSizeOnDisk())));
                 break;
             case ENUM:
                 final Collection<HDF5EnumerationType> enumTypes =
@@ -304,7 +304,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                         fg.getType(),
                         featureValues,
                         CellLevelBaseWritableDataset.getStorageFeatures(featureValues.length
-                                * fg.getType().getRecordSize()));
+                                * fg.getType().getRecordSizeOnDisk()));
                 break;
         }
     }
@@ -330,7 +330,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
@@ -360,7 +360,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5FloatStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
@@ -384,7 +384,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.length * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.length * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
@@ -408,7 +408,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
@@ -438,7 +438,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
@@ -468,7 +468,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
@@ -498,7 +498,7 @@ class CellLevelFeatureWritableDataset extends CellLevelFeatureDataset implements
                 fg.getObjectPath(id),
                 featureValues,
                 HDF5IntStorageFeatures.createFromGeneric(CellLevelBaseWritableDataset
-                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSize())));
+                        .getStorageFeatures(featureValues.size(0) * fg.getType().getRecordSizeOnDisk())));
     }
 
     @Override
