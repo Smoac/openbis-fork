@@ -126,5 +126,19 @@ $.extend(CaterinaTestProfile.prototype, DefaultProfile.prototype, {
 		
 		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
 		this.colorForInspectors = {};
+
+
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+			if(sampleTypeCode === "FACS") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
+				freeFormTableController.init($("#" + containerId));
+			}
+//			if(sampleTypeCode === "SYSTEM_EXPERIMENT") {
+//				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+//				var dilutionWidgetController = new DilutionTableController(sample, isEnabled);
+//				dilutionWidgetController.init($("#" + containerId));
+//			}
+		}
 }
 });
