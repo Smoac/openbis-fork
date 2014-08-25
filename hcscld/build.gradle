@@ -110,15 +110,19 @@ publishing {
             module "${project.group}-hcscld"
             revision project.revisionForPublication
             from components.java
-            artifact(nativeJarLinuxIntel) {
+            artifact(project(':jhdf5').jar) {
+                name = "${project.group}-jhdf5-core"
+                conf = "runtime"
+            }
+            artifact(project(':jhdf5').nativeJarLinuxIntel) {
                 name = "hdf5-linux-intel"
                 conf = "runtime"
             }
-            artifact(nativeJarMacIntel) {
+            artifact(project(':jhdf5').nativeJarMacIntel) {
                 name = "hdf5-macosx-intel"
                 conf = "runtime"
             }
-            artifact(nativeJarWindowsIntel) {
+            artifact(project(':jhdf5').nativeJarWindowsIntel) {
                 name = "hdf5-windows-intel"
                 conf = "runtime"
             }
@@ -128,6 +132,7 @@ publishing {
             descriptor {
                 withXml {
                     asNode().dependencies.dependency.find { it.@org == 'rinn' }.replaceNode {}
+                    asNode().dependencies.dependency.find { it.@name == "${project.group}-jhdf5" }.replaceNode {}
                 }
             }
         }
