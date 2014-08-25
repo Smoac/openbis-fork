@@ -1,5 +1,12 @@
 #!/bin/bash
 
+IVY_REPO=""
+if [ "$1" == "--publish" ]; then
+  IVY_REPO="$2"
+  shift 2
+fi
+
+
 PROJECT=$1
 BRANCH=$2
 VERSION=$3
@@ -48,8 +55,15 @@ done
 checkout gradle
 
 pushd .
+target=build
+if [ "$IVY_REPO" != "" ]; then
+  target=publish
+  if [ ${IVY_REPO:0:1} != "/" ]; then
+    IVY_REPO="$PWD/$IVY_REPO"
+  fi
+fi
 cd "$BUILDING_SITE/$PROJECT"
-./gradlew --gradle-user-home "$BUILDING_SITE"   build -x test
+./gradlew --gradle-user-home "$BUILDING_SITE" $target -x test -PivyRepository="$IVY_REPO"
 popd
 if [ -d "$BUILDING_SITE/$PROJECT/targets/gradle/distributions" ]; then
   for f in "$BUILDING_SITE/$PROJECT/targets/gradle/distributions/*"; do
