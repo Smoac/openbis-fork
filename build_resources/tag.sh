@@ -6,7 +6,7 @@ if [ $# -lt 2 ]; then
   echo
   echo "Creates a tagged version of the specified project. If necessary a branch is created first."
   echo "It will contain the project itself, all its sub-projects"
-  echo "as defined in file 'settings.gradle' of the project as well as 'building_resources' and 'gradle'."
+  echo "as defined in file 'settings.gradle' of the project as well as 'build_resources' and 'gradle'."
   echo
   echo "Currently only the sprint and release branched can be tagged."
   echo "If <patch number> is undefined the next available patch number is used."
