@@ -551,7 +551,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// Buttons
 		var $generateButton = $("<a>", { "class" : "btn btn-default" }).append("Generate!");
 		$generateButton.click(function(event) { 
-			var generatedChildrenSpace = _this._sampleFormModel.sample.space;
+			var generatedChildrenSpace = _this._sampleFormModel.sample.spaceCode;
 			
 			var numberOfReplicas = parseInt($("#childrenReplicas").val());
 			if(isNaN(numberOfReplicas) || numberOfReplicas < 0 || numberOfReplicas > 1000) {
