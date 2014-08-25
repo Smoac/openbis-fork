@@ -305,7 +305,8 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 				var parentGroup = _this.profile.getGroupTypeCodeForTypeCode(data[0].sampleTypeCode);
 				
 				var setParent = function() {
-					mainController.currentView.sampleLinksParents.addSample(data[0]);
+					mainController.currentView._sampleFormModel.sampleLinksParents.addSample(data[0]);
+					Util.unblockUI();
 				}
 				
 				var repeatUntilSet = function() {
