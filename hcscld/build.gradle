@@ -132,9 +132,10 @@ publishing {
             descriptor {
                 withXml {
                     asNode().dependencies.dependency.find { it.@org == 'rinn' }.replaceNode {}
-                    asNode().dependencies.dependency.find { it.@name == "${project.group}-jhdf5" }.replaceNode {}
+                    asNode().dependencies.dependency.find { it.@name == 'jhdf5' }.replaceNode {}
                 }
             }
         }
     }
 }
+
