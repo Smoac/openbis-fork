@@ -62,13 +62,20 @@ def strLiteral(var):
         return 'None'
 
 def scriptify(scriptBody):
+
+  def escape_string(s):
+      return '\\' + s
+      
   returnstring = ""
-  comment = "'''"
-  escapedComment = '\\' + comment
+  
+  special_characters_dict = {'comment':"'''",   'newline':"\\n", 'carriage_return':"\\r",
+                             'tab':"\\t", 'bell':"\\a", 'backspace':"\\b", 'formfeed':"\\f",
+                             'vertical_tab':"\\v",  }
+
   lineIterator = iter(scriptBody.splitlines())
   for line in lineIterator:
-    if comment in line:
-      line = line.replace (comment, escapedComment)
+    for special_character in special_characters_dict.values():
+      line=line.replace(special_character, escape_string(special_character))
     returnstring += line + "\n"
   return ("'''" + returnstring + "'''")
 
