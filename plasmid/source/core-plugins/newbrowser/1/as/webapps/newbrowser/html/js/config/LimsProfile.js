@@ -156,6 +156,19 @@ $.extend(LimsProfile.prototype, DefaultProfile.prototype, {
 			"YEAST" : "#CCCC99",
 			"SAMPLE_PROPERTY_TEST" : "#000000"
 		};
+
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+			if(sampleTypeCode === "FACS") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
+				freeFormTableController.init($("#" + containerId));
+			}
+//			if(sampleTypeCode === "SYSTEM_EXPERIMENT") {
+//				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+//				var dilutionWidgetController = new DilutionTableController(sample, isEnabled);
+//				dilutionWidgetController.init($("#" + containerId));
+//			}
+		}
 	
 		/*
 		 * Used by Sample Form
