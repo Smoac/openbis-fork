@@ -254,7 +254,7 @@ function FreeFormTableController(sample, isEnabled) {
 		
 		//Download file
 		var blob = new Blob([csv], {type: 'text'});
-		saveAs(blob,'exportedTable.csv');
+		saveAs(blob,'exportedTable.txt');
 	}
 	
 	//
