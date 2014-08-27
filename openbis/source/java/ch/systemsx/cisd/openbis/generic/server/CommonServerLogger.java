@@ -644,7 +644,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "add_vocabulary_terms",
                 "ID(%s) TERMS(%s) PREVIOUS_ORDINAL(%s) ALLOW_CHANGING_INTERNALLY_MANAGED(%s)",
-                vocabularyId, abbreviate(vocabularyTerms), Long.toString(previousTermOrdinal),
+                vocabularyId, abbreviate(vocabularyTerms), previousTermOrdinal,
                 allowChangingInternallyManaged);
     }
 
@@ -654,7 +654,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logTracking(sessionToken, "add_unofficial_vocabulary_terms",
                 "ID(%s) CODE(%s), LABEL(%s), DESCRIPTION(%s), PREVIOUS_ORDINAL(%s)", vocabularyId,
-                code, label, description, Long.toString(previousTermOrdinal));
+                code, label, description, previousTermOrdinal);
     }
 
     @Override
