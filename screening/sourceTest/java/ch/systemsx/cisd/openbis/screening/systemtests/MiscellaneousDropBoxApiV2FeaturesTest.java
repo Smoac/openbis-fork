@@ -22,23 +22,16 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.DatasetImagesReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageDatasetEnrichedReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ImageResolution;
@@ -54,13 +47,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.PlateMetadata;
     { "slow", "systemtest" })
 public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSystemTestCase
 {
-    private MockHttpServletRequest request;
-    private String sessionToken;
-
-    private ICommonServer commonServer;
-    private IScreeningClientService screeningClientService;
-    private IScreeningServer screeningServer;
-
     @BeforeTest
     public void dropAnExampleDataSet() throws IOException, Exception
     {
@@ -69,23 +55,6 @@ public class MiscellaneousDropBoxApiV2FeaturesTest extends AbstractScreeningSyst
         waitUntilDataSetImported();
     }
 
-    @BeforeMethod
-    public void setUp() throws Exception
-    {
-        commonServer =
-                (ICommonServer) applicationContext
-                        .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
-        screeningClientService =
-                (IScreeningClientService) applicationContext
-                        .getBean(ResourceNames.SCREENING_PLUGIN_SERVICE);
-        request = new MockHttpServletRequest();
-        ((SpringRequestContextProvider) applicationContext.getBean("request-context-provider"))
-                .setRequest(request);
-        Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
-        screeningServer = (IScreeningServer) bean;
-        sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-    }
-    
     @AfterMethod
     public void tearDown()
     {
