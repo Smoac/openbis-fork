@@ -225,9 +225,9 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var $toolBar = $("<span>", { 'style' : 'margin-left:150px;' });
 		
 		//
-		// CSV events
+		// TXT events
 		//
-		var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. CSV' ,null).attr('title', 'Import from CSV').tooltipster();
+		var $toolBarBtnUcsv = FormUtil.getButtonWithText('Imp. TXT' ,null).attr('title', 'Import from TXT').tooltipster();
 		var clickUcsvFunc = function(tableData, $wrappedTable) {
 			return function() {
 				_this._freeFormTableController.importCSV(tableData, $wrappedTable); 
@@ -235,7 +235,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		}
 		$toolBarBtnUcsv.click(clickUcsvFunc(tableData, $wrappedTable));
 		
-		var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. CSV' ,null).attr('title', 'Export to CSV').tooltipster();
+		var $toolBarBtnDcsv = FormUtil.getButtonWithText('Exp. TXT' ,null).attr('title', 'Export to TXT').tooltipster();
 		var clickDcsvFunc = function(tableData, $wrappedTable) {
 			return function() {
 				_this._freeFormTableController.exportCSV(tableData, $wrappedTable); 
