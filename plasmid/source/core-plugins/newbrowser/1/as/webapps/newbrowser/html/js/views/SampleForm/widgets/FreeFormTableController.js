@@ -146,7 +146,7 @@ function FreeFormTableController(sample, isEnabled) {
 				//Needed for the reading
 				var readedTableModel = {
 						name : "",
-						modelDetailed : [[]],
+						modelDetailed : [],
 						modelMini : { rows : [], columns : [] }
 				}
 				
@@ -159,7 +159,7 @@ function FreeFormTableController(sample, isEnabled) {
 				
 				//Read model from file
 				var contents = event.target.result;
-				var lines = contents.split(";\n");
+				var lines = contents.split("\n");
 				
 				var csvReadingModeSelected = null;
 				for(var i = 0; i < lines.length; i++) {
@@ -175,19 +175,16 @@ function FreeFormTableController(sample, isEnabled) {
 					} else {
 						switch(csvReadingModeSelected) {
 							case CSVReadingMode.NAME:
-								readedTableModel.name = line.split(';')[0].replace(/(^")|("$)/g, "");
+								readedTableModel.name = line.split('\t')[0];
 								break;
 							case CSVReadingMode.MINI_ROWS:
-								readedTableModel.modelMini.rows.push(line.split(';')[0].replace(/(^")|("$)/g, ""));
+								readedTableModel.modelMini.rows.push(line.split('\t')[0]);
 								break;
 							case CSVReadingMode.MINI_COLUMNS:
-								readedTableModel.modelMini.columns.push(line.split(';')[0].replace(/(^")|("$)/g, ""));
+								readedTableModel.modelMini.columns.push(line.split('\t')[0]);
 								break;
 							case CSVReadingMode.DETAILED:
-								var columns = line.split(';');
-								for(var j = 0; j < columns.length; j++) {
-									columns[j] = columns[j].replace(/(^")|("$)/g, "");
-								}
+								var columns = line.split('\t');
 								readedTableModel.modelDetailed.push(columns);
 								break;
 						}
@@ -211,46 +208,46 @@ function FreeFormTableController(sample, isEnabled) {
 		var csv = "";
 		
 		//Name Conversion
-		csv += "#Name;\n";
-		csv += tableModel.name + ";\n";
+		csv += "#Name\n";
+		csv += tableModel.name + "\n";
 		
 		//Mini Conversion
-		csv += "#Mini Rows;\n";
+		csv += "#Mini Rows\n";
 		for(var i = 0; i < tableModel.modelMini.rows.length; i++) {
 			var value = tableModel.modelMini.rows[i];
 			if(value) {
-				csv += "\"" + tableModel.modelMini.rows[i] + "\"" + ";\n";
+				csv += tableModel.modelMini.rows[i] + "\n";
 			} else {
-				csv += "\"" + "" + "\"" + ";\n";
+				csv += "" + "\n";
 			}
 			
 		}
 		
-		csv += "#Mini Columns;\n";
+		csv += "#Mini Columns\n";
 		for(var i = 0; i < tableModel.modelMini.columns.length; i++) {
 			var value = tableModel.modelMini.columns[i];
 			if(value) {
-				csv += "\"" + tableModel.modelMini.columns[i] + "\"" + ";\n";
+				csv += tableModel.modelMini.columns[i] + "\n";
 			} else {
-				csv += "\"" + "" + "\"" + ";\n";
+				csv += "" +"\n";
 			}
 		}
 		
 		//Detailed Conversion
-		csv += "#Detailed;\n";
+		csv += "#Detailed\n";
 		for(var i = 0; i < tableModel.modelDetailed.length; i++) {
 			if(i != 0) {
-				csv += ";\n";
+				csv += "\n";
 			}
 			for(var j = 0; j < tableModel.modelDetailed[i].length; j++) {
 				if(j != 0) {
-					csv += ";";
+					csv += "\t";
 				}
 				var value = tableModel.modelDetailed[i][j];
 				if(value) {
-					csv += "\"" + tableModel.modelDetailed[i][j] + "\"";
+					csv += tableModel.modelDetailed[i][j];
 				} else {
-					csv += "\"" + "" + "\"";
+					csv += "";
 				}
 			}
 		}
