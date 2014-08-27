@@ -205,8 +205,8 @@ def exportDataSetType(dataSetType):
     code = codeLiteral(dataSetType.getCode())
     description = strLiteral(dataSetType.getDescription())
     dataSetKind = strLiteral(dataSetType.getDataSetKind())
-    mainDataSetPattern = dataSetType.getMainDataSetPattern()
-    mainDataSetPath = dataSetType.getMainDataSetPath()
+    mainDataSetPattern = strLiteral(dataSetType.getMainDataSetPattern())
+    mainDataSetPath = strLiteral(dataSetType.getMainDataSetPath())
     deletionDisallowed = dataSetType.isDeletionDisallowed()
     validationScript = createValidationScriptAssigment(dataSetType, var)
     if (dataSetType.getCode() in EXISTING_DATASET_TYPES):
