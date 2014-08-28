@@ -42,7 +42,7 @@ cd tmp/gradle
 cd ../..
 mv tmp/openbis_standard_technologies/targets/gradle/distributions/openBIS-clients-and-APIs*.zip .
 mv tmp/installation/targets/gradle/distributions/openBIS-installation-standard-technologies*.tar.gz .
-mv tmp/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.tar.gz .
+mv tmp/plasmid/targets/gradle/distributions/datastore_server_plugin-plasmid*.zip .
 cp -r tmp/openbis_standard_technologies/targets/gradle/docs/javadoc ~openbis/fileserver/doc/openbis/$FULL_VER
 
 move_to_file_server
