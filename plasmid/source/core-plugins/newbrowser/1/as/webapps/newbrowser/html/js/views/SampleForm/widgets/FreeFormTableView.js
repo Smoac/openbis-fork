@@ -114,9 +114,10 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		var $colsTitle = $("<h4>").append("Columns");
 		var $colsContainer = $("<div>");
 		for(var i = 0; i < tableData.modelMini.columns.length; i++) {
+			var fieldValue = (tableData.modelMini.columns[i])?tableData.modelMini.columns[i]:"";
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Column " + (i+1), null, false);
-				$textField.val(tableData.modelMini.columns[i]);
+				$textField.val(fieldValue);
 				var keyUpEvent = function(columIdx, modelMini) {
 					return function() {
 						modelMini.columns[columIdx] = $(this).val();
@@ -128,15 +129,16 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 //				$textField.blur(_this._getBlurEvent());
 				$colsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Column " + (i+1)));
 			} else {
-				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), tableData.modelMini.columns[i]));
+				$colsContainer.append(FormUtil.getFieldForLabelWithText("Column " + (i+1), fieldValue));
 			}
 		}
 		var $rowsTitle = $("<h4>").append("Rows");
 		var $rowsContainer = $("<div>");
 		for(var i = 0; i < tableData.modelMini.rows.length; i++) {
+			var fieldValue = (tableData.modelMini.rows[i])?tableData.modelMini.rows[i]:"";
 			if(this._freeFormTableModel.isEnabled) {
 				var $textField = FormUtil._getInputField('text', null, "Row " + (i+1), null, false);
-				$textField.val(tableData.modelMini.rows[i]);
+				$textField.val(fieldValue);
 				var keyUpEvent = function(rowIdx, modelMini) {
 					return function() {
 						modelMini.rows[rowIdx] = $(this).val();
@@ -148,7 +150,7 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 //				$textField.blur(_this._getBlurEvent());
 				$rowsContainer.append(FormUtil.getFieldForComponentWithLabel($textField, "Row " + (i+1)));
 			} else {
-				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), tableData.modelMini.rows[i]));
+				$rowsContainer.append(FormUtil.getFieldForLabelWithText("Row " + (i+1), fieldValue));
 			}
 		}
 		var $container = $("<div>")
@@ -162,12 +164,12 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 	
 	this._getDetailedTable = function(tableData) {
 		var _this = this;
-		var $table = $("<table>", { 'class' : 'table table-bordered' });
+		var $table = $("<table>", { 'class' : 'table table-bordered'});
 		for(var i = 0; i < tableData.modelDetailed.length; i++) {
 			var $row = $("<tr>");
 			$table.append($row);
 			for(var j = 0; j < tableData.modelDetailed[i].length; j++) {
-				var $column = $("<td>");
+				var $column = $("<td>", { 'style' : 'border: 1px solid #AAAAAA; height: 34px;' });
 				$row.append($column);
 				
 				if(this._freeFormTableModel.isEnabled) {
@@ -367,11 +369,15 @@ function FreeFormTableView(freeFormTableController, freeFormTableModel) {
 		this._container = $container;
 		$container.attr("style", "margin:5px; border-radius:4px 4px 4px 4px;");
 		
-		var $addTableWhenEmptyBtn = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
-		var addTableFunc = function(tableData, $tableContainer) {
-			return function() { _this._freeFormTableController.addTable(tableData, $tableContainer); };
+		var $addTableWhenEmptyBtn = "";
+		if(this._freeFormTableModel.isEnabled) {
+			var $addTableWhenEmptyBtn = FormUtil.getButtonWithText('+ Table' ,null).attr('title', 'Add Table.').tooltipster();
+			var addTableFunc = function(tableData, $tableContainer) {
+				return function() { _this._freeFormTableController.addTable(tableData, $tableContainer); };
+			}
+			$addTableWhenEmptyBtn.click(addTableFunc(null, null));
 		}
-		$addTableWhenEmptyBtn.click(addTableFunc(null, null));
+		
 		
 		$container.append($("<legend>").text("Free Form Table ").append($addTableWhenEmptyBtn));
 		
