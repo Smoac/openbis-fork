@@ -179,61 +179,60 @@ var Util = new function() {
 	
 	this.showImage = function(imageURL) {
 		var $image = $("<img>", {"src" : imageURL});
-		
-		var containerWidth = $(window).width()*0.85;
-		var containerHeight = $(window).height()*0.85;
-		
-		var imageWidth = $image[0].width;
-		var imageHeight = $image[0].height;
-		
-		if(containerWidth < imageWidth) {
-			var newImageWidth = containerWidth;
-			var newImageHeight = imageHeight * newImageWidth / imageWidth;
+		$image.load(function() {
+			var containerWidth = $(window).width()*0.85;
+			var containerHeight = $(window).height()*0.85;
 			
-			imageWidth = newImageWidth;
-			imageHeight = newImageHeight;
-		}
-		
-		if(containerHeight < imageHeight) {
-			var newImageHeight = containerHeight;
-			var newImageWidth = imageWidth * newImageHeight / imageHeight;
+			var imageWidth = $image[0].width;
+			var imageHeight = $image[0].height;
 			
-			imageWidth = newImageWidth;
-			imageHeight = newImageHeight;
-		}
-		
-		$image.attr("width", imageWidth);
-		$image.attr("height", imageHeight);
-		
-		
-		var $imageWrapper = $("<div>", {"style" : "margin:10px"});
-		$imageWrapper.append($image);
-		
-		var imageHTML = $imageWrapper[0].outerHTML;
-		var isiPad = navigator.userAgent.match(/iPad/i) != null;
-		if(!isiPad) {
-			imageHTML = "<div style='text-align:right;'><a class='btn btn-default'><span class='glyphicon glyphicon-remove'></span></a></div>" + imageHTML;
-		}
-		
-		this.blockUINoMessage();
-		var localReference = this;
-		jNotifyImage(
-				imageHTML,
-				{
-				  autoHide : isiPad,
-				  clickOverlay : false,
-				  MinWidth : 250,
-				  TimeShown : 2000,
-				  ShowTimeEffect : 200,
-				  HideTimeEffect : 200,
-				  LongTrip :20,
-				  HorizontalPosition : 'center',
-				  VerticalPosition : 'center',
-				  ShowOverlay : false,
-		   		  ColorOverlay : '#000',
-				  OpacityOverlay : 0.3,
-				  onClosed : function(){ localReference.unblockUI(); },
-				  onCompleted : function(){ }
+			if(containerWidth < imageWidth) {
+				var newImageWidth = containerWidth;
+				var newImageHeight = imageHeight * newImageWidth / imageWidth;
+				
+				imageWidth = newImageWidth;
+				imageHeight = newImageHeight;
+			}
+			
+			if(containerHeight < imageHeight) {
+				var newImageHeight = containerHeight;
+				var newImageWidth = imageWidth * newImageHeight / imageHeight;
+				
+				imageWidth = newImageWidth;
+				imageHeight = newImageHeight;
+			}
+			
+			$image.attr("width", imageWidth);
+			$image.attr("height", imageHeight);
+			
+			
+			var $imageWrapper = $("<div>", {"style" : "margin:10px"});
+			$imageWrapper.append($image);
+			
+			var imageHTML = $imageWrapper[0].outerHTML;
+			var isiPad = navigator.userAgent.match(/iPad/i) != null;
+			if(!isiPad) {
+				imageHTML = "<div style='text-align:right;'><a class='btn btn-default'><span class='glyphicon glyphicon-remove'></span></a></div>" + imageHTML;
+			}
+			
+			Util.blockUINoMessage();
+			jNotifyImage(imageHTML,
+					{
+					  autoHide : isiPad,
+					  clickOverlay : false,
+					  MinWidth : 250,
+					  TimeShown : 2000,
+					  ShowTimeEffect : 200,
+					  HideTimeEffect : 200,
+					  LongTrip :20,
+					  HorizontalPosition : 'center',
+					  VerticalPosition : 'center',
+					  ShowOverlay : false,
+			   		  ColorOverlay : '#000',
+					  OpacityOverlay : 0.3,
+					  onClosed : function(){ Util.unblockUI(); },
+					  onCompleted : function(){ }
+					});
 		});
 	}
 	
