@@ -72,6 +72,9 @@ function FreeFormTableController(sample, isEnabled) {
 			tableView = this._freeFormTableView._getDetailedTable(tableModel);
 		}
 		$wrappedTable.append(tableView);
+		
+		//Update View title
+		var stuff = $($($wrappedTable.parent().children()[0]).children()[1]).val(tableModel.name);
 	}
 	
 	this.addRow = function(tableModel, $wrappedTable, rowIdx) {
