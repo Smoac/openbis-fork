@@ -491,7 +491,7 @@ def createMiSeqSampleSheet(parentDict, flowCellDict, configMap, index1Vocabulary
   for key in parentDict.keys():
     lane = parentDict[key]['LANE'][-1:]
     # If no index then just skip this  sample
-    if configMap['index1Name'] not in parentDict[key]:
+    if (configMap['index1Name'] not in parentDict[key]) or (parentDict[key][configMap['index1Name']] == 'NOINDEX'):
       continue
     index1 = parentDict[key][configMap['index1Name']]
 
