@@ -29,6 +29,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.base.unix.Unix;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
@@ -47,6 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.coreplugin.CorePluginsUtils;
 public class JettyWebAppPluginInjector
 {
     private static final String WEBAPP_FOLDER = "webapp";
+    
+    private static final String START_PAGE = "start-page";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             JettyWebAppPluginInjector.class);
@@ -109,17 +112,18 @@ public class JettyWebAppPluginInjector
             }
         }
     }
-
+    
     public void injectWebApps()
     {
-        operationLog.info("Inject the following web apps: " + webapps);
+        List<String> remainingWebapps = replaceDefaultStartPageByWebApp();
         // Leave if there is nothing to do
-        if (webapps.isEmpty())
+        if (remainingWebapps.isEmpty())
         {
             return;
         }
+        operationLog.info("Inject the following web apps: " + remainingWebapps);
         List<File> targets = findInjectionTargets();
-        for (String webapp : webapps)
+        for (String webapp : remainingWebapps)
         {
             File folder = webappToFoldersMap.get(webapp);
             if (folder == null)
@@ -129,7 +133,9 @@ public class JettyWebAppPluginInjector
             String path = folder.getAbsolutePath();
             for (File target : targets)
             {
-                File link = new File(target, webapp);
+                File webappFolder = new File(target, WEBAPP_FOLDER);
+                webappFolder.mkdirs();
+                File link = new File(webappFolder, webapp);
                 if (link.exists() == false)
                 {
                     String linkPath = link.getAbsolutePath();
@@ -141,6 +147,58 @@ public class JettyWebAppPluginInjector
         }
         return;
     }
+    
+    private List<String> replaceDefaultStartPageByWebApp()
+    {
+        List<String> remainingWebApps = new ArrayList<String>(webapps);
+        if (remainingWebApps.contains(START_PAGE) == false)
+        {
+            return remainingWebApps;
+        }
+        remainingWebApps.remove(START_PAGE);
+        operationLog.info("Replace default start page by web app '" + START_PAGE + "'.");
+        File webappFolder = webappToFoldersMap.get(START_PAGE);
+        if (webappFolder != null)
+        {
+            for (File target : findInjectionTargets())
+            {
+                target.mkdirs();
+                File folderCustom = new File(target, "custom");
+                if (folderCustom.exists())
+                {
+                    boolean success = FileUtilities.deleteRecursively(folderCustom);
+                    if (success)
+                    {
+                        operationLog.info(folderCustom.getAbsoluteFile() + " deleted.");
+                    } else
+                    {
+                        operationLog.error("Couldn't delete folder " + folderCustom.getAbsolutePath() + ".");
+                    }
+                }
+                Unix.createSymbolicLink(webappFolder.getAbsolutePath(), folderCustom.getAbsolutePath());
+                operationLog.info("Symbolic link: " + folderCustom.getAbsolutePath() + " -> " + webappFolder.getAbsolutePath());
+                File webappIndexFile = new File(webappFolder, "index.html");
+                if (webappIndexFile.exists())
+                {
+                    File indexFile = new File(target, "index.html");
+                    if (indexFile.exists())
+                    {
+                        boolean success = FileUtilities.delete(indexFile);
+                        if (success)
+                        {
+                            operationLog.info(indexFile.getAbsolutePath() + " deleted.");
+                        } else
+                        {
+                            operationLog.error("Couldn't delete file " + indexFile.getAbsolutePath() + ".");
+                        }
+                    }
+                    Unix.createSymbolicLink(webappIndexFile.getAbsolutePath(), indexFile.getAbsolutePath());
+                    operationLog.info("Symbolic link: " + indexFile.getAbsolutePath() + " -> " + webappIndexFile.getAbsolutePath());
+                }
+            }
+        }
+        return remainingWebApps;
+    }
 
     private List<File> findInjectionTargets()
     {
@@ -148,9 +206,7 @@ public class JettyWebAppPluginInjector
         String jettyHome = System.getProperty("jetty.home");
         if (jettyHome != null)
         {
-            File webappFolder = new File(jettyHome + "/webapps/openbis/" + WEBAPP_FOLDER);
-            webappFolder.mkdirs();
-            list.add(webappFolder);
+            list.add(new File(jettyHome + "/webapps/openbis/"));
         } else
         {
             File[] files = new File("targets/www").listFiles();
@@ -158,9 +214,7 @@ public class JettyWebAppPluginInjector
             {
                 if (file.getName().equals("WEB-INF") == false)
                 {
-                    File webappFolder = new File(file, WEBAPP_FOLDER);
-                    webappFolder.mkdirs();
-                    list.add(webappFolder);
+                    list.add(file);
                 }
             }
         }

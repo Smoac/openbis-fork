@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.log4j.Level;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
@@ -38,6 +39,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchCl
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.plugin.query.client.api.v1.IQueryApiFacade;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.AggregationServiceDescription;
 import ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.dto.QueryTableColumn;
@@ -75,6 +77,12 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
      * Unique short identifier to create data with different ids in different implementation of this test class
      */
     public abstract String getTestId();
+
+    @Override
+    protected Level getLogLevel()
+    {
+        return Level.DEBUG;
+    }
 
     public AggregationServiceDescription getAggregationServiceDescription(String key)
     {
@@ -239,6 +247,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
         {
             if (code.equalsIgnoreCase(sample.getCode()))
             {
+                waitUntilDataSetImported(new ContainsCondition("REINDEX " + SamplePE.class.getName() + ": [" + sample.getId() + "]"));
                 foundSample = true;
             }
         }
@@ -311,6 +320,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testDataSetSearchServiceInAggregationService() throws Exception
     {
+        waitUntilIndexUpdaterIsIdle();
         int allTest = getSearchServiceAggregationServiceResult("datasetsAll", "test");
         int allObserver = getSearchServiceAggregationServiceResult("datasetsAll", "observer");
 
@@ -333,6 +343,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testSampleSearchServiceInAggregationService() throws Exception
     {
+        waitUntilIndexUpdaterIsIdle();
         int allTest = getSearchServiceAggregationServiceResult("samplesAll", "test");
         int allObserver = getSearchServiceAggregationServiceResult("samplesAll", "observer");
 
@@ -362,6 +373,7 @@ public abstract class AbstractQueryFacadeTest extends SystemTestCase
     @Test
     public void testExperimentSearchServiceInAggregationService() throws Exception
     {
+        waitUntilIndexUpdaterIsIdle();
         int allNemoTest =
                 getSearchServiceAggregationServiceResult("experimentsAll", "test", "projectId",
                         "/CISD/NEMO");

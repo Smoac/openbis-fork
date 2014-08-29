@@ -80,7 +80,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     {
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
+        waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
     }
 
     @BeforeMethod
@@ -250,9 +250,4 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
         return 6000;
     }
 
-    @Override
-    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
-    {
-        return checkOnFinishedPostRegistration(logContent);
-    }
 }

@@ -20,20 +20,20 @@ import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParam
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.OPENBIS_DSS_SYSTEM_PROPERTIES_PREFIX;
 import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil.SERVER_URL_KEY;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -53,13 +53,17 @@ import org.testng.annotations.BeforeSuite;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.filesystem.QueueingPathRemoverService;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.logging.LogCategory;
+import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.etlserver.ETLDaemon;
 import ch.systemsx.cisd.etlserver.registrator.api.v1.impl.DataSetRegistrationTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.FullTextIndexUpdater;
 import ch.systemsx.cisd.openbis.generic.server.util.TestInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 
 /**
@@ -67,7 +71,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
  */
 public abstract class SystemTestCase extends AssertJUnit
 {
-    private static final Pattern PATTERN = Pattern.compile("::(\\d+-\\d+);.*");
+    protected Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, getClass());
 
     private static final String SOURCE_TEST_CORE_PLUGINS = "sourceTest/core-plugins";
 
@@ -81,6 +85,9 @@ public abstract class SystemTestCase extends AssertJUnit
     private static final String ROOT_DIR_KEY = "root-dir";
 
     private static final String DATA_SET_IMPORTED_LOG_MARKER = "Successfully registered data set";
+    
+    public static final ILogMonitoringStopCondition FINISHED_POST_REGISTRATION_CONDITION 
+            = new RegexCondition(".*Post registration of (\\d*). of \\1 data sets: (.*)");
 
     // this message appears if the dropbox has successfully completed the registration, even if no
     // datasets have been imported
@@ -95,7 +102,7 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected File store;
 
-    protected BufferedAppender logAppender;
+    private BufferedAppender logAppender;
 
     protected SystemTestCase()
     {
@@ -126,6 +133,7 @@ public abstract class SystemTestCase extends AssertJUnit
     public void beforeTest(Method method)
     {
         System.out.println("BEFORE " + render(method));
+        getLogAppender().resetLogContent();
     }
 
     @AfterMethod
@@ -244,91 +252,73 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected void waitUntilDataSetImported() throws Exception
     {
-        boolean dataSetImported = false;
-        String logContent = "";
-        final int maxLoops = dataSetImportWaitDurationInSeconds();
-
-        for (int loops = 0; loops < maxLoops && dataSetImported == false; loops++)
-        {
-            Thread.sleep(1000);
-            logContent = getLogAppender().getLogContent();
-            if (checkLogContentForFinishedDataSetRegistration(logContent))
+        waitUntilDataSetImported(new ILogMonitoringStopCondition()
             {
-                dataSetImported = true;
-            } else
-            {
-                assertFalse("ERROR message found in log.\n" + logContent,
-                        logContent.contains("ERROR"));
-            }
-        }
+                @Override
+                public boolean stopConditionFulfilled(ParsedLogEntry logEntry)
+                {
+                    String logMessage = logEntry.getLogMessage();
+                    return logMessage.contains(DATA_SET_IMPORTED_LOG_MARKER)
+                            || logMessage.contains(REGISTRATION_FINISHED_LOG_MARKER);
+                }
 
-        if (dataSetImported == false)
-        {
-            fail("Failed to determine whether data set import was successful:" + logContent);
-        }
-
+                @Override
+                public String toString()
+                {
+                    return "Log message contains '" + DATA_SET_IMPORTED_LOG_MARKER 
+                            + "' or '" + REGISTRATION_FINISHED_LOG_MARKER + "'";
+                }
+            });
     }
 
-    protected void waitUntilDataSetImportedWithError(String dropboxName) throws Exception
+    protected void waitUntilDataSetImported(ILogMonitoringStopCondition stopCondition) throws Exception
     {
         final int maxLoops = dataSetImportWaitDurationInSeconds();
 
         for (int loops = 0; loops < maxLoops; loops++)
         {
             Thread.sleep(1000);
-
-            String logContent = getLogAppender().getLogContent();
-            if (logContent.contains("ERROR") && logContent.contains(dropboxName))
+            List<ParsedLogEntry> logEntries = getLogEntries();
+            for (ParsedLogEntry logEntry : logEntries)
             {
-                return;
-            }
-        }
-
-        fail("Failed to determine whether data set import was executed with error");
-    }
-
-    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
-    {
-        return logContent.contains(DATA_SET_IMPORTED_LOG_MARKER)
-                || logContent.contains(REGISTRATION_FINISHED_LOG_MARKER);
-    }
-
-    protected Set<String> getSuccessfullyRegisteredDataSets(String logContent)
-    {
-        BufferedReader reader = new BufferedReader(new StringReader(logContent));
-        Set<String> codes = new TreeSet<String>();
-        try
-        {
-            String line;
-            String simpleClassName = getClass().getSimpleName();
-            while ((line = reader.readLine()) != null)
-            {
-                int indexOfSignature = line.indexOf(DATA_SET_IMPORTED_LOG_MARKER);
-                if (line.startsWith(simpleClassName) && indexOfSignature > 0)
+                if (stopCondition.stopConditionFulfilled(logEntry))
                 {
-                    codes.addAll(extractDataSetCodes(line.substring(indexOfSignature)));
+                    operationLog.info("Monitoring log stopped after this log entry: " + logEntry);
+                    return;
                 }
             }
-            return codes;
-        } catch (IOException ex)
-        {
-            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
-        } finally
-        {
-            IOUtils.closeQuietly(reader);
         }
-    }
+        fail("Log monitoring stop condition [" + stopCondition + "] never fulfilled after " + maxLoops + " seconds.");
 
-    private Set<String> extractDataSetCodes(String logLineExtract)
+    }
+    
+    protected List<ParsedLogEntry> getLogEntries()
     {
-        Set<String> result = new HashSet<String>();
-        String[] splittedExtract = logLineExtract.split("Data Set Code");
-        for (String term : splittedExtract)
+        List<ParsedLogEntry> result = new ArrayList<ParsedLogEntry>();
+        String[] logLines = getLogAppender().getLogContent().split("\n");
+        Pattern pattern = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}),\\d{3} ([^ ]*) \\[([^\\]]*)\\] (.*)$");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(BasicConstant.DATE_WITHOUT_TIMEZONE_PATTERN);
+        ParsedLogEntry logEntry = null;
+        for (String logLine : logLines)
         {
-            Matcher matcher = PATTERN.matcher(term);
+            Matcher matcher = pattern.matcher(logLine);
             if (matcher.matches())
             {
-                result.add(matcher.group(1));
+                try
+                {
+                    Date timestamp = dateFormat.parse(matcher.group(1));
+                    String logLevel = matcher.group(2);
+                    String threadName = matcher.group(3);
+                    String logMessage = matcher.group(4);
+                    logEntry = new ParsedLogEntry(timestamp, logLevel, threadName, logMessage);
+                    result.add(logEntry);
+                } catch (ParseException ex)
+                {
+                    throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                }
+            } else if (logEntry != null)
+            {
+                logEntry.appendToMessage(logLine);
             }
         }
         return result;
@@ -347,39 +337,42 @@ public abstract class SystemTestCase extends AssertJUnit
         FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
     }
 
-    protected boolean checkForFinalPostRegistrationLogEntry(String logContent,
-            Set<String> registeredDataSets)
-    {
-        Pattern pattern = Pattern.compile(".*Post registration of (\\d*). of \\1 data sets: (.*)");
-        String[] lines = logContent.split("\\n");
-        for (String line : lines)
-        {
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.matches() && registeredDataSets.contains(matcher.group(2)))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected boolean checkOnFinishedPostRegistration(String logContent)
-    {
-        Set<String> dataSets = getSuccessfullyRegisteredDataSets(logContent);
-        if (dataSets.size() < 1)
-        {
-            return false;
-        }
-        return checkForFinalPostRegistrationLogEntry(logContent, dataSets);
-    }
-
     private BufferedAppender getLogAppender()
     {
         if (logAppender == null)
         {
-            logAppender = new BufferedAppender("%t: %c - %m%n", Level.INFO);
+            logAppender = new BufferedAppender("%d %p [%t] %c - %m%n", getLogLevel());
         }
         return logAppender;
+    }
+
+    protected Level getLogLevel()
+    {
+        return Level.INFO;
+    }
+
+    protected void waitUntilIndexUpdaterIsIdle()
+    {
+        FullTextIndexUpdater indexUpdater = (FullTextIndexUpdater) applicationContext.getBean("full-text-index-updater");
+        if (indexUpdater != null)
+        {
+            while (true)
+            {
+                int queueSize = indexUpdater.getQueueSize();
+                if (queueSize == 0)
+                {
+                    break;
+                }
+                operationLog.info("Waiting on index updater. Still " + queueSize + " update operations in the queue.");
+                try
+                {
+                    Thread.sleep(1000);
+                } catch (Exception ex)
+                {
+                    // silently ignore
+                }
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

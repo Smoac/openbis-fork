@@ -82,7 +82,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     {
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
+        waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
     }
 
     @BeforeMethod
@@ -190,13 +190,7 @@ public class ImageBase64EncodingTest extends AbstractScreeningSystemTestCase
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
-        return 6000;
-    }
-
-    @Override
-    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
-    {
-        return checkOnFinishedPostRegistration(logContent);
+        return 600;
     }
 
     private static class PlateImageReferenceList extends ArrayList<PlateImageReference> implements

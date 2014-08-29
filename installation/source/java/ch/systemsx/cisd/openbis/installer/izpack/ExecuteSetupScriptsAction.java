@@ -184,28 +184,8 @@ public class ExecuteSetupScriptsAction extends AbstractScriptExecutor implements
         String script = getAdminScript(data, RESTORE_CONFIG_FROM_BACKUP_SCRIPT);
         String backupConfigFolder = data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME) + "/config-backup";
         executeAdminScript(null, script, backupConfigFolder);
-        restoreCustomPagesFolder(data);
     }
     
-    private void restoreCustomPagesFolder(AutomatedInstallData data)
-    {
-        File backupCustomPagesFolder = new File(data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME) + "/openBIS-server/jetty/webapps/openbis/custom");
-        if(!backupCustomPagesFolder.exists()) {
-            return;
-        }
-        System.out.println("Starting restoration of backup Pages Folder: " + backupCustomPagesFolder.getAbsolutePath());
-        File justInstalledPagesFolder = new File(data.getVariable(GlobalInstallationContext.BACKUP_FOLDER_VARNAME) + "/../../servers/openBIS-server/jetty/webapps/openbis/custom");
-        try
-        {
-            FileUtils.deleteDirectory(justInstalledPagesFolder);
-            FileUtils.copyDirectory(backupCustomPagesFolder, justInstalledPagesFolder);
-            System.out.println("Finished restoration of backup pages folder.");
-        } catch (IOException e)
-        {
-            System.out.println("Error restoring custom pages folder. ");
-        }
-    }
-
     private void executePostInstallationScript(AutomatedInstallData data)
     {
         String script = getAdminScript(data, POST_INSTALLATION_SCRIPT);

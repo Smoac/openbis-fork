@@ -17,19 +17,15 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
-import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 
 /**
  * @author pkupczyk
@@ -51,23 +47,12 @@ public class AttachmentsDropboxTest extends SystemTestCase
         Logger.getLogger("OPERATION.Resources").setLevel(Level.INFO);
     }
 
-    @BeforeMethod
-    public void beforeMethod(Method method)
-    {
-        logAppender = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
-    }
-
-    @AfterMethod
-    public void afterMethod(Method method)
-    {
-        logAppender.reset();
-    }
-
     @Test
     public void testAttachmentsWithSuccess() throws Exception
     {
         createData("success");
-        waitUntilDataSetImported();
+        waitUntilDataSetImported(new LogMonitoringStopConditionBuilder(new DropBoxNameCondition("attachments-test"))
+        .and(new ContainsCondition("Successfully committed transaction")).getCondition());
         assertStreamsReleased(3);
     }
 
@@ -75,7 +60,9 @@ public class AttachmentsDropboxTest extends SystemTestCase
     public void testAttachmentsWithFailure() throws Exception
     {
         createData("failure");
-        waitUntilDataSetImportedWithError("attachments-test");
+        waitUntilDataSetImported(new LogMonitoringStopConditionBuilder(ErrorStopCondition.INSTANCE)
+                .and(new DropBoxNameCondition("attachments-test"))
+                .and(new ContainsCondition("Data set registration failed")).getCondition());
         assertStreamsReleased(3);
     }
 
@@ -89,18 +76,25 @@ public class AttachmentsDropboxTest extends SystemTestCase
 
     private void assertStreamsReleased(int expectedCount)
     {
-        String[] lines = logAppender.getLogContent().split("\n");
         int count = 0;
-
-        for (String line : lines)
+        List<ParsedLogEntry> logEntries = getLogEntries();
+        for (ParsedLogEntry logEntry : logEntries)
         {
-            if (line.contains("DEBUG OPERATION.Resources - Successfully released a resource") && line.contains("ReleasableStream"))
+            String logMessage = logEntry.getLogMessage();
+            if (logEntry.getLogLevel().equals("DEBUG")
+                    && logMessage.contains("OPERATION.Resources - Successfully released a resource")
+                    && logMessage.contains("ReleasableStream"))
             {
                 count++;
             }
         }
+        assertEquals(expectedCount, count);
+    }
 
-        Assert.assertEquals(count, expectedCount);
+    @Override
+    protected Level getLogLevel()
+    {
+        return Level.DEBUG;
     }
 
     @Override

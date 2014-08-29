@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.datastoreserver.systemtests;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +30,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
@@ -88,16 +86,10 @@ public abstract class MutableTest extends SystemTestCase
         Logger.getLogger("OPERATION.Resources").setLevel(Level.INFO);
     }
 
-    @BeforeMethod
-    public void beforeMethod(Method method)
+    @Override
+    protected Level getLogLevel()
     {
-        logAppender = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
-    }
-
-    @AfterMethod
-    public void afterMethod(Method method)
-    {
-        logAppender.reset();
+        return Level.DEBUG;
     }
 
     @Test

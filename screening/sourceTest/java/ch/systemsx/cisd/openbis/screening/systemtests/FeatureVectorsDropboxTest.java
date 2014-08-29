@@ -66,13 +66,7 @@ public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
     {
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported();
-    }
-
-    @Override
-    protected boolean checkLogContentForFinishedDataSetRegistration(String logContent)
-    {
-        return checkOnFinishedPostRegistration(logContent);
+        waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
     }
 
     @BeforeMethod
