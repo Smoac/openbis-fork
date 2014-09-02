@@ -50,9 +50,15 @@ public class OpenEntityDetailsTabHelper
     public static void open(IViewContext<?> viewContext, EntityKind entityKind, String permId,
             boolean keyPressed)
     {
-        viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
-                new OpenEntityDetailsTabCallback(viewContext, keyPressed));
+       open(viewContext, entityKind, permId, keyPressed, "");
     }
+    
+    public static void open(IViewContext<?> viewContext, EntityKind entityKind, String permId,
+            boolean keyPressed, String subtab)
+    {
+        viewContext.getCommonService().getEntityInformationHolder(entityKind, permId,
+                new OpenEntityDetailsTabCallback(viewContext, keyPressed, subtab));
+    }    
 
     public static void open(IViewContext<?> viewContext, BasicEntityDescription description,
             boolean keyPressed)
@@ -74,14 +80,24 @@ public class OpenEntityDetailsTabHelper
     {
 
         private final boolean keyPressed;
+        
+        private final String subtab;
+
+        private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext,
+                final boolean keyPressed, final String subtab)
+        {
+            super(viewContext);
+            this.keyPressed = keyPressed;
+            this.subtab = subtab;
+        }
 
         private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext,
                 final boolean keyPressed)
         {
-            super(viewContext);
-            this.keyPressed = keyPressed;
+            this(viewContext, keyPressed, "");
         }
 
+        
         private OpenEntityDetailsTabCallback(final IViewContext<?> viewContext)
         {
             this(viewContext, false);
@@ -97,7 +113,7 @@ public class OpenEntityDetailsTabHelper
         @Override
         protected final void process(final IEntityInformationHolderWithPermId result)
         {
-            new OpenEntityDetailsTabAction(result, viewContext, keyPressed).execute();
+            new OpenEntityDetailsTabAction(result, viewContext, keyPressed, subtab).execute();
         }
     }
 
