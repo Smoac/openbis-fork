@@ -129,9 +129,15 @@ public class ImageDebugViewer
             System.out.println("color space: " + colorSpace.getName(i) 
                     + ": [" + colorSpace.getMinValue(i) + ", " + colorSpace.getMaxValue(i) + "]");
         }
-        ImageHistogram histogram = ImageHistogram.calculateHistogram(image);
-        System.out.println(histogram);
-        System.out.println(Arrays.toString(histogram.getRedHistogram()));
+        try
+        {
+            ImageHistogram histogram = ImageHistogram.calculateHistogram(image);
+            System.out.println(histogram);
+            System.out.println(Arrays.toString(histogram.getRedHistogram()));
+        } catch (Exception ex)
+        {
+            System.out.println("Couldn't calculate histogram: " + ex);
+        }
         System.out.println("\\_________ " + title);
     }
 
