@@ -25,8 +25,6 @@ import java.util.Arrays;
 
 /**
  * Class which calculates color histograms (in red, green, and blue) of {@link BufferedImage} instances. 
- * The following image types are not supported: {@link BufferedImage#TYPE_BYTE_BINARY}, {@link BufferedImage#TYPE_BYTE_INDEXED}, 
- * and {@link BufferedImage#TYPE_CUSTOM}. 
  *
  * @author Franz-Josef Elmer
  */
@@ -103,8 +101,8 @@ public class ImageHistogram
                 case BufferedImage.TYPE_INT_ARGB_PRE:
                 case BufferedImage.TYPE_INT_RGB: return calculateHistogram(db, 16, 8, 0);
                 case BufferedImage.TYPE_INT_BGR: return calculateHistogram(db, 0, 8, 16);
+                default: return calculateHistogramSlow(image);
             }
-            throw new IllegalArgumentException("Unsupported integer image type: " + type);
         }
         if (dataBuffer instanceof DataBufferByte)
         {
@@ -115,8 +113,8 @@ public class ImageHistogram
                 case BufferedImage.TYPE_4BYTE_ABGR_PRE:
                 case BufferedImage.TYPE_4BYTE_ABGR: return calculateHistogram(db, 4, 3, 2, 1);
                 case BufferedImage.TYPE_BYTE_GRAY: return calculateHistogram(db, 1, 0, 0, 0);
+                default: return calculateHistogramSlow(image);
             }
-            throw new IllegalArgumentException("Unsupported byte image type: " + type);
         }
         if (dataBuffer instanceof DataBufferUShort)
         {
@@ -129,11 +127,27 @@ public class ImageHistogram
                         FIVE_BIT_MASK, 5, SIX_BIT_MASK, 0, FIVE_BIT_MASK);
                 case BufferedImage.TYPE_USHORT_GRAY: return calculateHistogram(db, 8, 
                         EIGHT_BIT_MASK, 8, EIGHT_BIT_MASK, 8, EIGHT_BIT_MASK);
+                default: return calculateHistogramSlow(image);
             }
-            throw new IllegalArgumentException("Unsupported ushort image type: " + type);
         }
-        throw new IllegalArgumentException("Unsupported data buffer class " + dataBuffer.getClass().getSimpleName() 
-                + ", image type: " + type);
+        return calculateHistogramSlow(image);
+    }
+    
+    private static final ImageHistogram calculateHistogramSlow(BufferedImage image)
+    {
+        int[] redCounters = new int[256];
+        int[] greenCounters = new int[256];
+        int[] blueCounters = new int[256];
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int[] rgbArray = image.getRGB(0, 0, width, height, null, 0, width);
+        for (int pixel : rgbArray)
+        {
+            redCounters[(pixel >> 16) & EIGHT_BIT_MASK]++;
+            greenCounters[(pixel >> 8) & EIGHT_BIT_MASK]++;
+            blueCounters[pixel & EIGHT_BIT_MASK]++;
+        }
+        return new ImageHistogram(redCounters, greenCounters, blueCounters);
     }
     
     private static final ImageHistogram calculateHistogram(DataBufferInt dataBuffer, 

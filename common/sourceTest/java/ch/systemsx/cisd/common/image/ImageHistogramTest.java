@@ -121,6 +121,16 @@ public class ImageHistogramTest
         assertHistogram("[0=15]", histogram.getBlueHistogram());
     }
     
+    @Test
+    public void testImageTypeByteIndexed()
+    {
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(createImage(BufferedImage.TYPE_BYTE_INDEXED));
+        
+        assertHistogram("[0=9, 255=6]", histogram.getRedHistogram());
+        assertHistogram("[0=9, 204=6]", histogram.getGreenHistogram());
+        assertHistogram("[0=15]", histogram.getBlueHistogram());
+    }
+    
     private ImageHistogram testImageType(int imageType, boolean gray)
     {
         BufferedImage image = createImage(imageType);
