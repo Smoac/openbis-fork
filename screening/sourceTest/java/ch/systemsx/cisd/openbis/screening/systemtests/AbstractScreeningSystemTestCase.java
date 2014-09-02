@@ -254,14 +254,14 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             ImageHistogram actualHistogram = ImageHistogram.calculateHistogram(actualImage);
             String expectedRenderedHistogram = expectedHistogram.renderAsASCIIChart(49, 9);
             String actualRenderedHistogram = actualHistogram.renderAsASCIIChart(49, 9);
-            if (expectedHistogram.equals(actualRenderedHistogram))
+            if (expectedRenderedHistogram.equals(actualRenderedHistogram))
             {
                 return;
             }
             // difference can be caused by a value close to discretization border. Thus try another height.
             expectedRenderedHistogram = expectedHistogram.renderAsASCIIChart(49, 10);
             actualRenderedHistogram = actualHistogram.renderAsASCIIChart(49, 10);
-            if (expectedHistogram.equals(actualRenderedHistogram))
+            if (expectedRenderedHistogram.equals(actualRenderedHistogram))
             {
                 return;
             }
