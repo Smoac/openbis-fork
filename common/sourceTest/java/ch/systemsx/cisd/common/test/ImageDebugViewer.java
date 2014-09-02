@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
-import javax.media.jai.Histogram;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
