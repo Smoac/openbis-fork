@@ -17,11 +17,8 @@
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -38,45 +35,24 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  *
  * @author Franz-Josef Elmer
  */
-public class SimpleImageDropboxTest extends AbstractScreeningSystemTestCase
+public class SimpleImageDropboxTest extends AbstractImageDropboxTestCase
 {
 
-    @BeforeTest
-    public void dropAnExampleDataSet() throws Exception
-    {
-        File exampleDataSet = createTestDataContents();
-        moveFileToIncoming(exampleDataSet);
-        waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
-    }
-
-    private File createTestDataContents() throws IOException
-    {
-        File destination = new File(workingDirectory, "test-data");
-        destination.mkdirs();
-        FileUtils.copyDirectory(new File(getTestDataFolder(), "PLATE1"), destination);
-        return destination;
-    }
-
-    private String getTestDataFolder()
-    {
-        return "../screening/resource/test-data/" + getClass().getSimpleName();
-    }
-
     @Override
-    protected int dataSetImportWaitDurationInSeconds()
+    protected String getDataFolderToDrop()
     {
-        return 60;
+        return "PLATE1";
     }
-    
+
     @Test
     public void test() throws Exception
     {
-        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/DEMO-EXP-HCS");
+        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/SIMPLE_IMAGE_DROPBOX_TEST");
         Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
         ListSampleCriteria sampleCriteria = ListSampleCriteria.createForExperiment(TechId.create(experiment));
         List<Sample> samples = commonServer.listSamples(sessionToken, sampleCriteria);
         Sample plate = samples.get(0);
-        assertEquals("/TEST/PLATE1", plate.getIdentifier());
+        assertEquals("/TEST/SIMPLE_IMAGE_DROPBOX_TEST", plate.getIdentifier());
         assertEquals(1, samples.size());
         List<AbstractExternalData> dataSets2 
                 = commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(samples), false);
