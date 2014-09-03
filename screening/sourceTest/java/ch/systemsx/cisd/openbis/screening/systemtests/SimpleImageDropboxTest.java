@@ -40,7 +40,6 @@ public class SimpleImageDropboxTest extends AbstractImageDropboxTestCase
     public void test() throws Exception
     {
         AbstractExternalData dataSet = getRegisteredContainerDataSet();
-        ImageChecker imageChecker = new ImageChecker();
         imageChecker.check(new File(getTestDataFolder(), "1_1_Merged_Default.png"), 
                 new ImageLoader(dataSet, sessionToken));
         imageChecker.check(new File(getTestDataFolder(), "1_1_DAPI_Default.png"), 
@@ -49,5 +48,4 @@ public class SimpleImageDropboxTest extends AbstractImageDropboxTestCase
                 new ImageLoader(dataSet, sessionToken).tileColumn(3).channel("DAPI").channel("CY3").mode("thumbnail256x191"));
         imageChecker.assertNoFailures();
     }
-    
 }

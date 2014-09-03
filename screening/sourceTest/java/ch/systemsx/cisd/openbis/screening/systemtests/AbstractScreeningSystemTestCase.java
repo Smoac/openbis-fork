@@ -101,6 +101,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         private final URLMethodWithParameters url;
         private final List<String> channels = new ArrayList<String>();
         private boolean mergeChannels = true;
+        private boolean microscopy = false;
         private int wellRow = 1;
         private int wellColumn = 1;
         private int tileRow = 1;
@@ -138,8 +139,11 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                     url.addParameter(ImageServletUrlParameters.CHANNEL_PARAM, channel);
                 }
             }
-            url.addParameter(ImageServletUrlParameters.WELL_ROW_PARAM, Integer.toString(wellRow));
-            url.addParameter(ImageServletUrlParameters.WELL_COLUMN_PARAM, Integer.toString(wellColumn));
+            if (microscopy == false)
+            {
+                url.addParameter(ImageServletUrlParameters.WELL_ROW_PARAM, Integer.toString(wellRow));
+                url.addParameter(ImageServletUrlParameters.WELL_COLUMN_PARAM, Integer.toString(wellColumn));
+            }
             url.addParameter(ImageServletUrlParameters.TILE_ROW_PARAM, Integer.toString(tileRow));
             url.addParameter(ImageServletUrlParameters.TILE_COL_PARAM, Integer.toString(tileColumn));
             url.addParameter("mode", mode);
@@ -150,6 +154,12 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             {
                 throw CheckedExceptionTunnel.wrapIfNecessary(ex);
             }
+        }
+        
+        public ImageLoader microscopy()
+        {
+            microscopy = true;
+            return this;
         }
         
         public ImageLoader wellRow(int newWellRow)
@@ -199,6 +209,18 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
     protected static final class ImageChecker
     {
         private final StringBuilder failureReport = new StringBuilder();
+        private final File folderForWrongImages;
+        
+        private boolean assertNoFailuresAlreadyInvoked;
+        
+        public ImageChecker(File folderForWrongImages)
+        {
+            if (folderForWrongImages.isFile())
+            {
+                throw new IllegalArgumentException("Folder for wrong images is a file: " + folderForWrongImages);
+            }
+            this.folderForWrongImages = folderForWrongImages;
+        }
         
         /**
          * Asserts no failures occurred for all invocations of {@link #check(File, ImageLoader)}.
@@ -206,7 +228,11 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
          */
         public void assertNoFailures()
         {
-            AssertJUnit.assertEquals("", failureReport.toString());
+            if (assertNoFailuresAlreadyInvoked == false)
+            {
+                AssertJUnit.assertEquals("", failureReport.toString());
+                assertNoFailuresAlreadyInvoked = true;
+            }
         }
         
         /**
@@ -221,6 +247,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 BufferedImage expectedImage = ImageIO.read(referenceImage);
                 BufferedImage actualImage = imageLoader.load();
                 checkEquals(report, expectedImage, actualImage);
+                saveActualImageIfDifferent(actualImage, referenceImage, report);
             } catch (IOException ex)
             {
                 report.addFailureMessage("Couldn't load image: " + ex);
@@ -230,6 +257,24 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 {
                     failureReport.append(report);
                 }
+            }
+        }
+
+        private void saveActualImageIfDifferent(BufferedImage actualImage, File referenceImage, FailureReport report) throws IOException
+        {
+            if (report.isFailure() == false || actualImage == null)
+            {
+                return;
+            }
+            folderForWrongImages.mkdirs();
+            File file = new File(folderForWrongImages, referenceImage.getName());
+            boolean success = ImageIO.write(actualImage, "png", file);
+            if (success == false)
+            {
+                report.addFailureMessage("Couldn't save actual image in file " + file.getAbsolutePath() + ".");
+            } else
+            {
+                report.addFailureMessage("Actual image is saved in file " + file.getAbsolutePath() + ".");
             }
         }
         

@@ -41,7 +41,6 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
     @Override
     protected void registerAdditionalOpenbisMetaData()
     {
-        System.out.println("MicroscopyImageDropboxTest.registerAdditionalOpenbisMetaData()");
         commonServer = (ICommonServer) applicationContext
                 .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
         sessionToken = commonServer.tryAuthenticate("admin", "a").getSessionToken();
@@ -73,26 +72,31 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
     public void test()
     {
         AbstractExternalData dataSet = getRegisteredContainerDataSet();
-        ImageChecker imageChecker = new ImageChecker();
         imageChecker.check(new File(getTestDataFolder(), "Merged_Default.png"), 
-                new ImageLoader(dataSet, sessionToken));
+                new ImageLoader(dataSet, sessionToken).microscopy().mode("thumbnail480x480"));
         imageChecker.check(new File(getTestDataFolder(), "Merged_256x256.png"), 
-                new ImageLoader(dataSet, sessionToken).mode("thumbnail256x256"));
+                new ImageLoader(dataSet, sessionToken).microscopy().mode("thumbnail256x256"));
         imageChecker.check(new File(getTestDataFolder(), "Merged_512x512.png"), 
-                new ImageLoader(dataSet, sessionToken).mode("thumbnail512x512"));
+                new ImageLoader(dataSet, sessionToken).microscopy().mode("thumbnail512x512"));
         imageChecker.check(new File(getTestDataFolder(), "C1_Default.png"), 
-                new ImageLoader(dataSet, sessionToken).channel("SERIES-0-CHANNEL-1"));
+                new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-1")
+                .mode("thumbnail480x480"));
         imageChecker.check(new File(getTestDataFolder(), "C1_256x256.png"), 
-                new ImageLoader(dataSet, sessionToken).channel("SERIES-0-CHANNEL-1").mode("thumbnail256x256"));
+                new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-1")
+                .mode("thumbnail256x256"));
         imageChecker.check(new File(getTestDataFolder(), "C1_512x512.png"), 
-                new ImageLoader(dataSet, sessionToken).channel("SERIES-0-CHANNEL-1").mode("thumbnail512x512"));
+                new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-1")
+                .mode("thumbnail512x512"));
         imageChecker.check(new File(getTestDataFolder(), "C01_Default.png"), 
-                new ImageLoader(dataSet, sessionToken).channel("SERIES-0-CHANNEL-0").channel("SERIES-0-CHANNEL-1"));
+                new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
+                .channel("SERIES-0_CHANNEL-1").mode("thumbnail480x480"));
         imageChecker.check(new File(getTestDataFolder(), "C01_256x256.png"), 
-                new ImageLoader(dataSet, sessionToken).channel("SERIES-0-CHANNEL-0").channel("SERIES-0-CHANNEL-1").mode("thumbnail256x256"));
+                new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
+                .channel("SERIES-0_CHANNEL-1").mode("thumbnail256x256"));
         imageChecker.check(new File(getTestDataFolder(), "C01_512x512.png"), 
-                new ImageLoader(dataSet, sessionToken).channel("SERIES-0-CHANNEL-0").channel("SERIES-0-CHANNEL-1").mode("thumbnail512x512"));
-
+                new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
+                .channel("SERIES-0_CHANNEL-1").mode("thumbnail512x512"));
+        imageChecker.assertNoFailures();
     }
 
 }

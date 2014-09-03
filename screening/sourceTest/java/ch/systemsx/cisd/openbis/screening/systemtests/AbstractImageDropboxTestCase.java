@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -37,6 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSystemTestCase
 {
+    protected ImageChecker imageChecker;
+
     @BeforeTest
     public void dropAnExampleDataSet() throws Exception
     {
@@ -44,6 +48,18 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
+    }
+    
+    @BeforeMethod
+    public void setUpImageChecker()
+    {
+        imageChecker = new ImageChecker(new File("tmp/wrong_images/" + getClass().getSimpleName()));
+    }
+    
+    @AfterMethod
+    public void assertImageChecker()
+    {
+        imageChecker.assertNoFailures();
     }
     
     protected void registerAdditionalOpenbisMetaData()
@@ -68,7 +84,7 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
-        return 60;
+        return 120;
     }
 
     protected AbstractExternalData getRegisteredContainerDataSet()
