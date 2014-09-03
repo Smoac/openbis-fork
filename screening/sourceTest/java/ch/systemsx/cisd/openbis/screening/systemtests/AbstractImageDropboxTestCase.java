@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +40,15 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
  */
 public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSystemTestCase
 {
+    private static final FileFilter SVN_FILTER = new FileFilter()
+        {
+            @Override
+            public boolean accept(File pathname)
+            {
+                return pathname.getName().equals(".svn") == false;
+            }
+        };
+
     protected ImageChecker imageChecker;
 
     @BeforeTest
@@ -70,7 +80,7 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
     {
         File destination = new File(workingDirectory, "test-data");
         destination.mkdirs();
-        FileUtils.copyDirectory(new File(getTestDataFolder(), getDataFolderToDrop()), destination);
+        FileUtils.copyDirectory(new File(getTestDataFolder(), getDataFolderToDrop()), destination, SVN_FILTER);
         return destination;
     }
 
