@@ -379,4 +379,10 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         return new File(rootDir, "incoming-" + getClass().getSimpleName());
     }
     
+    @Override
+    protected int dataSetImportWaitDurationInSeconds()
+    {
+        return 600;
+    }
+
 }

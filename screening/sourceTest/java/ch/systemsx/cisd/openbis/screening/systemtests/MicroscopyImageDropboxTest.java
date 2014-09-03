@@ -31,10 +31,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
+@Test(groups = { "slow", "systemtest" })
 public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
 {
 

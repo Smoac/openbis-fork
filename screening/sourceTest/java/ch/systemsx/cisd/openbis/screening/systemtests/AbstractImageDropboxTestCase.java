@@ -91,12 +91,6 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
         return "../screening/resource/test-data/" + getClass().getSimpleName();
     }
 
-    @Override
-    protected int dataSetImportWaitDurationInSeconds()
-    {
-        return 120;
-    }
-
     protected AbstractExternalData getRegisteredContainerDataSet()
     {
         List<AbstractExternalData> dataSets = getRegisteredDataSets();
