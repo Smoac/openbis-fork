@@ -17,18 +17,10 @@
 package ch.systemsx.cisd.openbis.screening.systemtests;
 
 import java.io.File;
-import java.util.List;
 
 import org.testng.annotations.Test;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  * 
@@ -47,17 +39,7 @@ public class SimpleImageDropboxTest extends AbstractImageDropboxTestCase
     @Test
     public void test() throws Exception
     {
-        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/SIMPLE_IMAGE_DROPBOX_TEST");
-        Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
-        ListSampleCriteria sampleCriteria = ListSampleCriteria.createForExperiment(TechId.create(experiment));
-        List<Sample> samples = commonServer.listSamples(sessionToken, sampleCriteria);
-        Sample plate = samples.get(0);
-        assertEquals("/TEST/SIMPLE_IMAGE_DROPBOX_TEST", plate.getIdentifier());
-        assertEquals(1, samples.size());
-        List<AbstractExternalData> dataSets2 
-                = commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(samples), false);
-        AbstractExternalData dataSet = dataSets2.get(0);
-        assertEquals(1, dataSets2.size());
+        AbstractExternalData dataSet = getRegisteredContainerDataSet();
         ImageChecker imageChecker = new ImageChecker();
         imageChecker.check(new File(getTestDataFolder(), "1_1_Merged_Default.png"), 
                 new ImageLoader(dataSet, sessionToken));

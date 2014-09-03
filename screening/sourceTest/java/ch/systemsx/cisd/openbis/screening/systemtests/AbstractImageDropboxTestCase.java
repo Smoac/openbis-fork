@@ -18,9 +18,18 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeTest;
+
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
  *
@@ -31,9 +40,14 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
     @BeforeTest
     public void dropAnExampleDataSet() throws Exception
     {
+        registerAdditionalOpenbisMetaData();
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
+    }
+    
+    protected void registerAdditionalOpenbisMetaData()
+    {
     }
 
     private File createTestDataContents() throws IOException
@@ -56,6 +70,49 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
     {
         return 60;
     }
+
+    protected AbstractExternalData getRegisteredContainerDataSet()
+    {
+        List<AbstractExternalData> dataSets = getRegisteredDataSets();
+        for (AbstractExternalData dataSet : dataSets)
+        {
+            if (dataSet.getDataSetType().getDataSetKind().equals(DataSetKind.CONTAINER))
+            {
+                return dataSet;
+            }
+        }
+        fail("No container data set found: " + dataSets);
+        return null; // never reached but needed for the compiler
+    }
+
+    protected List<AbstractExternalData> getRegisteredDataSets()
+    {
+        String code = translateIntoCamelCase(getClass().getSimpleName()).toUpperCase();
+        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/" + code);
+        Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
+        List<AbstractExternalData> dataSets 
+                = commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(Arrays.asList(experiment)), false);
+        return dataSets;
+    }
     
+    private String translateIntoCamelCase(String string)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (char c : string.toCharArray())
+        {
+            if (Character.isUpperCase(c))
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append('_');
+                }
+                builder.append(Character.toLowerCase(c));
+            } else
+            {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
+    }
 
 }
