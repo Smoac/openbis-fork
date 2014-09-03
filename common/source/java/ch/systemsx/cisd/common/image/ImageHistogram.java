@@ -109,7 +109,7 @@ public class ImageHistogram
             DataBufferByte db = (DataBufferByte) dataBuffer;
             switch (type)
             {
-                case BufferedImage.TYPE_3BYTE_BGR: return calculateHistogram(db, 3, 2, 1, 0);
+                //case BufferedImage.TYPE_3BYTE_BGR: return calculateHistogram(db, 3, 2, 1, 0);
                 case BufferedImage.TYPE_4BYTE_ABGR_PRE:
                 case BufferedImage.TYPE_4BYTE_ABGR: return calculateHistogram(db, 4, 3, 2, 1);
                 case BufferedImage.TYPE_BYTE_GRAY: return calculateHistogram(db, 1, 0, 0, 0);
