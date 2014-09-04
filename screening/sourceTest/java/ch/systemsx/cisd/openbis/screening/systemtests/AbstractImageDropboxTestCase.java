@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -51,8 +50,7 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
 
     protected ImageChecker imageChecker;
 
-    @BeforeTest
-    public void dropAnExampleDataSet() throws Exception
+    protected void dropAnExampleDataSet() throws Exception
     {
         registerAdditionalOpenbisMetaData();
         File exampleDataSet = createTestDataContents();

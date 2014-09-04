@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 import java.io.File;
 import java.util.Collections;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
@@ -36,6 +37,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 @Test(groups = { "slow", "systemtest" })
 public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
 {
+    @Override
+    @BeforeTest
+    public void dropAnExampleDataSet() throws Exception
+    {
+        super.dropAnExampleDataSet();
+    }
 
     @Override
     protected void registerAdditionalOpenbisMetaData()

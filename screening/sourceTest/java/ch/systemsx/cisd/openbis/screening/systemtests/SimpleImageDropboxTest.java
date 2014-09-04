@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.screening.systemtests;
 
 import java.io.File;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -30,6 +31,12 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 @Test(groups = { "slow", "systemtest" })
 public class SimpleImageDropboxTest extends AbstractImageDropboxTestCase
 {
+    @Override
+    @BeforeTest
+    public void dropAnExampleDataSet() throws Exception
+    {
+        super.dropAnExampleDataSet();
+    }
 
     @Override
     protected String getDataFolderToDrop()
