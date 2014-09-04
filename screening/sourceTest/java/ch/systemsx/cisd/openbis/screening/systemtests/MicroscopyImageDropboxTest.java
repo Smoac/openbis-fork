@@ -26,9 +26,13 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.NewAttachment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
@@ -52,22 +56,23 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         sessionToken = commonServer.tryAuthenticate("admin", "a").getSessionToken();
         ExperimentType experimentType = new ExperimentType();
         experimentType.setCode("MICROSCOPY_EXPERIMENT");
-        commonServer.registerExperimentType(sessionToken, experimentType);
+        registerExperimentType(commonServer, experimentType);
         SampleType sampleType = new SampleType();
         sampleType.setCode("MICROSCOPY_SAMPLE");
         sampleType.setGeneratedCodePrefix("M-");
-        commonServer.registerSampleType(sessionToken, sampleType);
+        registerSampleType(commonServer, sampleType);
         DataSetType dataSetType = new DataSetType("MICROSCOPY_IMG");
         dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
-        commonServer.registerDataSetType(sessionToken, dataSetType);
+        registerDataSetType(commonServer, dataSetType);
+        dataSetType = new DataSetType("MICROSCOPY_IMG_OVERVIEW");
+        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
+        registerDataSetType(commonServer, dataSetType);
         dataSetType = new DataSetType("MICROSCOPY_IMG_CONTAINER");
         dataSetType.setDataSetKind(DataSetKind.CONTAINER);
-        commonServer.registerDataSetType(sessionToken, dataSetType);
-        commonServer.registerSpace(sessionToken, "TEST", null);
-        commonServer.registerProject(sessionToken, ProjectIdentifierFactory.parse("/TEST/TEST-PROJECT"), "", 
-                null, Collections.<NewAttachment>emptySet());
+        registerDataSetType(commonServer, dataSetType);
+        registerProject(commonServer, "/TEST/TEST-PROJECT");
     }
-
+    
     @Override
     protected String getDataFolderToDrop()
     {
@@ -104,5 +109,67 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
                 .channel("SERIES-0_CHANNEL-1").mode("thumbnail512x512"));
         imageChecker.assertNoFailures();
     }
+    
+    private void registerProject(ICommonServer server, String identifier)
+    {
+        for (Project project : server.listProjects(sessionToken))
+        {
+            if (project.getIdentifier().equals(identifier))
+            {
+                return;
+            }
+        }
+        ProjectIdentifier projectIdentifier = ProjectIdentifierFactory.parse(identifier);
+        registerSpace(server, projectIdentifier.getSpaceCode());
+        server.registerProject(sessionToken, projectIdentifier, null, null, Collections.<NewAttachment>emptySet());
+    }
+    
+    private void registerSpace(ICommonServer server, String spaceCode)
+    {
+        for (Space space : server.listSpaces(sessionToken))
+        {
+            if (space.getCode().equals(spaceCode))
+            {
+                return;
+            }
+        }
+        server.registerSpace(sessionToken, spaceCode, null);
+    }
 
+    private void registerExperimentType(ICommonServer server, ExperimentType experimentType)
+    {
+        for (EntityType type : server.listExperimentTypes(sessionToken))
+        {
+            if (type.getCode().equals(experimentType.getCode()))
+            {
+                return;
+            }
+        }
+        server.registerExperimentType(sessionToken, experimentType);
+    }
+
+    private void registerSampleType(ICommonServer server, SampleType sampleType)
+    {
+        for (EntityType type : server.listSampleTypes(sessionToken))
+        {
+            if (type.getCode().equals(sampleType.getCode()))
+            {
+                return;
+            }
+        }
+        server.registerSampleType(sessionToken, sampleType);
+    }
+    
+    private void registerDataSetType(ICommonServer server, DataSetType dataSetType)
+    {
+        for (EntityType type : server.listDataSetTypes(sessionToken))
+        {
+            if (type.getCode().equals(dataSetType.getCode()))
+            {
+                return;
+            }
+        }
+        server.registerDataSetType(sessionToken, dataSetType);
+    }
+    
 }
