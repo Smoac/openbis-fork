@@ -1,6 +1,7 @@
 import os
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata
+from ch.systemsx.cisd.openbis.dss.etl.dto.api import SimpleImageDataConfig
+from ch.systemsx.cisd.openbis.dss.etl.dto.api import ImageMetadata
+from ch.systemsx.cisd.openbis.dss.etl.dto.api import ChannelColor
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
 SPACE_CODE = "TEST"
