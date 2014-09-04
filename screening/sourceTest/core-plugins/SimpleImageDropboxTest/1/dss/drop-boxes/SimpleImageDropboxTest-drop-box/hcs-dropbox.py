@@ -68,6 +68,13 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         image_tokens.channelCode = channelCode
         return image_tokens
     
+    def getChannelColor(self, channelCode):
+        dict = { "DAPI" : ChannelColor.GREEN, "CY3" : ChannelColor.BLUE }
+        if channelCode in dict:
+            return dict[channelCode]
+        else:
+            return None    
+        
     def getTileGeometry(self, imageTokens, maxTileNumber):
         return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3)    
 
