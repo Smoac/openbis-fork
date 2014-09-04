@@ -882,7 +882,7 @@ public class ImageUtil
                     + contentNode.getRelativePath());
         }
         BufferedImage result = loadImage(contentNode);
-        result = convertForDisplayIfNecessary(result);
+        result = convertForDisplayIfNecessary(result, null);
         return result;
     }
 
@@ -902,7 +902,7 @@ public class ImageUtil
             int maxHeight)
     {
         BufferedImage result = rescale(image, maxWidth, maxHeight, true, false);
-        result = convertForDisplayIfNecessary(result);
+        result = convertForDisplayIfNecessary(result, null);
         return result;
     }
 
@@ -910,23 +910,15 @@ public class ImageUtil
      * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
      * bits grayscale is done. Otherwise the original image is returned.
      */
-    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image)
-    {
-        return convertForDisplayIfNecessary(image, DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
-    }
-
-    /**
-     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
-     * bits grayscale is done. Otherwise the original image is returned.
-     */
-    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image, float threshold)
+    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold)
     {
         if (isGrayscale(image))
         {
             if (image.getColorModel().getPixelSize() > 8)
             {
                 GrayscalePixels pixels = new GrayscalePixels(image);
-                Levels intensityRange = IntensityRescaling.computeLevels(pixels, threshold);
+                Levels intensityRange = IntensityRescaling.computeLevels(pixels, 
+                        threshold == null ? DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold);
                 BufferedImage result =
                         IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange);
                 return result;
@@ -986,7 +978,7 @@ public class ImageUtil
             // WORKAROUND: non-default interpolations do not work well with 16 bit grayscale images.
             // We have to rescale colors to 8 bit here, otherwise the result will contain only few
             // colors.
-            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0);
+            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0f);
         }
         graphics2D.drawImage(imageToRescale, 0, 0, thumbnailWidth, thumbnailHeight, null);
         graphics2D.dispose();

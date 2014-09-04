@@ -545,9 +545,7 @@ public class ImageChannelsUtils
     {
         BufferedImage image = calculateSingleImage(imageReference);
         image = transform(image, imageReference, transformationInfo);
-        image =
-                threshold == null ? ImageUtil.convertForDisplayIfNecessary(image) : ImageUtil
-                        .convertForDisplayIfNecessary(image, threshold);
+        image = ImageUtil.convertForDisplayIfNecessary(image, threshold);
         return image;
     }
 
@@ -758,9 +756,7 @@ public class ImageChannelsUtils
             {
                 // NOTE: here we skip image level transformations as well
                 image = calculateSingleImage(imageRef);
-                image =
-                        threshold == null ? ImageUtil.convertForDisplayIfNecessary(image)
-                                : ImageUtil.convertForDisplayIfNecessary(image, threshold);
+                image = ImageUtil.convertForDisplayIfNecessary(image, threshold);
             }
             images.add(new ImageWithReference(image, imageRef));
         }
