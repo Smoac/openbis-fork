@@ -81,6 +81,8 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
 
     private static final String USER_ID = "userId";
 
+    private static final String USER_SESSION_TOKEN = "userSessionToken";
+
     private final String scriptPath;
 
     public PluginScriptRunnerFactory(String scriptPath)
@@ -195,6 +197,7 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         evaluator.set(DATA_SOURCE_QUERY_SERVICE_VARIABLE_NAME, createDataSourceQueryService());
         evaluator.set(AUTHORIZATION_SERVICE, createAuthorizationService());
         evaluator.set(USER_ID, context.getUserId());
+        evaluator.set(USER_SESSION_TOKEN, context.trySessionToken());
         final ISessionWorkspaceProvider workspaceProvider =
                 context.tryGetSessionWorkspaceProvider();
         if (workspaceProvider != null)

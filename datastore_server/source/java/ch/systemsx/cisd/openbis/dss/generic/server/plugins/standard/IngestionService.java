@@ -356,6 +356,7 @@ public abstract class IngestionService<T extends DataSetInformation> extends Agg
     protected ThreadParameters createThreadParameters()
     {
         Properties threadParameterProperties = new Properties();
+        threadParameterProperties.putAll(properties);
         threadParameterProperties.put(ch.systemsx.cisd.etlserver.ThreadParameters.INCOMING_DIR,
                 getMockIncomingDir().getAbsolutePath());
         return new ThreadParameters(threadParameterProperties, this.getClass().getSimpleName());
