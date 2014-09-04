@@ -70,7 +70,7 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         return image_tokens
     
     def getChannelColor(self, channelCode):
-        dict = { "DAPI" : ChannelColor.GREEN, "CY3" : ChannelColor.BLUE }
+        dict = { "GFP" : ChannelColor.GREEN, "DAPI" : ChannelColor.BLUE, "CY3" : ChannelColor.RED }
         if channelCode in dict:
             return dict[channelCode]
         else:
