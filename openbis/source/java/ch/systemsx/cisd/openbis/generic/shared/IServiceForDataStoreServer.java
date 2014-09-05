@@ -663,6 +663,16 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public List<Sample> searchForSamples(String sessionToken, SearchCriteria searchCriteria);
 
     /**
+     * Search for experiments matching the provided criteria.
+     * 
+     * @param sessionToken The user authentication token. Must not be <code>null</code>.
+     * @param searchCriteria The criteria for experiments.
+     * @return A collection of experiments matching the search criteria.
+     */
+    @Transactional(readOnly = true)
+    public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria);
+
+    /**
      * Search for data sets matching the provided criteria.
      * 
      * @param sessionToken The user authentication token. Must not be <code>null</code>.

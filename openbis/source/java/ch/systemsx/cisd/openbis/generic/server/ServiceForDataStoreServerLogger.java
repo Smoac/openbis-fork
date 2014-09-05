@@ -654,6 +654,13 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     }
 
     @Override
+    public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
+    {
+        logAccess(sessionToken, "searchForExperiments", "%s", searchCriteria);
+        return null;
+    }
+
+    @Override
     public List<AbstractExternalData> searchForDataSets(String sessionToken,
             SearchCriteria searchCriteria)
     {

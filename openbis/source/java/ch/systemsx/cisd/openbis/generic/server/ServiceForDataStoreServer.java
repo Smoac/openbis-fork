@@ -832,6 +832,11 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
                 businessObjectFactory.createExperimentTable(session);
         experimentTable.load(EntityType.ALL_TYPES_CODE, projectIdentifier);
         final List<ExperimentPE> experiments = experimentTable.getExperiments();
+        return translateExperimentsWithMetaprojectAssignments(session, experiments);
+    }
+
+    private List<Experiment> translateExperimentsWithMetaprojectAssignments(final Session session, final List<ExperimentPE> experiments)
+    {
         final Collection<MetaprojectAssignmentPE> assignmentPEs =
                 getDAOFactory().getMetaprojectDAO().listMetaprojectAssignmentsForEntities(
                         session.tryGetPerson(), experiments, EntityKind.EXPERIMENT);
@@ -1198,7 +1203,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     @Override
     @RolesAllowed(
-            { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public void checkDataSetAccess(String sessionToken,
             @AuthorizationGuard(guardClass = DataSetCodePredicate.class)
             String dataSetCode) throws UserFailureException
@@ -2610,6 +2615,18 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         SearchHelper searchHelper =
                 new SearchHelper(session, businessObjectFactory, getDAOFactory());
         return searchHelper.searchForDataSets(session.getUserName(), detailedSearchCriteria);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<Experiment> searchForExperiments(String sessionToken, SearchCriteria searchCriteria)
+    {
+        Session session = getSession(sessionToken);
+        DetailedSearchCriteria detailedSearchCriteria =
+                SearchCriteriaToDetailedSearchCriteriaTranslator.convert(getDAOFactory(), SearchableEntityKind.EXPERIMENT, searchCriteria);
+        SearchHelper searchHelper = new SearchHelper(session, businessObjectFactory, getDAOFactory());
+        List<ExperimentPE> experiments = searchHelper.searchForExperiments(sessionToken, detailedSearchCriteria);
+        return translateExperimentsWithMetaprojectAssignments(session, experiments);
     }
 
     @Override
