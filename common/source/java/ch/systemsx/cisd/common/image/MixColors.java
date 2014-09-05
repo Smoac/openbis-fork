@@ -254,29 +254,39 @@ public class MixColors
         Color merge(Color[] colors, int x, int y, BufferedImage[] images);
     }
 
-    public static class MixedImageWithWhitePoint {
-    	private BufferedImage image;
-    	private Color whitePoint;
-    	
-		public MixedImageWithWhitePoint(BufferedImage image, Color whitePointColor) {
-			this.image = image;
-			this.whitePoint = whitePointColor;
-		}
-		
-		public BufferedImage getImage() {
-			return image;
-		}
-		public void setImage(BufferedImage image) {
-			this.image = image;
-		}
-		public Color getWhitePoint() {
-			return whitePoint;
-		}
-		public void setWhitePoint(Color whitePoint) {
-			this.whitePoint = whitePoint;
-		}
+    public static class MixedImageWithWhitePoint
+    {
+        private BufferedImage image;
+
+        private Color whitePoint;
+
+        public MixedImageWithWhitePoint(BufferedImage image, Color whitePointColor)
+        {
+            this.image = image;
+            this.whitePoint = whitePointColor;
+        }
+
+        public BufferedImage getImage()
+        {
+            return image;
+        }
+
+        public void setImage(BufferedImage image)
+        {
+            this.image = image;
+        }
+
+        public Color getWhitePoint()
+        {
+            return whitePoint;
+        }
+
+        public void setWhitePoint(Color whitePoint)
+        {
+            this.whitePoint = whitePoint;
+        }
     }
-    
+
     /**
      * Calculate a new image by mixing the given gray-scale </var>images</var>.
      * 
@@ -309,7 +319,7 @@ public class MixColors
             for (int x = 0; x < width; ++x)
             {
                 Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
-                mixed.setRGB(x, y, new Color(images[0].getColorModel().getColorSpace(), mixedComponents, 1).getRGB());
+                mixed.setRGB(x, y, new Color(mixedComponents[0], mixedComponents[1], mixedComponents[2], 1).getRGB());
 
                 mixColor.getRGBColorComponents(mixedComponents);
                 float sumIntencity = 0f;
