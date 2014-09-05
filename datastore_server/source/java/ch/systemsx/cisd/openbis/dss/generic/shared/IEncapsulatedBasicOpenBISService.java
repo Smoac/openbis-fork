@@ -96,6 +96,11 @@ public interface IEncapsulatedBasicOpenBISService
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
 
     /**
+     * {@link IServiceForDataStoreServer#searchForExperiments(String, SearchCriteria)}
+     */
+    public List<Experiment> searchForExperiments(SearchCriteria searchCriteria);
+
+    /**
      * Gets a sample with the specified identifier. Sample is enriched with properties and the experiment with properties.
      * 
      * @return <code>null</code> if no sample could be found for given <var>sampleIdentifier</var>.

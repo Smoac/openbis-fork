@@ -135,6 +135,15 @@ public class EncapsulatedFilteredBasicOpenBISService implements IEncapsulatedBas
     }
 
     @Override
+    public List<Experiment> searchForExperiments(SearchCriteria searchCriteria)
+    {
+        List<Experiment> experiments = etlService.searchForExperiments(systemSessionToken, searchCriteria);
+
+        return AuthorizationHelper.filterToVisible(encapsulatedService, userName, experiments, experimentIdMapper,
+                AuthorizationHelper.EntityKind.EXPERIMENT);
+    }
+
+    @Override
     @ManagedAuthentication
     public Sample tryGetSampleWithExperiment(SampleIdentifier sampleIdentifier)
             throws UserFailureException

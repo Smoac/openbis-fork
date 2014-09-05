@@ -184,6 +184,19 @@ public class SearchService implements ISearchService
     }
 
     @Override
+    public List<IExperimentImmutable> searchForExperiments(SearchCriteria searchCriteria)
+    {
+
+        List<Experiment> serverExperiments = openBisService.searchForExperiments(searchCriteria);
+        ArrayList<IExperimentImmutable> experiments = new ArrayList<IExperimentImmutable>(serverExperiments.size());
+        for (Experiment experiment : serverExperiments)
+        {
+            experiments.add(new ExperimentImmutable(experiment));
+        }
+        return experiments;
+    }
+
+    @Override
     public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection)
     {
         final Set<String> identifiers = new HashSet<String>(identifierCollection.getIdentifiers());

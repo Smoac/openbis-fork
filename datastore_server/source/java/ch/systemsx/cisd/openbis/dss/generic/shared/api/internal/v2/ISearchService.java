@@ -34,8 +34,7 @@ public interface ISearchService
     public List<IExperimentImmutable> listExperiments(String projectIdentifier);
 
     /**
-     * List all data sets with a given value for a particular property, optionally restricted to a
-     * specific type.
+     * List all data sets with a given value for a particular property, optionally restricted to a specific type.
      * 
      * @param property The property of interest.
      * @param value The value the property should have. This may contain wildcards.
@@ -45,12 +44,10 @@ public interface ISearchService
             String typeOrNull);
 
     /**
-     * List all data sets with a given value for a particular property, optionally restricted to a
-     * specific type.
+     * List all data sets with a given value for a particular property, optionally restricted to a specific type.
      * 
      * @param property The property of interest.
-     * @param value The value the property should have. This may contain wildcards if
-     *            <var>escape</var> is set to <code>false</code>.
+     * @param value The value the property should have. This may contain wildcards if <var>escape</var> is set to <code>false</code>.
      * @param escape If <code>true</code>, escape the <var>value</var> to search for it verbatimly.
      * @return A list of matching data sets.
      */
@@ -58,8 +55,7 @@ public interface ISearchService
             String typeOrNull, boolean escape);
 
     /**
-     * List all samples with a given value for a particular property, optionally restricted to a
-     * specific type.
+     * List all samples with a given value for a particular property, optionally restricted to a specific type.
      * 
      * @param property The property of interest.
      * @param value The value the property should have. This may contain wildcards.
@@ -68,12 +64,10 @@ public interface ISearchService
     public List<ISampleImmutable> searchForSamples(String property, String value, String typeOrNull);
 
     /**
-     * List all samples with a given value for a particular property, optionally restricted to a
-     * specific type.
+     * List all samples with a given value for a particular property, optionally restricted to a specific type.
      * 
      * @param property The property of interest.
-     * @param value The value the property should have. This may contain wildcards if
-     *            <var>escape</var> is set to <code>false</code>.
+     * @param value The value the property should have. This may contain wildcards if <var>escape</var> is set to <code>false</code>.
      * @param escape If <code>true</code>, escape the <var>value</var> to search for it verbatimly.
      * @return A list of matching samples.
      */
@@ -97,23 +91,29 @@ public interface ISearchService
     public List<ISampleImmutable> searchForSamples(SearchCriteria searchCriteria);
 
     /**
-     * @param identifierCollection a collection containing the identifiers of the matching
-     *            materials. Identifiers that do not exist in the openBIS database are ignored.
+     * List all experiments that match the given searchCriteria.
+     * 
+     * @param searchCriteria The criteria to match against.
+     * @return A list of matching experiments.
+     */
+    public List<IExperimentImmutable> searchForExperiments(SearchCriteria searchCriteria);
+
+    /**
+     * @param identifierCollection a collection containing the identifiers of the matching materials. Identifiers that do not exist in the openBIS
+     *            database are ignored.
      * @return a list of materials matching the specified collection.
      */
     public List<IMaterialImmutable> listMaterials(MaterialIdentifierCollection identifierCollection);
 
     /**
-     * @return a controlled vocabulary with the given code. Returns null if the vocabulary with
-     *         given code is not found.
+     * @return a controlled vocabulary with the given code. Returns null if the vocabulary with given code is not found.
      * @deprecated use {@link #getVocabulary(String)} instead
      */
     @Deprecated
     public IVocabularyImmutable searchForVocabulary(String code);
 
     /**
-     * @return a controlled vocabulary with the given code. Returns null if the vocabulary with
-     *         given code is not found.
+     * @return a controlled vocabulary with the given code. Returns null if the vocabulary with given code is not found.
      */
     public IVocabularyImmutable getVocabulary(String code);
 
