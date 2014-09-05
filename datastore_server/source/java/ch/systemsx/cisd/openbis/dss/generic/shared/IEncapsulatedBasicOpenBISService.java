@@ -98,6 +98,7 @@ public interface IEncapsulatedBasicOpenBISService
     /**
      * {@link IServiceForDataStoreServer#searchForExperiments(String, SearchCriteria)}
      */
+    @ManagedAuthentication
     public List<Experiment> searchForExperiments(SearchCriteria searchCriteria);
 
     /**
