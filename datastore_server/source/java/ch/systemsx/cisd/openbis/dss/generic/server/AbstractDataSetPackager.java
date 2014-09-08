@@ -32,17 +32,18 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
 
 /**
  * Abstract super class of packagers which package all files of a data set together with a meta data file.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractDataSetPackager
 {
     public static final String META_DATA_FILE_NAME = "meta-data.tsv";
-    
+
     private final IHierarchicalContentProvider contentProvider;
+
     private final DataSetExistenceChecker dataSetExistenceChecker;
 
-    protected AbstractDataSetPackager(IHierarchicalContentProvider contentProvider, 
+    protected AbstractDataSetPackager(IHierarchicalContentProvider contentProvider,
             DataSetExistenceChecker dataSetExistenceChecker)
     {
         this.contentProvider = contentProvider;
@@ -50,26 +51,25 @@ public abstract class AbstractDataSetPackager
     }
 
     /**
-     * Adds an entry with specified entry path and last modification date filled with data from
-     * specified input stream.
+     * Adds an entry with specified entry path and last modification date filled with data from specified input stream.
      * 
      * @param size Number of bytes.
      * @param checksum Checksum. Can be 0 if {@link #isChecksumNeeded()} return <code>false</code>.
      */
     public abstract void addEntry(String entryPath, long lastModified, long size, long checksum, InputStream in);
-    
+
     public abstract void addDirectoryEntry(String entryPath);
-    
+
     /**
      * Returns <code>true</code> if the checksum is needed.
      */
     protected abstract boolean isChecksumNeeded();
-    
+
     /**
      * Closes the package.
      */
     public abstract void close();
-    
+
     public void addDataSetTo(String rootPath, AbstractExternalData externalData)
     {
         try
@@ -88,7 +88,8 @@ public abstract class AbstractDataSetPackager
             throw new RuntimeException(
                     "Couldn't package meta data for data set '" + externalData.getCode() + "'.", ex);
         }
-        if (dataSetExistenceChecker.dataSetExists(DataSetTranslator.translateToDescription(externalData)) == false)
+        if (externalData.isContainer() == false
+                && dataSetExistenceChecker.dataSetExists(DataSetTranslator.translateToDescription(externalData)) == false)
         {
             throw handleNonExistingDataSet(externalData, null);
         }
@@ -114,7 +115,7 @@ public abstract class AbstractDataSetPackager
             }
         }
     }
-    
+
     private RuntimeException handleNonExistingDataSet(AbstractExternalData externalData, Exception ex)
     {
         return new RuntimeException("Data set '" + externalData.getCode() + "' does not exist.", ex);
