@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
+import java.io.Writer;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.annotation.Resource;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -145,6 +148,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.IEnt
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.entity_validation.api.IEntityValidator;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCommonServer;
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
+import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -263,6 +267,9 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     private final IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
     private String defaultPutDataStoreServerCodeOrNull;
+
+    @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
+    protected ICommonServer commonServer;
 
     public CommonServer(final IAuthenticationService authenticationService,
             final IOpenBisSessionManager sessionManager, final IDAOFactory daoFactory,
@@ -4122,7 +4129,28 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public String performCustomImport(String sessionToken, String customImportCode,
+    public void performCustomImportAsync(final String sessionToken, final String customImportCode,
+            final CustomImportFile customImportFile, final String userEmail) throws UserFailureException
+    {
+        executeASync(userEmail, new AbstractASyncAction()
+            {
+                @Override
+                public String getName()
+                {
+                    return "Custom import";
+                }
+
+                @Override
+                protected void doActionOrThrowException(Writer messageWriter)
+                {
+                    commonServer.performCustomImport(sessionToken, customImportCode, customImportFile);
+                }
+            });
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public void performCustomImport(String sessionToken, String customImportCode,
             CustomImportFile customImportFile) throws UserFailureException
     {
         Session session = getSession(sessionToken);
@@ -4144,7 +4172,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 IDataStoreBO dataStore = businessObjectFactory.createDataStoreBO(session);
                 dataStore.loadByCode(dssCode);
                 dataStore.uploadFile(dropboxName, customImportFile);
-                return customImportFile.getFileName();
+                return;
             }
         }
 

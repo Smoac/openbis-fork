@@ -119,6 +119,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractType;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AsyncBatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentVersions;
@@ -127,6 +128,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelatedEntities;
@@ -2707,7 +2709,7 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public String performCustomImport(String sessionKey, String customImportCode)
+    public List<BatchRegistrationResult> performCustomImport(String sessionKey, String customImportCode, boolean async, String userEmail)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
@@ -2715,8 +2717,19 @@ public final class CommonClientService extends AbstractClientService implements
         {
             uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
             abortIfMaxSizeExceeded(uploadedFiles);
-            return commonServer.performCustomImport(getSessionToken(), customImportCode,
-                    getCustomImportFile(uploadedFiles));
+
+            CustomImportFile customImportFile = getCustomImportFile(uploadedFiles);
+
+            if (async)
+            {
+                commonServer.performCustomImportAsync(getSessionToken(), customImportCode, customImportFile, userEmail);
+                return AsyncBatchRegistrationResult.singletonList(customImportFile.getFileName());
+            } else
+            {
+                commonServer.performCustomImport(getSessionToken(), customImportCode, customImportFile);
+                return Collections.singletonList(new BatchRegistrationResult(customImportFile.getFileName(), String
+                        .format("Import successfully completed.")));
+            }
         } catch (final UserFailureException e)
         {
             throw UserFailureExceptionTranslator.translate(e);

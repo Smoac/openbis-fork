@@ -16,17 +16,10 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui;
 
-import static ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareField.wrapUnaware;
-
-import java.util.Arrays;
-import java.util.List;
-
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.google.gwt.user.client.Event;
@@ -35,11 +28,8 @@ import com.google.gwt.user.client.Window;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.AbstractAsyncCallback;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.Dict;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.FormPanelListener;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.file.BasicFileFieldManager;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.widget.HtmlMessageElement;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.GWTUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AttachmentHolderKind;
@@ -50,19 +40,10 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 /**
  * @author Pawel Glyzewski
  */
-public class CustomImportForm extends AbstractRegistrationForm
+public class CustomImportForm extends AbstractBatchRegistrationForm
 {
-    private static final String FIELD_LABEL_TEMPLATE = "File";
-
-    private static final int NUMBER_OF_FIELDS = 1;
-
-    private final String sessionKey;
 
     private final CustomImport customImport;
-
-    private final IViewContext<ICommonClientServiceAsync> viewContext;
-
-    private final BasicFileFieldManager fileFieldsManager;
 
     /**
      * @param viewContext
@@ -71,93 +52,28 @@ public class CustomImportForm extends AbstractRegistrationForm
     public CustomImportForm(IViewContext<ICommonClientServiceAsync> viewContext, String id,
             CustomImport customImport)
     {
-        super(viewContext, id);
+        super(viewContext.getCommonViewContext(), id, id + "-" + customImport.getCode());
 
-        saveButton.setText(messageProvider.getMessage(Dict.BUTTON_UPLOAD));
         setResetButtonVisible(true);
         setDirtyCheckEnabled(false);
 
-        this.sessionKey = id + "-" + customImport.getCode();
         this.customImport = customImport;
-        this.viewContext = viewContext;
 
         if (isTemplateAvailable())
         {
             MultiField<Object> multifield =
-                    new MultiField<Object>("", createTemplateField(),
+                    new MultiField<Object>("", createTemplateLinkField(),
                             createEntityWithTemplateField());
             multifield.setLabelSeparator("");
-            formPanel.add(multifield);
+            this.templateField = multifield;
         }
-
-        fileFieldsManager =
-                new BasicFileFieldManager(sessionKey, NUMBER_OF_FIELDS, FIELD_LABEL_TEMPLATE);
-        fileFieldsManager.setMandatory();
-        for (FileUploadField field : fileFieldsManager.getFields())
-        {
-            formPanel.add(wrapUnaware((Field<?>) field).get());
-        }
-        addUploadFeatures(sessionKey);
-
-        formPanel.addListener(Events.BeforeSubmit, new Listener<FormEvent>()
-            {
-                @Override
-                public void handleEvent(FormEvent be)
-                {
-                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_UPLOADING));
-                }
-            });
-
-        formPanel.addListener(Events.Submit, new FormPanelListener(infoBox)
-            {
-                @Override
-                protected void setUploadEnabled()
-                {
-                    CustomImportForm.this.setUploadEnabled(true);
-                }
-
-                @Override
-                protected void onSuccessfullUpload()
-                {
-                    infoBox.displayProgress(messageProvider.getMessage(Dict.PROGRESS_PROCESSING));
-
-                    CustomImportForm.this.viewContext.getCommonService().performCustomImport(
-                            sessionKey,
-                            CustomImportForm.this.customImport.getCode(),
-                            new AbstractRegistrationCallback<String>(
-                                    CustomImportForm.this.viewContext)
-                                {
-                                    @Override
-                                    protected void process(String result)
-                                    {
-                                        super.process(result);
-                                        resetPanel();
-                                    }
-
-                                    @Override
-                                    protected List<HtmlMessageElement> createSuccessfullRegistrationInfo(String result)
-                                    {
-                                        return Arrays.asList(new HtmlMessageElement(result + " succesfully uploaded to the datastore server."));
-                                    }
-
-                                    @Override
-                                    public void finishOnFailure(Throwable caught)
-                                    {
-                                        super.finishOnFailure(caught);
-                                        resetPanel();
-                                    }
-
-                                });
-
-                }
-            });
     }
 
     @Override
-    protected void submitValidForm()
+    protected void save()
     {
-        CustomImportForm.this.setUploadEnabled(false);
-        formPanel.submit();
+        CustomImportForm.this.viewContext.getCommonService().performCustomImport(sessionKey, CustomImportForm.this.customImport.getCode(), isAsync(),
+                emailField.getValue(), new BatchRegistrationCallback(this.viewContext));
     }
 
     private boolean isTemplateAvailable()
@@ -166,9 +82,8 @@ public class CustomImportForm extends AbstractRegistrationForm
                 && getTemplateAttachmentName() != null;
     }
 
-    private Field<?> createTemplateField()
+    private Field<?> createTemplateLinkField()
     {
-
         LabelField linkToTemplate =
                 new LabelField(LinkRenderer.renderAsLink(viewContext
                         .getMessage(Dict.FILE_TEMPLATE_LABEL)));

@@ -203,7 +203,7 @@ public abstract class AbstractServerLogger implements IServer
 
         if (sessionManagerOrNull != null && sessionManagerOrNull.isAWellFormedSessionToken(sessionToken))
         {
-            Session session = sessionManagerOrNull.getSession(sessionToken);
+            Session session = sessionManagerOrNull.tryGetSession(sessionToken);
 
             if (session != null && session.isOnBehalfSession())
             {

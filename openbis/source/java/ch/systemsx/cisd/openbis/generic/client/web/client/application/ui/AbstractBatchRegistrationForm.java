@@ -66,7 +66,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
 
     protected final String sessionKey;
 
-    protected final LabelField templateField;
+    protected Field<?> templateField;
 
     protected final BasicFileFieldManager fileFieldsManager;
 
@@ -205,7 +205,7 @@ public abstract class AbstractBatchRegistrationForm extends AbstractRegistration
         return field;
     }
 
-    protected LabelField createTemplateField()
+    protected Field<?> createTemplateField()
     {
         LabelField result =
                 new LabelField(LinkRenderer.renderAsLink(viewContext

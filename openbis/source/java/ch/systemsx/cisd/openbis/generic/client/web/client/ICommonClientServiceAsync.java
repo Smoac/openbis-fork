@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -1161,10 +1162,10 @@ public interface ICommonClientServiceAsync extends IClientServiceAsync
     public void emptyTrash(boolean forceDisallowedTypes, AsyncCallback<Void> callback);
 
     /**
-     * @see ICommonClientService#performCustomImport(String, String)
+     * @see ICommonClientService#performCustomImport(String, String, boolean, String)
      */
-    public void performCustomImport(String sessionKey, String customImportCode,
-            AsyncCallback<String> callback)
+    public void performCustomImport(String sessionKey, String customImportCode, boolean async, String userEmail,
+            final AsyncCallback<List<BatchRegistrationResult>> asyncCallback)
             throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException;
 
     /**

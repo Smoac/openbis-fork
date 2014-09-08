@@ -1616,13 +1616,21 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public String performCustomImport(String sessionToken, String customImportCode,
+    public void performCustomImportAsync(String sessionToken, String customImportCode,
+            CustomImportFile customImportFile, String userEmail)
+    {
+        logAccess(sessionToken, "performCustomImportAsync",
+                "CUSTOM_IMPORT_CODE(%s), CUSTOM_IMPORT_FILE(%s), USER_EMAIL(%s)", customImportCode,
+                customImportFile, userEmail);
+    }
+
+    @Override
+    public void performCustomImport(String sessionToken, String customImportCode,
             CustomImportFile customImportFile)
     {
         logAccess(sessionToken, "performCustomImport",
                 "CUSTOM_IMPORT_CODE(%s), CUSTOM_IMPORT_FILE(%s)", customImportCode,
                 customImportFile);
-        return null;
     }
 
     @Override

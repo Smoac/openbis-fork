@@ -57,6 +57,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AuthorizationGroupUpdat
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicEntityDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BasicProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetRelationshipRole;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
@@ -1272,7 +1273,7 @@ public interface ICommonClientService extends IClientService
     /**
      * Performs custom import operation
      */
-    public String performCustomImport(String sessionKey, String customImportCode)
+    public List<BatchRegistrationResult> performCustomImport(String sessionKey, String customImportCode, boolean async, String userEmail)
             throws UserFailureException;
 
     /**
