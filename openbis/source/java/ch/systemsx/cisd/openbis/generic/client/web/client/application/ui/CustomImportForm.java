@@ -70,6 +70,12 @@ public class CustomImportForm extends AbstractBatchRegistrationForm
     }
 
     @Override
+    protected Field<?> createTemplateField()
+    {
+        return null;
+    }
+
+    @Override
     protected void save()
     {
         CustomImportForm.this.viewContext.getCommonService().performCustomImport(sessionKey, CustomImportForm.this.customImport.getCode(), isAsync(),
