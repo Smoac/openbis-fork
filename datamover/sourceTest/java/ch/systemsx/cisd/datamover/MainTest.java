@@ -53,9 +53,9 @@ public final class MainTest extends AbstractFileSystemTestCase
     // can happen, that tests running on slow machines fail because they need more time. Than this
     // constant should be
     // adjusted.
-    private static final long DATA_MOVER_COMPLETION_TIME = 6000;
+    private static final long DATA_MOVER_COMPLETION_TIME = 10000;
 
-    private static final long DATA_MOVER_COMPLETION_TIME_LONG = 7000;
+    private static final long DATA_MOVER_COMPLETION_TIME_LONG = 15000;
 
     private static final int CHECK_INTERVAL = 1;
 
