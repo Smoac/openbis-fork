@@ -319,9 +319,9 @@ public class MixColors
             for (int x = 0; x < width; ++x)
             {
                 Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
+                mixColor.getRGBColorComponents(mixedComponents);
                 mixed.setRGB(x, y, new Color(mixedComponents[0], mixedComponents[1], mixedComponents[2], 1).getRGB());
 
-                mixColor.getRGBColorComponents(mixedComponents);
                 float sumIntencity = 0f;
                 for (int i = 0; i < mixedComponents.length; i++)
                 {
@@ -335,7 +335,6 @@ public class MixColors
                 }
             }
         }
-
         return new MixedImageWithWhitePoint(mixed, whitePointColor);
     }
 
