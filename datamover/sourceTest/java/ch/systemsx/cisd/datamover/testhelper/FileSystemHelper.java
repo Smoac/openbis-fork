@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.datamover.testhelper;
 
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,17 +69,17 @@ public class FileSystemHelper
 
     public static void assertEmptyDir(File dir)
     {
-        assertTrue(dir.getAbsolutePath() + " is no directory", dir.isDirectory());
-        final List<String> dirList = Arrays.asList(dir.list());
+        assertTrue(dir.getAbsolutePath() + " is not a directory", dir.isDirectory());
+        final List<File> dirList = Arrays.asList(dir.listFiles());
         if (dirList.size() > 0)
         {
             final StringBuilder builder = new StringBuilder();
-            for (String f : dirList)
+            for (File f : dirList)
             {
-                builder.append(f);
                 builder.append(' ');
+                builder.append(f.getAbsolutePath());
             }
-            assertTrue("Should be empty, but found: " + builder.toString(), false);
+            fail("Should be empty, but found:" + builder.toString());
         }
     }
 }
