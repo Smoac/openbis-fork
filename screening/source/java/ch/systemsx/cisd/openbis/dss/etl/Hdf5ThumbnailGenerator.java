@@ -434,9 +434,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private List<ThumbnailData> generateThumbnailInternally(ImageFileInfo imageFileInfo,
             String imageIdOrNull, ByteArrayOutputStream bufferOutputStream) throws IOException
     {
-        BufferedImage image =
-                loadUnchangedImage(imageFileInfo.getImageRelativePath(), imageIdOrNull);
-
+        BufferedImage image = loadUnchangedImage(imageFileInfo.getImageRelativePath(), imageIdOrNull);
         int widht = thumbnailsStorageFormat.getMaxWidth();
         int height = thumbnailsStorageFormat.getMaxHeight();
         if (thumbnailsStorageFormat.getZoomLevel() != null)
@@ -445,17 +443,15 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
             height = (int) Math.round(thumbnailsStorageFormat.getZoomLevel() * image.getHeight());
         }
 
-        BufferedImage thumbnail =
-                ImageUtil.rescale(image, widht, height, false,
-                        thumbnailsStorageFormat.isHighQuality());
-
+        boolean highQuality = thumbnailsStorageFormat.isHighQuality();
+        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality);
+        
         final List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
         for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
         {
-            thumbnail =
-                    applyTransformationsChain(thumbnail, channelCode,
-                            channelColors.get(channelCode));
-
+            ColorComponent colorComponent = channelColors.get(channelCode);
+            BufferedImage thumbnail = applyTransformationsChain(rescaledImage, channelCode, colorComponent);
+            bufferOutputStream.reset();
             thumbnailsStorageFormat.getFileFormat().writeImage(thumbnail, bufferOutputStream);
             thumbnails.add(new ThumbnailData(bufferOutputStream.toByteArray(),
                     thumbnail.getWidth(), thumbnail.getHeight(), thumbnail.getColorModel()
