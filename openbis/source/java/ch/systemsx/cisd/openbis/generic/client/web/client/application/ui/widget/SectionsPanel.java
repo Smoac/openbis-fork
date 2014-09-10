@@ -59,7 +59,7 @@ public class SectionsPanel extends LayoutContainer
         tryApplyDisplaySettings();
     }
 
-    protected void tryApplyDisplaySettings()
+    public void tryApplyDisplaySettings()
     {
         if (getDisplayID() != null)
         {

@@ -39,7 +39,7 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
     private final IViewContext<?> viewContext;
 
     private final boolean keyPressed;
-    
+
     private final String subtab;
 
     public OpenEntityDetailsTabAction(IEntityInformationHolderWithPermId entity,
@@ -62,8 +62,7 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         this.keyPressed = keyPressed;
         this.subtab = subtab;
     }
-    
-    
+
     @Override
     public void execute()
     {
@@ -77,8 +76,9 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         final AbstractTabItemFactory tabView = createClientPlugin.createEntityViewer(entity);
 
         String tabGroupDisplayId = null;
-        
-        switch (entityKind) {
+
+        switch (entityKind)
+        {
             case DATA_SET:
                 tabGroupDisplayId = DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER.createID(entityType.getCode());
                 break;
@@ -94,14 +94,14 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
             default:
                 break;
         }
-        
-        if (subtab != null && subtab.length() > 0 && tabGroupDisplayId != null) {
+
+        if (subtab != null && subtab.length() > 0 && tabGroupDisplayId != null)
+        {
             viewContext.getDisplaySettingsManager().storeActiveTabSettings(
                     tabGroupDisplayId,
                     subtab, null);
-            tabView.setForceReopen(true);
         }
-        
+
         tabView.setInBackground(keyPressed);
 
         DispatcherHelper.dispatchNaviEvent(tabView);

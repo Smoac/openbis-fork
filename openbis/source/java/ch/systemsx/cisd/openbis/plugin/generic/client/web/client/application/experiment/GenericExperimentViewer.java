@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithActivation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
@@ -65,7 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Abs
  * @author Izabela Adamczyk
  */
 public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Experiment> implements
-        IDatabaseModificationObserver
+        IDatabaseModificationObserver, IComponentWithActivation
 {
     private static final String GENERIC_EXPERIMENT_VIEWER = "generic-experiment-viewer";
 
@@ -84,6 +85,8 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     private ExperimentPropertiesPanel propertiesPanelOrNull;
 
     private List<DisposableTabContent> rightPanelSectionsOrNull;
+
+    private SectionsPanel rightPanel;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> viewContext,
@@ -200,7 +203,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
                 {
                     remove(loadingLabel);
                     GenericExperimentViewer.this.rightPanelSectionsOrNull = createRightPanel();
-                    SectionsPanel rightPanel = layoutSections(rightPanelSectionsOrNull);
+                    rightPanel = layoutSections(rightPanelSectionsOrNull);
                     attachManagedPropertiesSections(rightPanel, experiment);
                     attachModuleSpecificSections(rightPanel, experiment);
                     attachWebAppsSections(rightPanel, experiment,
@@ -370,6 +373,15 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     protected String getDeleteButtonLabel()
     {
         return localViewContext.getMessage(Dict.BUTTON_DELETE_EXPERIMENT);
+    }
+
+    @Override
+    public void activate()
+    {
+        if (rightPanel != null)
+        {
+            rightPanel.tryApplyDisplaySettings();
+        }
     }
 
 }

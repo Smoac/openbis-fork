@@ -42,6 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithActivation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
@@ -80,7 +81,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * @author Christian Ribeaud
  */
 abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSplit<Sample> implements
-        IDatabaseModificationObserver
+        IDatabaseModificationObserver, IComponentWithActivation
 {
     private static final String GENERIC_SAMPLE_VIEWER = "generic-sample-viewer";
 
@@ -104,6 +105,8 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     private DisposableTabContent dataSetSection;
 
     private PropertyGrid propertyGrid;
+
+    private SectionsPanel rightPanel;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> creationViewContext,
@@ -165,7 +168,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             {
                 @Override
                 @SuppressWarnings(
-                    { "unchecked", "rawtypes" })
+                { "unchecked", "rawtypes" })
                 public void execute()
                 {
                     final AsyncCallback<Void> callback =
@@ -203,7 +206,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         return ID_PREFIX + sampleId;
     }
 
-    private final Component createRightPanel(SampleParentWithDerived sampleGeneration)
+    private final SectionsPanel createRightPanel(SampleParentWithDerived sampleGeneration)
     {
         final Sample generator = sampleGeneration.getParent();
 
@@ -248,8 +251,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     }
 
     /**
-     * To be subclassed. Creates additional panels of the viewer in the right side section besides
-     * components, datasets and attachments
+     * To be subclassed. Creates additional panels of the viewer in the right side section besides components, datasets and attachments
      */
     protected List<TabContent> createAdditionalSectionPanels()
     {
@@ -403,7 +405,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     // Helper classes
     //
 
-    private static final class SampleGenerationInfoCallback extends
+    private final class SampleGenerationInfoCallback extends
             AbstractAsyncCallback<SampleParentWithDerived>
     {
         private final GenericSampleViewer genericSampleViewer;
@@ -435,7 +437,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
             genericSampleViewer.add(leftPanel, genericSampleViewer.createLeftBorderLayoutData());
             genericSampleViewer.configureLeftPanel(leftPanel);
             // Right panel
-            final Component rightPanel = genericSampleViewer.createRightPanel(result);
+            rightPanel = genericSampleViewer.createRightPanel(result);
             genericSampleViewer.add(rightPanel, createRightBorderLayoutData());
 
             genericSampleViewer.layout();
@@ -491,19 +493,19 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
         public DatabaseModificationKind[] getRelevantModifications()
         {
             return new DatabaseModificationKind[]
-                {
-                        DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE_TYPE),
-                        DatabaseModificationKind.edit(ObjectKind.SAMPLE),
-                        DatabaseModificationKind.edit(ObjectKind.SAMPLE_TYPE),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
-                        DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
-                        DatabaseModificationKind
-                                .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
-                        DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
-                        DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
-                        DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
+            {
+                    DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.SAMPLE_TYPE),
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE),
+                    DatabaseModificationKind.edit(ObjectKind.SAMPLE_TYPE),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind.edit(ObjectKind.EXPERIMENT),
+                    DatabaseModificationKind
+                            .createOrDelete(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.PROPERTY_TYPE_ASSIGNMENT),
+                    DatabaseModificationKind.edit(ObjectKind.VOCABULARY_TERM),
+                    DatabaseModificationKind.createOrDelete(ObjectKind.METAPROJECT),
+                    DatabaseModificationKind.edit(ObjectKind.METAPROJECT) };
         }
 
         @Override
@@ -550,5 +552,14 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     protected String getDeleteButtonLabel()
     {
         return viewContext.getMessage(Dict.BUTTON_DELETE_SAMPLE);
+    }
+
+    @Override
+    public void activate()
+    {
+        if (rightPanel != null)
+        {
+            rightPanel.tryApplyDisplaySettings();
+        }
     }
 }
