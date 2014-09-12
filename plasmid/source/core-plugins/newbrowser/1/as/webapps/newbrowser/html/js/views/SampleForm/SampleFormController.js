@@ -255,6 +255,17 @@ function SampleFormController(mainController, mode, sample) {
 				if((isCopyWithNewCode || _this._sampleFormModel.mode === FormMode.CREATE) && _this._sampleFormModel.sample.experimentIdentifierOrNull) {
 					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
+				
+				if(_this._sampleFormModel.isELNSubExperiment) { //Come back to the Experiment view after correct create/update/copy
+					mainController.changeView("showExperimentPageFromIdentifier", _this._sampleFormModel.sample.experimentIdentifierOrNull);
+				} else { //Show the form in view mode after modification
+					mainController.serverFacade.searchWithType(_this._sampleFormModel.sample.sampleTypeCode, _this._sampleFormModel.sample.code, function(data) {
+						if(data && data.length === 1) {
+							mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
+						}
+					});
+				}
+				
 //				TO-DO: The Sample is not necessarily searchable after creation since the index runs asynchronously
 //				localReference.serverFacade.searchWithType(localReference.sampleTypeCode, $("#sampleCode")[0].value, function(data) {
 //					mainController.changeView('showViewSamplePageFromPermId',data[0].permId);
