@@ -81,7 +81,9 @@ function ExperimentFormController(mainController, mode, experiment) {
 					
 					var callbackOk = function() {
 						var projectIdentifier = "/" + experimentSpace + "/" + experimentProject;
-						_this._mainController.sideMenu.refreshExperiment(projectIdentifier, experimentCode);
+						if(_this._experimentFormModel.mode === FormMode.CREATE) {
+							_this._mainController.sideMenu.refreshExperiment(experiment);
+						}
 						_this._experimentFormModel.isFormDirty = false;
 						_this._mainController.changeView("showExperimentPageFromIdentifier", experimentIdentifier);
 						Util.unblockUI();

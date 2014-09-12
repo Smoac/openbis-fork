@@ -136,6 +136,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		//
 		// CODE
 		//
+		var $codeField = null;
 		if(this._sampleFormModel.mode === FormMode.CREATE) {
 			var $textField = FormUtil._getInputField('text', null, "Code", null, true);
 			$textField.keyup(function(event){
@@ -144,11 +145,22 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				_this._sampleFormModel.sample.code = textField.val();
 				_this._sampleFormModel.isFormDirty = true;
 			});
-			$formColumn.append(FormUtil.getFieldForComponentWithLabel($textField, "Code"));
+			$codeField = FormUtil.getFieldForComponentWithLabel($textField, "Code");
+			
+			mainController.serverFacade.generateCode(sampleType.codePrefix, function(data) {
+				$textField.val(data.result);
+				_this._sampleFormModel.sample.code = data.result;
+			});
+			
 		} else {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code));
+			$codeField = FormUtil.getFieldForLabelWithText("Code", this._sampleFormModel.sample.code);
 		}
 		
+		$formColumn.append($codeField);
+		
+		if(profile.hideCodes) {
+			$codeField.hide();
+		}
 		//
 		// LINKS TO PARENTS
 		//
