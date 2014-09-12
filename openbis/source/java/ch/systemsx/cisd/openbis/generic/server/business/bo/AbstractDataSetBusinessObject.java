@@ -449,26 +449,6 @@ public abstract class AbstractDataSetBusinessObject extends AbstractSampleIdenti
         return type1 == null ? type1 == type2 : type1.equals(type2);
     }
 
-    protected void checkSameSpace(DataPE container, DataPE component)
-    {
-        // see LMS-2282
-        if (container.getSpace().equals(component.getSpace()))
-        {
-            return;
-        }
-        throw UserFailureException.fromTemplate(
-                "Data set '%s' must be in the same space ('%s') as its container.",
-                component.getCode(), container.getSpace().getCode());
-    }
-
-    protected void checkSameSpace(DataPE container, List<DataPE> components)
-    {
-        for (DataPE component : components)
-        {
-            checkSameSpace(container, component);
-        }
-    }
-
     protected static Set<String> extractCodes(Collection<DataPE> parents)
     {
         Set<String> codes = new HashSet<String>(parents.size());

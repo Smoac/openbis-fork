@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
@@ -494,7 +496,7 @@ public class DataBOTest extends AbstractBOTest
     }
 
     @Test
-    public void testDefineContainerWithComponentFromDifferentSpaceFails()
+    public void testDefineContainerWithComponentFromDifferentSpace()
     {
         final DataSetTypePE dataSetType = createDataSetType(DataSetKind.CONTAINER);
         ExperimentPE experiment1 = createExperiment("EXP1", "S1");
@@ -509,20 +511,6 @@ public class DataBOTest extends AbstractBOTest
         NewContainerDataSet newData = createContainerDataSetWithComponents(COMPONENT_CODE);
         dataBO.define(newData, experiment1, SourceType.MEASUREMENT);
 
-        // sanity check
-        try
-        {
-            dataBO.setContainedDataSets(experiment2, newData);
-            fail("Expected UserFailureException");
-        } catch (UserFailureException ex)
-        {
-            assertEquals(
-                    "Contained data sets need to be in the same space ('S1') as the container.",
-                    ex.getMessage());
-        }
-
-        // existing data set from different space
-
         final RecordingMatcher<DataPE> conatinerMatcher = new RecordingMatcher<DataPE>();
         context.checking(new Expectations()
             {
@@ -533,16 +521,24 @@ public class DataBOTest extends AbstractBOTest
                     one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(data), with(conatinerMatcher));
                 }
             });
-        // assertEquals(newData.getCode(), conatinerMatcher.recordedObject().getCode());
-        try
-        {
-            dataBO.setContainedDataSets(experiment1, newData);
-            fail("Expected UserFailureException");
-        } catch (UserFailureException ex)
-        {
-            assertEquals("Data set '" + COMPONENT_CODE
-                    + "' must be in the same space ('S1') as its container.", ex.getMessage());
-        }
+        dataBO.setContainedDataSets(experiment2, newData);
+
+        Assert.assertEquals(newData.getCode(), conatinerMatcher.getRecordedObjects().get(0).getCode());
+
+        final RecordingMatcher<DataPE> conatinerMatcher2 = new RecordingMatcher<DataPE>();
+        context.checking(new Expectations()
+            {
+                {
+                    one(dataDAO).tryToFindDataSetByCode(COMPONENT_CODE);
+                    will(returnValue(data));
+
+                    one(relationshipService).assignDataSetToContainer(with(EXAMPLE_SESSION), with(data), with(conatinerMatcher2));
+                }
+            });
+
+        dataBO.setContainedDataSets(experiment1, newData);
+
+        Assert.assertEquals(newData.getCode(), conatinerMatcher2.getRecordedObjects().get(0).getCode());
 
         context.assertIsSatisfied();
     }

@@ -253,14 +253,6 @@ public class RelationshipService implements IRelationshipService
     @Override
     public void assignDataSetToContainer(IAuthSession session, DataPE data, DataPE container)
     {
-        String componentSpace = data.getSpace().getCode();
-        String containerSpace = container.getSpace().getCode();
-        if (componentSpace.equals(containerSpace) == false)
-        {
-            throw new UserFailureException("Space '" + containerSpace + "' of the data set container '"
-                    + container.getCode() + "' has to be the space '" + componentSpace
-                    + "' of the data set component '" + data.getCode() + "'.");
-        }
         int ordinal = RelationshipUtils.getContainerComponentRelationships(container.getChildRelationships()).size();
         RelationshipTypePE relationshipType = RelationshipUtils.getContainerComponentRelationshipType(daoFactory.getRelationshipTypeDAO());
         assignGenericParentChild(session, data, container, relationshipType, ordinal);

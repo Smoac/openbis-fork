@@ -67,7 +67,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.NewProperty;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
-import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.StorageFormat;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.VocabularyTermPE;
@@ -275,28 +274,13 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
     @Override
     public void setContainedDataSets(ExperimentPE experiment, NewContainerDataSet newData)
     {
-        SpacePE containerSpace = data.getSpace();
-        // sanity check
-        SpacePE newComponentsSpace = experiment.getProject().getSpace();
-        if (containerSpace.equals(newComponentsSpace) == false)
+        final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
+        if (containedDataSetCodes != null)
         {
-            throw UserFailureException.fromTemplate(
-                    "Contained data sets need to be in the same space ('%s') as the container.",
-                    containerSpace.getCode());
-        } else
-        {
-            if (experiment.equals(data.getExperiment()))
+            for (String containedCode : containedDataSetCodes)
             {
-                final List<String> containedDataSetCodes = newData.getContainedDataSetCodes();
-                if (containedDataSetCodes != null)
-                {
-                    for (String containedCode : containedDataSetCodes)
-                    {
-                        final DataPE contained = getOrCreateData(containedCode, experiment);
-                        relationshipService.assignDataSetToContainer(session, contained, data);
-                        checkSameSpace(data, contained);
-                    }
-                }
+                final DataPE contained = getOrCreateData(containedCode, experiment);
+                relationshipService.assignDataSetToContainer(session, contained, data);
             }
         }
     }
@@ -611,12 +595,6 @@ public class DataBO extends AbstractDataSetBusinessObject implements IDataBO
         updateComponents(updates.getModifiedContainedDatasetCodesOrNull());
         updateFileFormatType(data, updates.getFileFormatTypeCode());
         updateProperties(data.getEntityType(), updates.getProperties(), extractPropertiesCodes(updates.getProperties()), data, data);
-
-        if (data.getContainedDataSets() != null)
-        {
-            // even if components were not changed
-            checkSameSpace(data, data.getContainedDataSets());
-        }
 
         entityPropertiesConverter.checkMandatoryProperties(data.getProperties(),
                 data.getDataSetType());
