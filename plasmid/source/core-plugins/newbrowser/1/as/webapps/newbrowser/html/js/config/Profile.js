@@ -34,6 +34,8 @@ $.extend(DefaultProfile.prototype, {
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 		this.inventorySpaces = [];
+		this.hideCodes = false;
+		this.propertyReplacingCode = "NAME";
 		
 		this.sampleTypeDefinitionsExtension = {
 		}
