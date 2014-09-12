@@ -233,7 +233,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					var $thead = $("<thead>");
 					var $tbody = $("<tbody>");
 					$table.append($thead).append($tbody);
-					$thead.append($("<tr>").append("<th>Code</th>").append("<th>Type</th>").append("<th>Metadata</th>"));
+					$thead.append($("<tr>").append("<th>Code</th>").append("<th>Name</th>").append("<th>Type</th>").append("<th>Metadata</th>"));
 					for(var i = 0; i < data.result.length; i++) {
 						var subExperiment = data.result[i];
 						var link = $("<a>", { "style" : "cursor:pointer;" }).append(subExperiment.code);
@@ -243,7 +243,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 							}
 						}
 						link.click(clickFunction(subExperiment.permId));
-						$tbody.append($("<tr>").append($("<td>").append(link)).append("<td>" + subExperiment.sampleTypeCode + "</td>").append("<td>" + Util.getMapAsString(subExperiment.properties, 200) + "</td>"));
+						$tbody.append($("<tr>").append($("<td>").append(link)).append("<td>" + Util.getEmptyIfNull(subExperiment.properties[profile.propertyReplacingCode]) + "</td>").append("<td>" + subExperiment.sampleTypeCode + "</td>").append("<td>" + Util.getMapAsString(subExperiment.properties, 200) + "</td>"));
 					}
 					$subExperimentsList.append($table);
 				} else {
