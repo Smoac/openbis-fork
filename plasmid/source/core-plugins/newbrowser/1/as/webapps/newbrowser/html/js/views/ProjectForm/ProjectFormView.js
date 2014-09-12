@@ -22,8 +22,14 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var _this = this;
 		$container.empty();
 		
-		var $form = $("<div>", { "class" : "form-horizontal row"});
-		var $formColumn = $("<div>", { "class" : FormUtil.formColumClass });
+		var $form = $("<div>", { "class" : "row"});
+		
+		var $formColumn = $("<form>", {
+			"class" : FormUtil.formColumClass + " form-horizontal", 
+			'role' : "form",
+			'action' : 'javascript:void(0);',
+			'onsubmit' : 'mainController.currentView.updateProject();'
+		});
 			
 		$form.append($formColumn);
 		
@@ -116,11 +122,8 @@ function ProjectFormView(projectFormController, projectFormModel) {
 			} else if(this._projectFormModel.mode === FormMode.EDIT) {
 				btnText = "Update Project " + this._projectFormModel.project.code;
 			}
-				
-			var $updateBtn = $("<a>", { "class" : "btn btn-primary"}).append(btnText);
-			$updateBtn.click(function() {
-				_this._projectFormController.updateProject();
-			});
+			
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : btnText });
 			$formColumn.append($updateBtn);
 		}
 		$container.append($form);

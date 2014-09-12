@@ -23,9 +23,12 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		$container.empty();
 		
 		var $form = $("<div>", { "class" : "row"});
+		
 		var $formColumn = $("<form>", { 
 			"class" : FormUtil.formColumClass + " form-horizontal", 
-			'role' : "form"
+			'role' : "form",
+			'action' : 'javascript:void(0);',
+			'onsubmit' : 'mainController.currentView.updateExperiment();'
 		});
 			
 		$form.append($formColumn);
@@ -233,11 +236,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 				label = "Create Experiment";
 			}
 			
-			var $updateBtn = $("<a>", { "class" : "btn btn-primary"}).append(label);
-			$updateBtn.click(function() {
-				_this._experimentFormController.updateExperiment();
-			});
-			
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : label });
 			$formColumn.append($updateBtn);
 		}
 		

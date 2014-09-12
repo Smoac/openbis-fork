@@ -28,9 +28,11 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		var $form = $("<div>", { "class" : "row"});
 		var $formColumn = $("<form>", { 
 			"class" : FormUtil.formColumClass + " form-horizontal", 
-			'role' : "form"
+			'role' : "form",
+			'action' : 'javascript:void(0);',
+			'onsubmit' : 'mainController.currentView.createUpdateCopySample();'
 		});
-			
+		
 		$form.append($formColumn);
 		
 		//
@@ -307,11 +309,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// FORM SUBMIT
 		//
 		if(this._sampleFormModel.mode !== FormMode.VIEW) {
-			var $updateBtn = $("<a>", { "class" : "btn btn-primary"}).append(title);
-			$updateBtn.click(function() {
-				_this._sampleFormController.createUpdateCopySample();
-			});
-			
+			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : title });
 			$formColumn.append($updateBtn);
 		}
 		
