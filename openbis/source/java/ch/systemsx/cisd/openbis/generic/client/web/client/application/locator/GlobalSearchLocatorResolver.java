@@ -36,7 +36,7 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
         // TODO KE: 2011-02-16 we should parse queries that can contain spaces
         final String queryText = getMandatoryParameter(locator, QUERY_PARAMETER_KEY);
 
-        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText);
+        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText, null);
     }
 
 

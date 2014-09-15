@@ -35,30 +35,35 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 public class GlobalSearchTabItemFactory
 {
 
+    static class ActionFinish {
+        public void finish() {}
+    }
+    
     /**
      * opens a new tab if there are search results.
      */
     public static void openTabIfEntitiesFound(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText)
+            final SearchableEntity searchableEntity, final String queryText, final ActionFinish actionFinish)
     {
 
-        openTab(viewContext, searchableEntity, queryText, false);
+        openTab(viewContext, searchableEntity, queryText, false, actionFinish);
     }
 
     /**
      * always opens a new tab, regardless if there were any search entities found.
      */
     public static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText)
+            final SearchableEntity searchableEntity, final String queryText, final ActionFinish actionFinish)
     {
 
-        openTab(viewContext, searchableEntity, queryText, true);
+        openTab(viewContext, searchableEntity, queryText, true, actionFinish);
     }
 
     private static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText,
-            final boolean openIfNoEntitiesFound)
+            final boolean openIfNoEntitiesFound,
+            final ActionFinish actionFinish)
     {
 
         final boolean useWildcardSearchMode =
@@ -82,6 +87,10 @@ public class GlobalSearchTabItemFactory
                 @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
+                    if(actionFinish != null) {
+                        actionFinish.finish();
+                    }
+                    
                     if (firstCall == false)
                     {
                         return;
@@ -102,7 +111,6 @@ public class GlobalSearchTabItemFactory
                     }
 
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
-
                 }
             });
     }
