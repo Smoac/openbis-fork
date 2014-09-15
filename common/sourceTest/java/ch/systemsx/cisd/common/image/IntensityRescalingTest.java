@@ -18,8 +18,14 @@ package ch.systemsx.cisd.common.image;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 
 /**
@@ -29,7 +35,7 @@ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 public class IntensityRescalingTest
 {
 
-    public void testRegularCaseOfIntensityRescaling()
+    public void testComputeLevelsRegularCaseOfIntensityRescaling()
     {
         int[] histogramArray =
                 new int[]
@@ -41,7 +47,7 @@ public class IntensityRescalingTest
     }
 
     @Test
-    public void testBorderCaseOfIntensityRescaling()
+    public void testComputeLevelsBorderCaseOfIntensityRescaling()
     {
         Levels result = IntensityRescaling.computeLevels(14, new int[]
             { 1098, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 });
@@ -50,7 +56,7 @@ public class IntensityRescalingTest
     }
 
     @Test
-    public void testBorderCaseOfIntensityRescalingOtherWay()
+    public void testComputeLevelsBorderCaseOfIntensityRescalingOtherWay()
     {
         Levels result = IntensityRescaling.computeLevels(14, new int[]
             { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19876 });
@@ -59,12 +65,87 @@ public class IntensityRescalingTest
     }
 
     @Test
-    public void testAnotherBorderCase()
+    public void testComputeLevelsAnotherBorderCase()
     {
         Levels result = IntensityRescaling.computeLevels(14, new int[]
             { 19876, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
         assertEquals(0, result.minLevel);
         assertEquals(1, result.maxLevel);
     }
+    
+    @Test
+    public void testRescaleIntensityLevelTo8BitsForRGBExampleAndTwoColors()
+    {
+        BufferedImage image = new BufferedImage(6, 5, BufferedImage.TYPE_INT_RGB);
+        Graphics graphics = image.getGraphics();
+        graphics.setColor(Color.ORANGE);
+        graphics.fillRect(0, 0, 4, 3);
+        graphics.setColor(Color.PINK);
+        graphics.fillRect(1, 1, 4, 3);
+        
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(image, new Levels(75, 190), 
+                Channel.GREEN, Channel.BLUE);
+        
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
+        
+        assertEquals("[0=30]", renderHistogram(histogram.getRedHistogram()));
+        assertEquals("[0=12, 222=12, 255=6]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=18, 222=12]", renderHistogram(histogram.getBlueHistogram()));
+    }
 
-}
+    @Test
+    public void testRescaleIntensityLevelTo8BitsForRGBExampleAndAllColors()
+    {
+        BufferedImage image = new BufferedImage(6, 5, BufferedImage.TYPE_INT_RGB);
+        Graphics graphics = image.getGraphics();
+        graphics.setColor(Color.ORANGE);
+        graphics.fillRect(0, 0, 4, 3);
+        graphics.setColor(Color.PINK);
+        graphics.fillRect(1, 1, 4, 3);
+        
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(image, new Levels(75, 190));
+        
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
+        
+        assertEquals("[0=12, 255=18]", renderHistogram(histogram.getRedHistogram()));
+        assertEquals("[0=12, 222=12, 255=6]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=18, 222=12]", renderHistogram(histogram.getBlueHistogram()));
+    }
+    
+    @Test
+    public void testRescaleIntensityLevelTo8BitsForGrayExample()
+    {
+        BufferedImage image = new BufferedImage(6, 5, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics graphics = image.getGraphics();
+        graphics.setColor(Color.DARK_GRAY);
+        graphics.fillRect(0, 0, 4, 3);
+        graphics.setColor(Color.LIGHT_GRAY);
+        graphics.fillRect(1, 1, 4, 3);
+        
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(
+                new GrayscalePixels(image), new Levels(75, 200));
+        
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
+        
+        assertEquals("[0=18, 239=12]", renderHistogram(histogram.getRedHistogram()));
+        assertEquals("[0=18, 239=12]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=18, 239=12]", renderHistogram(histogram.getBlueHistogram()));
+    }
+    
+    private String renderHistogram(int[] histogram)
+    {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < histogram.length; i++)
+        {
+            int value = histogram[i];
+            if (value > 0)
+            {
+                if (builder.length() > 0)
+                {
+                    builder.append(", ");
+                }
+                builder.append(i).append("=").append(value);
+            }
+        }
+        return "[" + builder.toString() + "]";
+    }}

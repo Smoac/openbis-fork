@@ -19,6 +19,7 @@ package ch.systemsx.cisd.common.image;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -302,6 +303,8 @@ public class MixColors
     {
         assert colors.length == images.length : "number of colors and images do not match";
 
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         ColorMergingAlgorithm mergeColorsAlgorithm =
                 createColorMergingAlgorithm(quadratic, saturationEnhancementFactor, images);
 
@@ -335,6 +338,7 @@ public class MixColors
                 }
             }
         }
+        operationLog.info("MIXING " + images.length + " images (" + width + "x" + height + ") took " + stopWatch);
         return new MixedImageWithWhitePoint(mixed, whitePointColor);
     }
 
