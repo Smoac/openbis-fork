@@ -54,6 +54,10 @@ public class SimpleImageDropboxTest extends AbstractImageDropboxTestCase
                 new ImageLoader(dataSet, sessionToken).channel("DAPI"));
         imageChecker.check(new File(getTestDataFolder(), "1_3_DAPI_CY3_256x191.png"), 
                 new ImageLoader(dataSet, sessionToken).tileColumn(3).channel("DAPI").channel("CY3").mode("thumbnail256x191"));
+        imageChecker.check(new File(getTestDataFolder(), "1_2_Merged_1392x1040.png"), 
+                new ImageLoader(dataSet, sessionToken).tileColumn(2).mode("thumbnail1392x1040"));
+        imageChecker.check(new File(getTestDataFolder(), "1_1_Merged_Default_GFP_0_100.png"), 
+                new ImageLoader(dataSet, sessionToken).rescaling("GFP", 0, 100));
         imageChecker.assertNoFailures();
     }
 }

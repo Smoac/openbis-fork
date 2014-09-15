@@ -107,6 +107,10 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         imageChecker.check(new File(getTestDataFolder(), "C01_512x512.png"), 
                 new ImageLoader(dataSet, sessionToken).microscopy().channel("SERIES-0_CHANNEL-0")
                 .channel("SERIES-0_CHANNEL-1").mode("thumbnail512x512"));
+        imageChecker.check(new File(getTestDataFolder(), "Merged_256x256_C0_0_20_C4_2_15.png"), 
+                new ImageLoader(dataSet, sessionToken).microscopy().rescaling("SERIES-0_CHANNEL-0", 0, 20)
+                .rescaling("SERIES-0_CHANNEL-4", 2, 15).mode("thumbnail256x256"));
+
         imageChecker.assertNoFailures();
     }
     

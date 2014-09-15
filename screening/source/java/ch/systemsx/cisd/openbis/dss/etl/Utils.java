@@ -49,8 +49,7 @@ public class Utils
         }
         BufferedImage image = ImageUtil.loadUnchangedImage(contentNode, imageIdOrNull, imageLibraryNameOrNull,
                 imageLibraryReaderNameOrNull, null);
-
-        return ImageUtil.convertToRGB(image);
+        return image;
     }
 
     public static Size loadUnchangedImageSize(IHierarchicalContentNode contentNode,

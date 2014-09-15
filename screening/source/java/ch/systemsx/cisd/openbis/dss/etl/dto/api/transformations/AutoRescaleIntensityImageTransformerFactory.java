@@ -18,14 +18,18 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.util.Arrays;
 import java.util.EnumSet;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.test.ImageDebugViewer;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * Transformation performed by
@@ -60,22 +64,17 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                 {
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
-                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
-                        if (channels.size() != 1)
+                        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+                        if (channel == null)
                         {
                             return image;
-                        } else
-                        {
-                            Channel channel = channels.iterator().next();
-                            Levels levels =
-                                    IntensityRescaling.computeLevels(toGrayScale(image, channel),
-                                            threshold);
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
-                                    channel);
                         }
+                        BufferedImage grayScaleImage = toGrayScale(image, channel);
+                        Levels levels = IntensityRescaling.computeLevels(grayScaleImage, threshold);
+                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                     }
                     Levels levels = IntensityRescaling.computeLevels(image, threshold);
-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(new IntensityRescaling.GrayscalePixels(image), levels);
                 }
             };
     }

@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -84,7 +87,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         public String toString()
         {
             StringBuilder builder = new StringBuilder();
-            builder.append("/===== Failure Report for image ").append(referenceImage).append('\n');
+            builder.append("/===== Failure Report for image ").append(referenceImage.getAbsolutePath()).append('\n');
             builder.append(failureReport).append("\\============================\n");
             return builder.toString();
         }
@@ -100,6 +103,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
     {
         private final URLMethodWithParameters url;
         private final List<String> channels = new ArrayList<String>();
+        private final Map<String, String> transformationsByChannel = new HashMap<String, String>();
         private boolean mergeChannels = true;
         private boolean microscopy = false;
         private int wellRow = 1;
@@ -146,6 +150,11 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             }
             url.addParameter(ImageServletUrlParameters.TILE_ROW_PARAM, Integer.toString(tileRow));
             url.addParameter(ImageServletUrlParameters.TILE_COL_PARAM, Integer.toString(tileColumn));
+            for (Entry<String, String> entry : transformationsByChannel.entrySet())
+            {
+                url.addParameter(ImageServletUrlParameters.SINGLE_CHANNEL_TRANSFORMATION_CODE_PARAM + entry.getKey(), 
+                        entry.getValue());
+            }
             url.addParameter("mode", mode);
             try
             {
@@ -198,6 +207,13 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             channels.add(channel);
             return this;
         }
+        
+        public ImageLoader rescaling(String channel, int low, int high)
+        {
+            transformationsByChannel.put(channel, 
+                    ScreeningConstants.USER_DEFINED_RESCALING_CODE + "(" + low + "," + high + ")");
+            return this;
+        }
     }
     
     /**
@@ -208,6 +224,8 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
      */
     protected static final class ImageChecker
     {
+        private static final int HISTOGRAM_HEIGHT = 19;
+        private static final int HISTOGRAM_WIDTH = 151;
         private final StringBuilder failureReport = new StringBuilder();
         private final File folderForWrongImages;
         
@@ -230,8 +248,8 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         {
             if (assertNoFailuresAlreadyInvoked == false)
             {
-                AssertJUnit.assertEquals("", failureReport.toString());
                 assertNoFailuresAlreadyInvoked = true;
+                AssertJUnit.assertEquals("", failureReport.toString());
             }
         }
         
@@ -244,19 +262,29 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             FailureReport report = new FailureReport(referenceImage);
             try
             {
-                BufferedImage expectedImage = ImageIO.read(referenceImage);
                 BufferedImage actualImage = imageLoader.load();
-                checkEquals(report, expectedImage, actualImage);
+                checkEquals(report, referenceImage, actualImage);
                 saveActualImageIfDifferent(actualImage, referenceImage, report);
             } catch (IOException ex)
             {
-                report.addFailureMessage("Couldn't load image: " + ex);
+                report.addFailureMessage("Couldn't save image: " + ex);
             } finally
             {
                 if (report.isFailure())
                 {
                     failureReport.append(report);
                 }
+            }
+        }
+
+        private BufferedImage load(File referenceImage)
+        {
+            try
+            {
+                return ImageIO.read(referenceImage);
+            } catch (IOException ex)
+            {
+                return null;
             }
         }
 
@@ -278,12 +306,17 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             }
         }
         
-        private void checkEquals(FailureReport report, BufferedImage expectedImage, BufferedImage actualImage)
+        private void checkEquals(FailureReport report, File referenceImage, BufferedImage actualImage)
         {
-            if (expectedImage == null || actualImage == null)
+            BufferedImage expectedImage = load(referenceImage);
+            if (expectedImage == null)
             {
-                report.addFailureMessage("Expected and/or actual image is undefined: Expected image: <" + expectedImage 
-                        + ">, actual image: <" + actualImage + ">");
+                report.addFailureMessage("Expected and image is undefined");
+                return;
+            }
+            if (actualImage == null)
+            {
+                report.addFailureMessage("Actual image is undefined");
                 return;
             }
             checkEquals(report, "Image height", expectedImage.getHeight(), actualImage.getHeight());
@@ -297,23 +330,32 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             checkEquals(report, "Color space type", expectedColorSpace.getType(), actualColorSpace.getType());
             ImageHistogram expectedHistogram = ImageHistogram.calculateHistogram(expectedImage);
             ImageHistogram actualHistogram = ImageHistogram.calculateHistogram(actualImage);
-            String expectedRenderedHistogram = expectedHistogram.renderAsASCIIChart(49, 9);
-            String actualRenderedHistogram = actualHistogram.renderAsASCIIChart(49, 9);
+            String expectedRenderedHistogram = expectedHistogram.renderAsASCIIChart(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT);
+            String actualRenderedHistogram = actualHistogram.renderAsASCIIChart(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT);
             if (expectedRenderedHistogram.equals(actualRenderedHistogram))
             {
+                printComparisonMessage(referenceImage, expectedRenderedHistogram);
                 return;
             }
             // difference can be caused by a value close to discretization border. Thus try another height.
-            expectedRenderedHistogram = expectedHistogram.renderAsASCIIChart(49, 10);
-            actualRenderedHistogram = actualHistogram.renderAsASCIIChart(49, 10);
+            expectedRenderedHistogram = expectedHistogram.renderAsASCIIChart(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT + 1);
+            actualRenderedHistogram = actualHistogram.renderAsASCIIChart(HISTOGRAM_WIDTH, HISTOGRAM_HEIGHT + 1);
             if (expectedRenderedHistogram.equals(actualRenderedHistogram))
             {
+                printComparisonMessage(referenceImage, expectedRenderedHistogram);
                 return;
             }
-            report.addFailureMessage("expected histogram of " + expectedImage + ":\n" + expectedRenderedHistogram 
+            report.addFailureMessage("expected histogram of " + expectedImage + ":\n" + expectedRenderedHistogram
                     + "actual histogram of " + actualImage + ":\n" + actualRenderedHistogram);
         }
-        
+
+        private void printComparisonMessage(File referenceImage, 
+                String expectedRenderedHistogram)
+        {
+            System.out.println("Histogram of reference image (" + referenceImage 
+                    + ") equals actual histogram:\n" + expectedRenderedHistogram);
+        }
+
         private void checkEquals(FailureReport report, String message, Object expected, Object actual)
         {
             if (expected == null ? expected == actual : expected.equals(actual))

@@ -24,11 +24,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -40,11 +44,14 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -931,6 +938,49 @@ public class ImageUtil
     {
         return image.getColorModel().getColorSpace().getNumComponents() == 1;
     }
+    
+    /**
+     * Checks whether the specified image is actually a (colored) gray image. 
+     * 
+     * @return the representative color channel which can be used to extract the gray image. 
+     *          <code>null</code> if the image isn't a gray image.
+     */
+    public static Channel getRepresentativeChannelIfEffectiveGray(BufferedImage image)
+    {
+        ImageHistogram imageHistogram = ImageHistogram.calculateHistogram(image);
+        Map<Channel, int[]> histogramsByChannels = new LinkedHashMap<Channel, int[]>();
+        int numberOfPixels = image.getWidth() * image.getHeight();
+        checkIfChannelIsUsed(histogramsByChannels, numberOfPixels, Channel.RED, imageHistogram.getRedHistogram());
+        checkIfChannelIsUsed(histogramsByChannels, numberOfPixels, Channel.GREEN, imageHistogram.getGreenHistogram());
+        checkIfChannelIsUsed(histogramsByChannels, numberOfPixels, Channel.BLUE, imageHistogram.getBlueHistogram());
+        List<Entry<Channel, int[]>> usedChannels = new ArrayList<Map.Entry<Channel,int[]>>(histogramsByChannels.entrySet());
+        if (usedChannels.isEmpty())
+        {
+            return Channel.RED; // Black image is a gray image, doesn't matter which channel to return.
+        }
+        Entry<Channel, int[]> representativeChannel = usedChannels.get(0);
+        int[] representativeHistogram = representativeChannel.getValue();
+        for (int i = 1; i < usedChannels.size(); i++)
+        {
+            int[] histogram = usedChannels.get(i).getValue();
+            for (int j = 0; j < histogram.length; j++)
+            {
+                if (histogram[j] != representativeHistogram[j])
+                {
+                    return null;
+                }
+            }
+        }
+        return representativeChannel.getKey();
+    }
+
+    private static void checkIfChannelIsUsed(Map<Channel, int[]> usedChannels, int numberOfPixels, Channel channel, int[] histogram)
+    {
+        if (histogram[0] < numberOfPixels)
+        {
+            usedChannels.put(channel, histogram);
+        }
+    }
 
     /**
      * Re-scales the image to be the biggest one which fits into a (0,0,maxWidth, maxHeight)
@@ -1011,9 +1061,6 @@ public class ImageUtil
             imageType =
                     imageType == BufferedImage.TYPE_USHORT_GRAY ? BufferedImage.TYPE_BYTE_GRAY
                             : BufferedImage.TYPE_INT_RGB;
-        } else if (imageType == BufferedImage.TYPE_CUSTOM)
-        {
-            imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         } else if (imageType == BufferedImage.TYPE_BYTE_INDEXED)
         {
             imageType = BufferedImage.TYPE_INT_RGB;
