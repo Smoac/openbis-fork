@@ -40,7 +40,7 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private final RequestedImageSize imageSize;
 
-    private final ImageTransfomationFactories imageTransfomationFactories;
+    private final ImageTransfomationFactories imageTransformationFactories;
 
     private final ImageLibraryInfo imageLibraryOrNull;
 
@@ -71,7 +71,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         this.uniqueId = uniqueId;
         this.imageSize = imageSize;
         this.channelColor = channelColor;
-        this.imageTransfomationFactories = imageTransfomationFactories;
+        this.imageTransformationFactories = imageTransfomationFactories;
         this.imageLibraryOrNull = imageLibraryOrNull;
         this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
         this.channelCodeOrNull = channelCodeOrNull;
@@ -152,9 +152,9 @@ public class AbsoluteImageReference extends AbstractImageReference
         return imageSize;
     }
 
-    public ImageTransfomationFactories getImageTransfomationFactories()
+    public ImageTransfomationFactories getImageTransformationFactories()
     {
-        return imageTransfomationFactories;
+        return imageTransformationFactories;
     }
 
     public ChannelColorRGB getChannelColor()
@@ -179,7 +179,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     {
         ColorComponent colorComponent = null;
         return new AbsoluteImageReference(contentNode, uniqueId, tryGetImageID(), colorComponent,
-                imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull,
+                imageSize, channelColor, imageTransformationFactories, imageLibraryOrNull,
                 singleChannelTransformationCodeOrNull, null);
     }
 }
