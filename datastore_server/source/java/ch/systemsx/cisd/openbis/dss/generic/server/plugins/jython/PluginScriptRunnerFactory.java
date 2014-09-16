@@ -449,6 +449,12 @@ public class PluginScriptRunnerFactory implements IPluginScriptRunnerFactory
         }
 
         @Override
+        public void setVariable(String name, Object value)
+        {
+            evaluator.set(name, value);
+        }
+
+        @Override
         public void handle(HttpServletRequest request, HttpServletResponse response)
         {
             evaluator.evalFunction(FUNCTION_NAME, request, response);

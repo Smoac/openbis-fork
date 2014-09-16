@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 public interface IRequestHandlerPluginScriptRunner
 {
 
+    void setVariable(String name, Object value);
+
     void handle(HttpServletRequest req, HttpServletResponse resp);
 
     void releaseResources();

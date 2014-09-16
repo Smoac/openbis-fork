@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IPluginScriptRunnerFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.IRequestHandlerPluginScriptRunner;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.jython.PluginScriptRunnerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataStoreServiceInternal;
@@ -36,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * OAI-PMH response handler that delegates a response generation to a Jython script. The script can be configured via "script-path" property. The
  * script should define a function with a following signature:
  * </p>
+ * 
  * <pre>
  * def handle(request, response)
  * </pre>
@@ -58,16 +60,22 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SessionContextDTO;
  * @author pkupczyk
  */
 
+@SuppressWarnings("hiding")
 public class JythonBasedRequestHandler implements IRequestHandler
 {
 
     private static final String SCRIPT_PATH_PARAMETER_NAME = "script-path";
+
+    private static final String PROPERTIES_VARIABLE_NAME = "properties";
+
+    private Properties properties;
 
     private String scriptPath;
 
     @Override
     public void init(Properties properties)
     {
+        this.properties = properties;
         this.scriptPath = initScriptPath(properties);
     }
 
@@ -113,14 +121,15 @@ public class JythonBasedRequestHandler implements IRequestHandler
                     service.getSessionWorkspaceProvider(session.getSessionToken()),
                     new HashMap<String, String>(), service.createEMailClient(), session.getUserName(), session.getUserEmail(),
                     session.getSessionToken());
-            factory.createRequestHandlerPluginRunner(context).handle(req, resp);
+            IRequestHandlerPluginScriptRunner runner = factory.createRequestHandlerPluginRunner(context);
+            runner.setVariable(PROPERTIES_VARIABLE_NAME, properties);
+            runner.handle(req, resp);
         } finally
         {
             manager.releaseLocks();
         }
     }
 
-    @SuppressWarnings("hiding")
     protected IPluginScriptRunnerFactory getScriptRunnerFactory(String scriptPath)
     {
         return new PluginScriptRunnerFactory(scriptPath);
