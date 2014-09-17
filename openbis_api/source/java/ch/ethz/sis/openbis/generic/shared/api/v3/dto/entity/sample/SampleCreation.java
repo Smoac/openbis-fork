@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("SampleCreation")
-public class SampleCreation
+public class SampleCreation implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private IEntityTypeId typeId;
 
     private IExperimentId experimentId;

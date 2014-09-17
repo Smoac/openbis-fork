@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author pkupczyk
  */
 @JsonObject("ExperimentUpdate")
-public class ExperimentUpdate
+public class ExperimentUpdate implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
     private IExperimentId experimentId;
 

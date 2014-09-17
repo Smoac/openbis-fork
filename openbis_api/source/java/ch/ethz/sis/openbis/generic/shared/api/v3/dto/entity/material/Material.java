@@ -16,13 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.material;
 
+import java.io.Serializable;
+
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("Material")
-public class Material
+public class Material implements Serializable
 {
+
+    private static final long serialVersionUID = 1L;
 
 }
