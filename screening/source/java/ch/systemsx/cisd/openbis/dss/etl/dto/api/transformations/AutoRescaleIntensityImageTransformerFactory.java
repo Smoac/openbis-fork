@@ -25,12 +25,13 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * Transformation performed by
  * {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)} where levels are
- * computed automatically by {@link IntensityRescaling#computeLevels(BufferedImage, float)}.
+ * computed automatically by {@link IntensityRescaling#computeLevels(Pixels, float)}.
  * <p>
  * Warning: The serialized version of this class can be stored in the database for each image.
  * Moving this class to a different package or changing it in a backward incompatible way would make
@@ -65,17 +66,18 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                         {
                             return image;
                         }
-                        BufferedImage grayScaleImage = toGrayScale(image, channel);
+                        Pixels grayScaleImage = toGrayScale(image, channel);
                         Levels levels = IntensityRescaling.computeLevels(grayScaleImage, threshold);
                         return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                     }
-                    Levels levels = IntensityRescaling.computeLevels(image, threshold);
-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(new IntensityRescaling.GrayscalePixels(image), levels);
+                    Pixels pixels = new Pixels(image);
+                    Levels levels = IntensityRescaling.computeLevels(pixels, threshold);
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.RED);
                 }
             };
     }
 
-    private BufferedImage toGrayScale(BufferedImage image, Channel channel)
+    private Pixels toGrayScale(BufferedImage image, Channel channel)
     {
         BufferedImage gray =
                 new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -90,6 +92,6 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                     { value });
             }
         }
-        return gray;
+        return new Pixels(gray);
     }
 }

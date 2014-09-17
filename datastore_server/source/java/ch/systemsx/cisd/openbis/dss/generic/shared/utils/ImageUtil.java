@@ -52,8 +52,8 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
-import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
@@ -923,11 +923,11 @@ public class ImageUtil
         {
             if (image.getColorModel().getPixelSize() > 8)
             {
-                GrayscalePixels pixels = new GrayscalePixels(image);
+                Pixels pixels = new Pixels(image);
                 Levels intensityRange = IntensityRescaling.computeLevels(pixels, 
                         threshold == null ? DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold);
                 BufferedImage result =
-                        IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange);
+                        IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange, Channel.RED);
                 return result;
             }
         }

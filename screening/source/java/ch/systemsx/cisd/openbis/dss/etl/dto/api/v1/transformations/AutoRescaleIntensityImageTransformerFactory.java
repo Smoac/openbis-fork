@@ -18,7 +18,6 @@ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.util.EnumSet;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
@@ -26,6 +25,8 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
 
 /**
  * This class is obsolete, and should not be used. Use
@@ -56,27 +57,23 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                 {
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
-                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
-                        if (channels.size() != 1)
+                        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+                        if (channel == null)
                         {
                             return image;
-                        } else
-                        {
-                            Channel channel = channels.iterator().next();
-                            Levels levels =
-                                    IntensityRescaling.computeLevels(toGrayScale(image, channel),
-                                            threshold);
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
-                                    channel);
                         }
+                        Pixels grayScaleImage = toGrayScale(image, channel);
+                        Levels levels = IntensityRescaling.computeLevels(grayScaleImage, threshold);
+                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                     }
-                    Levels levels = IntensityRescaling.computeLevels(image, threshold);
-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
+                    Pixels pixels = new Pixels(image);
+                    Levels levels = IntensityRescaling.computeLevels(pixels, threshold);
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.RED);
                 }
             };
     }
 
-    private BufferedImage toGrayScale(BufferedImage image, Channel channel)
+    private Pixels toGrayScale(BufferedImage image, Channel channel)
     {
         BufferedImage gray =
                 new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
@@ -91,7 +88,7 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                     { value });
             }
         }
-        return gray;
+        return new Pixels(gray);
     }
 
 }

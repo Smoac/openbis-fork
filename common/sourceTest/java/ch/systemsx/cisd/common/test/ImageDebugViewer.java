@@ -45,6 +45,11 @@ import ch.systemsx.cisd.common.image.ImageHistogram;
  */
 public class ImageDebugViewer
 {
+    private static final String[] IMAGE_TYPES = {"TYPE_CUSTOM", "TYPE_INT_RGB", "TYPE_INT_ARGB",
+        "TYPE_INT_ARGB_PRE", "TYPE_INT_BGR", "TYPE_3BYTE_BGR", "TYPE_4BYTE_ABGR", 
+        "TYPE_4BYTE_ABGR_PRE", "TYPE_USHORT_565_RGB", "TYPE_USHORT_555_RGB", "TYPE_BYTE_GRAY",
+        "TYPE_USHORT_GRAY", "TYPE_BYTE_BINARY", "TYPE_BYTE_INDEXED"};
+
     public static boolean debug = true;
     
     public static void view(String title, final BufferedImage image)
@@ -63,7 +68,13 @@ public class ImageDebugViewer
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(new JLabel(title), BorderLayout.NORTH);
         panel.add(new JLabel(imageIcon), BorderLayout.CENTER);
-        StringBuilder builder = new StringBuilder(image.toString());
+        StringBuilder builder = new StringBuilder();
+        String type = tryGetTypeAsString(image);
+        if (type != null)
+        {
+            builder.append("type:").append(type).append(' ');
+        }
+        builder.append(image);
         ColorSpace colorSpace = image.getColorModel().getColorSpace();
         int numComponents = colorSpace.getNumComponents();
         for (int i = 0; i < numComponents; i++)
@@ -110,8 +121,13 @@ public class ImageDebugViewer
     private static void printDebugInfo(String title, BufferedImage image)
     {
         System.out.println("/--------- " + title);
+        String type = tryGetTypeAsString(image);
+        if (type != null)
+        {
+            System.out.println("image type: " + type);
+        }
         System.out.println(image);
-        System.out.println("accelartion priority: " + image.getAccelerationPriority());
+        System.out.println("acceleration priority: " + image.getAccelerationPriority());
         String[] propertyNames = image.getPropertyNames();
         if (propertyNames != null)
         {
@@ -140,6 +156,11 @@ public class ImageDebugViewer
         }
         System.out.println("\\_________ " + title);
     }
-
+    
+    private static String tryGetTypeAsString(BufferedImage image)
+    {
+        int type = image.getType();
+        return type >= 0 && type < IMAGE_TYPES.length ? IMAGE_TYPES[type] : null;
+    }
 
 }

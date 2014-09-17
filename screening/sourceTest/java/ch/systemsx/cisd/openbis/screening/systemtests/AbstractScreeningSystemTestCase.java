@@ -311,12 +311,14 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             BufferedImage expectedImage = load(referenceImage);
             if (expectedImage == null)
             {
-                report.addFailureMessage("Expected and image is undefined");
-                return;
+                report.addFailureMessage("Expected image is undefined");
             }
             if (actualImage == null)
             {
                 report.addFailureMessage("Actual image is undefined");
+            }
+            if (expectedImage == null || actualImage == null)
+            {
                 return;
             }
             checkEquals(report, "Image height", expectedImage.getHeight(), actualImage.getHeight());

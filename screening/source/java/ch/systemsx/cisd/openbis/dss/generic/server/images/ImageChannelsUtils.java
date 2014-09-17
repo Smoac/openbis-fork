@@ -20,7 +20,6 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +31,11 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.image.ImageHistogram;
+import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.common.image.MixColors;
-import ch.systemsx.cisd.common.image.MixColors.MixedImageWithWhitePoint;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.hcs.Location;
@@ -163,20 +163,6 @@ public class ImageChannelsUtils
     public static ResponseContentStream getImageStream(ImageGenerationDescription params,
             IHierarchicalContentProvider contentProvider)
     {
-        ImageRepresentationFormat existingRepresentationFormat =
-                RepresentationUtil.tryGetRepresentationFormat(params);
-
-        if (existingRepresentationFormat != null && existingRepresentationFormat.getColorDepth() != null
-                && existingRepresentationFormat.getColorDepth() == 8)
-        {
-            IHierarchicalContentNode content =
-                    tryGetRawContentOfExistingThumbnail(params, existingRepresentationFormat);
-            if (content != null)
-            {
-//                return asResponseContentStream(content);
-            }
-        }
-
         BufferedImage image = calculateImage(params, contentProvider);
         image = drawOverlays(image, params, contentProvider);
         if (image == null)
@@ -439,11 +425,14 @@ public class ImageChannelsUtils
             boolean enlarge = requestedSize.enlargeIfNecessary();
             boolean highQuality8Bit = requestedSize.isHighQualityRescalingRequired();
             image = ImageUtil.rescale(image, size.getWidth(), size.getHeight(), enlarge, highQuality8Bit);
+            if (highQuality8Bit == false)
+            {
+                image = ImageUtil.convertForDisplayIfNecessary(image, null);
+            }
             if (operationLog.isDebugEnabled())
             {
                 operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
             }
-
         }
 
         // choose color component if necessary
@@ -454,8 +443,7 @@ public class ImageChannelsUtils
             image = transformToChannel(image, colorComponentOrNull);
             if (operationLog.isDebugEnabled())
             {
-                operationLog
-                        .debug("Select single channel: " + (System.currentTimeMillis() - start));
+                operationLog.debug("Select single channel: " + (System.currentTimeMillis() - start));
             }
         }
         return image;
@@ -504,8 +492,8 @@ public class ImageChannelsUtils
             IImageTransformerFactory mergedChannelTransformationOrNull)
     {
         // We do not transform single images here.
-        List<ImageWithReference> images =
-            calculateSingleImages(imageReferences, createCalculator(transformationInfo));
+        IImageCalculator calculator = createCalculator(transformationInfo);
+        List<ImageWithReference> images = calculateSingleImages(imageReferences, calculator);
         for (int i = 0; i < images.size(); i++)
         {
             ImageWithReference imageWithReference = images.get(i);
@@ -520,20 +508,17 @@ public class ImageChannelsUtils
             }
         }
         
-        MixedImageWithWhitePoint mergedImageWithWhitePoint = mergeImages(images);
-        BufferedImage mergedImage = mergedImageWithWhitePoint.getImage();
+        BufferedImage mergedImage = mergeImages(images);
         
         // non-user transformation - apply color range fix after mixing
         Map<String, String> transMap = transformationInfo.tryGetTransformationCodeForChannels();
-        Color whitePointColor = mergedImageWithWhitePoint.getWhitePoint();
         IImageTransformerFactory channelTransformation = mergedChannelTransformationOrNull;
-        if ((transMap == null || transMap.size() == 0) && channelTransformation == null && whitePointColor != null) 
+        if ((transMap == null || transMap.size() == 0) && channelTransformation == null) 
         {
-            int red = whitePointColor.getRed();
-            int green = whitePointColor.getGreen();
-            int blue = whitePointColor.getBlue();
-            int whitePoint = Math.max(Math.max(red, green), blue);
-            channelTransformation = new IntensityRangeImageTransformerFactory(0, whitePoint);
+            Levels levels = IntensityRescaling.computeLevels(mergedImage, 30);
+            int minLevel = levels.getMinLevel();
+            int maxLevel = levels.getMaxLevel();
+            channelTransformation = new IntensityRangeImageTransformerFactory(minLevel, maxLevel);
         }
         
         // NOTE: even if we are not merging all the channels but just few of them we use the
@@ -552,25 +537,20 @@ public class ImageChannelsUtils
                 @Override
                 public BufferedImage create(AbsoluteImageReference imageContent)
                 {
-                    String channelCode = imageContent.tryGetChannelCode();
-                    if (transformationInfo != null
-                            && transformationInfo.tryGetTransformationCodeForChannel(channelCode) != null)
+                    boolean applyNonImageLevelTransformation = false;
+                    String transformationCode = null;
+                    if (transformationInfo != null)
                     {
-                        String transformationCode = 
-                                transformationInfo.tryGetTransformationCodeForChannel(channelCode);
-                        boolean applyNonImageLevelTransformation = 
-                                transformationInfo.isApplyNonImageLevelTransformation();
-                        ImageTransformationParams info = 
-                                new ImageTransformationParams(applyNonImageLevelTransformation, false, 
-                                        transformationCode, null);
-                        return calculateAndTransformSingleImageForDisplay(imageContent, info, null);
-                    } else
-                    {
-                        // NOTE: here we skip image level transformations as well
-                        BufferedImage image = calculateSingleImage(imageContent);
-                        BufferedImage image2 = ImageUtil.convertForDisplayIfNecessary(image, null);
-                        return image2;
+                        String channelCode = imageContent.tryGetChannelCode();
+                        transformationCode = transformationInfo.tryGetTransformationCodeForChannel(channelCode);
+                        if (transformationCode != null)
+                        {
+                            applyNonImageLevelTransformation = transformationInfo.isApplyNonImageLevelTransformation();
+                        }
                     }
+                    ImageTransformationParams info = new ImageTransformationParams(applyNonImageLevelTransformation,
+                            false, transformationCode, null);
+                    return calculateAndTransformSingleImageForDisplay(imageContent, info, null);
                 }
             };
     }
@@ -643,7 +623,7 @@ public class ImageChannelsUtils
     
 
     // this method always returns RGB images, even if the input was in grayscale
-    private static MixedImageWithWhitePoint mergeImages(List<ImageWithReference> images)
+    private static BufferedImage mergeImages(List<ImageWithReference> images)
     {
         BufferedImage[] bufferedImages = new BufferedImage[images.size()];
         Color[] colors = new Color[images.size()];
@@ -657,8 +637,8 @@ public class ImageChannelsUtils
         ColorComponent[] colorComponents = tryExtractColorComponent(images);
         if (colorComponents != null)
         {
-            return new MixedImageWithWhitePoint(ColorComponentImageChannelMerger.mergeByExtractingComponents(bufferedImages,
-                    colorComponents), null);
+            return ColorComponentImageChannelMerger.mergeByExtractingComponents(bufferedImages,
+                    colorComponents);
         } else
         {
             return MixColors.mixImages(bufferedImages, colors, false, 0);
@@ -783,40 +763,33 @@ public class ImageChannelsUtils
     
     public static BufferedImage transformColor(BufferedImage bufferedImage, IColorTransformation transformation)
     {
-        BufferedImage newImage = createNewRGBImage(bufferedImage);
-        int width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight();
+        Pixels pixels = new Pixels(bufferedImage);
+        int width = pixels.getWidth();
+        int height = pixels.getHeight();
+        int[][] pixelData = pixels.getPixelData();
+        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int y = 0; y < height; y++)
         {
+            int offset = y * width;
             for (int x = 0; x < width; x++)
             {
-                int rgb = bufferedImage.getRGB(x, y);
+                int pixelIndex = offset + x;
+                int rgb = 0;
+                for (int i = 0; i < 3; i++)
+                {
+                    int band = Math.min(i, pixelData.length - 1);
+                    rgb = (rgb << 8) + (pixelData[band][pixelIndex] & 0xff);
+                }
                 newImage.setRGB(x, y, transformation.transform(rgb));
             }
         }
         return newImage;
     }
     
-    // NOTE: drawing on this image will not preserve transparency - but we do not need it and the
-    // image is smaller
-    private static BufferedImage createNewRGBImage(RenderedImage bufferedImage)
-    {
-        BufferedImage newImage =
-                new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),
-                        BufferedImage.TYPE_INT_RGB);
-        return newImage;
-    }
-
     private static IHierarchicalContentNode createPngContent(BufferedImage image, String nameOrNull)
     {
         final byte[] output = ImageUtil.imageToPngFast(image);
         return new ByteArrayBasedContentNode(output, nameOrNull);
-    }
-
-    private static void logImage(String title, BufferedImage image)
-    {
-        ImageHistogram calculateHistogram = ImageHistogram.calculateHistogram(image);
-        System.err.println(title+": "+image+"\n" + calculateHistogram);
     }
 
 }

@@ -25,6 +25,7 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 
 /**
  * This class is obsolete, and should not be used. Use
@@ -75,7 +76,7 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                         } else
                         {
                             Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(new Pixels(image), levels,
                                     channels.iterator().next());
                         }
                     }

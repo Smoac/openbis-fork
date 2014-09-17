@@ -25,8 +25,8 @@ import java.awt.image.BufferedImage;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
-import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 
 /**
  * @author Jakub Straszewski
@@ -83,8 +83,8 @@ public class IntensityRescalingTest
         graphics.setColor(Color.PINK);
         graphics.fillRect(1, 1, 4, 3);
         
-        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(image, new Levels(75, 190), 
-                Channel.GREEN, Channel.BLUE);
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(new Pixels(image), 
+                new Levels(75, 190), Channel.GREEN, Channel.BLUE);
         
         ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
         
@@ -123,13 +123,33 @@ public class IntensityRescalingTest
         graphics.fillRect(1, 1, 4, 3);
         
         BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(
-                new GrayscalePixels(image), new Levels(75, 200));
+                new Pixels(image), new Levels(75, 200), Channel.RED);
         
         ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
         
         assertEquals("[0=18, 239=12]", renderHistogram(histogram.getRedHistogram()));
         assertEquals("[0=18, 239=12]", renderHistogram(histogram.getGreenHistogram()));
         assertEquals("[0=18, 239=12]", renderHistogram(histogram.getBlueHistogram()));
+    }
+    
+    @Test
+    public void testRescaleIntensityLevelTo16BitsForGrayExample()
+    {
+        BufferedImage image = new BufferedImage(6, 5, BufferedImage.TYPE_USHORT_GRAY);
+        Graphics graphics = image.getGraphics();
+        graphics.setColor(Color.DARK_GRAY);
+        graphics.fillRect(0, 0, 4, 3);
+        graphics.setColor(Color.LIGHT_GRAY);
+        graphics.fillRect(1, 1, 4, 3);
+        
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(
+                new Pixels(image), new Levels(75, 200), Channel.RED);
+        
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
+        
+        assertEquals("[0=12, 255=18]", renderHistogram(histogram.getRedHistogram()));
+        assertEquals("[0=12, 255=18]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=12, 255=18]", renderHistogram(histogram.getBlueHistogram()));
     }
     
     private String renderHistogram(int[] histogram)
