@@ -173,6 +173,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context) throws UserFailureException
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
+        DefaultFileBasedHierarchicalContentFactory contentFactory = new DefaultFileBasedHierarchicalContentFactory();
         for (DatasetDescription dataset : datasets)
         {
             File originalData = getDatasetDirectory(context, dataset);
@@ -180,15 +181,14 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             String dataSetCode = dataset.getDataSetCode();
             if (status.isOK())
             {
-                IHierarchicalContent content =
-                        context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
-                File temp =
-                        new File(context.getDirectoryProvider().getStoreRoot(), STAGING_FOLDER
-                                + "/" + dataSetCode);
-                temp.mkdirs();
+                IHierarchicalContent content = null;
+                File temp = null;
                 IHierarchicalContent archivedContent = null;
                 try
                 {
+                    content = context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
+                    temp = new File(storeRoot, STAGING_FOLDER + "/" + dataSetCode);
+                    temp.mkdirs();
                     // We want to perform the check if the archived content is correct
                     // (filesizes/checksums)
                     // For this we want to have the archived content locally. If it is not available
@@ -196,9 +196,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     if (fileOperationsManager.isHosted())
                     {
                         fileOperationsManager.retrieveFromDestination(temp, dataset);
-                        archivedContent =
-                                new DefaultFileBasedHierarchicalContentFactory()
-                                        .asHierarchicalContent(temp, null);
+                        archivedContent = contentFactory.asHierarchicalContent(temp, null);
                     } else
                     {
                         archivedContent = fileOperationsManager.getAsHierarchicalContent(dataset);
@@ -208,9 +206,15 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     IHierarchicalContentNode archivedRoot = archivedContent.getRootNode();
 
                     status = checkHierarchySizeAndChecksums(root, archivedRoot, checksumVerificationCondition);
+                } catch (Throwable t)
+                {
+                    status = Status.createError("Sanity check for data set " + dataSetCode + " failed: " + t);
                 } finally
                 {
-                    content.close();
+                    if (content != null)
+                    {
+                        content.close();
+                    }
                     if (archivedContent != null)
                     {
                         archivedContent.close();
