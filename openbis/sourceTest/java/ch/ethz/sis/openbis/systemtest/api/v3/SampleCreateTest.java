@@ -268,17 +268,25 @@ public class SampleCreateTest extends AbstractSampleTest
         sampleParent.setSpaceId(new SpacePermId("CISD"));
         sampleParent.setCreationId(new CreationId("parentid"));
 
+        List<SamplePermId> parentPermId = v3api.createSamples(sessionToken, Arrays.asList(sampleParent));
+
         SampleCreation sampleChild = new SampleCreation();
-        sampleChild.setCode("SAMPLE_CHILDREN");
+        sampleChild.setCode("SAMPLE_CHILD");
         sampleChild.setTypeId(new EntityTypePermId("CELL_PLATE"));
         sampleChild.setSpaceId(new SpacePermId("CISD"));
+        sampleChild.setCreationId(new CreationId("childid"));
+        sampleChild.setParentIds(parentPermId);
 
-        sampleChild.setParentIds(Arrays.asList(sampleParent.getCreationId()));
-        sampleChild.setChildIds(Arrays.asList(sampleParent.getCreationId()));
+        SampleCreation sampleGrandChild = new SampleCreation();
+        sampleGrandChild.setCode("SAMPLE_GRAND_CHILD");
+        sampleGrandChild.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        sampleGrandChild.setSpaceId(new SpacePermId("CISD"));
+        sampleGrandChild.setParentIds(Arrays.asList(sampleChild.getCreationId()));
+        sampleGrandChild.setChildIds(parentPermId);
 
         try
         {
-            v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
+            v3api.createSamples(sessionToken, Arrays.asList(sampleChild, sampleGrandChild));
             fail("Expected user failure exception");
         } catch (UserFailureException ufe)
         {
@@ -454,10 +462,12 @@ public class SampleCreateTest extends AbstractSampleTest
     }
 
     @Test
-    public void testCreateSampleWithoutCode() {
+    public void testCreateSampleWithoutCode()
+    {
         String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
         SampleCreation sample = createSimpleSample(null);
-        try {
+        try
+        {
             v3api.createSamples(sessionToken, Arrays.asList(sample));
             fail("Expected user failure exception");
         } catch (UserFailureException ufe)
@@ -465,7 +475,7 @@ public class SampleCreateTest extends AbstractSampleTest
             AssertionUtil.assertContains("No code for sample provided", ufe.getMessage());
         }
     }
-    
+
     private SampleCreation createSimpleSample(String code)
     {
         SampleCreation sampleParent = new SampleCreation();

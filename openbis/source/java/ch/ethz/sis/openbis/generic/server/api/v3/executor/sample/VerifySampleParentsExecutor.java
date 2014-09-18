@@ -19,8 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,7 +113,6 @@ public class VerifySampleParentsExecutor implements IVerifySampleParentsExecutor
         return parentIdsMap;
     }
 
-    @SuppressWarnings("rawtypes")
     private void checkCycles(Collection<SamplePE> samples, Map<Long, Collection<Long>> graph)
     {
         try
@@ -129,18 +126,7 @@ public class VerifySampleParentsExecutor implements IVerifySampleParentsExecutor
                 sampleMap.put(sample.getId(), sample);
             }
 
-            Collection<String> cycle = new LinkedList<String>();
-            cycle.add(sampleMap.get(e.getCycleRoot()).getIdentifier());
-
-            Iterator iterator = e.getCycle().iterator();
-            while (iterator.hasNext())
-            {
-                cycle.add(sampleMap.get(iterator.next()).getIdentifier());
-            }
-            
-            cycle.add(sampleMap.get(e.getCycleRoot()).getIdentifier());
-
-            throw new UserFailureException("Circular parent dependency found: " + cycle);
+            throw new UserFailureException("Circular parent dependency found for sample: " + (sampleMap.get(e.getCycleRoot()).getIdentifier()), e);
         }
     }
 }
