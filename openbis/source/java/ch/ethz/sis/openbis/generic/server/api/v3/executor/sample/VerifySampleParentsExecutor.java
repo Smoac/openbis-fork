@@ -17,16 +17,20 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.relationship.IGetParentChildRelationshipIdExecutor;
+import ch.systemsx.cisd.common.collection.CycleFoundException;
+import ch.systemsx.cisd.common.collection.GroupingDAG;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleGenericBusinessRules;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -61,43 +65,82 @@ public class VerifySampleParentsExecutor implements IVerifySampleParentsExecutor
     @Override
     public void verify(IOperationContext context, Collection<SamplePE> samples)
     {
-        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-        TechId parentChildRelationshipId = new TechId(getParentChildRelationshipIdExecutor.get(context));
-        final HashSet<TechId> alreadyCheckedParents = new HashSet<TechId>();
+        Map<Long, Collection<Long>> graph = getGraph(context, samples);
+
+        checkCycles(samples, graph);
 
         for (SamplePE sample : samples)
         {
-            TechId sampleTechId = TechId.create(sample);
-
-            context.pushContextDescription("verify parent relations for sample " + sample.getCode());
-
-            Collection<TechId> currentLevel = new LinkedList<TechId>();
-            currentLevel.add(sampleTechId);
-            alreadyCheckedParents.add(sampleTechId);
-
-            while (false == currentLevel.isEmpty())
-            {
-                Collection<TechId> nextLevel = sampleDAO.listSampleIdsByChildrenIds(currentLevel, parentChildRelationshipId);
-                if (nextLevel.contains(sampleTechId))
-                {
-                    throw new UserFailureException("Circular parent dependency found");
-                }
-                currentLevel = CollectionUtils.select(nextLevel, new Predicate<TechId>()
-                    {
-                        @Override
-                        public boolean evaluate(TechId object)
-                        {
-                            return alreadyCheckedParents.contains(object) == false;
-                        }
-                    });
-                alreadyCheckedParents.addAll(currentLevel);
-            }
-
             SampleGenericBusinessRules.assertValidParents(sample);
             SampleGenericBusinessRules.assertValidChildren(sample);
-
-            context.popContextDescription();
         }
     }
 
+    private Map<Long, Collection<Long>> getGraph(IOperationContext context, Collection<SamplePE> samples)
+    {
+        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
+        TechId parentChildRelationshipId = new TechId(getParentChildRelationshipIdExecutor.get(context));
+        Map<Long, Collection<Long>> parentIdsMap = new HashMap<Long, Collection<Long>>();
+        Set<Long> currentLevelIds = new HashSet<Long>();
+        Set<Long> visitedIds = new HashSet<Long>();
+
+        for (SamplePE sample : samples)
+        {
+            currentLevelIds.add(sample.getId());
+        }
+
+        while (false == currentLevelIds.isEmpty())
+        {
+            Map<Long, Set<Long>> currentLevelParentIdsMap = sampleDAO.mapSampleIdsByChildrenIds(currentLevelIds, parentChildRelationshipId.getId());
+
+            visitedIds.addAll(currentLevelIds);
+            currentLevelIds = new HashSet<Long>();
+
+            for (Map.Entry<Long, Set<Long>> currentLevelParentIdsEntry : currentLevelParentIdsMap.entrySet())
+            {
+                Long sampleId = currentLevelParentIdsEntry.getKey();
+                Set<Long> parentIds = currentLevelParentIdsEntry.getValue();
+                parentIdsMap.put(sampleId, parentIds);
+
+                for (Long parentId : parentIds)
+                {
+                    if (false == visitedIds.contains(parentId))
+                    {
+                        currentLevelIds.add(parentId);
+                    }
+                }
+            }
+        }
+
+        return parentIdsMap;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void checkCycles(Collection<SamplePE> samples, Map<Long, Collection<Long>> graph)
+    {
+        try
+        {
+            GroupingDAG.groupByDepencies(graph);
+        } catch (CycleFoundException e)
+        {
+            Map<Long, SamplePE> sampleMap = new HashMap<Long, SamplePE>();
+            for (SamplePE sample : samples)
+            {
+                sampleMap.put(sample.getId(), sample);
+            }
+
+            Collection<String> cycle = new LinkedList<String>();
+            cycle.add(sampleMap.get(e.getCycleRoot()).getIdentifier());
+
+            Iterator iterator = e.getCycle().iterator();
+            while (iterator.hasNext())
+            {
+                cycle.add(sampleMap.get(iterator.next()).getIdentifier());
+            }
+            
+            cycle.add(sampleMap.get(e.getCycleRoot()).getIdentifier());
+
+            throw new UserFailureException("Circular parent dependency found: " + cycle);
+        }
+    }
 }

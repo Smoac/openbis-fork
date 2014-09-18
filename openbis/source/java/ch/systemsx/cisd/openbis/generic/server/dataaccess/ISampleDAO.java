@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.dao.DataAccessException;
@@ -96,6 +97,12 @@ public interface ISampleDAO extends IGenericDAO<SamplePE>
      * Returns ids of parents of samples specified by given ids and connected by chosen relationship type.
      */
     public Set<TechId> listSampleIdsByChildrenIds(Collection<TechId> children, TechId relationship);
+
+    /**
+     * Returns a map of parents of samples specified by given ids and connected by chosen relationship type. A key represents a child id. A value is a
+     * list of parent ids.
+     */
+    public Map<Long, Set<Long>> mapSampleIdsByChildrenIds(final Collection<Long> children, final Long relationship);
 
     /**
      * Returns ids of children of samples specified by given ids.

@@ -42,4 +42,10 @@ public interface ISpaceDAO extends IGenericDAO<SpacePE>
      * Returns space identified by given <var>spaceCode</var> or <code>null</code> if such a space does not exist.
      */
     public SpacePE tryFindSpaceByCode(final String spaceCode) throws DataAccessException;
+
+    /**
+     * Returns spaces identified by given <var>spaceCodes</var> or an empty list if such spaces do not exist.
+     */
+    public List<SpacePE> tryFindSpaceByCodes(final List<String> spaceCodes) throws DataAccessException;
+
 }

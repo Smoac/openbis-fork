@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,34 +25,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ListExperimentByIdExecutor implements IListExperimentByIdExecutor
+public class ListEntityTypeByIdExecutor implements IListEntityTypeByIdExecutor
 {
 
     @Autowired
-    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
+    private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @SuppressWarnings("unused")
-    private ListExperimentByIdExecutor()
+    private ListEntityTypeByIdExecutor()
     {
     }
 
-    public ListExperimentByIdExecutor(IMapExperimentByIdExecutor mapExperimentByIdExecutor)
+    public ListEntityTypeByIdExecutor(IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor)
     {
-        this.mapExperimentByIdExecutor = mapExperimentByIdExecutor;
+        this.mapEntityTypeByIdExecutor = mapEntityTypeByIdExecutor;
     }
 
     @Override
-    public List<ExperimentPE> list(IOperationContext context, Collection<? extends IExperimentId> experimentIds)
+    public List<EntityTypePE> list(IOperationContext context, EntityKind entityKind, Collection<? extends IEntityTypeId> entityTypeIds)
     {
-        Map<IExperimentId, ExperimentPE> map = mapExperimentByIdExecutor.map(context, experimentIds);
-        return new ArrayList<ExperimentPE>(map.values());
+        Map<IEntityTypeId, EntityTypePE> map = mapEntityTypeByIdExecutor.map(context, entityKind, entityTypeIds);
+        return new ArrayList<EntityTypePE>(map.values());
     }
 
 }

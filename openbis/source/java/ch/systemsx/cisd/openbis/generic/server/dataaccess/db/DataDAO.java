@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,6 +125,47 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
         Integer count =
                 ((Number) getHibernateTemplate().findByCriteria(criteria).get(0)).intValue();
         return count > 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<SamplePE, Boolean> haveDataSets(Collection<SamplePE> samples) throws DataAccessException
+    {
+        if (samples == null || samples.isEmpty())
+        {
+            return Collections.emptyMap();
+        }
+
+        final List<Long> sampleIds = new LinkedList<Long>();
+        for (SamplePE sample : samples)
+        {
+            sampleIds.add(sample.getId());
+        }
+
+        Set<Long> idsOfSamplesWithDataSets = (Set<Long>) getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public Object doInHibernate(Session session) throws HibernateException, SQLException
+                {
+                    SQLQuery query = session.createSQLQuery("select distinct samp_id from data where samp_id in (:sampleIds)");
+                    query.setParameterList("sampleIds", sampleIds);
+                    List<Number> list = query.list();
+                    Set<Long> ids = new HashSet<Long>();
+                    for (Number item : list)
+                    {
+                        ids.add(item.longValue());
+                    }
+                    return ids;
+                }
+            });
+
+        Map<SamplePE, Boolean> result = new HashMap<SamplePE, Boolean>();
+        for (SamplePE sample : samples)
+        {
+            result.put(sample, idsOfSamplesWithDataSets.contains(sample.getId()));
+        }
+
+        return result;
     }
 
     @Override

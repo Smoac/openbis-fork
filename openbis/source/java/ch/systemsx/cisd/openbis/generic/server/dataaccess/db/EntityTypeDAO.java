@@ -63,6 +63,13 @@ final class EntityTypeDAO extends AbstractTypeDAO<EntityTypePE> implements IEnti
     }
 
     @Override
+    public final List<EntityTypePE> tryToFindEntityTypeByCodes(final List<String> codes)
+            throws DataAccessException
+    {
+        return super.tryFindTypeByCodes(codes, true);
+    }
+
+    @Override
     public final <T extends EntityTypePE> List<T> listEntityTypes() throws DataAccessException
     {
         final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());

@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,10 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAttachmentExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IGetEntityTypeByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IGetExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IGetSpaceByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
@@ -41,6 +42,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SampleTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -58,13 +60,13 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IGetEntityTypeByIdExecutor getEntityTypeByIdExecutor;
+    private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
 
     @Autowired
-    private IGetSpaceByIdExecutor getSpaceByIdExecutor;
+    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @Autowired
-    private IGetExperimentByIdExecutor getExperimentByIdExecutor;
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
     private ISetSampleRelatedSamplesExecutor setSampleRelatedSamplesExecutor;
@@ -86,16 +88,16 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
     {
     }
 
-    public CreateSampleExecutor(IDAOFactory daoFactory, IGetEntityTypeByIdExecutor getEntityTypeByIdExecutor,
-            IGetSpaceByIdExecutor getSpaceByIdExecutor, IGetExperimentByIdExecutor getExperimentByIdExecutor,
+    public CreateSampleExecutor(IDAOFactory daoFactory, IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor,
+            IMapSpaceByIdExecutor mapSpaceByIdExecutor, IMapExperimentByIdExecutor mapExperimentByIdExecutor,
             ISetSampleRelatedSamplesExecutor setSampleRelatedSamplesExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
             ICreateAttachmentExecutor createAttachmentExecutor, IAddTagToEntityExecutor addTagToEntityExecutor,
             IVerifySampleExecutor verifySampleExecutor)
     {
         this.daoFactory = daoFactory;
-        this.getEntityTypeByIdExecutor = getEntityTypeByIdExecutor;
-        this.getSpaceByIdExecutor = getSpaceByIdExecutor;
-        this.getExperimentByIdExecutor = getExperimentByIdExecutor;
+        this.mapEntityTypeByIdExecutor = mapEntityTypeByIdExecutor;
+        this.mapSpaceByIdExecutor = mapSpaceByIdExecutor;
+        this.mapExperimentByIdExecutor = mapExperimentByIdExecutor;
         this.setSampleRelatedSamplesExecutor = setSampleRelatedSamplesExecutor;
         this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
         this.createAttachmentExecutor = createAttachmentExecutor;
@@ -106,30 +108,99 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
     @Override
     public List<SamplePermId> create(IOperationContext context, List<SampleCreation> creations)
     {
-        List<SamplePermId> result = new LinkedList<SamplePermId>();
-        HashMap<SampleCreation, SamplePE> createdSamples = new HashMap<SampleCreation, SamplePE>();
+        List<SamplePermId> permIdsAll = new LinkedList<SamplePermId>();
+        HashMap<SampleCreation, SamplePE> samplesAll = new HashMap<SampleCreation, SamplePE>();
 
-        for (SampleCreation sampleCreation : creations)
+        int batchSize = 1000;
+        int batchStart = 0;
+
+        while (batchStart < creations.size())
         {
-            context.pushContextDescription("register sample " + sampleCreation.getCode());
+            List<SampleCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
+            List<SamplePE> samplesBatch = new LinkedList<SamplePE>();
 
-            SamplePE sample = createSamplePE(context, sampleCreation);
-            daoFactory.getSampleDAO().createOrUpdateSample(sample, context.getSession().tryGetPerson());
-            createAttachmentExecutor.create(context, sample, sampleCreation.getAttachments());
-            addTagToEntityExecutor.add(context, sample, sampleCreation.getTagIds());
-            result.add(new SamplePermId(sample.getPermId()));
-            createdSamples.put(sampleCreation, sample);
+            daoFactory.setBatchUpdateMode(true);
 
-            context.popContextDescription();
+            Map<IEntityTypeId, EntityTypePE> typeMap = getTypeMap(context, creationsBatch);
+            Map<ISpaceId, SpacePE> spaceMap = getSpaceMap(context, creationsBatch);
+            Map<IExperimentId, ExperimentPE> experimentMap = getExperimentMap(context, creationsBatch);
+
+            for (SampleCreation creation : creationsBatch)
+            {
+                context.pushContextDescription("register sample " + creation.getCode());
+
+                SamplePE sample = createSamplePE(context, creation, typeMap, spaceMap, experimentMap);
+
+                permIdsAll.add(new SamplePermId(sample.getPermId()));
+                samplesAll.put(creation, sample);
+                samplesBatch.add(sample);
+
+                context.popContextDescription();
+            }
+
+            daoFactory.getSampleDAO().createOrUpdateSamples(samplesBatch, context.getSession().tryGetPerson(), false);
+            daoFactory.setBatchUpdateMode(false);
+
+            for (SampleCreation creation : creationsBatch)
+            {
+                SamplePE sample = samplesAll.get(creation);
+                createAttachmentExecutor.create(context, sample, creation.getAttachments());
+                addTagToEntityExecutor.add(context, sample, creation.getTagIds());
+            }
+
+            daoFactory.getSessionFactory().getCurrentSession().flush();
+            daoFactory.getSessionFactory().getCurrentSession().clear();
+
+            batchStart += batchSize;
         }
 
-        setSampleRelatedSamplesExecutor.set(context, createdSamples);
-        verifySamples(context, createdSamples.values());
+        setSampleRelatedSamplesExecutor.set(context, samplesAll);
+        verifySamples(context, samplesAll.values());
 
-        return result;
+        return permIdsAll;
     }
 
-    private SamplePE createSamplePE(IOperationContext context, SampleCreation sampleCreation)
+    private Map<IEntityTypeId, EntityTypePE> getTypeMap(IOperationContext context, List<SampleCreation> creations)
+    {
+        Set<IEntityTypeId> ids = new HashSet<IEntityTypeId>();
+        for (SampleCreation creation : creations)
+        {
+            if (creation.getTypeId() != null)
+            {
+                ids.add(creation.getTypeId());
+            }
+        }
+        return mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, ids);
+    }
+
+    private Map<ISpaceId, SpacePE> getSpaceMap(IOperationContext context, List<SampleCreation> creations)
+    {
+        Set<ISpaceId> ids = new HashSet<ISpaceId>();
+        for (SampleCreation creation : creations)
+        {
+            if (creation.getSpaceId() != null)
+            {
+                ids.add(creation.getSpaceId());
+            }
+        }
+        return mapSpaceByIdExecutor.map(context, ids);
+    }
+
+    private Map<IExperimentId, ExperimentPE> getExperimentMap(IOperationContext context, List<SampleCreation> creations)
+    {
+        Set<IExperimentId> ids = new HashSet<IExperimentId>();
+        for (SampleCreation creation : creations)
+        {
+            if (creation.getExperimentId() != null)
+            {
+                ids.add(creation.getExperimentId());
+            }
+        }
+        return mapExperimentByIdExecutor.map(context, ids);
+    }
+
+    private SamplePE createSamplePE(IOperationContext context, SampleCreation sampleCreation, Map<IEntityTypeId, EntityTypePE> typeMap,
+            Map<ISpaceId, SpacePE> spaceMap, Map<IExperimentId, ExperimentPE> experimentMap)
     {
         SamplePE sample = new SamplePE();
 
@@ -145,19 +216,19 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
         sample.setPermId(createdPermId);
 
         IEntityTypeId typeId = sampleCreation.getTypeId();
-        EntityTypePE entityType = getEntityTypeByIdExecutor.get(context, EntityKind.SAMPLE, typeId);
+        EntityTypePE entityType = typeMap.get(typeId);
         sample.setSampleType((SampleTypePE) entityType);
 
         IExperimentId experimentId = sampleCreation.getExperimentId();
         if (experimentId != null)
         {
-            sample.setExperiment(getExperimentByIdExecutor.get(context, experimentId));
+            sample.setExperiment(experimentMap.get(experimentId));
         }
 
         ISpaceId spaceId = sampleCreation.getSpaceId();
         if (spaceId != null)
         {
-            SpacePE space = getSpaceByIdExecutor.get(context, sampleCreation.getSpaceId());
+            SpacePE space = spaceMap.get(spaceId);
             sample.setSpace(space);
         }
 

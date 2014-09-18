@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,29 +35,34 @@ public class GetExperimentByIdExecutor implements IGetExperimentByIdExecutor
 {
 
     @Autowired
-    private IListExperimentByIdExecutor listExperimentByIdExecutor;
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @SuppressWarnings("unused")
     private GetExperimentByIdExecutor()
     {
     }
 
-    public GetExperimentByIdExecutor(IListExperimentByIdExecutor listExperimentByIdExecutor)
+    public GetExperimentByIdExecutor(IMapExperimentByIdExecutor mapExperimentByIdExecutor)
     {
-        this.listExperimentByIdExecutor = listExperimentByIdExecutor;
+        this.mapExperimentByIdExecutor = mapExperimentByIdExecutor;
     }
 
     @Override
     public ExperimentPE get(IOperationContext context, IExperimentId experimentId)
     {
-        List<ExperimentPE> experiments = listExperimentByIdExecutor.list(context, Collections.singletonList(experimentId));
+        if (experimentId == null)
+        {
+            throw new UserFailureException("Unspecified experiment id.");
+        }
+
+        Map<IExperimentId, ExperimentPE> experiments = mapExperimentByIdExecutor.map(context, Collections.singletonList(experimentId));
 
         if (experiments.isEmpty())
         {
             throw new UserFailureException("No experiment for id " + experimentId);
         }
 
-        return experiments.get(0);
+        return experiments.get(experimentId);
     }
 
 }

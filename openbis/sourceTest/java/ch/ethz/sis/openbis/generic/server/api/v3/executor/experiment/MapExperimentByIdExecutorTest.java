@@ -16,8 +16,10 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -25,7 +27,6 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ListExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 /**
  * @author pkupczyk
  */
-public class ListExperimentByIdExecutorTest extends AbstractExecutorTest
+public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
 {
 
     private IExperimentDAO experimentDao;
@@ -74,16 +75,17 @@ public class ListExperimentByIdExecutorTest extends AbstractExecutorTest
                 }
             });
 
-        List<ExperimentPE> experiments = execute(permId1, permId2, permId3);
+        Map<IExperimentId, ExperimentPE> map = execute(permId1, permId2, permId3);
+        List<ExperimentPE> experiments = new ArrayList<ExperimentPE>(map.values());
 
         Assert.assertEquals(experiment1.getPermId(), experiments.get(0).getPermId());
         Assert.assertEquals(experiment2.getPermId(), experiments.get(1).getPermId());
         Assert.assertEquals(experiment3.getPermId(), experiments.get(2).getPermId());
     }
 
-    private List<ExperimentPE> execute(IExperimentId... experimentIds)
+    private Map<IExperimentId, ExperimentPE> execute(IExperimentId... experimentIds)
     {
-        ListExperimentByIdExecutor executor = new ListExperimentByIdExecutor(daoFactory);
-        return executor.list(operationContext, Arrays.asList(experimentIds));
+        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(daoFactory);
+        return executor.map(operationContext, Arrays.asList(experimentIds));
     }
 }

@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -570,6 +573,44 @@ public class SampleDAO extends AbstractGenericEntityWithPropertiesDAO<SamplePE> 
                     results.size()));
         }
         return result;
+    }
+
+    @Override
+    public Map<Long, Set<Long>> mapSampleIdsByChildrenIds(final Collection<Long> children, final Long relationship)
+    {
+        @SuppressWarnings("unchecked")
+        final List<Object[]> results = (List<Object[]>) getHibernateTemplate().execute(new HibernateCallback()
+            {
+                @Override
+                public final Object doInHibernate(final Session session)
+                {
+                    SQLQuery query =
+                            session.createSQLQuery("select sample_id_child, sample_id_parent from " + TableNames.SAMPLE_RELATIONSHIPS_VIEW
+                                    + " where relationship_id = :relationship and sample_id_child in (:children)");
+                    query.setParameterList("children", children);
+                    query.setParameter("relationship", relationship);
+                    return query.list();
+                }
+            });
+
+        Map<Long, Set<Long>> childIdToParentIdsMap = new HashMap<Long, Set<Long>>();
+
+        for (Object[] result : results)
+        {
+            Number childId = (Number) result[0];
+            Number parentId = (Number) result[1];
+
+            Set<Long> parentIds = childIdToParentIdsMap.get(childId);
+            if (parentIds == null)
+            {
+                parentIds = new HashSet<Long>();
+                childIdToParentIdsMap.put(childId.longValue(), parentIds);
+            }
+
+            parentIds.add(parentId.longValue());
+        }
+
+        return childIdToParentIdsMap;
     }
 
     @Override

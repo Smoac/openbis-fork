@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -75,6 +76,30 @@ abstract class AbstractTypeDAO<T extends AbstractTypePE> extends AbstractGeneric
                             .getCurrentMethod().getName(), code, appendDatabaseInstance, entity));
         }
         return entity;
+    }
+
+    final List<T> tryFindTypeByCodes(final List<String> codes, final boolean appendDatabaseInstance)
+            throws DataAccessException
+    {
+        assert codes != null : "Unspecified codes";
+
+        List<String> dbCodes = new ArrayList<String>(codes.size());
+        for (String code : codes)
+        {
+            dbCodes.add(CodeConverter.tryToDatabase(code));
+        }
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.in("code", dbCodes));
+        final List<T> list = cast(getHibernateTemplate().findByCriteria(criteria));
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d entity type(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
+
+        }
+        return list;
     }
 
     final List<T> listTypes() throws DataAccessException

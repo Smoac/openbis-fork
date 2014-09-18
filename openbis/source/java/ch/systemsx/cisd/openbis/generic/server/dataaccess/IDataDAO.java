@@ -49,6 +49,11 @@ public interface IDataDAO extends IGenericDAO<DataPE>
     public boolean hasDataSet(final SamplePE sample) throws DataAccessException;
 
     /**
+     * Checks whether <var>samples</var> have data sets.
+     */
+    public Map<SamplePE, Boolean> haveDataSets(final Collection<SamplePE> samples) throws DataAccessException;
+
+    /**
      * List the {@link DataPE} related to given <var>entities</var> of specified <var>entityKind</var>.
      * 
      * @returns list of {@link DataPE}s that are related to given {@link IEntityInformationHolder}.

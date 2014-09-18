@@ -24,10 +24,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 
 /**
- * Interface to the data access layer for retrieving instances of {@link EntityTypePE}.
- * Implementations may depend on the {@link EntityKind}.
+ * Interface to the data access layer for retrieving instances of {@link EntityTypePE}. Implementations may depend on the {@link EntityKind}.
  * 
- * @author     Franz-Josef Elmer
+ * @author Franz-Josef Elmer
  */
 public interface IEntityTypeDAO extends IGenericDAO<EntityTypePE>
 {
@@ -38,6 +37,13 @@ public interface IEntityTypeDAO extends IGenericDAO<EntityTypePE>
      * @return <code>null</code> if nothing found.
      */
     public EntityTypePE tryToFindEntityTypeByCode(String code) throws DataAccessException;
+
+    /**
+     * Tries to find entity types with the specified codes.
+     * 
+     * @return An empty list if nothing found.
+     */
+    public List<EntityTypePE> tryToFindEntityTypeByCodes(List<String> codes) throws DataAccessException;
 
     /**
      * Returns a list of all entity types.

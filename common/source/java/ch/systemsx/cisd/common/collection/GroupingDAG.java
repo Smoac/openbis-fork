@@ -25,12 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-import ch.systemsx.cisd.common.collection.GroupingDAG;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-
 /**
- * The implementation of a DAG, that returns the group of items, where the first group includes the
- * items without dependencies, the second group contain only dependencies to the first group etc.
+ * The implementation of a DAG, that returns the group of items, where the first group includes the items without dependencies, the second group
+ * contain only dependencies to the first group etc.
  * 
  * @author Jakub Straszewski
  */
@@ -40,16 +37,12 @@ public class GroupingDAG<T>
     /**
      * The algorithm works on three internal structures.
      * <p>
-     * <code>graph</code> as the adjacency list, where vertice from A to B means that a must be
-     * executed before B. <code> dependenciesCount </code> is the priority table, which keeps
-     * information for each item, how many items should be still taken before this one.
-     * <code>queue </code> is the priority queue, that uses <code> dependenciesCount </code> as the
-     * priority key.
+     * <code>graph</code> as the adjacency list, where vertice from A to B means that a must be executed before B. <code> dependenciesCount </code> is
+     * the priority table, which keeps information for each item, how many items should be still taken before this one. <code>queue </code> is the
+     * priority queue, that uses <code> dependenciesCount </code> as the priority key.
      * <p>
-     * At each level algorithm takes the items that have zero dependencies, then updates the
-     * dependency counts, and repeats the procedure until there are no more vertices. If it cannot
-     * proceed at some stage - it means that there is a circular dependency and the exception is
-     * being thrown.
+     * At each level algorithm takes the items that have zero dependencies, then updates the dependency counts, and repeats the procedure until there
+     * are no more vertices. If it cannot proceed at some stage - it means that there is a circular dependency and the exception is being thrown.
      */
     private final Map<T, Integer> dependenciesCount;
 
@@ -101,8 +94,7 @@ public class GroupingDAG<T>
     }
 
     /**
-     * Return the items in the list of groups, where the earlier groups are independent on the
-     * latter ones.
+     * Return the items in the list of groups, where the earlier groups are independent on the latter ones.
      * 
      * @param graph the connection graph(A).contains(B) means that A must be scheduled BEFORE B
      */
@@ -170,8 +162,7 @@ public class GroupingDAG<T>
             {
                 T cycleRoot = queue.peek().item;
                 Collection<T> cycle = graph.get(queue.peek().item);
-                throw new UserFailureException("" + cycleRoot
-                        + " depends on itself. Dependency chain : " + cycleRoot + " -> " + cycle);
+                throw new CycleFoundException(cycleRoot, cycle);
             }
 
             while (false == queue.isEmpty() && peekCount() <= 0)
@@ -200,8 +191,7 @@ public class GroupingDAG<T>
     }
 
     /**
-     * after all items that have no dependencies have been taken, we remove further dependencies to
-     * those items
+     * after all items that have no dependencies have been taken, we remove further dependencies to those items
      */
     private void updateQueueAfterTheLevelCompleted(List<T> levelItems)
     {

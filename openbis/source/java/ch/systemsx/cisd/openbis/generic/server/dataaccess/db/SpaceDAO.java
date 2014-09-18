@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.FetchMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.JdbcAccessor;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -73,6 +74,21 @@ final class SpaceDAO extends AbstractGenericEntityDAO<SpacePE> implements ISpace
                     .getName(), spaceCode, entity));
         }
         return entity;
+    }
+
+    @Override
+    public List<SpacePE> tryFindSpaceByCodes(List<String> spaceCodes) throws DataAccessException
+    {
+        final DetachedCriteria criteria = DetachedCriteria.forClass(getEntityClass());
+        criteria.add(Restrictions.in("code", spaceCodes));
+
+        final List<SpacePE> list = cast(getHibernateTemplate().findByCriteria(criteria));
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%s(): %d space(s) have been found.", MethodUtils
+                    .getCurrentMethod().getName(), list.size()));
+        }
+        return list;
     }
 
     @Override

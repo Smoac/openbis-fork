@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -53,11 +54,13 @@ public class VerifySampleExperimentExecutor implements IVerifySampleExperimentEx
     {
         IDataDAO dataDAO = daoFactory.getDataDAO();
 
+        Map<SamplePE, Boolean> haveDatasetsMap = dataDAO.haveDataSets(samples);
+
         for (SamplePE sample : samples)
         {
             context.pushContextDescription("verify experiment for sample " + sample.getCode());
 
-            boolean hasDatasets = dataDAO.hasDataSet(sample);
+            boolean hasDatasets = haveDatasetsMap.get(sample);
             ExperimentPE experiment = sample.getExperiment();
 
             if (hasDatasets && experiment == null)

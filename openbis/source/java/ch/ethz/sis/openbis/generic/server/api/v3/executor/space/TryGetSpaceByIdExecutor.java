@@ -16,14 +16,15 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnsupportedObjectIdException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
@@ -34,27 +35,27 @@ public class TryGetSpaceByIdExecutor implements ITryGetSpaceByIdExecutor
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
+    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @SuppressWarnings("unused")
     private TryGetSpaceByIdExecutor()
     {
     }
 
-    public TryGetSpaceByIdExecutor(IDAOFactory daoFactory)
+    public TryGetSpaceByIdExecutor(IMapSpaceByIdExecutor mapSpaceByIdExecutor)
     {
-        this.daoFactory = daoFactory;
+        this.mapSpaceByIdExecutor = mapSpaceByIdExecutor;
     }
 
     @Override
     public SpacePE tryGet(IOperationContext context, ISpaceId spaceId)
     {
-        if (spaceId instanceof SpacePermId)
+        if (spaceId == null)
         {
-            SpacePermId spacePermId = (SpacePermId) spaceId;
-            return daoFactory.getSpaceDAO().tryFindSpaceByCode(spacePermId.getPermId());
+            throw new UserFailureException("Unspecified space id.");
         }
-        throw new UnsupportedObjectIdException(spaceId);
+        Map<ISpaceId, SpacePE> spaces = mapSpaceByIdExecutor.map(context, Collections.singletonList(spaceId));
+        return spaces.get(spaceId);
     }
 
 }

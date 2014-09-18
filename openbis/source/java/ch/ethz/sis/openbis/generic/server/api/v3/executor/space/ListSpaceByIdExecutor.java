@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,43 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class GetSpaceByIdExecutor implements IGetSpaceByIdExecutor
+public class ListSpaceByIdExecutor implements IListSpaceByIdExecutor
 {
 
     @Autowired
-    private ITryGetSpaceByIdExecutor tryGetSpaceByIdExecutor;
+    private IMapSpaceByIdExecutor mapSpaceByIdExecutor;
 
     @SuppressWarnings("unused")
-    private GetSpaceByIdExecutor()
+    private ListSpaceByIdExecutor()
     {
     }
 
-    public GetSpaceByIdExecutor(ITryGetSpaceByIdExecutor tryGetSpaceByIdExecutor)
+    public ListSpaceByIdExecutor(IMapSpaceByIdExecutor mapSpaceByIdExecutor)
     {
-        this.tryGetSpaceByIdExecutor = tryGetSpaceByIdExecutor;
+        this.mapSpaceByIdExecutor = mapSpaceByIdExecutor;
     }
 
     @Override
-    public SpacePE get(IOperationContext context, ISpaceId spaceId)
+    public List<SpacePE> list(IOperationContext context, Collection<? extends ISpaceId> spaceIds)
     {
-        SpacePE space = tryGetSpaceByIdExecutor.tryGet(context, spaceId);
-        if (space == null)
-        {
-            throw new UserFailureException("No space found with this id: " + spaceId);
-        }
-        return space;
+        Map<ISpaceId, SpacePE> map = mapSpaceByIdExecutor.map(context, spaceIds);
+        return new ArrayList<SpacePE>(map.values());
     }
 
 }
