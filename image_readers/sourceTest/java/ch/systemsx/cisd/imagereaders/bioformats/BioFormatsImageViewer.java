@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.imagereaders.bioformats;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -25,9 +26,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.media.jai.widget.ScrollingImagePanel;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import ch.systemsx.cisd.imagereaders.IImageReader;
@@ -100,8 +103,8 @@ public class BioFormatsImageViewer
         frame.setVisible(true);
     }
 
-    private static ScrollingImagePanel createImagePanel(BufferedImage image)
+    private static Component createImagePanel(BufferedImage image)
     {
-        return new ScrollingImagePanel(image, image.getWidth() + 10, image.getHeight() + 10);
+        return new JScrollPane(new JLabel(new ImageIcon(image)));
     }
 }
