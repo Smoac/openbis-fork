@@ -160,7 +160,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         protected IScreeningOpenbisServiceFacade call()
                         {
                             final IScreeningApiServer openbisServer =
-                                    createScreeningOpenbisServer(serverUrl);
+                                    createScreeningOpenbisServer(serverUrl, SERVER_TIMEOUT_MILLIS);
                             final String sessionToken =
                                     openbisServer.tryLoginScreening(userId, userPassword);
                             if (sessionToken == null)
@@ -182,7 +182,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken,
             final String serverUrl)
     {
-        return tryCreate(sessionToken, serverUrl, (IDssServiceRpcScreening) null);
+        return tryCreate(sessionToken, serverUrl, (IDssServiceRpcScreening) null, SERVER_TIMEOUT_MILLIS);
     }
 
     /**
@@ -192,11 +192,18 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
     public static IScreeningOpenbisServiceFacade tryCreateWithLocalDss(final String sessionToken, final String serverUrl,
             IDssServiceRpcScreening localDss)
     {
-        return tryCreate(sessionToken, serverUrl, localDss);
+        return tryCreate(sessionToken, serverUrl, localDss, SERVER_TIMEOUT_MILLIS);
     }
 
+    public static IScreeningOpenbisServiceFacade tryCreateWithLocalDss(final String sessionToken, final String serverUrl,
+            IDssServiceRpcScreening localDss, long timeout)
+    {
+        return tryCreate(sessionToken, serverUrl, localDss, timeout);
+    }
+    
+    
     private static IScreeningOpenbisServiceFacade tryCreate(final String sessionToken, final String serverUrl,
-            final IDssServiceRpcScreening localDss)
+            final IDssServiceRpcScreening localDss, final long timeout)
     {
         RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException> caller =
                 new RetryCaller<IScreeningOpenbisServiceFacade, RuntimeException>()
@@ -205,7 +212,7 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
                         protected IScreeningOpenbisServiceFacade call()
                         {
                             return tryCreate(sessionToken, serverUrl,
-                                    createScreeningOpenbisServer(serverUrl), localDss);
+                                    createScreeningOpenbisServer(serverUrl, timeout), localDss);
                         }
                     };
         return caller.callWithRetry();
@@ -259,10 +266,10 @@ public class ScreeningOpenbisServiceFacade implements IScreeningOpenbisServiceFa
         return this.generalInformationService.searchForSamples(this.sessionToken, searchCriteria);
     }
 
-    private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl)
+    private static IScreeningApiServer createScreeningOpenbisServer(String serverUrl, long timeout)
     {
         ServiceFinder serviceFinder = new ServiceFinder("openbis", OPENBIS_SCREENING_API);
-        return serviceFinder.createService(IScreeningApiServer.class, serverUrl);
+        return serviceFinder.createService(IScreeningApiServer.class, serverUrl, timeout);
     }
 
     private static IGeneralInformationService createGeneralInformationService(String serverUrl)

@@ -292,6 +292,8 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private IServiceConversationServerManagerLocal conversationServer;
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
+    
+    private long timeout = 5; // minutes 
 
     public ServiceForDataStoreServer(IAuthenticationService authenticationService,
             IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
@@ -420,7 +422,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
 
     private void checkVersion(String dssSessionToken, final String dssURL)
     {
-        final IDataStoreService service = dssFactory.create(dssURL);
+        final IDataStoreService service = dssFactory.create(dssURL, timeout * 60 * 1000);
         if (operationLog.isInfoEnabled())
         {
             operationLog.info("Obtain version of Data Store Server at " + dssURL);
@@ -3083,4 +3085,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }    
 }

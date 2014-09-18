@@ -56,14 +56,19 @@ public class DataStoreServiceFactory implements IDataStoreServiceFactory
             "Monitoring Proxy").corePoolSize(NUMBER_OF_CORE_THREADS).daemonize();
 
     @Override
-    public IDataStoreService create(String serverURL)
+    public IDataStoreService create(String serverURL) {
+        return create(serverURL, 5 * DateUtils.MILLIS_PER_MINUTE);
+    }
+    
+    @Override
+    public IDataStoreService create(String serverURL, long timeout)
     {
         IDataStoreService service = services.get(serverURL);
         if (service == null)
         {
             service =
                     HttpInvokerUtils.createServiceStub(IDataStoreService.class, serverURL + "/"
-                            + DATA_STORE_SERVER_SERVICE_NAME, 5 * DateUtils.MILLIS_PER_MINUTE);
+                            + DATA_STORE_SERVER_SERVICE_NAME, timeout);
             services.put(serverURL, service);
         }
         return service;
