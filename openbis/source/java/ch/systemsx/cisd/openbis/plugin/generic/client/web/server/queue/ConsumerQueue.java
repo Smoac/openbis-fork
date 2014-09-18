@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.generic.server.queue;
+package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue;
 
 import java.util.Deque;
 import java.util.LinkedList;

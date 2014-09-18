@@ -89,8 +89,8 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser.BatchMaterialsOperation;
-import ch.systemsx.cisd.openbis.plugin.generic.server.queue.ConsumerQueue;
-import ch.systemsx.cisd.openbis.plugin.generic.server.queue.ConsumerTask;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerQueue;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
