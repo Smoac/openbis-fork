@@ -89,6 +89,8 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.SampleUploadSectionsParser
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientService;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser;
 import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.parser.MaterialUploadSectionsParser.BatchMaterialsOperation;
+import ch.systemsx.cisd.openbis.plugin.generic.server.queue.ConsumerQueue;
+import ch.systemsx.cisd.openbis.plugin.generic.server.queue.ConsumerTask;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.IGenericServer;
 import ch.systemsx.cisd.openbis.plugin.generic.shared.ResourceNames;
 
@@ -442,28 +444,135 @@ public class GenericClientService extends AbstractClientService implements IGene
 
         return results.getResultList();
     }
-
+    
+    @Override
+    public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
+            final String sessionKey, final boolean async, final String userEmail)
+            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
+    {
+        final HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncExperimentTask = null;
+        try
+        {
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+            {
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+            }
+            UpdatedExperimentLoader loader = new UpdatedExperimentLoader();
+            loader.load(files);
+            // Update the identifiers using the default project and space when possible
+            final String sessionToken = getSessionToken();
+            applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
+            final UpdatedExperimentsWithType updatedExperiments = new UpdatedExperimentsWithType(experimentType, loader.getNewBasicExperiments());
+            
+            if (async)
+            {
+                final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
+                asyncExperimentTask = new ConsumerTask() {
+                    @Override
+                    public String getTaskName() { return "Experiment Task"; }
+                    
+                    @Override
+                    public void executeTask()
+                    { 
+                        //Some stuff is repeated on the async executor, this is expected
+                        final Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
+                        for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
+                        {
+                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                        }
+                        UpdatedExperimentLoader loaderAsync = new UpdatedExperimentLoader();
+                        loaderAsync.load(asyncFiles);
+                        applyDefaultSpaceProjectToExperiments(loaderAsync.getNewBasicExperiments(), sessionToken);
+                        final UpdatedExperimentsWithType updatedExperimentsAsync = new UpdatedExperimentsWithType(experimentType, loaderAsync.getNewBasicExperiments());
+                        //Execute task and clean files
+                        genericServer.updateExperimentsAsync(sessionToken, updatedExperimentsAsync, userEmail);
+                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                    }
+                };
+                
+                String fileName = loader.getResults().get(0).getFileName();
+                List<BatchRegistrationResult> batchRegistrationResults = AsyncBatchRegistrationResult.singletonList(fileName);
+                return batchRegistrationResults;
+            } else
+            {
+                genericServer.updateExperiments(sessionToken, updatedExperiments);
+                return loader.getResults();
+            }
+        } finally
+        {
+            if (async && (asyncExperimentTask != null)) {
+                ConsumerQueue.addTaskAsLast(asyncExperimentTask);
+            } else {
+                cleanUploadedFiles(sessionKey, session, uploadedFiles);
+            }
+        }
+    }
+    
     @Override
     public final List<BatchRegistrationResult> registerExperiments(
-            final ExperimentType experimentType, final String sessionKey, boolean async, String userEmail)
+            final ExperimentType experimentType, final String sessionKey, final boolean async, final String userEmail)
     {
-        String sessionToken = getSessionToken();
-        ExperimentLoader loader = parseExperiments(sessionKey);
-
-        // Update the identifiers using the default project and space when possible
-        applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
-
-        NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), loader.getNewBasicExperiments());
-
-        if (async)
+        final HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncExperimentTask = null;
+        try
         {
-            genericServer.registerExperimentsAsync(sessionToken, newExperiments, userEmail);
-            String fileName = loader.getResults().get(0).getFileName();
-            return AsyncBatchRegistrationResult.singletonList(fileName);
-        } else
+            final String sessionToken = getSessionToken();
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
+            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
+            {
+                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+            }
+            ExperimentLoader loader = new ExperimentLoader();
+            loader.load(files);
+            
+            // Update the identifiers using the default project and space when possible
+            applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), sessionToken);
+            NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), loader.getNewBasicExperiments());
+            if (async)
+            {
+                final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
+                asyncExperimentTask = new ConsumerTask() {
+                    @Override
+                    public String getTaskName() { return "Experiment Task"; }
+                    
+                    @Override
+                    public void executeTask()
+                    {
+                        Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
+                        for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
+                        {
+                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                        }
+                        ExperimentLoader asyncLoader = new ExperimentLoader();
+                        asyncLoader.load(asyncFiles);
+                        applyDefaultSpaceProjectToExperiments(asyncLoader.getNewBasicExperiments(), sessionToken);
+                        NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), asyncLoader.getNewBasicExperiments());
+                        //Execute task and clean files
+                        genericServer.registerExperimentsAsync(sessionToken, newExperiments, userEmail);
+                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                    }
+                };
+                
+                String fileName = loader.getResults().get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                genericServer.registerExperiments(sessionToken, newExperiments);
+                return loader.getResults();
+            }
+        } finally
         {
-            genericServer.registerExperiments(sessionToken, newExperiments);
-            return loader.getResults();
+            if (async && (asyncExperimentTask != null)) {
+                ConsumerQueue.addTaskAsLast(asyncExperimentTask);
+            } else {
+                cleanUploadedFiles(sessionKey, session, uploadedFiles);
+            }
         }
     }
 
@@ -489,28 +598,6 @@ public class GenericClientService extends AbstractClientService implements IGene
                     new MaterialBatchUpdateResultMessage(results.getMaterials(), updateCount,
                             ignoreUnregisteredMaterials);
             return Arrays.asList(new BatchRegistrationResult(fileName, message.toString()));
-        }
-    }
-
-    private ExperimentLoader parseExperiments(String sessionKey)
-    {
-        HttpSession session = getHttpSession();
-        UploadedFilesBean uploadedFiles = null;
-        try
-        {
-            uploadedFiles = getUploadedFiles(sessionKey, session);
-            Collection<NamedInputStream> files =
-                    new ArrayList<NamedInputStream>(uploadedFiles.size());
-            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
-            {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
-            }
-            ExperimentLoader loader = new ExperimentLoader();
-            loader.load(files);
-            return loader;
-        } finally
-        {
-            cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
     }
 
@@ -817,46 +904,6 @@ public class GenericClientService extends AbstractClientService implements IGene
             } else
             {
                 genericServer.updateDataSets(getSessionToken(), newDataSetsWithTypes);
-                return loader.getResults();
-            }
-        } finally
-        {
-            cleanUploadedFiles(sessionKey, session, uploadedFiles);
-        }
-    }
-
-    @Override
-    public List<BatchRegistrationResult> updateExperiments(ExperimentType experimentType,
-            String sessionKey, boolean async, String userEmail)
-            throws ch.systemsx.cisd.openbis.generic.client.web.client.exception.UserFailureException
-    {
-        HttpSession session = getHttpSession();
-        UploadedFilesBean uploadedFiles = null;
-        try
-        {
-            uploadedFiles = getUploadedFiles(sessionKey, session);
-            Collection<NamedInputStream> files =
-                    new ArrayList<NamedInputStream>(uploadedFiles.size());
-            for (IUncheckedMultipartFile f : uploadedFiles.iterable())
-            {
-                files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
-            }
-            UpdatedExperimentLoader loader = new UpdatedExperimentLoader();
-            loader.load(files);
-            // Update the identifiers using the default project and space when possible
-            applyDefaultSpaceProjectToExperiments(loader.getNewBasicExperiments(), getSessionToken());
-
-            UpdatedExperimentsWithType updatedExperiments = new UpdatedExperimentsWithType(
-                    experimentType, loader.getNewBasicExperiments());
-
-            if (async)
-            {
-                genericServer.updateExperimentsAsync(getSessionToken(), updatedExperiments, userEmail);
-                String fileName = loader.getResults().get(0).getFileName();
-                return AsyncBatchRegistrationResult.singletonList(fileName);
-            } else
-            {
-                genericServer.updateExperiments(getSessionToken(), updatedExperiments);
                 return loader.getResults();
             }
         } finally
