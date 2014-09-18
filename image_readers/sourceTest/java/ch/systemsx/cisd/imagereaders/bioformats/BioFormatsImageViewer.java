@@ -16,13 +16,19 @@
 
 package ch.systemsx.cisd.imagereaders.bioformats;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.jai.widget.ScrollingImagePanel;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import ch.systemsx.cisd.imagereaders.IImageReader;
 import ch.systemsx.cisd.imagereaders.ImageID;
@@ -43,8 +49,7 @@ public class BioFormatsImageViewer
             fileDialog.setMode(FileDialog.LOAD);
             fileDialog.setVisible(true);
             String dir = fileDialog.getDirectory();
-            myArgs = new String[]
-                { dir + "/" + fileDialog.getFile() };
+            myArgs = new String[] { dir + "/" + fileDialog.getFile() };
         }
         for (String fileName : myArgs)
         {
@@ -52,23 +57,51 @@ public class BioFormatsImageViewer
 
             System.out.println("=========== File: " + fileName);
             System.out.println("Reader: " + reader);
+            System.out.println("Library: " + reader.getLibraryName());
+            System.out.println("Name: " + reader.getName());
             File file = new File(fileName);
             ReadParams readParams = new ReadParams();
             readParams.setIntensityRescalingChannel(0);
-            final BufferedImage image = reader.readImage(file, ImageID.NULL, readParams);
-            showImage(image, fileName);
-
+            List<ImageID> imageIDs = reader.getImageIDs(file);
+            List<BufferedImage> images = new ArrayList<BufferedImage>();
+            for (ImageID imageID : imageIDs)
+            {
+                System.out.println(imageID);
+                BufferedImage image = reader.readImage(file, imageID, readParams);
+                images.add(image);
+            }
+            showImages(images, fileName);
         }
     }
 
-    private static void showImage(final RenderedImage image, String fileName)
+    private static void showImages(List<BufferedImage> images, String fileName)
     {
-        final Frame frame = new Frame("Image: " + fileName);
-        final ScrollingImagePanel panel =
-                new ScrollingImagePanel(image, image.getWidth() + 10, image.getHeight() + 10);
-        frame.add(panel);
+        final JFrame frame = new JFrame("Images: " + fileName);
+        Container contentPane = frame.getContentPane();
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        contentPane.add(mainPanel);
+        int size = images.size();
+        if (size > 1)
+        {
+            JTabbedPane tabbedPane = new JTabbedPane();
+            mainPanel.add(tabbedPane, BorderLayout.CENTER);
+            for (int i = 0; i < size; i++)
+            {
+                BufferedImage image = images.get(i);
+                String tabName = Integer.toString(i);
+                tabbedPane.addTab(tabName, createImagePanel(image));
+            }
+        } else
+        {
+            mainPanel.add(createImagePanel(images.get(0)), BorderLayout.CENTER);
+        }
         frame.setLocationByPlatform(true);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private static ScrollingImagePanel createImagePanel(BufferedImage image)
+    {
+        return new ScrollingImagePanel(image, image.getWidth() + 10, image.getHeight() + 10);
     }
 }
