@@ -3085,7 +3085,9 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         }
     }
 
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
+    public void setTimeout(String timeout) {
+        try {
+            this.timeout = Long.parseLong(timeout);
+        } catch (Exception e) {}
     }    
 }
