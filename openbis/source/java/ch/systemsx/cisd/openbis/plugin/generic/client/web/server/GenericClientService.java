@@ -251,6 +251,60 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
+    public final List<BatchRegistrationResult> updateSamples(
+            final SampleType sampleType,
+            final String sessionKey,
+            boolean async,
+            final String userEmail,
+            final String defaultGroupIdentifier)
+    {
+        final HttpSession httpSession = getHttpSession();
+        final String sessionToken = getSessionToken();
+        UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncSamplesTask = null;
+        try
+        {
+            uploadedFiles = getUploadedFiles(sessionKey, httpSession);
+            BatchSamplesOperation info = parseSamples(sampleType, httpSession, uploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
+
+            if (async)
+            {
+                final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
+                asyncSamplesTask = new ConsumerTask() {
+                    @Override
+                    public String getTaskName() { return "Samples Update Task"; }
+                    
+                    @Override
+                    public void executeTask()
+                    { 
+                        //Some stuff is repeated on the async executor, this is expected
+                        BatchSamplesOperation asyncInfo = parseSamples(sampleType, httpSession, asyncUploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
+                        //Execute task and clean files
+                        genericServer.updateSamplesAsync(sessionToken, asyncInfo.getSamples(), userEmail);
+                        cleanUploadedFiles(sessionKey, httpSession, asyncUploadedFiles);
+                    }
+                };
+                
+                String fileName = info.getResultList().get(0).getFileName();
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                genericServer.updateSamples(sessionToken, info.getSamples());
+                return info.getResultList();
+            }
+        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
+        {
+            throw UserFailureExceptionTranslator.translate(e);
+        } finally {
+            if (async && (asyncSamplesTask != null)) {
+                ConsumerQueue.addTaskAsLast(asyncSamplesTask);
+            } else {
+                cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
+            }
+        }
+    }
+    
+    @Override
     public final List<BatchRegistrationResult> registerOrUpdateSamplesAndMaterials(
             final String sessionKey, final String defaultGroupIdentifier, boolean updateExisting,
             boolean async, String userEmail) throws UserFailureException
@@ -300,34 +354,6 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             cleanUploadedFiles(sessionKey, session, uploadedFiles);
         }
-    }
-
-    @Override
-    public final List<BatchRegistrationResult> updateSamples(final SampleType sampleType,
-            final String sessionKey, boolean async, String userEmail, final String defaultGroupIdentifier)
-    {
-        BatchSamplesOperation info =
-                parseSamples(sampleType, sessionKey, defaultGroupIdentifier, false, true, null,
-                        BatchOperationKind.UPDATE);
-        try
-        {
-            final String sessionToken = getSessionToken();
-
-            if (async)
-            {
-                genericServer.updateSamplesAsync(sessionToken, info.getSamples(), userEmail);
-                String fileName = info.getResultList().get(0).getFileName();
-                return AsyncBatchRegistrationResult.singletonList(fileName);
-            } else
-            {
-                genericServer.updateSamples(sessionToken, info.getSamples());
-                return info.getResultList();
-            }
-        } catch (final ch.systemsx.cisd.common.exceptions.UserFailureException e)
-        {
-            throw UserFailureExceptionTranslator.translate(e);
-        }
-
     }
 
     @Override
@@ -400,7 +426,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return batchSamplesOperation;
 
     }
-
+    
     private BatchSamplesOperation parseSamples(
             final SampleType sampleType,
             final String sessionKey,
