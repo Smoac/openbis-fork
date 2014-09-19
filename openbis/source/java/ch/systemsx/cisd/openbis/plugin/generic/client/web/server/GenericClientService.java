@@ -990,16 +990,21 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public List<BatchRegistrationResult> updateDataSets(DataSetType dataSetType, String sessionKey, boolean async, String userEmail)
+    public List<BatchRegistrationResult> updateDataSets(
+            final DataSetType dataSetType,
+            final String sessionKey,
+            final boolean async,
+            final String userEmail)
     {
-
-        HttpSession session = getHttpSession();
+        final HttpSession session = getHttpSession();
+        final String sessionToken = getSessionToken();
         UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncDatasetsTask = null;
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, session);
-            Collection<NamedInputStream> files =
-                    new ArrayList<NamedInputStream>(uploadedFiles.size());
+            
+            Collection<NamedInputStream> files = new ArrayList<NamedInputStream>(uploadedFiles.size());
             for (IUncheckedMultipartFile f : uploadedFiles.iterable())
             {
                 files.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
@@ -1007,15 +1012,35 @@ public class GenericClientService extends AbstractClientService implements IGene
             DataSetLoader loader = new DataSetLoader();
             loader.load(files);
 
-            NewDataSetsWithTypes newDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType,
-                    loader.getNewDataSets());
+            NewDataSetsWithTypes newDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, loader.getNewDataSets());
 
             if (async)
             {
-                genericServer.updateDataSetsAsync(getSessionToken(), newDataSetsWithTypes, userEmail);
+                final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
+                asyncDatasetsTask = new ConsumerTask() {
+                    @Override
+                    public String getTaskName() { return "Datasets Registration Task"; }
+                    
+                    @Override
+                    public void executeTask()
+                    { 
+                        //Some stuff is repeated on the async executor, this is expected
+                        Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
+                        for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
+                        {
+                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                        }
+                        DataSetLoader asyncLoader = new DataSetLoader();
+                        asyncLoader.load(asyncFiles);
+                        NewDataSetsWithTypes asyncNewDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, asyncLoader.getNewDataSets());
+                        
+                        //Execute task and clean files
+                        genericServer.updateDataSetsAsync(sessionToken, asyncNewDataSetsWithTypes, userEmail);
+                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                    }
+                };
                 String fileName = loader.getResults().get(0).getFileName();
                 return AsyncBatchRegistrationResult.singletonList(fileName);
-
             } else
             {
                 genericServer.updateDataSets(getSessionToken(), newDataSetsWithTypes);
@@ -1023,7 +1048,11 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally
         {
-            cleanUploadedFiles(sessionKey, session, uploadedFiles);
+            if (async && (asyncDatasetsTask != null)) {
+                ConsumerQueue.addTaskAsLast(asyncDatasetsTask);
+            } else {
+                cleanUploadedFiles(sessionKey, session, uploadedFiles);
+            }
         }
     }
 
