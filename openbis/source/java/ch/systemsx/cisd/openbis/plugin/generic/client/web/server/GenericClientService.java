@@ -479,26 +479,59 @@ public class GenericClientService extends AbstractClientService implements IGene
     }
 
     @Override
-    public final List<BatchRegistrationResult> registerMaterials(final MaterialType materialType,
-            boolean updateExisting, final String sessionKey, boolean async, String userEmail)
+    public final List<BatchRegistrationResult> registerMaterials(
+            final MaterialType materialType,
+            final boolean updateExisting,
+            final String sessionKey,
+            final boolean async,
+            final String userEmail)
     {
-        String sessionToken = getSessionToken();
-        BatchMaterialsOperation results =
-                parseMaterials(sessionKey, materialType, null, updateExisting);
-        String fileName = results.getResultList().get(0).getFileName();
-        List<NewMaterialsWithTypes> materials = results.getMaterials();
-
-        if (async)
-        {
-            genericServer.registerOrUpdateMaterialsAsync(sessionToken, materials, userEmail);
-            return AsyncBatchRegistrationResult.singletonList(fileName);
-        } else
-        {
-            genericServer.registerOrUpdateMaterials(sessionToken, materials);
+        final String sessionToken = getSessionToken();
+        final HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncMaterialTask = null;
+        try {
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            BatchMaterialsOperation results = parseMaterials(session, uploadedFiles, materialType, null, updateExisting);
+            
+            String fileName = results.getResultList().get(0).getFileName();
+            List<NewMaterialsWithTypes> materials = results.getMaterials();
+            
+            if (async)
+            {
+                final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
+                asyncMaterialTask = new ConsumerTask() {
+                    @Override
+                    public String getTaskName() { return "Experiments Update Task"; }
+                    
+                    @Override
+                    public void executeTask()
+                    {
+                        //Some stuff is repeated on the async executor, this is expected
+                        BatchMaterialsOperation asyncResults = parseMaterials(session, asyncUploadedFiles, materialType, null, updateExisting);
+                        List<NewMaterialsWithTypes> asyncMaterials = asyncResults.getMaterials();
+                        //Execute task and clean files
+                        genericServer.registerOrUpdateMaterialsAsync(sessionToken, asyncMaterials, userEmail);
+                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                    }
+                };
+                
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                genericServer.registerOrUpdateMaterials(sessionToken, materials);
+                return results.getResultList();
+            }
+        } finally {
+            if (async && (asyncMaterialTask != null)) {
+                ConsumerQueue.addTaskAsLast(asyncMaterialTask);
+            } else {
+                cleanUploadedFiles(sessionKey, session, uploadedFiles);
+            }
         }
-
-        return results.getResultList();
     }
+
+        
     
     @Override
     public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
