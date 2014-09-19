@@ -502,7 +502,7 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncMaterialTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Experiments Update Task"; }
+                    public String getTaskName() { return "Materials Registration Task"; }
                     
                     @Override
                     public void executeTask()
@@ -530,8 +530,60 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         }
     }
-
+    
+    @Override
+    public List<BatchRegistrationResult> updateMaterials(
+            final MaterialType materialType,
+            final String sessionKey,
+            final boolean ignoreUnregisteredMaterials,
+            final boolean async,
+            final String userEmail)
+    {
+        final String sessionToken = getSessionToken();
+        final HttpSession session = getHttpSession();
+        UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncMaterialTask = null;
         
+        try {
+            uploadedFiles = getUploadedFiles(sessionKey, session);
+            BatchMaterialsOperation results = parseMaterials(session, uploadedFiles, materialType, null, true);
+            String fileName = results.getResultList().get(0).getFileName();
+
+            if (async)
+            {
+                final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
+                asyncMaterialTask = new ConsumerTask() {
+                    @Override
+                    public String getTaskName() { return "Materials Update Task"; }
+                    
+                    @Override
+                    public void executeTask()
+                    { 
+                        //Some stuff is repeated on the async executor, this is expected
+                        BatchMaterialsOperation asyncResults = parseMaterials(session, asyncUploadedFiles, materialType, null, true);
+                        //Execute task and clean files
+                        genericServer.updateMaterialsAsync(sessionToken, asyncResults.getMaterials(),ignoreUnregisteredMaterials, userEmail);
+                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                    }
+                };
+                
+                
+                return AsyncBatchRegistrationResult.singletonList(fileName);
+            } else
+            {
+                int updateCount = genericServer.updateMaterials(sessionToken, results.getMaterials(), ignoreUnregisteredMaterials);
+                MaterialBatchUpdateResultMessage message = new MaterialBatchUpdateResultMessage(results.getMaterials(), updateCount, ignoreUnregisteredMaterials);
+                return Arrays.asList(new BatchRegistrationResult(fileName, message.toString()));
+            }
+        } finally {
+            if (async && (asyncMaterialTask != null)) {
+                ConsumerQueue.addTaskAsLast(asyncMaterialTask);
+            } else {
+                cleanUploadedFiles(sessionKey, session, uploadedFiles);
+            }
+        }
+        
+    }
     
     @Override
     public List<BatchRegistrationResult> updateExperiments(final ExperimentType experimentType,
@@ -663,31 +715,6 @@ public class GenericClientService extends AbstractClientService implements IGene
         }
     }
 
-    @Override
-    public List<BatchRegistrationResult> updateMaterials(MaterialType materialType,
-            String sessionKey, boolean ignoreUnregisteredMaterials, boolean async, String userEmail)
-    {
-        String sessionToken = getSessionToken();
-        BatchMaterialsOperation results = parseMaterials(sessionKey, materialType, null, true);
-        String fileName = results.getResultList().get(0).getFileName();
-
-        if (async)
-        {
-            genericServer.updateMaterialsAsync(sessionToken, results.getMaterials(),
-                    ignoreUnregisteredMaterials, userEmail);
-            return AsyncBatchRegistrationResult.singletonList(fileName);
-        } else
-        {
-            int updateCount =
-                    genericServer.updateMaterials(sessionToken, results.getMaterials(),
-                            ignoreUnregisteredMaterials);
-            MaterialBatchUpdateResultMessage message =
-                    new MaterialBatchUpdateResultMessage(results.getMaterials(), updateCount,
-                            ignoreUnregisteredMaterials);
-            return Arrays.asList(new BatchRegistrationResult(fileName, message.toString()));
-        }
-    }
-
     private String getUserDefaultProject(String sessionToken)
     {
         String projectIdentifier = null;
@@ -797,23 +824,6 @@ public class GenericClientService extends AbstractClientService implements IGene
                 MaterialUploadSectionsParser.prepareMaterials(materialType, files, excelSheetName);
         setUpdatePossibility(batchMaterialsOperation.getMaterials(), updateExisting);
         return batchMaterialsOperation;
-    }
-
-    private BatchMaterialsOperation parseMaterials(String sessionKey, MaterialType materialType,
-            String excelSheetName, boolean updateExisting)
-    {
-        HttpSession session = getHttpSession();
-        UploadedFilesBean uploadedFiles = null;
-        try
-        {
-            uploadedFiles = getUploadedFiles(sessionKey, session);
-
-            return parseMaterials(session, uploadedFiles, materialType, excelSheetName,
-                    updateExisting);
-        } finally
-        {
-            cleanUploadedFiles(sessionKey, session, uploadedFiles);
-        }
     }
 
     @Override
