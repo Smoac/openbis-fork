@@ -265,10 +265,13 @@ public class SimpleImageDataSetRegistrator
                 String imageRelativePath = FileUtilities.getRelativeFilePath(incomingDirectory, file);
                 ImageMetadata[] imageTokens =
                         simpleImageConfig.extractImagesMetadata(imageRelativePath, identifiers);
-                for (ImageMetadata imageToken : imageTokens)
+                if (imageTokens != null)
                 {
-                    imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
-                    imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+                    for (ImageMetadata imageToken : imageTokens)
+                    {
+                        imageToken.ensureValid(simpleImageConfig.isMicroscopyData());
+                        imageTokensList.add(new ImageTokensWithPath(imageToken, imageRelativePath));
+                    }
                 }
             } catch (Exception ex)
             {
@@ -279,7 +282,7 @@ public class SimpleImageDataSetRegistrator
         {
             throw UserFailureException
                     .fromTemplate(
-                            "No image tokens could be parsed from incoming directory '%s' for extensions %s!",
+                            "No image tokens could be parsed from incoming directory '%s' for extensions %s!\n Method extractImagesMetadata did not return any image tokens for any of the input image files",
                             incomingDirectory.getPath(),
                             CollectionUtils.abbreviate(
                                     simpleImageConfig.getRecognizedImageExtensions(), -1));
