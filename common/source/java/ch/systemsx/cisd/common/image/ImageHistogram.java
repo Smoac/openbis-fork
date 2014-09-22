@@ -299,8 +299,7 @@ public class ImageHistogram
         }
     }
     
-    
-    private boolean isGray()
+    public boolean isGray()
     {
         for (int i = 0; i < redCounters.length; i++)
         {

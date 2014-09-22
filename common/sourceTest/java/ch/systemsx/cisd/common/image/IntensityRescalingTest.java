@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 
 import org.testng.annotations.Test;
 
@@ -103,13 +104,36 @@ public class IntensityRescalingTest
         graphics.setColor(Color.PINK);
         graphics.fillRect(1, 1, 4, 3);
         
-        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(image, new Levels(75, 190));
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(new Pixels(image), 
+                new Levels(75, 190), Channel.values());
         
         ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
         
         assertEquals("[0=12, 255=18]", renderHistogram(histogram.getRedHistogram()));
         assertEquals("[0=12, 222=12, 255=6]", renderHistogram(histogram.getGreenHistogram()));
         assertEquals("[0=18, 222=12]", renderHistogram(histogram.getBlueHistogram()));
+    }
+    
+    @Test
+    public void testRescaleIntensityLevelForAnIndexColorModel()
+    {
+        BufferedImage image = new BufferedImage(6, 5, BufferedImage.TYPE_BYTE_INDEXED);
+        ColorModel colorModel = image.getColorModel();
+        assertEquals("IndexColorModel", colorModel.getClass().getSimpleName());
+        Graphics graphics = image.getGraphics();
+        graphics.setColor(Color.ORANGE);
+        graphics.fillRect(0, 0, 4, 3);
+        graphics.setColor(Color.PINK);
+        graphics.fillRect(1, 1, 4, 3);
+        
+        BufferedImage rescaledImage = IntensityRescaling.rescaleIntensityLevelTo8Bits(new Pixels(image), 
+                new Levels(75, 190), Channel.values());
+        
+        ImageHistogram histogram = ImageHistogram.calculateHistogram(rescaledImage);
+        
+        assertEquals("[0=12, 255=18]", renderHistogram(histogram.getRedHistogram()));
+        assertEquals("[0=12, 173=12, 255=6]", renderHistogram(histogram.getGreenHistogram()));
+        assertEquals("[0=18, 173=12]", renderHistogram(histogram.getBlueHistogram()));
     }
     
     @Test

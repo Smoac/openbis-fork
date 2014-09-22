@@ -925,7 +925,7 @@ public class ImageUtil
             {
                 Pixels pixels = new Pixels(image);
                 Levels intensityRange = IntensityRescaling.computeLevels(pixels, 
-                        threshold == null ? DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold);
+                        threshold == null ? DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold, Channel.RED);
                 BufferedImage result =
                         IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange, Channel.RED);
                 return result;

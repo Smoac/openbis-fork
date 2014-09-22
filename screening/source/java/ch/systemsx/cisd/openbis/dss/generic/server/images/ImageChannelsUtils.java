@@ -61,6 +61,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -396,6 +397,7 @@ public class ImageChannelsUtils
         BufferedImage image = calculateSingleImage(imageReference);
         image = transform(image, imageReference, transformationInfo);
         image = ImageUtil.convertForDisplayIfNecessary(image, threshold);
+        image = convertTo8Bit(image);
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
         if (channel != null)
         {
@@ -448,7 +450,30 @@ public class ImageChannelsUtils
         }
         return image;
     }
-
+    
+    private static BufferedImage convertTo8Bit(BufferedImage image)
+    {
+        Pixels pixels = DssScreeningUtils.createPixels(image);
+        int[][] pixelData = pixels.getPixelData();
+        int maxIntensity = 0;
+        for (int[] colorChannelPixels : pixelData)
+        {
+            for (int intensity : colorChannelPixels)
+            {
+                if (intensity > maxIntensity)
+                {
+                    maxIntensity = intensity;
+                }
+            }
+        }
+        if (maxIntensity < 256)
+        {
+            return image;
+        }
+        Levels levels = new Levels(0, maxIntensity < 4096 ? 4096 : 1 << 16);
+        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+    }
+    
     private static IColorTransformation createColorTransformation(final Channel channel, final ChannelColorRGB channelColor)
     {
         return new IColorTransformation()
@@ -515,7 +540,7 @@ public class ImageChannelsUtils
         IImageTransformerFactory channelTransformation = mergedChannelTransformationOrNull;
         if ((transMap == null || transMap.size() == 0) && channelTransformation == null) 
         {
-            Levels levels = IntensityRescaling.computeLevels(mergedImage, 30);
+            Levels levels = IntensityRescaling.computeLevels(DssScreeningUtils.createPixels(mergedImage), 30);
             int minLevel = levels.getMinLevel();
             int maxLevel = levels.getMaxLevel();
             channelTransformation = new IntensityRangeImageTransformerFactory(minLevel, maxLevel);
@@ -593,7 +618,6 @@ public class ImageChannelsUtils
                                 ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
             }
         }
-
         return applyImageTransformation(resultImage, channelLevelTransformationOrNull);
     }
 
@@ -763,7 +787,7 @@ public class ImageChannelsUtils
     
     public static BufferedImage transformColor(BufferedImage bufferedImage, IColorTransformation transformation)
     {
-        Pixels pixels = new Pixels(bufferedImage);
+        Pixels pixels = DssScreeningUtils.createPixels(bufferedImage);
         int width = pixels.getWidth();
         int height = pixels.getHeight();
         int[][] pixelData = pixels.getPixelData();
@@ -791,5 +815,4 @@ public class ImageChannelsUtils
         final byte[] output = ImageUtil.imageToPngFast(image);
         return new ByteArrayBasedContentNode(output, nameOrNull);
     }
-
 }
