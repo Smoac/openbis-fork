@@ -44,8 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Code based on LocalAndRemoteCopier, able to copy dataset files both ways: to and from
- * destination.
+ * Code based on LocalAndRemoteCopier, able to copy dataset files both ways: to and from destination.
  * 
  * @author Piotr Buczek
  */
@@ -54,9 +53,9 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     private static interface IDeleteAction
     {
         String getName();
+
         void delete(File dataSetFolder, String dataSetCode);
     }
-
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetFileOperationsManager.class);
@@ -150,8 +149,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     }
 
     /**
-     * Copies specified dataset's data to destination specified in constructor. The path at the
-     * destination is defined by the original location of the data set.
+     * Copies specified dataset's data to destination specified in constructor. The path at the destination is defined by the original location of the
+     * data set.
      */
     @Override
     public Status copyToDestination(File originalData, DatasetDescription dataset)
@@ -179,8 +178,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     }
 
     /**
-     * Retrieves specified datases's data from the destination specified in constructor. The path at
-     * the destination is defined by original location of the data set.
+     * Retrieves specified datases's data from the destination specified in constructor. The path at the destination is defined by original location
+     * of the data set.
      */
     @Override
     public Status retrieveFromDestination(File originalData, DatasetDescription dataset)
@@ -202,8 +201,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     }
 
     /**
-     * Deletes specified datases's data from the destination specified in constructor. The path at
-     * the destination is defined by original location of the data set.
+     * Deletes specified datases's data from the destination specified in constructor. The path at the destination is defined by original location of
+     * the data set.
      */
     @Override
     public Status deleteFromDestination(IDatasetLocation dataset)
@@ -268,10 +267,10 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
             return ex.getStatus();
         }
     }
-    
+
     /**
-     * Checks if specified dataset's data are present and synchronized in the destination specified
-     * in constructor. The path at the destination is defined by original location of the data set.
+     * Checks if specified dataset's data are present and synchronized in the destination specified in constructor. The path at the destination is
+     * defined by original location of the data set.
      */
     @Override
     public BooleanStatus isSynchronizedWithDestination(File originalData, DatasetDescription dataset)
@@ -293,8 +292,8 @@ public class DataSetFileOperationsManager implements IDataSetFileOperationsManag
     }
 
     /**
-     * Checks if specified dataset's data are present in the destination specified in constructor.
-     * The path at the destination is defined by original location of the data set.
+     * Checks if specified dataset's data are present in the destination specified in constructor. The path at the destination is defined by original
+     * location of the data set.
      */
     @Override
     public BooleanStatus isPresentInDestination(DatasetDescription dataset)

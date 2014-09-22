@@ -37,8 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
- * Archiver plugin which copies data sets to a destination folder using rsync (if it is remote). The
- * destination can be
+ * Archiver plugin which copies data sets to a destination folder using rsync (if it is remote). The destination can be
  * <ul>
  * <li>on the local file system,
  * <li>a mounted remote folder,

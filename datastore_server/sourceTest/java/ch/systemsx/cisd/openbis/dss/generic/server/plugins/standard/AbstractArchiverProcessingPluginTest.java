@@ -501,7 +501,7 @@ public class AbstractArchiverProcessingPluginTest extends AbstractFileSystemTest
         assertEquals("[ds1]", simpleArchiver.getSortedDataSetsToBeArchived().toString());
         assertEquals("[]", simpleArchiver.getSortedDataSetsToBeDeletedFromArchive().toString());
         assertEquals("[]", status.getErrorStatuses().toString());
-        assertEquals(null, status.getDatasetsByStatus(Status.createError()));
+        assertEquals("[]", status.getDatasetsByStatus(Status.createError()).toString());
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']",
                 logRecorder.getLogContent());
