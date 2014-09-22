@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -140,14 +141,29 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
 
-        DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
+        DatasetProcessingStatuses finalstatuses = new DatasetProcessingStatuses();
+
+        for (DatasetDescription singleDatset : datasets)
+        {
+            List<DatasetDescription> singleBatch = Collections.singletonList(singleDatset);
+
+            archiveSingleBatch(context, removeFromDataStore, finalstatuses, singleBatch);
+        }
+
+        return finalstatuses.getProcessingStatus();
+    }
+
+    private void archiveSingleBatch(final ArchiverTaskContext context, boolean removeFromDataStore, DatasetProcessingStatuses finalstatuses,
+            List<DatasetDescription> singleBatch)
+    {
+        DatasetProcessingStatuses statuses = safeArchive(singleBatch, context, removeFromDataStore);
 
         DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
 
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
         asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
 
-        return statuses.getProcessingStatus();
+        finalstatuses.addResults(statuses);
     }
 
     private void initializeDatasetSizesIfNeeded(List<DatasetDescription> datasets)
@@ -392,6 +408,25 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             this.processingStatus = new ProcessingStatus();
         }
 
+        public void addResults(DatasetProcessingStatuses otherStatuses)
+        {
+            ProcessingStatus otherProcessingStatus = otherStatuses.getProcessingStatus();
+
+            for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(Status.OK))
+            {
+                addResultQuietly(datasetCode, Status.OK);
+            }
+
+            for (Status error : otherProcessingStatus.getErrorStatuses())
+            {
+                for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(error))
+                {
+                    addResultQuietly(datasetCode, error);
+                }
+            }
+
+        }
+
         public void addResult(Collection<DatasetDescription> datasets, Status status,
                 Operation operation)
         {
@@ -421,6 +456,18 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             processingStatus.addDatasetStatus(datasetCode, status);
         }
 
+        private void addResultQuietly(String datasetCode, Status status)
+        {
+            if (status.isError())
+            {
+                failedDatasetCodes.add(datasetCode);
+            } else
+            {
+                successfulDatasetCodes.add(datasetCode);
+            }
+            processingStatus.addDatasetStatus(datasetCode, status);
+        }
+
         private String createLogMessage(String datasetCode, Status status, String operation)
         {
             return String.format("%s for dataset %s finished with the status: %s.", operation,
@@ -441,6 +488,29 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             return processingStatus;
         }
+    }
+
+    protected final static DatasetProcessingStatuses createStatuesFailIfAnyFailed(DatasetProcessingStatuses statuses)
+    {
+        if (statuses.getFailedDatasetCodes().isEmpty())
+            return statuses;
+        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
+
+        ProcessingStatus otherProcessingStatus = statuses.getProcessingStatus();
+
+        for (Status error : otherProcessingStatus.getErrorStatuses())
+        {
+            for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(error))
+            {
+                result.addResultQuietly(datasetCode, error);
+            }
+        }
+
+        for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(Status.OK))
+        {
+            result.addResultQuietly(datasetCode, Status.createError("Successful, but part of a failed batch."));
+        }
+        return result;
     }
 
     protected final static DatasetProcessingStatuses createStatuses(Status status,

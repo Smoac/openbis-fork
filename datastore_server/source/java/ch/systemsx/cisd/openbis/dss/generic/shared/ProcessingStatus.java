@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,13 @@ public class ProcessingStatus
 
     public List<String/* dataset code */> getDatasetsByStatus(Status status)
     {
-        return datasetByStatus.get(status);
+        if (datasetByStatus.containsKey(status))
+        {
+            return datasetByStatus.get(status);
+        } else
+        {
+            return Collections.emptyList();
+        }
     }
 
     public void addDatasetStatus(DatasetDescription dataset, Status status)
