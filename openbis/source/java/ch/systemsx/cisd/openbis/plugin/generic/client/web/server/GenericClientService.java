@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.plugin.generic.client.web.server;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.servlet.IRequestContextProvider;
 import ch.systemsx.cisd.openbis.common.spring.IUncheckedMultipartFile;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DataSetUpdates;
@@ -106,6 +109,9 @@ public class GenericClientService extends AbstractClientService implements IGene
     @Resource(name = ResourceNames.GENERIC_PLUGIN_SERVER)
     private IGenericServer genericServer;
 
+    @Resource(name = "registration-queue")
+    private ConsumerQueue asyncRegistrationQueue;
+    
     public GenericClientService()
     {
     }
@@ -191,23 +197,29 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             final BatchOperationKind operationKind = updateExisting ? BatchOperationKind.UPDATE : BatchOperationKind.REGISTRATION;
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            BatchSamplesOperation info = parseSamples(sampleType, httpSession, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
+            BatchSamplesOperation info = parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
             
             if (async)
             {
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncSamplesTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Samples Registration Task"; }
+                    public String getName() { return "Samples Registration Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     { 
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchSamplesOperation asyncInfo = parseSamples(sampleType, httpSession, asyncUploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
-                        //Execute task and clean files
-                        genericServer.registerOrUpdateSamplesAsync(sessionToken, asyncInfo.getSamples(), userEmail);
-                        cleanUploadedFiles(sessionKey, httpSession, asyncUploadedFiles);
+                        try {
+                            //Some stuff is repeated on the async executor, this is expected
+                            BatchSamplesOperation asyncInfo = parseSamples(sampleType, asyncUploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, true, null, operationKind, sessionToken);
+                            //Execute task and clean files
+                            genericServer.registerOrUpdateSamples(sessionToken, asyncInfo.getSamples());
+                        } finally {
+                            cleanUploadedFiles(sessionKey, httpSession, asyncUploadedFiles);
+                        }
                     }
                 };
                 
@@ -243,7 +255,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally {
             if (async && (asyncSamplesTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncSamplesTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncSamplesTask);
             } else {
                 cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
@@ -265,23 +277,29 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            BatchSamplesOperation info = parseSamples(sampleType, httpSession, uploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
+            BatchSamplesOperation info = parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
 
             if (async)
             {
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncSamplesTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Samples Update Task"; }
+                    public String getName() { return "Samples Update Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     { 
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchSamplesOperation asyncInfo = parseSamples(sampleType, httpSession, asyncUploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
-                        //Execute task and clean files
-                        genericServer.updateSamplesAsync(sessionToken, asyncInfo.getSamples(), userEmail);
-                        cleanUploadedFiles(sessionKey, httpSession, asyncUploadedFiles);
+                        try {
+                            //Some stuff is repeated on the async executor, this is expected
+                            BatchSamplesOperation asyncInfo = parseSamples(sampleType, asyncUploadedFiles, defaultGroupIdentifier, false, true, null, BatchOperationKind.UPDATE, sessionToken);
+                            //Execute task and clean files
+                            genericServer.updateSamples(sessionToken, asyncInfo.getSamples());
+                        } finally {
+                            cleanUploadedFiles(sessionKey, httpSession, asyncUploadedFiles);
+                        }
                     }
                 };
                 
@@ -297,7 +315,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             throw UserFailureExceptionTranslator.translate(e);
         } finally {
             if (async && (asyncSamplesTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncSamplesTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncSamplesTask);
             } else {
                 cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
@@ -324,7 +342,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         {
             uploadedFiles = getUploadedFiles(sessionKey, session);
             
-            BatchSamplesOperation samplesInfo = parseSamples(sampleType, session, uploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind, sessionToken);
+            BatchSamplesOperation samplesInfo = parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind, sessionToken);
             
             final MaterialType materialType = new MaterialType();
             materialType.setCode(EntityType.DEFINED_IN_FILE);
@@ -335,18 +353,23 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncGeneralTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "General Batch Import Task"; }
+                    public String getName() { return "General Batch Import Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     { 
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchSamplesOperation asyncSamplesInfo = parseSamples(sampleType, session, asyncUploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind, sessionToken);
-                        BatchMaterialsOperation asyncMaterialsInfo = parseMaterials(session, asyncUploadedFiles, materialType, "MATERIALS", updateExisting);
-                        
-                        //Execute task and clean files
-                        genericServer.registerOrUpdateSamplesAndMaterialsAsync(sessionToken, asyncSamplesInfo.getSamples(), asyncMaterialsInfo.getMaterials(), userEmail);
-                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                        try {
+                            //Some stuff is repeated on the async executor, this is expected
+                            BatchSamplesOperation asyncSamplesInfo = parseSamples(sampleType, asyncUploadedFiles, defaultGroupIdentifier, defaultGroupIdentifier != null, true, "SAMPLES", operationKind, sessionToken);
+                            BatchMaterialsOperation asyncMaterialsInfo = parseMaterials(session, asyncUploadedFiles, materialType, "MATERIALS", updateExisting);
+                            //Execute task and clean files
+                            genericServer.registerOrUpdateSamplesAndMaterials(sessionToken, asyncSamplesInfo.getSamples(), asyncMaterialsInfo.getMaterials());
+                        } finally {
+                            cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                        }
                     }
                 };
                 
@@ -367,7 +390,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         } finally
         {
             if (async && (asyncGeneralTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncGeneralTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncGeneralTask);
             } else {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
@@ -423,8 +446,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         return helper.exp;
     }
 
-    private BatchSamplesOperation parseSamples(final SampleType sampleType,
-            HttpSession httpSession, UploadedFilesBean uploadedFiles,
+    private BatchSamplesOperation parseSamples(final SampleType sampleType, UploadedFilesBean uploadedFiles,
             String defaultGroupIdentifier, final boolean isAutoGenerateCodes,
             final boolean allowExperiments, String excelSheetName, BatchOperationKind operationKind, String sessionToken)
     {
@@ -460,7 +482,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         try
         {
             uploadedFiles = getUploadedFiles(sessionKey, httpSession);
-            return parseSamples(sampleType, httpSession, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, allowExperiments, excelSheetName, operationKind, sessionToken);
+            return parseSamples(sampleType, uploadedFiles, defaultGroupIdentifier, isAutoGenerateCodes, allowExperiments, excelSheetName, operationKind, sessionToken);
         } finally
         {
             cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
@@ -520,17 +542,23 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncMaterialTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Materials Registration Task"; }
+                    public String getName() { return "Materials Registration Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     {
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchMaterialsOperation asyncResults = parseMaterials(session, asyncUploadedFiles, materialType, null, updateExisting);
-                        List<NewMaterialsWithTypes> asyncMaterials = asyncResults.getMaterials();
-                        //Execute task and clean files
-                        genericServer.registerOrUpdateMaterialsAsync(sessionToken, asyncMaterials, userEmail);
-                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                        try {
+                            //Some stuff is repeated on the async executor, this is expected
+                            BatchMaterialsOperation asyncResults = parseMaterials(session, asyncUploadedFiles, materialType, null, updateExisting);
+                            List<NewMaterialsWithTypes> asyncMaterials = asyncResults.getMaterials();
+                            //Execute task and clean files
+                            genericServer.registerOrUpdateMaterials(sessionToken, asyncMaterials);
+                        } finally {
+                            cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                        }
                     }
                 };
                 
@@ -542,7 +570,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally {
             if (async && (asyncMaterialTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncMaterialTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncMaterialTask);
             } else {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
@@ -572,16 +600,30 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncMaterialTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Materials Update Task"; }
+                    public String getName() { return "Materials Update Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     { 
-                        //Some stuff is repeated on the async executor, this is expected
-                        BatchMaterialsOperation asyncResults = parseMaterials(session, asyncUploadedFiles, materialType, null, true);
-                        //Execute task and clean files
-                        genericServer.updateMaterialsAsync(sessionToken, asyncResults.getMaterials(),ignoreUnregisteredMaterials, userEmail);
-                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                        try
+                        {
+                            //Some stuff is repeated on the async executor, this is expected
+                            BatchMaterialsOperation asyncResults = parseMaterials(session, asyncUploadedFiles, materialType, null, true);
+                            //Execute task and clean files
+                            int updateCount = genericServer.updateMaterials(sessionToken, asyncResults.getMaterials(), ignoreUnregisteredMaterials);
+                            MaterialBatchUpdateResultMessage message = new MaterialBatchUpdateResultMessage(asyncResults.getMaterials(), updateCount, ignoreUnregisteredMaterials);
+                            writer.write(message.toString());
+                        } catch (IOException e)
+                        {
+                            CheckedExceptionTunnel.wrapIfNecessary(e);
+                        } finally {
+                            cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
+                        }
+                        
+                        
                     }
                 };
                 
@@ -595,7 +637,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             }
         } finally {
             if (async && (asyncMaterialTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncMaterialTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncMaterialTask);
             } else {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
@@ -631,24 +673,30 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncExperimentTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Experiments Update Task"; }
+                    public String getName() { return "Experiments Update Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     { 
-                        //Some stuff is repeated on the async executor, this is expected
-                        final Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
-                        for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
-                        {
-                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                        try {
+                          //Some stuff is repeated on the async executor, this is expected
+                            final Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
+                            for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
+                            {
+                                asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                            }
+                            UpdatedExperimentLoader loaderAsync = new UpdatedExperimentLoader();
+                            loaderAsync.load(asyncFiles);
+                            applyDefaultSpaceProjectToExperiments(loaderAsync.getNewBasicExperiments(), sessionToken);
+                            final UpdatedExperimentsWithType updatedExperimentsAsync = new UpdatedExperimentsWithType(experimentType, loaderAsync.getNewBasicExperiments());
+                            //Execute task and clean files
+                            genericServer.updateExperiments(sessionToken, updatedExperimentsAsync);
+                        } finally {
+                            cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
                         }
-                        UpdatedExperimentLoader loaderAsync = new UpdatedExperimentLoader();
-                        loaderAsync.load(asyncFiles);
-                        applyDefaultSpaceProjectToExperiments(loaderAsync.getNewBasicExperiments(), sessionToken);
-                        final UpdatedExperimentsWithType updatedExperimentsAsync = new UpdatedExperimentsWithType(experimentType, loaderAsync.getNewBasicExperiments());
-                        //Execute task and clean files
-                        genericServer.updateExperimentsAsync(sessionToken, updatedExperimentsAsync, userEmail);
-                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
                     }
                 };
                 
@@ -663,7 +711,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         } finally
         {
             if (async && (asyncExperimentTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncExperimentTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncExperimentTask);
             } else {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
@@ -702,16 +750,19 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncExperimentTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Experiments Registration Task"; }
+                    public String getName() { return "Experiments Registration Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     {
                         ExperimentLoader asyncLoader = getExperimentsFromFiles(asyncUploadedFiles);
                         applyDefaultSpaceProjectToExperiments(asyncLoader.getNewBasicExperiments(), sessionToken);
                         NewExperimentsWithType newExperiments = new NewExperimentsWithType(experimentType.getCode(), asyncLoader.getNewBasicExperiments());
                         //Execute task and clean files
-                        genericServer.registerExperimentsAsync(sessionToken, newExperiments, userEmail);
+                        genericServer.registerExperiments(sessionToken, newExperiments);
                         cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
                     }
                 };
@@ -726,7 +777,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         } finally
         {
             if (async && (asyncExperimentTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncExperimentTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncExperimentTask);
             } else {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }
@@ -1019,24 +1070,30 @@ public class GenericClientService extends AbstractClientService implements IGene
                 final UploadedFilesBean asyncUploadedFiles = uploadedFiles;
                 asyncDatasetsTask = new ConsumerTask() {
                     @Override
-                    public String getTaskName() { return "Datasets Registration Task"; }
+                    public String getName() { return "Datasets Registration Task"; }
                     
                     @Override
-                    public void executeTask()
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
                     { 
-                        //Some stuff is repeated on the async executor, this is expected
-                        Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
-                        for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
-                        {
-                            asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                        try {
+                            //Some stuff is repeated on the async executor, this is expected
+                            Collection<NamedInputStream> asyncFiles = new ArrayList<NamedInputStream>(asyncUploadedFiles.size());
+                            for (IUncheckedMultipartFile f : asyncUploadedFiles.iterable())
+                            {
+                                asyncFiles.add(new NamedInputStream(f.getInputStream(), f.getOriginalFilename()));
+                            }
+                            DataSetLoader asyncLoader = new DataSetLoader();
+                            asyncLoader.load(asyncFiles);
+                            NewDataSetsWithTypes asyncNewDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, asyncLoader.getNewDataSets());
+
+                            //Execute task and clean files
+                            genericServer.updateDataSets(sessionToken, asyncNewDataSetsWithTypes);
+                        } finally {
+                            cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
                         }
-                        DataSetLoader asyncLoader = new DataSetLoader();
-                        asyncLoader.load(asyncFiles);
-                        NewDataSetsWithTypes asyncNewDataSetsWithTypes = new NewDataSetsWithTypes(dataSetType, asyncLoader.getNewDataSets());
-                        
-                        //Execute task and clean files
-                        genericServer.updateDataSetsAsync(sessionToken, asyncNewDataSetsWithTypes, userEmail);
-                        cleanUploadedFiles(sessionKey, session, asyncUploadedFiles);
                     }
                 };
                 String fileName = loader.getResults().get(0).getFileName();
@@ -1049,7 +1106,7 @@ public class GenericClientService extends AbstractClientService implements IGene
         } finally
         {
             if (async && (asyncDatasetsTask != null)) {
-                ConsumerQueue.addTaskAsLast(asyncDatasetsTask);
+                asyncRegistrationQueue.addTaskAsLast(asyncDatasetsTask);
             } else {
                 cleanUploadedFiles(sessionKey, session, uploadedFiles);
             }

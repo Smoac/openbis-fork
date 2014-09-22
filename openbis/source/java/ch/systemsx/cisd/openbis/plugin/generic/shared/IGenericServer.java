@@ -111,15 +111,6 @@ public interface IGenericServer extends IServer
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
 
     /**
-     * Asynchronously registers or updates samples of different types in batches.
-     */
-    @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
-    public void registerOrUpdateSamplesAsync(final String sessionToken,
-            final List<NewSamplesWithTypes> newSamplesWithType, String userEmail)
-            throws UserFailureException;
-
-    /**
      * Registers or updates samples and materials of different types in batches.
      */
     @Transactional
@@ -130,31 +121,12 @@ public interface IGenericServer extends IServer
             List<NewMaterialsWithTypes> newMaterialsWithType) throws UserFailureException;
 
     /**
-     * Asynchronously registers or updates samples and materials of different types in batches.
-     */
-    @Transactional
-    @DatabaseCreateOrDeleteModification(value =
-    { ObjectKind.SAMPLE, ObjectKind.MATERIAL })
-    public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
-            final List<NewSamplesWithTypes> newSamplesWithType,
-            final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
-            throws UserFailureException;
-
-    /**
      * Updates samples of different types in batches.
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
     public void updateSamples(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType) throws UserFailureException;
-
-    /**
-     * Asynchronously updates samples of different types in batches.
-     */
-    @Transactional
-    @DatabaseUpdateModification(value = ObjectKind.SAMPLE)
-    public void updateSamplesAsync(final String sessionToken,
-            final List<NewSamplesWithTypes> newSamplesWithType, String userEmail) throws UserFailureException;
 
     /**
      * Registers experiment. At the same time samples may be registered or updated.
@@ -175,27 +147,11 @@ public interface IGenericServer extends IServer
             throws UserFailureException;
 
     /**
-     * Asynchronously registers experiments in batch.
-     */
-    @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
-    public void registerExperimentsAsync(String sessionToken, final NewExperimentsWithType experiments, String userEmail)
-            throws UserFailureException;
-
-    /**
      * Update experiments in batch.
      */
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
     public void updateExperiments(String sessionToken, final UpdatedExperimentsWithType experiments)
-            throws UserFailureException;
-
-    /**
-     * Asynchronously update experiments in batch.
-     */
-    @Transactional
-    @DatabaseUpdateModification(value = ObjectKind.EXPERIMENT)
-    public void updateExperimentsAsync(String sessionToken, final UpdatedExperimentsWithType experiments, String userEmail)
             throws UserFailureException;
 
     /**
@@ -217,28 +173,12 @@ public interface IGenericServer extends IServer
             boolean ignoreUnregisteredMaterials) throws UserFailureException;
 
     /**
-     * Asynchronously updates materials in batch.
-     */
-    @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public void updateMaterialsAsync(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
-            boolean ignoreUnregisteredMaterials, String userEmail) throws UserFailureException;
-
-    /**
      * Registers new materials or if they exist updates in batch their properties (properties which are not mentioned stay unchanged).
      */
     @Transactional
     @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
             throws UserFailureException;
-
-    /**
-     * Asynchronously registers new materials or if they exist updates in batch their properties (properties which are not mentioned stay unchanged).
-     */
-    @Transactional
-    @DatabaseCreateOrDeleteModification(value = ObjectKind.MATERIAL)
-    public void registerOrUpdateMaterialsAsync(String sessionToken,
-            List<NewMaterialsWithTypes> materials, String userEmail) throws UserFailureException;
 
     /**
      * Returns attachment described by given sample identifier, filename and version.
@@ -297,14 +237,6 @@ public interface IGenericServer extends IServer
     @Transactional
     @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
     public void updateDataSets(final String sessionToken, final NewDataSetsWithTypes dataSets)
-            throws UserFailureException;
-
-    /**
-     * Asynchronously updates data sets of different types in batches.
-     */
-    @Transactional
-    @DatabaseUpdateModification(value = ObjectKind.DATA_SET)
-    public void updateDataSetsAsync(final String sessionToken, final NewDataSetsWithTypes dataSets, String userEmail)
             throws UserFailureException;
 
 }

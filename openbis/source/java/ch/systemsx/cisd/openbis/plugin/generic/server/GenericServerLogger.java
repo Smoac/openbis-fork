@@ -131,15 +131,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public void updateMaterialsAsync(String sessionToken, List<NewMaterialsWithTypes> newMaterials,
-            boolean ignoreUnregisteredMaterials, String userEmail) throws UserFailureException
-    {
-        logTracking(sessionToken, "update_materials_async",
-                "MATERIALS(%S) IGNORE_UNREGISTERED_MATERIALS(%S) USER_EMAIL(%S)",
-                getMaterials(newMaterials), ignoreUnregisteredMaterials, userEmail);
-    }
-
-    @Override
     public AttachmentWithContent getExperimentFileAttachment(final String sessionToken,
             final TechId experimentId, final String filename, final Integer versionOrNull)
             throws UserFailureException
@@ -228,13 +219,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public void updateSamplesAsync(String sessionToken, List<NewSamplesWithTypes> updatedSamplesWithType, String userEmail)
-            throws UserFailureException
-    {
-        logTracking(sessionToken, "update_samples_async", "SAMPLES(%s) EMAIL(%s)", getSamples(updatedSamplesWithType), userEmail);
-    }
-
-    @Override
     public void registerOrUpdateMaterials(String sessionToken, List<NewMaterialsWithTypes> materials)
     {
         for (NewMaterialsWithTypes materialsWithType : materials)
@@ -242,19 +226,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
             logTracking(sessionToken, "registerOrUpdateMaterials",
                     "type(%s) numberOfMaterials(%s)", materialsWithType.getEntityType().getCode(),
                     materialsWithType.getNewEntities().size());
-        }
-    }
-
-    @Override
-    public void registerOrUpdateMaterialsAsync(String sessionToken,
-            List<NewMaterialsWithTypes> materials, String userEmail)
-    {
-        for (NewMaterialsWithTypes materialsWithType : materials)
-        {
-            logTracking(sessionToken, "registerOrUpdateMaterialsAsync",
-                    "type(%s) numberOfMaterials(%s) userEmail(%s)", materialsWithType
-                            .getEntityType().getCode(), materialsWithType.getNewEntities().size(),
-                    userEmail);
         }
     }
 
@@ -274,25 +245,11 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
     }
 
     @Override
-    public void updateDataSetsAsync(String sessionToken, NewDataSetsWithTypes dataSets, String userEmail) throws UserFailureException
-    {
-        logTracking(sessionToken, "update_data_sets", "TYPE(%s) DATA_SETS(%s) EMAIL(%s)",
-                dataSets.getDataSetType().getCode(), dataSets.getNewDataSets().size(), userEmail);
-    }
-
-    @Override
     public void registerExperiments(String sessionToken, NewExperimentsWithType experiments)
             throws UserFailureException
     {
         logTracking(sessionToken, "register_experiments", "TYPE(%s) EXPERIMENTS(%s)",
                 experiments.getExperimentTypeCode(), experiments.getNewExperiments().size());
-    }
-
-    @Override
-    public void registerExperimentsAsync(String sessionToken, NewExperimentsWithType experiments, String userEmail) throws UserFailureException
-    {
-        logTracking(sessionToken, "register_experiments_async", "TYPE(%s) EXPERIMENTS(%s) EMAIL(%s)",
-                experiments.getExperimentTypeCode(), experiments.getNewExperiments().size(), userEmail);
     }
 
     @Override
@@ -302,14 +259,7 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logTracking(sessionToken, "update_experiments", "TYPE(%s) EXPERIMENTS(%s)", experiments
                 .getExperimentType().getCode(), experiments.getUpdatedExperiments().size());
     }
-
-    @Override
-    public void updateExperimentsAsync(String sessionToken, UpdatedExperimentsWithType experiments, String userEmail) throws UserFailureException
-    {
-        logTracking(sessionToken, "update_experiments_async", "TYPE(%s) EXPERIMENTS(%s) EMAIL(%s)", experiments
-                .getExperimentType().getCode(), experiments.getUpdatedExperiments().size(), userEmail);
-    }
-
+    
     @Override
     public void registerOrUpdateSamplesAndMaterials(final String sessionToken,
             final List<NewSamplesWithTypes> newSamplesWithType,
@@ -319,26 +269,6 @@ final class GenericServerLogger extends AbstractServerLogger implements IGeneric
         logTracking(sessionToken, "register_or_update_samples_and_materials",
                 "SAMPLES(%s) MATERIALS(%s)", getSamples(newSamplesWithType),
                 getMaterials(newMaterialsWithType));
-    }
-
-    @Override
-    public void registerOrUpdateSamplesAndMaterialsAsync(final String sessionToken,
-            final List<NewSamplesWithTypes> newSamplesWithType,
-            final List<NewMaterialsWithTypes> newMaterialsWithType, String userEmail)
-            throws UserFailureException
-    {
-        logTracking(sessionToken, "register_or_update_samples_and_materials_async",
-                "SAMPLES(%s) MATERIALS(%s) EMAIL(%s)", getSamples(newSamplesWithType),
-                getMaterials(newMaterialsWithType), userEmail);
-    }
-
-    @Override
-    public void registerOrUpdateSamplesAsync(String sessionToken,
-            List<NewSamplesWithTypes> newSamplesWithType, String userEmail)
-            throws UserFailureException
-    {
-        logTracking(sessionToken, "register_or_update_samples_async", "SAMPLES(%s) EMAIL(%s)",
-                getSamples(newSamplesWithType), userEmail);
     }
 
     private static String getSamples(final List<NewSamplesWithTypes> newSamplesWithType)

@@ -99,6 +99,9 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
  */
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
+    protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
+            TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+
     private final static String ETL_SERVER_USERNAME_PREFIX = "etlserver";
 
     protected static final class AuthenticatedPersonBasedPrincipalProvider implements
@@ -978,25 +981,30 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
     protected void executeASync(final String userEmail, final IASyncAction action)
     {
         final IMailClient mailClient = new MailClient(mailClientParameters);
-        StringWriter writer = new StringWriter();
-        boolean success = true;
-        Date startDate = new Date();
-        try
-        {
-            success = action.doAction(writer);
-        } catch (RuntimeException e)
-        {
-            operationLog.error("Asynchronous action '" + action.getName() + "' failed. ", e);
-            success = false;
-        } finally
-        {
-            try {
-                sendEmail(mailClient, writer.toString(), getSubject(action.getName(), startDate, success), userEmail);
-            } catch(Exception ex) {
-                operationLog.error("Asynchronous action '" + action.getName() + "' failed. ", ex);
-            }
-            
-        }
+        Runnable task = new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    StringWriter writer = new StringWriter();
+                    boolean success = true;
+                    Date startDate = new Date();
+                    try
+                    {
+                        success = action.doAction(writer);
+                    } catch (RuntimeException e)
+                    {
+                        operationLog.error("Asynchronous action '" + action.getName()
+                                + "' failed. ", e);
+                        success = false;
+                    } finally
+                    {
+                        sendEmail(mailClient, writer.toString(),
+                                getSubject(action.getName(), startDate, success), userEmail);
+                    }
+                }
+            };
+        executor.submit(task);
     }
 
     protected void sendEmail(IMailClient mailClient, String content, String subject,
