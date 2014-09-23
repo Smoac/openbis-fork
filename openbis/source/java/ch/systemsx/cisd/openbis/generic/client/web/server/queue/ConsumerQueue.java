@@ -11,7 +11,6 @@ import ch.systemsx.cisd.common.mail.IMailClient;
 import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /*
@@ -36,38 +35,82 @@ public final class ConsumerQueue
     private final MailClientParameters mailClientParameters;
     
     // Consumer Thread
+//    {
+//        Thread consumerThread = new Thread() {
+//            
+//            @Override
+//            public void run() {
+//                 while(true) {
+//                     StringWriter writer = new StringWriter();
+//                     boolean success = true;
+//                     Date startDate = new Date();
+//                     ConsumerTask consumerTask = null;
+//                     try {
+//                         consumerTask = getNextTask();
+//                         if(consumerTask != null) {
+//                             success = consumerTask.doAction(writer);
+//                         } else {
+//                             Thread.sleep(1000 * 5);
+//                         }
+//                     } catch(Throwable anyError) {
+//                         operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyError);
+//                         success = false;
+//                     } finally {
+//                         if(consumerTask != null) {
+//                             try {
+//                                 final IMailClient mailClient = new MailClient(mailClientParameters);
+//                                 sendEmail(mailClient, writer.toString(), getSubject(consumerTask.getName(), startDate, success), consumerTask.getUserEmail());
+//                             } catch(Throwable anyErrorOnMail) {
+//                                 operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyErrorOnMail);
+//                             }
+//                         }
+//                     }
+//                 }
+//            }
+//        };
+//        consumerThread.start();
+//    }
+    
     {
         Thread consumerThread = new Thread() {
-            
-            @Override
-            public void run() {
-                 while(true) {
-                     StringWriter writer = new StringWriter();
-                     boolean success = true;
-                     Date startDate = new Date();
-                     ConsumerTask consumerTask = null;
-                     try {
-                         consumerTask = getNextTask();
-                         if(consumerTask != null) {
-                             success = consumerTask.doAction(writer);
-                         } else {
-                             Thread.sleep(1000 * 5);
-                         }
-                     } catch(Throwable anyError) {
-                         operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyError);
-                         success = false;
-                     } finally {
-                         if(consumerTask != null) {
-                             try {
-                                 final IMailClient mailClient = new MailClient(mailClientParameters);
-                                 sendEmail(mailClient, writer.toString(), getSubject(consumerTask.getName(), startDate, success), consumerTask.getUserEmail());
-                             } catch(Throwable anyErrorOnMail) {
-                                 operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyErrorOnMail);
-                             }
-                         }
-                     }
-                 }
-            }
+          @Override
+          public void run() {
+              while(true) {
+                  final ConsumerTask consumerTask = getNextTask();
+                  try {
+                    if(consumerTask != null) {
+                        Thread thread = new Thread() {
+                            @Override
+                            public void run() {
+                                boolean success = true;
+                                StringWriter writer = new StringWriter();
+                                Date startDate = new Date();
+                                try {
+                                    consumerTask.doAction(writer);
+                                } catch(Throwable anyError) {
+                                    operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyError);
+                                    success = false;
+                                } finally {
+                                  if(consumerTask != null) {
+                                      try {
+                                          final IMailClient mailClient = new MailClient(mailClientParameters);
+                                          sendEmail(mailClient, writer.toString(), getSubject(consumerTask.getName(), startDate, success), consumerTask.getUserEmail());
+                                      } catch(Throwable anyErrorOnMail) {
+                                          operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyErrorOnMail);
+                                      }
+                                  }
+                               }
+                            }
+                        };
+                        thread.start();
+                    } else {
+                        Thread.sleep(1000 * 5);
+                    }
+                } catch(Throwable anyError) {
+                    operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyError);
+                }
+              }
+          }
         };
         consumerThread.start();
     }
