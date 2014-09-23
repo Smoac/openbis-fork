@@ -51,7 +51,7 @@ public class GeneralBatchImportGui implements Command<Void>
         console.startBuffering();
         console.setError("'General Batch Import' failed.");
         page.upload(file.getPath());
-        console.waitFor("ms) register_or_update_samples_and_materials_async ");
+        console.waitFor("ms) register_or_update_samples_and_materials ");
         for (int i = 0; i < file.getTypeCount(); i++)
         {
             console.startBuffering();
