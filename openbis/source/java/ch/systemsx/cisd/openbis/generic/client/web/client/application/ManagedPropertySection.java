@@ -18,6 +18,15 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
 import java.util.Set;
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.grid.IDisposableComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.managed_property.ManagedPropertyGridGeneratedCallback;
@@ -39,16 +48,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedOutputWidge
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.IManagedUiDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.api.ManagedOutputWidgetType;
-
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Format;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * {@link TabContent} handled by managed property script.
@@ -103,7 +102,7 @@ public class ManagedPropertySection extends DisposableTabContent
         super(header, viewContext, entity);
         this.entity = entity;
         this.managedProperty = managedProperty;
-        this.gridIdSuffix = Format.hyphenize(header);
+        this.gridIdSuffix = managedProperty.getPropertyTypeCode();
         this.refreshAction = refreshAction;
         this.refreshButton = createRefreshButton(viewContext, refreshAction);
         setIds(new IDisplayTypeIDGenerator()

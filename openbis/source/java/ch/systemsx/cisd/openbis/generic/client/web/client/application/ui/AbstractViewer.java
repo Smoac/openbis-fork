@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.ManagedPro
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModule;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IModuleInitializationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.renderer.LinkRenderer;
@@ -274,9 +275,8 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
     }
 
     /**
-     * Fills the specified list of widgets with widgets to show in breadcrumbs. Subclasses should
-     * add to the list and invoke the method from superclass to add the last breadcrumb widget which
-     * is generic and contains updateable title of the view.
+     * Fills the specified list of widgets with widgets to show in breadcrumbs. Subclasses should add to the list and invoke the method from
+     * superclass to add the last breadcrumb widget which is generic and contains updateable title of the view.
      */
     protected void fillBreadcrumbWidgets(List<Widget> widgets)
     {
@@ -490,7 +490,20 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
                                     };
                             }
                         };
-            webAppTab.setIds(DisplayTypeIDGenerator.WEBAPP_SECTION);
+            webAppTab.setIds(new IDisplayTypeIDGenerator()
+                {
+                    @Override
+                    public String createID(String suffix)
+                    {
+                        return createID() + suffix;
+                    }
+
+                    @Override
+                    public String createID()
+                    {
+                        return DisplayTypeIDGenerator.WEBAPP_SECTION.createID() + "_" + webApp.getCode();
+                    }
+                });
             container.addSection(webAppTab);
         }
     }
@@ -569,8 +582,7 @@ public abstract class AbstractViewer<D extends IEntityInformationHolder> extends
         }
 
         /**
-         * Adds the <var>widget</var> to breadcrumbs. For every widget but the first one a separator
-         * will be added before the widget.
+         * Adds the <var>widget</var> to breadcrumbs. For every widget but the first one a separator will be added before the widget.
          */
         public void addBreadcrumb(Widget widget)
         {
