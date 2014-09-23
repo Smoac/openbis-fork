@@ -198,7 +198,7 @@
         <property name="maxResults" value="${hibernate.search.maxResults}" />
     </bean>
     
-    <bean id="registration-queue" class="ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerQueue">
+    <bean id="registration-queue" class="ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue">
         <constructor-arg ref="mail-client-parameters" />
     </bean>
     

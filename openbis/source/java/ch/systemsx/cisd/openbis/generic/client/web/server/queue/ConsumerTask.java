@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue;
+package ch.systemsx.cisd.openbis.generic.client.web.server.queue;
 
 import java.io.IOException;
 import java.io.Writer;

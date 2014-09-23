@@ -220,8 +220,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerQueue;
-import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerTask;
+import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerQueue;
+import ch.systemsx.cisd.openbis.generic.client.web.server.queue.ConsumerTask;
 
 /**
  * The {@link ICommonClientService} implementation.

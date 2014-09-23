@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue;
+package ch.systemsx.cisd.openbis.generic.client.web.server.queue;
 
 import java.io.StringWriter;
 import java.util.Date;
@@ -62,7 +62,7 @@ public final class ConsumerQueue
                                  final IMailClient mailClient = new MailClient(mailClientParameters);
                                  sendEmail(mailClient, writer.toString(), getSubject(consumerTask.getName(), startDate, success), consumerTask.getUserEmail());
                              } catch(Throwable anyErrorOnMail) {
-                                 operationLog.error("Could not send email about asynchronous action '" + consumerTask.getName() + "' result. ", anyErrorOnMail);
+                                 operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyErrorOnMail);
                              }
                          }
                      }
