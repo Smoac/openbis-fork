@@ -32,7 +32,7 @@ public final class ConsumerQueue
     }
     
     private final Deque<ConsumerTask> consumerQueue = new LinkedList<ConsumerTask>();
-    private final Logger trackingLog = LogFactory.getLogger(LogCategory.TRACKING, ConsumerQueue.class);
+    private final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, ConsumerQueue.class);
     private final MailClientParameters mailClientParameters;
     
     // Consumer Thread
@@ -54,7 +54,7 @@ public final class ConsumerQueue
                              Thread.sleep(1000 * 5);
                          }
                      } catch(Throwable anyError) {
-                         trackingLog.log(Level.ERROR, consumerTask.getUserEmail(),  anyError);
+                         operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyError);
                          success = false;
                      } finally {
                          if(consumerTask != null) {
@@ -62,7 +62,7 @@ public final class ConsumerQueue
                                  final IMailClient mailClient = new MailClient(mailClientParameters);
                                  sendEmail(mailClient, writer.toString(), getSubject(consumerTask.getName(), startDate, success), consumerTask.getUserEmail());
                              } catch(Throwable anyErrorOnMail) {
-                                 trackingLog.log(Level.ERROR, consumerTask.getUserEmail(),  anyErrorOnMail);
+                                 operationLog.error("Asynchronous action '" + consumerTask.getName() + "' failed. ", anyErrorOnMail);
                              }
                          }
                      }
