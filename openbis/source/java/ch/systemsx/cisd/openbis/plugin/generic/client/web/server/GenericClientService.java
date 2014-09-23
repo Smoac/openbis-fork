@@ -203,7 +203,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncSamplesTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Samples Registration Task"; }
+                    public String getName() { return "Sample Batch Registration"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -278,7 +278,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncSamplesTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Samples Update Task"; }
+                    public String getName() { return "Sample Batch Update"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -342,7 +342,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncGeneralTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "General Batch Import Task"; }
+                    public String getName() { return "General Batch Import"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -526,7 +526,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncMaterialTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Materials Registration Task"; }
+                    public String getName() { return "Material Batch Registration"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -579,7 +579,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncMaterialTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Materials Update Task"; }
+                    public String getName() { return "Material Batch Update"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -647,7 +647,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncExperimentTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Experiments Update Task"; }
+                    public String getName() { return "Experiment Batch Update"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -719,7 +719,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncExperimentTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Experiments Registration Task"; }
+                    public String getName() { return "Experiment Batch Registration"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
@@ -1038,7 +1038,7 @@ public class GenericClientService extends AbstractClientService implements IGene
             {
                 asyncDatasetsTask = new ConsumerTask(uploadedFiles) {
                     @Override
-                    public String getName() { return "Datasets Registration Task"; }
+                    public String getName() { return "Data Set Batch Update"; }
                     
                     @Override
                     public String getUserEmail() { return userEmail; }
