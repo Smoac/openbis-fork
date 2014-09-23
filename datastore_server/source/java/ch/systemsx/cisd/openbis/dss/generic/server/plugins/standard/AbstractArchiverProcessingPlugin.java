@@ -181,7 +181,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         for (DatasetDescription dataset : datasets)
         {
             currentResult.add(dataset);
-            runningSum += minGroupSize;
+            runningSum += dataset.getDataSetSize();
             if (runningSum > minGroupSize)
             {
                 results.add(currentResult);
