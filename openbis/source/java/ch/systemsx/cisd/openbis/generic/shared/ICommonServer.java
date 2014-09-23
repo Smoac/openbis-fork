@@ -1452,13 +1452,6 @@ public interface ICommonServer extends IServer
     public List<Material> searchForMaterials(String sessionToken, DetailedSearchCriteria criteria);
 
     /**
-     * Performs an asynchronous import of file to the dss.
-     */
-    @Transactional
-    public void performCustomImportAsync(String sessionToken, String customImportCode,
-            CustomImportFile customImportFile, String userEmail) throws UserFailureException;
-
-    /**
      * Performs an import of file to the dss.
      */
     @Transactional

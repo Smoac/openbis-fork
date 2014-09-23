@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
@@ -218,6 +220,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerQueue;
+import ch.systemsx.cisd.openbis.plugin.generic.client.web.server.queue.ConsumerTask;
 
 /**
  * The {@link ICommonClientService} implementation.
@@ -227,6 +231,9 @@ import ch.systemsx.cisd.openbis.generic.shared.parser.BisTabFileLoader;
 public final class CommonClientService extends AbstractClientService implements
         ICommonClientService
 {
+    @Resource(name = "registration-queue")
+    private ConsumerQueue asyncRegistrationQueue;
+    
     private final ICommonServer commonServer;
 
     public CommonClientService(final ICommonServer commonServer,
@@ -2709,10 +2716,12 @@ public final class CommonClientService extends AbstractClientService implements
     }
 
     @Override
-    public List<BatchRegistrationResult> performCustomImport(String sessionKey, String customImportCode, boolean async, String userEmail)
+    public List<BatchRegistrationResult> performCustomImport(final String sessionKey, final String customImportCode, final boolean async, final String userEmail)
     {
         HttpSession httpSession = getHttpSession();
         UploadedFilesBean uploadedFiles = null;
+        ConsumerTask asyncCustomImportTask = null;
+        
         try
         {
             uploadedFiles = (UploadedFilesBean) httpSession.getAttribute(sessionKey);
@@ -2722,7 +2731,23 @@ public final class CommonClientService extends AbstractClientService implements
 
             if (async)
             {
-                commonServer.performCustomImportAsync(getSessionToken(), customImportCode, customImportFile, userEmail);
+                asyncCustomImportTask = new ConsumerTask(uploadedFiles) {
+                    @Override
+                    public String getName() { return "Custom import"; }
+                    
+                    @Override
+                    public String getUserEmail() { return userEmail; }
+                    
+                    @Override
+                    public void doActionOrThrowException(Writer writer)
+                    {
+                      //Some stuff is repeated on the async executor, this is expected
+                       CustomImportFile customImportFileAsync = getCustomImportFile(this.getFilesForTask());
+                      //Execute task
+                      commonServer.performCustomImport(getSessionToken(), customImportCode, customImportFileAsync);
+                    }
+                };
+                
                 return AsyncBatchRegistrationResult.singletonList(customImportFile.getFileName());
             } else
             {
@@ -2742,13 +2767,10 @@ public final class CommonClientService extends AbstractClientService implements
                             + " (More details can be found in the server logs.)");
         } finally
         {
-            if (uploadedFiles != null)
-            {
-                uploadedFiles.deleteTransferredFiles();
-            }
-            if (httpSession != null)
-            {
-                httpSession.removeAttribute(sessionKey);
+            if (async && (asyncCustomImportTask != null)) {
+                asyncRegistrationQueue.addTaskAsLast(asyncCustomImportTask);
+            } else {
+                cleanUploadedFiles(sessionKey, httpSession, uploadedFiles);
             }
         }
     }

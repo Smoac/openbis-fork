@@ -16,17 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -41,7 +36,6 @@ import ch.systemsx.cisd.common.action.IDelegatedActionWithResult;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.mail.IMailClient;
-import ch.systemsx.cisd.common.mail.MailClient;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.spring.ExposablePropertyPlaceholderConfigurer;
 import ch.systemsx.cisd.openbis.common.spring.AbstractServiceWithLogger;
@@ -99,8 +93,6 @@ import ch.systemsx.cisd.openbis.generic.shared.util.ServerUtils;
  */
 public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> implements IServer
 {
-    protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 360,
-            TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
     private final static String ETL_SERVER_USERNAME_PREFIX = "etlserver";
 
@@ -978,50 +970,10 @@ public abstract class AbstractServer<T> extends AbstractServiceWithLogger<T> imp
         }
     }
 
-    protected void executeASync(final String userEmail, final IASyncAction action)
-    {
-        final IMailClient mailClient = new MailClient(mailClientParameters);
-        Runnable task = new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    StringWriter writer = new StringWriter();
-                    boolean success = true;
-                    Date startDate = new Date();
-                    try
-                    {
-                        success = action.doAction(writer);
-                    } catch (RuntimeException e)
-                    {
-                        operationLog.error("Asynchronous action '" + action.getName()
-                                + "' failed. ", e);
-                        success = false;
-                    } finally
-                    {
-                        sendEmail(mailClient, writer.toString(),
-                                getSubject(action.getName(), startDate, success), userEmail);
-                    }
-                }
-            };
-        executor.submit(task);
-    }
-
     protected void sendEmail(IMailClient mailClient, String content, String subject,
             String... recipient)
     {
         mailClient.sendMessage(subject, content, null, null, recipient);
-    }
-
-    private static String getSubject(String actionName, Date startDate, boolean success)
-    {
-        return addDate(actionName + " " + (success ? "successfully performed" : "failed"),
-                startDate);
-    }
-
-    private static String addDate(String subject, Date startDate)
-    {
-        return subject + " (initiated at " + startDate + ")";
     }
 
     static boolean isResolved(String name)

@@ -4129,27 +4129,6 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public void performCustomImportAsync(final String sessionToken, final String customImportCode,
-            final CustomImportFile customImportFile, final String userEmail) throws UserFailureException
-    {
-        executeASync(userEmail, new AbstractASyncAction()
-            {
-                @Override
-                public String getName()
-                {
-                    return "Custom import";
-                }
-
-                @Override
-                protected void doActionOrThrowException(Writer messageWriter)
-                {
-                    commonServer.performCustomImport(sessionToken, customImportCode, customImportFile);
-                }
-            });
-    }
-
-    @Override
-    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
     public void performCustomImport(String sessionToken, String customImportCode,
             CustomImportFile customImportFile) throws UserFailureException
     {
