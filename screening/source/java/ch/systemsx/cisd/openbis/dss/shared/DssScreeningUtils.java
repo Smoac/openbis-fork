@@ -39,7 +39,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Trans
  */
 public class DssScreeningUtils
 {
-    private static final IImagingReadonlyQueryDAO query = createQuery();
+    private static IImagingReadonlyQueryDAO query;
 
     static
     {
@@ -51,6 +51,10 @@ public class DssScreeningUtils
      */
     public static IImagingReadonlyQueryDAO getQuery()
     {
+        if (query == null)
+        {
+            query = createQuery();
+        }
         return query;
     }
 
