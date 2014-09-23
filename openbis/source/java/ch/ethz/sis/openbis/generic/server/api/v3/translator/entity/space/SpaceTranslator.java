@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.space;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space;
@@ -50,7 +51,7 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
     }
 
     @Override
-    protected void updateObject(SpacePE space, Space result)
+    protected void updateObject(SpacePE space, Space result, Relations relations)
     {
         if (getFetchOptions().hasRegistrator())
         {

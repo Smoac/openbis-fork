@@ -36,6 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
@@ -201,6 +202,73 @@ public class SampleListTest extends AbstractSampleTest
     }
 
     @Test
+    public void testListSamplesWithParents()
+    {
+        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("LIST_SAMPLES__SAMPLE");
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        sampleCreation.setParentIds(Arrays.asList(new CreationId("parent_1"), new CreationId("parent_2")));
+
+        SampleCreation parent1Creation = new SampleCreation();
+        parent1Creation.setCreationId(new CreationId("parent_1"));
+        parent1Creation.setCode("LIST_SAMPLES__PARENT_1");
+        parent1Creation.setSpaceId(new SpacePermId("CISD"));
+        parent1Creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        parent1Creation.setParentIds(Arrays.asList(new CreationId("grandparent_1"), new CreationId("grandparent_2")));
+
+        SampleCreation parent2Creation = new SampleCreation();
+        parent2Creation.setCreationId(new CreationId("parent_2"));
+        parent2Creation.setCode("LIST_SAMPLES__PARENT_2");
+        parent2Creation.setSpaceId(new SpacePermId("CISD"));
+        parent2Creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        parent2Creation.setParentIds(Arrays.asList(new CreationId("grandparent_1"), new CreationId("grandparent_2")));
+
+        SampleCreation grandparent1Creation = new SampleCreation();
+        grandparent1Creation.setCreationId(new CreationId("grandparent_1"));
+        grandparent1Creation.setCode("LIST_SAMPLES__GRANDPARENT_1");
+        grandparent1Creation.setSpaceId(new SpacePermId("CISD"));
+        grandparent1Creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        SampleCreation grandparent2Creation = new SampleCreation();
+        grandparent2Creation.setCreationId(new CreationId("grandparent_2"));
+        grandparent2Creation.setCode("LIST_SAMPLES__GRANDPARENT_2");
+        grandparent2Creation.setSpaceId(new SpacePermId("CISD"));
+        grandparent2Creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchParents().fetchParents();
+
+        List<SamplePermId> sampleIds =
+                v3api.createSamples(sessionToken,
+                        Arrays.asList(sampleCreation, parent1Creation, parent2Creation, grandparent1Creation, grandparent2Creation));
+        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds, fetchOptions);
+
+        Sample sample = samples.get(0);
+        Sample parent1 = samples.get(1);
+        Sample parent2 = samples.get(2);
+        Sample grandparent1 = samples.get(3);
+        Sample grandparent2 = samples.get(4);
+
+        assertEquals(sample.getCode(), sampleCreation.getCode());
+        assertEquals(parent1.getCode(), parent1Creation.getCode());
+        assertEquals(parent2.getCode(), parent2Creation.getCode());
+        assertEquals(grandparent1.getCode(), grandparent1Creation.getCode());
+        assertEquals(grandparent2.getCode(), grandparent2Creation.getCode());
+
+        assertTrue(sample.getParents().get(0) == parent1);
+        assertTrue(sample.getParents().get(1) == parent2);
+        assertTrue(parent1.getParents().get(0) == grandparent1);
+        assertTrue(parent1.getParents().get(1) == grandparent2);
+        assertTrue(parent2.getParents().get(0) == grandparent1);
+        assertTrue(parent2.getParents().get(1) == grandparent2);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testListSamplesWithChildren()
     {
         String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
@@ -321,15 +389,24 @@ public class SampleListTest extends AbstractSampleTest
         fetchOptions.fetchExperiment();
 
         List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-979")), fetchOptions);
-        assertEquals(samples.size(), 1);
+                v3api.listSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), new SampleIdentifier("/CISD/RP1-B1X"),
+                        new SampleIdentifier("/CISD/RP2-A1X")), fetchOptions);
+        assertEquals(samples.size(), 3);
 
-        Sample sample = samples.get(0);
-        assertEquals(sample.getIdentifier().toString(), "/CISD/3VCP5");
+        Sample sample1 = samples.get(0);
+        assertEquals(sample1.getIdentifier().toString(), "/CISD/3VCP5");
+        assertEquals(sample1.getExperiment().getIdentifier().toString(), "/CISD/NEMO/EXP10");
 
-        Experiment experiment = sample.getExperiment();
+        Sample sample2 = samples.get(1);
+        assertEquals(sample2.getIdentifier().toString(), "/CISD/RP1-B1X");
+        assertEquals(sample2.getExperiment().getIdentifier().toString(), "/CISD/DEFAULT/EXP-REUSE");
 
-        assertEquals(experiment.getIdentifier().toString(), "/CISD/NEMO/EXP10");
+        Sample sample3 = samples.get(2);
+        assertEquals(sample3.getIdentifier().toString(), "/CISD/RP2-A1X");
+        assertEquals(sample3.getExperiment().getIdentifier().toString(), "/CISD/DEFAULT/EXP-REUSE");
+
+        assertTrue(sample2.getExperiment() == sample3.getExperiment());
+
         v3api.logout(sessionToken);
     }
 
@@ -416,6 +493,17 @@ public class SampleListTest extends AbstractSampleTest
         assertEquals(samples.get(2).getPermId(), new SamplePermId("200811050919915-8"));
 
         assertEquals(samples.size(), 3);
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testListSamplesFromUnauthorizedSpace()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, TEST_USER_PASSWORD);
+
+        List<Sample> samples = v3api.listSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+
+        assertEquals(samples.size(), 0);
         v3api.logout(sessionToken);
     }
 

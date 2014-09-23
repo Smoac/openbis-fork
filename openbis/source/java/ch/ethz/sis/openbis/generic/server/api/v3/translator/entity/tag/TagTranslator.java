@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.tag;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
@@ -58,7 +59,7 @@ public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag,
     }
 
     @Override
-    protected void updateObject(MetaprojectPE tag, Tag result)
+    protected void updateObject(MetaprojectPE tag, Tag result, Relations relations)
     {
         if (getFetchOptions().hasOwner())
         {

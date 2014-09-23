@@ -16,6 +16,9 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 /**
  * @author pkupczyk
  */
@@ -23,7 +26,7 @@ public abstract class AbstractTranslator<I, O> implements ITranslator<I, O>
 {
 
     @Override
-    public final O translate(I object)
+    public O translate(I object)
     {
         if (object == null)
         {
@@ -31,6 +34,31 @@ public abstract class AbstractTranslator<I, O> implements ITranslator<I, O>
         }
 
         return doTranslate(object);
+    }
+
+    @Override
+    public final Collection<O> translate(Collection<I> objects)
+    {
+        if (objects == null)
+        {
+            return null;
+        }
+
+        return doTranslate(objects);
+    }
+
+    protected Collection<O> doTranslate(Collection<I> objects)
+    {
+        Collection<O> translatedCollection = new LinkedList<O>();
+        for (I object : objects)
+        {
+            O translated = doTranslate(object);
+            if (translated != null)
+            {
+                translatedCollection.add(translated);
+            }
+        }
+        return translatedCollection;
     }
 
     protected abstract O doTranslate(I object);

@@ -1,10 +1,19 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToManyRelation;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToOneRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
@@ -23,6 +32,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -36,6 +47,12 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     {
         super(translationContext, fetchOptions);
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
+    }
+
+    @Override
+    protected boolean shouldTranslate(SamplePE input)
+    {
+        return new SampleByIdentiferValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
     }
 
     @Override
@@ -53,15 +70,35 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     }
 
     @Override
-    protected void updateObject(SamplePE samplePe, Sample result)
+    protected Relations getObjectsRelations(final Collection<SamplePE> samples)
+    {
+        Collection<Long> sampleIds = new LinkedList<Long>();
+        for (SamplePE sample : samples)
+        {
+            sampleIds.add(sample.getId());
+        }
+
+        Relations relations = new Relations();
+
+        if (getFetchOptions().hasExperiment())
+        {
+            relations.add(new SampleExperimentRelation(samples));
+        }
+
+        if (getFetchOptions().hasParents())
+        {
+            relations.add(new SampleParentsRelation(samples));
+        }
+
+        return relations;
+    }
+
+    @Override
+    protected void updateObject(SamplePE samplePe, Sample result, Relations relations)
     {
         if (getFetchOptions().hasExperiment())
         {
-            Experiment experiment =
-                    new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().fetchExperiment())
-                            .translate(samplePe
-                                    .getExperiment());
-            result.setExperiment(experiment);
+            result.setExperiment(relations.get(SampleExperimentRelation.class).getTranslated(samplePe));
             result.getFetchOptions().fetchExperiment(getFetchOptions().fetchExperiment());
         }
 
@@ -82,11 +119,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
         if (getFetchOptions().hasParents())
         {
-            List<Sample> parents =
-                    new ListTranslator().translate(samplePe.getParents(), new SampleTranslator(getTranslationContext(),
-                            managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchParents()));
-            result.setParents(parents);
+            result.setParents(relations.get(SampleParentsRelation.class).getTranslatedList(samplePe));
             result.getFetchOptions().fetchParents(getFetchOptions().fetchParents());
         }
 
@@ -159,6 +192,102 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
             result.setAttachments(attachments);
             result.getFetchOptions().fetchAttachments(getFetchOptions().fetchAttachments());
         }
+    }
+
+    private class SampleExperimentRelation extends ToOneRelation<SamplePE, String, ExperimentPE, Experiment>
+    {
+
+        private Collection<SamplePE> samples;
+
+        public SampleExperimentRelation(Collection<SamplePE> samples)
+        {
+            this.samples = samples;
+        }
+
+        @Override
+        protected Map<SamplePE, ExperimentPE> getOriginalMap()
+        {
+            // TODO replace with one database call
+            Map<SamplePE, ExperimentPE> map = new HashMap<SamplePE, ExperimentPE>();
+            for (SamplePE sample : samples)
+            {
+                map.put(sample, sample.getExperiment());
+            }
+            return map;
+        }
+
+        @Override
+        protected Collection<Experiment> getTranslatedCollection(Collection<ExperimentPE> originalCollection)
+        {
+            return new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
+                    .fetchExperiment()).translate(originalCollection);
+        }
+
+        @Override
+        protected String getOriginalId(ExperimentPE original)
+        {
+            return original.getIdentifier();
+        }
+
+        @Override
+        protected String getTranslatedId(Experiment translated)
+        {
+            return translated.getIdentifier().getIdentifier();
+        }
+
+    }
+
+    private class SampleParentsRelation extends ToManyRelation<SamplePE, String, SamplePE, Sample>
+    {
+
+        private Collection<SamplePE> samples;
+
+        public SampleParentsRelation(Collection<SamplePE> samples)
+        {
+            this.samples = samples;
+        }
+
+        @Override
+        protected Map<SamplePE, Collection<SamplePE>> getOriginalMap()
+        {
+            // TODO replace with one database call
+            Map<SamplePE, Collection<SamplePE>> map = new HashMap<SamplePE, Collection<SamplePE>>();
+            for (SamplePE sample : samples)
+            {
+                List<SamplePE> parents = new ArrayList<SamplePE>(sample.getParents());
+                // return parents in the same order as they were created
+                Collections.sort(parents, new Comparator<SamplePE>()
+                    {
+                        @Override
+                        public int compare(SamplePE s1, SamplePE s2)
+                        {
+                            return s1.getId().compareTo(s2.getId());
+                        }
+                    });
+                map.put(sample, parents);
+            }
+            return map;
+        }
+
+        @Override
+        protected Collection<Sample> getTranslatedCollection(Collection<SamplePE> originalCollection)
+        {
+            return new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
+                    .fetchParents()).translate(originalCollection);
+        }
+
+        @Override
+        protected String getOriginalId(SamplePE original)
+        {
+            return original.getIdentifier();
+        }
+
+        @Override
+        protected String getTranslatedId(Sample translated)
+        {
+            return translated.getIdentifier().getIdentifier();
+        }
+
     }
 
 }

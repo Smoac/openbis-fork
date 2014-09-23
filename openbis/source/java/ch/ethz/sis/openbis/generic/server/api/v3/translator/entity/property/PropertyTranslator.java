@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
@@ -71,7 +72,7 @@ public class PropertyTranslator extends AbstractCachingTranslator<IEntityPropert
     }
 
     @Override
-    protected void updateObject(IEntityPropertiesHolder input, Map<String, String> output)
+    protected void updateObject(IEntityPropertiesHolder input, Map<String, String> output, Relations relations)
     {
 
     }

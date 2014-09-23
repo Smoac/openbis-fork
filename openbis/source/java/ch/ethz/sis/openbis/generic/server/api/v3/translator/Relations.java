@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,32 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author pkupczyk
  */
-public interface ITranslator<I, O>
+@SuppressWarnings({ "unchecked" })
+public class Relations
 {
+    private Map<Class<? extends Relation>, Relation> relationMap = new HashMap<Class<? extends Relation>, Relation>();
 
-    public O translate(I object);
+    public void add(Relation relation)
+    {
+        relationMap.put(relation.getClass(), relation);
+    }
 
-    public Collection<O> translate(Collection<I> objects);
+    public <T extends Relation> T get(Class<T> relationClass)
+    {
+        return (T) relationMap.get(relationClass);
+    }
 
+    public void load()
+    {
+        for (Relation relation : relationMap.values())
+        {
+            relation.load();
+        }
+    }
 }

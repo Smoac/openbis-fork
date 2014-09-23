@@ -16,6 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -41,81 +46,147 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    protected final O doTranslate(I input)
+    protected O doTranslate(I object)
     {
-        if (getTranslationCache().hasTranslatedObject(getClass().getName(), input.getId()))
+        Collection<O> translated = doTranslate(Collections.singleton(object));
+        if (translated.isEmpty())
         {
-            O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), input.getId());
-
-            if (output == null)
-            {
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog
-                            .debug("Found that object was already rejected from translation: " + input.getId());
-                }
-                return null;
-            }
-
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Found in cache: " + output.getClass() + " with id: " + input.getId());
-            }
-
-            if (false == getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
-            {
-                getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
-
-                if (operationLog.isDebugEnabled())
-                {
-                    operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + input.getId());
-                }
-
-                updateObject(input, output);
-            }
-
-            return output;
+            return null;
         } else
         {
-            if (false == shouldTranslate(input))
-            {
-                operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + input.getId());
-                return null;
-            }
-
-            O output = createObject(input);
-
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Created: " + output.getClass() + " with id: " + input.getId());
-            }
-
-            getTranslationCache().putTranslatedObject(getClass().getName(), input.getId(), output);
-            getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
-
-            updateObject(input, output);
-
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Updating created: " + output.getClass() + " with id: " + input.getId());
-            }
-
-            return output;
+            return translated.iterator().next();
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Collection<O> doTranslate(Collection<I> inputs)
+    {
+        List<O> translated = new LinkedList<O>();
+
+        Relations relations = loadObjectsRelations(inputs);
+
+        for (I input : inputs)
+        {
+            if (getTranslationCache().hasTranslatedObject(getClass().getName(), input.getId()))
+            {
+                O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), input.getId());
+
+                if (output == null)
+                {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug("Found that object was already rejected from translation: " + input.getId());
+                    }
+                } else
+                {
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug("Found in cache: " + output.getClass() + " with id: " + input.getId());
+                    }
+
+                    if (getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
+                    {
+                        translated.add(output);
+                    } else
+                    {
+                        if (operationLog.isDebugEnabled())
+                        {
+                            operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + input.getId());
+                        }
+
+                        updateObject(input, output, relations);
+                        getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
+                        translated.add(output);
+                    }
+                }
+            } else
+            {
+                if (shouldTranslate(input))
+                {
+                    O output = createObject(input);
+
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug("Created: " + output.getClass() + " with id: " + input.getId());
+                    }
+
+                    getTranslationCache().putTranslatedObject(getClass().getName(), input.getId(), output);
+                    getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
+
+                    updateObject(input, output, relations);
+                    translated.add(output);
+
+                    if (operationLog.isDebugEnabled())
+                    {
+                        operationLog.debug("Updating created: " + output.getClass() + " with id: " + input.getId());
+                    }
+                } else
+                {
+                    operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + input.getId());
+                }
+            }
+        }
+
+        return translated;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Relations loadObjectsRelations(Collection<I> inputs)
+    {
+        Collection<I> notCached = new LinkedList<I>();
+
+        for (I input : inputs)
+        {
+            if (getTranslationCache().hasTranslatedObject(getClass().getName(), input.getId()))
+            {
+                O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), input.getId());
+
+                if (output != null && false == getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
+                {
+                    notCached.add(input);
+                }
+            } else if (shouldTranslate(input))
+            {
+                notCached.add(input);
+            }
+        }
+
+        Relations relations = getObjectsRelations(notCached);
+        relations.load();
+        return relations;
+    }
+
     /**
-     * Override this method if you want to conditionally skip translation
+     * Override this method if you want to conditionally skip translation (e.g. when the input object is not visible for a user the translation is
+     * performed for)
      */
-    public boolean shouldTranslate(I object)
+    protected boolean shouldTranslate(I input)
     {
         return true;
     }
 
+    /**
+     * Override this method if you want to fetch related objects for all the inputs at once. This way you can greatly improve the performance of the
+     * translation.
+     */
+    protected Relations getObjectsRelations(Collection<I> inputs)
+    {
+        return new Relations();
+    }
+
+    /**
+     * Implementation of this method should create a translated version of the input object. Only basic attributes of the input object should be
+     * translated here. Parts that have a corresponding fetch option should be translated in the
+     * {@link AbstractCachingTranslator#updateObject(IIdHolder, Object, Relations)} method.
+     */
     protected abstract O createObject(I input);
 
-    protected abstract void updateObject(I input, O output);
+    /**
+     * Implementation of this method should update the translated version of the input object to meet the fetch options (see
+     * {@link AbstractCachingTranslator#getFetchOptions()}.
+     */
+    protected abstract void updateObject(I input, O output, Relations relations);
 
     protected TranslationContext getTranslationContext()
     {

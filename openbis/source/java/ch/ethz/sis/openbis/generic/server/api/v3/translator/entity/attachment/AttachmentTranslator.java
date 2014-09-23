@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
@@ -63,7 +64,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
     }
 
     @Override
-    protected void updateObject(AttachmentPE attachment, Attachment result)
+    protected void updateObject(AttachmentPE attachment, Attachment result, Relations relations)
     {
         if (getFetchOptions().hasRegistrator())
         {

@@ -1,6 +1,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions;
@@ -32,7 +33,7 @@ public class SampleTypeTranslator extends AbstractCachingTranslator<SampleTypePE
     }
 
     @Override
-    protected void updateObject(SampleTypePE input, SampleType output)
+    protected void updateObject(SampleTypePE input, SampleType output, Relations relations)
     {
 
     }

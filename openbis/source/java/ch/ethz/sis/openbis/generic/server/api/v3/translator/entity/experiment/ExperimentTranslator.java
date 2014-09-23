@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.SetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
@@ -33,6 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 
@@ -52,6 +54,12 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     }
 
     @Override
+    protected boolean shouldTranslate(ExperimentPE input)
+    {
+        return new ExperimentByIdentiferValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
+    }
+
+    @Override
     protected Experiment createObject(ExperimentPE experiment)
     {
         Experiment result = new Experiment();
@@ -67,7 +75,7 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
     }
 
     @Override
-    protected void updateObject(ExperimentPE experiment, Experiment result)
+    protected void updateObject(ExperimentPE experiment, Experiment result, Relations relations)
     {
         if (getFetchOptions().hasType())
         {

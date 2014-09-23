@@ -339,4 +339,16 @@ public class ExperimentListTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
+    @Test
+    public void testListExperimentsFromUnauthorizedSpace()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, TEST_USER_PASSWORD);
+
+        List<Experiment> experiments =
+                v3api.listExperiments(sessionToken, Arrays.asList(new ExperimentPermId("200811050951882-1028")), new ExperimentFetchOptions());
+
+        assertEquals(experiments.size(), 0);
+        v3api.logout(sessionToken);
+    }
+
 }

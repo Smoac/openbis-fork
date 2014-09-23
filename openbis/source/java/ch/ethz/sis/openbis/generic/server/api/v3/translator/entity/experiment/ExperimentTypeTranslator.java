@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.AbstractCachingTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions;
@@ -47,7 +48,7 @@ public class ExperimentTypeTranslator extends AbstractCachingTranslator<Experime
     }
 
     @Override
-    protected void updateObject(ExperimentTypePE input, ExperimentType output)
+    protected void updateObject(ExperimentTypePE input, ExperimentType output, Relations relations)
     {
     }
 

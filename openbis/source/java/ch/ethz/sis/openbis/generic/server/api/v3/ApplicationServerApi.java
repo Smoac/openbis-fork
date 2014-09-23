@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -39,11 +40,10 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.Ex
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.EntityAttributeProviderFactory;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.ISearchCriterionTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslationResult;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslatorFactory;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchTranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslationResult;
 import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
-import ch.ethz.sis.openbis.generic.server.api.v3.validator.entity.experiment.ExperimentValidator;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
@@ -65,7 +65,6 @@ import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.ReturnValueFilter;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -250,9 +249,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @ReturnValueFilter(validatorClass = ExperimentValidator.class)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> listExperiments(String sessionToken,
             List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
     {
@@ -276,10 +273,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    // TODO shall we still use database instance for validation ? @ReturnValueFilter(validatorClass
-    // = SampleValidator.class)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Sample> listSamples(String sessionToken, List<? extends ISampleId> sampleIds,
             SampleFetchOptions fetchOptions)
     {
@@ -288,15 +282,13 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
 
-        return new ListTranslator().translate(samples, new SampleTranslator(
-                new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions));
+        return new LinkedList<Sample>(
+                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
     }
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    @ReturnValueFilter(validatorClass = ExperimentValidator.class)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Experiment> searchExperiments(String sessionToken, ExperimentSearchCriterion searchCriterion,
             ExperimentFetchOptions fetchOptions)
     {
@@ -321,10 +313,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional(readOnly = true)
-    @RolesAllowed(
-    { RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    // TODO shall we still use database instance for validation ? @ReturnValueFilter(validatorClass
-    // = SampleValidator.class)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
     {
         Session session = getSession(sessionToken);
@@ -342,8 +331,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(sampleIds);
 
-        return new ListTranslator().translate(samples, new SampleTranslator(
-                new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions));
+        return new LinkedList<Sample>(
+                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
     }
 
     @Override
