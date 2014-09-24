@@ -137,7 +137,6 @@ public final class SearchWidget extends LayoutContainer
 
         // reset the text field
         textField.setValue("");
-        searchButton.setEnabled(false);
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
         
         if (viewContext.isSimpleOrEmbeddedMode())
@@ -148,6 +147,7 @@ public final class SearchWidget extends LayoutContainer
             History.newItem(url);
         } else
         {
+            searchButton.setEnabled(false);
             ActionFinish searchFinish = new ActionFinish() {
                 public void finish() {
                     searchButton.setEnabled(true);
