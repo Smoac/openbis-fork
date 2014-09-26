@@ -234,43 +234,79 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 							new SideMenuWidgetComponent(false, true, "Inventory", "Inventory", _this._menuStructure, null, null, null, "")
 					);
 					
-					var profile = _this._mainController.profile;
-					var typeGroups = _this._mainController.profile.typeGroups;
-					for(typeGroupCode in typeGroups) {
-						var newMenuIfSelectedTypeGroup = {
+					//Fill Spaces
+					var spaces = dataWithSpacesAndProjects.result;
+					var projectsToAskForExperiments = [];
+					for(var i = 0; i < spaces.length; i++) {
+						var space = spaces[i];
+						
+						if($.inArray(space.code, _this._mainController.profile.inventorySpaces) === -1) {
+							continue;
+						}
+						
+						var newMenuIfSelectedSpace = {
 								children : []
 						}
-					
-						for(var i = 0; i < typeGroups[typeGroupCode]["LIST"].length; i++) {
-							var sampleType = profile.getSampleTypeForSampleTypeCode(typeGroups[typeGroupCode]["LIST"][i]);
+						var menuItemSpace = new SideMenuWidgetComponent(true, false, space.code, space.code,  _this._menuStructure, newMenuIfSelectedSpace, 'showSpacePage', space.code, "(Space)");
+						_this._menuStructure.newMenuIfSelected.children.push(menuItemSpace);
 						
-							if(sampleType !== null) {
-								var description = Util.getEmptyIfNull(sampleType.description);
-								if(description === "") {
-									description = sampleType.code;
+						//Fill Projects
+						for(var j = 0; j < space.projects.length; j++) {
+							var project = space.projects[j];
+							delete project["@id"];
+							delete project["@type"];
+							projectsToAskForExperiments.push(project);
+							
+							var newMenuIfSelectedProject = {
+									children : []
+							}
+							var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, project.code, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
+							newMenuIfSelectedSpace.children.push(menuItemProject);
+						}
+					}
+					
+					_this._serverFacade.listExperiments(projectsToAskForExperiments, function(experiments) {
+						var experimentsToAskForSamples = [];
+						
+						if(experiments.result) {
+							for(var i = 0; i < experiments.result.length; i++) {
+								var experiment = experiments.result[i];
+								experimentsToAskForSamples.push(experiment);
+								var projectCode = experiment.identifier.split("/")[2];
+								var projectNode = _this._getProjectNodeForCode(projectCode);
+								
+								var newMenuIfSelectedExperiment = {
+										children : []
 								}
 								
-								var menuItemSampleType = new SideMenuWidgetComponent(true, false, description, description, _this._menuStructure, null, "showSamplesPage", sampleType.code, "(Inventory)");
-								newMenuIfSelectedTypeGroup.children.push(menuItemSampleType);
+								var displayName = null;
+								if(_this._mainController.profile.hideCodes) {
+									displayName = experiment.properties[_this._mainController.profile.propertyReplacingCode];
+								}
+								if(!displayName) {
+									displayName = experiment.code;
+								}
+								
+								var menuItemExperiment = new 	SideMenuWidgetComponent(true, false, displayName, experiment.code, projectNode, null, "showSamplesPage", experiment.identifier + ":" + experiment.permId /* "PROTEIN" */, "");
+								projectNode.newMenuIfSelected.children.push(menuItemExperiment);
 							}
 						}
 						
-						_this._menuStructure.newMenuIfSelected.children.push(
-								new SideMenuWidgetComponent(true, false, typeGroups[typeGroupCode]["DISPLAY_NAME"], typeGroups[typeGroupCode]["DISPLAY_NAME"], _this._menuStructure, newMenuIfSelectedTypeGroup, null, null, "(Inventory)")
-						);
-					}
+						
+						//Fill Utils
+						var profile = _this._mainController.profile;
+						if(profile.storagesConfiguration["isEnabled"]) {
+							_this._menuStructure.newMenuIfSelected.children.push(
+									new SideMenuWidgetComponent(false, true, "Utils", "Utils", _this._menuStructure, null, null, null, "")
+							);
+							_this._menuStructure.newMenuIfSelected.children.push(
+									new SideMenuWidgetComponent(true, false, "Storage Manager", "Storage Manager", _this._menuStructure, null, "showStorageManager", null, "")
+							);
+						}
+						
+						_this._repaint();
+					});
 					
-					//Fill Utils
-					if(profile.storagesConfiguration["isEnabled"]) {
-						_this._menuStructure.newMenuIfSelected.children.push(
-								new SideMenuWidgetComponent(false, true, "Utils", "Utils", _this._menuStructure, null, null, null, "")
-						);
-						_this._menuStructure.newMenuIfSelected.children.push(
-								new SideMenuWidgetComponent(true, false, "Storage Manager", "Storage Manager", _this._menuStructure, null, "showStorageManager", null, "")
-						);
-					}
-					
-					_this._repaint();
 				});
 
 			});

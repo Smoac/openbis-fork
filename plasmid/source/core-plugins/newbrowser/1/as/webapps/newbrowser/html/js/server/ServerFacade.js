@@ -482,6 +482,42 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
+	this.searchWithExperiment = function(experimentPermId, callbackFunction)
+	{	
+		var matchClauses = [ {"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "TYPE",
+					desiredValue : "*"
+				}
+		]
+		
+		var experimentSubCriteria = {
+				"@type" : "SearchSubCriteria",
+				"targetEntityKind" : "EXPERIMENT",	
+				"criteria" : {
+					matchClauses : [{
+						"@type":"AttributeMatchClause",
+						fieldType : "ATTRIBUTE",			
+						attribute : "PERM_ID",
+						desiredValue : experimentPermId
+					}],
+					operator : "MATCH_ANY_CLAUSES"
+			}
+		}
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			subCriterias : [ experimentSubCriteria ],
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
 	this.searchWithProperties = function(propertyTypeCodes, propertyValues, callbackFunction, isComplete)
 	{	
 		var matchClauses = [];

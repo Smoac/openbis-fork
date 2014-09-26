@@ -355,10 +355,6 @@ function MainController(profile) {
 	this._showSamplesPage = function(sampleTypeCode) {
 		//Update menu
 		var sampleType = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		var sampleTypeDisplayName = sampleType.description;
-		if(sampleTypeDisplayName === null) {
-			sampleTypeDisplayName = sampleTypeCode;
-		}
 		
 		//Show Sample Table
 		var sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);

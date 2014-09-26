@@ -34,11 +34,13 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this.serverFacade = serverFacade;
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
+	this.sampleTypesOnExperiment = {};
 	this.sampleTypeCode = sampleTypeCode;
 	this.inspectEnabled = inspectEnabled;
 	this.enableEdit = enableEdit;
 	this.enableAddFunction = enableAddFunction;
 	this.isSearch = isSearch;
+	this.allSamplesFromExperiment = new Array();
 	this.samples = new Array();
 	this.isEmbedded = isEmbedded;
 	this.inspector = inspector;
@@ -144,10 +146,27 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this.init = function() {
 		Util.blockUI();
 		var localReference = this;
-		this.serverFacade.searchWithType(this.sampleTypeCode, null, function(data) {
-			localReference.reloadWithSamples(data);			
-			Util.unblockUI();
-		});
+		
+		if(this.sampleTypeCode.indexOf(":") !== -1) { //New experiment behaviour
+			this.serverFacade.searchWithExperiment(this.sampleTypeCode.split(":")[1], function(data) {
+				for(var i = 0; i < data.length; i++) {
+					if(localReference.sampleTypesOnExperiment[data[i].sampleTypeCode]) {
+						localReference.sampleTypesOnExperiment[data[i].sampleTypeCode] = localReference.sampleTypesOnExperiment[data[i].sampleTypeCode] + 1;
+					} else {
+						localReference.sampleTypesOnExperiment[data[i].sampleTypeCode] = 1;
+					}
+				}
+				
+				localReference.reloadWithSamples(data);	
+				Util.unblockUI();
+			});
+			
+		} else { //Old behaviour
+			this.serverFacade.searchWithType(this.sampleTypeCode, null, function(data) {
+				localReference.reloadWithSamples(data);			
+				Util.unblockUI();
+			});
+		}
 	}
 	
 	this.isfirstPaint = true;
@@ -544,15 +563,30 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				sampleTypeDisplayName = sampleType.code;
 			}
 			
+			//
+			var	$sampleTypesSelector = $('<select>', { 'id' : 'sampleTypeCodesToShow', class : 'form-control', 'style' : 'height:37px !important;'});
+			for(sampleTypeCode in this.sampleTypesOnExperiment) {
+				$sampleTypesSelector.append($('<option>', { 'value' : sampleTypeCode }).text(sampleTypeCode));
+			}
+			$sampleTypesSelector.change(function(event) {
+				var sampleTypeToShow = $(this).val();
+				localReference.isfirstPaint = true;
+				localReference.reloadWithSamples(localReference.allSamplesFromExperiment, sampleTypeToShow);
+				$("#sampleTypeCodesToShow").val(sampleTypeToShow);
+			});
+			
+			$("#toolBoxContainer").append($('<span>', { 'style' : 'margin-right: 5px;' }).append($sampleTypesSelector));
+			
+			//
 			var dropDownMenu = "";
-			dropDownMenu += "<div class='dropdown'>";
+			dropDownMenu += "<span class='dropdown'>";
 			dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
 			dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
 			dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create " + sampleTypeDisplayName + "</a></li>";
 			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToRegister' style='display:none;' /><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Batch Register " + sampleTypeDisplayName + "</a></li>";
 			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToUpdate' style='display:none;' /><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Batch Update " + sampleTypeDisplayName + "</a></li>";
 			dropDownMenu += "</ul>";
-			dropDownMenu += "</div>";
+			dropDownMenu += "</span>";
 			
 			$("#toolBoxContainer").append(dropDownMenu);
 		}
@@ -797,7 +831,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		this._reloadWithSamplesAndPagination(0);
 	}
 	
-	this.reloadWithSamples = function(returnedSamples) {
+	this.reloadWithSamples = function(returnedSamples, reloadWithSamplesFromType) {
 		var sortedSamples = null;
 		if(this.isSearch) {
 			sortedSamples = returnedSamples;
@@ -805,7 +839,26 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			sortedSamples = this.profile.searchSorter(returnedSamples);
 		}
 		
-		this.samples = sortedSamples;
+		this.allSamplesFromExperiment = sortedSamples;
+		this.samples = this.allSamplesFromExperiment;
+		
+		if(reloadWithSamplesFromType) {
+			this.sampleTypeCode = reloadWithSamplesFromType;
+		} else {
+			for(sampleTypeOnExperiment in this.sampleTypesOnExperiment) { //Select sample type from experiment if available
+				this.sampleTypeCode = sampleTypeOnExperiment;
+				break; //For the first sample type encountered
+			}
+		}
+		
+		//filter samples to contain only samples from the selected type
+		this.samples = [];
+		for(var i = 0; i < this.allSamplesFromExperiment.length; i++) {
+			if(this.allSamplesFromExperiment[i].sampleTypeCode === this.sampleTypeCode) {
+				this.samples.push(this.allSamplesFromExperiment[i]);
+			}
+		}
+		
 		this._filteredSamples = this.samples;
 		this._reloadWithSamplesAndPagination(0);
 	}
