@@ -51,19 +51,21 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		return enableAnnotations;
 	}
 	
-	this._writeState = function(permId, propertyTypeCode, propertyTypeValue) {
+	this._writeState = function(sample, propertyTypeCode, propertyTypeValue) {
 		if(!this._enableAnnotations()) {
 			return;
 		}
 		this._readState();
 		
-		var sampleTypeAnnotations = this.stateObj[permId];
+		var sampleTypeAnnotations = this.stateObj[sample.permId];
 		if(!sampleTypeAnnotations) {
-			sampleTypeAnnotations = {};
-			this.stateObj[permId] = sampleTypeAnnotations;
+			this.stateObj[sample.permId] = sampleTypeAnnotations;
 		}
+		
+		sampleTypeAnnotations["code"] =  sample.code; //Adds code to the annotations if not present
+		
 		if(propertyTypeValue === null) {
-			delete this.stateObj[permId];
+			delete this.stateObj[sample.permId];
 		} else {
 			sampleTypeAnnotations[propertyTypeCode] = propertyTypeValue;
 		}
@@ -73,10 +75,19 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		for(var permId in this.stateObj) {
 			xmlDoc	+= "<Sample permId=\"" + permId + "\""; 
 			for(var propertyTypeCode in this.stateObj[permId]) {
-				var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
-				xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
-				
-			} 
+				if(propertyTypeCode == "code") {
+					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
+					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				}
+			}
+			
+			for(var propertyTypeCode in this.stateObj[permId]) {
+				if(propertyTypeCode != "code") {
+					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
+					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
+				}
+			}
+			
 			xmlDoc	+= " />";
 		}
 		
@@ -236,7 +247,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					$propertyField.prop("disabled", true);
 					$propertyField.change(function() {
 						var $field = $(this);
-						var permId = _this.samples[sampleId].permId;
+						var sample = _this.samples[sampleId];
 						var propertyTypeCode = $field.attr("property-type-code");
 						var propertyType = _this.profile.getPropertyType(propertyTypeCode)
 						var propertyTypeValue;
@@ -245,7 +256,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 						} else {
 							propertyTypeValue = $field.val();
 						}
-						_this._writeState(permId, propertyTypeCode, propertyTypeValue);
+						_this._writeState(sample, propertyTypeCode, propertyTypeValue);
 					});
 					
 					$controls.append(propertyType.label + ": ");
@@ -506,7 +517,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 				var propertyTypeCode = item.attr("property-type-code");
 				if(propertyTypeCode) {
 					item.val("");
-					this._writeState(sample.permId, propertyTypeCode, null);
+					this._writeState(sample, propertyTypeCode, null);
 					item.prop("disabled", true);
 				}
 			}
