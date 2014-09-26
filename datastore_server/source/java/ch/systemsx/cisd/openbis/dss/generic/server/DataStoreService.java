@@ -472,7 +472,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private static ArchiverTaskContext createContext(DataSetProcessingContext context)
     {
         return new ArchiverTaskContext(context.getDirectoryProvider(),
-                context.getHierarchicalContentProvider());
+                context.getHierarchicalContentProviderUnfiltered());
     }
 
     @Override
