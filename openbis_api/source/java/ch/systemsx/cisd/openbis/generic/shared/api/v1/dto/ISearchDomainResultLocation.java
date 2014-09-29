@@ -18,12 +18,14 @@ package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
 import java.io.Serializable;
 
+import ch.systemsx.cisd.base.annotation.JsonObject;
+
 /**
  * Marker interface specifying the location of search result on a search domain.
  *
  * @author Franz-Josef Elmer
  */
+@JsonObject("ISearchDomainResultLocation")
 public interface ISearchDomainResultLocation extends Serializable
 {
-
 }
