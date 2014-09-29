@@ -193,7 +193,19 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         this.fileOperationsManagerFactory = fileOperationsManagerFactory;
         this.deleteAction = deleteAction;
         this.checksumVerificationCondition = checksumVerificationCondition;
+    }
 
+    private File getTempRoot()
+    {
+        File tempFolderProperty = getTemporaryFolder();
+        if (tempFolderProperty != null)
+        {
+            return tempFolderProperty;
+        }
+        else
+        {
+            return storeRoot;
+        }
     }
 
     @Override
@@ -215,7 +227,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                 try
                 {
                     content = context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
-                    temp = new File(storeRoot, STAGING_FOLDER + "/" + dataSetCode);
+                    temp = new File(getTempRoot(), STAGING_FOLDER + "/" + dataSetCode);
                     temp.mkdirs();
                     // We want to perform the check if the archived content is correct
                     // (filesizes/checksums)

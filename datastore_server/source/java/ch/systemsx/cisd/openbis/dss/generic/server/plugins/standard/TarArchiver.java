@@ -44,7 +44,7 @@ public class TarArchiver extends RsyncArchiver
         @Override
         public IDataSetFileOperationsManager create()
         {
-            return new DistributedPackagingDataSetFileOperationsManager(properties, new TarPackageManager());
+            return new DistributedPackagingDataSetFileOperationsManager(properties, new TarPackageManager(properties));
         }
     }
 
