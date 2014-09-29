@@ -44,7 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -398,18 +398,17 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<DataSetFetchOption> fetchOptions);
 
     /**
-     * Searches for data sets which have nucleotid or amoniacid sequences in there files. 
-     * If no preferred sequence database is specified the first available one will be used. If the
-     * preferred sequence database doesn't exist or isn't available also the first available database will be used.
+     * Searches on a search domain. If no preferred search domain is specified the first available one will be used. 
+     * If the preferred sequence search domain doesn't exist or isn't available also the first available one will be used.
      * 
-     * @param preferredSequenceDatabaseOrNull The key of the preferred sequence database or <code>null</code>.
-     * @param sequenceSnippet A snippet of a sequence to search for.
+     * @param preferredSearchDomainOrNull The key of the preferred search domain or <code>null</code>.
+     * @param searchString The search string.
      * @param optionalParametersOrNull Optional parameters. Can be <code>null</code>. 
-     *          The semantics depends on the type of the used sequence database.
+     *          The semantics depends on the type of search domain.
      * @since 1.29
      */
-    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken, 
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet, 
+    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, 
+            String preferredSearchDomainOrNull, String searchString, 
             Map<String, String> optionalParametersOrNull);
     
     /**

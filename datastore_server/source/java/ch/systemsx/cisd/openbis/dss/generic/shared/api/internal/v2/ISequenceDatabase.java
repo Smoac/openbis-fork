@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
  * Interface for a database for nucleotid or amonioacid sequences.
@@ -34,7 +34,7 @@ public interface ISequenceDatabase
 {
     /**
      * Returns the name of this sequence database instance. 
-     * Will be used to populated {@link SequenceSearchResult} instances of the search result..
+     * Will be used to populated {@link SearchDomainSearchResult} instances of the search result..
      */
     public String getName();
     
@@ -50,5 +50,5 @@ public interface ISequenceDatabase
      * @param optionalParametersOrNull Optional parameters which might be used. Can be <code>null</code>.
      * @return an empty list if nothing be found.
      */
-    public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull);
+    public List<SearchDomainSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull);
 }

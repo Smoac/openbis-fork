@@ -25,7 +25,7 @@ import java.util.Properties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
  * A test database that returns a search result that was stored in the parameters map under a key equal to the searched sequence snippet.
@@ -46,7 +46,7 @@ public class EchoDatabase extends AbstractSequenceDatabase
     }
 
     @Override
-    public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
+    public List<SearchDomainSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
     {
         String resultStr = optionalParametersOrNull.get(sequenceSnippet);
         if (resultStr != null)
@@ -54,7 +54,7 @@ public class EchoDatabase extends AbstractSequenceDatabase
             try
             {
                 ObjectMapper mapper = new ObjectMapper();
-                SequenceSearchResult result = mapper.readValue(resultStr, SequenceSearchResult.class);
+                SearchDomainSearchResult result = mapper.readValue(resultStr, SearchDomainSearchResult.class);
                 return Collections.singletonList(result);
             } catch (Exception e)
             {

@@ -109,7 +109,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -697,12 +697,11 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
-            Map<String, String> optionalParametersOrNull)
+    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken, 
+            String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull)
     {
-        logAccess(sessionToken, "search_for_datasets_with_sequences", "preferred_database(%s) sequence_snippet(%s)",
-                preferredSequenceDatabaseOrNull, sequenceSnippet);
+        logAccess(sessionToken, "search_on_search_domain", "preferred_search_domain(%s) seerch_string(%s)",
+                preferredSearchDomainOrNull, searchString);
         return null;
     }
 

@@ -26,7 +26,7 @@ import ch.systemsx.cisd.common.resource.IInitializable;
 import ch.systemsx.cisd.common.serviceconversation.ServiceMessage;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -197,7 +197,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken, 
+    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken, 
             String preferredSequenceDatabaseOrNull, String sequenceSnippet, 
             Map<String, String> optionalParametersOrNull)
     {

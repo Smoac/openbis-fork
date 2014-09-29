@@ -61,7 +61,9 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEve
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
@@ -75,7 +77,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetai
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -276,26 +278,31 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     @Override
-    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
+    public List<SearchDomainSearchResultWithFullDataSet> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull)
     {
-        List<SequenceSearchResult> result = askAllDataStoreServers(preferredSequenceDatabaseOrNull,
+        List<SearchDomainSearchResult> result = askAllDataStoreServers(preferredSequenceDatabaseOrNull,
                 sequenceSnippet, optionalParametersOrNull);
         TableMap<String, AbstractExternalData> fullDataSetsByCode = listFullDataSets(result);
         return filterSearchResultAndInjectFullDataSets(result, fullDataSetsByCode);
     }
 
-    private List<SequenceSearchResultWithFullDataSet> filterSearchResultAndInjectFullDataSets(List<SequenceSearchResult> result,
+    private List<SearchDomainSearchResultWithFullDataSet> filterSearchResultAndInjectFullDataSets(List<SearchDomainSearchResult> result,
             TableMap<String, AbstractExternalData> fullDataSetsByCode)
     {
-        List<SequenceSearchResultWithFullDataSet> filteredResult = new ArrayList<SequenceSearchResultWithFullDataSet>();
-        for (SequenceSearchResult sequenceSearchResult : result)
+        List<SearchDomainSearchResultWithFullDataSet> filteredResult = new ArrayList<SearchDomainSearchResultWithFullDataSet>();
+        for (SearchDomainSearchResult sequenceSearchResult : result)
         {
-            String dataSetCode = sequenceSearchResult.getDataSetCode();
+            ISearchDomainResultLocation resultLocation = sequenceSearchResult.getResultLocation();
+            if (resultLocation instanceof DataSetFileSearchResultLocation == false)
+            {
+                continue;
+            }
+            String dataSetCode = ((DataSetFileSearchResultLocation) resultLocation).getDataSetCode();
             AbstractExternalData fullDataSet = fullDataSetsByCode.tryGet(dataSetCode);
             if (fullDataSet != null)
             {
-                SequenceSearchResultWithFullDataSet resultWithFullDataSet = new SequenceSearchResultWithFullDataSet();
+                SearchDomainSearchResultWithFullDataSet resultWithFullDataSet = new SearchDomainSearchResultWithFullDataSet();
                 resultWithFullDataSet.setDataSet(fullDataSet);
                 resultWithFullDataSet.setSearchResult(sequenceSearchResult);
                 filteredResult.add(resultWithFullDataSet);
@@ -304,7 +311,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return filteredResult;
     }
 
-    private TableMap<String, AbstractExternalData> listFullDataSets(List<SequenceSearchResult> result)
+    private TableMap<String, AbstractExternalData> listFullDataSets(List<SearchDomainSearchResult> result)
     {
         IKeyExtractor<String, AbstractExternalData> codeKeyExtractor = KeyExtractorFactory.<AbstractExternalData> createCodeKeyExtractor();
         if (result.isEmpty())
@@ -312,9 +319,14 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             return new TableMap<String, AbstractExternalData>(codeKeyExtractor);
         }
         Set<String> codes = new LinkedHashSet<String>();
-        for (SequenceSearchResult sequenceSearchResult : result)
+        for (SearchDomainSearchResult sequenceSearchResult : result)
         {
-            codes.add(sequenceSearchResult.getDataSetCode());
+            ISearchDomainResultLocation resultLocation = sequenceSearchResult.getResultLocation();
+            if (resultLocation instanceof DataSetFileSearchResultLocation == false)
+            {
+                continue;
+            }
+            codes.add(((DataSetFileSearchResultLocation) resultLocation).getDataSetCode());
         }
         List<DataPE> fullDataSetPEs = getDataDAO().tryToFindFullDataSetsByCodes(codes, false, false);
         List<AbstractExternalData> fullDataSets = DataSetTranslator.translate(fullDataSetPEs, "?", "?",
@@ -322,10 +334,10 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         return new TableMap<String, AbstractExternalData>(fullDataSets, codeKeyExtractor);
     }
 
-    private List<SequenceSearchResult> askAllDataStoreServers(String preferredSequenceDatabaseOrNull,
+    private List<SearchDomainSearchResult> askAllDataStoreServers(String preferredSequenceDatabaseOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull)
     {
-        List<SequenceSearchResult> result = new ArrayList<SequenceSearchResult>();
+        List<SearchDomainSearchResult> result = new ArrayList<SearchDomainSearchResult>();
         List<DataStorePE> stores = getDataStoreDAO().listDataStores();
         for (DataStorePE dataStore : stores)
         {

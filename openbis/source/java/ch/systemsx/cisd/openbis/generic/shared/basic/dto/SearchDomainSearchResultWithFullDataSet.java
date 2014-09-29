@@ -18,20 +18,20 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 
 import java.io.Serializable;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
- * Result of a sequence search.
+ * Result of a search in a search domain.
  * 
  * @author Franz-Josef Elmer
  */
-public class SequenceSearchResultWithFullDataSet implements Serializable
+public class SearchDomainSearchResultWithFullDataSet implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
 
     private AbstractExternalData dataSet;
 
-    private SequenceSearchResult searchResult;
+    private SearchDomainSearchResult searchResult;
 
     public AbstractExternalData getDataSet()
     {
@@ -43,12 +43,12 @@ public class SequenceSearchResultWithFullDataSet implements Serializable
         this.dataSet = dataSet;
     }
 
-    public SequenceSearchResult getSearchResult()
+    public SearchDomainSearchResult getSearchResult()
     {
         return searchResult;
     }
 
-    public void setSearchResult(SequenceSearchResult searchResult)
+    public void setSearchResult(SearchDomainSearchResult searchResult)
     {
         this.searchResult = searchResult;
     }

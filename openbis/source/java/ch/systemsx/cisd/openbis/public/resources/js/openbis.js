@@ -861,16 +861,16 @@ openbis.prototype.searchForDataSetsOnBehalfOfUser = function(searchCriteria, use
 }
 
 /**
- * @see IGeneralInformationService.searchForDataSetsWithSequences(String, String, String, Map<String, String>)
+ * @see IGeneralInformationService.searchOnSearchDomain(String, String, String, Map<String, String>)
  * @method
  */
-openbis.prototype.searchForDataSetsWithSequences = function(preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull, action) {
+openbis.prototype.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchString, optionalParametersOrNull, action) {
 	this._internal.ajaxRequest({
 		url: this._internal.generalInfoServiceUrl,
-		data: { "method" : "searchForDataSetsWithSequences",
+		data: { "method" : "searchOnSearchDomain",
 				"params" : [ this.getSession(),
-							 preferredSequenceDatabaseOrNull,
-							 sequenceSnippet, optionalParametersOrNull ] },
+							 preferredSearchDomainOrNull,
+							 searchString, optionalParametersOrNull ] },
 		success: action
 	});
 }

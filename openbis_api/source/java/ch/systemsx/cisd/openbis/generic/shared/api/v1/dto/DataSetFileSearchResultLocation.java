@@ -16,22 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import java.io.Serializable;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Result of a sequence search. Returns the code of the data set where the sequence has been found,
- * the path of the file inside the data set which has the found sequence, and the sequence identifier.
+ * Result location for a search in a sequence in a file in data set.
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("SequenceSearchResult")
-public class SequenceSearchResult implements Serializable
+@JsonObject("DataSetFileSearchResultLocation")
+public class DataSetFileSearchResultLocation implements ISearchDomainResultLocation
 {
     private static final long serialVersionUID = 1L;
-    
-    private String sequenceDatabaseName;
     
     private String dataSetCode;
     
@@ -40,16 +35,6 @@ public class SequenceSearchResult implements Serializable
     private String sequenceIdentifier;
     
     private int positionInSequence;
-
-    public String getSequenceDatabaseName()
-    {
-        return sequenceDatabaseName;
-    }
-
-    public void setSequenceDatabaseName(String sequenceDatabaseKey)
-    {
-        this.sequenceDatabaseName = sequenceDatabaseKey;
-    }
 
     public String getDataSetCode()
     {
@@ -94,8 +79,9 @@ public class SequenceSearchResult implements Serializable
     @Override
     public String toString()
     {
-        return "Database: " + sequenceDatabaseName + ", Data set: " + dataSetCode + ", path: " + pathInDataSet 
+        return "Data set: " + dataSetCode + ", path: " + pathInDataSet 
                 + ", identifier: [" + sequenceIdentifier + "], position: " + positionInSequence;
     }
+
 
 }

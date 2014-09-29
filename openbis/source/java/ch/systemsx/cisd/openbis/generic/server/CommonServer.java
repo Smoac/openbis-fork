@@ -86,7 +86,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalD
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SequenceSearchResultValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SearchDomainSearchResultValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -1615,15 +1615,14 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = SequenceSearchResultValidator.class)
-    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
-            Map<String, String> optionalParametersOrNull)
+    @ReturnValueFilter(validatorClass = SearchDomainSearchResultValidator.class)
+    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken, 
+            String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull)
     {
         Session session = getSession(sessionToken);
 
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        return dataSetTable.searchForDataSetsWithSequences(preferredSequenceDatabaseOrNull, sequenceSnippet,
+        return dataSetTable.searchForDataSetsWithSequences(preferredSearchDomainOrNull, searchString,
                 optionalParametersOrNull);
     }
 

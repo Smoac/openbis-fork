@@ -63,7 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -514,7 +514,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
-    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
+    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
             String preferredSequenceDatabaseOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull)
     {
@@ -522,15 +522,15 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         ISequenceDatabase sequenceDatabase = findSequenceDatabase(provider, preferredSequenceDatabaseOrNull);
         if (sequenceDatabase != null)
         {
-            List<SequenceSearchResult> result = sequenceDatabase.search(sequenceSnippet, optionalParametersOrNull);
-            for (SequenceSearchResult sequenceSearchResult : result)
+            List<SearchDomainSearchResult> result = sequenceDatabase.search(sequenceSnippet, optionalParametersOrNull);
+            for (SearchDomainSearchResult sequenceSearchResult : result)
             {
-                sequenceSearchResult.setSequenceDatabaseName(sequenceDatabase.getName());
+                sequenceSearchResult.setSearchDomain(sequenceDatabase.getName());
             }
             return result;
         }
         operationLog.warn("No available sequence database found.");
-        return new ArrayList<SequenceSearchResult>();
+        return new ArrayList<SearchDomainSearchResult>();
     }
 
     private ISequenceDatabase findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider,
