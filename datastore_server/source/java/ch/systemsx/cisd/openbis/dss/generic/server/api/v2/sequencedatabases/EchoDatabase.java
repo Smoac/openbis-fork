@@ -34,7 +34,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResu
  * 
  * @author pkupczyk
  */
-public class EchoDatabase extends AbstractSequenceDatabase
+public class EchoDatabase extends AbstractSearchDomainService
 {
     public EchoDatabase(Properties properties, File storeRoot)
     {

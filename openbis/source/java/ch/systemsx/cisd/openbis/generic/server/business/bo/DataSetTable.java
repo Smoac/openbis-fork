@@ -298,7 +298,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             IDataStoreService service = tryGetDataStoreService(dataStore);
             if (service != null)
             {
-                result.addAll(service.listAvailableSequenceDatabases(dataStore.getSessionToken()));
+                result.addAll(service.listAvailableSearchDomains(dataStore.getSessionToken()));
             }
         }
         return result;

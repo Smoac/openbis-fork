@@ -208,7 +208,7 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public List<SearchDomain> listAvailableSequenceDatabases(String sessionToken)
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
     {
         log("listAvailableSequenceDatabases", "");
         return null;

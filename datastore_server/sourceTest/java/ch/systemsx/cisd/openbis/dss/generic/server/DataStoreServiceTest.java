@@ -38,12 +38,12 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
@@ -96,7 +96,7 @@ public class DataStoreServiceTest extends AssertJUnit
         }
     }
     
-    public static final class MockSequenceDatabase extends AbstractSequenceDatabase
+    public static final class MockSequenceDatabase extends AbstractSearchDomainService
     {
         private static final String DATA_SET_KEY = "data-set";
         private static final String AVAILABLE_KEY = "available";
@@ -409,8 +409,8 @@ public class DataStoreServiceTest extends AssertJUnit
                     allowing(pluginTaskParameters).getStoreRoot();
                     will(returnValue(TEST_STORE));
                     
-                    List<PluginTaskFactory<ISequenceDatabase>> factories 
-                            = new ArrayList<PluginTaskFactory<ISequenceDatabase>>();
+                    List<PluginTaskFactory<ISearchDomainService>> factories 
+                            = new ArrayList<PluginTaskFactory<ISearchDomainService>>();
                     for (String database : databases)
                     {
                         boolean available = database.startsWith("-") == false;
@@ -423,12 +423,12 @@ public class DataStoreServiceTest extends AssertJUnit
                         sectionProperties.setProperty(PluginTaskFactory.CLASS_PROPERTY_NAME, MockSequenceDatabase.class.getName());
                         sectionProperties.setProperty(MockSequenceDatabase.AVAILABLE_KEY, Boolean.toString(available));
                         sectionProperties.setProperty(MockSequenceDatabase.DATA_SET_KEY, "DS-" + database.toUpperCase());
-                        factories.add(new PluginTaskFactory<ISequenceDatabase>(null, 
+                        factories.add(new PluginTaskFactory<ISearchDomainService>(null, 
                                 new SectionProperties("db-" + database, sectionProperties), "DSS", 
-                                ISequenceDatabase.class,  "Test-db-" + database, TEST_STORE));
+                                ISearchDomainService.class,  "Test-db-" + database, TEST_STORE));
                     }
-                    allowing(pluginTaskParameters).getSequenceDatabasesProvider();
-                    will(returnValue(new PluginTaskProvider<ISequenceDatabase>(factories)));
+                    allowing(pluginTaskParameters).getSearchDomainServiceProvider();
+                    will(returnValue(new PluginTaskProvider<ISearchDomainService>(factories)));
                 }
             });
     }

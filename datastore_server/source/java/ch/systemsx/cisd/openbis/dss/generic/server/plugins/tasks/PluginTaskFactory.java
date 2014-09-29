@@ -40,8 +40,8 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
-import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSequenceDatabase;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSearchDomainService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ReportingPluginType;
@@ -129,14 +129,14 @@ public class PluginTaskFactory<T>
             this.description =
                     DatastoreServiceDescription.reporting(pluginKey, label, datasetCodes,
                             datastoreCode, type);
-        } else if (pluginInstance instanceof ISequenceDatabase)
+        } else if (pluginInstance instanceof ISearchDomainService)
         {
             this.description =
                     DatastoreServiceDescription.processing(pluginKey, label, new String[0],
                             datastoreCode);
-            if (this.pluginInstance instanceof AbstractSequenceDatabase)
+            if (this.pluginInstance instanceof AbstractSearchDomainService)
             {
-                ((AbstractSequenceDatabase) this.pluginInstance).setName(pluginKey);
+                ((AbstractSearchDomainService) this.pluginInstance).setName(pluginKey);
             }
         } else
         {

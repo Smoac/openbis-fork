@@ -181,9 +181,11 @@ public interface IDataStoreService
             Map<String, String> optionalParametersOrNull);
 
     /**
-     * Lists all available sequence databases.
+     * Lists all available search domains.
+     * 
+     * @since 10
      */
     @Conversational(progress = Progress.AUTOMATIC)
-    public List<SearchDomain> listAvailableSequenceDatabases(String sessionToken);
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken);
 
 }

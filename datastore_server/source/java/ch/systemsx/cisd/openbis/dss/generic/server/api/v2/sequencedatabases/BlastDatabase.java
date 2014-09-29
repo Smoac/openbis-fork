@@ -42,13 +42,13 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
- * Implementation of {@link ISequenceDatabase} based on <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi">BLAST</a>. 
+ * Implementation of {@link ISearchDomainService} based on <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi">BLAST</a>. 
  * The following configuration parameters are understood:
  * <ul>
  * <li><tt>blast-tools-directory</tt>: Absolute path to the directory with blastn and blastp command line tools.<br/>
@@ -93,7 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResu
  * 
  * @author Franz-Josef Elmer
  */
-public class BlastDatabase extends AbstractSequenceDatabase
+public class BlastDatabase extends AbstractSearchDomainService
 {
     public static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabase.class);
