@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.common.properties;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,8 +81,7 @@ public final class PropertyUtils
     /**
      * Looks up given <var>propertyKey</var> in given <var>properties</var>.
      * 
-     * @return <code>true</code> if the <var>propertyKey</var> is found and the trimmed value isn't
-     *         an empty string. <code>false</code> otherwise.
+     * @return <code>true</code> if the <var>propertyKey</var> is found and the trimmed value isn't an empty string. <code>false</code> otherwise.
      */
     public final static boolean hasProperty(final Properties properties, final String propertyKey)
     {
@@ -91,9 +91,8 @@ public final class PropertyUtils
     }
 
     /**
-     * Searches for the property with the specified key in this property list. <code>null</code> is
-     * returned if there is no property for the specified key or it contains only white space
-     * characters.
+     * Searches for the property with the specified key in this property list. <code>null</code> is returned if there is no property for the specified
+     * key or it contains only white space characters.
      * 
      * @return <code>null</code> or the value trimmed if found.
      */
@@ -132,8 +131,7 @@ public final class PropertyUtils
     /**
      * Looks up given mandatory <var>propertyKey</var> in given <var>properties</var>.
      * 
-     * @throws ConfigurationFailureException if given <var>propertyKey</var> could not be found or
-     *             if it is empty.
+     * @throws ConfigurationFailureException if given <var>propertyKey</var> could not be found or if it is empty.
      */
     public final static String getMandatoryProperty(final Properties properties,
             final String propertyKey) throws ConfigurationFailureException
@@ -159,8 +157,7 @@ public final class PropertyUtils
     }
 
     /**
-     * @returns a list of comma separated values at the specified property key. Each item is trimmed
-     *          and in upper case.
+     * @returns a list of comma separated values at the specified property key. Each item is trimmed and in upper case.
      * @throws ConfigurationFailureException when a property is not specified or is empty
      */
     public final static List<String> getMandatoryList(Properties properties, String propertyKey)
@@ -178,8 +175,7 @@ public final class PropertyUtils
     }
 
     /**
-     * @returns a list of comma separated values at the specific property key. Each item is trimmed
-     *          and in upper cases.
+     * @returns a list of comma separated values at the specific property key. Each item is trimmed and in upper cases.
      */
     public final static List<String> tryGetList(Properties properties, String propertyKey)
     {
@@ -197,8 +193,7 @@ public final class PropertyUtils
     }
 
     /**
-     * @returns A list of comma separated values at the specific property key. Each item is trimmed,
-     *          but case is not changed.
+     * @returns A list of comma separated values at the specific property key. Each item is trimmed, but case is not changed.
      */
     public final static List<String> tryGetListInOriginalCase(Properties properties,
             String propertyKey)
@@ -215,11 +210,11 @@ public final class PropertyUtils
         }
         return Arrays.asList(items);
     }
-    
+
     /**
      * Returns list of comma separated values at the specific property key. Each element is trimmed.
      * 
-     *  @return an empty list if the property is undefined or an empty string.
+     * @return an empty list if the property is undefined or an empty string.
      */
     public static List<String> getList(Properties properties, String propertyKey)
     {
@@ -497,6 +492,54 @@ public final class PropertyUtils
             final boolean defaultValue)
     {
         return getBoolean(properties, propertyKey, defaultValue, null);
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     * @throws ConfigurationFailureException if property value is not empty, and does not represent existing directory.
+     */
+    public static final File getDirectory(final Properties properties, final String propertyKey, final File defaultValue)
+    {
+        String propertyValue = getProperty(properties, propertyKey, null);
+        if (propertyValue == null)
+        {
+            return defaultValue;
+        }
+        File file = new File(propertyValue);
+        if (file.isDirectory())
+        {
+            return file;
+        }
+        else
+        {
+            throw new ConfigurationFailureException("Property '" + propertyKey + "' is expected to be existing directory. " + propertyValue);
+        }
+    }
+
+    /**
+     * Looks up given <var>propertyKey</var> in given <var>properties</var>.
+     * 
+     * @return <code>defaultValue</code> if given <var>propertyKey</var> could not be found.
+     * @throws ConfigurationFailureException if property value is not empty, and does not represent existing file (but not directory).
+     */
+    public static final File getFile(final Properties properties, final String propertyKey, final File defaultValue)
+    {
+        String propertyValue = getProperty(properties, propertyKey, null);
+        if (propertyValue == null)
+        {
+            return defaultValue;
+        }
+        File file = new File(propertyValue);
+        if (file.isFile())
+        {
+            return file;
+        }
+        else
+        {
+            throw new ConfigurationFailureException("Property '" + propertyKey + "' is expected to be existing normal file. " + propertyValue);
+        }
     }
 
     //
