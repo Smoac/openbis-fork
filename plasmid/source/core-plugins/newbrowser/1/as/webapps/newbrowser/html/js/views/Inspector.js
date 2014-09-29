@@ -358,7 +358,7 @@ function Inspector(serverFacade, containerId, profile) {
 						inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
 					} else {
 						inspector += "<td class='property'>"+propertyLabel+"</td>";
-						inspector += "<td class='property'>"+propertyContent+"</td>";
+						inspector += "<td class='property'><p class='inspectorLineBreak'>"+propertyContent+"</p></td>";
 					}
 					
 					inspector += "</tr>";
@@ -387,7 +387,7 @@ function Inspector(serverFacade, containerId, profile) {
 							inspector += "<td class='property' colspan='2'>"+propertyLabel+"<br />"+propertyContent+"</td>";
 						} else {
 							inspector += "<td class='property'>"+propertyLabel+"</td>";
-							inspector += "<td class='property'>"+propertyContent+"</td>";
+							inspector += "<td class='property'><p class='inspectorLineBreak'>"+propertyContent+"</p></td>";
 						}
 						
 						inspector += "</tr>";

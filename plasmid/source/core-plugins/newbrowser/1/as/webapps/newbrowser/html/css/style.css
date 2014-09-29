@@ -280,6 +280,11 @@ h1, h2, legend {
 	margin: 10px 10px 10px 10px;	
 }
 
+.inspectorLineBreak {
+	word-wrap: break-word;
+	width:300px;
+}
+
 div.inspectorCondensed {
 	text-decoration: none;
 	color: #000;
@@ -295,12 +300,16 @@ div.inspectorCondensed > .table td {
 	line-height: 14px;
 }
 
+div.inspector > table {
+	width: 400px;
+}
+
 div.inspector {
 	text-decoration: none;
 	color: #000;
 	display: block;
 	width: 400px;
-	overflow: hidden;
+	/* overflow: hidden; */
 	padding: 0.5em;
 	-moz-box-shadow: 5px 5px 7px rgba(33,33,33,1);
 	-webkit-box-shadow: 5px 5px 7px rgba(33,33,33,.7);
