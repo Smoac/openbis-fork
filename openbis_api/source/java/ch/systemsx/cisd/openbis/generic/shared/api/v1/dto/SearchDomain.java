@@ -21,43 +21,31 @@ import java.io.Serializable;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Result of a search on a search domain.
+ * A class specifying the search domain of a {@link SearchDomainSearchResult}.
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("SearchDomainSearchResult")
-public class SearchDomainSearchResult implements Serializable
+@JsonObject("SearchDomain")
+public class SearchDomain implements Serializable
 {
     private static final long serialVersionUID = 1L;
     
-    private SearchDomain searchDomain;
-    
-    private ISearchDomainResultLocation resultLocation;
+    private String name;
 
-    public SearchDomain getSearchDomain()
+    public String getName()
     {
-        return searchDomain;
-    }
-    
-    public void setSearchDomain(SearchDomain searchDomain)
-    {
-        this.searchDomain = searchDomain;
-    }
-    
-    public ISearchDomainResultLocation getResultLocation()
-    {
-        return resultLocation;
+        return name;
     }
 
-    public void setResultLocation(ISearchDomainResultLocation resultLocation)
+    public void setName(String name)
     {
-        this.resultLocation = resultLocation;
+        this.name = name;
     }
 
     @Override
     public String toString()
     {
-        return "Search Domain: " + getSearchDomain() + ", Result location: [" + resultLocation + "]";
+        return name;
     }
-
+    
 }

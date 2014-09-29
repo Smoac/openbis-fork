@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
@@ -73,7 +74,7 @@ public class EchoDatabase extends AbstractSequenceDatabase
     
     public static final class HelperBean
     {
-        private String searchDomain;
+        private SearchDomain searchDomain = new SearchDomain();
         private DataSetFileSearchResultLocation resultLoacation = new DataSetFileSearchResultLocation();
         
         public DataSetFileSearchResultLocation getResultLoacation()
@@ -81,14 +82,14 @@ public class EchoDatabase extends AbstractSequenceDatabase
             return resultLoacation;
         }
 
-        public String getSearchDomain()
+        public SearchDomain getSearchDomain()
         {
             return searchDomain;
         }
         
         public void setSearchDomain(String searchDomain)
         {
-            this.searchDomain = searchDomain;
+            this.searchDomain.setName(searchDomain);
         }
         
         public void setDataSetCode(String dataSetCode)

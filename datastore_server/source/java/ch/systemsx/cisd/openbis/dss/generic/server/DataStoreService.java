@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.ISessionWorkspaceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
@@ -525,7 +526,9 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             List<SearchDomainSearchResult> result = sequenceDatabase.search(sequenceSnippet, optionalParametersOrNull);
             for (SearchDomainSearchResult sequenceSearchResult : result)
             {
-                sequenceSearchResult.setSearchDomain(sequenceDatabase.getName());
+                SearchDomain searchDomain = new SearchDomain();
+                searchDomain.setName(sequenceDatabase.getName());
+                sequenceSearchResult.setSearchDomain(searchDomain);
             }
             return result;
         }

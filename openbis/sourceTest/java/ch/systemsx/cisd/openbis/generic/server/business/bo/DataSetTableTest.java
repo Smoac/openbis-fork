@@ -48,6 +48,7 @@ import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEve
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -235,7 +236,9 @@ public final class DataSetTableTest extends AbstractBOTest
                     for (String foundDataSet : foundDataSets)
                     {
                         SearchDomainSearchResult result = new SearchDomainSearchResult();
-                        result.setSearchDomain("test-db");
+                        SearchDomain searchDomain = new SearchDomain();
+                        searchDomain.setName("test-db");
+                        result.setSearchDomain(searchDomain);
                         DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
                         resultLocation.setDataSetCode(foundDataSet);
                         resultLocation.setPathInDataSet(foundDataSet + "/path");
