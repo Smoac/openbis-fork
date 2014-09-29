@@ -302,7 +302,6 @@ function SampleHierarchy(serverFacade, inspector, containerId, profile, sample) 
 			var sampleTypeCode = $("#sampleTypeSelector")[0].value;
 			mainController.changeView('showCreateSamplePage', sampleTypeCode);
 			_this.serverFacade.searchWithUniqueId(permId, function(data) {
-				var parentGroup = _this.profile.getGroupTypeCodeForTypeCode(data[0].sampleTypeCode);
 				
 				var setParent = function() {
 					mainController.currentView._sampleFormModel.sampleLinksParents.addSample(data[0]);
