@@ -242,12 +242,12 @@ public class BlastDatabase extends AbstractSequenceDatabase
         {
             return value;
         }
-        value = parameters.get(getName() + "." + option);
+        value = parameters.get(name + "." + option);
         if (value != null)
         {
             return value;
         }
-        return parameters.get(getName() + "." + prefixedOption);
+        return parameters.get(name + "." + prefixedOption);
     }
     
     private boolean process(String... command)

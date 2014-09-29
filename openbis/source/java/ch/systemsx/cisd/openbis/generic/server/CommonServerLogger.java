@@ -28,6 +28,7 @@ import org.apache.log4j.Level;
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
@@ -702,6 +703,13 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     {
         logAccess(sessionToken, "search_on_search_domain", "preferred_search_domain(%s) seerch_string(%s)",
                 preferredSearchDomainOrNull, searchString);
+        return null;
+    }
+
+    @Override
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        logAccess(sessionToken, "list_available_search_domains");
         return null;
     }
 

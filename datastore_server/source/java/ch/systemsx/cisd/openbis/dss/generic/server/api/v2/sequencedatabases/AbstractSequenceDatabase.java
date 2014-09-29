@@ -23,24 +23,30 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFacto
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 
 /**
- * Abstract super class of all {@link ISequenceDatabase} implementations which get the name from 
+ * Abstract super class of all {@link ISequenceDatabase} implementations which get the label from 
  * the property {@link PluginTaskFactory#LABEL_PROPERTY_NAME}.
  *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractSequenceDatabase implements ISequenceDatabase
 {
-    private final String name;
+    private final String label;
+    protected String name;
 
     protected AbstractSequenceDatabase(Properties properties, File storeRoot)
     {
-        name = properties.getProperty(PluginTaskFactory.LABEL_PROPERTY_NAME);
+        label = properties.getProperty(PluginTaskFactory.LABEL_PROPERTY_NAME);
     }
     
     @Override
-    public String getName()
+    public String getLabel()
     {
-        return name;
+        return label;
+    }
+    
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
 }

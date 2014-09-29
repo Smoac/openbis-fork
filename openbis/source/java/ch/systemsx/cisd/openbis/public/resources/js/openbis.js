@@ -876,6 +876,19 @@ openbis.prototype.searchOnSearchDomain = function(preferredSearchDomainOrNull, s
 }
 
 /**
+ * @see IGeneralInformationService.listAvailableSearchDomains(String)
+ * @method
+ */
+openbis.prototype.listAvailableSearchDomains = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listAvailableSearchDomains",
+				"params" : [ this.getSession()] },
+		success: action
+	});
+}
+
+/**
  * @see IGeneralInformationService.filterDataSetsVisibleToUser(String, List<DataSet>, String)
  * @method
  */

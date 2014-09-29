@@ -822,12 +822,25 @@ test("searchOnSearchDomain()", function() {
 		facade.searchForDataSetsWithSequences(preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull, function(response) {
 			assertObjectsCount(response.result, 2);
 			searchDomain = response.result['searchDomain'];
-			assertObjectsWithValues(searchDomain, 'name', [ "Echo database" ]);
+			assertObjectsWithValues(searchDomain, 'name', [ "echo-database" ]);
+			assertObjectsWithValues(searchDomain, 'label', [ "Echo database" ]);
 			location = response.result['resultLocation'];
 			assertObjectsWithValues(location, 'dataSetCode', [ "20130415093804724-403" ]);
 			assertObjectsWithValues(location, 'pathInDataSet', [ "PATH-2" ]);
 			assertObjectsWithValues(location, 'sequenceIdentifier', [ "ID-2" ]);
 			assertObjectsWithValues(location, 'positionInSequence', [ "2" ]);
+			facade.close();
+		});
+	});
+});
+
+test("listAvailableSearchDomains()", function() {
+	createFacadeAndLogin(function(facade) {
+		
+		facade.listAvailableSearchDomains(function(response) {
+			assertObjectsCount(response.result, 2);
+			assertObjectsWithValues(response.result, 'name', [ "echo-database" ]);
+			assertObjectsWithValues(response.result, 'name', [ "Echo database" ]);
 			facade.close();
 		});
 	});

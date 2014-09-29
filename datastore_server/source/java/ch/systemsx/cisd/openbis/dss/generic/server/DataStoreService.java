@@ -515,19 +515,46 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
+    public List<SearchDomain> listAvailableSequenceDatabases(String sessionToken)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        
+        PluginTaskProvider<ISequenceDatabase> provider = pluginTaskInfoProvider.getSequenceDatabasesProvider();
+        List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();
+        List<SearchDomain> result = new ArrayList<SearchDomain>();
+        for (DatastoreServiceDescription description : pluginDescriptions)
+        {
+            String name = description.getKey();
+            if (provider.getPluginInstance(name).isAvailable())
+            {
+                SearchDomain searchDomain = new SearchDomain();
+                searchDomain.setName(name);
+                searchDomain.setLabel(description.getLabel());
+                result.add(searchDomain);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
             String preferredSequenceDatabaseOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull)
     {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        
         PluginTaskProvider<ISequenceDatabase> provider = pluginTaskInfoProvider.getSequenceDatabasesProvider();
-        ISequenceDatabase sequenceDatabase = findSequenceDatabase(provider, preferredSequenceDatabaseOrNull);
-        if (sequenceDatabase != null)
+        DatastoreServiceDescription sequenceDatabaseDescription 
+                = findSequenceDatabase(provider, preferredSequenceDatabaseOrNull);
+        if (sequenceDatabaseDescription != null)
         {
+            ISequenceDatabase sequenceDatabase = provider.getPluginInstance(sequenceDatabaseDescription.getKey());
             List<SearchDomainSearchResult> result = sequenceDatabase.search(sequenceSnippet, optionalParametersOrNull);
             for (SearchDomainSearchResult sequenceSearchResult : result)
             {
                 SearchDomain searchDomain = new SearchDomain();
-                searchDomain.setName(sequenceDatabase.getName());
+                searchDomain.setName(sequenceDatabaseDescription.getKey());
+                searchDomain.setLabel(sequenceDatabase.getLabel());
                 sequenceSearchResult.setSearchDomain(searchDomain);
             }
             return result;
@@ -536,11 +563,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         return new ArrayList<SearchDomainSearchResult>();
     }
 
-    private ISequenceDatabase findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider,
+    private DatastoreServiceDescription findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider,
             String preferredSequenceDatabaseOrNull)
     {
         List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();
-        ISequenceDatabase availableDatabase = null;
+        DatastoreServiceDescription availableDatabase = null;
         for (DatastoreServiceDescription description : pluginDescriptions)
         {
             ISequenceDatabase database = provider.getPluginInstance(description.getKey());
@@ -548,11 +575,11 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
             {
                 if (description.getKey().equals(preferredSequenceDatabaseOrNull))
                 {
-                    return database;
+                    return description;
                 }
                 if (availableDatabase == null)
                 {
-                    availableDatabase = database;
+                    availableDatabase = description;
                 }
             }
         }

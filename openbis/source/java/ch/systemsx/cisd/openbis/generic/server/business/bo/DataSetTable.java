@@ -63,6 +63,7 @@ import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
@@ -286,6 +287,22 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         TableMap<String, AbstractExternalData> fullDataSetsByCode = listFullDataSets(result);
         return filterSearchResultAndInjectFullDataSets(result, fullDataSetsByCode);
     }
+    
+    @Override
+    public List<SearchDomain> listAvailableSearchDomains()
+    {
+        List<SearchDomain> result = new ArrayList<SearchDomain>();
+        List<DataStorePE> stores = getDataStoreDAO().listDataStores();
+        for (DataStorePE dataStore : stores)
+        {
+            IDataStoreService service = tryGetDataStoreService(dataStore);
+            if (service != null)
+            {
+                result.addAll(service.listAvailableSequenceDatabases(dataStore.getSessionToken()));
+            }
+        }
+        return result;
+    }
 
     private List<SearchDomainSearchResultWithFullDataSet> filterSearchResultAndInjectFullDataSets(List<SearchDomainSearchResult> result,
             TableMap<String, AbstractExternalData> fullDataSetsByCode)
@@ -310,7 +327,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         }
         return filteredResult;
     }
-
+    
     private TableMap<String, AbstractExternalData> listFullDataSets(List<SearchDomainSearchResult> result)
     {
         IKeyExtractor<String, AbstractExternalData> codeKeyExtractor = KeyExtractorFactory.<AbstractExternalData> createCodeKeyExtractor();

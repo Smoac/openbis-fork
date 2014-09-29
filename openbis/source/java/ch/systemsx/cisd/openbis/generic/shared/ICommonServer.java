@@ -26,6 +26,7 @@ import java.util.Set;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -664,6 +665,12 @@ public interface ICommonServer extends IServer
     @Transactional(readOnly = true)
     public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken, 
             String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull);
+
+    /**
+     * Lists all available search domains.
+     */
+    @Transactional(readOnly = true)
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken);
 
     /**
      * Searches for data sets that fulfill the specified search criteria.

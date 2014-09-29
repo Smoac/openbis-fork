@@ -46,6 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
@@ -301,6 +302,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     {
         logAccess(sessionToken, "search-on-search-domain", "PREFERRED_SEARCH_DOMAIN(%s) SEARCH_STRING(%s)",
                 preferredSearchDomainOrNull, searchString);
+        return null;
+    }
+
+    @Override
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        logAccess(sessionToken, "list-available-search-domains");
         return null;
     }
 

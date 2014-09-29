@@ -590,6 +590,14 @@ public class ImageUtil
                 IRandomAccessFile handle = contentNode.getFileContent();
                 try
                 {
+                    // Workaround for BioFormats ND2Reader because it returns 16 bit for 12 bit images.
+                    Map<String, Object> metaData = reader.readMetaData(handle, imageID, null);
+                    Object value = metaData.get("uiBpcSignificant");
+                    if (value instanceof Number)
+                    {
+                        Number number = (Number) value;
+                        return number.intValue();
+                    }
                     return reader.readColorDepth(handle, imageID);
                 } finally
                 {
@@ -599,7 +607,7 @@ public class ImageUtil
         }
         return loadImageColorDepthGuessingLibrary(contentNode, imageID);
     }
-
+    
     /**
      * Converts the given <var>image</var> to a PNG image. Uses fast parameters for the filter and
      * deflate level (no filter and no deflation).

@@ -22,6 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
@@ -178,5 +179,11 @@ public interface IDataStoreService
     public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
             String preferredSequenceDatabaseOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull);
+
+    /**
+     * Lists all available sequence databases.
+     */
+    @Conversational(progress = Progress.AUTOMATIC)
+    public List<SearchDomain> listAvailableSequenceDatabases(String sessionToken);
 
 }

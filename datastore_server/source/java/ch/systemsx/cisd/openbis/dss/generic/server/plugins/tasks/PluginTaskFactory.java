@@ -40,6 +40,7 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
+import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSequenceDatabase;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -133,6 +134,10 @@ public class PluginTaskFactory<T>
             this.description =
                     DatastoreServiceDescription.processing(pluginKey, label, new String[0],
                             datastoreCode);
+            if (this.pluginInstance instanceof AbstractSequenceDatabase)
+            {
+                ((AbstractSequenceDatabase) this.pluginInstance).setName(pluginKey);
+            }
         } else
         {
             String[] datasetCodes = extractDatasetCodes(pluginProperties);

@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
@@ -410,6 +411,15 @@ public interface IGeneralInformationService extends IRpcService
     public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, 
             String preferredSearchDomainOrNull, String searchString, 
             Map<String, String> optionalParametersOrNull);
+    
+    /**
+     * Lists available search domains. Their name attribute can be used when invoking 
+     * {@link #searchOnSearchDomain(String, String, String, Map)}.
+     * 
+     * @return empty list if no search domain is available.
+     * @since 1.29
+     */
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken);
     
     /**
      * Return all data sets matching specified search criteria. Note, that for returned container data sets the contained data sets have only code,

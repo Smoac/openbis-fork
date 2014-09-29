@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
@@ -33,10 +34,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResu
 public interface ISequenceDatabase
 {
     /**
-     * Returns the name of this sequence database instance. 
-     * Will be used to populated {@link SearchDomainSearchResult} instances of the search result..
+     * Returns the label of this sequence database instance. It can be used for human readable output.
+     * Will be used to populated {@link SearchDomain} instances of the search result..
      */
-    public String getName();
+    public String getLabel();
     
     /**
      * Returns <code>true</code> if this sequence database is available. For example, a 

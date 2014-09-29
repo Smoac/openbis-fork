@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server;
 
-import java.io.Writer;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -150,6 +149,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.EncapsulatedCo
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegistrationScriptRunner;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolder;
@@ -1624,6 +1624,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         return dataSetTable.searchForDataSetsWithSequences(preferredSearchDomainOrNull, searchString,
                 optionalParametersOrNull);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        Session session = getSession(sessionToken);
+        
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        return dataSetTable.listAvailableSearchDomains();
     }
 
     @Override
