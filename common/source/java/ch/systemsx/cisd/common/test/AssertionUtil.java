@@ -23,6 +23,7 @@ import static org.testng.AssertJUnit.fail;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,6 +89,19 @@ public class AssertionUtil
         assertTrue("Expected to contain lines:\n" + expected + "\nactual lines:\n" + actual, expectedLines.equals(actualLines));
     }
 
+    public static void assertContainsLinesInAnyOrder(String expected, String actual)
+    {
+        List<String> expectedLines = getLines(expected);
+        List<String> actualLines = getLines(actual);
+
+        actualLines.retainAll(expectedLines);
+
+        Collections.sort(expectedLines);
+        Collections.sort(actualLines);
+
+        assertTrue("Expected to contain lines:\n" + expected + "\nactual lines:\n" + actual, expectedLines.equals(actualLines));
+    }
+
     /** asserts that two int arrays are equal **/
     public static void assertArraysEqual(int[] a1, int[] a2)
     {
@@ -135,7 +149,7 @@ public class AssertionUtil
         return stringValues;
     }
 
-    private static Collection<String> getLines(String text)
+    private static List<String> getLines(String text)
     {
         if (text == null || text.isEmpty())
         {
