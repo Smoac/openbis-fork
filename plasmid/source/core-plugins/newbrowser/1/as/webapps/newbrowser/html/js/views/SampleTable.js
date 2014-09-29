@@ -582,7 +582,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			dropDownMenu += "<span class='dropdown'>";
 			dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
 			dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
-			dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create Sample</a></li>";
 			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToRegister' style='display:none;' /><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Batch Register " + sampleTypeDisplayName + "</a></li>";
 			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToUpdate' style='display:none;' /><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Batch Update " + sampleTypeDisplayName + "</a></li>";
 			dropDownMenu += "</ul>";
@@ -598,7 +598,21 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	// Create/Import and other table features
 	//
 	this.createNewSample = function() {
-		mainController.changeView("showCreateSamplePage", this.sampleTypeCode); //TO-DO : Fix global access
+		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
+		Util.blockUI("Select the type for the sample: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeDropdownCancel'>Cancel</a>");
+		
+		$("#sampleTypeDropdown").on("change", function(event) {
+			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
+
+			mainController.changeView("showCreateSamplePage", sampleTypeCode);
+			
+			Util.unblockUI();
+			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
+		});
+		
+		$("#sampleTypeDropdownCancel").on("click", function(event) { 
+			Util.unblockUI();
+		});
 	}
 	
 	this.registerSamples = function() {
