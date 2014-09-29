@@ -39,39 +39,6 @@ $.extend(TestProfile.prototype, DefaultProfile.prototype, {
 //				"SYSTEM_EXPERIMENT" : ["NAME"],
 //				"PROTEIN" : ["PROTEIN_NAME"]
 //		}
-		
-		this.typeGroups = {
-			"ANTIBODIES" : {
-				"TYPE" : "ANTIBODIES",
-				"DISPLAY_NAME" : "Antibodies",
-				"LIST" : ["PROTEIN", "CLONE", "LOT", "CONJUGATED_CLONE"]
-			},
-			"CHEMICALS" : {
-				"TYPE" : "CHEMICALS",
-				"DISPLAY_NAME" : "Chemicals",
-				"LIST" : ["CHEMICALS"]
-			},
-			"CELL_LINES" : {
-				"TYPE" : "CELL_LINES",
-				"DISPLAY_NAME" : "Cell Lines",
-				"LIST" : ["CELL_LINES"]
-			},
-			"ANTIBODY_PANEL" : {
-				"TYPE" : "ANTIBODY_PANEL",
-				"DISPLAY_NAME" : "Antibody panels",
-				"LIST" : ["ANTIBODY_PANEL"]
-			},	
-			"TUMORS" : {
-				"TYPE" : "TUMORS",
-				"DISPLAY_NAME" : "Tumors",
-				"LIST" : ["TUMOR", "REGIONS", "ALIQUOT"]
-			},								
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [""] 
-			}
-		};
 	
 		//this.typePropertiesForTable = {
 		//	"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],

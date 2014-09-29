@@ -10,36 +10,7 @@ $.extend(LimsProfile.prototype, DefaultProfile.prototype, {
 		//this.notShowTypes = ["SYSTEM_EXPERIMENT", "ILLUMINA_FLOW_CELL", "ILLUMINA_FLOW_LANE", "LIBRARY", "LIBRARY_POOL", "MASTER_SAMPLE","MS_INJECTION","RAW_SAMPLE","TEMPLATE_SAMPLE", "SEARCH"];
 		this.inventorySpaces = ["YEAST_LAB"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
-		this.typeGroups = {
-			"METHODS" : {
-				"TYPE" : "METHODS",
-				"DISPLAY_NAME" : "Methods",
-				"LIST" : ["GENERAL_PROTOCOL", "PCR", "WESTERN_BLOTTING","READOUT"]
-			},
-			"MATERIALS" : {
-				"TYPE" : "MATERIALS",
-				"DISPLAY_NAME" : "Materials",
-				"LIST" : ["CHEMICAL", "ANTIBODY", "MEDIA", "SOLUTIONS_BUFFERS", "ENZYME", "OLIGO", "INHIBITORS"]
-			},
-			"SAMPLES" : {
-				"TYPE" : "SAMPLES",
-				"DISPLAY_NAME" : "Samples",
-				"LIST" : ["PLASMID", "YEAST", "BACTERIA"]
-			},
-			"MICE" : {
-				"TYPE" : "MICE",
-				"DISPLAY_NAME" : "Mice",
-				"LIST" : ["MOUSE"]
-			},
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
-			}
-		};
-
-
-
+		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*

@@ -11,30 +11,6 @@ $.extend(StoffelLabProfile.prototype, DefaultProfile.prototype, {
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
 		this.inventorySpaces = ["INVENTORY"];
 		this.isShowUnavailablePreviewOnSampleTable = true;
-		this.typeGroups = {
-			"MATERIALS" : {
-				"TYPE" : "MATERIALS",
-				"DISPLAY_NAME" : "Materials",
-				"LIST" : ["INHIBITOR"]
-			},
-			"SAMPLES" : {
-				"TYPE" : "SAMPLES",
-				"DISPLAY_NAME" : "Samples",
-				"LIST" : ["CELL_LINE", "ANTIBODY", "PLASMID"]
-			},
-			"METHODS" : {
-				"TYPE" : "METHODS",
-				"DISPLAY_NAME" : "Protocols",
-				"LIST" : ["PROTOCOL"]
-			},
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
-			}
-		};
-
-			
 
 		this.getSpaceForSampleType = function(type) {
 			if(type === "ANTIBODY") {

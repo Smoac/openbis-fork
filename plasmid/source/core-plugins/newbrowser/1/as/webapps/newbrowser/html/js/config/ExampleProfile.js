@@ -12,15 +12,6 @@ $.extend(ExampleProfile.prototype, DefaultProfile.prototype, {
 
 		//Black list, put on this list all types that you don«t want to appear on the menu and the ELN experiments.
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
-	
-		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
-		this.typeGroups = {
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
-			}
-		};
 		
 		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
 		this.typePropertiesForTable = {};

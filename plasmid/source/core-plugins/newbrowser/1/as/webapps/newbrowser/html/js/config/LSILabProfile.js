@@ -10,29 +10,6 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 
 		this.notShowTypes = ["SYSTEM_EXPERIMENT", "ILLUMINA_FLOW_CELL", "ILLUMINA_FLOW_LANE", "LIBRARY", "LIBRARY_POOL", "MASTER_SAMPLE","MS_INJECTION","RAW_SAMPLE","TEMPLATE_SAMPLE", "SEARCH"];
 	
-		this.typeGroups = {
-			"SEQUENCING" : {
-				"TYPE" : "SEQUENCING",
-				"DISPLAY_NAME" : "Sequencing",
-				"LIST" : ["SEQUENCING"]
-			},
-			"CHEMBIO" : {
-				"TYPE" : "CHEMICALS_AND_BIOLOGICALS",
-				"DISPLAY_NAME" : "Chemicals and Biologicals",
-				"LIST" : ["PRIMARY_ANTIBODIES", "BACTERIA", "ENZYMES", "MICE", "OLIGOS", "PLASMIDS", "PRIMERS"]
-			},
-			"EQUIPMENT" : {
-				"TYPE" : "EQUIPMENT",
-				"DISPLAY_NAME" : "Equipment",
-				"LIST" : ["EQUIPMENT"]
-			},
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
-			}
-		};
-	
 		this.typePropertiesForTable = {
 			"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
 			"GENERAL_PROTOCOL" : ["NAME", "FOR_WHAT", "PROTOCOL_TYPE"],
@@ -262,25 +239,6 @@ $.extend(LSILabProfile.prototype, DefaultProfile.prototype, {
 			}
 			);
 			return "";
-		}
-
-		this.initInventoryStructure = function() {
-			for(typeGroupCode in this.typeGroups) {
-				groupOfMenuItems = new GroupOfMenuItems(typeGroupCode,this.typeGroups[typeGroupCode]["DISPLAY_NAME"],[]);
-			
-				for(var i = 0; i < this.typeGroups[typeGroupCode]["LIST"].length; i++) {
-					var sampleType = this.getSampleTypeForSampleTypeCode(this.typeGroups[typeGroupCode]["LIST"][i]);
-				
-					if(sampleType !== null) {
-						var description = sampleType.code;
-						var menuItem = new MenuItem("./img/notebook-icon.png", "showSamplesPage", sampleType.code, description);
-						groupOfMenuItems.menuItems.push(menuItem);
-					}
-				}
-				if(groupOfMenuItems.menuItems.length > 0) {
-					this.inventoryStructure.push(groupOfMenuItems);
-				}
-			}
 		}
 	}
 });

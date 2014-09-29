@@ -11,36 +11,7 @@ $.extend(CiaudoLabProfile.prototype, DefaultProfile.prototype, {
 		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
 		this.inventorySpaces = ["ANTIBODIES", "CELLS", "ENZYMES", "EQUIPMENT", "LAB_MEETINGS", "PLASMIDS", "PRIMERS", "PROTOCOLS", "RESTRICTION_ENZYMES"];
 		this.isShowUnavailablePreviewOnSampleTable = true;
-		this.typeGroups = {
-			"MATERIALS" : {
-				"TYPE" : "MATERIALS",
-				"DISPLAY_NAME" : "Materials",
-				"LIST" : ["ANTIBODIES", "CELLS", "ENZYMES", "PLASMIDS", "PRIMERS", "STRAINS"]
-			},
-			"METHODS" : {
-				"TYPE" : "METHODS",
-				"DISPLAY_NAME" : "Methods",
-				"LIST" : ["PROTOCOLS"]
-			},
-			"EQUIPMENT" : {
-				"TYPE" : "EQUIPMENT",
-				"DISPLAY_NAME" : "Equipment",
-				"LIST" : ["EQUIPMENT"]
-			},	
-			"LAB_MEETINGS" : {
-				"TYPE" : "LAB_MEETINGS",
-				"DISPLAY_NAME" : "Lab meetings",
-				"LIST" : ["LAB_MEETINGS"]
-			},						
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
-			}
-		};
-
-			
-
+		
 		this.getSpaceForSampleType = function(type) {
 			if(type === "ANTIBODIES") {
 				return "ANTIBODIES";

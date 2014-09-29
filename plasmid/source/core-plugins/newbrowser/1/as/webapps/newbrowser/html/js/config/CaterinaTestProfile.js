@@ -7,34 +7,8 @@ $.extend(CaterinaTestProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
-	
-		//Use this with all known types to create groups, if a type is not specified by default will be added to the OTHERS group.
-		this.typeGroups = {
-			"MATERIALS" : {
-				"TYPE" : "MATERIALS",
-				"DISPLAY_NAME" : "Materials",
-				"LIST" : ["INHIBITORS"]
-			},
-			"SAMPLES" : {
-				"TYPE" : "SAMPLES",
-				"DISPLAY_NAME" : "Samples",
-				"LIST" : ["CELL_LINE", "ANTIBODIES", "PLASMIDS"]
-			},
-			"METHODS" : {
-				"TYPE" : "METHODS",
-				"DISPLAY_NAME" : "Protocols",
-				"LIST" : ["PROTOCOL"]
-			},
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] 
-			}
-		};
-
 		this.inventorySpaces = ["INVENTORY"];
-	
-	
+		
 		this.storagesConfiguration = {
 				"isEnabled" : true,
 				/*
