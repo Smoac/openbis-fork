@@ -51,8 +51,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCase
@@ -94,21 +92,39 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
     }
 
     protected BufferedAppender logRecorder;
+
     protected Mockery context;
+
     protected IDataSetDirectoryProvider dataSetDirectoryProvider;
+
     protected ArchiverTaskContext archiverTaskContext;
+
     protected IDataSetStatusUpdater statusUpdater;
+
     protected Properties properties;
+
     private BeanFactory beanFactory;
+
     protected IConfigProvider configProvider;
+
     protected IEncapsulatedOpenBISService service;
+
     protected IShareIdManager shareIdManager;
+
     protected File store;
+
     protected File share1;
+
     private IDataStoreServiceInternal dataStoreService;
+
     protected IDataSetDeleter deleter;
+
     protected IHierarchicalContentProvider contentProvider;
+
     protected IDataSetFileOperationsManager fileOperationsManager;
+
+    protected IDataSetFileOperationsManagerFactory fileOperationsManagerFactory;
+
     protected IUnarchivingPreparation unarchivingPreparation;
 
     public AbstractArchiverTestCase()
@@ -123,7 +139,7 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
     @BeforeMethod
     public void beforeMethod(Method method)
     {
-        System.out.println(">>>>>> set up for " + method.getName()+" "+Arrays.asList(workingDirectory.list()));
+        System.out.println(">>>>>> set up for " + method.getName() + " " + Arrays.asList(workingDirectory.list()));
         LogInitializer.init();
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.DEBUG);
         context = new Mockery();
@@ -140,28 +156,29 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
         final TargetSource targetSource = context.mock(TargetSource.class);
         dataStoreService = context.mock(IDataStoreServiceInternal.class);
         beanFactory = context.mock(BeanFactory.class);
+        fileOperationsManagerFactory = context.mock(IDataSetFileOperationsManagerFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);
         context.checking(new Expectations()
             {
                 {
                     allowing(beanFactory).getBean("config-provider");
                     will(returnValue(configProvider));
-                    
+
                     allowing(beanFactory).getBean("hierarchical-content-provider");
                     will(returnValue(contentProvider));
-    
+
                     allowing(beanFactory).getBean("openBIS-service");
                     will(returnValue(service));
-    
+
                     allowing(beanFactory).getBean("share-id-manager");
                     will(returnValue(shareIdManager));
-    
+
                     allowing(beanFactory).getBean("data-store-service");
                     will(returnValue(adviced));
-    
+
                     allowing(adviced).getTargetSource();
                     will(returnValue(targetSource));
-    
+
                     try
                     {
                         allowing(targetSource).getTarget();
@@ -170,21 +187,24 @@ public abstract class AbstractArchiverTestCase extends AbstractFileSystemTestCas
                     {
                         // ignored
                     }
-    
+
                     allowing(dataSetDirectoryProvider).getStoreRoot();
                     will(returnValue(store));
-                    
+
                     allowing(dataStoreService).getDataSetDeleter();
                     will(returnValue(deleter));
-                    
+
                     allowing(dataStoreService).getDataSetDirectoryProvider();
                     will(returnValue(dataSetDirectoryProvider));
-                    
+
                     allowing(dataSetDirectoryProvider).getShareIdManager();
                     will(returnValue(shareIdManager));
+
+                    allowing(fileOperationsManagerFactory).create();
+                    will(returnValue(fileOperationsManager));
                 }
             });
-    
+
         IncomingShareIdProviderTestWrapper.setShareIds(Arrays.asList("1"));
         store = new File(workingDirectory, "store");
         store.mkdirs();

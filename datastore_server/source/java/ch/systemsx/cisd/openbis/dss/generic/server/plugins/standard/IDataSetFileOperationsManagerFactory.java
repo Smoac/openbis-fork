@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard;
 
+import java.io.Serializable;
+
 /**
  * @author Jakub Straszewski
  */
-public interface IDataSetFileOperationsManagerFactory
+public interface IDataSetFileOperationsManagerFactory extends Serializable
 {
     IDataSetFileOperationsManager create();
 }

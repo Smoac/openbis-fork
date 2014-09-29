@@ -136,8 +136,14 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private transient IDataSetFileOperationsManager fileOperationsManager;
 
+    private final IDataSetFileOperationsManagerFactory fileOperationsManagerFactory;
+
     public IDataSetFileOperationsManager getFileOperationsManager()
     {
+        if (fileOperationsManager == null)
+        {
+            fileOperationsManager = fileOperationsManagerFactory.create();
+        }
         return fileOperationsManager;
     }
 
@@ -145,16 +151,34 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
 
     private final ChecksumVerificationCondition checksumVerificationCondition;
 
+    public static class DataSetFileOperationsManagerFactory implements IDataSetFileOperationsManagerFactory
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final Properties properties;
+
+        public DataSetFileOperationsManagerFactory(Properties properties)
+        {
+            this.properties = properties;
+        }
+
+        @Override
+        public IDataSetFileOperationsManager create()
+        {
+            return new DataSetFileOperationsManager(properties,
+                    new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory());
+        }
+    }
+
     public RsyncArchiver(Properties properties, File storeRoot)
     {
-        this(properties, storeRoot, new DataSetFileOperationsManager(properties,
-                new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory()));
+        this(properties, storeRoot, new DataSetFileOperationsManagerFactory(properties));
     }
 
     protected RsyncArchiver(Properties properties, File storeRoot,
-            IDataSetFileOperationsManager fileOperationsManager)
+            IDataSetFileOperationsManagerFactory fileOperationsManagerFactory)
     {
-        this(properties, storeRoot, fileOperationsManager, PropertyUtils.getBoolean(properties,
+        this(properties, storeRoot, fileOperationsManagerFactory, PropertyUtils.getBoolean(properties,
                 ONLY_MARK_AS_DELETED_KEY, true) ? DeleteAction.MARK_AS_DELETED
                 : DeleteAction.DELETE, PropertyUtils.getBoolean(properties, VERIFY_CHECKSUMS_KEY,
                 true) ? ChecksumVerificationCondition.YES : ChecksumVerificationCondition.NO);
@@ -162,14 +186,14 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
     }
 
     public RsyncArchiver(Properties properties, File storeRoot,
-            IDataSetFileOperationsManager fileOperationsManager, DeleteAction deleteAction,
+            IDataSetFileOperationsManagerFactory fileOperationsManagerFactory, DeleteAction deleteAction,
             ChecksumVerificationCondition checksumVerificationCondition)
     {
         super(properties, storeRoot, null, null);
-        this.fileOperationsManager = fileOperationsManager;
+        this.fileOperationsManagerFactory = fileOperationsManagerFactory;
         this.deleteAction = deleteAction;
         this.checksumVerificationCondition = checksumVerificationCondition;
-        
+
     }
 
     @Override
@@ -297,7 +321,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         }
         return Status.OK;
     }
-    
+
     private static List<IHierarchicalContentNode> getChildNodes(IHierarchicalContentNode node)
     {
         List<IHierarchicalContentNode> childNodes = node.getChildNodes();

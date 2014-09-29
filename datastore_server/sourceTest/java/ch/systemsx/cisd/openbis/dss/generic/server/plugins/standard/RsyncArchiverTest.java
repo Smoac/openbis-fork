@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBu
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses =
-    { AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
+{ AbstractArchiverProcessingPlugin.class, RsyncArchiver.class })
 public class RsyncArchiverTest extends AbstractArchiverTestCase
 {
     private static final String LOCATION = "location";
@@ -49,7 +49,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
     private RsyncArchiver archiver;
 
     private File share2;
-    
+
     @BeforeMethod
     public void setUpRsyncArchiver()
     {
@@ -58,7 +58,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         FileUtilities.writeToFile(new File(ds1, "ds1"), "hello world");
         share2 = new File(store, "2");
         share2.mkdir();
-        archiver = new RsyncArchiver(properties, store, fileOperationsManager);
+        archiver = new RsyncArchiver(properties, store, fileOperationsManagerFactory);
         archiver.statusUpdater = statusUpdater;
     }
 
@@ -269,7 +269,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
                 }
             });
 
-        archiver = new RsyncArchiver(properties, store, fileOperationsManager);
+        archiver = new RsyncArchiver(properties, store, fileOperationsManagerFactory);
         archiver.deleteFromArchive(Arrays.asList(datasetLocation));
     }
 
@@ -286,7 +286,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
                 }
             });
 
-        archiver = new RsyncArchiver(properties, store, fileOperationsManager);
+        archiver = new RsyncArchiver(properties, store, fileOperationsManagerFactory);
         archiver.deleteFromArchive(Arrays.asList(datasetLocation));
     }
 
