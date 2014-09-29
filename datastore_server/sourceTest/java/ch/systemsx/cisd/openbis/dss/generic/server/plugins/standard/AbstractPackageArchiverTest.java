@@ -206,7 +206,7 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
         ProcessingStatus processingStatus = archiver.archive(Arrays.asList(dsd1), archiverTaskContext, false);
 
         File archivedDataSetFile = new File(archive, ds1.getDataSetCode() + getPackageExtension());
-        AssertionUtil.assertContainsLines("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile
+        AssertionUtil.assertContainsLinesInAnyOrder("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile
                 + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
@@ -673,7 +673,7 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
         ProcessingStatus processingStatus2 = archiver.deleteFromArchive(Arrays.asList(
                 new DatasetLocation(ds1.getCode(), ds1.getLocation(), DATA_STORE_CODE, "")));
 
-        AssertionUtil.assertContainsLines("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile
+        AssertionUtil.assertContainsLinesInAnyOrder("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile
                 + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"
@@ -789,7 +789,7 @@ public abstract class AbstractPackageArchiverTest extends AbstractArchiverTestCa
 
         File archivedDataSetFile = new File(archive, LOCATION + "/" + ds1.getDataSetCode() + getPackageExtension());
         String logContent = logRecorder.getLogContent().replaceFirst("in all shares in .*s", "in all shares in ? s");
-        AssertionUtil.assertContainsLines("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile
+        AssertionUtil.assertContainsLinesInAnyOrder("INFO  OPERATION.IdentifierAttributeMappingManager - Mapping file '" + mappingFile
                 + "' successfully loaded.\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - "
                 + "Archiving of the following datasets has been requested: [Dataset 'ds1']\n"

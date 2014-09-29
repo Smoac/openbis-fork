@@ -14,3 +14,5 @@
 .DS_Store
 /.activity
 sourceTest/java/ch/systemsx/cisd/etlserver/plugins/LastSeenDataSetFileContentTestResources/writeLastSeenFile
+.classpath
+.project
