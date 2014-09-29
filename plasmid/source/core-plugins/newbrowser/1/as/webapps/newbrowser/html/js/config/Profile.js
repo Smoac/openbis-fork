@@ -54,14 +54,6 @@ $.extend(DefaultProfile.prototype, {
 		this.allPropertyTypes = [];
 		this.displaySettings = {};
 		
-		this.typeGroups = {
-			"OTHERS" : {
-				"TYPE" : "OTHERS",
-				"DISPLAY_NAME" : "Others",
-				"LIST" : [] //All types not present in other groups and not in notShowTypes, is a box where everything that is not configured goes by default
-			}
-		};
-		
 		this.typePropertiesForTable = {};
 		this.typePropertiesForSmallTable = {};
 		
@@ -382,18 +374,6 @@ $.extend(DefaultProfile.prototype, {
 			return null;
 		}
 	
-		this.getGroupTypeCodeForTypeCode = function(typeCode) {
-			for(typeGroupCode in this.typeGroups) {
-				for(var i = 0; i < this.typeGroups[typeGroupCode]["LIST"].length; i++) {
-					var sampleTypeCode = this.typeGroups[typeGroupCode]["LIST"][i];
-					if(sampleTypeCode === typeCode) {
-						return this.typeGroups[typeGroupCode]["TYPE"];
-					}
-				}
-			}
-			return null;
-		}
-	
 		this.getAllPropertiCodesForTypeCode = function(typeCode) {
 			var allPropertiCodes = new Array();
 			var sampleType = this.getSampleTypeForSampleTypeCode(typeCode);
@@ -509,20 +489,11 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		//
-		// Initializes the Others list with all sampleType codes that are neither in typeGroups or notShowTypes
+		// Initializes
 		//
 		this.init = function(callbackWhenDone) {
 			var _this = this;
 			
-			for(var i = 0; i < this.allSampleTypes.length; i++) {
-				var sampleType = this.allSampleTypes[i];
-				if($.inArray(sampleType.code, this.notShowTypes) === -1) {
-					if(this.getGroupTypeCodeForTypeCode(sampleType.code) === null) {
-						this.typeGroups["OTHERS"]["LIST"].push(sampleType.code);
-					}
-				}
-			}
-		
 			this.initPropertyTypes(function(){
 				_this.initVocabulariesForSampleTypes(function() {
 					callbackWhenDone();
