@@ -330,7 +330,7 @@ public final class TransferredDataSetHandlerTest extends AbstractFileSystemTestC
         targetFolder =
                 IdentifiedDataStrategy.createBaseDirectory(workingDirectory, dataSetInformation);
         targetData1 = createTargetData(data1);
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, ".*(DataStrategyStore|FileRenamer)");
     }
 
     private final String createLogMsgOfSuccess(final DataSetInformation dataSet)
