@@ -133,8 +133,13 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         public abstract Status execute(IDataSetFileOperationsManager manager,
                 IDatasetLocation dataSet);
     }
-    
+
     private transient IDataSetFileOperationsManager fileOperationsManager;
+
+    public IDataSetFileOperationsManager getFileOperationsManager()
+    {
+        return fileOperationsManager;
+    }
 
     private final DeleteAction deleteAction;
 
@@ -192,13 +197,13 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     // (filesizes/checksums)
                     // For this we want to have the archived content locally. If it is not available
                     // locally - we have to retrieve it from the archive first.
-                    if (fileOperationsManager.isHosted())
+                    if (getFileOperationsManager().isHosted())
                     {
-                        fileOperationsManager.retrieveFromDestination(temp, dataset);
+                        getFileOperationsManager().retrieveFromDestination(temp, dataset);
                         archivedContent = contentFactory.asHierarchicalContent(temp, null);
                     } else
                     {
-                        archivedContent = fileOperationsManager.getAsHierarchicalContent(dataset);
+                        archivedContent = getFileOperationsManager().getAsHierarchicalContent(dataset);
                     }
 
                     IHierarchicalContentNode root = content.getRootNode();
@@ -346,7 +351,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
         for (IDatasetLocation dataset : datasets)
         {
-            Status status = action.execute(fileOperationsManager, dataset);
+            Status status = action.execute(getFileOperationsManager(), dataset);
             statuses.addResult(dataset.getDataSetCode(), status, action.getOperation());
         }
         return statuses;
@@ -357,23 +362,23 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             ArchiverTaskContext context)
     {
         File originalData = getDatasetDirectory(context, dataset);
-        return fileOperationsManager.isSynchronizedWithDestination(originalData, dataset);
+        return getFileOperationsManager().isSynchronizedWithDestination(originalData, dataset);
     }
 
     @Override
     protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
     {
-        return fileOperationsManager.isPresentInDestination(dataset);
+        return getFileOperationsManager().isPresentInDestination(dataset);
     }
 
     private Status doArchive(DatasetDescription dataset, File originalData)
     {
-        return fileOperationsManager.copyToDestination(originalData, dataset);
+        return getFileOperationsManager().copyToDestination(originalData, dataset);
     }
 
     private Status doUnarchive(DatasetDescription dataset, File originalData)
     {
-        return fileOperationsManager.retrieveFromDestination(originalData, dataset);
+        return getFileOperationsManager().retrieveFromDestination(originalData, dataset);
     }
 
     private File getDatasetDirectory(ArchiverTaskContext context, DatasetDescription dataset)
