@@ -482,7 +482,7 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	this.searchWithExperiment = function(experimentPermId, callbackFunction)
+	this.searchWithExperiment = function(experimentIdentifier, callbackFunction)
 	{	
 		var matchClauses = [ {"@type":"AttributeMatchClause",
 					fieldType : "ATTRIBUTE",			
@@ -491,17 +491,28 @@ function ServerFacade(openbisServer) {
 				}
 		]
 		
+		var identifierParts = experimentIdentifier.split("/");
 		var experimentSubCriteria = {
 				"@type" : "SearchSubCriteria",
 				"targetEntityKind" : "EXPERIMENT",	
 				"criteria" : {
 					matchClauses : [{
-						"@type":"AttributeMatchClause",
-						fieldType : "ATTRIBUTE",			
-						attribute : "PERM_ID",
-						desiredValue : experimentPermId
-					}],
-					operator : "MATCH_ANY_CLAUSES"
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "SPACE",
+							desiredValue : identifierParts[1]
+						},{
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "PROJECT",
+							desiredValue : identifierParts[2]
+						}, {
+							"@type":"AttributeMatchClause",
+							fieldType : "ATTRIBUTE",			
+							attribute : "CODE",
+							desiredValue : identifierParts[3]
+						}],
+					operator : "MATCH_ALL_CLAUSES"
 			}
 		}
 		

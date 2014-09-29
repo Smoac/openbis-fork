@@ -61,7 +61,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		
 		var menuItemExperiment = null;
 		if(isInventory) {
-			menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.code, projectNode, null, "showSamplesPage", experiment.identifier + ":None");
+			menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.code, projectNode, null, "showSamplesPage", ":" + experiment.identifier);
 		} else {
 			menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.code, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier, "(Experiment)");
 		}
@@ -293,7 +293,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 									displayName = experiment.code;
 								}
 								
-								var menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.code, projectNode, null, "showSamplesPage", experiment.identifier + ":" + experiment.permId /* "PROTEIN" */, "");
+								var menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.code, projectNode, null, "showSamplesPage", ":" + experiment.identifier, "");
 								projectNode.newMenuIfSelected.children.push(menuItemExperiment);
 							}
 						}

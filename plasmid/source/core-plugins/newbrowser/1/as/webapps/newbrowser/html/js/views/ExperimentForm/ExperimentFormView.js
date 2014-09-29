@@ -30,7 +30,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			'action' : 'javascript:void(0);',
 			'onsubmit' : 'mainController.currentView.updateExperiment();'
 		});
-			
+		
 		$form.append($formColumn);
 		
 		//

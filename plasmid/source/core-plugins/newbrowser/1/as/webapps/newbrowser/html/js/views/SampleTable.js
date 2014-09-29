@@ -35,6 +35,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	this.sampleTableId = sampleTableId;
 	this.profile = profile;
 	this.sampleTypesOnExperiment = {};
+	this.experimentIdentifier = null;
 	this.sampleTypeCode = sampleTypeCode;
 	this.inspectEnabled = inspectEnabled;
 	this.enableEdit = enableEdit;
@@ -148,7 +149,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		var localReference = this;
 		
 		if(this.sampleTypeCode.indexOf(":") !== -1) { //New experiment behaviour
-			this.serverFacade.searchWithExperiment(this.sampleTypeCode.split(":")[1], function(data) {
+			this.experimentIdentifier = this.sampleTypeCode.split(":")[1];
+			this.serverFacade.searchWithExperiment(this.experimentIdentifier, function(data) {
 				for(var i = 0; i < data.length; i++) {
 					if(localReference.sampleTypesOnExperiment[data[i].sampleTypeCode]) {
 						localReference.sampleTypesOnExperiment[data[i].sampleTypeCode] = localReference.sampleTypesOnExperiment[data[i].sampleTypeCode] + 1;
@@ -191,6 +193,16 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var sampleType = this.profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
 				if(!sampleType) {
 					$("#"+this.sampleTableId).append("<h1>No Samples Found</h1>");
+					
+					var dropDownMenu = "";
+						dropDownMenu += "<span class='dropdown'>";
+						dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
+						dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
+						dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create Sample</a></li>";
+						dropDownMenu += "</ul>";
+						dropDownMenu += "</span>";
+					$("#"+this.sampleTableId).append(dropDownMenu);
+					
 					return;
 				}
 				var sampleTypeDisplayName = Util.getEmptyIfNull(sampleType.description);
@@ -602,13 +614,17 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	// Create/Import and other table features
 	//
 	this.createNewSample = function() {
+		var _this = this;
 		var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
 		Util.blockUI("Select the type for the sample: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeDropdownCancel'>Cancel</a>");
 		
 		$("#sampleTypeDropdown").on("change", function(event) {
 			var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
-
-			mainController.changeView("showCreateSamplePage", sampleTypeCode);
+			var argsMap = {
+					"sampleTypeCode" : sampleTypeCode,
+					"experimentIdentifier" : _this.experimentIdentifier
+			}
+			var argsMapStr = JSON.stringify(argsMap);
 			
 			Util.unblockUI();
 			mainController.changeView("showCreateSubExperimentPage", argsMapStr);
