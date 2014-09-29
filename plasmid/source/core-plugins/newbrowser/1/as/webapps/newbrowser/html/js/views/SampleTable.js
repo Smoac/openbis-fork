@@ -189,6 +189,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				component += "<h1>Search Results</h1>";
 			} else {
 				var sampleType = this.profile.getSampleTypeForSampleTypeCode(this.sampleTypeCode);
+				if(!sampleType) {
+					$("#"+this.sampleTableId).append("<h1>No Samples Found</h1>");
+					return;
+				}
 				var sampleTypeDisplayName = Util.getEmptyIfNull(sampleType.description);
 				if(sampleTypeDisplayName === "") {
 					sampleTypeDisplayName = sampleType.code;

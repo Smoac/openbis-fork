@@ -34,6 +34,11 @@ $.extend(DefaultProfile.prototype, {
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 		this.inventorySpaces = [];
+		
+		this.isInventorySpace = function(spaceCode) {
+			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
+		}
+		
 		this.hideCodes = false;
 		this.propertyReplacingCode = "NAME";
 		
