@@ -35,7 +35,7 @@ public class TarBasedHierarchicalContentTest extends AbstractPackageBasedHierarc
         {
             tar = new Tar(packageFile);
             tar.add(dataDir, dataDir.getPath().length());
-            return new TarBasedHierarchicalContent(packageFile);
+            return new TarBasedHierarchicalContent(packageFile, null);
         } finally
         {
             if (tar != null)

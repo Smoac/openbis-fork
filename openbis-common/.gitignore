@@ -2,3 +2,7 @@
 /temp-testng-customsuite.xml
 /test-output
 /bin
+/build
+.classpath
+.project
+.settings
