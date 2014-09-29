@@ -25,6 +25,7 @@ import java.util.Properties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
@@ -54,7 +55,11 @@ public class EchoDatabase extends AbstractSequenceDatabase
             try
             {
                 ObjectMapper mapper = new ObjectMapper();
-                SearchDomainSearchResult result = mapper.readValue(resultStr, SearchDomainSearchResult.class);
+                HelperBean bean = mapper.readValue(resultStr, HelperBean.class);
+                DataSetFileSearchResultLocation resultLocation = bean.getResultLoacation();
+                SearchDomainSearchResult result = new SearchDomainSearchResult();
+                result.setSearchDomain(bean.getSearchDomain());
+                result.setResultLocation(resultLocation);
                 return Collections.singletonList(result);
             } catch (Exception e)
             {
@@ -63,6 +68,47 @@ public class EchoDatabase extends AbstractSequenceDatabase
         } else
         {
             return Collections.emptyList();
+        }
+    }
+    
+    public static final class HelperBean
+    {
+        private String searchDomain;
+        private DataSetFileSearchResultLocation resultLoacation = new DataSetFileSearchResultLocation();
+        
+        public DataSetFileSearchResultLocation getResultLoacation()
+        {
+            return resultLoacation;
+        }
+
+        public String getSearchDomain()
+        {
+            return searchDomain;
+        }
+        
+        public void setSearchDomain(String searchDomain)
+        {
+            this.searchDomain = searchDomain;
+        }
+        
+        public void setDataSetCode(String dataSetCode)
+        {
+            resultLoacation.setDataSetCode(dataSetCode);
+        }
+        
+        public void setPathInDataSet(String path)
+        {
+            resultLoacation.setPathInDataSet(path);
+        }
+        
+        public void setSequenceIdentifier(String identifier)
+        {
+            resultLoacation.setSequenceIdentifier(identifier);
+        }
+        
+        public void setPositionInSequence(int position)
+        {
+            resultLoacation.setPositionInSequence(position);
         }
     }
 }

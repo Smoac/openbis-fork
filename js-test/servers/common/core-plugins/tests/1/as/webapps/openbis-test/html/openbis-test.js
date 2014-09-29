@@ -797,21 +797,21 @@ test("searchForDataSetsOnBehalfOfUser()", function() {
 	});
 });
 
-test("searchForDataSetsWithSequences()", function() {
+test("searchOnSearchDomain()", function() {
 	createFacadeAndLogin(function(facade) {
 
-		var preferredSequenceDatabaseOrNull = "echo-database";
+		var preferredSearchDomainOrNull = "echo-database";
 		var sequenceSnippet = "SEQ-2";
 		var optionalParametersOrNull = {
 			"SEQ-1" : JSON.stringify({
-				"sequenceDatabaseName" : "Echo database",
+				"searchDomain" : "Echo database",
 				"dataSetCode" : "20130412142205843-196",
 				"pathInDataSet" : "PATH-1",
 				"sequenceIdentifier" : "ID-1",
 				"positionInSequence" : "1"
 			}),
 			"SEQ-2" : JSON.stringify({
-				"sequenceDatabaseName" : "Echo database",
+				"searchDomain" : "Echo database",
 				"dataSetCode" : "20130415093804724-403",
 				"pathInDataSet" : "PATH-2",
 				"sequenceIdentifier" : "ID-2",
@@ -819,13 +819,14 @@ test("searchForDataSetsWithSequences()", function() {
 			})
 		}
 
-		facade.searchForDataSetsWithSequences(preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull, function(response) {
+		facade.searchForDataSetsWithSequences(preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull, function(response) {
 			assertObjectsCount(response.result, 2);
-			assertObjectsWithValues(response.result, 'sequenceDatabaseName', [ "Echo database" ]);
-			assertObjectsWithValues(response.result, 'dataSetCode', [ "20130415093804724-403" ]);
-			assertObjectsWithValues(response.result, 'pathInDataSet', [ "PATH-2" ]);
-			assertObjectsWithValues(response.result, 'sequenceIdentifier', [ "ID-2" ]);
-			assertObjectsWithValues(response.result, 'positionInSequence', [ "2" ]);
+			assertObjectsWithValues(response.result, 'searchDomain', [ "Echo database" ]);
+			location = response.result['resultLocation'];
+			assertObjectsWithValues(location, 'dataSetCode', [ "20130415093804724-403" ]);
+			assertObjectsWithValues(location, 'pathInDataSet', [ "PATH-2" ]);
+			assertObjectsWithValues(location, 'sequenceIdentifier', [ "ID-2" ]);
+			assertObjectsWithValues(location, 'positionInSequence', [ "2" ]);
 			facade.close();
 		});
 	});
