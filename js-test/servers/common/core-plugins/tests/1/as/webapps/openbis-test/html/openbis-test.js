@@ -821,7 +821,8 @@ test("searchOnSearchDomain()", function() {
 
 		facade.searchForDataSetsWithSequences(preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull, function(response) {
 			assertObjectsCount(response.result, 2);
-			assertObjectsWithValues(response.result, 'searchDomain', [ "Echo database" ]);
+			searchDomain = response.result['searchDomain'];
+			assertObjectsWithValues(searchDomain, 'name', [ "Echo database" ]);
 			location = response.result['resultLocation'];
 			assertObjectsWithValues(location, 'dataSetCode', [ "20130415093804724-403" ]);
 			assertObjectsWithValues(location, 'pathInDataSet', [ "PATH-2" ]);
