@@ -242,14 +242,75 @@ $.extend(DefaultProfile.prototype, {
 		 * Used by Inspector
 		 */
 		this.inspectorContentTransformer = function(sample, propertyCode, propertyContent) {
-			return {
+			
+			if(propertyContent.indexOf("<root>") != -1) {
+				return {
+					"isSingleColumn" : true,
+					"content" : this.getHTMLTableFromManagePropertyXML(propertyContent)
+				};
+			} else {
+				if(propertyContent === "<root/>\n") { //To clean empty XMLs and don't show them.
+					propertyContent = "";
+				}
+				return {
 					"isSingleColumn" : false,
 					"content" : propertyContent
-			};
+				};
+			}
 		}
 	
 		this.inspectorContentExtra = function(sample, propertyContent) {
 			return "";
+		}
+		
+		this.getHTMLTableFromManagePropertyXML = function(xmlDocument) {
+			var table_head = null;
+			var table_body = "";
+			var dom;
+	
+			if (window.DOMParser) {
+			  parser = new DOMParser();
+			  dom = parser.parseFromString(xmlDocument,"text/xml");
+			} else {// Internet Explorer
+			  dom = new ActiveXObject("Microsoft.XMLDOM");
+			  dom.async = false;
+			  dom.loadXML(xmlDocument); 
+			} 
+	
+			var html = null;
+			var root = dom.childNodes[0];
+			var children = root.childNodes;
+			for(var i = 0; i < children.length; i++) {
+				var child = children[i];
+				if (child.localName != null) {
+					var keys = child.attributes;
+					if (table_head == null) {
+						table_head = "<tr>";
+						var key = null;
+						for (var j = 0; j < keys.length; j++) {
+							key = keys[j];
+							if(key.localName != "permId") {
+								table_head += "<th style='text-align:left; width:" + (100/(keys.length-1)) + "%;'>"+ key.localName + "</th>";
+							}
+						}
+						table_head += "</tr>";
+					}
+					table_body += "<tr>";
+					for (var j = 0; j < keys.length; j++) {
+						key = keys[j];
+						if(key.localName != "permId") {
+							if(key.localName == "date") {
+								table_body += "<td style='text-align:left; width:" + (100/(keys.length-1)) + "%;'>" + key.value + "</td>";
+							} else {
+								table_body += "<td style='text-align:left; width:" + (100/(keys.length-1)) + "%;'>" + key.value + "</td>";
+							}
+						}
+					}
+					table_body += "</tr>";
+				}
+			}
+			html = "<table style='font-family:helvetica; font-size:90%; width: 100%;'><thead>" + table_head + "</thead><tbody>"+ table_body + "</tbody></table>";
+			return html;
 		}
 		
 		/*
