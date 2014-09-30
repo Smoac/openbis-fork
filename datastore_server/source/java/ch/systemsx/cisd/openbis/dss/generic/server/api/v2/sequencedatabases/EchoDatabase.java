@@ -104,7 +104,7 @@ public class EchoDatabase extends AbstractSearchDomainService
         
         public void setSequenceIdentifier(String identifier)
         {
-            resultLoacation.setSequenceIdentifier(identifier);
+            resultLoacation.setIdentifier(identifier);
         }
         
         public void setPositionInSequence(int position)

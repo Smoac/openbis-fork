@@ -243,7 +243,7 @@ public final class DataSetTableTest extends AbstractBOTest
                         resultLocation.setDataSetCode(foundDataSet);
                         resultLocation.setPathInDataSet(foundDataSet + "/path");
                         resultLocation.setPositionInSequence(42);
-                        resultLocation.setSequenceIdentifier("id-" + foundDataSet);
+                        resultLocation.setIdentifier("id-" + foundDataSet);
                         result.setResultLocation(resultLocation);
                         results.add(result);
                     }

@@ -31,6 +31,7 @@ public enum DssPluginType implements IPluginType
     IMAGE_OVERVIEW_PLUGINS("image-overview-plugins", Constants.OVERVIEW_PLUGINS_SERVICES_LIST_KEY), 
     REPORTING_PLUGINS("reporting-plugins", Constants.REPORTING_PLUGIN_NAMES), 
     PROCESSING_PLUGINS("processing-plugins", Constants.PROCESSING_PLUGIN_NAMES),
+    SEARCH_DOMAIN_SERVICES("search-domain-services", Constants.SEARCH_DOMAIN_SERVICE_NAMES),
     MAINTENANCE_TASKS("maintenance-tasks", MaintenanceTaskUtils.DEFAULT_MAINTENANCE_PLUGINS_PROPERTY_NAME), 
     MISCELLANEOUS("miscellaneous", null);
 

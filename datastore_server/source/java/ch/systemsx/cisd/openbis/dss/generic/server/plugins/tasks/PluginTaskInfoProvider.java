@@ -90,8 +90,8 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
                 createProcessingPluginsFactories(serviceProperties, servletPropertiesManager,
                         datastoreCode, storeRoot);
         sequenceDatabasePlugins = createPluginsFactories(serviceProperties, servletPropertiesManager, 
-                datastoreCode, storeRoot, ISearchDomainService.class, "Sequence database", 
-                Constants.SEQUENCE_DATABASES_NAMES);
+                datastoreCode, storeRoot, ISearchDomainService.class, "Search domain service", 
+                Constants.SEARCH_DOMAIN_SERVICE_NAMES);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 

@@ -161,7 +161,7 @@ public class BlastDatabase extends AbstractSearchDomainService
                 {
                     SearchDomainSearchResult sequenceSearchResult = new SearchDomainSearchResult();
                     DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
-                    resultLocation.setSequenceIdentifier(matcher.group(1));
+                    resultLocation.setIdentifier(matcher.group(1));
                     resultLocation.setDataSetCode(matcher.group(2));
                     resultLocation.setPathInDataSet(matcher.group(3));
                     resultLocation.setPositionInSequence(parse(row[1]));

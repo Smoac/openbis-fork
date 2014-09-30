@@ -32,7 +32,7 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
     
     private String pathInDataSet;
     
-    private String sequenceIdentifier;
+    private String identifier;
     
     private int positionInSequence;
 
@@ -56,14 +56,14 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
         this.pathInDataSet = pathInDataSet;
     }
 
-    public String getSequenceIdentifier()
+    public String getIdentifier()
     {
-        return sequenceIdentifier;
+        return identifier;
     }
 
-    public void setSequenceIdentifier(String sequenceIdentifier)
+    public void setIdentifier(String sequenceIdentifier)
     {
-        this.sequenceIdentifier = sequenceIdentifier;
+        this.identifier = sequenceIdentifier;
     }
 
     public int getPositionInSequence()
@@ -80,7 +80,7 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
     public String toString()
     {
         return "Data set: " + dataSetCode + ", path: " + pathInDataSet 
-                + ", identifier: [" + sequenceIdentifier + "], position: " + positionInSequence;
+                + ", identifier: [" + identifier + "], position: " + positionInSequence;
     }
 
 
