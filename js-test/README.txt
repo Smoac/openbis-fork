@@ -1,3 +1,33 @@
+For development and bug fixing the tests have to run in a Web browser. 
+
+For this an openBIS instance has to start up. To get such a test instance running with all core-plugins with 
+the test suits the build file 'build.gradle' has to be temporarily modified (do not check in this change!): 
+Replace line 
+
+options.suites('source/java/tests.xml') 
+
+by
+
+options.suites('source/java/tests-dev.xml') 
+
+Then start up everything by executing in 'js-test'
+
+./gradlew test
+
+This will start up openBIS AS and two DSSs. Also the Web browser will open (URL: http://localhost:20000/openbis/)
+and user admin will be automatically logged in.
+
+Next choose a test suite in menu 'Utilities'. A tab will be opened which shows all tests.
+
+If a test fails you can click on the test and only the failed test will be shown.
+
+You can change the test code (e.g. in servers/common/core-plugins/tests/1/as/webapps/openbis-test/html/openbis-test.js).
+To see the changes you have to reload the frame (not the application) in the Web browser.
+
+
+
+==== The instructions below are probably out dated after the move from ANT to gradle
+
 To run js tests manually:
 - run create-webapp-common and run-webapp-common ant targets and wait until AS, DSS1 and DSS2 start up
 - login as admin to openBIS at http://localhost:20000/openbis/ using Firefox browser
