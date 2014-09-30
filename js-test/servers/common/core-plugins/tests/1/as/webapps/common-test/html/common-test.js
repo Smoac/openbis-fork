@@ -75,11 +75,19 @@ var assertObjectsCount = function(objects, count){
 	equal(objects.length, count, 'Got ' + count + ' object(s)');
 }
 
+var accessProperty = function(object, propertyName) {
+  var propertyNames = propertyName.split('.');
+  for (var pn in propertyNames) {
+    object = object[propertyNames[pn]];
+  }
+  return object;
+}
+
 var assertObjectsWithValues = function(objects, propertyName, propertyValues){
 	var values = {};
 	
 	$.each(objects, function(index, object){
-		var value = object[propertyName];
+		var value = accessProperty(object, propertyName);
 		if(value in values == false){
 			values[value] = true;
 		}
