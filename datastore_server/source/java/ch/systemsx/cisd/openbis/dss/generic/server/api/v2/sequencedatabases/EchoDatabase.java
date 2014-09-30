@@ -109,7 +109,7 @@ public class EchoDatabase extends AbstractSearchDomainService
         
         public void setPositionInSequence(int position)
         {
-            resultLoacation.setPositionInSequence(position);
+            resultLoacation.setPosition(position);
         }
     }
 }

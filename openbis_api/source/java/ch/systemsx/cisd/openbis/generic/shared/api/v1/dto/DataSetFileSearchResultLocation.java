@@ -34,7 +34,7 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
     
     private String identifier;
     
-    private int positionInSequence;
+    private int position;
 
     public String getDataSetCode()
     {
@@ -66,21 +66,21 @@ public class DataSetFileSearchResultLocation implements ISearchDomainResultLocat
         this.identifier = sequenceIdentifier;
     }
 
-    public int getPositionInSequence()
+    public int getPosition()
     {
-        return positionInSequence;
+        return position;
     }
 
-    public void setPositionInSequence(int positionInSequence)
+    public void setPosition(int positionInSequence)
     {
-        this.positionInSequence = positionInSequence;
+        this.position = positionInSequence;
     }
 
     @Override
     public String toString()
     {
         return "Data set: " + dataSetCode + ", path: " + pathInDataSet 
-                + ", identifier: [" + identifier + "], position: " + positionInSequence;
+                + ", identifier: [" + identifier + "], position: " + position;
     }
 
 

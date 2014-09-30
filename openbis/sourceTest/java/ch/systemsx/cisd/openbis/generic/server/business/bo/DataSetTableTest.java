@@ -242,7 +242,7 @@ public final class DataSetTableTest extends AbstractBOTest
                         DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
                         resultLocation.setDataSetCode(foundDataSet);
                         resultLocation.setPathInDataSet(foundDataSet + "/path");
-                        resultLocation.setPositionInSequence(42);
+                        resultLocation.setPosition(42);
                         resultLocation.setIdentifier("id-" + foundDataSet);
                         result.setResultLocation(resultLocation);
                         results.add(result);
