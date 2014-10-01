@@ -20,6 +20,48 @@ var FormUtil = new function() {
 	// Standard Form Fields
 	//
 	
+	this.getDropDownToogleWithSelectedFeedback = function(prefixElement, labelWithEvents, isSelectedFeedback) {
+		var $dropDownToogle = $('<span>', { class : 'dropdown' });
+		if(prefixElement) {
+			$dropDownToogle.append(prefixElement);
+		}
+		$dropDownToogle.append($('<a>', { 'href' : '#', 'data-toggle' : 'dropdown', 'class' : 'dropdown-toggle btn btn-default'}).append($('<b>', { 'class' : 'caret' })));
+		
+		var $dropDownToogleOptions = $('<ul>', { class : 'dropdown-menu', 'role' : 'menu' });
+		$dropDownToogle.append($dropDownToogleOptions);
+		
+		for(var i = 0; i < labelWithEvents.length; i++) {
+			
+			var selectedFeedback = $('<span>', { 'id' : 'dropdown-' + labelWithEvents[i].id });
+			
+			if(isSelectedFeedback && i === 0) {
+				selectedFeedback.append("<span class='glyphicon glyphicon-ok'></span>");
+			}
+			
+			var $a = $('<a>', { class : '', 'title' : labelWithEvents[i].title }).append(selectedFeedback).append('&nbsp;').append(labelWithEvents[i].title);
+			
+			var clickFunction = function(labelWithEvents, selectedIndex, isSelectedFeedback) {
+				return function() {
+					if(isSelectedFeedback) {
+						for(var j = 0; j < labelWithEvents.length; j++) {
+							if(j === selectedIndex) {
+								$("#" + 'dropdown-' + labelWithEvents[j].id).append("<span class='glyphicon glyphicon-ok'></span>");
+							} else {
+								$("#" + 'dropdown-' + labelWithEvents[j].id).empty();
+							}
+						}
+					}
+					
+					labelWithEvents[selectedIndex].href();
+				};
+			}
+			
+			$a.click(clickFunction(labelWithEvents, i, isSelectedFeedback));
+			$dropDownToogleOptions.append($('<li>', { 'role' : 'presentation' }).append($a));
+		}	
+		return $dropDownToogle;
+	}
+	
 	this.getDefaultBenchDropDown = function(id, isRequired) {
 		var $storageDropDown = this.getDefaultStoragesDropDown(id, isRequired);
 		if(!$storageDropDown) {

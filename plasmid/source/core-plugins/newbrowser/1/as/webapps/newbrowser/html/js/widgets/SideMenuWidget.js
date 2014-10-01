@@ -393,9 +393,50 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 					.append($("<span>", { "class" : "glyphicon glyphicon-resize-horizontal" }))
 				);
 		
+		var dropDownSearch = "";
+		var searchDomains = profile.getSearchDomains();
+		
+		if(searchDomains.length > 1) {
+			//Default Selected for the prefix
+			var defaultSelected = "";
+			if(searchDomains[0].label.length > 3) {
+				defaultSelected = searchDomains[0].label.substring(0, 2) + ".";
+			} else {
+				defaultSelected = searchDomains[0].label.label;
+			}
+			
+			//Prefix function
+			var selectedFunction = function(selectedSearchDomain) {
+				return function() {
+					var $component = $("#prefix-selected-search-domain");
+					$component.empty();
+					if(selectedSearchDomain.label.length > 3) {
+						$component.append(selectedSearchDomain.label.substring(0, 2) + ".");
+					} else {
+						$component.append(selectedSearchDomain.label);
+					}
+					$component.attr('selected-name', selectedSearchDomain.name);
+				};
+			}
+			
+			//Dropdown elements
+			var dropDownComponents = [];
+			for(var i = 0; i < searchDomains.length; i++) {
+				dropDownComponents.push({
+					href : selectedFunction(searchDomains[i]),
+					title : searchDomains[i].label,
+					id : searchDomains[i].name
+				});
+			}
+			
+			dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback($('<span>', { id : 'prefix-selected-search-domain', class : 'btn btn-default disabled', 'selected-name' :  searchDomains[0].name }).append(defaultSelected),dropDownComponents, true);
+		}
+		
 		var $searchForm = $("<li>")
 						.append($("<form>", { "class" : "navbar-form", "onsubmit" : "return false;"})
 									.append($("<input>", { "id" : "search", "type" : "text", "onkeyup" : "mainController.changeView(\"showSearchPage\", event.target.value);", "class" : "form-control search-query", "placeholder" : "Search"}))
+									.append('&nbsp;')
+									.append(dropDownSearch)
 								);
 		
 		var logoutButton = $("<a>", { "id" : "logout-button", "href" : "" }).append($("<span>", { "class" : "glyphicon glyphicon-off"}));

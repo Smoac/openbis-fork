@@ -154,6 +154,13 @@ function ServerFacade(openbisServer) {
 		}
 	}
 	
+	this.listSearchDomains = function(callbackFunction) {
+		if(this.openbisServer.listAvailableSearchDomains) {
+			this.openbisServer.listAvailableSearchDomains(callbackFunction);
+		} else {
+			callbackFunction();
+		}
+	}
 	//
 	// Others
 	//

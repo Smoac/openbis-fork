@@ -31,6 +31,7 @@ $.extend(DefaultProfile.prototype, {
 		// DEFAULTS, TYPICALLY DON'T TOUCH IF YOU DON'T KNOW WHAT YOU DO
 		//
 		
+		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 		this.inventorySpaces = [];
@@ -67,6 +68,10 @@ $.extend(DefaultProfile.prototype, {
 		this.storagesConfiguration = {
 			"isEnabled" : false
 		};
+		
+		this.getSearchDomains = function() {
+			return this.searchDomains;
+		}
 		
 		this.getDefaultDataStoreCode = function() {
 			var dataStoreCode = null;
@@ -493,6 +498,18 @@ $.extend(DefaultProfile.prototype, {
 			);
 		}
 		
+		this.initSearchDomains = function(callback) {
+			var _this = this;
+			this.serverFacade.listSearchDomains(function(data) {
+				if(data && data.result) {
+					for(var i = 0; i < data.result.length; i++) {
+						_this.searchDomains.push(data.result[i]);
+					}
+				}
+				callback();
+			});
+		}
+		
 		//
 		// Initializes
 		//
@@ -501,7 +518,9 @@ $.extend(DefaultProfile.prototype, {
 			
 			this.initPropertyTypes(function(){
 				_this.initVocabulariesForSampleTypes(function() {
-					callbackWhenDone();
+					_this.initSearchDomains(function() {
+						callbackWhenDone();
+					});
 				});
 			});
 		}
