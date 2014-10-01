@@ -425,7 +425,7 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				var tableFields = null;
 				var imageOnClick = "javascript:Util.showImage($('#preview"+sample.identifier.replace(/\//g,'-')+"').attr('src')); event.stopPropagation();";
 				var url = document.location.href;
-					url = url.substring(0,url.lastIndexOf("/") + 1);
+					url = url.substring(0,url.lastIndexOf("/?") + 1);
 				var sampleLink = "<a href='"+url+"?viewName=showViewSamplePageFromPermId&viewData=" + sample.permId + "&hideMenu=true' target='_blank'>" + sample.code + "</a>";
 				
 				if(localReference.isSearch) {
