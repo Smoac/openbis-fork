@@ -24,8 +24,7 @@ import com.google.gwt.user.client.Event;
 /**
  * Additional event codes.
  * <p>
- * Make sure that values assigned to constants declared here are unique and different than events
- * declared in {@link Event} and {@link Events}.
+ * Make sure that values assigned to constants declared here are unique and different than events declared in {@link Event} and {@link Events}.
  * </p>
  * 
  * @author Izabela Adamczyk
@@ -34,10 +33,8 @@ public class AppEvents
 {
 
     /**
-     * Useful links: <a href=
-     * "http://google-web-toolkit.googlecode.com/svn/javadoc/1.5/index.html?overview-summary.html"
-     * >GWT event constants</a>, <a href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT
-     * event constants</a>
+     * Useful links: <a href= "http://google-web-toolkit.googlecode.com/svn/javadoc/1.5/index.html?overview-summary.html" >GWT event constants</a>, <a
+     * href="http://extjs.com/deploy/gxtdocs/constant-values.html">GXT event constants</a>
      */
     private final static int STARTING_VALUE = 10;
 
@@ -51,6 +48,10 @@ public class AppEvents
     public static final EventType NAVI_EVENT = new EventType(STARTING_VALUE + 40);
 
     public static final EventType CloseViewer = new EventType(STARTING_VALUE + 70);
+
+    public static final EventType GLOBAL_SEARCH_STARTED_EVENT = new EventType(STARTING_VALUE + 80);
+
+    public static final EventType GLOBAL_SEARCH_FINISHED_EVENT = new EventType(STARTING_VALUE + 90);
 
     // opens a new browser window with a specified URL
     public static class OpenUrlEvent extends AppEvent

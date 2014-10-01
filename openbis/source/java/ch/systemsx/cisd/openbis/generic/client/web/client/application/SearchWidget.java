@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -24,7 +27,7 @@ import com.google.gwt.user.client.History;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.GlobalSearchTabItemFactory.ActionFinish;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
@@ -64,7 +67,7 @@ public final class SearchWidget extends LayoutContainer
     private final ButtonWithLoadingMask searchButton;
 
     private final EnterKeyListener enterKeyListener;
-    
+
     public SearchWidget(final IViewContext<ICommonClientServiceAsync> viewContext)
     {
         final TableRowLayout tableRowLayout = createLayout();
@@ -89,6 +92,25 @@ public final class SearchWidget extends LayoutContainer
         add(entityChooser);
         add(textField);
         add(searchButton);
+
+        Dispatcher.get().addListener(AppEvents.GLOBAL_SEARCH_STARTED_EVENT, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    searchButton.setEnabled(false);
+                }
+            });
+
+        Dispatcher.get().addListener(AppEvents.GLOBAL_SEARCH_FINISHED_EVENT, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    searchButton.setEnabled(true);
+                }
+            });
+
         layout();
     }
 
@@ -138,7 +160,7 @@ public final class SearchWidget extends LayoutContainer
         // reset the text field
         textField.setValue("");
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
-        
+
         if (viewContext.isSimpleOrEmbeddedMode())
         {
             // redirect to another URL
@@ -147,15 +169,8 @@ public final class SearchWidget extends LayoutContainer
             History.newItem(url);
         } else
         {
-            searchButton.setEnabled(false);
-            ActionFinish searchFinish = new ActionFinish() {
-                public void finish() {
-                    searchButton.setEnabled(true);
-                };
-            };
-            
             GlobalSearchTabItemFactory.openTabIfEntitiesFound(viewContext, selectedEntity,
-                    queryText, searchFinish);
+                    queryText);
         }
     }
 

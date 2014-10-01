@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
@@ -35,36 +37,32 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.dto.SearchableEntity;
 public class GlobalSearchTabItemFactory
 {
 
-    static class ActionFinish {
-        public void finish() {}
-    }
-    
     /**
      * opens a new tab if there are search results.
      */
     public static void openTabIfEntitiesFound(
             final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText, final ActionFinish actionFinish)
+            final SearchableEntity searchableEntity, final String queryText)
     {
 
-        openTab(viewContext, searchableEntity, queryText, false, actionFinish);
+        openTab(viewContext, searchableEntity, queryText, false);
     }
 
     /**
      * always opens a new tab, regardless if there were any search entities found.
      */
     public static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
-            final SearchableEntity searchableEntity, final String queryText, final ActionFinish actionFinish)
+            final SearchableEntity searchableEntity, final String queryText)
     {
 
-        openTab(viewContext, searchableEntity, queryText, true, actionFinish);
+        openTab(viewContext, searchableEntity, queryText, true);
     }
 
     private static void openTab(final IViewContext<ICommonClientServiceAsync> viewContext,
             final SearchableEntity searchableEntity, final String queryText,
-            final boolean openIfNoEntitiesFound,
-            final ActionFinish actionFinish)
+            final boolean openIfNoEntitiesFound)
     {
+        Dispatcher.get().fireEvent(AppEvents.GLOBAL_SEARCH_STARTED_EVENT);
 
         final boolean useWildcardSearchMode =
                 viewContext.getDisplaySettingsManager().isUseWildcardSearchMode();
@@ -87,10 +85,8 @@ public class GlobalSearchTabItemFactory
                 @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
-                    if(actionFinish != null) {
-                        actionFinish.finish();
-                    }
-                    
+                    Dispatcher.get().fireEvent(AppEvents.GLOBAL_SEARCH_FINISHED_EVENT);
+
                     if (firstCall == false)
                     {
                         return;
@@ -99,8 +95,8 @@ public class GlobalSearchTabItemFactory
                     if (matchingEntitiesGrid.getRowNumber() == 0)
                     {
                         Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
-                            { queryText, "", "off", } : new String[]
-                            { queryText, "not", "on" };
+                        { queryText, "", "off", } : new String[]
+                        { queryText, "not", "on" };
                         MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
                                 viewContext.getMessage(Dict.NO_MATCH, msgParameters), null);
 

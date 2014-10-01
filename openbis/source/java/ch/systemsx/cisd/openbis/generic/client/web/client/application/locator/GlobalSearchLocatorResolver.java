@@ -21,13 +21,11 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
 
     public final static String QUERY_PARAMETER_KEY = "query";
 
-
     public GlobalSearchLocatorResolver(IViewContext<ICommonClientServiceAsync> viewContext)
     {
         super(GLOBAL_SEARCH_ACTION);
         this.viewContext = viewContext;
     }
-
 
     @Override
     public void resolve(ViewLocator locator) throws UserFailureException
@@ -36,9 +34,8 @@ public class GlobalSearchLocatorResolver extends AbstractViewLocatorResolver
         // TODO KE: 2011-02-16 we should parse queries that can contain spaces
         final String queryText = getMandatoryParameter(locator, QUERY_PARAMETER_KEY);
 
-        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText, null);
+        GlobalSearchTabItemFactory.openTab(viewContext, selectedSearchableEntity, queryText);
     }
-
 
     private SearchableEntity getSearchableEntity(ViewLocator locator)
     {
