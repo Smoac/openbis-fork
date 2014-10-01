@@ -25,7 +25,7 @@ var FormUtil = new function() {
 		if(prefixElement) {
 			$dropDownToogle.append(prefixElement);
 		}
-		$dropDownToogle.append($('<a>', { 'href' : '#', 'data-toggle' : 'dropdown', 'class' : 'dropdown-toggle btn btn-default'}).append($('<b>', { 'class' : 'caret' })));
+		$dropDownToogle.append($('<button>', { 'href' : '#', 'data-toggle' : 'dropdown', 'class' : 'dropdown-toggle btn btn-default'}).append($('<b>', { 'class' : 'caret' })));
 		
 		var $dropDownToogleOptions = $('<ul>', { class : 'dropdown-menu', 'role' : 'menu' });
 		$dropDownToogle.append($dropDownToogleOptions);
@@ -44,10 +44,9 @@ var FormUtil = new function() {
 				return function() {
 					if(isSelectedFeedback) {
 						for(var j = 0; j < labelWithEvents.length; j++) {
+							$("#" + 'dropdown-' + labelWithEvents[j].id).empty();
 							if(j === selectedIndex) {
 								$("#" + 'dropdown-' + labelWithEvents[j].id).append("<span class='glyphicon glyphicon-ok'></span>");
-							} else {
-								$("#" + 'dropdown-' + labelWithEvents[j].id).empty();
 							}
 						}
 					}

@@ -161,6 +161,28 @@ function ServerFacade(openbisServer) {
 			callbackFunction();
 		}
 	}
+	
+	this.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchText, callbackFunction) {
+		
+		var optionalParametersOrNull = {
+				"SEQ-1" : JSON.stringify({
+					"searchDomain" : "Echo database",
+					"dataSetCode" : "20130412142205843-196",
+					"pathInDataSet" : "PATH-1",
+					"sequenceIdentifier" : "ID-1",
+					"positionInSequence" : "1"
+				}),
+				"SEQ-2" : JSON.stringify({
+					"searchDomain" : "Echo database",
+					"dataSetCode" : "20130415093804724-403",
+					"pathInDataSet" : "PATH-2",
+					"sequenceIdentifier" : "ID-2",
+					"positionInSequence" : "2"
+				})
+		}
+		
+		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, optionalParametersOrNull, callbackFunction);
+	}
 	//
 	// Others
 	//

@@ -886,10 +886,12 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 		}
 		
 		//filter samples to contain only samples from the selected type
-		this.samples = [];
-		for(var i = 0; i < this.allSamplesFromExperiment.length; i++) {
-			if(this.allSamplesFromExperiment[i].sampleTypeCode === this.sampleTypeCode) {
-				this.samples.push(this.allSamplesFromExperiment[i]);
+		if(this.sampleTypeCode != profile.searchType["TYPE"]) {
+			this.samples = [];
+			for(var i = 0; i < this.allSamplesFromExperiment.length; i++) {
+				if(this.allSamplesFromExperiment[i].sampleTypeCode === this.sampleTypeCode) {
+					this.samples.push(this.allSamplesFromExperiment[i]);
+				}
 			}
 		}
 		

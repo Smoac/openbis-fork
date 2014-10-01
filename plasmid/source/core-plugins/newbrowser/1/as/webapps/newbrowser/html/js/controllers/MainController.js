@@ -482,24 +482,39 @@ function MainController(profile) {
 				if(value.length < 3) {
 					var isOk = window.confirm("Are you sure you want to make a search with " + value.length +" characters? You can expect a lot of results.");
 					if(!isOk) {
+						$("#search").removeClass("search-query-searching");
 						return;
 					}
 				}
 				
-				//Update Main Container
-				var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
 				$("#search").addClass("search-query-searching");
-				localReference.serverFacade.searchWithText(value, function(data) {
-					if(localSearchId === localReference.lastSearchId) {
-						$("#search").removeClass("search-query-searching");
-						sampleTable.reloadWithSamples(data);
-						localReference.currentView = sampleTable;
-						Util.unblockUI();
-						history.pushState(null, "", ""); //History Push State
-					} else {
-						//Discard old response, was triggered but a new one was started
-					}
-				});
+				var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
+				if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
+					localReference.serverFacade.searchWithText(value, function(data) {
+						if(localSearchId === localReference.lastSearchId) {
+							$("#search").removeClass("search-query-searching");
+							//Update Main Container
+							var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
+							sampleTable.reloadWithSamples(data);
+							localReference.currentView = sampleTable;
+							Util.unblockUI();
+							history.pushState(null, "", ""); //History Push State
+						} else {
+							//Discard old response, was triggered but a new one was started
+						}
+					});
+				} else { //Search Domain
+					localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
+						if(localSearchId === localReference.lastSearchId) {
+							$("#search").removeClass("search-query-searching");
+							var asdf = 0;
+						} else {
+							//Discard old response, was triggered but a new one was started
+						}
+						
+					});
+				}
+				
 			} else {
 				//Discard it
 			}
