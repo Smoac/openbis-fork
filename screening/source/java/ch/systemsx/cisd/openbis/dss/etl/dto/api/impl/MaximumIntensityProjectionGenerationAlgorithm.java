@@ -106,7 +106,6 @@ public class MaximumIntensityProjectionGenerationAlgorithm implements IImageGene
 
     private int addImage(BufferedImage image)
     {
-        System.out.println("Adding image "+image.toString());
         if (result == null) {
             result = new BufferedImage(image.getWidth(),image.getHeight(), BufferedImage.TYPE_INT_RGB);
             for (int y=0; y<image.getHeight(); y++) {
