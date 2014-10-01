@@ -24,6 +24,7 @@ import ch.systemsx.cisd.common.shared.basic.string.CommaSeparatedListBuilder;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.BasicDataSetInformation;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.Channel;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorComponent;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.IImageGenerationAlgorithm;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
 
@@ -60,6 +61,8 @@ public class ImageDataSetInformation extends BasicDataSetInformation
     private Integer colorDepth;
 
     private final List<DataSetInformation> secondaryDataSets = new ArrayList<DataSetInformation>();
+
+    private IImageGenerationAlgorithm imageGenerationAlgorithm;
     
     public File getIncomingDirectory()
     {
@@ -221,5 +224,14 @@ public class ImageDataSetInformation extends BasicDataSetInformation
             appendNameAndObject(buffer, "thumbnail", "none");
         }
         return buffer.toString();
+    }
+
+    public void setAlgorithm(IImageGenerationAlgorithm imageGenerationAlgorithm)
+    {
+        this.imageGenerationAlgorithm = imageGenerationAlgorithm;
+    }
+    
+    public IImageGenerationAlgorithm getAlgorithm() {
+        return imageGenerationAlgorithm;
     }
 }

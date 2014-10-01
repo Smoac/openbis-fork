@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.etl.jython.v2;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.MICROSCOPY_CONTAINER_TYPE_SUBSTRING;
 import static ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants.MICROSCOPY_IMAGE_TYPE_SUBSTRING;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -28,6 +29,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.imageio.ImageIO;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -45,6 +48,7 @@ import ch.systemsx.cisd.openbis.dss.Constants;
 import ch.systemsx.cisd.openbis.dss.etl.Hdf5ThumbnailGenerator;
 import ch.systemsx.cisd.openbis.dss.etl.Utils;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageLibraryInfo;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.IImageGenerationAlgorithm;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ImageFileInfo;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.SimpleImageDataConfig;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ThumbnailsStorageFormat;
@@ -341,6 +345,29 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         }
 
         containedDataSetCodes.add(mainDataset.getDataSetCode());
+        
+        
+        IImageGenerationAlgorithm algorithm = imageDataSetInformation.getAlgorithm();
+        List<BufferedImage> images = algorithm != null ? algorithm.generateImages(imageDataSetInformation, imageDataSetStructure) : new ArrayList<BufferedImage>();
+        if (images.size() > 0) {
+            IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());
+            
+            int i=0;
+            for (BufferedImage imageData: images) {
+                String imageFile = createNewFile(representative, algorithm.getImageFileName(i));
+                File f = new File(imageFile);
+                try
+                {
+                   ImageIO.write(imageData, "png", f);
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+                i++;
+            }
+            containedDataSetCodes.add(representative.getDataSetCode());
+            thumbnailDatasets.add(representative);
+        }
 
         for (IDataSet thumbnailDataset : thumbnailDatasets)
         {
@@ -353,7 +380,7 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         containerDataset.setThumbnailDatasets(thumbnailDatasets);
         String containerDataSetCode = containerDataset.getDataSetCode();
         imageDataSetInformation.setContainerDatasetPermId(containerDataSetCode);
-
+        
         return containerDataset;
     }
 

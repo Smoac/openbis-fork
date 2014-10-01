@@ -47,6 +47,8 @@ abstract public class SimpleImageDataConfig
 {
     // --- one of the following two methods has to be overridden -----------------
 
+    private IImageGenerationAlgorithm imageGenerationAlgorithm;
+
     /**
      * Extracts tile number, channel code and well code for a given relative path to a single image.
      * This method should overridden to deal with files containing single images. It is ignored if
@@ -997,5 +999,12 @@ abstract public class SimpleImageDataConfig
     {
         this.colorDepth = colorDepth;
     }
+    
+    public IImageGenerationAlgorithm getImageGenerationAlgorithm() {
+        return imageGenerationAlgorithm;
+    }
 
+    public void setImageGenerationAlgorithm(IImageGenerationAlgorithm algorithm) {
+        this.imageGenerationAlgorithm = algorithm;
+    }
 }
