@@ -164,17 +164,18 @@ function ServerFacade(openbisServer) {
 	
 	this.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchText, callbackFunction) {
 		
+		//TO-DO: For testing please put codes that exist in your database and you can access, the rest leave it as it is, when done just pass null to the function.
 		var optionalParametersOrNull = {
 				"SEQ-1" : JSON.stringify({
 					"searchDomain" : "Echo database",
-					"dataSetCode" : "20130412142205843-196",
+					"dataSetCode" : "20140616154459356-4796",
 					"pathInDataSet" : "PATH-1",
 					"sequenceIdentifier" : "ID-1",
 					"positionInSequence" : "1"
 				}),
 				"SEQ-2" : JSON.stringify({
 					"searchDomain" : "Echo database",
-					"dataSetCode" : "20130415093804724-403",
+					"dataSetCode" : "20140813104632498-5273",
 					"pathInDataSet" : "PATH-2",
 					"sequenceIdentifier" : "ID-2",
 					"positionInSequence" : "2"
