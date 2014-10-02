@@ -507,7 +507,10 @@ function MainController(profile) {
 					localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 						if(localSearchId === localReference.lastSearchId) {
 							$("#search").removeClass("search-query-searching");
-							var asdf = 0;
+							var dataGrid = new DataGridController(localReference, null);
+							localReference.currentView = dataGrid;
+							dataGrid.init($("#mainContainer"));
+							history.pushState(null, "", ""); //History Push State
 						} else {
 							//Discard old response, was triggered but a new one was started
 						}
