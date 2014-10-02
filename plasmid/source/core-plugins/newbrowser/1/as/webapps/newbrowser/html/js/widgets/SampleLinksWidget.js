@@ -59,6 +59,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		
 		var sampleTypeAnnotations = this.stateObj[sample.permId];
 		if(!sampleTypeAnnotations) {
+			sampleTypeAnnotations = {};
 			this.stateObj[sample.permId] = sampleTypeAnnotations;
 		}
 		
