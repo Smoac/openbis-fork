@@ -26,6 +26,8 @@ public interface IDataStoreServiceFactory
 {
     public IDataStoreService create(String serverURL);
 
+    public IDataStoreService create(String serverURL, long timeout);
+    
     /**
      * Creates a monitored version of the service where
      * {@link IDataStoreService#cleanupSession(String)} is run asynchronously.

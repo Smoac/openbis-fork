@@ -112,9 +112,11 @@ public class SearchLocatorResolver extends AbstractViewLocatorResolver
                     }
                 } else
                 {
-                    DetailedSearchCriterion searchCriterion =
-                            getSearchCriterionForKeyValueAndEntityKind(key, value);
-                    criterionList.add(searchCriterion);
+                    if (key.startsWith("ui-") == false) {
+                        DetailedSearchCriterion searchCriterion =
+                                getSearchCriterionForKeyValueAndEntityKind(key, value);
+                        criterionList.add(searchCriterion);
+                    }
                 }
             }
 

@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.listen
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewContext;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPlugin;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.plugin.IClientPluginFactory;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.util.IDelegatedAction;
@@ -39,6 +40,8 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
 
     private final boolean keyPressed;
 
+    private final String subtab;
+
     public OpenEntityDetailsTabAction(IEntityInformationHolderWithPermId entity,
             final IViewContext<?> viewContext)
     {
@@ -48,9 +51,16 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
     public OpenEntityDetailsTabAction(IEntityInformationHolderWithPermId entity,
             final IViewContext<?> viewContext, boolean keyPressed)
     {
+        this(entity, viewContext, keyPressed, "");
+    }
+
+    public OpenEntityDetailsTabAction(IEntityInformationHolderWithPermId entity,
+            final IViewContext<?> viewContext, boolean keyPressed, String subtab)
+    {
         this.entity = entity;
         this.viewContext = viewContext;
         this.keyPressed = keyPressed;
+        this.subtab = subtab;
     }
 
     @Override
@@ -64,6 +74,34 @@ public final class OpenEntityDetailsTabAction implements IDelegatedAction
         final IClientPlugin<BasicEntityType, IEntityInformationHolderWithPermId> createClientPlugin =
                 clientPluginFactory.createClientPlugin(entityKind);
         final AbstractTabItemFactory tabView = createClientPlugin.createEntityViewer(entity);
+
+        String tabGroupDisplayId = null;
+
+        switch (entityKind)
+        {
+            case DATA_SET:
+                tabGroupDisplayId = DisplayTypeIDGenerator.GENERIC_DATASET_VIEWER.createID(entityType.getCode());
+                break;
+            case EXPERIMENT:
+                tabGroupDisplayId = DisplayTypeIDGenerator.GENERIC_EXPERIMENT_VIEWER.createID(entityType.getCode());
+                break;
+            case MATERIAL:
+                tabGroupDisplayId = DisplayTypeIDGenerator.GENERIC_MATERIAL_VIEWER.createID(entityType.getCode());
+                break;
+            case SAMPLE:
+                tabGroupDisplayId = DisplayTypeIDGenerator.GENERIC_SAMPLE_VIEWER.createID(entityType.getCode());
+                break;
+            default:
+                break;
+        }
+
+        if (subtab != null && subtab.length() > 0 && tabGroupDisplayId != null)
+        {
+            viewContext.getDisplaySettingsManager().storeActiveTabSettings(
+                    tabGroupDisplayId,
+                    subtab, null);
+        }
+
         tabView.setInBackground(keyPressed);
 
         DispatcherHelper.dispatchNaviEvent(tabView);

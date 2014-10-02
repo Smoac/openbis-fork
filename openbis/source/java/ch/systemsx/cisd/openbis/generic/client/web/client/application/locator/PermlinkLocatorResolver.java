@@ -1,5 +1,8 @@
 package ch.systemsx.cisd.openbis.generic.client.web.client.application.locator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
@@ -62,10 +65,26 @@ public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
             checkRequiredParameter(entityKindValueOrNull,
                     PermlinkUtilities.ENTITY_KIND_PARAMETER_KEY);
             checkRequiredParameter(permIdValueOrNull, PermlinkUtilities.PERM_ID_PARAMETER_KEY);
-            openInitialEntityViewer(entityKindValueOrNull, permIdValueOrNull);
+            
+            String subtab = parseHistoryToken(locator.getHistoryToken()).get(PermlinkUtilities.SUBTAB_PARAMETER_KEY);
+            
+            openInitialEntityViewer(entityKindValueOrNull, permIdValueOrNull, subtab);
         }
     }
+    
+    private Map<String, String> parseHistoryToken(String token) {
+        Map<String, String> map = new HashMap<String,String>();
 
+        for (String parameter : token.split("&")) {
+            String[] keyval = parameter.split("=", 2);
+            if (keyval.length == 2) {
+                map.put(keyval[0], keyval[1]);
+            }
+        }
+        
+        return map;
+    }
+    
     protected String tryGetEntityKind(ViewLocator locator)
     {
         return locator.tryGetEntity();
@@ -93,8 +112,14 @@ public class PermlinkLocatorResolver extends AbstractViewLocatorResolver
     protected void openInitialEntityViewer(String entityKindValue, String permIdValue)
             throws UserFailureException
     {
-        EntityKind entityKind = getEntityKind(entityKindValue);
-        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permIdValue, false);
+        openInitialEntityViewer(entityKindValue, permIdValue, "");
     }
+    
+    protected void openInitialEntityViewer(String entityKindValue, String permIdValue, String subtab)
+            throws UserFailureException
+    {
+        EntityKind entityKind = getEntityKind(entityKindValue);
+        OpenEntityDetailsTabHelper.open(viewContext, entityKind, permIdValue, false, subtab);
+    }    
 
 }

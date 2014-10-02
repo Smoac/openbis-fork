@@ -320,7 +320,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(null));
 
-                    one(dssfactory).create(URL);
+                    one(dssfactory).create(URL, 300000L);
                     will(returnValue(dataStoreService));
 
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
@@ -389,7 +389,7 @@ public class ETLServiceTest extends AbstractServerTestCase
                     one(dataStoreDAO).tryToFindDataStoreByCode(DSS_CODE);
                     will(returnValue(new DataStorePE()));
 
-                    one(dssfactory).create(URL);
+                    one(dssfactory).create(URL, 300000L);
                     will(returnValue(dataStoreService));
 
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);
@@ -466,7 +466,7 @@ public class ETLServiceTest extends AbstractServerTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dssfactory).create(URL);
+                    one(dssfactory).create(URL, 300000L);
                     will(returnValue(dataStoreService));
 
                     one(dataStoreService).getVersion(DSS_SESSION_TOKEN);

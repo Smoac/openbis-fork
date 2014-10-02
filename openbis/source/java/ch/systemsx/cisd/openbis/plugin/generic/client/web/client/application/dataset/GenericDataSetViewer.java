@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithActivation;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
@@ -75,7 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * @author Piotr Buczek
  */
 abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSplit<AbstractExternalData>
-        implements IDatabaseModificationObserver
+        implements IDatabaseModificationObserver, IComponentWithActivation
 {
     public static final String PREFIX = "generic-dataset-viewer_";
 
@@ -86,6 +87,8 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     protected final TechId datasetId;
 
     private boolean toolbarInitialized;
+
+    private SectionsPanel rightPanel;
 
     public static DatabaseModificationAwareComponent create(
             final IViewContext<IGenericClientServiceAsync> localViewContext,
@@ -249,7 +252,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         return new DataSetPropertiesPanel(dataset, getViewContext());
     }
 
-    private final Component createRightPanel(final AbstractExternalData dataset)
+    private final SectionsPanel createRightPanel(final AbstractExternalData dataset)
     {
         final IViewContext<?> context = getViewContext();
         final SectionsPanel container =
@@ -298,7 +301,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
         return container;
     }
 
-    private static final class DataSetInfoCallback extends AbstractAsyncCallback<AbstractExternalData>
+    private final class DataSetInfoCallback extends AbstractAsyncCallback<AbstractExternalData>
     {
         private final GenericDataSetViewer genericDataSetViewer;
 
@@ -335,7 +338,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
             genericDataSetViewer.add(leftPanel, genericDataSetViewer.createLeftBorderLayoutData());
             genericDataSetViewer.configureLeftPanel(leftPanel);
             // Right panel
-            final Component rightPanel = genericDataSetViewer.createRightPanel(result);
+            rightPanel = genericDataSetViewer.createRightPanel(result);
             genericDataSetViewer.add(rightPanel, createRightBorderLayoutData());
 
             genericDataSetViewer.layout();
@@ -543,5 +546,14 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     protected String getDeleteButtonLabel()
     {
         return viewContext.getMessage(Dict.BUTTON_DELETE_DATA_SET);
+    }
+
+    @Override
+    public void activate()
+    {
+        if (rightPanel != null)
+        {
+            rightPanel.tryApplyDisplaySettings();
+        }
     }
 }

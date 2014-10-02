@@ -47,8 +47,8 @@ public class DefaultTabItem implements ITabItem
     private final boolean isCloseConfirmationNeeded;
 
     /**
-     * Creates a tab with the specified {@link Component}. The tab is unaware of database
-     * modifications and will not be automatically refreshed if changes occur.
+     * Creates a tab with the specified {@link Component}. The tab is unaware of database modifications and will not be automatically refreshed if
+     * changes occur.
      */
     public static ITabItem createUnaware(final String title, final Component component,
             boolean isCloseConfirmationNeeded, IViewContext<?> viewContext)
@@ -58,9 +58,8 @@ public class DefaultTabItem implements ITabItem
     }
 
     /**
-     * Creates a tab with the specified {@link Component} and updater action. The updater action
-     * will be invoked when this tab is selected. Note, that this tab is unaware of database
-     * modifications and will not be automatically refreshed if changes occur.
+     * Creates a tab with the specified {@link Component} and updater action. The updater action will be invoked when this tab is selected. Note, that
+     * this tab is unaware of database modifications and will not be automatically refreshed if changes occur.
      */
     public static ITabItem createWithUpdater(final String title, final Component component,
             IDelegatedAction updater, IViewContext<?> viewContext)
@@ -69,8 +68,8 @@ public class DefaultTabItem implements ITabItem
     }
 
     /**
-     * Creates a tab with the specified {@link ContentPanel}. The tab is unaware of database
-     * modifications and will not be automatically refreshed if changes occur.
+     * Creates a tab with the specified {@link ContentPanel}. The tab is unaware of database modifications and will not be automatically refreshed if
+     * changes occur.
      */
     public static ITabItem createUnaware(final ContentPanel component,
             boolean isCloseConfirmationNeeded, IViewContext<?> viewContext)
@@ -87,8 +86,8 @@ public class DefaultTabItem implements ITabItem
     }
 
     /**
-     * Creates a tab with the specified component. The tab is aware of database modifications and
-     * will be automatically refreshed if relevant changes take place.
+     * Creates a tab with the specified component. The tab is aware of database modifications and will be automatically refreshed if relevant changes
+     * take place.
      */
     public static ITabItem create(final String title,
             final DatabaseModificationAwareComponent component, IViewContext<?> viewContext,
@@ -194,6 +193,11 @@ public class DefaultTabItem implements ITabItem
         {
             lastModificationStateUpdaterOrNull.update();
         }
+        if (component instanceof IComponentWithActivation)
+        {
+            ((IComponentWithActivation) component).activate();
+        }
+
         GWTUtils.updatePageTitle(getTabTitleUpdater().getCurrentTitle());
     }
 

@@ -97,12 +97,12 @@ public class DataSet<T extends DataSetInformation> extends AbstractDataSetImmuta
             if (contents.length > 1)
             {
                 throw new IllegalArgumentException(
-                        "Data set is ambiguous -- there are more than one potential candidates:"
+                        "Data set is ambiguous -- there are more than one potential candidates. transaction.moveFile() might have been called several times:"
                                 + Arrays.toString(contents));
             }
             if (contents.length < 1)
             {
-                throw new IllegalArgumentException("Data set is empty: "
+                throw new IllegalArgumentException("Data set is empty. transaction.moveFile() might have been ommitted: "
                         + registrationDetails.getDataSetInformation());
             }
             return contents[0];

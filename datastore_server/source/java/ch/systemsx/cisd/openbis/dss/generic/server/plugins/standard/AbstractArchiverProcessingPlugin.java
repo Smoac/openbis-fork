@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -82,6 +83,8 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public static final String SYNCHRONIZE_ARCHIVE = "synchronize-archive";
 
+    public static final String BATCH_SIZE_IN_BYTES = "batch-size-in-bytes";
+
     private final IStatusChecker archivePrerequisiteOrNull;
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
@@ -95,6 +98,11 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     @Private
     transient IDataSetStatusUpdater statusUpdater;
 
+    /**
+     * Total size in bytes of data sets processed in a single batch of archiver.
+     */
+    private final int maximumBatchSizeInBytes;
+
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
     {
@@ -102,6 +110,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
         this.synchronizeArchive = PropertyUtils.getBoolean(properties, SYNCHRONIZE_ARCHIVE, true);
+        this.maximumBatchSizeInBytes = PropertyUtils.getInt(properties, BATCH_SIZE_IN_BYTES, 1024 * 1024 * 1024);
     }
 
     /**
@@ -141,14 +150,65 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         operationLog.info("Archiving of the following datasets has been requested: "
                 + CollectionUtils.abbreviate(datasets, 10));
 
-        DatasetProcessingStatuses statuses = safeArchive(datasets, context, removeFromDataStore);
+        DatasetProcessingStatuses finalstatuses = new DatasetProcessingStatuses();
+
+        try
+        {
+            initializeDatasetSizesIfNeeded(datasets);
+        } catch (Throwable t)
+        {
+            String errorMessage = "Archiving failed to calculate dataset sizes:" + t.getMessage();
+            operationLog.error(errorMessage, t);
+            Status errorStatus = Status.createError(errorMessage);
+            return createStatuses(errorStatus, datasets, Operation.ARCHIVE).getProcessingStatus();
+        }
+
+        for (List<DatasetDescription> datasetGroup : splitIntoGroups(datasets, maximumBatchSizeInBytes))
+        {
+            DatasetProcessingStatuses statuses = archiveSingleBatch(context, removeFromDataStore, finalstatuses, datasetGroup);
+            finalstatuses.addResults(statuses);
+        }
+
+        return finalstatuses.getProcessingStatus();
+    }
+
+    private List<List<DatasetDescription>> splitIntoGroups(List<DatasetDescription> datasets, long minGroupSize)
+    {
+        List<List<DatasetDescription>> results = new LinkedList<List<DatasetDescription>>();
+
+        List<DatasetDescription> currentResult = new LinkedList<DatasetDescription>();
+
+        long runningSum = 0;
+        for (DatasetDescription dataset : datasets)
+        {
+            currentResult.add(dataset);
+            runningSum += dataset.getDataSetSize();
+            if (runningSum > minGroupSize)
+            {
+                results.add(currentResult);
+                runningSum = 0;
+                currentResult = new LinkedList<DatasetDescription>();
+            }
+        }
+        if (false == currentResult.isEmpty())
+        {
+            results.add(currentResult);
+        }
+        return results;
+    }
+
+    private DatasetProcessingStatuses archiveSingleBatch(final ArchiverTaskContext context, boolean removeFromDataStore,
+            DatasetProcessingStatuses finalstatuses,
+            List<DatasetDescription> singleBatch)
+    {
+        DatasetProcessingStatuses statuses = safeArchive(singleBatch, context, removeFromDataStore);
 
         DataSetArchivingStatus successStatus = (removeFromDataStore) ? ARCHIVED : AVAILABLE;
 
         asyncUpdateStatuses(statuses.getSuccessfulDatasetCodes(), successStatus, true);
         asyncUpdateStatuses(statuses.getFailedDatasetCodes(), AVAILABLE, false);
 
-        return statuses.getProcessingStatus();
+        return statuses;
     }
 
     private void initializeDatasetSizesIfNeeded(List<DatasetDescription> datasets)
@@ -183,7 +243,6 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             try
             {
-                initializeDatasetSizesIfNeeded(datasets);
                 statuses = unsafeArchive(datasets, context, removeFromDataStore);
             } catch (Throwable t)
             {
@@ -393,6 +452,25 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             this.processingStatus = new ProcessingStatus();
         }
 
+        public void addResults(DatasetProcessingStatuses otherStatuses)
+        {
+            ProcessingStatus otherProcessingStatus = otherStatuses.getProcessingStatus();
+
+            for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(Status.OK))
+            {
+                addResultQuietly(datasetCode, Status.OK);
+            }
+
+            for (Status error : otherProcessingStatus.getErrorStatuses())
+            {
+                for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(error))
+                {
+                    addResultQuietly(datasetCode, error);
+                }
+            }
+
+        }
+
         public void addResult(Collection<DatasetDescription> datasets, Status status,
                 Operation operation)
         {
@@ -422,6 +500,18 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             processingStatus.addDatasetStatus(datasetCode, status);
         }
 
+        private void addResultQuietly(String datasetCode, Status status)
+        {
+            if (status.isError())
+            {
+                failedDatasetCodes.add(datasetCode);
+            } else
+            {
+                successfulDatasetCodes.add(datasetCode);
+            }
+            processingStatus.addDatasetStatus(datasetCode, status);
+        }
+
         private String createLogMessage(String datasetCode, Status status, String operation)
         {
             return String.format("%s for dataset %s finished with the status: %s.", operation,
@@ -442,6 +532,29 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         {
             return processingStatus;
         }
+    }
+
+    protected final static DatasetProcessingStatuses createStatuesFailIfAnyFailed(DatasetProcessingStatuses statuses)
+    {
+        if (statuses.getFailedDatasetCodes().isEmpty())
+            return statuses;
+        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
+
+        ProcessingStatus otherProcessingStatus = statuses.getProcessingStatus();
+
+        for (Status error : otherProcessingStatus.getErrorStatuses())
+        {
+            for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(error))
+            {
+                result.addResultQuietly(datasetCode, error);
+            }
+        }
+
+        for (String datasetCode : otherProcessingStatus.getDatasetsByStatus(Status.OK))
+        {
+            result.addResultQuietly(datasetCode, Status.createError("Successful, but part of a failed batch."));
+        }
+        return result;
     }
 
     protected final static DatasetProcessingStatuses createStatuses(Status status,

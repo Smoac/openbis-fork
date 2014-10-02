@@ -250,6 +250,7 @@
         <constructor-arg ref="managed-property-evaluator-factory" />
         <property name="conversationClient" ref="service-conversation-client-manager" />
         <property name="conversationServer" ref="service-conversation-server-manager" />
+        <property name="timeout" value="${server-timeout-in-minutes}" />
     </bean>
     
     <bean id="etl-entity-operation-checker" class="ch.systemsx.cisd.openbis.generic.server.ETLEntityOperationChecker"/>
