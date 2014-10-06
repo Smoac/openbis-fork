@@ -22,8 +22,11 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.BeforeMethod;
@@ -34,8 +37,17 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.dataset.DataSetCodeId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.ExperimentIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.material.MaterialCodeAndTypeCodeId;
@@ -495,6 +507,218 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     {
         return new GeneralInformationServiceUtil(generalInformationService,
                 generalInformationChangingService);
+    }
+
+    @Test
+    public void testDeleteProject()
+    {
+        testDeletePermanent(new ProjectDeleteAction(), new ProjectListDeletedAction());
+    }
+
+    @Test
+    public void testDeleteExperientPermanent()
+    {
+        testDeletePermanent(new ExperimentDeleteAction(), new ExperimentListDeletedAction());
+    }
+
+    @Test
+    public void testDeleteExperientTrash()
+    {
+        testDeleteTrash(new ExperimentDeleteAction(), new ExperimentListDeletedAction());
+    }
+
+    @Test
+    public void testDeleteSamplePermanent()
+    {
+        testDeletePermanent(new SampleDeleteAction(), new SampleListDeletedAction());
+    }
+
+    @Test
+    public void testDeleteSampleTrash()
+    {
+        testDeleteTrash(new SampleDeleteAction(), new SampleListDeletedAction());
+    }
+
+    @Test
+    public void testDeleteDataSetPermanent()
+    {
+        testDeletePermanent(new DataSetDeleteAction(), new DataSetListDeletedAction());
+    }
+
+    @Test
+    public void testDeleteDataSetTrash()
+    {
+        testDeletePermanent(new DataSetDeleteAction(), new DataSetListDeletedAction());
+    }
+
+    private class ProjectDeleteAction implements DeleteAction<Project>
+    {
+        @Override
+        public void delete(Project project, String reason, DeletionType deletionType)
+        {
+            generalInformationChangingService.deleteProjects(sessionToken, Collections.singletonList(project.getId()), reason);
+        }
+    }
+
+    private class ProjectListDeletedAction implements ListDeletedAction<Project>
+    {
+        @Override
+        public List<Project> list()
+        {
+            List<Project> projects = generalInformationService.listProjects(sessionToken);
+            for (Project project : projects)
+            {
+                if (project.getIdentifier().equals("/TEST-SPACE/PROJECT-TO-DELETE"))
+                {
+                    return Collections.singletonList(project);
+                }
+            }
+            return Collections.emptyList();
+        }
+    }
+
+    private class ExperimentDeleteAction implements DeleteAction<Experiment>
+    {
+        @Override
+        public void delete(Experiment experiment, String reason, DeletionType deletionType)
+        {
+            generalInformationChangingService.deleteExperiments(sessionToken, Collections.singletonList(experiment.getId()), reason,
+                    deletionType);
+        }
+    }
+
+    private class ExperimentListDeletedAction implements ListDeletedAction<Experiment>
+    {
+        @Override
+        public List<Experiment> list()
+        {
+            return generalInformationService.listExperiments(sessionToken, Collections.singletonList("/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE"));
+        }
+    }
+
+    private class SampleDeleteAction implements DeleteAction<Sample>
+    {
+        @Override
+        public void delete(Sample sample, String reason, DeletionType deletionType)
+        {
+            generalInformationChangingService.deleteSamples(sessionToken, Collections.singletonList(sample.getId()), reason,
+                    deletionType);
+        }
+    }
+
+    private class SampleListDeletedAction implements ListDeletedAction<Sample>
+    {
+        @Override
+        public List<Sample> list()
+        {
+            SearchCriteria criteria = new SearchCriteria();
+            criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "SAMPLE-TO-DELETE"));
+            return generalInformationService.searchForSamples(sessionToken, criteria);
+        }
+    }
+
+    private class DataSetDeleteAction implements DeleteAction<DataSet>
+    {
+        @Override
+        public void delete(DataSet dataSet, String reason, DeletionType deletionType)
+        {
+            generalInformationChangingService.deleteDataSets(sessionToken, Collections.singletonList(dataSet.getCode()), reason,
+                    deletionType);
+        }
+    }
+
+    private class DataSetListDeletedAction implements ListDeletedAction<DataSet>
+    {
+        @Override
+        public List<DataSet> list()
+        {
+            SearchCriteria criteria = new SearchCriteria();
+            criteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.CODE, "DATASET-TO-DELETE"));
+            return generalInformationService.searchForDataSets(sessionToken, criteria);
+        }
+    }
+
+    private <T> void testDeleteTrash(DeleteAction<T> deleteAction, ListDeletedAction<T> listAction)
+    {
+        List<T> beforeObjects = listAction.list();
+        List<Deletion> beforeDeletions = generalInformationService.listDeletions(sessionToken, null);
+
+        Assert.assertEquals(1, beforeObjects.size());
+
+        // move an object to trash
+        T deletedObject = beforeObjects.get(0);
+        String reason = "Test delete to trash: " + deletedObject;
+        deleteAction.delete(deletedObject, reason, DeletionType.TRASH);
+
+        List<T> afterObjects = listAction.list();
+        List<Deletion> afterDeletions = generalInformationService.listDeletions(sessionToken, null);
+        Deletion deletion = afterDeletions.get(afterDeletions.size() - 1);
+
+        // the object should not be listed and a new deletion should be appear
+        Assert.assertEquals(0, afterObjects.size());
+        Assert.assertEquals(beforeDeletions.size() + 1, afterDeletions.size());
+        Assert.assertEquals(reason, deletion.getReasonOrNull());
+
+        // revert the logical deletion
+        generalInformationChangingService.revertDeletions(sessionToken, Collections.singletonList(deletion.getId()));
+
+        afterObjects = listAction.list();
+        afterDeletions = generalInformationService.listDeletions(sessionToken, null);
+
+        // the object should be listed again and the deletion should be gone
+        Assert.assertEquals(1, afterObjects.size());
+        Assert.assertEquals(beforeDeletions.size(), afterDeletions.size());
+
+        // move the object again to trash
+        deleteAction.delete(deletedObject, reason, DeletionType.TRASH);
+
+        afterObjects = listAction.list();
+        afterDeletions = generalInformationService.listDeletions(sessionToken, null);
+        deletion = afterDeletions.get(afterDeletions.size() - 1);
+
+        // the object should be gone again and a new deletion should appear
+        Assert.assertEquals(0, afterObjects.size());
+        Assert.assertEquals(beforeDeletions.size() + 1, afterDeletions.size());
+        Assert.assertEquals(reason, deletion.getReasonOrNull());
+
+        // permanently confirm the deletion
+        generalInformationChangingService.deletePermanently(sessionToken, Collections.singletonList(deletion.getId()));
+
+        afterObjects = listAction.list();
+        afterDeletions = generalInformationService.listDeletions(sessionToken, null);
+
+        // both the object and the deletion should be gone
+        Assert.assertEquals(0, afterObjects.size());
+        Assert.assertEquals(beforeDeletions.size(), afterDeletions.size());
+    }
+
+    private <T> void testDeletePermanent(DeleteAction<T> deleteAction, ListDeletedAction<T> listAction)
+    {
+        List<T> beforeObjects = listAction.list();
+        List<Deletion> beforeDeletions = generalInformationService.listDeletions(sessionToken, null);
+
+        Assert.assertEquals(1, beforeObjects.size());
+
+        // delete an object permanently
+        T deletedObject = beforeObjects.get(0);
+        deleteAction.delete(deletedObject, "Test delete permanently: " + deletedObject, DeletionType.PERMANENT);
+
+        List<T> afterObjects = listAction.list();
+        List<Deletion> afterDeletions = generalInformationService.listDeletions(sessionToken, null);
+
+        // the object should be gone and no new deletions should appear
+        Assert.assertEquals(0, afterObjects.size());
+        Assert.assertEquals(beforeDeletions.size(), afterDeletions.size());
+    }
+
+    private interface DeleteAction<T>
+    {
+        public void delete(T object, String reason, DeletionType deletionType);
+    }
+
+    private interface ListDeletedAction<T>
+    {
+        public List<T> list();
     }
 
 }

@@ -32,6 +32,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -53,7 +55,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.project.IProjectId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
-
 
 /**
  * Service for retrieving general informations.
@@ -399,28 +400,26 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<DataSetFetchOption> fetchOptions);
 
     /**
-     * Searches on a search domain. If no preferred search domain is specified the first available one will be used. 
-     * If the preferred sequence search domain doesn't exist or isn't available also the first available one will be used.
+     * Searches on a search domain. If no preferred search domain is specified the first available one will be used. If the preferred sequence search
+     * domain doesn't exist or isn't available also the first available one will be used.
      * 
      * @param preferredSearchDomainOrNull The key of the preferred search domain or <code>null</code>.
      * @param searchString The search string.
-     * @param optionalParametersOrNull Optional parameters. Can be <code>null</code>. 
-     *          The semantics depends on the type of search domain.
+     * @param optionalParametersOrNull Optional parameters. Can be <code>null</code>. The semantics depends on the type of search domain.
      * @since 1.29
      */
-    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, 
-            String preferredSearchDomainOrNull, String searchString, 
+    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken,
+            String preferredSearchDomainOrNull, String searchString,
             Map<String, String> optionalParametersOrNull);
-    
+
     /**
-     * Lists available search domains. Their name attribute can be used when invoking 
-     * {@link #searchOnSearchDomain(String, String, String, Map)}.
+     * Lists available search domains. Their name attribute can be used when invoking {@link #searchOnSearchDomain(String, String, String, Map)}.
      * 
      * @return empty list if no search domain is available.
      * @since 1.29
      */
     public List<SearchDomain> listAvailableSearchDomains(String sessionToken);
-    
+
     /**
      * Return all data sets matching specified search criteria. Note, that for returned container data sets the contained data sets have only code,
      * type and registration date set.
@@ -429,7 +428,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.8
      */
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
-    
+
     /**
      * Return all data sets matching specified search criteria and visible to user <var>userId</var>. Note, that for returned container data sets the
      * contained data sets have only code, type and registration date set.
@@ -550,7 +549,7 @@ public interface IGeneralInformationService extends IRpcService
             boolean allVersions);
 
     public Map<String, String> getUserDisplaySettings(final String sessionToken);
-    
+
     /**
      * Lists property types.
      * 
@@ -558,7 +557,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.26
      */
     public List<PropertyType> listPropertyTypes(String sessionToken, boolean withRelations);
-    
+
     /**
      * Generate Code.
      * 
@@ -567,5 +566,14 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.28
      */
     public String generateCode(String sessionToken, String prefix, String entityKind);
-}
 
+    /**
+     * Returns all deletions.
+     * 
+     * @param fetchOptions Options that control which parts of the deletions are fetched.
+     * @return a sorted list of {@link Deletion}.
+     * @since 1.30
+     */
+    public List<Deletion> listDeletions(String sessionToken, EnumSet<DeletionFetchOption> fetchOptions);
+
+}

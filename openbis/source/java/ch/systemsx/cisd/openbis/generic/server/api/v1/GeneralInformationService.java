@@ -83,6 +83,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -144,7 +146,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 29;
+    public static final int MINOR_VERSION = 30;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -966,14 +968,14 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
         return result;
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
     {
         checkSession(sessionToken);
-        
+
         return commonServer.listAvailableSearchDomains(sessionToken);
     }
 
@@ -1331,4 +1333,22 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
         return new EntityCodeGenerator(getDAOFactory()).generateCode(prefix, EntityKind.valueOf(entityKind));
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public List<Deletion> listDeletions(String sessionToken, EnumSet<DeletionFetchOption> fetchOptions)
+    {
+        if (fetchOptions != null && fetchOptions.contains(DeletionFetchOption.ALL_ENTITIES))
+        {
+            return Translator.translate(commonServer.listDeletions(sessionToken, true));
+        } else if (fetchOptions != null && fetchOptions.contains(DeletionFetchOption.ORIGINAL_ENTITIES))
+        {
+            return Translator.translate(commonServer.listOriginalDeletions(sessionToken));
+        } else
+        {
+            return Translator.translate(commonServer.listDeletions(sessionToken, false));
+        }
+    }
+
 }

@@ -153,7 +153,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
                 }
             });
         assertEquals(
-                "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
+                "[/CISD/DEFAULT, /CISD/NEMO, /CISD/NOE, /TEST-SPACE/NOE, /TEST-SPACE/PROJECT-TO-DELETE, /TEST-SPACE/TEST-PROJECT, /TESTGROUP/TESTPROJ]",
                 projects.toString());
 
         loginAsObserver();
@@ -820,7 +820,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         SearchCriteria criteria = new SearchCriteria();
         List<Sample> samples = generalInformationService.searchForSamples(sessionToken, criteria);
-        assertEquals(700, samples.size());
+        assertEquals(701, samples.size());
     }
 
     @Test
@@ -1355,7 +1355,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
     {
         SearchCriteria criteria = new SearchCriteria();
         List<DataSet> dataSets = generalInformationService.searchForDataSets(sessionToken, criteria);
-        assertEquals(30, dataSets.size());
+        assertEquals(31, dataSets.size());
     }
 
     @Test
@@ -1457,7 +1457,7 @@ public class GeneralInformationServiceTest extends SystemTestCase
         List<Experiment> experiments =
                 generalInformationService.searchForExperiments(sessionToken, searchCriteria);
 
-        assertEntities("[/CISD/NOE/EXP-TEST-2, /TEST-SPACE/NOE/EXP-TEST-2]", experiments);
+        assertEntities("[/CISD/NOE/EXP-TEST-2, /TEST-SPACE/NOE/EXP-TEST-2, /TEST-SPACE/NOE/EXPERIMENT-TO-DELETE]", experiments);
     }
 
     @Test

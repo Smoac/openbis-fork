@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -297,7 +299,7 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, String preferredSearchDomainOrNull, 
+    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, String preferredSearchDomainOrNull,
             String searchString, Map<String, String> optionalParametersOrNull)
     {
         logAccess(sessionToken, "search-on-search-domain", "PREFERRED_SEARCH_DOMAIN(%s) SEARCH_STRING(%s)",
@@ -496,4 +498,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
         logAccess(sessionToken, "generateCode", "sessionToken(%s) prefix(%s) entityKind(%s)", sessionToken, prefix, entityKind);
         return null;
     }
+
+    @Override
+    public List<Deletion> listDeletions(String sessionToken, EnumSet<DeletionFetchOption> fetchOptions)
+    {
+        logAccess(sessionToken, "listDeletions", "fetchOptions(%s)", fetchOptions);
+        return null;
+    }
+
 }

@@ -37,6 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
@@ -59,7 +60,7 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    public static final int MINOR_VERSION = 5;
+    public static final int MINOR_VERSION = 6;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
@@ -283,4 +284,53 @@ public class GeneralInformationChangingService extends
 
         return info;
     }
+
+    @Override
+    public void deleteProjects(String sessionToken, List<Long> projectIds, String reason)
+    {
+        server.deleteProjects(sessionToken, TechId.createList(projectIds), reason);
+    }
+
+    @Override
+    public void deleteExperiments(String sessionToken, List<Long> experimentIds, String reason, DeletionType deletionType)
+    {
+        server.deleteExperiments(sessionToken, TechId.createList(experimentIds), reason, Translator.translate(deletionType));
+    }
+
+    @Override
+    public void deleteSamples(String sessionToken, List<Long> sampleIds, String reason, DeletionType deletionType)
+    {
+        server.deleteSamples(sessionToken, TechId.createList(sampleIds), reason, Translator.translate(deletionType));
+    }
+
+    @Override
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason, DeletionType deletionType)
+    {
+        server.deleteDataSets(sessionToken, dataSetCodes, reason, Translator.translate(deletionType), false);
+    }
+
+    @Override
+    public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason, DeletionType deletionType)
+    {
+        server.deleteDataSetsForced(sessionToken, dataSetCodes, reason, Translator.translate(deletionType), false);
+    }
+
+    @Override
+    public void revertDeletions(String sessionToken, List<Long> deletionIds)
+    {
+        server.revertDeletions(sessionToken, TechId.createList(deletionIds));
+    }
+
+    @Override
+    public void deletePermanently(String sessionToken, List<Long> deletionIds)
+    {
+        server.deletePermanently(sessionToken, TechId.createList(deletionIds));
+    }
+
+    @Override
+    public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds)
+    {
+        server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
+    }
+
 }

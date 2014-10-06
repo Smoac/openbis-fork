@@ -16,12 +16,14 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
@@ -165,6 +167,56 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
                 sessionKey);
 
         return null;
+    }
+
+    @Override
+    public void deleteProjects(String sessionToken, List<Long> projectIds, String reason)
+    {
+        logAccess(sessionToken, "deleteProjects", "projectIds(%s), reason(%s)", abbreviate(projectIds), reason);
+    }
+
+    @Override
+    public void deleteExperiments(String sessionToken, List<Long> experimentIds, String reason, DeletionType deletionType)
+    {
+        logAccess(sessionToken, "deleteExperiments", "experimentIds(%s), reason(%s), deletionType(%s)", abbreviate(experimentIds), reason,
+                deletionType);
+    }
+
+    @Override
+    public void deleteSamples(String sessionToken, List<Long> sampleIds, String reason, DeletionType deletionType)
+    {
+        logAccess(sessionToken, "deleteSamples", "sampleIds(%s), reason(%s), deletionType(%s)", abbreviate(sampleIds), reason, deletionType);
+    }
+
+    @Override
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason, DeletionType deletionType)
+    {
+        logAccess(sessionToken, "deleteDataSets", "dataSetCodes(%s), reason(%s), deletionType(%s)", abbreviate(dataSetCodes), reason, deletionType);
+    }
+
+    @Override
+    public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason, DeletionType deletionType)
+    {
+        logAccess(sessionToken, "deleteDataSetsForced", "dataSetCodes(%s), reason(%s), deletionType(%s)", abbreviate(dataSetCodes), reason,
+                deletionType);
+    }
+
+    @Override
+    public void revertDeletions(String sessionToken, List<Long> deletionIds)
+    {
+        logAccess(sessionToken, "revertDeletions", "deletionIds(%s)", abbreviate(deletionIds));
+    }
+
+    @Override
+    public void deletePermanently(String sessionToken, List<Long> deletionIds)
+    {
+        logAccess(sessionToken, "deletePermanently", "deletionIds(%s)", abbreviate(deletionIds));
+    }
+
+    @Override
+    public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds)
+    {
+        logAccess(sessionToken, "deletePermanentlyForced", "deletionIds(%s)", abbreviate(deletionIds));
     }
 
     @Override
