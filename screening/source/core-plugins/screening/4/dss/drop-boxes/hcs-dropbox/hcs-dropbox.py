@@ -1,6 +1,7 @@
 import os
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import SimpleImageDataConfig
-from ch.systemsx.cisd.openbis.dss.etl.dto.api.v1 import ImageMetadata
+from ch.systemsx.cisd.openbis.dss.etl.dto.api import ChannelColor
+from ch.systemsx.cisd.openbis.dss.etl.dto.api import SimpleImageDataConfig
+from ch.systemsx.cisd.openbis.dss.etl.dto.api import ImageMetadata
 from ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto import Geometry
 
 SPACE_CODE = "TEST"
@@ -68,6 +69,13 @@ class MyImageDataSetConfig(SimpleImageDataConfig):
         image_tokens.channelCode = channelCode
         return image_tokens
     
+    def getChannelColor(self, channelCode):
+        dict = { "GFP" : ChannelColor.GREEN, "DAPI" : ChannelColor.BLUE, "CY3" : ChannelColor.RED }
+        if channelCode in dict:
+            return dict[channelCode]
+        else:
+            return None    
+        
     def getTileGeometry(self, imageTokens, maxTileNumber):
         return Geometry.createFromRowColDimensions(maxTileNumber / 3, 3)    
 
