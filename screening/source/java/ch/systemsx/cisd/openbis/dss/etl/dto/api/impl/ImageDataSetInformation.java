@@ -226,12 +226,12 @@ public class ImageDataSetInformation extends BasicDataSetInformation
         return buffer.toString();
     }
 
-    public void setAlgorithm(IImageGenerationAlgorithm imageGenerationAlgorithm)
+    public void setImageGenerationAlgorithm(IImageGenerationAlgorithm imageGenerationAlgorithm)
     {
         this.imageGenerationAlgorithm = imageGenerationAlgorithm;
     }
     
-    public IImageGenerationAlgorithm getAlgorithm() {
+    public IImageGenerationAlgorithm getImageGenerationAlgorithm() {
         return imageGenerationAlgorithm;
     }
 }

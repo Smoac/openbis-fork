@@ -33,6 +33,7 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.etlserver.registrator.DataSetRegistrationDetails;
 import ch.systemsx.cisd.etlserver.registrator.api.v2.IDataSet;
@@ -346,28 +347,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
         containedDataSetCodes.add(mainDataset.getDataSetCode());
         
-        
-        IImageGenerationAlgorithm algorithm = imageDataSetInformation.getAlgorithm();
-        List<BufferedImage> images = algorithm != null ? algorithm.generateImages(imageDataSetInformation, imageDataSetStructure) : new ArrayList<BufferedImage>();
-        if (images.size() > 0) {
-            IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());
-            
-            int i=0;
-            for (BufferedImage imageData: images) {
-                String imageFile = createNewFile(representative, algorithm.getImageFileName(i));
-                File f = new File(imageFile);
-                try
-                {
-                   ImageIO.write(imageData, "png", f);
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-                i++;
-            }
-            containedDataSetCodes.add(representative.getDataSetCode());
-            thumbnailDatasets.add(representative);
-        }
+        createRepresentativeThumbnailByImageGenerationAlgorithm(imageDataSetInformation, imageDataSetStructure, 
+                containedDataSetCodes, thumbnailDatasets);
 
         for (IDataSet thumbnailDataset : thumbnailDatasets)
         {
@@ -382,6 +363,36 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
         imageDataSetInformation.setContainerDatasetPermId(containerDataSetCode);
         
         return containerDataset;
+    }
+
+    private void createRepresentativeThumbnailByImageGenerationAlgorithm(ImageDataSetInformation imageDataSetInformation,
+            ImageDataSetStructure imageDataSetStructure, List<String> containedDataSetCodes, List<IDataSet> thumbnailDatasets)
+    {
+        IImageGenerationAlgorithm algorithm = imageDataSetInformation.getImageGenerationAlgorithm();
+        if (algorithm == null)
+        {
+            return;
+        }
+        List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, imageDataSetStructure);
+        if (images.size() > 0) {
+            IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());
+            for (int i = 0; i < images.size(); i++)
+            {
+                BufferedImage imageData = images.get(i);
+                String imageFile = createNewFile(representative, algorithm.getImageFileName(i));
+                File f = new File(imageFile);
+                try
+                {
+                   ImageIO.write(imageData, "png", f);
+                } catch (IOException e)
+                {
+                    throw new EnvironmentFailureException("Can not save representative thumbnail to file '" 
+                            + f + "': " + e, e);
+                }
+            }
+            containedDataSetCodes.add(representative.getDataSetCode());
+            thumbnailDatasets.add(representative);
+        }
     }
 
     @SuppressWarnings("unchecked")
