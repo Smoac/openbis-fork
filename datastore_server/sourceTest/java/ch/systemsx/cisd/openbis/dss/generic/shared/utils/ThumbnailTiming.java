@@ -45,7 +45,7 @@ public class ThumbnailTiming
         BufferedImage image = ImageUtil.loadImage(file);
         stopWatch.stop();
         stopWatch.start("Convert");
-        BufferedImage thumbnail = ImageUtil.createThumbnailForDisplay(image, 120, 60);
+        BufferedImage thumbnail = ImageUtil.createThumbnailForDisplay(image, 120, 60, null);
         stopWatch.stop();
         stopWatch.start("Write");
         try

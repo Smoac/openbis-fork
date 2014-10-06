@@ -31,9 +31,11 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.PixelHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.common.image.MixColors;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -394,86 +396,54 @@ public class ImageChannelsUtils
             AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
             Float threshold)
     {
-        BufferedImage image = calculateSingleImage(imageReference);
-        image = transform(image, imageReference, transformationInfo);
-        image = ImageUtil.convertForDisplayIfNecessary(image, threshold);
-        image = convertTo8Bit(image);
-        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-        if (channel != null)
-        {
-            final ChannelColorRGB channelColor = imageReference.getChannelColor();
-            image = transformColor(image, createColorTransformation(channel, channelColor));
-        }
-        return image;
-    }
-    
-    private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
-    {
-        long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
         BufferedImage image = imageReference.getUnchangedImage();
-        
-        if (operationLog.isDebugEnabled())
-        {
-            operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
-        }
-
-        // resized the image if necessary
-        RequestedImageSize requestedSize = imageReference.getRequestedSize();
-
-        Size size = requestedSize.tryGetThumbnailSize();
-        if (size != null)
-        {
-            start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
-            boolean enlarge = requestedSize.enlargeIfNecessary();
-            boolean highQuality8Bit = requestedSize.isHighQualityRescalingRequired();
-            image = ImageUtil.rescale(image, size.getWidth(), size.getHeight(), enlarge, highQuality8Bit);
-            if (highQuality8Bit == false)
-            {
-                image = ImageUtil.convertForDisplayIfNecessary(image, null);
-            }
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
-            }
-        }
-
-        // choose color component if necessary
-        final ColorComponent colorComponentOrNull = imageReference.tryGetColorComponent();
-        if (colorComponentOrNull != null)
-        {
-            start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
-            image = transformToChannel(image, colorComponentOrNull);
-            if (operationLog.isDebugEnabled())
-            {
-                operationLog.debug("Select single channel: " + (System.currentTimeMillis() - start));
-            }
-        }
+        image = rescaleIfNot8Bit(image, threshold);
+        image = resize(image, imageReference.getRequestedSize());
+        image = extractChannel(image, imageReference.tryGetColorComponent());
+        image = transform(image, imageReference, transformationInfo, threshold);
+        image = transformGrayToColor(image, imageReference.getChannelColor());
         return image;
     }
-    
-    private static BufferedImage convertTo8Bit(BufferedImage image)
+
+    private static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
     {
-        Pixels pixels = DssScreeningUtils.createPixels(image);
-        int[][] pixelData = pixels.getPixelData();
-        int maxIntensity = 0;
-        for (int[] colorChannelPixels : pixelData)
-        {
-            for (int intensity : colorChannelPixels)
-            {
-                if (intensity > maxIntensity)
-                {
-                    maxIntensity = intensity;
-                }
-            }
-        }
-        if (maxIntensity < 256)
+        if (ImageUtil.getMaxNumberOfBitsPerComponent(image) <= 8)
         {
             return image;
         }
-        Levels levels = new Levels(0, maxIntensity < 4096 ? 4096 : 1 << 16);
+        Pixels pixels = DssScreeningUtils.createPixels(image);
+        float thresholdValue = getThresholdValue(threshold);
+        Levels levels = IntensityRescaling.computeLevels(pixels, thresholdValue, Channel.values());
         return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
     }
+
+    private static float getThresholdValue(Float threshold)
+    {
+        return threshold == null ? ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold;
+    }
     
+    private static BufferedImage transformGrayToColor(BufferedImage image, final ChannelColorRGB channelColor)
+    {
+        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+        if (channel == null)
+        {
+            return image;
+        }
+        return transformColor(image, createColorTransformation(channel, channelColor));
+    }
+    
+    private static BufferedImage resize(BufferedImage image, RequestedImageSize requestedSize)
+    {
+        Size size = requestedSize.tryGetThumbnailSize();
+        if (size == null)
+        {
+            return image;
+        }
+        boolean enlarge = requestedSize.enlargeIfNecessary();
+        boolean highQuality8Bit = requestedSize.isHighQualityRescalingRequired();
+        return ImageUtil.rescale(image, size.getWidth(), size.getHeight(), enlarge, highQuality8Bit, DssScreeningUtils.CONVERTER);
+    }
+
     private static IColorTransformation createColorTransformation(final Channel channel, final ChannelColorRGB channelColor)
     {
         return new IColorTransformation()
@@ -516,29 +486,19 @@ public class ImageChannelsUtils
             ImageTransformationParams transformationInfo,
             IImageTransformerFactory mergedChannelTransformationOrNull)
     {
-        // We do not transform single images here.
-        IImageCalculator calculator = createCalculator(transformationInfo);
-        List<ImageWithReference> images = calculateSingleImages(imageReferences, calculator);
-        for (int i = 0; i < images.size(); i++)
+        assert transformationInfo != null;
+        List<ImageWithReference> images = new ArrayList<ImageWithReference>();
+        for (AbsoluteImageReference imageReference : imageReferences)
         {
-            ImageWithReference imageWithReference = images.get(i);
-            BufferedImage image = imageWithReference.getBufferedImage();
-            AbsoluteImageReference imageReference = imageWithReference.getReference();
-            Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-            if (channel != null)
-            {
-                final ChannelColorRGB channelColor = imageReference.getChannelColor();
-                image = transformColor(image, createColorTransformation(channel, channelColor));
-                imageWithReference.setImage(image);
-            }
+            images.add(new ImageWithReference(imageReference.getUnchangedImage(), imageReference));
         }
-        
+        calculateImagesForMerging(images, transformationInfo);
         BufferedImage mergedImage = mergeImages(images);
         
         // non-user transformation - apply color range fix after mixing
         Map<String, String> transMap = transformationInfo.tryGetTransformationCodeForChannels();
         IImageTransformerFactory channelTransformation = mergedChannelTransformationOrNull;
-        if ((transMap == null || transMap.size() == 0) && channelTransformation == null) 
+        if ((transMap == null || transMap.isEmpty()) && channelTransformation == null) 
         {
             Levels levels = IntensityRescaling.computeLevels(DssScreeningUtils.createPixels(mergedImage), 30);
             int minLevel = levels.getMinLevel();
@@ -555,33 +515,37 @@ public class ImageChannelsUtils
         return mergedImage;
     }
 
-    private static IImageCalculator createCalculator(final ImageTransformationParams transformationInfo)
+    private static void calculateImagesForMerging(List<ImageWithReference> images, ImageTransformationParams transformationInfo)
     {
-        return new IImageCalculator()
-            {
-                @Override
-                public BufferedImage create(AbsoluteImageReference imageContent)
-                {
-                    boolean applyNonImageLevelTransformation = false;
-                    String transformationCode = null;
-                    if (transformationInfo != null)
-                    {
-                        String channelCode = imageContent.tryGetChannelCode();
-                        transformationCode = transformationInfo.tryGetTransformationCodeForChannel(channelCode);
-                        if (transformationCode != null)
-                        {
-                            applyNonImageLevelTransformation = transformationInfo.isApplyNonImageLevelTransformation();
-                        }
-                    }
-                    ImageTransformationParams info = new ImageTransformationParams(applyNonImageLevelTransformation,
-                            false, transformationCode, null);
-                    return calculateAndTransformSingleImageForDisplay(imageContent, info, null);
-                }
-            };
+        for (ImageWithReference imageWithReference : images)
+        {
+            BufferedImage image = imageWithReference.getBufferedImage();
+            AbsoluteImageReference imageReference = imageWithReference.getReference();
+            image = rescaleIfNot8Bit(image, 0f);
+            image = resize(image, imageReference.getRequestedSize());
+            image = transformForChannel(image, imageReference, transformationInfo);
+            image = transformGrayToColor(image, imageReference.getChannelColor());
+            imageWithReference.setImage(image);
+        }
+    }
+
+    private static BufferedImage transformForChannel(BufferedImage image, AbsoluteImageReference imageReference,
+            ImageTransformationParams transformationInfo)
+    {
+        String channelCode = imageReference.tryGetChannelCode();
+        String transformationCode = transformationInfo.tryGetTransformationCodeForChannel(channelCode);
+        boolean applyNonImageLevelTransformation = false;
+        if (transformationCode != null)
+        {
+            applyNonImageLevelTransformation = transformationInfo.isApplyNonImageLevelTransformation();
+        }
+        ImageTransformationParams info 
+                = new ImageTransformationParams(applyNonImageLevelTransformation, false, transformationCode, null);
+        return transform(image, imageReference, info, 0f);
     }
 
 	private static BufferedImage transform(BufferedImage image,
-            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo)
+            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo, Float threshold)
     {
         BufferedImage resultImage = image;
         ImageTransfomationFactories transformations = imageReference.getImageTransformationFactories();
@@ -615,7 +579,7 @@ public class ImageChannelsUtils
             if (channelLevelTransformationOrNull == null)
             {
                 channelLevelTransformationOrNull = new AutoRescaleIntensityImageTransformerFactory(
-                                ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
+                                getThresholdValue(threshold));
             }
         }
         return applyImageTransformation(resultImage, channelLevelTransformationOrNull);
@@ -629,8 +593,8 @@ public class ImageChannelsUtils
             return image;
         }
         IImageTransformer transformer = transformerFactoryOrNull.createTransformer();
-        BufferedImage transformImage = transformer.transform(image);
-        return transformImage;
+        BufferedImage transformedImage = transformer.transform(image);
+        return transformedImage;
     }
 
     private static List<ImageWithReference> calculateSingleImages(List<AbsoluteImageReference> imageContents, 
@@ -771,8 +735,12 @@ public class ImageChannelsUtils
     /**
      * Transforms the given <var>bufferedImage</var> by selecting a single channel from it.
      */
-    public static BufferedImage transformToChannel(BufferedImage bufferedImage, final ColorComponent colorComponent)
+    public static BufferedImage extractChannel(BufferedImage bufferedImage, final ColorComponent colorComponent)
     {
+        if (colorComponent == null)
+        {
+            return bufferedImage;
+        }
         return transformColor(bufferedImage, new IColorTransformation()
             {
                 @Override

@@ -25,6 +25,7 @@ import loci.formats.gui.Index16ColorModel;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+import ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
@@ -39,6 +40,15 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Trans
  */
 public class DssScreeningUtils
 {
+    public static final IImageToPixelsConverter CONVERTER = new IImageToPixelsConverter()
+        {
+            @Override
+            public Pixels convert(BufferedImage image)
+            {
+                return createPixels(image);
+            }
+        };
+
     private static IImagingReadonlyQueryDAO query;
 
     static
@@ -82,7 +92,7 @@ public class DssScreeningUtils
                         ScreeningConstants.IMAGING_DATA_SOURCE);
         return QueryTool.getQuery(dataSource, IImagingTransformerDAO.class);
     }
-
+    
     /**
      * Creates {@link Pixels} wrapper object for the specified image which can also handle
      * 16bit index color models. Such color models are used when reading Nikon microscopy
@@ -116,5 +126,4 @@ public class DssScreeningUtils
                 }
             };
     }
-
 }

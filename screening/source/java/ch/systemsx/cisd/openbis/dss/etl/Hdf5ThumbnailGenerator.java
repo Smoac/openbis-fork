@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ImageTransformat
 import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
 
 /**
@@ -444,7 +445,7 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
         }
 
         boolean highQuality = thumbnailsStorageFormat.isHighQuality();
-        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality);
+        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality, DssScreeningUtils.CONVERTER);
         
         final List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
         for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
@@ -475,26 +476,14 @@ public class Hdf5ThumbnailGenerator implements IHDF5WriterClient
     private BufferedImage applyTransformationsChain(BufferedImage image,
             ColorComponent colorComponent, IImageTransformer transformer)
     {
-        return applyTransformationIfNeeded(extractSingleChannelIfNeeded(image, colorComponent),
-                transformer);
+        BufferedImage extractedChannelImage = ImageChannelsUtils.extractChannel(image, colorComponent);
+        return applyTransformationIfNeeded(extractedChannelImage, transformer);
     }
 
     private BufferedImage applyTransformationsChain(BufferedImage image, String channelCode,
             ColorComponent colorComponent)
     {
-        return applyTransformationsChain(image, colorComponent,
-                tryCreateImageTransformer(channelCode));
-    }
-
-    private static BufferedImage extractSingleChannelIfNeeded(BufferedImage image,
-            ColorComponent colorComponent)
-    {
-        if (colorComponent != null)
-        {
-            return ImageChannelsUtils.transformToChannel(image, colorComponent);
-        }
-
-        return image;
+        return applyTransformationsChain(image, colorComponent, tryCreateImageTransformer(channelCode));
     }
 
     private static BufferedImage applyTransformationIfNeeded(BufferedImage image,

@@ -157,7 +157,7 @@ public class ImageDebugViewer
         System.out.println("\\_________ " + title);
     }
     
-    private static String tryGetTypeAsString(BufferedImage image)
+    public static String tryGetTypeAsString(BufferedImage image)
     {
         int type = image.getType();
         return type >= 0 && type < IMAGE_TYPES.length ? IMAGE_TYPES[type] : null;

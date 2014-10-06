@@ -200,12 +200,16 @@ public class IntensityRescaling
         int[][] pixelData = pixels.getPixelData();
         for (Channel channel : channels)
         {
-            int[] channelPixelData = pixelData[channel.getBand()];
-            for (int i = 0; i < channelPixelData.length; i++)
+            int band = channel.getBand();
+            if (band < pixelData.length)
             {
-                histogramArray[channelPixelData[i]]++;
+                int[] channelPixelData = pixelData[band];
+                for (int i = 0; i < channelPixelData.length; i++)
+                {
+                    histogramArray[channelPixelData[i]]++;
+                }
+                histogram.pixelCount += channelPixelData.length;
             }
-            histogram.pixelCount += channelPixelData.length;
         }
     }
 
@@ -331,6 +335,11 @@ public class IntensityRescaling
             return height;
         }
 
+    }
+    
+    public static interface IImageToPixelsConverter
+    {
+        public Pixels convert(BufferedImage image);
     }
 
     /**

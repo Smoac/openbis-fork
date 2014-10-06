@@ -49,6 +49,8 @@ class MicroscopySingleDatasetConfig(SimpleImageContainerDataConfig):
 
         # Disable thumbnail generation by ImageMagick
         self.setUseImageMagicToGenerateThumbnails(False)
+        
+        self.setGenerateHighQuality8BitThumbnails(True)
 
         # Enable thumbnail generation
         self.setGenerateThumbnails(True)
@@ -89,7 +91,7 @@ class MicroscopySingleDatasetConfig(SimpleImageContainerDataConfig):
             name = "No name"
 
         # Return the color
-        return Channel(channelCode, name)
+        return Channel(channelCode, name, self._getChannelColorRGB(channelCode))
 
 
     def extractImagesMetadata(self, imagePath, imageIdentifiers):
@@ -143,7 +145,7 @@ class MicroscopySingleDatasetConfig(SimpleImageContainerDataConfig):
         return metaData
 
 
-    def getChannelColorRGB(self, channelCode):
+    def _getChannelColorRGB(self, channelCode):
         """Returns a ChannelColorRGB instantiated with the RGB color components
         extracted from the file by the MetadataReader.
 
