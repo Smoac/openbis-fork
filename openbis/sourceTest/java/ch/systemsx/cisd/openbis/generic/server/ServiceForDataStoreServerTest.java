@@ -74,7 +74,7 @@ public class ServiceForDataStoreServerTest extends SystemTestCase
                 etlService.listPhysicalDataSetsWithUnknownSize(sessionToken, "STANDARD", 100, null);
         List<AbstractExternalData> updatedDataSets = etlService.listDataSetsByCode(sessionToken, Arrays.asList("20081105092159188-3"));
 
-        Assert.assertEquals(19, dataSetsWithUnknownSize.size());
+        Assert.assertEquals(20, dataSetsWithUnknownSize.size());
         Assert.assertEquals("20081105092159222-2", dataSetsWithUnknownSize.get(0).getDataSetCode());
         Assert.assertEquals("VALIDATIONS_PARENT-28", dataSetsWithUnknownSize.get(dataSetsWithUnknownSize.size() - 1).getDataSetCode());
 

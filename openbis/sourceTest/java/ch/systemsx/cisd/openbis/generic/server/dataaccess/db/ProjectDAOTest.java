@@ -62,9 +62,11 @@ public class ProjectDAOTest extends AbstractDAOTest
     public static final String NEMO = "NEMO";
 
     public static final String DEFAULT = "DEFAULT";
+    
+    public static final String PROJECT_TO_DELETE = "PROJECT-TO-DELETE";
 
     static final String[] PRELOADED_PROJECTS =
-    { DEFAULT, NEMO, NOE, NOE, TEST_PROJECT, TESTPROJ };
+    { DEFAULT, NEMO, NOE, NOE, PROJECT_TO_DELETE, TEST_PROJECT, TESTPROJ };
 
     @Test
     public void testListProjects()
@@ -75,7 +77,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         {
             assertEquals(PRELOADED_PROJECTS[i], projects.get(i).getCode());
         }
-        assertEquals(6, projects.size());
+        assertEquals(PRELOADED_PROJECTS.length, projects.size());
     }
 
     @Test(dependsOnMethods = "testListProjects")
@@ -99,7 +101,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     {
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
-        final ProjectPE testProject = allProjects.get(5);
+        final ProjectPE testProject = allProjects.get(6);
         assertEquals(testProject.getCode(), TESTPROJ);
         final List<ProjectPE> groupProjects =
                 daoFactory.getProjectDAO().listProjects(testProject.getSpace());
@@ -113,7 +115,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     {
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
-        final ProjectPE templateProject = allProjects.get(5);
+        final ProjectPE templateProject = allProjects.get(6);
 
         assertEquals(templateProject.getCode(), TESTPROJ);
 
@@ -128,7 +130,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     {
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
-        final ProjectPE templateProject = allProjects.get(5);
+        final ProjectPE templateProject = allProjects.get(6);
         assertEquals(templateProject.getCode(), TESTPROJ);
 
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
@@ -145,7 +147,7 @@ public class ProjectDAOTest extends AbstractDAOTest
         Collections.sort(allProjects);
 
         final ProjectPE noe = allProjects.get(2);
-        final ProjectPE testproj = allProjects.get(5);
+        final ProjectPE testproj = allProjects.get(6);
 
         assertEquals(noe.getCode(), NOE);
         assertEquals(testproj.getCode(), TESTPROJ);
@@ -196,7 +198,7 @@ public class ProjectDAOTest extends AbstractDAOTest
     {
         final List<ProjectPE> allProjects = daoFactory.getProjectDAO().listProjects();
         Collections.sort(allProjects);
-        final ProjectPE templateProject = allProjects.get(5);
+        final ProjectPE templateProject = allProjects.get(6);
         assertEquals(templateProject.getCode(), TESTPROJ);
         AssertJUnit.assertNull(daoFactory.getProjectDAO().tryFindProject(
                 templateProject.getSpace().getCode(), NONEXISTENT));

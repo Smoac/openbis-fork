@@ -128,7 +128,7 @@ public class SampleListingQueryTest extends AbstractDAOTest
     @Test
     public void testSampleCount()
     {
-        assertEquals(700, query.getSampleCount()); // without deleted
+        assertEquals(701, query.getSampleCount()); // without deleted
     }
 
     @Test
