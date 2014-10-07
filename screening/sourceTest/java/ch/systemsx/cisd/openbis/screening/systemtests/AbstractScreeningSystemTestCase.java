@@ -106,8 +106,21 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
      */
     protected static final class ImageLoader implements IImageLoader
     {
+        private static final class OverlayChannel
+        {
+            private String dataSetCode;
+            private String channel;
+
+            OverlayChannel(String dataSetCode, String channel)
+            {
+                this.dataSetCode = dataSetCode;
+                this.channel = channel;
+            }
+        }
+        
         private final URLMethodWithParameters url;
         private final List<String> channels = new ArrayList<String>();
+        private final List<OverlayChannel> overlayChannels = new ArrayList<OverlayChannel>();
         private final Map<String, String> transformationsByChannel = new HashMap<String, String>();
         private boolean mergeChannels = true;
         private boolean microscopy = false;
@@ -148,6 +161,11 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
                 {
                     url.addParameter(ImageServletUrlParameters.CHANNEL_PARAM, channel);
                 }
+            }
+            for (OverlayChannel overlayChannel : overlayChannels)
+            {
+                String name = ImageServletUrlParameters.OVERLAY_CHANNEL_PREFIX_PARAM + overlayChannel.dataSetCode;
+                url.addParameter(name, overlayChannel.channel);
             }
             if (microscopy == false)
             {
@@ -211,6 +229,12 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         {
             mergeChannels = false;
             channels.add(channel);
+            return this;
+        }
+        
+        public ImageLoader overlay(String dataSetCode, String channel)
+        {
+            overlayChannels.add(new OverlayChannel(dataSetCode, channel));
             return this;
         }
         

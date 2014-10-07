@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -91,7 +92,16 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
 
     protected AbstractExternalData getRegisteredContainerDataSet()
     {
-        List<AbstractExternalData> dataSets = getRegisteredDataSets();
+        Class<? extends AbstractImageDropboxTestCase> testClass = getClass();
+        AbstractExternalData containerDataSet = getRegisteredContainerDataSet(testClass);
+        assertNotNull("No container data set found for test " + testClass.getSimpleName(), containerDataSet);
+        return containerDataSet;
+    }
+
+    protected AbstractExternalData getRegisteredContainerDataSet(Class<? extends AbstractImageDropboxTestCase> testClass)
+    {
+        String experimentCode = translateIntoCamelCase(testClass.getSimpleName()).toUpperCase();
+        List<AbstractExternalData> dataSets = getRegisteredDataSets(experimentCode);
         for (AbstractExternalData dataSet : dataSets)
         {
             if (dataSet.getDataSetType().getDataSetKind().equals(DataSetKind.CONTAINER))
@@ -99,18 +109,19 @@ public abstract class AbstractImageDropboxTestCase extends AbstractScreeningSyst
                 return dataSet;
             }
         }
-        fail("No container data set found: " + dataSets);
-        return null; // never reached but needed for the compiler
+        return null;
     }
 
-    protected List<AbstractExternalData> getRegisteredDataSets()
+    private List<AbstractExternalData> getRegisteredDataSets(String experimentCode)
     {
-        String code = translateIntoCamelCase(getClass().getSimpleName()).toUpperCase();
-        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/" + code);
-        Experiment experiment = commonServer.getExperimentInfo(sessionToken, identifier);
-        List<AbstractExternalData> dataSets 
-                = commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(Arrays.asList(experiment)), false);
-        return dataSets;
+        ExperimentIdentifier identifier = ExperimentIdentifierFactory.parse("/TEST/TEST-PROJECT/" + experimentCode);
+        List<Experiment> experiments = commonServer.listExperiments(sessionToken, Arrays.asList(identifier));
+        if (experiments.isEmpty())
+        {
+            return Collections.emptyList();
+        }
+        Experiment experiment = experiments.get(0);
+        return commonServer.listRelatedDataSets(sessionToken, new DataSetRelatedEntities(Arrays.asList(experiment)), false);
     }
     
     private String translateIntoCamelCase(String string)

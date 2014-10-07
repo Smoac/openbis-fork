@@ -58,6 +58,17 @@ public class Simple16BitImageDropboxTest extends AbstractImageDropboxTestCase
                 new ImageLoader(dataSet, sessionToken).tileColumn(2).mode("thumbnail1392x1040"));
         imageChecker.check(new File(getTestDataFolder(), "1_2_GFP_thumbnail1392x1040.png"), 
                 new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("GFP").mode("thumbnail1392x1040"));
+        imageChecker.check(new File(getTestDataFolder(), "2_1_Merged_Default.png"), 
+                new ImageLoader(dataSet, sessionToken).tileRow(2).tileColumn(1));
+        // Because all data sets are registered before the actual test methods are executed we can
+        // use images from another data set as an overlay image
+        AbstractExternalData dataSet2 = getRegisteredContainerDataSet(PlatonicPlateImageDropboxTest.class);
+        if (dataSet2 != null)
+        {
+            imageChecker.check(new File(getTestDataFolder(), "1_2_Merged_Overlay2CY3_256x256.png"),
+                    new ImageLoader(dataSet, sessionToken).tileColumn(2)
+                            .overlay(dataSet2.getCode(), "CY3").mode("thumbnail256x256"));
+        }
         imageChecker.assertNoFailures();
     }
 }

@@ -60,6 +60,20 @@ public class PlatonicPlateImageDropboxTest extends AbstractImageDropboxTestCase
                 new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("GFP").mode("thumbnail64x64"));
         imageChecker.check(new File(getTestDataFolder(), "1_1_Merged_Default_GFP_0_100.png"), 
                 new ImageLoader(dataSet, sessionToken).rescaling("GFP", 0, 100));
+        imageChecker.check(new File(getTestDataFolder(), "1_1_GFP_OverlayDAPI_Default.png"), 
+                new ImageLoader(dataSet, sessionToken).channel("GFP").overlay(dataSet.getCode(), "DAPI"));
+        // Because all data sets are registered before the actual test methods are executed we can
+        // use images from another data set as an overlay image
+        AbstractExternalData dataSet2 = getRegisteredContainerDataSet(Simple16BitImageDropboxTest.class);
+        if (dataSet2 != null)
+        {
+            imageChecker.check(new File(getTestDataFolder(), "1_2_CY3_Overlay2GFP_DAPI_256x256.png"),
+                    new ImageLoader(dataSet, sessionToken).tileColumn(2).channel("CY3")
+                            .overlay(dataSet2.getCode(), "GFP").overlay(dataSet2.getCode(), "DAPI").mode("thumbnail256x256"));
+            imageChecker.check(new File(getTestDataFolder(), "2_1_CY3_Overlay2GFP_Default.png"),
+                    new ImageLoader(dataSet, sessionToken).tileRow(2).tileColumn(1).channel("CY3")
+                    .overlay(dataSet2.getCode(), "GFP"));
+        }
         imageChecker.assertNoFailures();
     }
 }
