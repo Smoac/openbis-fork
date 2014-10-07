@@ -345,14 +345,6 @@ task zipDss(type: Zip, dependsOn: signWebStartJars) {
 		into 'datastore_server/etc';
 	}
 	
-	from (file('dist/server/service.properties')) {
-		into 'datastore_server/server'
-	}
-	
-	from (file('dist/server/etc/log.xml')) {
-		into 'datastore_server/server/etc'
-	}
-	
 	from (project(':rtd_phosphonetx').fileTree(dir: 'source/core-plugins', includes:['proteomics/**', 'proteomics-optional/**'], excludes:['**/as/**', '**/package-to-dist']).plus(
 		 project(':screening').fileTree(dir: 'source/core-plugins', includes:['screening/**', 'screening-optional/**'], excludes:['**/as/**', '**/package-to-dist']).plus(
 		 project(':deep_sequencing_unit').fileTree(dir: 'source/core-plugins', includes:['illumina-ngs/**'], excludes:['**/as/**', '**/package-to-dist'])))) {
