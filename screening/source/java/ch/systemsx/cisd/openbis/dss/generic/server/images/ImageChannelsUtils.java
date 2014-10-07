@@ -31,11 +31,9 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
-import ch.systemsx.cisd.common.image.IntensityRescaling.PixelHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.common.image.MixColors;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -405,7 +403,7 @@ public class ImageChannelsUtils
         return image;
     }
 
-    private static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
+    public static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
     {
         if (ImageUtil.getMaxNumberOfBitsPerComponent(image) <= 8)
         {
@@ -422,7 +420,7 @@ public class ImageChannelsUtils
         return threshold == null ? ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold;
     }
     
-    private static BufferedImage transformGrayToColor(BufferedImage image, final ChannelColorRGB channelColor)
+    public static BufferedImage transformGrayToColor(BufferedImage image, final ChannelColorRGB channelColor)
     {
         Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
         if (channel == null)
@@ -446,22 +444,17 @@ public class ImageChannelsUtils
 
     private static IColorTransformation createColorTransformation(final Channel channel, final ChannelColorRGB channelColor)
     {
+        float[] channelHSB = Color.RGBtoHSB(channelColor.getR(), channelColor.getG(), channelColor.getB(), null);
+        final float hue = channelHSB[0];
+        final float saturation = channelHSB[1];
+        final float brightnessScale = channelHSB[2] / 255;
         return new IColorTransformation()
             {
-                
                 @Override
                 public int transform(int rgb)
                 {
                     int gray = (rgb >> channel.getShift()) & 0xff;
-                    int red = scale(gray, channelColor.getR());
-                    int green = scale(gray, channelColor.getG());
-                    int blue = scale(gray, channelColor.getB());
-                    return (red << 16) + (green << 8) + blue;
-                }
-                
-                private int scale(int value, int maxValue)
-                {
-                    return maxValue == 0 ? 0 : Math.min(255, (value * 255) / maxValue);
+                    return Color.HSBtoRGB(hue, saturation, brightnessScale * gray);
                 }
             };
     }
