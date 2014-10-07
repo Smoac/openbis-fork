@@ -326,6 +326,94 @@ test("cookies", function() {
 	}, testUrl);
 });
 
+test("deleteProjects()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.deleteProjects([-1], "some reason", function(response) {
+			equal(response.error.message, "Project with ID -1 does not exist. Maybe someone has just deleted it.");
+			facade.close();
+		});
+	});
+});
+
+test("deleteExperiments()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.deleteExperiments([2], "some reason", "PERMANENT", function(response) {
+			ok(response.error.message.indexOf("Experiment is being used") == 0, "Cannot delete an experiment with dependencies.");
+			facade.close();
+		});
+	});
+});
+
+test("deleteSamples()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.deleteSamples([2], "some reason", "PERMANENT", function(response) {
+			ok(response.error.message.indexOf("Sample is being used") == 0, "Cannot delete a sample with dependencies.");
+			facade.close();
+		});
+	});
+});
+
+test("deleteDataSets()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.deleteDataSets(["20130415093804724-403"], "some reason", "PERMANENT", function(response) {
+			ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0, "Cannot delete a data set with deletion_disallow flag set to true.");
+			facade.close();
+		});
+	});
+});
+
+test("deleteDataSetsForced()", function() {
+	createFacadeAndLogin(function(facade) {
+		facade.deleteDataSetsForced(["20130415093804724-403"], "some reason", "PERMANENT", function(response) {
+			ok(response.error.message.indexOf("Authorization failure") == 0, "Don't have enough privileges to use a forced version of deleting data sets.");
+			facade.close();
+		});
+	});
+});
+
+test("deleteDataSets() listDeletions() deletePermanently() deletePermanentlyForced() revertDeletion()", function() {
+	createFacadeAndLogin(function(facade) {
+		
+		facade.listDeletions([], function(response){
+			ok(response.error == null, "Could list deletions.");
+			var beforeDeletions = response.result || [];
+			
+			facade.deleteDataSets(["20130415093804724-403"], "some reason", "TRASH", function(response) {
+				ok(response.error == null, "Could move a data set to trash.");
+				
+				facade.listDeletions(["ORIGINAL_ENTITIES"], function(response){
+					var afterDeletions = response.result;
+					equal(beforeDeletions.length + 1, afterDeletions.length, "Moving the data set to trash created a new deletion.");
+					var dataSetDeletion = null;
+					
+					afterDeletions.forEach(function(deletion){
+						if(dataSetDeletion == null){
+							deletion.deletedEntities.forEach(function(entity){
+								if(entity.code == "20130415093804724-403"){
+									dataSetDeletion = deletion;
+								}
+							});
+						}
+					});
+					
+					facade.deletePermanently([dataSetDeletion.id], function(response){
+						ok(response.error.message.indexOf("Deletion failed because the following data sets have 'Disallow deletion' flag set to true in their type") == 0, "Cannot delete a data set with deletion_disallow flag set to true.");
+
+						facade.deletePermanentlyForced([dataSetDeletion.id], function(response){
+							ok(response.error.message.indexOf("Authorization failure") == 0, "Don't have enough privileges to use a forced version of deleting data sets.");
+							
+							facade.revertDeletions([dataSetDeletion.id], function(response){
+								ok(response.error == null, "Reverted deletion.");
+								facade.close();
+							})
+						});
+					});
+				});
+			});
+		});
+	});
+});
+
 test("listNamedRoleSets()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.listNamedRoleSets(function(response) {

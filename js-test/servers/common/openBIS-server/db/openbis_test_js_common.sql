@@ -3400,7 +3400,7 @@ COPY data_set_type_property_types (id, dsty_id, prty_id, is_mandatory, is_manage
 --
 
 COPY data_set_types (id, code, description, dbin_id, modification_timestamp, main_ds_pattern, main_ds_path, deletion_disallow, data_set_kind, validation_script_id) FROM stdin;
-1	UNKNOWN	Unknown	1	2013-04-12 10:04:52.629266+02	\N	\N	f	PHYSICAL	\N
+1	UNKNOWN	Unknown	1	2013-04-12 10:04:52.629266+02	\N	\N	t	PHYSICAL	\N
 2	ALIGNMENT	Aligner ouput, ideally bam/sam	1	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
 3	BASECALL_STATS	Base Call Statistics from the Illumina Pipeline (configureBclToFastq.pl)	1	2013-04-12 10:04:56.658885+02	original/.*/.*/Demultiplex_Stats.htm	\N	f	PHYSICAL	\N
 4	BIGWIGGLE	Visualization	1	2013-04-12 10:04:56.658885+02	\N	\N	f	PHYSICAL	\N
