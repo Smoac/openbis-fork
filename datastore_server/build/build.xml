@@ -312,7 +312,8 @@
             excludes="**/datastore_server.sh, **/autosymlink.sh, **/share-manager.sh, **/dss_client.sh, **/service.properties, **/log.xml, *.MD5" 
             prefix="${dss}" />
       <zipfileset dir="dist" 
-            includes="**/service.properties, **/log.xml" 
+            includes="**/service.properties, **/log.xml"
+      	    excludes="server/**/*"
             prefix="${dss}" />
       <zipfileset file="${dss.original.dist}/datastore_server.sh"
                   filemode="755"
