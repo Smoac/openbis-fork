@@ -20,7 +20,7 @@ public class EmptyImageCreationAlgorithm implements IImageGenerationAlgorithm, S
     }
 
     @Override
-    public List<BufferedImage> generateImages(ImageDataSetInformation information, ImageDataSetStructure structure)
+    public List<BufferedImage> generateImages(ImageDataSetInformation information)
     {
         return Collections.emptyList();
     }

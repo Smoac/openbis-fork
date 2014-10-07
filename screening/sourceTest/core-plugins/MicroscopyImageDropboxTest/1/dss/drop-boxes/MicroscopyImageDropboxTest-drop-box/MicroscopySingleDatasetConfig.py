@@ -13,6 +13,13 @@ from ch.systemsx.cisd.openbis.dss.etl.dto.api import ImageMetadata
 from ch.systemsx.cisd.openbis.dss.etl.dto.api import OriginalDataStorageFormat
 from ch.systemsx.cisd.openbis.dss.etl.dto.api import ChannelColorRGB
 from ch.systemsx.cisd.openbis.dss.etl.dto.api import Channel
+from ch.systemsx.cisd.openbis.dss.etl.dto.api.impl import MaximumIntensityProjectionGenerationAlgorithm;
+
+class TestAlgorithm(MaximumIntensityProjectionGenerationAlgorithm):
+    def __init__(self):
+        MaximumIntensityProjectionGenerationAlgorithm.__init__(self, 'MICROSCOPY_REPRESENTATIVE_IMG')
+    def imageToBeIgnored(self, imageFileInfo):
+        return False
 
 class MicroscopySingleDatasetConfig(SimpleImageContainerDataConfig):
     """Image data configuration class for multi datasets image files."""
@@ -60,6 +67,7 @@ class MicroscopySingleDatasetConfig(SimpleImageContainerDataConfig):
 
         # Set the dataset type
         self.setDataSetType("MICROSCOPY_IMG")
+        self.setImageGenerationAlgorithm(TestAlgorithm())
 
     def createChannel(self, channelCode):
         """Create a channel from the channelCode with the name as read from

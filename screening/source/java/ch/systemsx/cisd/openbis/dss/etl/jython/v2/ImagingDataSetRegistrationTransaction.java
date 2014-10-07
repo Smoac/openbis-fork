@@ -347,8 +347,8 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
 
         containedDataSetCodes.add(mainDataset.getDataSetCode());
         
-        createRepresentativeThumbnailByImageGenerationAlgorithm(imageDataSetInformation, imageDataSetStructure, 
-                containedDataSetCodes, thumbnailDatasets);
+        createRepresentativeThumbnailByImageGenerationAlgorithm(imageDataSetInformation, containedDataSetCodes, 
+                thumbnailDatasets);
 
         for (IDataSet thumbnailDataset : thumbnailDatasets)
         {
@@ -366,14 +366,14 @@ public class ImagingDataSetRegistrationTransaction extends DataSetRegistrationTr
     }
 
     private void createRepresentativeThumbnailByImageGenerationAlgorithm(ImageDataSetInformation imageDataSetInformation,
-            ImageDataSetStructure imageDataSetStructure, List<String> containedDataSetCodes, List<IDataSet> thumbnailDatasets)
+            List<String> containedDataSetCodes, List<IDataSet> thumbnailDatasets)
     {
         IImageGenerationAlgorithm algorithm = imageDataSetInformation.getImageGenerationAlgorithm();
         if (algorithm == null)
         {
             return;
         }
-        List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation, imageDataSetStructure);
+        List<BufferedImage> images = algorithm.generateImages(imageDataSetInformation);
         if (images.size() > 0) {
             IDataSet representative = createNewDataSet(algorithm.getDataSetTypeCode());
             for (int i = 0; i < images.size(); i++)

@@ -94,12 +94,17 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         
     }
     
+    private static interface IImageLoader
+    {
+        public BufferedImage load();
+
+    }
     /**
      * Helper class to load an image from the image download servlet.
      *
      * @author Franz-Josef Elmer
      */
-    protected static final class ImageLoader
+    protected static final class ImageLoader implements IImageLoader
     {
         private final URLMethodWithParameters url;
         private final List<String> channels = new ArrayList<String>();
@@ -120,6 +125,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
             url.addParameter(ImageServletUrlParameters.DATASET_CODE_PARAM, dataSet.getCode());
         }
         
+        @Override
         public BufferedImage load()
         {
             try
@@ -241,7 +247,7 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         }
         
         /**
-         * Asserts no failures occurred for all invocations of {@link #check(File, ImageLoader)}.
+         * Asserts no failures occurred for all invocations of {@link #check(File, IImageLoader)}.
          * Otherwise an {@link AssertionError} is thrown.
          */
         public void assertNoFailures()
@@ -254,10 +260,38 @@ public abstract class AbstractScreeningSystemTestCase extends SystemTestCase
         }
         
         /**
+         * Checks that the specified reference image is equals to the image loaded from the specified file
+         * in the specified data set.
+         */
+        public void check(File referenceImage, final String sessionToken, final AbstractExternalData dataSet, 
+                final String pathInDataSet)
+        {
+            check(referenceImage, new IImageLoader()
+                {
+                    
+                    @Override
+                    public BufferedImage load()
+                    {
+                        URLMethodWithParameters url = new URLMethodWithParameters(dataSet.getDataStore().getHostUrl() 
+                                + "/datastore_server/" + dataSet.getCode() + "/" + pathInDataSet);
+                        url.addParameter(Utils.SESSION_ID_PARAM, sessionToken);
+                        url.addParameter("mode", "simpleHtml");
+                        try
+                        {
+                            return ImageIO.read(new URL(url.toString()));
+                        } catch (Exception ex)
+                        {
+                            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+                        }
+                    }
+                });
+        }
+        
+        /**
          * Checks that the specified reference image is equals to the image loaded by the specified image loader.
          * A report is created in case of a failure.
          */
-        public void check(File referenceImage, ImageLoader imageLoader)
+        public void check(File referenceImage, IImageLoader imageLoader)
         {
             FailureReport report = new FailureReport(referenceImage);
             try

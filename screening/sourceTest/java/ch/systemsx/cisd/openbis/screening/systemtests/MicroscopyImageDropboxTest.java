@@ -22,6 +22,7 @@ import java.util.Collections;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.impl.MaximumIntensityProjectionGenerationAlgorithm;
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
@@ -65,6 +66,9 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         registerDataSetType(commonServer, dataSetType);
         dataSetType = new DataSetType("MICROSCOPY_IMG_OVERVIEW");
+        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
+        registerDataSetType(commonServer, dataSetType);
+        dataSetType = new DataSetType("MICROSCOPY_REPRESENTATIVE_IMG");
         dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
         registerDataSetType(commonServer, dataSetType);
         dataSetType = new DataSetType("MICROSCOPY_IMG_CONTAINER");
@@ -119,6 +123,8 @@ public class MicroscopyImageDropboxTest extends AbstractImageDropboxTestCase
         imageChecker.check(new File(getTestDataFolder(), "Merged_256x256_C0_0_200_C4_150_300.png"), 
                 new ImageLoader(dataSet, sessionToken).microscopy().rescaling("SERIES-0_CHANNEL-0", 0, 200)
                 .rescaling("SERIES-0_CHANNEL-4", 150, 300).mode("thumbnail256x256"));
+        String pathInDataSet = MaximumIntensityProjectionGenerationAlgorithm.DEFAULT_FILE_NAME;
+        imageChecker.check(new File(getTestDataFolder(), pathInDataSet), sessionToken, dataSet, pathInDataSet);
 
         imageChecker.assertNoFailures();
     }
