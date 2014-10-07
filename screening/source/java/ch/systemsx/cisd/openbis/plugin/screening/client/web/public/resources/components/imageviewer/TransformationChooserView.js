@@ -156,15 +156,15 @@ define(
 									formField.setButton({
 										"name" : "reset",
 										"text" : "Reset",
-										"tooltip" : "Changes a scale of the slider back to the default value of (0, 65535).",
+										"tooltip" : "Changes a scale of the slider back to the default value of (0, 255).",
 										"action" : function() {
 											var value = input.slider("getValue");
 
 											thisView.controller.setUserDefinedTransformationParameters(channel, {
 												"min" : 0,
-												"max" : 65535,
+												"max" : 255,
 												"blackpoint" : 0,
-												"whitepoint" : 65535,
+												"whitepoint" : 255,
 											});
 										}
 									});

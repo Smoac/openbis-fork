@@ -118,9 +118,9 @@ define(
 						if (!parameters) {
 							parameters = {
 								"min" : 0,
-								"max" : 65535,
+								"max" : 255,
 								"blackpoint" : 0,
-								"whitepoint" : 65535
+								"whitepoint" : 255
 							}
 							thisWidget.userDefinedTransformationParametersMap[channel] = parameters;
 						}
