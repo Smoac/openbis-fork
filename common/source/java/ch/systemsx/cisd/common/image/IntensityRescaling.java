@@ -337,6 +337,11 @@ public class IntensityRescaling
 
     }
     
+    /**
+     * Converts a {@link BufferedImage} instance into a {@link Pixels} instance.
+     *
+     * @author Franz-Josef Elmer
+     */
     public static interface IImageToPixelsConverter
     {
         public Pixels convert(BufferedImage image);

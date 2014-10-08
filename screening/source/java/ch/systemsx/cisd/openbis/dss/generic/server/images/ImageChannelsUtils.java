@@ -70,8 +70,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Color
 /**
  * Utility classes to create an image of a specified size containing one channel or a subset of all
  * channels.
+ * <p>
+ * In autumn 2014 this class went throw a bigger refactoring in order to make the code more understandable. 
+ * The images created by this class are the result of little processing pipelines. 
  * 
  * @author Tomasz Pylak
+ * @author Franz-Josef Elmer
  */
 public class ImageChannelsUtils
 {
@@ -91,6 +95,10 @@ public class ImageChannelsUtils
         public BufferedImage create(AbsoluteImageReference imageContent);
     }
 
+    /**
+     * Data class which contains an {@link AbsoluteImageReference} and its corresponding image
+     * which is often no longer the unchanged image from {@link AbsoluteImageReference#getUnchangedImage()}.
+     */
     private static class ImageWithReference
     {
         private BufferedImage image;
@@ -386,9 +394,17 @@ public class ImageChannelsUtils
         return null;
     }
     /**
-     * @param threshold
-     * @param useMergedChannelsTransformation sometimes we can have a single image which contain all
-     *            channels merged. In this case a different transformation will be applied to it.
+     * Calculates from the specified image reference (i.e. image file content and meta data from imaging database)
+     * an 8-bit colored gray image for display purposes. This is done by the following steps:
+     * <ol>
+     * <li>Load the unchanged image from the file content. This done by {@link ImageUtil#loadUnchangedImage(IHierarchicalContentNode, String, String, String, ch.systemsx.cisd.imagereaders.IReadParams)}.
+     * <li>Re-scale intensities to 8-bit if at least one color component has more than 8 bit. This is done by {@link IntensityRescaling}.
+     * <li>Re-size to the requested size. This is done by {@link ImageUtil#rescale(BufferedImage, int, int, boolean, boolean, ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter)}.
+     * <li>Extract the color component, if specified.
+     * <li>Apply any transformation as revealed from the imaging database. This can include user-specified intensity ranges.
+     * If there is no transformation in the imaging database {@link AutoRescaleIntensityImageTransformerFactory} is used.
+     * <li>Finally the gray image is colored by the corresponding channel color.
+     * </ol>
      */
     private static BufferedImage calculateAndTransformSingleImageForDisplay(
             AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
@@ -475,6 +491,15 @@ public class ImageChannelsUtils
         }
     }
 
+    /**
+     * Creates a colored image by merging at least two gray images. This done by the following steps:
+     * <ol>
+     * <li>The images are loaded a processed similar to {@link #calculateAndTransformSingleImageForDisplay(AbsoluteImageReference, ImageTransformationParams, Float)}.
+     * <li>The processed images (colored gray 8-bit images) are merged.
+     * <li>The merged image is transformed either by a transformation found in imaging database or
+     * by an intensity range re-scaling transformation. 
+     * </ol>
+     */
     private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
             ImageTransformationParams transformationInfo,
             IImageTransformerFactory mergedChannelTransformationOrNull)

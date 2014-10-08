@@ -36,7 +36,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
 
 /**
- * Helper class for loading images using an {@link IImagingLoaderStrategy}.
+ * Helper class for loading images using an {@link IImagingLoaderStrategy}. Actually this class
+ * doesn't load images but it creates {@link AbsoluteImageReference} instances which contain lazily loaded images 
+ * and meta data from the imaging database.
+ * <p>
+ * This code has been refactored out of {@link ImageChannelsUtils} in autumn 2014.
  *
  * @author Franz-Josef Elmer
  */
