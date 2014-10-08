@@ -57,8 +57,6 @@ class MicroscopySingleDatasetConfig(SimpleImageContainerDataConfig):
         # Disable thumbnail generation by ImageMagick
         self.setUseImageMagicToGenerateThumbnails(False)
         
-        self.setGenerateHighQuality8BitThumbnails(True)
-
         # Enable thumbnail generation
         self.setGenerateThumbnails(True)
 

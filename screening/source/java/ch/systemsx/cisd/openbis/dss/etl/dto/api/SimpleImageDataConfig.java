@@ -217,7 +217,7 @@ abstract public class SimpleImageDataConfig
 
     private List<String> thumbnailsGenerationImageMagicParams = Collections.emptyList();
 
-    private boolean generateThumbnailsIn8BitHighQuality = false;
+    private boolean generateThumbnailsIn8BitHighQuality = true;
 
     private double allowedMachineLoadDuringThumbnailsGeneration = 1.0;
 
@@ -676,12 +676,10 @@ abstract public class SimpleImageDataConfig
     }
 
     /**
-     * If true and thumbnails generation is switched on, thumbnails will be generated with high
-     * quality.
-     * <p>
-     * Be careful: high quality means that the generation will take longer and the image will be
-     * converted to 8 bit color depth. This option is useful for segmentation images, images with 8
-     * bit color depth or when no 16 bit transformation has to be applied to the images.
+     * By default thumbnails are created in high-quality. But this is more time consuming.
+     * Set to <code>false</code> suppresses thumbnail creation in high quality. But this isn't
+     * recommended for 12-bit or 16-bit images. 
+     * This flag is ignored if ImageMagic should be used for thumbnail generation.
      */
     public void setGenerateHighQuality8BitThumbnails(boolean highQualityThumbnails)
     {

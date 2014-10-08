@@ -85,7 +85,6 @@ def process(transaction):
         imageDataset = MyImageDataSetConfig()
         imageDataset.setRawImageDatasetType()
         imageDataset.setGenerateThumbnails(True)
-        imageDataset.setGenerateHighQuality8BitThumbnails(True)
         imageDataset.setUseImageMagicToGenerateThumbnails(False)
         imageDataset.addGeneratedImageRepresentationWithResolution("300x300")
         plate = create_plate_if_needed(transaction)
