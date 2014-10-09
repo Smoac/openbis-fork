@@ -30,9 +30,12 @@ define([ "jquery" ], function($) {
 					} else if (v2 == null) {
 						return 1;
 					} else {
-						if (v1 > v2) {
+						var v1Int = parseInt(v1);
+						var v2Int = parseInt(v2);
+
+						if (v1Int > v2Int) {
 							return 1;
-						} else if (v1 < v2) {
+						} else if (v1Int < v2Int) {
 							return -1;
 						} else {
 							return 0;
@@ -45,8 +48,7 @@ define([ "jquery" ], function($) {
 		},
 
 		isMatrix : function() {
-			return (!this.isSeriesNumberPresent() || this.getSeriesNumbers().length == 1) && !this.isTimePointMissing() && !this.isDepthMissing()
-					&& this.isDepthConsistent();
+			return (!this.isSeriesNumberPresent() || this.getSeriesNumbers().length == 1) && !this.isTimePointMissing() && !this.isDepthMissing() && this.isDepthConsistent();
 		},
 
 		isSeriesNumberPresent : function() {
@@ -90,9 +92,7 @@ define([ "jquery" ], function($) {
 					}
 				});
 
-				this.seriesNumbers = Object.keys(seriesNumbers).map(function(seriesNumber) {
-					return parseInt(seriesNumber);
-				}).sort();
+				this.seriesNumbers = this.sortAsNumbers(Object.keys(seriesNumbers));
 			}
 			return this.seriesNumbers;
 		},
@@ -111,9 +111,7 @@ define([ "jquery" ], function($) {
 					}
 				});
 
-				this.timePoints = Object.keys(timePoints).map(function(timePoint) {
-					return parseInt(timePoint);
-				}).sort();
+				this.timePoints = this.sortAsNumbers(Object.keys(timePoints));
 			}
 			return this.timePoints;
 		},
@@ -146,9 +144,7 @@ define([ "jquery" ], function($) {
 					}
 				});
 
-				this.depths = Object.keys(depths).map(function(depth) {
-					return parseInt(depth);
-				}).sort();
+				this.depths = this.sortAsNumbers(Object.keys(depths));
 			}
 			return this.depths;
 		},
@@ -227,6 +223,14 @@ define([ "jquery" ], function($) {
 
 		getChannelStacks : function() {
 			return this.channelStacks;
+		},
+
+		sortAsNumbers : function(array) {
+			return array.map(function(item) {
+				return parseInt(item);
+			}).sort(function(i1, i2) {
+				return i1 - i2;
+			});
 		}
 
 	});
