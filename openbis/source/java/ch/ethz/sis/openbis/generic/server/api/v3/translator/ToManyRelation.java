@@ -47,12 +47,18 @@ public abstract class ToManyRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> im
 
         for (Collection<ORIGINAL> originalCollection : ownerToOriginalCollectionMap.values())
         {
-            for (ORIGINAL original : originalCollection)
+            if (originalCollection != null)
             {
-                RELATED_ID originalId = getOriginalId(original);
-                if (false == originalIdToOriginalMap.containsKey(originalId))
+                for (ORIGINAL original : originalCollection)
                 {
-                    originalIdToOriginalMap.put(originalId, original);
+                    if (original != null)
+                    {
+                        RELATED_ID originalId = getOriginalId(original);
+                        if (false == originalIdToOriginalMap.containsKey(originalId))
+                        {
+                            originalIdToOriginalMap.put(originalId, original);
+                        }
+                    }
                 }
             }
         }
@@ -73,27 +79,40 @@ public abstract class ToManyRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> im
         {
             OWNER owner = ownerToOriginalCollectionEntry.getKey();
             Collection<ORIGINAL> originalCollection = ownerToOriginalCollectionEntry.getValue();
-            Collection<TRANSLATED> translatedCollection = null;
 
-            if (originalCollection instanceof List)
+            if (originalCollection != null)
             {
-                translatedCollection = new LinkedList<TRANSLATED>();
-            } else if (originalCollection instanceof Set)
-            {
-                translatedCollection = new LinkedHashSet<TRANSLATED>();
+                Collection<TRANSLATED> translatedCollection = null;
+
+                if (originalCollection instanceof List)
+                {
+                    translatedCollection = new LinkedList<TRANSLATED>();
+                } else if (originalCollection instanceof Set)
+                {
+                    translatedCollection = new LinkedHashSet<TRANSLATED>();
+                } else
+                {
+                    throw new IllegalArgumentException("Collection of type: " + originalCollection.getClass() + " is not supported.");
+                }
+
+                for (ORIGINAL original : originalCollection)
+                {
+                    if (original != null)
+                    {
+                        RELATED_ID originalId = getOriginalId(original);
+                        TRANSLATED translated = translatedIdToTranslatedMap.get(originalId);
+                        translatedCollection.add(translated);
+                    } else
+                    {
+                        translatedCollection.add(null);
+                    }
+                }
+
+                result.put(owner, translatedCollection);
             } else
             {
-                throw new IllegalArgumentException("Collection of type: " + originalCollection.getClass() + " is not supported.");
+                result.put(owner, null);
             }
-
-            for (ORIGINAL original : originalCollection)
-            {
-                RELATED_ID originalId = getOriginalId(original);
-                TRANSLATED translated = translatedIdToTranslatedMap.get(originalId);
-                translatedCollection.add(translated);
-            }
-
-            result.put(owner, translatedCollection);
         }
 
         return result;

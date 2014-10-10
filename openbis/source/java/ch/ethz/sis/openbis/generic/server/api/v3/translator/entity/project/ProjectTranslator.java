@@ -25,6 +25,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -36,6 +37,12 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     public ProjectTranslator(TranslationContext translationContext, ProjectFetchOptions fetchOptions)
     {
         super(translationContext, fetchOptions);
+    }
+
+    @Override
+    protected boolean shouldTranslate(ProjectPE input)
+    {
+        return new ProjectByIdentiferValidator().doValidation(getTranslationContext().getSession().tryGetPerson(), input);
     }
 
     @Override

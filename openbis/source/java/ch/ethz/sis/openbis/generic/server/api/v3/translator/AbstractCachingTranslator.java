@@ -126,16 +126,16 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
                     operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + input.getId());
                 }
             }
+        }
 
-            if (false == updated.isEmpty())
+        if (false == updated.isEmpty())
+        {
+            Relations relations = getObjectsRelations(updated.keySet());
+            relations.load();
+
+            for (Map.Entry<I, O> updatedEntry : updated.entrySet())
             {
-                Relations relations = getObjectsRelations(updated.keySet());
-                relations.load();
-
-                for (Map.Entry<I, O> updatedEntry : updated.entrySet())
-                {
-                    updateObject(updatedEntry.getKey(), updatedEntry.getValue(), relations);
-                }
+                updateObject(updatedEntry.getKey(), updatedEntry.getValue(), relations);
             }
         }
 
