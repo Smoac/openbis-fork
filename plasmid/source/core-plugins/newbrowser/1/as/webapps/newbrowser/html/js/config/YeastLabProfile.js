@@ -10,25 +10,99 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 		this.inventorySpaces = ["YEAST_LAB"];
 		this.isShowUnavailablePreviewOnSampleTable = false;
 		
-		/* New Sample definition tests
+	/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {
-				"SYSTEM_EXPERIMENT" : {
-					"SAMPLE_PARENTS_HINT" : [
-					                             	{
-														"LABEL" : "Protocol",
-														"TYPE": "GENERAL_PROTOCOL",
-														"MIN_COUNT" : 1
+				"RESULT" : {
+					"SAMPLE_PARENTS_HINT" : [				                             	
+													{
+														"LABEL" : "Antibody",
+														"TYPE": "ANTIBODY",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													}
+													,
+													{
+														"LABEL" : "Bacteria",
+														"TYPE": "BACTERIA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+													,
+													{
+														"LABEL" : "Chemical",
+														"TYPE": "CHEMICAL",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+													,
+													{
+														"LABEL" : "Enzyme",
+														"TYPE": "ENZYME",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+
+													,
+													{
+														"LABEL" : "Media",
+														"TYPE": "MEDIA",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}	
+													,
+													{
+														"LABEL" : "Oligo",
+														"TYPE": "OLIGO",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+
+													,
+													{
+														"LABEL" : "Plasmid",
+														"TYPE": "PLASMID",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+
+													,
+													{
+														"LABEL" : "Pombe",
+														"TYPE": "POMBE",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+
+
+													,
+													{
+														"LABEL" : "Solution buffers",
+														"TYPE": "SOLUTIONS_BUFFERS",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+
+													,
+													{
+														"LABEL" : "Transcription factor",
+														"TYPE": "TRANSCRIPTION_FACTOR",
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
+													}
+
 													,
 													{
 														"LABEL" : "Yeast",
 														"TYPE": "YEAST",
-														"MIN_COUNT" : 0
+														"MIN_COUNT" : 0,
+														"ANNOTATION_PROPERTIES" : [{"TYPE" : "COMMENTS", "MANDATORY" : false }]
 													}
-												],
+
+
+												]
 				}
 		}
-		*/
+		
 		
 		this.typePropertiesForTable = {
 			"SYSTEM_EXPERIMENT" : ["NAME", "GOALS", "RESULT_INTERPRETATION"],
