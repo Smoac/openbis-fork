@@ -13,7 +13,7 @@ $.extend(Grid.prototype, {
 
 		thisGrid.panel = $("<div>").addClass("fuelux");
 
-		$.get("Grid.html", function(template) {
+		$.get("./lib/grid/js/Grid.html", function(template) {
 			thisGrid.panel.html(template);
 			thisGrid.renderColumnDropdown();
 			thisGrid.panel.repeater({

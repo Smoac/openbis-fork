@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function DataGridController(mainController, data) {
+function DataGridController(mainController, title, columns, data) {
 	this._mainController = mainController;
-	this._dataGridModel = new DataGridModel(data);
+	this._dataGridModel = new DataGridModel(title, columns, data);
 	this._dataGridView = new DataGridView(this, this._dataGridModel);
 	
 	this.init = function($container) {

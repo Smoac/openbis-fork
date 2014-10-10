@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
-function DataGridModel(data) {
+function DataGridModel(title, columns, data) {
+	this.title = title;
+	this.columns = columns;
 	this.data = data;
 }
