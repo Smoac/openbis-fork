@@ -378,7 +378,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		var $headerItemList = $("<ul>", { "class" : "nav navbar-nav"});
 			$header
 				.append(
-						$("<nav>", { "class" : "navbar navbar-default", "role" : "navigation", "style" : "margin:0px;"})
+						$("<nav>", { "class" : "navbar navbar-default", "role" : "navigation", "style" : "margin:0px; border-left-width:0px; border-right-width:0px;"})
 							.append($headerItemList)
 					);
 		
