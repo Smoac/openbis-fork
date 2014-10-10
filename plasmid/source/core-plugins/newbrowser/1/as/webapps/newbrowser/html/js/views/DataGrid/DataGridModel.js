@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-function DataGridModel(title, columns, data) {
+function DataGridModel(title, columns, data, rowClickEventHandler) {
 	this.title = title;
 	this.columns = columns;
 	this.data = data;
+	this.rowClickEventHandler = rowClickEventHandler;
 }

@@ -521,22 +521,7 @@ function MainController(profile) {
 								label : 'Position',
 								property : 'position',
 								sortable : true
-							}, {
-								label : "Options",
-								property : 'Options',
-								sortable : true,
-								render : function(data) {
-									return $("<button>").text("Button").click(function() {
-										alert("WORKS!");
-									});
-								},
-								filter : function(data, filter) {
-									return false;
-								},
-								sort : function(data1, data2, asc) {
-									return naturalSort(data1.identifier, data2.identifier);
-								}
-							} ];
+							}];
 							
 							var getDataList = function(callback) {
 								var dataList = [];
@@ -552,7 +537,11 @@ function MainController(profile) {
 								callback(dataList);
 							};
 							
-							var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList);
+							var rowClick = function(e) {
+								window.alert("Open Data Set From with :" + e.data.permId);
+							}
+							
+							var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList, rowClick);
 							localReference.currentView = dataGrid;
 							dataGrid.init($("#mainContainer"));
 							history.pushState(null, "", ""); //History Push State
