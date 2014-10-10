@@ -168,14 +168,14 @@ function ServerFacade(openbisServer) {
 		var optionalParametersOrNull = {
 				"SEQ-1" : JSON.stringify({
 					"searchDomain" : "Echo database",
-					"dataSetCode" : "20140616154459356-4796",
+					"dataSetCode" : "20141010105346206-1",
 					"pathInDataSet" : "PATH-1",
 					"sequenceIdentifier" : "ID-1",
 					"positionInSequence" : "1"
 				}),
 				"SEQ-2" : JSON.stringify({
 					"searchDomain" : "Echo database",
-					"dataSetCode" : "20140813104632498-5273",
+					"dataSetCode" : "20141010105439367-2",
 					"pathInDataSet" : "PATH-2",
 					"sequenceIdentifier" : "ID-2",
 					"positionInSequence" : "2"

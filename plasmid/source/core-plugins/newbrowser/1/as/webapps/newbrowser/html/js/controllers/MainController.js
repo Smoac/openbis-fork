@@ -507,7 +507,51 @@ function MainController(profile) {
 					localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
 						if(localSearchId === localReference.lastSearchId) {
 							$("#search").removeClass("search-query-searching");
-							var dataGrid = new DataGridController(localReference, null);
+							
+							var columns = [ {
+								label : 'Identifier',
+								property : 'identifier',
+								sortable : true
+							}, {
+								label : 'Path',
+								property : 'pathInDataSet',
+								sortable : true
+							}, {
+								label : 'Position',
+								property : 'position',
+								sortable : true
+							}, {
+								label : "Options",
+								property : 'Options',
+								sortable : true,
+								render : function(data) {
+									return $("<button>").text("Button").click(function() {
+										alert("WORKS!");
+									});
+								},
+								filter : function(data, filter) {
+									return false;
+								},
+								sort : function(data1, data2, asc) {
+									return naturalSort(data1.identifier, data2.identifier);
+								}
+							} ];
+							
+							var getDataList = function(callback) {
+								var dataList = [];
+								for(var i = 0; i < data.result.length; i++) {
+									var resultLocation = data.result[i].resultLocation;
+									dataList.push({
+										permId : resultLocation.dataSetCode,
+										identifier : resultLocation.identifier,
+										pathInDataSet : resultLocation.pathInDataSet,
+										position : resultLocation.position
+									});
+								}
+								callback(dataList);
+							};
+							
+							var dataGrid = new DataGridController(localReference, "Search Results", columns, getDataList);
 							localReference.currentView = dataGrid;
 							dataGrid.init($("#mainContainer"));
 							history.pushState(null, "", ""); //History Push State
