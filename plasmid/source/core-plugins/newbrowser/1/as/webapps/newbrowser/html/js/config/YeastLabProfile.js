@@ -180,6 +180,16 @@ $.extend(YeastLabProfile.prototype, DefaultProfile.prototype, {
 		
 			return sortedResults;
 		}
+		
+		
+		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
+			if(sampleTypeCode === "RESULT") {
+				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
+				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
+				freeFormTableController.init($("#" + containerId));
+			}
+		}
+
 	
 		this.inspectorContentExtra = function(extraContainerId, sample) {
 			// When requesting information about the sample, we don't need parents and children, so send a copy of the saple without that information.
