@@ -416,6 +416,7 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 						$component.append(selectedSearchDomain.label);
 					}
 					$component.attr('selected-name', selectedSearchDomain.name);
+					$component.attr('selected-label', selectedSearchDomain.label);
 				};
 			}
 			

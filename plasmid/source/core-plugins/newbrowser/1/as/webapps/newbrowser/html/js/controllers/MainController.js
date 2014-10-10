@@ -489,6 +489,7 @@ function MainController(profile) {
 				
 				$("#search").addClass("search-query-searching");
 				var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
+				var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
 				if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
 					localReference.serverFacade.searchWithText(value, function(data) {
 						if(localSearchId === localReference.lastSearchId) {
@@ -551,7 +552,7 @@ function MainController(profile) {
 								callback(dataList);
 							};
 							
-							var dataGrid = new DataGridController(localReference, "Search Results", columns, getDataList);
+							var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList);
 							localReference.currentView = dataGrid;
 							dataGrid.init($("#mainContainer"));
 							history.pushState(null, "", ""); //History Push State
