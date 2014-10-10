@@ -51,7 +51,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithoutFetchOptions()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Sample> samples =
                 v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091219327-1025")),
                         new SampleFetchOptions());
@@ -77,7 +77,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithModifier()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation newSample = new SampleCreation();
         newSample.setCode("SAMPLE_WITH_MODIFIER");
@@ -117,7 +117,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSampleWithTags()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         TagFetchOptions tagfe = fetchOptions.fetchTags();
         tagfe.fetchOwner();
@@ -153,7 +153,7 @@ public class SampleListTest extends AbstractSampleTest
 
     public void testListSamplesWithSpace()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchSpace();
 
@@ -171,7 +171,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithParentsAndProperties()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
@@ -204,7 +204,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithParents()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sampleCreation = new SampleCreation();
         sampleCreation.setCode("LIST_SAMPLES__SAMPLE");
@@ -271,7 +271,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithChildren()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
@@ -302,7 +302,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithContainer()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
@@ -343,7 +343,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithContainerLoop()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch contained, with the container and loop.
@@ -383,7 +383,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithExperiment()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         fetchOptions.fetchExperiment();
@@ -413,7 +413,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithMultipleFetchOptions()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
@@ -442,7 +442,7 @@ public class SampleListTest extends AbstractSampleTest
     @Test
     public void testListSamplesWithType()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
@@ -472,9 +472,25 @@ public class SampleListTest extends AbstractSampleTest
     }
 
     @Test
+    public void testListSamplesWithUnauthorizedSpace()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        List<Sample> samples = v3api.listSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+
+        assertEquals(samples.size(), 1);
+        v3api.logout(sessionToken);
+
+        sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        samples = v3api.listSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+
+        assertEquals(samples.size(), 0);
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testListSamplesOrder()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
@@ -493,17 +509,6 @@ public class SampleListTest extends AbstractSampleTest
         assertEquals(samples.get(2).getPermId(), new SamplePermId("200811050919915-8"));
 
         assertEquals(samples.size(), 3);
-        v3api.logout(sessionToken);
-    }
-
-    @Test
-    public void testListSamplesFromUnauthorizedSpace()
-    {
-        String sessionToken = v3api.login(TEST_SPACE_USER, TEST_USER_PASSWORD);
-
-        List<Sample> samples = v3api.listSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
-
-        assertEquals(samples.size(), 0);
         v3api.logout(sessionToken);
     }
 

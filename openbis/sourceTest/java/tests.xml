@@ -13,6 +13,9 @@
         <exclude name="ch.systemsx.cisd.openbis.common.*" />
         <exclude name="ch.systemsx.cisd.openbis.remoteapitest.*" />
         <exclude name="ch.systemsx.cisd.openbis.systemtest.*" />
+      </package>
+      <package name="ch.ethz.sis.openbis.*">
+        <exclude name="ch.ethz.sis.openbis.systemtest.*" />
       </package>      
     </packages>     
   </test>
@@ -29,6 +32,7 @@
     <packages>
         <package name="ch.systemsx.cisd.openbis.remoteapitest.*" />
         <package name="ch.systemsx.cisd.openbis.systemtest.*" />
+        <package name="ch.ethz.sis.openbis.systemtest.*" />
     </packages>
   </test>
   

@@ -43,10 +43,13 @@ public abstract class ToOneRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> imp
 
         for (ORIGINAL original : ownerToOriginalMap.values())
         {
-            RELATED_ID originalId = getOriginalId(original);
-            if (false == originalIdToOriginalMap.containsKey(originalId))
+            if (original != null)
             {
-                originalIdToOriginalMap.put(originalId, original);
+                RELATED_ID originalId = getOriginalId(original);
+                if (false == originalIdToOriginalMap.containsKey(originalId))
+                {
+                    originalIdToOriginalMap.put(originalId, original);
+                }
             }
         }
 
@@ -66,9 +69,15 @@ public abstract class ToOneRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> imp
         {
             OWNER owner = ownerToOriginalEntry.getKey();
             ORIGINAL original = ownerToOriginalEntry.getValue();
-            RELATED_ID originalId = getOriginalId(original);
-            TRANSLATED translated = translatedIdToTranslatedMap.get(originalId);
-            result.put(owner, translated);
+            if (original != null)
+            {
+                RELATED_ID originalId = getOriginalId(original);
+                TRANSLATED translated = translatedIdToTranslatedMap.get(originalId);
+                result.put(owner, translated);
+            } else
+            {
+                result.put(owner, null);
+            }
         }
 
         return result;

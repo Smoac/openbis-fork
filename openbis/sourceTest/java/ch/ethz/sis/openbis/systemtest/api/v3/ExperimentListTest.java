@@ -45,7 +45,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsByTechId()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
                 v3api.listExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
@@ -58,7 +58,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsByPermId()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
                 v3api.listExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
@@ -71,7 +71,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsByDifferentIds()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
                 v3api.listExperiments(sessionToken,
                         Arrays.asList(new ExperimentPermId("200811050951882-1028"), new ExperimentPermId("200811050952663-1029"),
@@ -88,7 +88,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithoutFetchOptions()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
                 v3api.listExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
@@ -114,7 +114,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithType()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchType();
 
@@ -146,7 +146,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithAttachment()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchAttachments().fetchPreviousVersion().fetchPreviousVersion().fetchContent();
 
@@ -186,7 +186,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test()
     public void testListExperimentsWithProject()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchProject();
 
@@ -218,7 +218,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithProperties()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchProperties();
 
@@ -249,7 +249,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithRegistrator()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchRegistrator();
 
@@ -278,7 +278,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithModifier()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchModifier();
 
@@ -307,7 +307,7 @@ public class ExperimentListTest extends AbstractExperimentTest
     @Test
     public void testListExperimentsWithTags()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchTags();
 
@@ -340,12 +340,17 @@ public class ExperimentListTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testListExperimentsFromUnauthorizedSpace()
+    public void testListExperimentsWithUnauthorizedSpace()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, TEST_USER_PASSWORD);
-
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
                 v3api.listExperiments(sessionToken, Arrays.asList(new ExperimentPermId("200811050951882-1028")), new ExperimentFetchOptions());
+
+        assertEquals(experiments.size(), 1);
+        v3api.logout(sessionToken);
+
+        sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        experiments = v3api.listExperiments(sessionToken, Arrays.asList(new ExperimentPermId("200811050951882-1028")), new ExperimentFetchOptions());
 
         assertEquals(experiments.size(), 0);
         v3api.logout(sessionToken);

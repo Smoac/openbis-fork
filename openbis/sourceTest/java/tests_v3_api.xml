@@ -1,6 +1,7 @@
 <suite name="v3" verbose="2" >
   <test name="unit" annotations="JDK">
     <packages>
+      <package name="ch.ethz.sis.openbis.generic.server.api.v3.*" />
       <package name="ch.ethz.sis.openbis.systemtest.api.v3.*" />
     </packages>     
   </test>

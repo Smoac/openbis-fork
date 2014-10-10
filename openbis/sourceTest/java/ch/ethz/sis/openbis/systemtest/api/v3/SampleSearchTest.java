@@ -149,7 +149,7 @@ public class SampleSearchTest extends AbstractSampleTest
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withRegistrationDate().withShortFormat().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, 14);
+        testSearch(TEST_USER, criterion, 15);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class SampleSearchTest extends AbstractSampleTest
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withModificationDate().withShortFormat().thatEquals("2009-08-18");
-        testSearch(TEST_USER, criterion, 13);
+        testSearch(TEST_USER, criterion, 14);
     }
 
     @Test
@@ -204,9 +204,21 @@ public class SampleSearchTest extends AbstractSampleTest
         testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
     }
 
+    @Test
+    public void testSearchWithUnauthorizedSpace()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_USER, criterion, 1);
+
+        criterion = new SampleSearchCriterion();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_SPACE_USER, criterion, 0);
+    }
+
     private void testSearch(String user, SampleSearchCriterion criterion, String... expectedIdentifiers)
     {
-        String sessionToken = v3api.login(user, "password");
+        String sessionToken = v3api.login(user, PASSWORD);
 
         List<Sample> samples =
                 v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());
@@ -217,7 +229,7 @@ public class SampleSearchTest extends AbstractSampleTest
 
     private void testSearch(String user, SampleSearchCriterion criterion, int expectedCount)
     {
-        String sessionToken = v3api.login(user, "password");
+        String sessionToken = v3api.login(user, PASSWORD);
 
         List<Sample> samples =
                 v3api.searchSamples(sessionToken, criterion, new SampleFetchOptions());

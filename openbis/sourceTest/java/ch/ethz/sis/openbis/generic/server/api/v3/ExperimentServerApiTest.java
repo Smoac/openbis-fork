@@ -101,7 +101,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         tag.setOwner(person);
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithUnspecifiedType()
     {
         prepareCreationEnvironment();
@@ -114,7 +114,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithUnknownType()
     {
         prepareCreationEnvironment();
@@ -128,7 +128,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithUnspecifiedProject()
     {
         prepareCreationEnvironment();
@@ -141,7 +141,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithUnknownProjectIdentifier()
     {
         prepareCreationEnvironment();
@@ -155,7 +155,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithUnknownProjectPermId()
     {
         prepareCreationEnvironment();
@@ -169,7 +169,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithTagIdOfWrongOwner()
     {
         prepareCreationEnvironment();
@@ -183,7 +183,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithAttachmentWithUnspecifiedFileName()
     {
         prepareCreationEnvironment();
@@ -196,7 +196,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithAttachmentWithUnspecifiedContent()
     {
         prepareCreationEnvironment();
@@ -212,7 +212,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithNoTagsAndAttachmentsSuccessfully()
     {
         RecordingMatcherRepository recorderRepository = prepareCreationEnvironment();
@@ -242,7 +242,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreateExperimentWithTagAndAttachmentSuccessfully()
     {
         RecordingMatcherRepository recorderRepository = prepareCreationEnvironment();
@@ -286,7 +286,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
     }
 
     // This test is testing correct poping of context descriptions
-    @Test
+    @Test(enabled = false)
     public void testCreateTwoExperimentSecondWithUnknownProjectPermId()
     {
         prepareCreationEnvironment();

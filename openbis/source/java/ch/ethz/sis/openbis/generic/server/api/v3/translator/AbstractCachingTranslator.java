@@ -18,8 +18,10 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -63,8 +65,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     protected Collection<O> doTranslate(Collection<I> inputs)
     {
         List<O> translated = new LinkedList<O>();
-
-        Relations relations = loadObjectsRelations(inputs);
+        Map<I, O> updated = new HashMap<I, O>();
 
         for (I input : inputs)
         {
@@ -95,8 +96,8 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
                             operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + input.getId());
                         }
 
-                        updateObject(input, output, relations);
                         getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
+                        updated.put(input, output);
                         translated.add(output);
                     }
                 }
@@ -113,8 +114,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
                     getTranslationCache().putTranslatedObject(getClass().getName(), input.getId(), output);
                     getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
-
-                    updateObject(input, output, relations);
+                    updated.put(input, output);
                     translated.add(output);
 
                     if (operationLog.isDebugEnabled())
@@ -126,35 +126,20 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
                     operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + input.getId());
                 }
             }
-        }
 
-        return translated;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Relations loadObjectsRelations(Collection<I> inputs)
-    {
-        Collection<I> notCached = new LinkedList<I>();
-
-        for (I input : inputs)
-        {
-            if (getTranslationCache().hasTranslatedObject(getClass().getName(), input.getId()))
+            if (false == updated.isEmpty())
             {
-                O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), input.getId());
+                Relations relations = getObjectsRelations(updated.keySet());
+                relations.load();
 
-                if (output != null && false == getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
+                for (Map.Entry<I, O> updatedEntry : updated.entrySet())
                 {
-                    notCached.add(input);
+                    updateObject(updatedEntry.getKey(), updatedEntry.getValue(), relations);
                 }
-            } else if (shouldTranslate(input))
-            {
-                notCached.add(input);
             }
         }
 
-        Relations relations = getObjectsRelations(notCached);
-        relations.load();
-        return relations;
+        return translated;
     }
 
     /**

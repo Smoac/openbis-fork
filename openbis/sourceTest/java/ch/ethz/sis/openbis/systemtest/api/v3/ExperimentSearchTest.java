@@ -61,7 +61,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withProject().withCode().thatEquals("NOE");
-        testSearch(TEST_USER, criterion, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        testSearch(TEST_USER, criterion, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
@@ -69,7 +69,8 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withProject().withSpace().withCode().thatEquals("TEST-SPACE");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2");
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
@@ -149,7 +150,8 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withRegistrationDate().withShortFormat().thatEquals("2009-02-09");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
@@ -157,7 +159,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withRegistrationDate().withShortFormat().thatIsLaterThanOrEqualTo("2009-02-09");
-        testSearch(TEST_USER, criterion, 4);
+        testSearch(TEST_USER, criterion, 5);
     }
 
     @Test
@@ -173,7 +175,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withModificationDate().withShortFormat().thatEquals("2009-03-18");
-        testSearch(TEST_USER, criterion, 11);
+        testSearch(TEST_USER, criterion, 12);
     }
 
     @Test
@@ -196,9 +198,21 @@ public class ExperimentSearchTest extends AbstractExperimentTest
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP10", "/CISD/NEMO/EXP11");
     }
 
+    @Test
+    public void testSearchWithUnauthorizedSpace()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withPermId().thatEquals("200811050951882-1028");
+        testSearch(TEST_USER, criterion, 1);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withPermId().thatEquals("200811050951882-1028");
+        testSearch(TEST_SPACE_USER, criterion, 0);
+    }
+
     private void testSearch(String user, ExperimentSearchCriterion criterion, String... expectedIdentifiers)
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(user, PASSWORD);
 
         List<Experiment> experiments =
                 v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
@@ -209,7 +223,7 @@ public class ExperimentSearchTest extends AbstractExperimentTest
 
     private void testSearch(String user, ExperimentSearchCriterion criterion, int expectedCount)
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(user, PASSWORD);
 
         List<Experiment> experiments =
                 v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());

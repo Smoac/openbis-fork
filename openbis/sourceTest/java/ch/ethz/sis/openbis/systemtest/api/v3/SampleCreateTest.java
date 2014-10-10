@@ -65,7 +65,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test(dataProvider = "tf-ft-tt")
     public void testCreateTwoSamplesWithContainerRelation(boolean setRelationOnChild, boolean setRelationOnParent)
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sampleParent = new SampleCreation();
         sampleParent.setCode("SAMPLE_CONTAINER");
@@ -112,7 +112,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test(dataProvider = "tf-ft-tt")
     public void testCreateTwoSamplesWithParentChildRelation(boolean setRelationOnChild, boolean setRelationOnParent)
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sampleParent = new SampleCreation();
         sampleParent.setCode("SAMPLE_PARENT");
@@ -160,7 +160,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testCreateSample()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleCreation samp1 = new SampleCreation();
         samp1.setCode("SAMPLE_WITH_SPACE1");
         samp1.setTypeId(new EntityTypePermId("CELL_PLATE"));
@@ -260,7 +260,7 @@ public class SampleCreateTest extends AbstractSampleTest
 
     public void testCreateSampleWithCircularDependency()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sampleParent = new SampleCreation();
         sampleParent.setCode("SAMPLE_PARENT");
@@ -297,7 +297,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test(dataProvider = "tf-ft-tt", enabled = false)
     public void testCreateSampleWithInconsistentContainer(boolean setSubSample, boolean setOtherContainer)
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation container1 = new SampleCreation();
         container1.setCode("SAMPLE_CONTAINER_1");
@@ -342,7 +342,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testCreateSampleWithChildrenViolatingBusinessRules()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sampleParent = new SampleCreation();
         sampleParent.setCode("SAMPLE_PARENT");
@@ -369,7 +369,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testCreateSampleWithExistingParentViolatingBusinessRules()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sampleChild = new SampleCreation();
         sampleChild.setCode("SAMPLE_CHILDREN");
@@ -391,7 +391,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testAssignContainerToCreatedSample()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sc1 = createSimpleSample("SAMPLE_1");
         SampleCreation sc2 = createSimpleSample("SAMPLE_2");
@@ -416,7 +416,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testAssignContainerWithCreationId()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sc1 = createSimpleSample("SAMPLE_1");
         SampleCreation sc2 = createSimpleSample("SAMPLE_2");
@@ -441,7 +441,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testCreateSampleWithCircularContainerDependency()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation sample1 = createSimpleSample("SAMPLE_1");
         SampleCreation sample2 = createSimpleSample("SAMPLE_2");
@@ -464,7 +464,7 @@ public class SampleCreateTest extends AbstractSampleTest
     @Test
     public void testCreateSampleWithoutCode()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleCreation sample = createSimpleSample(null);
         try
         {

@@ -123,7 +123,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
         // tag.setOwner(person);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNotExistingCreationId()
     {
         prepareCreationEnvironment();
@@ -144,7 +144,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
                 sampleParent, sampleChild);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnknownExperiment()
     {
         prepareCreationEnvironment();
@@ -159,7 +159,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
                 sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnkownSpaceDefined()
     {
         prepareCreationEnvironment();
@@ -174,7 +174,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
                 sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNoSpaceDefinedCreatesSharedSample()
     {
         prepareCreationEnvironment();
@@ -193,7 +193,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
         assertCreateSampleOK(sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNoCodeSpecified()
     {
         prepareCreationEnvironment();
@@ -206,7 +206,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
         assertFailingCreateSamples("No code for sample provided (Context: [register sample null])", sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnknownType()
     {
         prepareCreationEnvironment();
@@ -220,7 +220,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
                 sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnknownContainer()
     {
         prepareCreationEnvironment();
@@ -235,7 +235,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
         assertFailingCreateSamples("Unknown ids [UNKNOWN_SAMPLE_ID] (Context: [register samples - verify relationships])", sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnknownParent()
     {
         prepareCreationEnvironment();
@@ -250,7 +250,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
         assertFailingCreateSamples("Unknown ids [UNKNOWN_SAMPLE_ID] (Context: [register samples - verify relationships])", sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testUnknownChild()
     {
         prepareCreationEnvironment();
@@ -265,7 +265,7 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
         assertFailingCreateSamples("Unknown ids [UNKNOWN_SAMPLE_ID] (Context: [register samples - verify relationships])", sample);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCycleParentChildDependencies()
     {
         SamplePE samplePE = new SamplePE();

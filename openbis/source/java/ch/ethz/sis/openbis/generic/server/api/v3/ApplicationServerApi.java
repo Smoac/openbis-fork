@@ -35,7 +35,6 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleEx
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IListSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.EntityAttributeProviderFactory;
@@ -184,7 +183,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         {
             throw ExceptionUtils.create(context, t);
         }
-
     }
 
     @Override
@@ -267,8 +265,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<ExperimentPE> experiments = listExperimentByIdExecutor.list(context, experimentIds);
 
-        return new ListTranslator().translate(experiments, new ExperimentTranslator(
-                new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions));
+        return new LinkedList<Experiment>(
+                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments));
     }
 
     @Override
@@ -307,8 +305,8 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(experimentIds);
 
-        return new ListTranslator().translate(experiments, new ExperimentTranslator(
-                new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions));
+        return new LinkedList<Experiment>(
+                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments));
     }
 
     @Override

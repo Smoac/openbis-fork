@@ -25,7 +25,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -39,23 +38,18 @@ import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 /**
  * @author Jakub Straszewski
  */
-@Test(groups = "system test")
 public class AbstractTest extends SystemTestCase
 {
 
     protected static final String NOT_EXISTING_USER = "notexistinguser";
 
-    protected static final String NOT_EXISTING_USER_PASSWORD = "password";
-
     protected static final String TEST_SPACE_USER = "test_space";
-
-    protected static final String TEST_SPACE_USER_PASSWORD = "password";
 
     protected static final String TEST_USER = "test";
 
     protected static final String TEST_POWER_USER_CISD = "test_role";
 
-    protected static final String TEST_USER_PASSWORD = "password";
+    protected static final String PASSWORD = "password";
 
     private BufferedAppender logRecorder;
 

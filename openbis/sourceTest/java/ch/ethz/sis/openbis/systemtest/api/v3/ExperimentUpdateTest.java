@@ -42,7 +42,7 @@ public class ExperimentUpdateTest extends AbstractExperimentTest
     @Test
     public void testUpdateExperimentSetProject()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("TEST_EXPERIMENT");
@@ -75,7 +75,7 @@ public class ExperimentUpdateTest extends AbstractExperimentTest
     @Test
     public void testUpdateExperimentSetProperties()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("TEST_EXPERIMENT");
@@ -105,7 +105,7 @@ public class ExperimentUpdateTest extends AbstractExperimentTest
     @Test
     public void testUpdateExperimentSetTags()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("TEST_EXPERIMENT");

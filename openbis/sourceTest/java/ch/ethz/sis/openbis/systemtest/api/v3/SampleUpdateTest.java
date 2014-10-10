@@ -52,7 +52,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSample()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -87,7 +87,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetExperimentInTheSameSpace()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -115,7 +115,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetExperimentInDifferentSpace()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -142,7 +142,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetExperimentForSharedSample()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -168,7 +168,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetExperimentToNull()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -197,7 +197,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetSpace()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -224,7 +224,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetProperties()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -267,7 +267,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetContainer()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation containerCreation = masterPlateCreation("CISD", "TEST_CONTAINER");
         SampleCreation containedCreation = wellCreation("CISD", "TEST_CONTAINED");
@@ -304,7 +304,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetAddRemoveContained()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation contained1Creation = masterPlateCreation("CISD", "TEST_CONTAINED_1");
         SampleCreation contained2Creation = masterPlateCreation("CISD", "TEST_CONTAINED_2");
@@ -376,7 +376,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetAddRemoveParents()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation parent1Creation = masterPlateCreation("CISD", "TEST_PARENT_1");
         SampleCreation parent2Creation = masterPlateCreation("CISD", "TEST_PARENT_2");
@@ -447,7 +447,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetAddRemoveChildren()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation child1Creation = masterPlateCreation("CISD", "TEST_CHILD_1");
         SampleCreation child2Creation = masterPlateCreation("CISD", "TEST_CHILD_2");
@@ -518,7 +518,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleSetAddRemoveTags()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation1 = masterPlateCreation("CISD", "SAMPLE_1_WITH_TAGS");
         SampleCreation creation2 = masterPlateCreation("CISD", "SAMPLE_2_WITH_TAGS");
@@ -567,7 +567,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     
     @Test
     public void updateSampleRemoveSpace() {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");
@@ -600,7 +600,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     
     @Test
     public void updateSharedSampleSetSpace() {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
         creation.setCode("SAMPLE");

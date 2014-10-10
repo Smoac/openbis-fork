@@ -17,7 +17,7 @@ public class LoginTest extends AbstractTest
     @Test
     public void testLoginWithExistingUser()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Assert.assertNotNull(sessionToken);
 
         List<Experiment> experimentFromCisdSpace =
@@ -37,28 +37,28 @@ public class LoginTest extends AbstractTest
     @Test
     public void testLoginWithNotExistingUser()
     {
-        String sessionToken = v3api.login(NOT_EXISTING_USER, NOT_EXISTING_USER_PASSWORD);
+        String sessionToken = v3api.login(NOT_EXISTING_USER, PASSWORD);
         Assert.assertNull(sessionToken);
     }
 
     @Test
     public void testLoginAsWithNotExistingUser()
     {
-        String sessionToken = v3api.loginAs(NOT_EXISTING_USER, NOT_EXISTING_USER_PASSWORD, TEST_USER);
+        String sessionToken = v3api.loginAs(NOT_EXISTING_USER, PASSWORD, TEST_USER);
         Assert.assertNull(sessionToken);
     }
 
     @Test
     public void testLoginAsWithExistingUserAsNotExistingUser()
     {
-        String sessionToken = v3api.loginAs(TEST_USER, TEST_USER_PASSWORD, NOT_EXISTING_USER);
+        String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, NOT_EXISTING_USER);
         Assert.assertNull(sessionToken);
     }
 
     @Test
     public void testLoginAsWithInstanceAdminAsInstanceAdmin()
     {
-        String sessionToken = v3api.loginAs(TEST_USER, TEST_USER_PASSWORD, TEST_USER);
+        String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_USER);
         Assert.assertNotNull(sessionToken);
 
         List<Experiment> experimentFromCisdSpace =
@@ -78,7 +78,7 @@ public class LoginTest extends AbstractTest
     @Test
     public void testLoginAsWithInstanceAdminAsSpaceAdmin()
     {
-        String sessionToken = v3api.loginAs(TEST_USER, TEST_USER_PASSWORD, TEST_SPACE_USER);
+        String sessionToken = v3api.loginAs(TEST_USER, PASSWORD, TEST_SPACE_USER);
         Assert.assertNotNull(sessionToken);
 
         List<Experiment> experimentFromCisdSpace =
@@ -98,7 +98,7 @@ public class LoginTest extends AbstractTest
     @Test
     public void testLoginAsWithSpaceAdminAsInstanceAdmin()
     {
-        String sessionToken = v3api.loginAs(TEST_SPACE_USER, TEST_SPACE_USER_PASSWORD, TEST_USER);
+        String sessionToken = v3api.loginAs(TEST_SPACE_USER, PASSWORD, TEST_USER);
         Assert.assertNull(sessionToken);
     }
 }

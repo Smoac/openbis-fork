@@ -51,7 +51,7 @@ public class ExperimentCreateTest extends AbstractExperimentTest
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testCreateExperimentWithFailedAuthorization()
     {
-        String sessionToken = v3api.login(TEST_POWER_USER_CISD, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
 
         ExperimentCreation experiment = new ExperimentCreation();
         experiment.setCode("TEST_EXPERIMENT1");
@@ -64,7 +64,7 @@ public class ExperimentCreateTest extends AbstractExperimentTest
     @Test
     public void testCreateExperiment()
     {
-        String sessionToken = v3api.login(TEST_USER, TEST_USER_PASSWORD);
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation experiment1 = new ExperimentCreation();
         experiment1.setCode("TEST_EXPERIMENT1");
