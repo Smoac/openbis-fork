@@ -465,9 +465,9 @@ function MainController(profile) {
 	
 	this._showCreateDataSetPage = function(sample) {
 		//Show Form
-		var datasetForm = new DataSetForm(this.serverFacade, "mainContainer", this.profile, sample, DataSetFormMode.VIEW);
-		datasetForm.init();
-		this.currentView = datasetForm;
+		var newView = new DataSetFormController(this, FormMode.VIEW, sample);
+		newView.init($("#mainContainer"));
+		this.currentView = newView;
 	}
 	
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
