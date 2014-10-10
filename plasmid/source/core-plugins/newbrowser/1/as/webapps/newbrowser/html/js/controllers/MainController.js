@@ -183,7 +183,12 @@ function MainController(profile) {
 				break;
 			case "showSearchPage":
 				document.title = "Search";
-				this._showSearchPage(arg);
+				var cleanText = decodeURIComponent(arg); //If the JSON is written on the URL we need to clean special chars
+				var argsMap = JSON.parse(cleanText);
+				var searchText = argsMap["searchText"];
+				var searchDomain = argsMap["searchDomain"];
+				var searchDomainLabel = argsMap["searchDomainLabel"];
+				this._showSearchPage(searchText, searchDomain, searchDomainLabel);
 				window.scrollTo(0,0);
 				break;
 			case "showSpacePage":
@@ -467,7 +472,7 @@ function MainController(profile) {
 	
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
 	
-	this._showSearchPage = function(value) {
+	this._showSearchPage = function(value, searchDomain, searchDomainLabel) {
 		if(value.length === 0) {
 			return;
 		}
@@ -488,8 +493,6 @@ function MainController(profile) {
 				}
 				
 				$("#search").addClass("search-query-searching");
-				var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
-				var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
 				if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
 					localReference.serverFacade.searchWithText(value, function(data) {
 						if(localSearchId === localReference.lastSearchId) {

@@ -433,9 +433,30 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 			dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback($('<span>', { id : 'prefix-selected-search-domain', class : 'btn btn-default disabled', 'selected-name' :  searchDomains[0].name }).append(defaultSelected),dropDownComponents, true);
 		}
 		
+		
+		var searchElement = $("<input>", { "id" : "search", "type" : "text", "class" : "form-control search-query", "placeholder" : "Search"});
+		searchElement.keyup(function(event) {
+			var searchText = event.target.value;
+			var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
+			var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
+			if(!searchDomain) {
+				searchDomain = profile.getSearchDomains()[0].name;
+				searchDomainLabel = profile.getSearchDomains()[0].label;
+			}
+			
+			var argsMap = {
+					"searchText" : event.target.value,
+					"searchDomain" : searchDomain,
+					"searchDomainLabel" : searchDomainLabel
+			}
+			var argsMapStr = JSON.stringify(argsMap);
+			
+			mainController.changeView("showSearchPage", argsMapStr);
+		});
+		
 		var $searchForm = $("<li>")
 						.append($("<form>", { "class" : "navbar-form", "onsubmit" : "return false;"})
-									.append($("<input>", { "id" : "search", "type" : "text", "onkeyup" : "mainController.changeView(\"showSearchPage\", event.target.value);", "class" : "form-control search-query", "placeholder" : "Search"}))
+									.append(searchElement)
 									.append('&nbsp;')
 									.append(dropDownSearch)
 								);
