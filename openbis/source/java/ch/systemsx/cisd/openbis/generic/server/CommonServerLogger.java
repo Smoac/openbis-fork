@@ -110,6 +110,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -700,6 +701,16 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
             DetailedSearchCriteria criteria)
     {
         logAccess(sessionToken, "search_for_experiments", "criteria(%s)", criteria);
+        return null;
+    }
+
+    @Override
+    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String sessionToken,
+            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+            Map<String, String> optionalParametersOrNull)
+    {
+        logAccess(sessionToken, "search_for_datasets_with_sequences", "preferred_database(%s) sequence_snippet(%s)",
+                preferredSequenceDatabaseOrNull, sequenceSnippet);
         return null;
     }
 

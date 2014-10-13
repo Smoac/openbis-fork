@@ -16,9 +16,7 @@
 
 package ch.systemsx.cisd.etlserver.plugins;
 
-import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.BLAST_DATABASES_FOLDER_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.BLAST_TEMP_FOLDER_PROPERTY;
-import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.BLAST_TOOLS_DIRECTORY_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.DATASET_TYPES_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.FILE_TYPES_PROPERTY;
 import static ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask.LAST_SEEN_DATA_SET_FILE_PROPERTY;
@@ -44,8 +42,10 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedH
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
@@ -58,6 +58,7 @@ import de.schlichtherle.io.File;
 public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystemTestCase
 {
     private static final String INFO_PREFIX = "INFO  OPERATION." + BlastDatabaseCreationMaintenanceTask.class.getSimpleName() + " - ";
+
     private static final String ERROR_PREFIX = "ERROR OPERATION." + BlastDatabaseCreationMaintenanceTask.class.getSimpleName() + " - ";
 
     private static final class MockMaintenanceTask extends BlastDatabaseCreationMaintenanceTask
@@ -214,21 +215,21 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         maintenanceTask.setProcessSuccesses(false);
 
         maintenanceTask.setUp("", properties);
-        
+
         assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
-                + ERROR_PREFIX + "BLAST isn't installed or property '" + BLAST_TOOLS_DIRECTORY_PROPERTY 
+                + ERROR_PREFIX + "BLAST isn't installed or property '" + BlastUtils.BLAST_TOOLS_DIRECTORY_PROPERTY
                 + "' hasn't been correctly specified.", logRecorder.getLogContent());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testMinimumSetUp()
     {
         Properties properties = new Properties();
         properties.setProperty(DATASET_TYPES_PROPERTY, ".+");
-        
+
         maintenanceTask.setUp("BLAST databases creation", properties);
 
         assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
@@ -279,13 +280,13 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
                 + " -dbtype nucl -title DS-3-nucl -out " + store.getAbsolutePath() + "/blast-databases/DS-3-nucl\n"
                 + "makeblastdb -in " + store.getAbsolutePath() + "/blast-databases/tmp/DS-3-prot.fa"
                 + " -dbtype prot -title DS-3-prot -out " + store.getAbsolutePath() + "/blast-databases/DS-3-prot\n"
-                + "makembindex -iformat blastdb -input " + store.getAbsolutePath() + "/blast-databases/DS-3-prot" 
-                + " -old_style_index false\n", 
+                + "makembindex -iformat blastdb -input " + store.getAbsolutePath() + "/blast-databases/DS-3-prot"
+                + " -old_style_index false\n",
                 maintenanceTask.getCommands());
-        assertEquals("TITLE all-nucl\nDBLIST DS-3-nucl", 
+        assertEquals("TITLE all-nucl\nDBLIST DS-3-nucl",
                 FileUtilities.loadToString(new File(store, "blast-databases/all-nucl.nal")).trim());
-        assertEquals("TITLE all-prot\nDBLIST DS-3-prot", 
-                FileUtilities.loadToString(new File(store, "blast-databases/all-prot.nal")).trim());
+        assertEquals("TITLE all-prot\nDBLIST DS-3-prot",
+                FileUtilities.loadToString(new File(store, "blast-databases/all-prot.pal")).trim());
         assertEquals("[]", Arrays.asList(new File(store, "blast-databases/tmp").listFiles()).toString());
         assertEquals(0L, lastSeenIdMatcher.recordedObject().getLastSeenDataSetId());
         context.assertIsSatisfied();
@@ -351,14 +352,14 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         FileUtilities.writeToFile(new File(dataSetFolder1, "fasta.fastq"), "@1\nGATTACA\n+\nznhjnxzx\n");
         prepareContentProvider(ds1, dataSetFolder1);
         maintenanceTask.setProcessSuccesses(false);
-        
+
         maintenanceTask.execute();
-        
+
         assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + store + "/blast-databases\n"
                 + INFO_PREFIX + "Temp folder '" + store + "/blast-databases/tmp' created.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.\n"
-                + ERROR_PREFIX + "Creation of BLAST database failed for data set 'DS1'. Temporary fasta file: " 
+                + ERROR_PREFIX + "Creation of BLAST database failed for data set 'DS1'. Temporary fasta file: "
                 + store + "/blast-databases/tmp/DS1-nucl.fa", logRecorder.getLogContent());
         assertEquals("makeblastdb -version\n"
                 + "makeblastdb -in " + store.getAbsolutePath() + "/blast-databases/tmp/DS1-nucl.fa"
@@ -370,17 +371,17 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         assertEquals(0L, lastSeenIdMatcher.recordedObject().getLastSeenDataSetId());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testExecuteTwiceWithNonDefaultParameters()
     {
         Properties properties = new Properties();
         properties.setProperty(DATASET_TYPES_PROPERTY, ".*");
         File blastDatabasesFolder = new File(workingDirectory, "blast-dbs");
-        properties.setProperty(BLAST_DATABASES_FOLDER_PROPERTY, blastDatabasesFolder.toString());
+        properties.setProperty(BlastUtils.BLAST_DATABASES_FOLDER_PROPERTY, blastDatabasesFolder.toString());
         File tempFolder = new File(workingDirectory, "temp");
         properties.setProperty(BLAST_TEMP_FOLDER_PROPERTY, tempFolder.toString());
-        properties.setProperty(BLAST_TOOLS_DIRECTORY_PROPERTY, "/usr/bin/blast");
+        properties.setProperty(BlastUtils.BLAST_TOOLS_DIRECTORY_PROPERTY, "/usr/bin/blast");
         properties.setProperty(FILE_TYPES_PROPERTY, ".txt .f");
         File lastSeenFile = new File(workingDirectory, "last.txt");
         properties.setProperty(LAST_SEEN_DATA_SET_FILE_PROPERTY, lastSeenFile.toString());
@@ -393,17 +394,21 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         FileUtilities.writeToFile(new File(dataSetFolder1, "fasta.txt"), ">1\nGATTACA\n");
         prepareContentProvider(ds1, dataSetFolder1);
         maintenanceTask.execute();
+        prepareListsDeletedDataSets(ds1.getCode());
         AbstractExternalData ds2 = new DataSetBuilder(12L).type("BLAST").code("DS2")
                 .status(DataSetArchivingStatus.AVAILABLE).getDataSet();
         lastSeenIdMatcher = prepareListNewerDataSet(ds2);
         prepareContentProvider(ds2, dataSetFolder1);
-        
+
         maintenanceTask.execute();
-        
+
         assertEquals(INFO_PREFIX + "File types: [.txt, .f]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + blastDatabasesFolder + "\n"
                 + INFO_PREFIX + "Temp folder '" + tempFolder + "' created.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.\n"
+                + INFO_PREFIX + "BLAST database DS1-nucl successfully deleted.\n"
+                + INFO_PREFIX + "Virtual BLAST database file " + blastDatabasesFolder
+                + "/all-nucl.nal deleted because it was empty.\n"
                 + INFO_PREFIX + "Scan 1 data sets for creating BLAST databases.", logRecorder.getLogContent());
         assertEquals("/usr/bin/blast/makeblastdb -version\n"
                 + "/usr/bin/blast/makeblastdb -in " + tempFolder.getAbsolutePath() + "/DS1-nucl.fa"
@@ -411,7 +416,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
                 + "/usr/bin/blast/makeblastdb -in " + tempFolder.getAbsolutePath() + "/DS2-nucl.fa"
                 + " -dbtype nucl -title DS2-nucl -out " + blastDatabasesFolder.getAbsolutePath() + "/DS2-nucl\n",
                 maintenanceTask.getCommands());
-        assertEquals("TITLE all-nucl\nDBLIST DS1-nucl DS2-nucl",
+        assertEquals("TITLE all-nucl\nDBLIST DS2-nucl",
                 FileUtilities.loadToString(new File(blastDatabasesFolder, "all-nucl.nal")).trim());
         assertEquals(false, new File(store, "blast-databases/all-prot.nal").exists());
         assertEquals("[]", Arrays.asList(tempFolder.listFiles()).toString());
@@ -419,7 +424,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         assertEquals("12", FileUtilities.loadToString(lastSeenFile).trim());
         context.assertIsSatisfied();
     }
-    
+
     private void prepareContentProvider(final AbstractExternalData dataSet, final File dataSetFolder)
     {
         context.checking(new Expectations()
@@ -427,6 +432,22 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
                 {
                     one(contentProvider).asContent(dataSet);
                     will(returnValue(new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(dataSetFolder, null)));
+                }
+            });
+    }
+
+    private void prepareListsDeletedDataSets(final String... dataSetCodes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<DeletedDataSet> result = new ArrayList<DeletedDataSet>();
+                    for (String dataSetCode : dataSetCodes)
+                    {
+                        result.add(new DeletedDataSet(0, dataSetCode));
+                    }
+                    one(service).listDeletedDataSets(null, null);
+                    will(returnValue(result));
                 }
             });
     }

@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -34,11 +37,17 @@ import ch.systemsx.cisd.common.exceptions.InvalidAuthenticationException;
 import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
+import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSequenceDatabase;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
@@ -48,6 +57,10 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBu
  */
 public class DataStoreServiceTest extends AssertJUnit
 {
+    private static final Map<String, String> OPTIONAL_PARAMETERS = Collections.singletonMap("greeting", "hi");
+
+    private static final String SEQUENCE_SNIPPET = "GATTACA";
+
     private static final String INVALID_SESSION_TOKEN_MSG = "Invalid session token.";
 
     private static final String CIFEX_URL = "cifexURL";
@@ -55,7 +68,7 @@ public class DataStoreServiceTest extends AssertJUnit
     private static final File TEST_FOLDER = new File("targets/data-store-service-test");
 
     private static final File TEST_STORE = new File(TEST_FOLDER, "store");
-
+    
     private static final class MockDataStoreService extends DataStoreService
     {
         private final ICIFEXRPCServiceFactory cifexServiceFactory;
@@ -80,6 +93,39 @@ public class DataStoreServiceTest extends AssertJUnit
             AssertJUnit.assertEquals(expectedCIFEXURL, cifexURL);
             return cifexServiceFactory;
         }
+    }
+    
+    public static final class MockSequenceDatabase extends AbstractSequenceDatabase
+    {
+        private static final String DATA_SET_KEY = "data-set";
+        private static final String AVAILABLE_KEY = "available";
+        
+        private boolean available;
+        private String dataSetCode;
+
+        public MockSequenceDatabase(Properties properties, File storeRoot)
+        {
+            super(properties, storeRoot);
+            available = "true".equals(properties.getProperty(AVAILABLE_KEY));
+            dataSetCode = properties.getProperty(DATA_SET_KEY);
+        }
+
+        @Override
+        public boolean isAvailable()
+        {
+            return available;
+        }
+
+        @Override
+        public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
+        {
+            assertSame(SEQUENCE_SNIPPET, sequenceSnippet);
+            assertSame(OPTIONAL_PARAMETERS, optionalParametersOrNull);
+            SequenceSearchResult sequenceSearchResult = new SequenceSearchResult();
+            sequenceSearchResult.setDataSetCode(dataSetCode);
+            return Arrays.asList(sequenceSearchResult);
+        }
+        
     }
 
     private SessionTokenManager sessionTokenManager;
@@ -132,6 +178,74 @@ public class DataStoreServiceTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void testSearchForDataSetsWithSequencesUndefinedDatabases()
+    {
+        pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
+        preparePluginTaskInfoProvider();
+
+        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+                null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+
+        assertEquals(0, result.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testSearchForDataSetsWithSequencesUnAvailableDatabases()
+    {
+        pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
+        preparePluginTaskInfoProvider("-1", "-2");
+        
+        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+                null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+        
+        assertEquals(0, result.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testSearchForDataSetsWithSequencesWithUnspecifiedDatabase()
+    {
+        pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
+        preparePluginTaskInfoProvider("1", "2");
+        
+        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+                null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+        
+        assertEquals("DS-1", result.get(0).getDataSetCode());
+        assertEquals(1, result.size());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testSearchForDataSetsWithSequencesWithSpecifiedAndAvailableDatabase()
+    {
+        pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
+        preparePluginTaskInfoProvider("1", "2");
+        
+        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+                "db-2", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+        
+        assertEquals("DS-2", result.get(0).getDataSetCode());
+        assertEquals(1, result.size());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testSearchForDataSetsWithSequencesWithSpecifiedButUnailableDatabase()
+    {
+        pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
+        preparePluginTaskInfoProvider("-1", "2", "-3", "4");
+        
+        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+                "db-3", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
+        
+        assertEquals("DS-2", result.get(0).getDataSetCode());
+        assertEquals(1, result.size());
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testGetVersionForInvalidSessionToken()
     {
@@ -282,6 +396,38 @@ public class DataStoreServiceTest extends AssertJUnit
         createService().uploadDataSetsToCIFEX(sessionToken, dataSets, uploadContext);
 
         context.assertIsSatisfied();
+    }
+
+    private void preparePluginTaskInfoProvider(final String... databases)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    allowing(pluginTaskParameters).getStoreRoot();
+                    will(returnValue(TEST_STORE));
+                    
+                    List<PluginTaskFactory<ISequenceDatabase>> factories 
+                            = new ArrayList<PluginTaskFactory<ISequenceDatabase>>();
+                    for (String database : databases)
+                    {
+                        boolean available = database.startsWith("-") == false;
+                        if (available == false)
+                        {
+                            database = database.substring(1);
+                        }
+                        Properties sectionProperties = new Properties();
+                        sectionProperties.setProperty(PluginTaskFactory.LABEL_PROPERTY_NAME, database);
+                        sectionProperties.setProperty(PluginTaskFactory.CLASS_PROPERTY_NAME, MockSequenceDatabase.class.getName());
+                        sectionProperties.setProperty(MockSequenceDatabase.AVAILABLE_KEY, Boolean.toString(available));
+                        sectionProperties.setProperty(MockSequenceDatabase.DATA_SET_KEY, "DS-" + database.toUpperCase());
+                        factories.add(new PluginTaskFactory<ISequenceDatabase>(null, 
+                                new SectionProperties("db-" + database, sectionProperties), "DSS", 
+                                ISequenceDatabase.class,  "Test-db-" + database, TEST_STORE));
+                    }
+                    allowing(pluginTaskParameters).getSequenceDatabasesProvider();
+                    will(returnValue(new PluginTaskProvider<ISequenceDatabase>(factories)));
+                }
+            });
     }
 
     private IDataStoreService createService()

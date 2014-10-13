@@ -61,7 +61,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
  * @author Tomasz Pylak
  */
 @Friend(toClasses =
-    { PluginTaskInfoProvider.class, AbstractPluginTaskFactory.class })
+    { PluginTaskInfoProvider.class, PluginTaskFactory.class })
 public class PluginTaskParametersTest extends AbstractFileSystemTestCase
 {
     private static final File STORE_ROOT = new File("../datastore_server/resource/test-data/"
@@ -155,7 +155,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         final String pluginLabel2 = "Demo Reporting 2";
         String datasetCodes2 = "EICML";
         setPluginProperties(props, plugin2, pluginLabel2, datasetCodes2, DemoReportingPlugin.class);
-        setPluginProperty(props, plugin2, AbstractPluginTaskFactory.SERVLETS_PROPERTY_NAME,
+        setPluginProperty(props, plugin2, PluginTaskFactory.SERVLETS_PROPERTY_NAME,
                 "s1, s2");
         setPluginProperty(props, plugin2, "s1.a", "alpha");
         setPluginProperty(props, plugin2, "s2.b", "beta");
@@ -254,7 +254,7 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
         props.setProperty(Constants.PROCESSING_PLUGIN_NAMES, plugin1);
         setPluginProperties(props, plugin1, "pluginLabel1", "datasetCodes1",
                 DemoProcessingPlugin.class);
-        setPluginProperty(props, plugin1, AbstractPluginTaskFactory.SERVLET_PROPERTY_NAME + ".a",
+        setPluginProperty(props, plugin1, PluginTaskFactory.SERVLET_PROPERTY_NAME + ".a",
                 "alpha");
         context.checking(new Expectations()
             {
@@ -292,17 +292,17 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     private void setPluginProperties(Properties props, String pluginId, String pluginLabel,
             String datasetCodes, Class<?> pluginClass) throws IOException, FileNotFoundException
     {
-        setPluginProperty(props, pluginId, AbstractPluginTaskFactory.LABEL_PROPERTY_NAME,
+        setPluginProperty(props, pluginId, PluginTaskFactory.LABEL_PROPERTY_NAME,
                 pluginLabel);
-        setPluginProperty(props, pluginId, AbstractPluginTaskFactory.DATASET_CODES_PROPERTY_NAME,
+        setPluginProperty(props, pluginId, PluginTaskFactory.DATASET_CODES_PROPERTY_NAME,
                 datasetCodes);
-        setPluginProperty(props, pluginId, AbstractPluginTaskFactory.CLASS_PROPERTY_NAME,
+        setPluginProperty(props, pluginId, PluginTaskFactory.CLASS_PROPERTY_NAME,
                 pluginClass.getName());
         String[] pluginParams = new String[]
             { "param1 = X", "param2 = Y" };
         File paramsFile = createPluginPropertiesFile(pluginParams);
         setPluginProperty(props, pluginId,
-                AbstractPluginTaskFactory.PARAMS_FILE_PATH_PROPERTY_NAME, paramsFile.getPath());
+                PluginTaskFactory.PARAMS_FILE_PATH_PROPERTY_NAME, paramsFile.getPath());
     }
 
     private File createPluginPropertiesFile(String... lines) throws IOException,

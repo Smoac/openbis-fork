@@ -44,6 +44,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -397,6 +398,21 @@ public interface IGeneralInformationService extends IRpcService
             EnumSet<DataSetFetchOption> fetchOptions);
 
     /**
+     * Searches for data sets which have nucleotid or amoniacid sequences in there files. 
+     * If no preferred sequence database is specified the first available one will be used. If the
+     * preferred sequence database doesn't exist or isn't available also the first available database will be used.
+     * 
+     * @param preferredSequenceDatabaseOrNull The key of the preferred sequence database or <code>null</code>.
+     * @param sequenceSnippet A snippet of a sequence to search for.
+     * @param optionalParametersOrNull Optional parameters. Can be <code>null</code>. 
+     *          The semantics depends on the type of the used sequence database.
+     * @since 1.29
+     */
+    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken, 
+            String preferredSequenceDatabaseOrNull, String sequenceSnippet, 
+            Map<String, String> optionalParametersOrNull);
+    
+    /**
      * Return all data sets matching specified search criteria. Note, that for returned container data sets the contained data sets have only code,
      * type and registration date set.
      * 
@@ -404,7 +420,7 @@ public interface IGeneralInformationService extends IRpcService
      * @since 1.8
      */
     public List<DataSet> searchForDataSets(String sessionToken, SearchCriteria searchCriteria);
-
+    
     /**
      * Return all data sets matching specified search criteria and visible to user <var>userId</var>. Note, that for returned container data sets the
      * contained data sets have only code, type and registration date set.

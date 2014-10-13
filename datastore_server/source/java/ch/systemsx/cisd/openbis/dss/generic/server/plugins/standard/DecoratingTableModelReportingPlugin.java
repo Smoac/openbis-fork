@@ -25,7 +25,7 @@ import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.AbstractPluginTaskFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IReportingPluginTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.ITableModelTransformation;
@@ -71,7 +71,7 @@ public class DecoratingTableModelReportingPlugin extends AbstractTableModelRepor
     {
         String className =
                 PropertyUtils.getMandatoryProperty(pluginProperties,
-                        AbstractPluginTaskFactory.CLASS_PROPERTY_NAME);
+                        PluginTaskFactory.CLASS_PROPERTY_NAME);
         try
         {
             return ClassUtils.create(IReportingPluginTask.class, className, pluginProperties,
@@ -87,7 +87,7 @@ public class DecoratingTableModelReportingPlugin extends AbstractTableModelRepor
     {
         String className =
                 PropertyUtils.getMandatoryProperty(transformationProperties,
-                        AbstractPluginTaskFactory.CLASS_PROPERTY_NAME);
+                        PluginTaskFactory.CLASS_PROPERTY_NAME);
         try
         {
             return ClassUtils.create(ITableModelTransformation.class, className,

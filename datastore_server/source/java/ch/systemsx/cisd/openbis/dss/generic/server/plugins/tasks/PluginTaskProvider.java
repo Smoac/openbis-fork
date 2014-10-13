@@ -17,7 +17,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import ch.systemsx.cisd.common.collection.IKeyExtractor;
@@ -31,16 +30,16 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescrip
  */
 public class PluginTaskProvider<P>
 {
-    private final TableMap<String, AbstractPluginTaskFactory<P>> factories;
+    private final TableMap<String, PluginTaskFactory<P>> factories;
 
-    public PluginTaskProvider(AbstractPluginTaskFactory<P>[] factories)
+    public PluginTaskProvider(List<PluginTaskFactory<P>> factories)
     {
         this.factories =
-                new TableMap<String, AbstractPluginTaskFactory<P>>(Arrays.asList(factories),
-                        new IKeyExtractor<String, AbstractPluginTaskFactory<P>>()
+                new TableMap<String, PluginTaskFactory<P>>(factories,
+                        new IKeyExtractor<String, PluginTaskFactory<P>>()
                             {
                                 @Override
-                                public String getKey(AbstractPluginTaskFactory<P> factory)
+                                public String getKey(PluginTaskFactory<P> factory)
                                 {
                                     return factory.getPluginDescription().getKey();
                                 }
@@ -64,7 +63,7 @@ public class PluginTaskProvider<P>
     {
         List<DatastoreServiceDescription> descriptions =
                 new ArrayList<DatastoreServiceDescription>();
-        for (AbstractPluginTaskFactory<?> factory : factories.values())
+        for (PluginTaskFactory<?> factory : factories.values())
         {
             descriptions.add(factory.getPluginDescription());
         }
@@ -74,7 +73,7 @@ public class PluginTaskProvider<P>
     /** checks that all factories can produce plugins */
     public void check(boolean checkIfSerializable)
     {
-        for (AbstractPluginTaskFactory<P> factory : factories.values())
+        for (PluginTaskFactory<P> factory : factories.values())
         {
             factory.check(checkIfSerializable);
         }
@@ -83,15 +82,15 @@ public class PluginTaskProvider<P>
     /** Writes information about all plugin factory configurations to the log */
     public void logConfigurations()
     {
-        for (AbstractPluginTaskFactory<P> factory : factories.values())
+        for (PluginTaskFactory<P> factory : factories.values())
         {
             factory.logConfiguration();
         }
     }
 
-    private AbstractPluginTaskFactory<P> getFactory(String pluginKey)
+    private PluginTaskFactory<P> getFactory(String pluginKey)
     {
-        AbstractPluginTaskFactory<P> factory = factories.tryGet(pluginKey);
+        PluginTaskFactory<P> factory = factories.tryGet(pluginKey);
         if (factory == null)
         {
             throw new IllegalArgumentException("No plugin registered for key '" + pluginKey + "'.");
