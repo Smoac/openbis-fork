@@ -377,9 +377,7 @@ public final class ProcessResult
 
         if (isOK() == false)
         {
-            logCommandLine(Level.WARN);
-            logProcessExitValue(Level.WARN);
-            logProcessOutput(Level.WARN);
+            log(Level.WARN);
         } else if (operationLog.isDebugEnabled())
         {
             logProcessExitValue(Level.DEBUG);
@@ -387,6 +385,21 @@ public final class ProcessResult
         }
     }
 
+    /**
+     * Logs command, exit value and outputs as INFO events.
+     */
+    public void logAsInfo()
+    {
+        log(Level.INFO);
+    }
+    
+    private void log(Level level)
+    {
+        logCommandLine(level);
+        logProcessExitValue(level);
+        logProcessOutput(level);
+    }
+    
     private void logCommandLine(final Level logLevel)
     {
         operationLog.log(logLevel, String.format("P%d-{%s} had command line: %s", processNumber,
