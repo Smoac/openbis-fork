@@ -49,16 +49,18 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 		//
 		// Check upload is finish
 		//
-		if(this._dataSetFormModel.files.length === 0) {
-			Util.blockUI();
-			Util.showError("You should upload at least one file.", function() { Util.unblockUI(); });
-			return;
-		}
-		
-		if(Uploader.uploadsInProgress()) {
-			Util.blockUI();
-			Util.showError("Please wait the upload to finish.", function() { Util.unblockUI(); });
-			return;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			if(this._dataSetFormModel.files.length === 0) {
+				Util.blockUI();
+				Util.showError("You should upload at least one file.", function() { Util.unblockUI(); });
+				return;
+			}
+			
+			if(Uploader.uploadsInProgress()) {
+				Util.blockUI();
+				Util.showError("Please wait the upload to finish.", function() { Util.unblockUI(); });
+				return;
+			}
 		}
 		
 		Util.blockUI();
@@ -68,8 +70,14 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 		// Metadata Submit and Creation (Step 2)
 		//
 		var metadata = { };
-			
-		var dataSetType = _this._getDataSetType($('#DATASET_TYPE').val());
+		
+		var dataSetType = null;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			dataSetType = _this._getDataSetType($('#DATASET_TYPE').val());
+		} else {
+			dataSetType = _this._getDataSetType(this._dataSetFormModel.dataSet.dataSetTypeCode);;
+		}
+		
 		for(var i = 0; i < dataSetType.propertyTypeGroups.length; i++) {
 			var propertyTypeGroup = dataSetType.propertyTypeGroups[i];
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
@@ -96,12 +104,24 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 			folderName = 'DEFAULT';
 		}
 		
+		var method = null;
+		var sampleIdentifier = null;
+		var dataSetTypeCode = null;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			method = "insertDataSet";
+			sampleIdentifier = this._dataSetFormModel.sample.identifier;
+			dataSetTypeCode = $('#DATASET_TYPE').val();
+		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
+			method = "updateDataSet";
+			dataSetTypeCode = this._dataSetFormModel.dataSet.dataSetTypeCode;
+		}
+		
 		var parameters = {
 				//API Method
-				"method" : "insertDataSet",
+				"method" : method,
 				//Identification Info
-				"sampleIdentifier" : this._dataSetFormModel.sample.identifier,
-				"dataSetType" : $('#DATASET_TYPE').val(),
+				"sampleIdentifier" : sampleIdentifier,
+				"dataSetType" : dataSetTypeCode,
 				"filenames" : _this._dataSetFormModel.files,
 				"folderName" : folderName,
 				"isZipDirectoryUpload" : isZipDirectoryUpload,

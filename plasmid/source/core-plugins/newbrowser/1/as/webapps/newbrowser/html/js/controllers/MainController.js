@@ -325,9 +325,23 @@ function MainController(profile) {
 					if(!data.result || !data.result[0]) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
-						document.title = "View Data Set " + data.result[0].permId;
+						document.title = "View Data Set " + data.result[0].code;
 						_this._showViewDataSetPage(data.result[0]);
 						window.scrollTo(0,0);
+					}
+				});
+				break;
+			case "showEditDataSetPageFromPermId":
+				var _this = this;
+				this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
+					if(!dataSetData.result || !dataSetData.result[0]) {
+						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+					} else {
+						_this.serverFacade.searchWithIdentifier(dataSetData.result[0].sampleIdentifierOrNull, function(sampleData) {
+							document.title = "Edit Data Set " + dataSetData.result[0].code;
+							_this._showEditDataSetPage(sampleData[0], dataSetData.result[0]);
+							window.scrollTo(0,0);
+						});
 					}
 				});
 				break;
@@ -482,6 +496,13 @@ function MainController(profile) {
 	this._showViewDataSetPage = function(dataset) {
 		//Show Form
 		var newView = new DataSetFormController(this, FormMode.VIEW, null, dataset);
+		newView.init($("#mainContainer"));
+		this.currentView = newView;
+	}
+	
+	this._showEditDataSetPage = function(sample, dataset) {
+		//Show Form
+		var newView = new DataSetFormController(this, FormMode.EDIT, sample, dataset);
 		newView.init($("#mainContainer"));
 		this.currentView = newView;
 	}

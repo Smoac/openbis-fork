@@ -442,14 +442,43 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
 	}
 	
-	this.searchWithUniqueId = function(sampleIdentifier, callbackFunction)
+	this.searchWithIdentifier = function(sampleIdentifier, callbackFunction)
+	{	
+		var matchClauses = [
+				{
+					"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "SPACE",
+					desiredValue : sampleIdentifier.split("/")[1] 
+				},
+				{
+					"@type":"AttributeMatchClause",
+					fieldType : "ATTRIBUTE",			
+					attribute : "CODE",
+					desiredValue : sampleIdentifier.split("/")[2] 
+				}
+		]
+		
+		var sampleCriteria = 
+		{
+			matchClauses : matchClauses,
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		var localReference = this;
+		this.openbisServer.searchForSamplesWithFetchOptions(sampleCriteria, ["PROPERTIES"], function(data) {
+			callbackFunction(localReference.getInitializedSamples(data.result));
+		});
+	}
+	
+	this.searchWithUniqueId = function(samplePermId, callbackFunction)
 	{	
 		var matchClauses = [
 				{
 					"@type":"AttributeMatchClause",
 					fieldType : "ATTRIBUTE",			
 					attribute : "PERM_ID",
-					desiredValue : sampleIdentifier 
+					desiredValue : samplePermId 
 				}		
 		]
 		

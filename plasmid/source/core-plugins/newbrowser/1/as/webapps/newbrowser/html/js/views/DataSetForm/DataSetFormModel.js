@@ -19,7 +19,12 @@ function DataSetFormModel(mode, sample, dataSet) {
 	this.isFormDirty = false;
 	
 	this.sample = sample;
-	this.dataSet = dataSet;
+	if(!dataSet) {
+		this.dataSet = { properties : [] };
+	} else {
+		this.dataSet = dataSet;
+	}
+	
 	this.dataSetTypes = null;
 	this.files = [];
 }

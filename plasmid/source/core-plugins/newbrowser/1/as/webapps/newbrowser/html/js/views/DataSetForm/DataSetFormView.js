@@ -27,15 +27,25 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		$wrapper.submit(function(event) {_this._dataSetFormController.submitDataSet(); event.preventDefault();});
 		
 		var titleText = null;
+		var $editButton = "";
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
-			titleText = 'Create Dataset';
+			titleText = 'Create Dataset ';
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-			titleText = 'Update Dataset';
+			titleText = 'Update Dataset ';
 		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			titleText = 'View Dataset';
+			titleText = 'View Dataset ';
+			
+			var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
+				.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }))
+				.append(' Enable Editing');
+		
+			$editButton.click(function() {
+				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+			});
 		}
 		
-		$wrapper.append($('<h2>').text(titleText));
+		//Edit button;
+		$wrapper.append($('<h2>').text(titleText).append($editButton));
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');
@@ -63,8 +73,6 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Data Set Type', this._dataSetFormModel.dataSet.dataSetTypeCode, "CODE");
 			$wrapper.append($dataSetTypeLabel);
 		}
-		
-		
 		
 		//Metadata Container
 		$wrapper.append($('<div>', { 'id' : 'metadataContainer'}));
@@ -120,7 +128,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					ondelete:onDelete
 				});
 			}
-		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
+		} else {
 			var dataSetType = _this._dataSetFormController._getDataSetType(this._dataSetFormModel.dataSet.dataSetTypeCode);
 			this._repaintMetadata(dataSetType);
 		}
@@ -219,7 +227,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 				
 				var value = "";
 				var isSystemProperty = false;
-				if(this._dataSetFormModel.mode !== FormMode.VIEW) {
+				if(this._dataSetFormModel.mode !== FormMode.CREATE) {
 					value = this._dataSetFormModel.dataSet.properties[propertyType.code];
 					if(!value && propertyType.code.charAt(0) === '$') {
 						value = this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
@@ -244,6 +252,18 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					$component.change(function(event) {
 						localInstance.isFormDirty = true;
 					});
+					
+					//Update values if is into edit mode
+					if(this._dataSetFormModel.mode === FormMode.EDIT) {
+						if(propertyType.dataType === "BOOLEAN") {
+							$($component.children()[0]).prop('checked', value === "true");
+						} else if(propertyType.dataType === "TIMESTAMP") {
+							$($($component.children()[0]).children()[0]).val(value);
+						} else {
+							$component.val(value);
+						}
+					}
+					
 					$controls.append($component);
 				}
 			}
