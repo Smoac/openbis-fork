@@ -319,8 +319,17 @@ function MainController(profile) {
 					}
 				});
 				break;
-				
-				
+			case "showViewDataSetPageFromPermId":
+				var _this = this;
+				this.serverFacade.searchDataSetWithUniqueId(arg, function(data) {
+					if(!data.result || !data.result[0]) {
+						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
+					} else {
+						document.title = "View Data Set " + data.result[0].permId;
+						_this._showViewDataSetPage(data.result[0]);
+						window.scrollTo(0,0);
+					}
+				});
 				break;
 			default:
 				window.alert("The system tried to create a non existing view");
@@ -465,7 +474,14 @@ function MainController(profile) {
 	
 	this._showCreateDataSetPage = function(sample) {
 		//Show Form
-		var newView = new DataSetFormController(this, FormMode.VIEW, sample);
+		var newView = new DataSetFormController(this, FormMode.CREATE, sample, null);
+		newView.init($("#mainContainer"));
+		this.currentView = newView;
+	}
+	
+	this._showViewDataSetPage = function(dataset) {
+		//Show Form
+		var newView = new DataSetFormController(this, FormMode.VIEW, null, dataset);
 		newView.init($("#mainContainer"));
 		this.currentView = newView;
 	}
@@ -541,7 +557,7 @@ function MainController(profile) {
 							};
 							
 							var rowClick = function(e) {
-								window.alert("Open Data Set From with :" + e.data.permId);
+								mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
 							}
 							
 							var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList, rowClick);

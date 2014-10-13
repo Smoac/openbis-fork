@@ -26,28 +26,45 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		$wrapper.submit(function(event) {_this._dataSetFormController.submitDataSet(); event.preventDefault();});
 		
-		$wrapper.append($('<h2>').text('Create Data Set'));
+		var titleText = null;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			titleText = 'Create Dataset';
+		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
+			titleText = 'Update Dataset';
+		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			titleText = 'View Dataset';
+		}
+		
+		$wrapper.append($('<h2>').text(titleText));
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');
 		$dataSetTypeFieldSet.append($('<legend>').text('Type Info'));
 		
-		var $dataSetTypeDropDownObj = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
-		$dataSetTypeDropDownObj.change(function() { 
-			_this._repaintMetadata(
-					_this._dataSetFormController._getDataSetType($('#DATASET_TYPE').val())
+		var $dataSetTypeSelector = null;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			$dataSetTypeSelector = FormUtil.getDataSetsDropDown('DATASET_TYPE', this._dataSetFormModel.dataSetTypes);
+			$dataSetTypeSelector.change(function() { 
+				_this._repaintMetadata(
+						_this._dataSetFormController._getDataSetType($('#DATASET_TYPE').val())
+				);
+				_this.isFormDirty = true;
+			});
+			
+			var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
+			$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
+			$dataSetTypeDropDown.append(
+				$('<div>', {class: FormUtil.controlColumnClass})
+					.append($dataSetTypeSelector)
 			);
-			_this.isFormDirty = true;
-		});
+			$dataSetTypeFieldSet.append($dataSetTypeDropDown);
+			$wrapper.append($dataSetTypeFieldSet);
+		} else {
+			var $dataSetTypeLabel = FormUtil.getFieldForLabelWithText('Data Set Type', this._dataSetFormModel.dataSet.dataSetTypeCode, "CODE");
+			$wrapper.append($dataSetTypeLabel);
+		}
 		
-		var $dataSetTypeDropDown = $('<div>', { class : 'form-group'});
-		$dataSetTypeDropDown.append($('<label>', {class: "control-label " + FormUtil.labelColumnClass}).html('Data Set Type&nbsp;(*):'));
-		$dataSetTypeDropDown.append(
-			$('<div>', {class: FormUtil.controlColumnClass})
-				.append($dataSetTypeDropDownObj)
-		);
-		$dataSetTypeFieldSet.append($dataSetTypeDropDown);
-		$wrapper.append($dataSetTypeFieldSet);
+		
 		
 		//Metadata Container
 		$wrapper.append($('<div>', { 'id' : 'metadataContainer'}));
@@ -57,43 +74,61 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		
 		$wrapper.append($('<div>', { 'id' : 'fileOptionsContainer' } ));
 		
+		//Show Files
+		var filesViewer = $('<div>', { 'id' : 'filesViewer' } );
+		$wrapper.append(filesViewer);
+		
 		//Submit Button
-		var $submitButton = $('<fieldset>')
+		if(this._dataSetFormModel.mode !== FormMode.VIEW) {
+			var $submitButton = $('<fieldset>')
 			.append($('<div>', { class : "form-group"}))
 			.append($('<div>', {class: FormUtil.controlColumnClass})
-						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : 'Create Dataset'})));
-		$wrapper.append($submitButton);
+						.append($('<input>', { class : 'btn btn-primary', 'type' : 'submit', 'value' : titleText})));
+			$wrapper.append($submitButton);
+		}
 		
 		//Attach to main form
 		$container.append($('<div>', { class : 'row'}).append($('<div>', { class : FormUtil.formColumClass}).append($wrapper)));
 		
-		//Initialize file chooser
-		var onComplete = function(data) {
-			_this._dataSetFormModel.files.push(data.name);
-			_this._updateFileOptions();
-			var dataSetType = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
-			if(dataSetType != null) {
-				$("#DATASET_TYPE").val(dataSetType);
-				$("#DATASET_TYPE").prop('disabled', true);
-				_this._repaintMetadata($('#DATASET_TYPE').val())
-			}
-		}
-		
-		var onDelete = function(data) {
-			for(var i=0; _this._dataSetFormModel.files.length; i++) {
-				if(_this._dataSetFormModel.files[i] === data.name) {
-					_this._dataSetFormModel.files.splice(i, 1);
-					break;
+		if(this._dataSetFormModel.mode === FormMode.CREATE) {
+			//Initialize file chooser
+			var onComplete = function(data) {
+				_this._dataSetFormModel.files.push(data.name);
+				_this._updateFileOptions();
+				var dataSetType = profile.getDataSetTypeForFileName(_this._dataSetFormModel.files, data.name);
+				if(dataSetType != null) {
+					$("#DATASET_TYPE").val(dataSetType);
+					$("#DATASET_TYPE").prop('disabled', true);
+					_this._repaintMetadata($('#DATASET_TYPE').val())
 				}
 			}
-			_this._updateFileOptions();
+			
+			var onDelete = function(data) {
+				for(var i=0; _this._dataSetFormModel.files.length; i++) {
+					if(_this._dataSetFormModel.files[i] === data.name) {
+						_this._dataSetFormModel.files.splice(i, 1);
+						break;
+					}
+				}
+				_this._updateFileOptions();
+			}
+			
+			if(this._dataSetFormModel.mode === FormMode.CREATE) {
+				mainController.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
+					main_title : $('<legend>').text('Files Uploader'),
+					uploads_title : $('<legend>').text('File list'),
+					ondelete:onDelete
+				});
+			}
+		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			var dataSetType = _this._dataSetFormController._getDataSetType(this._dataSetFormModel.dataSet.dataSetTypeCode);
+			this._repaintMetadata(dataSetType);
 		}
 		
-		mainController.serverFacade.openbisServer.createSessionWorkspaceUploader($("#APIUploader"), onComplete, {
-			main_title : $('<legend>').text('Files Uploader'),
-			uploads_title : $('<legend>').text('File list'),
-			ondelete:onDelete
-		});
+		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+			var dataSetViewer = new DataSetViewer("filesViewer", profile, null, mainController.serverFacade, profile.getDefaultDataStoreURL(), { result : [this._dataSetFormModel.dataSet] }, false);
+			dataSetViewer.init();
+		}
 	}
 	
 	this._updateFileOptions = function() {
@@ -181,23 +216,36 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			
 			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
 				var propertyType = propertyTypeGroup.propertyTypes[j];
-			
-				var $controlGroup = $('<div>', {class : 'form-group'});
-				var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
-				var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
-				var $controls = $('<div>', {class : FormUtil.controlColumnClass});
 				
-				$controlGroup.append($controlLabel);
-				$controlGroup.append($controls);
-				$fieldset.append($controlGroup);
+				var value = "";
+				var isSystemProperty = false;
+				if(this._dataSetFormModel.mode !== FormMode.VIEW) {
+					value = this._dataSetFormModel.dataSet.properties[propertyType.code];
+					if(!value && propertyType.code.charAt(0) === '$') {
+						value = this._dataSetFormModel.dataSet.properties[propertyType.code.substr(1)];
+						isSystemProperty = true;
+					}
+				}
 				
-				var $component = FormUtil.getFieldForPropertyType(propertyType);
-				$component.change(function(event) {
-					localInstance.isFormDirty = true;
-				});
-				
-				$controls.append($component);
-				
+				if(this._dataSetFormModel.mode === FormMode.VIEW) {
+					var $controlGroup = FormUtil.getFieldForLabelWithText(propertyType.label, value, propertyType.code);
+					$fieldset.append($controlGroup);
+				} else {
+					var $controlGroup = $('<div>', {class : 'form-group'});
+					var requiredStar = (propertyType.mandatory)?"&nbsp;(*)":"";				
+					var $controlLabel = $('<label>', {'class' : "control-label " + FormUtil.labelColumnClass}).html(propertyType.label + requiredStar + ":");
+					var $controls = $('<div>', {class : FormUtil.controlColumnClass});
+					
+					$controlGroup.append($controlLabel);
+					$controlGroup.append($controls);
+					$fieldset.append($controlGroup);
+					
+					var $component = FormUtil.getFieldForPropertyType(propertyType);
+					$component.change(function(event) {
+						localInstance.isFormDirty = true;
+					});
+					$controls.append($component);
+				}
 			}
 			
 			$wrapper.append($fieldset);

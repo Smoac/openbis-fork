@@ -384,6 +384,23 @@ function ServerFacade(openbisServer) {
 		return result;
 	}
 	
+	this.searchDataSetWithUniqueId = function(dataSetPermId, callbackFunction) {
+		var dataSetMatchClauses = [{
+    			"@type":"AttributeMatchClause",
+    			fieldType : "ATTRIBUTE",			
+    			attribute : "PERM_ID",
+    			desiredValue : dataSetPermId
+		}]
+		
+		var dataSetCriteria = 
+		{
+			matchClauses : dataSetMatchClauses,
+			operator : "MATCH_ALL_CLAUSES"
+		};
+		
+		this.openbisServer.searchForDataSets(dataSetCriteria, callbackFunction)
+	}
+	
 	this.searchDataSetsWithTypeForSamples = function(dataSetTypeCode, samplesPermIds, callbackFunction)
 	{
 		var sampleMatchClauses = []
@@ -593,8 +610,6 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
-	
-	
 	this.searchWithText = function(freeText, callbackFunction)
 	{	
 		var sampleCriteria = {
@@ -611,4 +626,5 @@ function ServerFacade(openbisServer) {
 			callbackFunction(localReference.getInitializedSamples(data.result));
 		});
 	}
+	
 }

@@ -24,14 +24,18 @@
  * @param {Sample} sample The sample where to check for the data.
  * @param {ServerFacade} serverFacade Point of contact to make calls to the server
  * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
+ * @param {Map} datasets API result with the datasets to show.
+ * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
  */
-function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL) {
+function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload) {
 	this.containerId = containerId;
 	this.profile = profile;
 	this.containerIdTitle = containerId + "-title";
 	this.containerIdContent = containerId + "-content";
 	this.serverFacade = serverFacade;
 	this.sample = sample;
+	this.datasets = datasets;
+	this.enableUpload = enableUpload;
 	this.sampleDataSets = {};
 	this.sampleDataSetsFiles = {};
 	this.datastoreDownloadURL = datastoreDownloadURL
@@ -67,7 +71,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		return false;
 	}
 	
-	this.init = function() {
+	this._init = function(datasets) {
 		//
 		// Loading Message
 		//
@@ -78,10 +82,60 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		$container.append($containerTitle);
 		$container.append($("<div>", {"id" : this.containerIdContent }));
 		
-		$containerTitle.append($("<legend>").html("Data Sets"));
+		$containerTitle.append($("<legend>").html("Files"));
 		$containerTitle.append($("<p>")
 							.append($("<span>", { class: "glyphicon glyphicon-info-sign" }))
 							.append(" Loading datasets."));
+		
+		//
+		//
+		//
+		var localReference = this;
+		var listFilesCallList = [];
+		
+		var callback = function() { //Just enqueues the next call
+			var getCall = listFilesCallList.pop();
+			if(getCall) {
+				getCall(callback);
+			} else {
+				//Switch Title
+				$containerTitle.empty();
+				
+				//Upload Button
+				var $uploadButton = "";
+				if(enableUpload) {
+					$uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" }));
+					$uploadButton.click(function() { 
+						mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
+					});
+				}
+				
+				$containerTitle.append($("<legend>").append("Files ").append($uploadButton));
+				
+				//Switch
+				$containerTitle.append(localReference._getSwitch());				
+				
+				//Repaint
+				localReference.repaintImages();
+			}
+		}
+		
+		for(var i = 0; i < datasets.result.length; i++) { //DataSets for sample
+			var dataset = datasets.result[i];
+			var listFilesForDataSet = function(dataset){ return function() { //Files in dataset
+				localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
+					localReference.sampleDataSets[dataset.code] = dataset;
+					localReference.sampleDataSetsFiles[dataset.code] = files.result;
+					callback();
+				});
+			}}	
+			listFilesCallList.push(listFilesForDataSet(dataset));
+		}
+		
+		callback();
+	}
+	
+	this.init = function() {
 		//
 		// Loading the datasets
 		//
@@ -89,48 +143,14 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		delete cleanSample.parents;
 		delete cleanSample.children; 
 		
-		var localReference = this;
-		this.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
-			var listFilesCallList = [];
-			
-			var callback = function() { //Just enqueues the next call
-				var getCall = listFilesCallList.pop();
-				if(getCall) {
-					getCall(callback);
-				} else {
-					//Switch Title
-					$containerTitle.empty();
-					
-					//Upload Button
-					var $uploadButton = $("<a>", { class: "btn btn-default" }).append($("<span>", { class: "glyphicon glyphicon-upload" }));
-					$uploadButton.click(function() { 
-						mainController.changeView('showCreateDataSetPageFromPermId',localReference.sample.permId); //TO-DO Fix Global Access
-					} );
-					
-					$containerTitle.append($("<legend>").append("Data Sets ").append($uploadButton));
-					
-					//Switch
-					$containerTitle.append(localReference._getSwitch());				
-					
-					//Repaint
-					localReference.repaintImages();
-				}
-			}
-			
-			for(var i = 0; i < datasets.result.length; i++) { //DataSets for sample
-				var dataset = datasets.result[i];
-				var listFilesForDataSet = function(dataset){ return function() { //Files in dataset
-					localReference.serverFacade.listFilesForDataSet(dataset.code, "/", true, function(files) {
-						localReference.sampleDataSets[dataset.code] = dataset;
-						localReference.sampleDataSetsFiles[dataset.code] = files.result;
-						callback();
-					});
-				}}	
-				listFilesCallList.push(listFilesForDataSet(dataset));
-			}
-			
-			callback();
-		});
+		if(datasets) {
+			this._init(datasets);
+		} else {
+			var localReference = this;
+			this.serverFacade.listDataSetsForSample(cleanSample, true, function(datasets) {
+				localReference._init(datasets);
+			});
+		}
 	}
 	
 	this._getSwitch = function() {

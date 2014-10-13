@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-function DataSetFormModel(mode, sample) {
+function DataSetFormModel(mode, sample, dataSet) {
 	this.mode = mode;
 	this.isFormDirty = false;
 	
 	this.sample = sample;
+	this.dataSet = dataSet;
 	this.dataSetTypes = null;
 	this.files = [];
 }
