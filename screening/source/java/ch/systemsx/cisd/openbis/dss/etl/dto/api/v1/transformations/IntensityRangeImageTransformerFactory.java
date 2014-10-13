@@ -25,6 +25,8 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
  * This class is obsolete, and should not be used. Use
@@ -75,12 +77,14 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                         } else
                         {
                             Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                            Pixels pixels = DssScreeningUtils.createPixels(image);
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels,
                                     channels.iterator().next());
                         }
                     }
                     Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
+                    Pixels pixels = DssScreeningUtils.createPixels(image);
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
                 }
             };
     }

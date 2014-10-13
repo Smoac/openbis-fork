@@ -6,6 +6,8 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
+import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
  * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformer}
@@ -38,7 +40,8 @@ final class BitShiftingImageTransformerFactory implements IImageTransformerFacto
                     {
                         return image;
                     }
-                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(image, shiftBits);
+                    Pixels pixels = DssScreeningUtils.createPixels(image);
+                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(pixels, shiftBits);
                 }
             };
     }

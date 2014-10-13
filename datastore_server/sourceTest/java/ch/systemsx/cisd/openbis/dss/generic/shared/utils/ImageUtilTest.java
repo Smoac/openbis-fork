@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
@@ -30,6 +33,7 @@ import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.ByteBufferRandomAccessFile;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.base.io.RandomAccessFileImpl;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.imagereaders.ImageReaderConstants;
 import ch.systemsx.cisd.imagereaders.ImageReadersTestHelper;
 import ch.systemsx.cisd.openbis.common.io.FileBasedContentNode;
@@ -191,8 +195,8 @@ public class ImageUtilTest extends AssertJUnit
     public void testCreateThumbnail()
     {
         BufferedImage image = loadImageByFile("gif-example.gif");
-        assertImageSize(79, 100, ImageUtil.createThumbnailForDisplay(image, 200, 100));
-        assertImageSize(100, 127, ImageUtil.createThumbnailForDisplay(image, 100, 200));
+        assertImageSize(79, 100, ImageUtil.createThumbnailForDisplay(image, 200, 100, null));
+        assertImageSize(100, 127, ImageUtil.createThumbnailForDisplay(image, 100, 200, null));
     }
 
     @Test
@@ -302,6 +306,74 @@ public class ImageUtilTest extends AssertJUnit
         ImageUtil.tryToFigureOutFileTypeOf(buffer);
 
         assertEquals(0, buffer.getFilePointer());
+    }
+    
+    @Test
+    public void testGetRepresentaticChannelIfBlack()
+    {
+        BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
+        
+        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+        
+        assertEquals(Channel.RED, channel);
+    }
+    
+    @Test
+    public void testGetRepresentaticChannelIfReallyGray()
+    {
+        BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(new Color(100, 100, 100));
+        graphics.drawOval(0, 0, 5, 7);
+        
+        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+        
+        assertEquals(Channel.RED, channel);
+    }
+    
+    @Test
+    public void testGetRepresentaticChannelIfColoredGrayGreen()
+    {
+        BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(new Color(0, 255, 0));
+        graphics.drawOval(0, 0, 5, 7);
+        
+        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+        
+        assertEquals(Channel.GREEN, channel);
+    }
+    
+    @Test
+    public void testGetRepresentaticChannelIfColoredGrayGreenAndBlue()
+    {
+        BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(new Color(0, 255, 255));
+        graphics.drawOval(0, 0, 5, 7);
+        
+        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+        
+        assertEquals(Channel.GREEN, channel);
+    }
+    
+    @Test
+    public void testGetRepresentaticChannelIfColored()
+    {
+        BufferedImage image = new BufferedImage(20, 10, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(Color.GREEN);
+        graphics.drawOval(0, 0, 5, 7);
+        graphics.setColor(Color.BLUE);
+        graphics.fillOval(3, 3, 3, 4);
+        
+        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
+        
+        assertEquals(null, channel);
     }
     
     private void assertFileType(String expectedFileType, String fileName) throws Exception

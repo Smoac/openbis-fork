@@ -495,7 +495,7 @@ public class DatasetDownloadServlet extends AbstractDatasetDownloadServlet
         Size thumbnailSize = tryAsThumbnailDisplayMode(displayMode);
         if (thumbnailSize != null)
         {
-            BufferedImage image = createThumbnail(fileNode, thumbnailSize);
+            BufferedImage image = createThumbnail(fileNode, thumbnailSize, null);
             infoPostfix = " as a thumbnail.";
             responseStream = createResponseContentStream(image, fileNode.getName());
         } else

@@ -20,15 +20,20 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -40,13 +45,17 @@ import ar.com.hjg.pngj.ImageInfo;
 import ar.com.hjg.pngj.ImageLine;
 import ar.com.hjg.pngj.PngFilterType;
 import ar.com.hjg.pngj.PngWriter;
+
 import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.io.IRandomAccessFile;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.image.ImageHistogram;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
-import ch.systemsx.cisd.common.image.IntensityRescaling.GrayscalePixels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+import ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.imagereaders.IImageReader;
@@ -874,7 +883,8 @@ public class ImageUtil
      * 
      * @throws IllegalArgumentException if the file isn't a valid image file.
      */
-    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode contentNode)
+    public static BufferedImage loadImageForDisplay(IHierarchicalContentNode contentNode, 
+            IImageToPixelsConverter converterOrNull)
     {
         if (contentNode.exists() == false)
         {
@@ -882,7 +892,7 @@ public class ImageUtil
                     + contentNode.getRelativePath());
         }
         BufferedImage result = loadImage(contentNode);
-        result = convertForDisplayIfNecessary(result);
+        result = convertForDisplayIfNecessary(result, null, converterOrNull);
         return result;
     }
 
@@ -899,45 +909,133 @@ public class ImageUtil
      * @param maxHeight Maximum height of the result image.
      */
     public static BufferedImage createThumbnailForDisplay(BufferedImage image, int maxWidth,
-            int maxHeight)
+            int maxHeight, IImageToPixelsConverter converterOrNull)
     {
-        BufferedImage result = rescale(image, maxWidth, maxHeight, true, false);
-        result = convertForDisplayIfNecessary(result);
+        BufferedImage result = rescale(image, maxWidth, maxHeight, true, false, converterOrNull);
+        result = convertForDisplayIfNecessary(result, null, converterOrNull);
         return result;
     }
 
     /**
      * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
      * bits grayscale is done. Otherwise the original image is returned.
+     * <p>
+     * Conversion is done by intensity rescaling (with outlier cutoff specified by <code>threshold</code>)
+     * because the actual resolution is often not know because getMaxNumberOfBitsPerComponent() might
+     * return 16 even tough the resolution is only 12.
      */
-    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image)
+    private static BufferedImage convertForDisplayIfNecessary(BufferedImage image, Float threshold, 
+            IImageToPixelsConverter converterOrNull)
     {
-        return convertForDisplayIfNecessary(image, DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
-    }
-
-    /**
-     * If the specified image uses grayscale with color depth larger then 8 bits, conversion to 8
-     * bits grayscale is done. Otherwise the original image is returned.
-     */
-    public static BufferedImage convertForDisplayIfNecessary(BufferedImage image, float threshold)
-    {
-        if (isGrayscale(image))
+        Channel channel = getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(image);
+        if (channel != null)
         {
-            if (image.getColorModel().getPixelSize() > 8)
-            {
-                GrayscalePixels pixels = new GrayscalePixels(image);
-                Levels intensityRange = IntensityRescaling.computeLevels(pixels, threshold);
-                BufferedImage result =
-                        IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange);
-                return result;
-            }
+            Pixels pixels = converterOrNull == null ? new Pixels(image) : converterOrNull.convert(image);
+            Levels intensityRange = IntensityRescaling.computeLevels(pixels,
+                    threshold == null ? DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold, channel);
+            convertToGray(pixels);
+            BufferedImage result =
+                    IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange, Channel.values());
+            return result;
         }
         return image;
     }
 
-    private static boolean isGrayscale(BufferedImage image)
+    private static void convertToGray(Pixels pixels)
     {
-        return image.getColorModel().getColorSpace().getNumComponents() == 1;
+        int[][] pixelData = pixels.getPixelData();
+        if (pixelData.length > 1)
+        {
+            for (int i = 0, n = pixelData[0].length; i < n; i++)
+            {
+                int max = 0;
+                for (int c = 0; c < pixelData.length; c++)
+                {
+                    max = Math.max(max, pixelData[c][i]);
+                }
+                for (int c = 0; c < pixelData.length; c++)
+                {
+                    pixelData[c][i] = max;
+                }
+            }
+        }
+    }
+
+    private static Channel getRepresentativeChannelIfEffectiveGrayAndMoreThan8Bit(BufferedImage image)
+    {
+        if (getMaxNumberOfBitsPerComponent(image) <= 8)
+        {
+            return null;
+        }
+        ColorModel colorModel = image.getColorModel();
+        if (image.getType() != BufferedImage.TYPE_CUSTOM)
+        {
+            return colorModel.getNumColorComponents() == 1 ? Channel.RED : null;
+        }
+        return getRepresentativeChannelIfEffectiveGray(image);
+    }
+    
+    /**
+     * Returns the maximum bit resolution of the specified image. It returns the maximum of the array
+     * returned by {@link ColorModel#getComponentSize()}. If not defined (which should be only the case
+     * for Index16ColorModel of the BioFormats library) {@link ColorModel#getPixelSize()} is returned.
+     */
+    public static int getMaxNumberOfBitsPerComponent(BufferedImage image)
+    {
+        ColorModel colorModel = image.getColorModel();
+        int[] componentSize = colorModel.getComponentSize();
+        if (componentSize == null)
+        {
+            return colorModel.getPixelSize();
+        }
+        int max = 0;
+        for (int size : componentSize)
+        {
+            max = Math.max(max, size);
+        }
+        return max;
+    }
+    
+    /**
+     * Checks whether the specified image is actually a (colored) gray image. 
+     * 
+     * @return the representative color channel which can be used to extract the gray image. 
+     *          <code>null</code> if the image isn't a gray image.
+     */
+    public static Channel getRepresentativeChannelIfEffectiveGray(BufferedImage image)
+    {
+        ImageHistogram imageHistogram = ImageHistogram.calculateHistogram(image);
+        Map<Channel, int[]> histogramsByChannels = new LinkedHashMap<Channel, int[]>();
+        int numberOfPixels = image.getWidth() * image.getHeight();
+        checkIfChannelIsUsed(histogramsByChannels, numberOfPixels, Channel.RED, imageHistogram.getRedHistogram());
+        checkIfChannelIsUsed(histogramsByChannels, numberOfPixels, Channel.GREEN, imageHistogram.getGreenHistogram());
+        checkIfChannelIsUsed(histogramsByChannels, numberOfPixels, Channel.BLUE, imageHistogram.getBlueHistogram());
+        if (histogramsByChannels.isEmpty())
+        {
+            return Channel.RED; // Black image is a gray image, doesn't matter which channel to return.
+        }
+        List<Entry<Channel, int[]>> usedChannels = new ArrayList<Map.Entry<Channel,int[]>>(histogramsByChannels.entrySet());
+        int[] representativeHistogram = usedChannels.get(0).getValue();
+        for (int i = 1; i < usedChannels.size(); i++)
+        {
+            int[] histogram = usedChannels.get(i).getValue();
+            for (int j = 0; j < histogram.length; j++)
+            {
+                if (histogram[j] != representativeHistogram[j])
+                {
+                    return null;
+                }
+            }
+        }
+        return usedChannels.get(0).getKey();
+    }
+
+    private static void checkIfChannelIsUsed(Map<Channel, int[]> usedChannels, int numberOfPixels, Channel channel, int[] histogram)
+    {
+        if (histogram[0] < numberOfPixels)
+        {
+            usedChannels.put(channel, histogram);
+        }
     }
 
     /**
@@ -951,9 +1049,10 @@ public class ImageUtil
      *            specified limit, then the image is not changed.
      * @param highQuality8Bit if true thumbnails will be of higher quality, but rescaling will take
      *            longer and the image will be converted to 8 bit.
+     * @param converterOrNull 
      */
     public static BufferedImage rescale(BufferedImage image, int maxWidth, int maxHeight,
-            boolean enlargeIfNecessary, boolean highQuality8Bit)
+            boolean enlargeIfNecessary, boolean highQuality8Bit, IImageToPixelsConverter converterOrNull)
     {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -986,9 +1085,25 @@ public class ImageUtil
             // WORKAROUND: non-default interpolations do not work well with 16 bit grayscale images.
             // We have to rescale colors to 8 bit here, otherwise the result will contain only few
             // colors.
-            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0);
+            imageToRescale = convertForDisplayIfNecessary(imageToRescale, 0f, converterOrNull);
         }
         graphics2D.drawImage(imageToRescale, 0, 0, thumbnailWidth, thumbnailHeight, null);
+        graphics2D.dispose();
+        return thumbnail;
+    }
+
+    public static BufferedImage convertToRGB(BufferedImage image)
+    {
+        if (image.getType() == BufferedImage.TYPE_INT_RGB
+                || image.getType() == BufferedImage.TYPE_INT_ARGB)
+        {
+            return image;
+        }
+
+        BufferedImage thumbnail =
+                createNewEmptyImage(image, false, image.getWidth(), image.getHeight());
+        Graphics2D graphics2D = thumbnail.createGraphics();
+        graphics2D.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
         graphics2D.dispose();
         return thumbnail;
     }
@@ -1003,12 +1118,12 @@ public class ImageUtil
             imageType =
                     imageType == BufferedImage.TYPE_USHORT_GRAY ? BufferedImage.TYPE_BYTE_GRAY
                             : BufferedImage.TYPE_INT_RGB;
-        } else if (imageType == BufferedImage.TYPE_CUSTOM)
-        {
-            imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         } else if (imageType == BufferedImage.TYPE_BYTE_INDEXED)
         {
             imageType = BufferedImage.TYPE_INT_RGB;
+        } else 
+        {
+            imageType = isTransparent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
         }
         BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, imageType);
         return thumbnail;
