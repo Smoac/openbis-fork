@@ -69,30 +69,7 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 		//
 		// Metadata Submit and Creation (Step 2)
 		//
-		var metadata = { };
-		
-		var dataSetType = null;
-		if(this._dataSetFormModel.mode === FormMode.CREATE) {
-			dataSetType = _this._getDataSetType($('#DATASET_TYPE').val());
-		} else {
-			dataSetType = _this._getDataSetType(this._dataSetFormModel.dataSet.dataSetTypeCode);;
-		}
-		
-		for(var i = 0; i < dataSetType.propertyTypeGroups.length; i++) {
-			var propertyTypeGroup = dataSetType.propertyTypeGroups[i];
-			for(var j = 0; j < propertyTypeGroup.propertyTypes.length; j++) {
-				var propertyType = propertyTypeGroup.propertyTypes[j];
-				var value = null;
-					
-				if (propertyType.dataType === "BOOLEAN") {
-					value = $("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')+":checked").val() === "on";
-				} else {
-					value = Util.getEmptyIfNull($("#"+propertyType.code.replace('$','\\$').replace(/\./g,'\\.')).val());
-				}
-				
-				metadata[propertyType.code] = value;
-			}
-		}
+		var metadata = this._dataSetFormModel.dataSet.properties;
 			
 		var isZipDirectoryUpload = profile.isZipDirectoryUpload($('#DATASET_TYPE').val());
 		if(isZipDirectoryUpload === null) {
@@ -154,7 +131,7 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 					Util.showError(errorMessage, function() {Util.unblockUI();});
 				} else if (response.result.columns[0].title === "STATUS" && response.result.rows[0][0].value === "OK") { //Success Case
 					var callbackOk = function() {
-						_this.isFormDirty = false;
+						_this._dataSetFormModel.isFormDirty = false;
 						Util.unblockUI();
 						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
 							mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.sample.permId);

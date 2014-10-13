@@ -203,7 +203,7 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 	}
 	
 	this._repaintMetadata = function(dataSetType) {
-		var localInstance = this;
+		var _this = this;
 		$("#metadataContainer").empty();
 		var $wrapper = $("<div>");
 		
@@ -249,9 +249,35 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 					$fieldset.append($controlGroup);
 					
 					var $component = FormUtil.getFieldForPropertyType(propertyType);
-					$component.change(function(event) {
-						localInstance.isFormDirty = true;
-					});
+					
+					//Update model
+					var changeEvent = function(propertyType, isSystemProperty) {
+						return function() {
+							var propertyTypeCode = null;
+							if(isSystemProperty) {
+								propertyTypeCode = propertyType.code.substr(1);
+							} else {
+								propertyTypeCode = propertyType.code;
+							}
+							_this._dataSetFormModel.isFormDirty = true;
+							var field = $(this);
+							if(propertyType.dataType === "BOOLEAN") {
+								_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = field.children()[0].checked;
+							} else if (propertyType.dataType === "TIMESTAMP") {
+								var timeValue = $($(field.children()[0]).children()[0]).val();
+								_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = timeValue;
+							} else {
+								_this._dataSetFormModel.dataSet.properties[propertyTypeCode] = Util.getEmptyIfNull(field.val());
+							}
+						}
+					}
+					
+					//Avoid modifications in properties managed by scripts
+					if(propertyType.managed || propertyType.dinamic) {
+						$component.prop('disabled', true);
+					}
+					
+					$component.change(changeEvent(propertyType, isSystemProperty));
 					
 					//Update values if is into edit mode
 					if(this._dataSetFormModel.mode === FormMode.EDIT) {
