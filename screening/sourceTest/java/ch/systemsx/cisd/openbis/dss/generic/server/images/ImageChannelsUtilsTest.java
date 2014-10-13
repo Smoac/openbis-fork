@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -60,7 +61,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.InternalImageT
 /**
  * @author Franz-Josef Elmer
  */
-@Friend(toClasses = ImageChannelsUtils.class)
+@Friend(toClasses = {ImageLoadingHelper.class, ImageChannelsUtils.class})
 public class ImageChannelsUtilsTest extends AssertJUnit
 {
     public static final File TEST_IMAGE_FOLDER = new File("../screening/sourceTest/java/"
@@ -83,6 +84,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                     for (int y = 0; y < height; y++)
                     {
                         int rgb = image.getRGB(x, y);
+                        System.out.println(x+" "+y+" "+Integer.toHexString(rgb));
                         output.setRGB(x, y, (rgb & 0xff) << 16);
                     }
                 }
@@ -122,8 +124,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
 
         try
         {
-            createImageChannelsUtils(null).calculateBufferedImage(imageRef,
-                    createSingleChannelTransformationParams());
+            createImage(imageRef, createSingleChannelTransformationParams(), null);
             fail("EnvironmentFailureException expected");
         } catch (EnvironmentFailureException ex)
         {
@@ -164,12 +165,23 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         final DatasetAcquiredImagesReference imageRef = createDatasetAcquiredImagesReference();
         prepareExpectations(absoluteImageReference, imageRef);
 
+        ImageTransformationParams transformationParams = createSingleChannelTransformationParams();
         BufferedImage image =
-                createImageChannelsUtils(thumbnailSizeOrNull).calculateBufferedImage(imageRef,
-                        createSingleChannelTransformationParams());
+                createImage(imageRef, transformationParams, thumbnailSizeOrNull);
         assertEquals(expectedImageContentDescription, getImageContentDescription(image));
 
         context.assertIsSatisfied();
+    }
+
+    private BufferedImage createImage(final DatasetAcquiredImagesReference imageRef, 
+            ImageTransformationParams transformationParams, Size thumbnailSizeOrNull)
+    {
+        ImageLoadingHelper imageHelper = new ImageLoadingHelper(ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
+        new RequestedImageSize(thumbnailSizeOrNull, false), null);
+        boolean mergeAllChannels = imageHelper.isMergeAllChannels(imageRef);
+        List<AbsoluteImageReference> imageContents =
+                imageHelper.fetchImageContents(imageRef, mergeAllChannels, false, transformationParams);
+        return ImageChannelsUtils.calculateBufferedImage(imageContents, transformationParams);
     }
 
     private void prepareExpectations(final AbsoluteImageReference absoluteImageReferenceOrNull,
@@ -214,7 +226,7 @@ public class ImageChannelsUtilsTest extends AssertJUnit
         String transformationCode = "MY_TRANSFORMATION";
         Map<String, IImageTransformerFactory> transformations =
                 createImageTransformationsMap(transformationCode, transformerFactory);
-        imgRef.getImageTransfomationFactories().setForChannel(transformations);
+        imgRef.getImageTransformationFactories().setForChannel(transformations);
 
         prepareExpectations(imgRef, imageRef);
         context.checking(new Expectations()
@@ -225,13 +237,11 @@ public class ImageChannelsUtilsTest extends AssertJUnit
                 }
             });
 
-        BufferedImage image =
-                createImageChannelsUtils(null).calculateBufferedImage(
-                        imageRef,
-                        new ImageTransformationParams(true, false, transformationCode,
-                                new HashMap<String, String>()));
-        assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n" + "f00 c00 c00 f00\n"
-                + "e00 f00 f00 e00\n", getImageContentDescription(image));
+        ImageTransformationParams transformationParams = new ImageTransformationParams(true, false, transformationCode,
+                new HashMap<String, String>());
+        BufferedImage image = createImage(imageRef, transformationParams, null);
+        assertEquals("0e0 0f0 0f0 0e0\n" + "0f0 0c0 0c0 0f0\n" + "0f0 0c0 0c0 0f0\n"
+                + "0e0 0f0 0f0 0e0\n", getImageContentDescription(image));
 
         context.assertIsSatisfied();
     }
@@ -249,15 +259,8 @@ public class ImageChannelsUtilsTest extends AssertJUnit
             RequestedImageSize imageSize)
     {
         return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize,
-                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null, null,
+                new ChannelColorRGB(0, 255, 0), new ImageTransfomationFactories(), null, null,
                 "ch2");
-    }
-
-    private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
-    {
-        return new ImageChannelsUtils(
-                ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
-                new RequestedImageSize(thumbnailSizeOrNull, false), null);
     }
 
     public void assertPNG(IHierarchicalContentNode image)

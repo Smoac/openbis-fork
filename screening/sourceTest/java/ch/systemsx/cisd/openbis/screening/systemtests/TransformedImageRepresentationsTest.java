@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
@@ -38,17 +37,11 @@ import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.googlecode.jsonrpc4j.ProxyUtil;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
 import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
 import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IPlateImageHandler;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.json.ScreeningObjectMapper;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
@@ -63,16 +56,6 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.WellPosition;
 { "slow", "systemtest" })
 public class TransformedImageRepresentationsTest extends AbstractScreeningSystemTestCase
 {
-    private MockHttpServletRequest request;
-
-    private String sessionToken;
-
-    private IScreeningClientService screeningClientService;
-
-    private IScreeningApiServer screeningServer;
-
-    private IScreeningOpenbisServiceFacade screeningFacade;
-
     private IDssServiceRpcScreening screeningJsonApi;
 
     @BeforeTest
@@ -86,19 +69,6 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @BeforeMethod
     public void setUp() throws Exception
     {
-        screeningClientService =
-                (IScreeningClientService) applicationContext
-                        .getBean(ResourceNames.SCREENING_PLUGIN_SERVICE);
-        request = new MockHttpServletRequest();
-        ((SpringRequestContextProvider) applicationContext.getBean("request-context-provider"))
-                .setRequest(request);
-        Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
-        screeningServer = (IScreeningApiServer) bean;
-        sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-        screeningFacade =
-                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
-                        TestInstanceHostUtils.getOpenBISUrl(), screeningServer);
-
         JsonRpcHttpClient client =
                 new JsonRpcHttpClient(new ScreeningObjectMapper(), new URL(
                         TestInstanceHostUtils.getDSSUrl()
@@ -247,7 +217,7 @@ public class TransformedImageRepresentationsTest extends AbstractScreeningSystem
     @Override
     protected int dataSetImportWaitDurationInSeconds()
     {
-        return 6000;
+        return 60;
     }
 
 }

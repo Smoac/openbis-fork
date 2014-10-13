@@ -26,18 +26,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.DefaultResultSetConfig;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.GridRowModels;
 import ch.systemsx.cisd.openbis.generic.client.web.client.dto.ResultSet;
-import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeAndLabel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetType;
@@ -50,11 +46,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelColumnHeader;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModelRowWithObject;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.server.IAnalysisSettingSetter;
 import ch.systemsx.cisd.openbis.plugin.screening.server.logic.AnalysisSettings;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ExperimentFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialFeatureVectorSummary;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.MaterialReplicaFeatureSummary;
@@ -74,14 +66,6 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
     private static final DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>> RESULT_SET_CONFIG =
             new DefaultResultSetConfig<String, TableModelRowWithObject<MaterialFeatureVectorSummary>>();
 
-    private MockHttpServletRequest request;
-    private String sessionToken;
-
-    private ICommonServer commonServer;
-    private IScreeningClientService screeningClientService;
-    private IScreeningServer screeningServer;
-    private IAnalysisSettingSetter analysisSettingSetter;
-
     @BeforeTest
     public void dropAnExampleDataSet() throws IOException, Exception
     {
@@ -90,28 +74,10 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         waitUntilDataSetImported();
     }
     
-    @BeforeMethod
-    public void setUp() throws Exception
-    {
-        commonServer =
-                (ICommonServer) applicationContext
-                        .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
-        screeningClientService =
-                (IScreeningClientService) applicationContext
-                        .getBean(ResourceNames.SCREENING_PLUGIN_SERVICE);
-        request = new MockHttpServletRequest();
-        ((SpringRequestContextProvider) applicationContext.getBean("request-context-provider"))
-                .setRequest(request);
-        Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
-        screeningServer = (IScreeningServer) bean;
-        analysisSettingSetter = (IAnalysisSettingSetter) bean;
-        sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-    }
-    
     @AfterMethod
     public void tearDown()
     {
-        analysisSettingSetter.setAnalysisSettings(new AnalysisSettings(new Properties()));
+        analysisSettingServer.setAnalysisSettings(new AnalysisSettings(new Properties()));
         File[] files = getIncomingDirectory().listFiles();
         for (File file : files)
         {
@@ -296,7 +262,7 @@ public class AggregatedFeatureVectorsTest extends AbstractScreeningSystemTestCas
         properties.setProperty(AnalysisSettings.KEY,
                 ScreeningConstants.DEFAULT_ANALYSIS_WELL_CONTAINER_DATASET_TYPE + ":"
                         + getClass().getSimpleName() + "-viewer");
-        analysisSettingSetter.setAnalysisSettings(new AnalysisSettings(properties));
+        analysisSettingServer.setAnalysisSettings(new AnalysisSettings(properties));
         List<DataSetType> dataSetTypes = commonServer.listDataSetTypes(sessionToken);
         for (DataSetType dataSetType : dataSetTypes)
         {
