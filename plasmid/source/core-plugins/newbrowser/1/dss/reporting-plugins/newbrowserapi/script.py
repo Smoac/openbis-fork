@@ -89,6 +89,18 @@ def insertUpdateProject(tr, parameters, tableBuilder):
 	return True;
 	
 def updateDataSet(tr, parameters, tableBuilder):
+	dataSetCode = parameters.get("dataSetCode"); #String
+	metadata = parameters.get("metadata"); #java.util.LinkedHashMap<String, String> where the key is the name
+	dataSet = tr.getDataSetForUpdate(dataSetCode);
+	
+	#Assign Data Set properties
+	for key in metadata.keySet():
+		propertyValue = unicode(metadata[key]);
+		if propertyValue == "":
+			propertyValue = None;
+		
+		dataSet.setPropertyValue(key,propertyValue);
+	
 	#Return from the call
 	return True;
 

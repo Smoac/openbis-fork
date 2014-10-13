@@ -113,6 +113,7 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 			dataSetTypeCode = $('#DATASET_TYPE').val();
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
 			method = "updateDataSet";
+			dataSetCode = this._dataSetFormModel.dataSet.code;
 			dataSetTypeCode = this._dataSetFormModel.dataSet.dataSetTypeCode;
 		}
 		
@@ -120,7 +121,8 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 				//API Method
 				"method" : method,
 				//Identification Info
-				"sampleIdentifier" : sampleIdentifier,
+				"dataSetCode" : dataSetCode, //Used for updates
+				"sampleIdentifier" : sampleIdentifier, //Use for creation
 				"dataSetType" : dataSetTypeCode,
 				"filenames" : _this._dataSetFormModel.files,
 				"folderName" : folderName,
@@ -154,7 +156,11 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 					var callbackOk = function() {
 						_this.isFormDirty = false;
 						Util.unblockUI();
-						mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.sample.permId);
+						if(_this._dataSetFormModel.mode === FormMode.CREATE) {
+							mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.sample.permId);
+						} else if(_this._dataSetFormModel.mode === FormMode.EDIT) {
+							mainController.changeView('showViewDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
+						}
 					}
 					Util.showSuccess("DataSet Created.", callbackOk);
 				} else { //This should never happen
