@@ -321,13 +321,15 @@ function MainController(profile) {
 				break;
 			case "showViewDataSetPageFromPermId":
 				var _this = this;
-				this.serverFacade.searchDataSetWithUniqueId(arg, function(data) {
-					if(!data.result || !data.result[0]) {
+				this.serverFacade.searchDataSetWithUniqueId(arg, function(dataSetData) {
+					if(!dataSetData.result || !dataSetData.result[0]) {
 						window.alert("The item is no longer available, refresh the page, if the problem persists tell your admin that the Lucene index is probably corrupted.");
 					} else {
-						document.title = "View Data Set " + data.result[0].code;
-						_this._showViewDataSetPage(data.result[0]);
-						window.scrollTo(0,0);
+						_this.serverFacade.searchWithIdentifier(dataSetData.result[0].sampleIdentifierOrNull, function(sampleData) {
+							document.title = "View Data Set " + dataSetData.result[0].code;
+							_this._showViewDataSetPage(sampleData[0], dataSetData.result[0]);
+							window.scrollTo(0,0);
+						});
 					}
 				});
 				break;
@@ -493,9 +495,9 @@ function MainController(profile) {
 		this.currentView = newView;
 	}
 	
-	this._showViewDataSetPage = function(dataset) {
+	this._showViewDataSetPage = function(sample, dataset) {
 		//Show Form
-		var newView = new DataSetFormController(this, FormMode.VIEW, null, dataset);
+		var newView = new DataSetFormController(this, FormMode.VIEW, sample, dataset);
 		newView.init($("#mainContainer"));
 		this.currentView = newView;
 	}
