@@ -46,7 +46,9 @@ def process(tr, parameters, tableBuilder):
 	
 	if method == "insertDataSet":
 		isOk = insertDataSet(tr, parameters, tableBuilder);
-
+	if method == "updateDataSet":
+		isOk = updateDataSet(tr, parameters, tableBuilder);
+	
 	if isOk:
 		tableBuilder.addHeader("STATUS");
 		tableBuilder.addHeader("MESSAGE");
@@ -86,6 +88,10 @@ def insertUpdateProject(tr, parameters, tableBuilder):
 	#Return from the call
 	return True;
 	
+def updateDataSet(tr, parameters, tableBuilder):
+	#Return from the call
+	return True;
+
 def insertDataSet(tr, parameters, tableBuilder):
 	#Mandatory parameters
 	sampleIdentifier = parameters.get("sampleIdentifier"); #String
