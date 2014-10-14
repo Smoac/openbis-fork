@@ -60,7 +60,6 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected Collection<O> doTranslate(Collection<I> inputs)
     {
@@ -71,60 +70,10 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
         {
             if (getTranslationCache().hasTranslatedObject(getClass().getName(), input.getId()))
             {
-                O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), input.getId());
-
-                if (output == null)
-                {
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug("Found that object was already rejected from translation: " + input.getId());
-                    }
-                } else
-                {
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug("Found in cache: " + output.getClass() + " with id: " + input.getId());
-                    }
-
-                    if (getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
-                    {
-                        translated.add(output);
-                    } else
-                    {
-                        if (operationLog.isDebugEnabled())
-                        {
-                            operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + input.getId());
-                        }
-
-                        getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
-                        updated.put(input, output);
-                        translated.add(output);
-                    }
-                }
+                handleAlreadyTranslatedInput(input, translated, updated);
             } else
             {
-                if (shouldTranslate(input))
-                {
-                    O output = createObject(input);
-
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug("Created: " + output.getClass() + " with id: " + input.getId());
-                    }
-
-                    getTranslationCache().putTranslatedObject(getClass().getName(), input.getId(), output);
-                    getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
-                    updated.put(input, output);
-                    translated.add(output);
-
-                    if (operationLog.isDebugEnabled())
-                    {
-                        operationLog.debug("Updating created: " + output.getClass() + " with id: " + input.getId());
-                    }
-                } else
-                {
-                    operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + input.getId());
-                }
+                handleNewInput(input, translated, updated);
             }
         }
 
@@ -140,6 +89,69 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
         }
 
         return translated;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void handleAlreadyTranslatedInput(I input, List<O> translated, Map<I, O> updated)
+    {
+        Long id = input.getId();
+        O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), id);
+
+        if (output == null)
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Found that object was already rejected from translation: " + id);
+            }
+        } else
+        {
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Found in cache: " + output.getClass() + " with id: " + id);
+            }
+
+            if (getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
+            {
+                translated.add(output);
+            } else
+            {
+                if (operationLog.isDebugEnabled())
+                {
+                    operationLog.debug("Updating from cache: " + output.getClass() + " with id: " + id);
+                }
+
+                getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
+                updated.put(input, output);
+                translated.add(output);
+            }
+        }
+    }
+
+    private void handleNewInput(I input, List<O> translated, Map<I, O> updated)
+    {
+        Long id = input.getId();
+        if (shouldTranslate(input))
+        {
+            O output = createObject(input);
+
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Created: " + output.getClass() + " with id: " + id);
+            }
+
+            getTranslationCache().putTranslatedObject(getClass().getName(), id, output);
+            getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
+            updated.put(input, output);
+            translated.add(output);
+
+            if (operationLog.isDebugEnabled())
+            {
+                operationLog.debug("Updating created: " + output.getClass() + " with id: " + id);
+            }
+        } else
+        {
+            operationLog.debug("Should not translate object: " + input.getClass() + " with id: " + id);
+        }
     }
 
     /**
