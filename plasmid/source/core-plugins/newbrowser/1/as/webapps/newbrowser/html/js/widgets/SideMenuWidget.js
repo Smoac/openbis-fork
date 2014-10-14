@@ -396,6 +396,25 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 		var dropDownSearch = "";
 		var searchDomains = profile.getSearchDomains();
 		
+		var searchFunction = function() {
+			var searchText = $("#search").val();
+			var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
+			var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
+			if(!searchDomain) {
+				searchDomain = profile.getSearchDomains()[0].name;
+				searchDomainLabel = profile.getSearchDomains()[0].label;
+			}
+			
+			var argsMap = {
+					"searchText" : searchText,
+					"searchDomain" : searchDomain,
+					"searchDomainLabel" : searchDomainLabel
+			}
+			var argsMapStr = JSON.stringify(argsMap);
+			
+			mainController.changeView("showSearchPage", argsMapStr);
+		}
+		
 		if(searchDomains.length > 1) {
 			//Default Selected for the prefix
 			var defaultSelected = "";
@@ -430,29 +449,15 @@ function SideMenuWidget(mainController, containerId, serverFacade) {
 				});
 			}
 			
-			dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback($('<span>', { id : 'prefix-selected-search-domain', class : 'btn btn-default disabled', 'selected-name' :  searchDomains[0].name }).append(defaultSelected),dropDownComponents, true);
+			dropDownSearch = FormUtil.getDropDownToogleWithSelectedFeedback(
+					$('<span>', { id : 'prefix-selected-search-domain', class : 'btn btn-default disabled', 'selected-name' :  searchDomains[0].name }
+					).append(defaultSelected),dropDownComponents, true, searchFunction);
+			dropDownSearch.change();
 		}
 		
 		
 		var searchElement = $("<input>", { "id" : "search", "type" : "text", "class" : "form-control search-query", "placeholder" : "Search"});
-		searchElement.keyup(function(event) {
-			var searchText = event.target.value;
-			var searchDomain = $("#prefix-selected-search-domain").attr("selected-name");
-			var searchDomainLabel = $("#prefix-selected-search-domain").attr("selected-label");
-			if(!searchDomain) {
-				searchDomain = profile.getSearchDomains()[0].name;
-				searchDomainLabel = profile.getSearchDomains()[0].label;
-			}
-			
-			var argsMap = {
-					"searchText" : event.target.value,
-					"searchDomain" : searchDomain,
-					"searchDomainLabel" : searchDomainLabel
-			}
-			var argsMapStr = JSON.stringify(argsMap);
-			
-			mainController.changeView("showSearchPage", argsMapStr);
-		});
+		searchElement.keyup(searchFunction);
 		
 		var $searchForm = $("<li>")
 						.append($("<form>", { "class" : "navbar-form", "onsubmit" : "return false;"})

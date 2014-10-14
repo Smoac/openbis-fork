@@ -512,93 +512,98 @@ function MainController(profile) {
 	this.lastSearchId = 0; //Used to discard search responses that don't pertain to the last search call.
 	
 	this._showSearchPage = function(value, searchDomain, searchDomainLabel) {
-		if(value.length === 0) {
-			return;
-		}
-		
 		this.lastSearchId++;
 		var localSearchId = this.lastSearchId;
 		var localReference = this;
 		
-		var possibleSearch = function() {
-			if(localSearchId === localReference.lastSearchId) { //Trigger it if no new have started
-				
-				if(value.length < 3) {
-					var isOk = window.confirm("Are you sure you want to make a search with " + value.length +" characters? You can expect a lot of results.");
-					if(!isOk) {
-						$("#search").removeClass("search-query-searching");
+		if(value.length === 0) {
+			return;
+		}
+		
+		var possibleSearch = function(localSearchId) {
+			return function() {
+				if(localSearchId === localReference.lastSearchId) { //Trigger it if no new have started
+					
+					if(value.length < 1) {
 						return;
 					}
-				}
-				
-				$("#search").addClass("search-query-searching");
-				if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
-					localReference.serverFacade.searchWithText(value, function(data) {
-						if(localSearchId === localReference.lastSearchId) {
-							$("#search").removeClass("search-query-searching");
-							//Update Main Container
-							var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
-							sampleTable.reloadWithSamples(data);
-							localReference.currentView = sampleTable;
-							Util.unblockUI();
-							history.pushState(null, "", ""); //History Push State
-						} else {
-							//Discard old response, was triggered but a new one was started
-						}
-					});
-				} else { //Search Domain
-					localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
-						if(localSearchId === localReference.lastSearchId) {
-							$("#search").removeClass("search-query-searching");
-							
-							var columns = [ {
-								label : 'Identifier',
-								property : 'identifier',
-								sortable : true
-							}, {
-								label : 'Path',
-								property : 'pathInDataSet',
-								sortable : true
-							}, {
-								label : 'Position',
-								property : 'position',
-								sortable : true
-							}];
-							
-							var getDataList = function(callback) {
-								var dataList = [];
-								for(var i = 0; i < data.result.length; i++) {
-									var resultLocation = data.result[i].resultLocation;
-									dataList.push({
-										permId : resultLocation.dataSetCode,
-										identifier : resultLocation.identifier,
-										pathInDataSet : resultLocation.pathInDataSet,
-										position : resultLocation.position
-									});
+//					if(value.length < 3) {
+//						var isOk = window.confirm("Are you sure you want to make a search with " + value.length +" characters? You can expect a lot of results.");
+//						if(!isOk) {
+//							$("#search").removeClass("search-query-searching");
+//							return;
+//						}
+//					}
+					
+					$("#search").addClass("search-query-searching");
+					if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
+						localReference.serverFacade.searchWithText(value, function(data) {
+							if(localSearchId === localReference.lastSearchId) {
+								$("#search").removeClass("search-query-searching");
+								//Update Main Container
+								var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
+								sampleTable.reloadWithSamples(data);
+								localReference.currentView = sampleTable;
+								Util.unblockUI();
+								history.pushState(null, "", ""); //History Push State
+							} else {
+								//Discard old response, was triggered but a new one was started
+							}
+						});
+					} else { //Search Domain
+						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
+							if(localSearchId === localReference.lastSearchId) {
+								$("#search").removeClass("search-query-searching");
+								
+								var columns = [ {
+									label : 'Identifier',
+									property : 'identifier',
+									sortable : true
+								}, {
+									label : 'Path',
+									property : 'pathInDataSet',
+									sortable : true
+								}, {
+									label : 'Position',
+									property : 'position',
+									sortable : true
+								}];
+								
+								var getDataList = function(callback) {
+									var dataList = [];
+									for(var i = 0; i < data.result.length; i++) {
+										var resultLocation = data.result[i].resultLocation;
+										dataList.push({
+											permId : resultLocation.dataSetCode,
+											identifier : resultLocation.identifier,
+											pathInDataSet : resultLocation.pathInDataSet,
+											position : resultLocation.position
+										});
+									}
+									callback(dataList);
+								};
+								
+								var rowClick = function(e) {
+									mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
 								}
-								callback(dataList);
-							};
-							
-							var rowClick = function(e) {
-								mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
+								
+								var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList, rowClick);
+								localReference.currentView = dataGrid;
+								dataGrid.init($("#mainContainer"));
+								history.pushState(null, "", ""); //History Push State
+							} else {
+								//Discard old response, was triggered but a new one was started
 							}
 							
-							var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList, rowClick);
-							localReference.currentView = dataGrid;
-							dataGrid.init($("#mainContainer"));
-							history.pushState(null, "", ""); //History Push State
-						} else {
-							//Discard old response, was triggered but a new one was started
-						}
-						
-					});
+						});
+					}
+					
+				} else {
+					//Discard it
 				}
-				
-			} else {
-				//Discard it
 			}
 		}
 		
-		setTimeout(possibleSearch, 800);
+		setTimeout(possibleSearch(localSearchId), 800);
 	}
 }

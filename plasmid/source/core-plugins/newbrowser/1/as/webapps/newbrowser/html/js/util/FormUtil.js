@@ -20,7 +20,7 @@ var FormUtil = new function() {
 	// Standard Form Fields
 	//
 	
-	this.getDropDownToogleWithSelectedFeedback = function(prefixElement, labelWithEvents, isSelectedFeedback) {
+	this.getDropDownToogleWithSelectedFeedback = function(prefixElement, labelWithEvents, isSelectedFeedback, clickCallback) {
 		var $dropDownToogle = $('<span>', { class : 'dropdown' });
 		if(prefixElement) {
 			$dropDownToogle.append(prefixElement);
@@ -52,6 +52,10 @@ var FormUtil = new function() {
 					}
 					
 					labelWithEvents[selectedIndex].href();
+					
+					if(clickCallback) {
+						clickCallback();
+					}
 				};
 			}
 			
