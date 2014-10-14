@@ -34,7 +34,7 @@ $.extend(DefaultProfile.prototype, {
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
-		this.inventorySpaces = [];
+		this.inventorySpaces = ["INVENTORY"];
 		
 		this.isInventorySpace = function(spaceCode) {
 			return ($.inArray(spaceCode, this.inventorySpaces) !== -1);
@@ -206,25 +206,12 @@ $.extend(DefaultProfile.prototype, {
 		/*
 		 * Used by Sample Table
 		 */
-		
 		this.isShowUnavailablePreviewOnSampleTable = true;
 		
-		/*
-		 * Used by Sample Form
-		 */
-		
-		this.getSpaceForSampleType = function(type) {
-			return "DEFAULT";
-		}
-		
-		this.getExperimentIdentifierForSample = function(type, code, properties) {
-			return "/" + this.getSpaceForSampleType(type) + "/PROJECT_" + type + "/FOLDER_" + type;
-		}
 		
 		/*
 		 * Used by DataSet Form
 		 */
-		
 		//Null: Show checkbox to manually input
 		//True: Automatic configuration, will unzip the file before atacching the files
 		//False: Will do nothing to the file before attaching
@@ -235,7 +222,6 @@ $.extend(DefaultProfile.prototype, {
 		/*
 		 * Used by Main Menu
 		 */
-		
 		this.mainMenuContentExtra = function() {
 			return "";
 		}

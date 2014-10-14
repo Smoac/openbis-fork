@@ -103,24 +103,12 @@ function SampleFormController(mainController, mode, sample) {
 		//
 		//Identification Info
 		//
-		var sampleCode = this._sampleFormModel.sample.code;
-		var properties = this._sampleFormModel.sample.properties;
-		
-		var sampleSpace = this._sampleFormModel.sample.spaceCode; //ELN Sub Experiments will have a space by default but not common Samples
-		if(!sampleSpace) { //Common Samples have maybe a default space to be attached to
-			sampleSpace = profile.getSpaceForSampleType(this.sampleTypeCode);
-		}
-		
-		var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull; //ELN Sub Experiments will have a experiment by default but not common Samples
-		if(!experimentIdentifier) { //Common Samples have maybe a default experiment to be attached to
-			experimentIdentifier = profile.getExperimentIdentifierForSample(
-					this._sampleFormModel.sample.sampleTypeCode,
-					this._sampleFormModel.sample.code,
-					properties);
-		}
-		
+		var sampleSpace = this._sampleFormModel.sample.spaceCode;
 		var sampleProject = null;
 		var sampleExperiment = null;
+		var sampleCode = this._sampleFormModel.sample.code;
+		var properties = this._sampleFormModel.sample.properties;
+		var experimentIdentifier = this._sampleFormModel.sample.experimentIdentifierOrNull;
 		
 		if(experimentIdentifier) { //If there is a experiment detected, the sample should be attached to the experiment completely.
 			sampleSpace = experimentIdentifier.split("/")[1];

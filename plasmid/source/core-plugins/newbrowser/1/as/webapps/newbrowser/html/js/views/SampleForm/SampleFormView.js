@@ -119,18 +119,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.isELNSubExperiment) {
 			$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
 		} else {
-				var defaultSpace = profile.getSpaceForSampleType(sampleTypeCode);
-				if(!defaultSpace) {
-					var spacesDropDown = FormUtil.getSpaceDropdown();
-					$formColumn.append(FormUtil.getFieldForComponentWithLabel(spacesDropDown, "Space"));
-					spacesDropDown.change(function(event){
-						var spacesDropDown = $(this);
-						_this._sampleFormModel.sample.spaceCode = spacesDropDown.val();
-						_this._sampleFormModel.isFormDirty = true;
-					});
-				} else {
-					$formColumn.append(FormUtil.getFieldForLabelWithText("Space", defaultSpace));
-				}
+			var spacesDropDown = FormUtil.getSpaceDropdown();
+			$formColumn.append(FormUtil.getFieldForComponentWithLabel(spacesDropDown, "Space"));
+			spacesDropDown.change(function(event){
+				var spacesDropDown = $(this);
+				_this._sampleFormModel.sample.spaceCode = spacesDropDown.val();
+				_this._sampleFormModel.isFormDirty = true;
+			});
 		}
 		
 		//
