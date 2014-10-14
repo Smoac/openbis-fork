@@ -266,7 +266,7 @@ public class DatasetListerTest extends AbstractDAOTest
         ArchiverDataSetCriteria criteria = new ArchiverDataSetCriteria(numberOfDaysSince2012(), null, false);
         List<AbstractExternalData> result = lister.listByArchiverCriteria("STANDARD", criteria);
 
-        AssertionUtil.assertSize(result, 4);
+        AssertionUtil.assertSize(Code.extractCodes(result), 4);
     }
 
     protected int numberOfDaysSince2012()
