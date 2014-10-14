@@ -154,36 +154,7 @@ function ServerFacade(openbisServer) {
 		}
 	}
 	
-	this.listSearchDomains = function(callbackFunction) {
-		if(this.openbisServer.listAvailableSearchDomains) {
-			this.openbisServer.listAvailableSearchDomains(callbackFunction);
-		} else {
-			callbackFunction();
-		}
-	}
-	
-	this.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchText, callbackFunction) {
-		
-		//TO-DO: For testing please put codes that exist in your database and you can access, the rest leave it as it is, when done just pass null to the function.
-		var optionalParametersOrNull = {
-				"SEQ-1" : JSON.stringify({
-					"searchDomain" : "Echo database",
-					"dataSetCode" : "20141010105346206-1",
-					"pathInDataSet" : "PATH-1",
-					"sequenceIdentifier" : "ID-1",
-					"positionInSequence" : "1"
-				}),
-				"SEQ-2" : JSON.stringify({
-					"searchDomain" : "Echo database",
-					"dataSetCode" : "20141010105439367-2",
-					"pathInDataSet" : "PATH-2",
-					"sequenceIdentifier" : "ID-2",
-					"positionInSequence" : "2"
-				})
-		}
-		
-		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, optionalParametersOrNull, callbackFunction);
-	}
+
 	//
 	// Others
 	//
@@ -193,6 +164,10 @@ function ServerFacade(openbisServer) {
 		}
 	}
 	
+	
+	this.deleteSamples = function(sampleIds, reason, callback) {
+		this.openbisServer.deleteSamples(sampleIds, reason, "TRASH", callback);
+	}
 	//
 	// Data Set Related Functions
 	//
@@ -270,7 +245,7 @@ function ServerFacade(openbisServer) {
 	}
 	
 	//
-	// Sample Create/Update Functions
+	// ELN Custom API
  	//
  	this.createReportFromAggregationService = function(dataStoreCode, parameters, callbackFunction) {
 		this.openbisServer.createReportFromAggregationService(dataStoreCode, "newbrowserapi", parameters, callbackFunction);
@@ -656,4 +631,34 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
+	this.listSearchDomains = function(callbackFunction) {
+		if(this.openbisServer.listAvailableSearchDomains) {
+			this.openbisServer.listAvailableSearchDomains(callbackFunction);
+		} else {
+			callbackFunction();
+		}
+	}
+	
+	this.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchText, callbackFunction) {
+		
+		//TO-DO: For testing please put codes that exist in your database and you can access, the rest leave it as it is, when done just pass null to the function.
+		var optionalParametersOrNull = {
+				"SEQ-1" : JSON.stringify({
+					"searchDomain" : "Echo database",
+					"dataSetCode" : "20141010105346206-1",
+					"pathInDataSet" : "PATH-1",
+					"sequenceIdentifier" : "ID-1",
+					"positionInSequence" : "1"
+				}),
+				"SEQ-2" : JSON.stringify({
+					"searchDomain" : "Echo database",
+					"dataSetCode" : "20141010105439367-2",
+					"pathInDataSet" : "PATH-2",
+					"sequenceIdentifier" : "ID-2",
+					"positionInSequence" : "2"
+				})
+		}
+		
+		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, optionalParametersOrNull, callbackFunction);
+	}
 }

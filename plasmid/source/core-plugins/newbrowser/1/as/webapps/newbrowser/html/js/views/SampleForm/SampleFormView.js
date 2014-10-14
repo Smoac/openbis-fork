@@ -66,20 +66,28 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// TITLE BUTTONS
 		//
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
+			//Delete
+			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
+				mainController.serverFacade.deleteSamples([_this._sampleFormModel.sample.id], reason, function(data) {
+					Util.showSuccess("Sample Deleted");
+					window.history.back();
+				});
+			}, true));
 			//Pin
+			$formTitle.append("&nbsp;");
 			$formTitle.append(FormUtil.getPINButton(this._sampleFormModel.sample.permId));
 			//Hierarchy
-			$formTitle.append(" ");
+			$formTitle.append("&nbsp;");
 			$formTitle.append(FormUtil.getHierarchyButton(this._sampleFormModel.sample.permId));
 			//Copy
-			$formTitle.append(" ");
+			$formTitle.append("&nbsp;");
 			var $copyButton = $("<a>", { 'class' : 'btn btn-default'} )
 										.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
 			$copyButton.click(_this._getCopyButtonEvent());
 			$formTitle.append($copyButton);
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
-				$formTitle.append(" ");
+				$formTitle.append("&nbsp;");
 				var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
 									.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }))
 									.append(' Enable Editing');
@@ -380,15 +388,6 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 				component += " (Allowed characters are: letters, numbers, '-', '_', '.')";
 				component += "</div>";
 				component += "</div>";
-				
-			var css = {
-					'text-align' : 'left',
-					'top' : '15%',
-					'width' : '70%',
-					'left' : '15%',
-					'right' : '20%',
-					'overflow' : 'auto'
-			};
 				
 			var css = {
 					'text-align' : 'left',

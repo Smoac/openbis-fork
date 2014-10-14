@@ -196,6 +196,16 @@ var FormUtil = new function() {
 		return $component;
 	}
 	
+	this.getDeleteButton = function(deleteFunction, includeReason) {
+		var $deleteBtn = $("<a>", { 'class' : 'btn btn-default ' });
+		$deleteBtn.append($("<span>", { 'class' : 'glyphicon glyphicon-trash', 'style' : 'width:16px; height:16px;'}));
+		$deleteBtn.click(function() {
+			var modalView = new DeleteEntityController(deleteFunction, includeReason);
+			modalView.init();
+		});
+		return $deleteBtn;
+	}
+	
 	this.getPINButton = function(permId) {
 		var inspectedClass = "";
 		if(mainController.inspector.containsByPermId(permId) !== -1) {
