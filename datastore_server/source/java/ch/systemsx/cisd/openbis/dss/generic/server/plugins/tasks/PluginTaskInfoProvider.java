@@ -27,7 +27,7 @@ import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperti
 import ch.systemsx.cisd.openbis.dss.generic.server.DataStoreServer;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SessionWorkspaceUtil;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
@@ -49,7 +49,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
 
     private final PluginTaskProvider<IProcessingPluginTask> processingPlugins;
 
-    private final PluginTaskProvider<ISequenceDatabase> sequenceDatabasePlugins;
+    private final PluginTaskProvider<ISearchDomainService> sequenceDatabasePlugins;
     
     private final ArchiverPluginFactory archiverTaskFactory;
 
@@ -90,8 +90,8 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
                 createProcessingPluginsFactories(serviceProperties, servletPropertiesManager,
                         datastoreCode, storeRoot);
         sequenceDatabasePlugins = createPluginsFactories(serviceProperties, servletPropertiesManager, 
-                datastoreCode, storeRoot, ISequenceDatabase.class, "Sequence database", 
-                Constants.SEQUENCE_DATABASES_NAMES);
+                datastoreCode, storeRoot, ISearchDomainService.class, "Search domain service", 
+                Constants.SEARCH_DOMAIN_SERVICE_NAMES);
         this.archiverTaskFactory = createArchiverTaskFactory(serviceProperties, datastoreCode);
     }
 
@@ -126,7 +126,7 @@ public class PluginTaskInfoProvider implements IPluginTaskInfoProvider
     }
 
     @Override
-    public PluginTaskProvider<ISequenceDatabase> getSequenceDatabasesProvider()
+    public PluginTaskProvider<ISearchDomainService> getSearchDomainServiceProvider()
     {
         return sequenceDatabasePlugins;
     }

@@ -36,6 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseCreateOrDeleteModificatio
 import ch.systemsx.cisd.openbis.generic.shared.ICommonServer;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.Translator;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
@@ -58,7 +60,7 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    public static final int MINOR_VERSION = 5;
+    public static final int MINOR_VERSION = 6;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
@@ -218,9 +220,11 @@ public class GeneralInformationChangingService extends
         return MINOR_VERSION;
     }
 
-    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType getSampleType(String sampleTypeCode, String sessionToken)
+    private ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType getSampleType(
+            String sampleTypeCode, String sessionToken)
     {
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes = server.listSampleTypes(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType> sampleTypes =
+                server.listSampleTypes(sessionToken);
         ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType sampleType = null;
         for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType auxSampleType : sampleTypes)
         {
@@ -236,17 +240,12 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public final String registerSamples(
-            final String sessionToken,
-            final String sampleTypeCode,
-            final String sessionKey,
-            final String defaultGroupIdentifier)
+    public final String registerSamples(final String sessionToken, final String sampleTypeCode,
+            final String sessionKey, final String defaultGroupIdentifier)
     {
-        List<BatchRegistrationResult> results = genericClientService.registerSamples(
-                getSampleType(sampleTypeCode, sessionToken),
-                sessionKey,
-                defaultGroupIdentifier,
-                false);
+        List<BatchRegistrationResult> results =
+                genericClientService.registerSamples(getSampleType(sampleTypeCode, sessionToken),
+                        sessionKey, defaultGroupIdentifier, false);
 
         return results.get(0).getMessage();
     }
@@ -254,16 +253,12 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public final String updateSamples(
-            final String sessionToken,
-            final String sampleTypeCode,
-            final String sessionKey,
-            final String defaultGroupIdentifier)
+    public final String updateSamples(final String sessionToken, final String sampleTypeCode,
+            final String sessionKey, final String defaultGroupIdentifier)
     {
-        List<BatchRegistrationResult> results = genericClientService.updateSamples(
-                getSampleType(sampleTypeCode, sessionToken),
-                sessionKey,
-                defaultGroupIdentifier);
+        List<BatchRegistrationResult> results =
+                genericClientService.updateSamples(getSampleType(sampleTypeCode, sessionToken),
+                        sessionKey, defaultGroupIdentifier);
 
         return results.get(0).getMessage();
     }
@@ -271,15 +266,70 @@ public class GeneralInformationChangingService extends
     @Override
     @Transactional
     @RolesAllowed(RoleWithHierarchy.SPACE_USER)
-    public final Map<String, Object> uploadedSamplesInfo(
-            final String sessionToken,
-            final String sampleTypeCode,
-            final String sessionKey)
+    public final Map<String, Object> uploadedSamplesInfo(final String sessionToken,
+            final String sampleTypeCode, final String sessionKey)
     {
-        Map<String, Object> info = genericClientService.uploadedSamplesInfo(
-                getSampleType(sampleTypeCode, sessionToken),
-                sessionKey);
+        Map<String, Object> info =
+                genericClientService.uploadedSamplesInfo(
+                        getSampleType(sampleTypeCode, sessionToken), sessionKey);
 
         return info;
     }
+
+    @Override
+    public void deleteProjects(String sessionToken, List<Long> projectIds, String reason)
+    {
+        server.deleteProjects(sessionToken, TechId.createList(projectIds), reason);
+    }
+
+    @Override
+    public void deleteExperiments(String sessionToken, List<Long> experimentIds, String reason,
+            DeletionType deletionType)
+    {
+        server.deleteExperiments(sessionToken, TechId.createList(experimentIds), reason,
+                Translator.translate(deletionType));
+    }
+
+    @Override
+    public void deleteSamples(String sessionToken, List<Long> sampleIds, String reason,
+            DeletionType deletionType)
+    {
+        server.deleteSamples(sessionToken, TechId.createList(sampleIds), reason,
+                Translator.translate(deletionType));
+    }
+
+    @Override
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType deletionType)
+    {
+        server.deleteDataSets(sessionToken, dataSetCodes, reason,
+                Translator.translate(deletionType), false);
+    }
+
+    @Override
+    public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType deletionType)
+    {
+        server.deleteDataSetsForced(sessionToken, dataSetCodes, reason,
+                Translator.translate(deletionType), false);
+    }
+
+    @Override
+    public void revertDeletions(String sessionToken, List<Long> deletionIds)
+    {
+        server.revertDeletions(sessionToken, TechId.createList(deletionIds));
+    }
+
+    @Override
+    public void deletePermanently(String sessionToken, List<Long> deletionIds)
+    {
+        server.deletePermanently(sessionToken, TechId.createList(deletionIds));
+    }
+
+    @Override
+    public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds)
+    {
+        server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
+    }
+
 }

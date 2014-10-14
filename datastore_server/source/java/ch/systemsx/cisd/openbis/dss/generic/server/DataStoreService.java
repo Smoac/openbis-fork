@@ -60,9 +60,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CustomImportFile;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
@@ -464,7 +465,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     private static ArchiverTaskContext createContext(DataSetProcessingContext context)
     {
         return new ArchiverTaskContext(context.getDirectoryProvider(),
-                context.getHierarchicalContentProvider());
+                context.getHierarchicalContentProviderUnfiltered());
     }
 
     @Override
@@ -506,46 +507,75 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
     
     @Override
-    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        
+        PluginTaskProvider<ISearchDomainService> provider = pluginTaskInfoProvider.getSearchDomainServiceProvider();
+        List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();
+        List<SearchDomain> result = new ArrayList<SearchDomain>();
+        for (DatastoreServiceDescription description : pluginDescriptions)
+        {
+            String name = description.getKey();
+            if (provider.getPluginInstance(name).isAvailable())
+            {
+                SearchDomain searchDomain = new SearchDomain();
+                searchDomain.setName(name);
+                searchDomain.setLabel(description.getLabel());
+                result.add(searchDomain);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
             String preferredSequenceDatabaseOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull)
     {
-        PluginTaskProvider<ISequenceDatabase> provider = pluginTaskInfoProvider.getSequenceDatabasesProvider();
-        ISequenceDatabase sequenceDatabase = findSequenceDatabase(provider, preferredSequenceDatabaseOrNull);
-        if (sequenceDatabase != null)
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        
+        PluginTaskProvider<ISearchDomainService> provider = pluginTaskInfoProvider.getSearchDomainServiceProvider();
+        DatastoreServiceDescription serviceDescription 
+                = findSearchDomainService(provider, preferredSequenceDatabaseOrNull);
+        if (serviceDescription != null)
         {
-            List<SequenceSearchResult> result = sequenceDatabase.search(sequenceSnippet, optionalParametersOrNull);
-            for (SequenceSearchResult sequenceSearchResult : result)
+            ISearchDomainService service = provider.getPluginInstance(serviceDescription.getKey());
+            List<SearchDomainSearchResult> result = service.search(sequenceSnippet, optionalParametersOrNull);
+            for (SearchDomainSearchResult sequenceSearchResult : result)
             {
-                sequenceSearchResult.setSequenceDatabaseName(sequenceDatabase.getName());
+                SearchDomain searchDomain = new SearchDomain();
+                searchDomain.setName(serviceDescription.getKey());
+                searchDomain.setLabel(serviceDescription.getLabel());
+                sequenceSearchResult.setSearchDomain(searchDomain);
             }
             return result;
         }
         operationLog.warn("No available sequence database found.");
-        return new ArrayList<SequenceSearchResult>();
+        return new ArrayList<SearchDomainSearchResult>();
     }
-    
-    private ISequenceDatabase findSequenceDatabase(PluginTaskProvider<ISequenceDatabase> provider, 
+
+    private DatastoreServiceDescription findSearchDomainService(PluginTaskProvider<ISearchDomainService> provider,
             String preferredSequenceDatabaseOrNull)
     {
         List<DatastoreServiceDescription> pluginDescriptions = provider.getPluginDescriptions();
-        ISequenceDatabase availableDatabase = null;
+        DatastoreServiceDescription availableService = null;
         for (DatastoreServiceDescription description : pluginDescriptions)
         {
-            ISequenceDatabase database = provider.getPluginInstance(description.getKey());
-            if (database.isAvailable())
+            ISearchDomainService service = provider.getPluginInstance(description.getKey());
+            if (service.isAvailable())
             {
                 if (description.getKey().equals(preferredSequenceDatabaseOrNull))
                 {
-                    return database;
+                    return description;
                 }
-                if (availableDatabase == null)
+                if (availableService == null)
                 {
-                    availableDatabase = database;
+                    availableService = description;
                 }
             }
         }
-        return availableDatabase;
+        return availableService;
     }
 
     private PutDataSetService getPutDataSetService()

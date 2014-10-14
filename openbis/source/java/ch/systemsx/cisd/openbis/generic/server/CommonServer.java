@@ -83,7 +83,7 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExternalD
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.MatchingEntityValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleValidator;
-import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SequenceSearchResultValidator;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SearchDomainSearchResultValidator;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
@@ -149,6 +149,7 @@ import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.impl.MasterDataRegi
 import ch.systemsx.cisd.openbis.generic.server.util.SpaceIdentifierHelper;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicEntityInformationHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.CodeConverter;
@@ -458,7 +459,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         registerRole(roleCode, grantee, session, newRoleAssignment);
     }
 
-    protected void registerRole(RoleCode roleCode, Grantee grantee, final Session session, final NewRoleAssignment newRoleAssignment)
+    protected void registerRole(RoleCode roleCode, Grantee grantee, final Session session,
+            final NewRoleAssignment newRoleAssignment)
     {
         newRoleAssignment.setGrantee(grantee);
         newRoleAssignment.setRole(roleCode);
@@ -683,7 +685,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SampleValidator.class)
-    public List<Sample> listSamplesByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    public List<Sample> listSamplesByMaterialProperties(String sessionToken,
+            Collection<TechId> materialIds)
     {
         final Session session = getSession(sessionToken);
 
@@ -957,7 +960,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             @AuthorizationGuard(guardClass = SpaceIdentifierPredicate.class)
             ProjectIdentifier projectIdentifier)
     {
-        List<ProjectIdentifier> projectIdentifiers = projectIdentifier != null ? Collections.singletonList(projectIdentifier) : null;
+        List<ProjectIdentifier> projectIdentifiers =
+                projectIdentifier != null ? Collections.singletonList(projectIdentifier) : null;
         return listExperiments(sessionToken, experimentType, null, projectIdentifiers, false, false);
     }
 
@@ -1169,7 +1173,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
+    public String registerEntitytypeAndAssignPropertyTypes(final String sessionToken,
+            NewETNewPTAssigments newETNewPTAssigments)
     {
         newETNewPTAssigments.updateOrdinalToDBOrder();
 
@@ -1184,7 +1189,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 registerDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
                 break;
             case EXPERIMENT:
-                registerExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
+                registerExperimentType(sessionToken,
+                        (ExperimentType) newETNewPTAssigments.getEntity());
                 break;
             case MATERIAL:
                 registerMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
@@ -1203,7 +1209,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return results.toString();
     }
 
-    public static PropertyType returnIfContained(PropertyType propertyType, List<EntityTypePropertyType<?>> inList)
+    public static PropertyType returnIfContained(PropertyType propertyType,
+            List<EntityTypePropertyType<?>> inList)
     {
         for (@SuppressWarnings("rawtypes")
         EntityTypePropertyType etpt : inList)
@@ -1216,14 +1223,16 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return null;
     }
 
-    public void runIntegrityTest(List<EntityTypePropertyType<?>> ini, List<EntityTypePropertyType<?>> fin)
+    public void runIntegrityTest(List<EntityTypePropertyType<?>> ini,
+            List<EntityTypePropertyType<?>> fin)
     {
         for (@SuppressWarnings("rawtypes")
         EntityTypePropertyType etpt : fin)
         {
             PropertyType contained = returnIfContained(etpt.getPropertyType(), ini);
-            if (contained != null &&
-                    false == contained.getModificationDate().equals(etpt.getPropertyType().getModificationDate()))
+            if (contained != null
+                    && false == contained.getModificationDate().equals(
+                            etpt.getPropertyType().getModificationDate()))
             {
                 throw new UserFailureException("Unfortunately " + contained.getCode()
                         + " has been modified in the meantime.\n\n"
@@ -1235,7 +1244,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @SuppressWarnings("cast")
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public String updateEntitytypeAndPropertyTypes(final String sessionToken, NewETNewPTAssigments newETNewPTAssigments)
+    public String updateEntitytypeAndPropertyTypes(final String sessionToken,
+            NewETNewPTAssigments newETNewPTAssigments)
     {
         newETNewPTAssigments.updateOrdinalToDBOrder();
 
@@ -1249,7 +1259,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                 updateDataSetType(sessionToken, (DataSetType) newETNewPTAssigments.getEntity());
                 break;
             case EXPERIMENT:
-                updateExperimentType(sessionToken, (ExperimentType) newETNewPTAssigments.getEntity());
+                updateExperimentType(sessionToken,
+                        (ExperimentType) newETNewPTAssigments.getEntity());
                 break;
             case MATERIAL:
                 updateMaterialType(sessionToken, (MaterialType) newETNewPTAssigments.getEntity());
@@ -1259,51 +1270,66 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         List<String> results = new ArrayList<String>();
 
         // Update Algorithm for property types
-        // It calculates the changes necessary without destroying assignments when possible to prevent data loss
-        List<EntityTypePropertyType<?>> ini = listEntityTypePropertyTypes(sessionToken, newETNewPTAssigments.getEntity());
+        // It calculates the changes necessary without destroying assignments when possible to
+        // prevent data loss
+        List<EntityTypePropertyType<?>> ini =
+                listEntityTypePropertyTypes(sessionToken, newETNewPTAssigments.getEntity());
         @SuppressWarnings("unchecked")
-        List<EntityTypePropertyType<?>> fin = (List<EntityTypePropertyType<?>>) newETNewPTAssigments.getEntity().getAssignedPropertyTypes();
+        List<EntityTypePropertyType<?>> fin =
+                (List<EntityTypePropertyType<?>>) newETNewPTAssigments.getEntity()
+                        .getAssignedPropertyTypes();
 
-        runIntegrityTest(ini, fin); // Since some changes trigger other changes this ones are validated only once at the beginning.
+        runIntegrityTest(ini, fin); // Since some changes trigger other changes this ones are
+                                    // validated only once at the beginning.
 
         for (int i = 0; i < fin.size(); i++)
         {
             if (i < ini.size()) // Is Check Possible
             {
-                newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null); // Avoid further validation
+                newETNewPTAssigments.getAssigments().get(i).getAssignment()
+                        .setModificationDate(null); // Avoid further validation
 
-                if (ini.get(i).getPropertyType().getCode().equals(fin.get(i).getPropertyType().getCode())) // Do nothing.
+                if (ini.get(i).getPropertyType().getCode()
+                        .equals(fin.get(i).getPropertyType().getCode())) // Do nothing.
                 {
                     // Positions are equal but maybe something have changed.
-                    newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
-                    updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                    newETNewPTAssigments.getAssigments().get(i).getAssignment()
+                            .setModificationDate(null);
+                    updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments()
+                            .get(i).getAssignment());
                 } else
                 // Something needs to be done.
                 {
                     if (false == fin.contains(ini.get(i))) // Delete
                     {
-                        unassignPropertyType(sessionToken,
-                                newETNewPTAssigments.getEntity().getEntityKind(),
-                                ini.get(i).getPropertyType().getCode(),
+                        unassignPropertyType(sessionToken, newETNewPTAssigments.getEntity()
+                                .getEntityKind(), ini.get(i).getPropertyType().getCode(),
                                 newETNewPTAssigments.getEntity().getCode());
                         ini.remove(i);
                         i--;
                     } else
                     {
-                        if (ini.contains(fin.get(i))) // Is present into another position, but is not this one, move it.
+                        if (ini.contains(fin.get(i))) // Is present into another position, but is
+                                                      // not this one, move it.
                         { // Edit
-                            newETNewPTAssigments.getAssigments().get(i).getAssignment().setModificationDate(null);
-                            updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                            newETNewPTAssigments.getAssigments().get(i).getAssignment()
+                                    .setModificationDate(null);
+                            updatePropertyTypeAssignment(sessionToken, newETNewPTAssigments
+                                    .getAssigments().get(i).getAssignment());
                             ini.remove(fin.get(i));
                             ini.add(i, fin.get(i));
                         } else
                         // Not present, insert
                         { // Insert
-                            if (false == newETNewPTAssigments.getAssigments().get(i).isExistingPropertyType())
+                            if (false == newETNewPTAssigments.getAssigments().get(i)
+                                    .isExistingPropertyType())
                             {
-                                registerPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getPropertyType());
+                                registerPropertyType(sessionToken, newETNewPTAssigments
+                                        .getAssigments().get(i).getPropertyType());
                             }
-                            String result = assignPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                            String result =
+                                    assignPropertyType(sessionToken, newETNewPTAssigments
+                                            .getAssigments().get(i).getAssignment());
                             results.add(result);
                             ini.add(i, fin.get(i));
                         }
@@ -1314,9 +1340,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             {
                 if (false == newETNewPTAssigments.getAssigments().get(i).isExistingPropertyType())
                 {
-                    registerPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getPropertyType());
+                    registerPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i)
+                            .getPropertyType());
                 }
-                String result = assignPropertyType(sessionToken, newETNewPTAssigments.getAssigments().get(i).getAssignment());
+                String result =
+                        assignPropertyType(sessionToken, newETNewPTAssigments.getAssigments()
+                                .get(i).getAssignment());
                 results.add(result);
                 ini.add(i, fin.get(i));
             }
@@ -1325,20 +1354,23 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
         for (int i = 0; i < ini.size(); i++)
         {
-            if (i < fin.size() && ini.get(i).getEntityType().getCode().equals(fin.get(i).getEntityType().getCode())) // Do nothing.
+            if (i < fin.size()
+                    && ini.get(i).getEntityType().getCode()
+                            .equals(fin.get(i).getEntityType().getCode())) // Do nothing.
             {
                 // Positions are equal
             } else
             {
                 unassignPropertyType(sessionToken,
-                        newETNewPTAssigments.getEntity().getEntityKind(),
-                        ini.get(i).getPropertyType().getCode(),
-                        newETNewPTAssigments.getEntity().getCode());
-                // This is a hack, for some reason on the tests the changes don't go in until another change is done.
+                        newETNewPTAssigments.getEntity().getEntityKind(), ini.get(i)
+                                .getPropertyType().getCode(), newETNewPTAssigments.getEntity()
+                                .getCode());
+                // This is a hack, for some reason on the tests the changes don't go in until
+                // another change is done.
                 unassignPropertyType(sessionToken,
-                        newETNewPTAssigments.getEntity().getEntityKind(),
-                        ini.get(i).getPropertyType().getCode(),
-                        newETNewPTAssigments.getEntity().getCode());
+                        newETNewPTAssigments.getEntity().getEntityKind(), ini.get(i)
+                                .getPropertyType().getCode(), newETNewPTAssigments.getEntity()
+                                .getCode());
                 ini.remove(i);
                 i--;
             }
@@ -1349,7 +1381,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
-    public String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)
+    public String registerAndAssignPropertyType(final String sessionToken,
+            final PropertyType propertyType, NewETPTAssignment assignment)
     {
         registerPropertyType(sessionToken, propertyType);
         return assignPropertyType(sessionToken, assignment);
@@ -1608,16 +1641,26 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    @ReturnValueFilter(validatorClass = SequenceSearchResultValidator.class)
-    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+    @ReturnValueFilter(validatorClass = SearchDomainSearchResultValidator.class)
+    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken,
+            String preferredSearchDomainOrNull, String searchString,
             Map<String, String> optionalParametersOrNull)
     {
         Session session = getSession(sessionToken);
 
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        return dataSetTable.searchForDataSetsWithSequences(preferredSequenceDatabaseOrNull, sequenceSnippet,
-                optionalParametersOrNull);
+        return dataSetTable.searchForDataSetsWithSequences(preferredSearchDomainOrNull,
+                searchString, optionalParametersOrNull);
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        Session session = getSession(sessionToken);
+
+        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
+        return dataSetTable.listAvailableSearchDomains();
     }
 
     @Override
@@ -1674,7 +1717,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         final IDataBO datasetBO = businessObjectFactory.createDataBO(session);
         datasetBO.loadDataByTechId(datasetId);
         datasetBO.enrichWithParentsAndExperiment();
-        // not fetching children, as no caller is using them and it's causing potential performance problem with many children
+        // not fetching children, as no caller is using them and it's causing potential performance
+        // problem with many children
         // datasetBO.enrichWithChildren();
         datasetBO.enrichWithContainedDataSets();
         datasetBO.enrichWithProperties();
@@ -1833,7 +1877,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
-    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken,
+            Collection<TechId> materialIds)
     {
         final Session session = getSession(sessionToken);
         final IMaterialLister materialLister = businessObjectFactory.createMaterialLister(session);
@@ -1977,7 +2022,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         IEntityTypeDAO entityTypeDAO =
                 getDAOFactory().getEntityTypeDAO(DtoConverters.convertEntityKind(entityKind));
         EntityTypePE entityTypePE = entityTypeDAO.tryToFindEntityTypeByCode(entityType.getCode());
-        if (entityType.getModificationDate() != null && // Avoid validation, needed to make multiple modifications with one call
+        if (entityType.getModificationDate() != null && // Avoid validation, needed to make multiple
+                                                        // modifications with one call
                 entityTypePE.getModificationDate().equals(entityType.getModificationDate()) == false)
         {
             throw new UserFailureException("Unfortunately " + entityType.getCode()

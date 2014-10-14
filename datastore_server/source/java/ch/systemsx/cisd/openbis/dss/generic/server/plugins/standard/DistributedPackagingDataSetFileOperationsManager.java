@@ -80,19 +80,19 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             }
         };
 
-    private boolean ignoreExisting;
+    private final boolean ignoreExisting;
 
-    private File defaultFolder;
+    private final File defaultFolder;
 
-    private File defaultSmallDataSetsFolder;
+    private final File defaultSmallDataSetsFolder;
 
-    private Long smallDataSetsSizeLimit;
+    private final Long smallDataSetsSizeLimit;
 
-    private boolean withSharding;
+    private final boolean withSharding;
 
-    private String mappingFilePathOrNull;
+    private final String mappingFilePathOrNull;
 
-    private boolean createArchives;
+    private final boolean createArchives;
 
     private transient IEncapsulatedOpenBISService service;
 
@@ -135,11 +135,19 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
                         + "' doesn't exist or is not a folder.");
             }
         }
+        else
+        {
+            defaultSmallDataSetsFolder = null;
+        }
 
         long aSmallDataSetsSizeLimit = PropertyUtils.getLong(properties, SMALL_DATA_SETS_SIZE_LIMIT_KEY, -1);
         if (aSmallDataSetsSizeLimit > 0)
         {
             smallDataSetsSizeLimit = aSmallDataSetsSizeLimit * 1024;
+        }
+        else
+        {
+            smallDataSetsSizeLimit = 0l;
         }
 
         mappingFilePathOrNull = properties.getProperty(MAPPING_FILE_KEY);

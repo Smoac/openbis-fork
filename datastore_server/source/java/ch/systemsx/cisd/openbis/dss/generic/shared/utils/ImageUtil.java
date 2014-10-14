@@ -601,7 +601,7 @@ public class ImageUtil
         }
         return loadImageColorDepthGuessingLibrary(contentNode, imageID);
     }
-
+    
     /**
      * Converts the given <var>image</var> to a PNG image. Uses fast parameters for the filter and
      * deflate level (no filter and no deflation).

@@ -42,12 +42,13 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
- * Implementation of {@link ISequenceDatabase} based on <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi">BLAST</a>. 
+ * Implementation of {@link ISearchDomainService} based on <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi">BLAST</a>. 
  * The following configuration parameters are understood:
  * <ul>
  * <li><tt>blast-tools-directory</tt>: Absolute path to the directory with blastn and blastp command line tools.<br/>
@@ -92,7 +93,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
  * 
  * @author Franz-Josef Elmer
  */
-public class BlastDatabase extends AbstractSequenceDatabase
+public class BlastDatabase extends AbstractSearchDomainService
 {
     public static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabase.class);
@@ -135,14 +136,14 @@ public class BlastDatabase extends AbstractSequenceDatabase
     }
     
     @Override
-    public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
+    public List<SearchDomainSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
     {
         Map<String, String> parameters = new HashMap<String, String>();
         if (optionalParametersOrNull != null)
         {
             parameters.putAll(optionalParametersOrNull);
         }
-        List<SequenceSearchResult> result = new ArrayList<SequenceSearchResult>();
+        List<SearchDomainSearchResult> result = new ArrayList<SearchDomainSearchResult>();
         SequenceType sequenceType = FastaUtilities.determineSequenceType(sequenceSnippet);
         String queryFileName = new MessageFormat(QUERY_FILE_NAME_TEMPLATE).format(
                 new Object[] {new Date(), counter.getAndIncrement()});
@@ -158,11 +159,13 @@ public class BlastDatabase extends AbstractSequenceDatabase
                 Matcher matcher = STITLE_PATTERN.matcher(row[0]);
                 if (matcher.matches())
                 {
-                    SequenceSearchResult sequenceSearchResult = new SequenceSearchResult();
-                    sequenceSearchResult.setSequenceIdentifier(matcher.group(1));
-                    sequenceSearchResult.setDataSetCode(matcher.group(2));
-                    sequenceSearchResult.setPathInDataSet(matcher.group(3));
-                    sequenceSearchResult.setPositionInSequence(parse(row[1]));
+                    SearchDomainSearchResult sequenceSearchResult = new SearchDomainSearchResult();
+                    DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
+                    resultLocation.setIdentifier(matcher.group(1));
+                    resultLocation.setDataSetCode(matcher.group(2));
+                    resultLocation.setPathInDataSet(matcher.group(3));
+                    resultLocation.setPosition(parse(row[1]));
+                    sequenceSearchResult.setResultLocation(resultLocation);
                     result.add(sequenceSearchResult);
                 }
             }
@@ -239,12 +242,12 @@ public class BlastDatabase extends AbstractSequenceDatabase
         {
             return value;
         }
-        value = parameters.get(getName() + "." + option);
+        value = parameters.get(name + "." + option);
         if (value != null)
         {
             return value;
         }
-        return parameters.get(getName() + "." + prefixedOption);
+        return parameters.get(name + "." + prefixedOption);
     }
     
     private boolean process(String... command)

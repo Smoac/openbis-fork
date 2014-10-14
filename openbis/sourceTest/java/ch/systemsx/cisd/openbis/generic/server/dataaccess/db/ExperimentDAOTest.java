@@ -389,7 +389,8 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 DynamicPropertyEvaluationScheduler.getThreadOperations();
         assertEquals(0, threadOperations.size());
 
-        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP12", "SIRNA_HCS");
+        ExperimentPE experiment =
+                createExperiment("CISD", "CISD", "NEMO", "THE-EXP12", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(2, threadOperations.size());
@@ -487,14 +488,15 @@ public class ExperimentDAOTest extends AbstractDAOTest
                 DynamicPropertyEvaluationScheduler.getThreadOperations();
         assertEquals(0, threadOperations.size());
 
-        ExperimentPE experiment = createExperiment("CISD", "CISD", "NEMO", "EXP13", "SIRNA_HCS");
+        ExperimentPE experiment =
+                createExperiment("CISD", "CISD", "NEMO", "THE-EXP13", "SIRNA_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, getTestPerson());
 
         assertEquals(2, threadOperations.size());
         assertEquals(asDynamicPropertyEvaluationOperation(experiment), threadOperations.get(0));
 
         ExperimentPE experiment2 =
-                createExperiment("CISD", "CISD", "NEMO", "EXP12", "COMPOUND_HCS");
+                createExperiment("CISD", "CISD", "NEMO", "THE-EXP12", "COMPOUND_HCS");
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment2, getTestPerson());
 
         assertEquals(4, threadOperations.size());

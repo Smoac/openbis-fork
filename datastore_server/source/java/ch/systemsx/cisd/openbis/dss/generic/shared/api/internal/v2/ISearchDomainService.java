@@ -21,34 +21,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
- * Interface for a database for nucleotid or amonioacid sequences.
+ * Interface for a search domain service.
  * Implementing classes should have a public constructor with two arguments: First is an instance of
  * {@link Properties} and second is an instance of {@link File} which points to the root of the data set store.
  *
  * @author Franz-Josef Elmer
  */
-public interface ISequenceDatabase
+public interface ISearchDomainService
 {
     /**
-     * Returns the name of this sequence database instance. 
-     * Will be used to populated {@link SequenceSearchResult} instances of the search result..
+     * Returns the label of this search domain service instance. It can be used for human readable output.
+     * Will be used to populated {@link SearchDomain} instances of the search result..
      */
-    public String getName();
+    public String getLabel();
     
     /**
-     * Returns <code>true</code> if this sequence database is available. For example, a 
-     * sequence database is available if the external tools are available.
+     * Returns <code>true</code> if this service is available. For example, a local
+     * BLAST sequence search service is available if the external BLAST tools are available.
      */
     public boolean isAvailable();
     
     /**
-     * Searches for reference sequences matching the specified sequence snippet.
+     * Searches this service for the specified search string.
      * 
      * @param optionalParametersOrNull Optional parameters which might be used. Can be <code>null</code>.
      * @return an empty list if nothing be found.
      */
-    public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull);
+    public List<SearchDomainSearchResult> search(String searchString, Map<String, String> optionalParametersOrNull);
 }

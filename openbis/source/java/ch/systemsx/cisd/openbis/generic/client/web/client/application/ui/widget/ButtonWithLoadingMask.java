@@ -124,6 +124,7 @@ public abstract class ButtonWithLoadingMask extends LayoutContainer
     private final static Image createLoadingImage()
     {
         final Image image = new Image(LOADING_IMAGE_URL);
+        image.setSize("19px", "19px");
         image.setVisible(false);
         return image;
     }

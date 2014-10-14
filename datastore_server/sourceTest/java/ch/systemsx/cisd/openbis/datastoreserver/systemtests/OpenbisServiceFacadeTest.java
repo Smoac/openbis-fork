@@ -240,7 +240,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE", "/TEST-SPACE/TEST-PROJECT"));
 
         assertIdentifiers(samples, "/CISD/CP-TEST-2", "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID",
-                "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL");
+                "/TEST-SPACE/EV-NOT_INVALID", "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/SAMPLE-TO-DELETE");
     }
 
     @Test
@@ -259,7 +259,7 @@ public class OpenbisServiceFacadeTest extends SystemTestCase
         List<Sample> samples = serviceFacade.listSamplesForProjects(Arrays.asList("/CISD/NOE", "/TEST-SPACE/TEST-PROJECT"));
 
         assertIdentifiers(samples, "/TEST-SPACE/FV-TEST", "/TEST-SPACE/EV-TEST", "/TEST-SPACE/EV-INVALID", "/TEST-SPACE/EV-NOT_INVALID",
-                "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL");
+                "/TEST-SPACE/EV-PARENT", "/TEST-SPACE/EV-PARENT-NORMAL", "/TEST-SPACE/SAMPLE-TO-DELETE");
     }
 
     @Test

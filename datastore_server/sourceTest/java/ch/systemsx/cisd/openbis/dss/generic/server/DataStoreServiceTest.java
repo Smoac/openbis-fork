@@ -38,16 +38,17 @@ import ch.systemsx.cisd.common.exceptions.InvalidSessionException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.mail.MailClientParameters;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.server.api.v2.sequencedatabases.AbstractSearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.IPluginTaskInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.tasks.PluginTaskProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISequenceDatabase;
+import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.PluginUtilTest;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.builders.DatasetDescriptionBuilder;
@@ -95,7 +96,7 @@ public class DataStoreServiceTest extends AssertJUnit
         }
     }
     
-    public static final class MockSequenceDatabase extends AbstractSequenceDatabase
+    public static final class MockSequenceDatabase extends AbstractSearchDomainService
     {
         private static final String DATA_SET_KEY = "data-set";
         private static final String AVAILABLE_KEY = "available";
@@ -117,12 +118,14 @@ public class DataStoreServiceTest extends AssertJUnit
         }
 
         @Override
-        public List<SequenceSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
+        public List<SearchDomainSearchResult> search(String sequenceSnippet, Map<String, String> optionalParametersOrNull)
         {
             assertSame(SEQUENCE_SNIPPET, sequenceSnippet);
             assertSame(OPTIONAL_PARAMETERS, optionalParametersOrNull);
-            SequenceSearchResult sequenceSearchResult = new SequenceSearchResult();
-            sequenceSearchResult.setDataSetCode(dataSetCode);
+            SearchDomainSearchResult sequenceSearchResult = new SearchDomainSearchResult();
+            DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
+            sequenceSearchResult.setResultLocation(resultLocation);
+            resultLocation.setDataSetCode(dataSetCode);
             return Arrays.asList(sequenceSearchResult);
         }
         
@@ -184,7 +187,7 @@ public class DataStoreServiceTest extends AssertJUnit
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider();
 
-        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
         assertEquals(0, result.size());
@@ -197,7 +200,7 @@ public class DataStoreServiceTest extends AssertJUnit
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("-1", "-2");
         
-        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
         assertEquals(0, result.size());
@@ -210,10 +213,10 @@ public class DataStoreServiceTest extends AssertJUnit
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("1", "2");
         
-        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
-        assertEquals("DS-1", result.get(0).getDataSetCode());
+        assertEquals("DS-1", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
         assertEquals(1, result.size());
         context.assertIsSatisfied();
     }
@@ -224,10 +227,10 @@ public class DataStoreServiceTest extends AssertJUnit
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("1", "2");
         
-        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
                 "db-2", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
-        assertEquals("DS-2", result.get(0).getDataSetCode());
+        assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
         assertEquals(1, result.size());
         context.assertIsSatisfied();
     }
@@ -238,10 +241,10 @@ public class DataStoreServiceTest extends AssertJUnit
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("-1", "2", "-3", "4");
         
-        List<SequenceSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
                 "db-3", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
-        assertEquals("DS-2", result.get(0).getDataSetCode());
+        assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
         assertEquals(1, result.size());
         context.assertIsSatisfied();
     }
@@ -406,8 +409,8 @@ public class DataStoreServiceTest extends AssertJUnit
                     allowing(pluginTaskParameters).getStoreRoot();
                     will(returnValue(TEST_STORE));
                     
-                    List<PluginTaskFactory<ISequenceDatabase>> factories 
-                            = new ArrayList<PluginTaskFactory<ISequenceDatabase>>();
+                    List<PluginTaskFactory<ISearchDomainService>> factories 
+                            = new ArrayList<PluginTaskFactory<ISearchDomainService>>();
                     for (String database : databases)
                     {
                         boolean available = database.startsWith("-") == false;
@@ -420,12 +423,12 @@ public class DataStoreServiceTest extends AssertJUnit
                         sectionProperties.setProperty(PluginTaskFactory.CLASS_PROPERTY_NAME, MockSequenceDatabase.class.getName());
                         sectionProperties.setProperty(MockSequenceDatabase.AVAILABLE_KEY, Boolean.toString(available));
                         sectionProperties.setProperty(MockSequenceDatabase.DATA_SET_KEY, "DS-" + database.toUpperCase());
-                        factories.add(new PluginTaskFactory<ISequenceDatabase>(null, 
+                        factories.add(new PluginTaskFactory<ISearchDomainService>(null, 
                                 new SectionProperties("db-" + database, sectionProperties), "DSS", 
-                                ISequenceDatabase.class,  "Test-db-" + database, TEST_STORE));
+                                ISearchDomainService.class,  "Test-db-" + database, TEST_STORE));
                     }
-                    allowing(pluginTaskParameters).getSequenceDatabasesProvider();
-                    will(returnValue(new PluginTaskProvider<ISequenceDatabase>(factories)));
+                    allowing(pluginTaskParameters).getSearchDomainServiceProvider();
+                    will(returnValue(new PluginTaskProvider<ISearchDomainService>(factories)));
                 }
             });
     }

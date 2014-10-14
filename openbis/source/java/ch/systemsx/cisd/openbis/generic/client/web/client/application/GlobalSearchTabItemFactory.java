@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AbstractTabItemFactory;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DefaultTabItem;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DispatcherHelper;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.ITabItem;
@@ -60,6 +62,7 @@ public class GlobalSearchTabItemFactory
             final SearchableEntity searchableEntity, final String queryText,
             final boolean openIfNoEntitiesFound)
     {
+        Dispatcher.get().fireEvent(AppEvents.GLOBAL_SEARCH_STARTED_EVENT);
 
         final boolean useWildcardSearchMode =
                 viewContext.getDisplaySettingsManager().isUseWildcardSearchMode();
@@ -82,6 +85,8 @@ public class GlobalSearchTabItemFactory
                 @Override
                 public void postRefresh(boolean wasSuccessful)
                 {
+                    Dispatcher.get().fireEvent(AppEvents.GLOBAL_SEARCH_FINISHED_EVENT);
+
                     if (firstCall == false)
                     {
                         return;
@@ -90,8 +95,8 @@ public class GlobalSearchTabItemFactory
                     if (matchingEntitiesGrid.getRowNumber() == 0)
                     {
                         Object[] msgParameters = (useWildcardSearchMode == true) ? new String[]
-                            { queryText, "", "off", } : new String[]
-                            { queryText, "not", "on" };
+                        { queryText, "", "off", } : new String[]
+                        { queryText, "not", "on" };
                         MessageBox.alert(viewContext.getMessage(Dict.MESSAGEBOX_WARNING),
                                 viewContext.getMessage(Dict.NO_MATCH, msgParameters), null);
 
@@ -102,7 +107,6 @@ public class GlobalSearchTabItemFactory
                     }
 
                     DispatcherHelper.dispatchNaviEvent(tabFactory);
-
                 }
             });
     }

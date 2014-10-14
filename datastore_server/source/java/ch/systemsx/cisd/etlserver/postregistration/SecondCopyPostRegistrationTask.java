@@ -27,11 +27,9 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.string.Template;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArchiverProcessingPlugin;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.DataSetFileOperationsManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IDataSetFileOperationsManager;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IDataSetFileOperationsManagerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IArchiverPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetStatusUpdater;
@@ -55,10 +53,12 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
     private static final Logger notificationLog = LogFactory.getLogger(LogCategory.NOTIFY,
             SecondCopyPostRegistrationTask.class);
 
-    private final DataSetFileOperationsManager fileOperationManager;
     private final IHierarchicalContentProvider hierarchicalContentProvider;
+
     private final IDataSetDirectoryProvider dataSetDirectoryProvider;
+
     private final IArchiverPlugin archiver;
+
     private final Template notificationTemplate;
 
     public SecondCopyPostRegistrationTask(Properties properties, IEncapsulatedOpenBISService service)
@@ -73,8 +73,10 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
     {
         super(properties, service);
         this.hierarchicalContentProvider = hierarchicalContentProvider;
-        fileOperationManager = new DataSetFileOperationsManager(properties,
-                new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory());
+        RsyncArchiver.DataSetFileOperationsManagerFactory factory = new RsyncArchiver.DataSetFileOperationsManagerFactory(properties);
+
+        IDataSetFileOperationsManager fileOperationManager = factory.create();
+
         if (fileOperationManager.isHosted())
         {
             throw new ConfigurationFailureException(
@@ -87,7 +89,7 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
                 new Template(
                         "Creating a second copy of dataset '${dataSet}' has failed.\n${errors}");
         archiver =
-                new Archiver(properties, storeRoot, service, fileOperationManager, dataStoreService
+                new Archiver(properties, storeRoot, service, factory, dataStoreService
                         .getDataSetDirectoryProvider().getShareIdManager());
     }
 
@@ -98,16 +100,16 @@ public class SecondCopyPostRegistrationTask extends AbstractPostRegistrationTask
                 dataSetDirectoryProvider, hierarchicalContentProvider, operationLog,
                 notificationLog);
     }
-    
+
     private static final class Archiver extends RsyncArchiver
     {
 
         private static final long serialVersionUID = 1L;
 
         Archiver(Properties properties, File storeRoot, IEncapsulatedOpenBISService service,
-                IDataSetFileOperationsManager fileOperationsManager, IShareIdManager shareIdManager)
+                IDataSetFileOperationsManagerFactory fileOperationsManagerFactory, IShareIdManager shareIdManager)
         {
-            super(properties, storeRoot, fileOperationsManager, RsyncArchiver.DeleteAction.DELETE,
+            super(properties, storeRoot, fileOperationsManagerFactory, RsyncArchiver.DeleteAction.DELETE,
                     ChecksumVerificationCondition.IF_AVAILABLE);
             setService(service);
             setStatusUpdater(new IDataSetStatusUpdater()

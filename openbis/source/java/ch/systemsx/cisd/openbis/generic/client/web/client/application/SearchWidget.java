@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.generic.client.web.client.application;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.mvc.Dispatcher;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -24,6 +27,7 @@ import com.google.gwt.user.client.History;
 
 import ch.systemsx.cisd.common.shared.basic.string.StringUtils;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientServiceAsync;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.AppEvents;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.GlobalSearchLocatorResolver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.locator.ViewLocator;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.EnterKeyListener;
@@ -88,6 +92,25 @@ public final class SearchWidget extends LayoutContainer
         add(entityChooser);
         add(textField);
         add(searchButton);
+
+        Dispatcher.get().addListener(AppEvents.GLOBAL_SEARCH_STARTED_EVENT, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    searchButton.setEnabled(false);
+                }
+            });
+
+        Dispatcher.get().addListener(AppEvents.GLOBAL_SEARCH_FINISHED_EVENT, new Listener<BaseEvent>()
+            {
+                @Override
+                public void handleEvent(BaseEvent be)
+                {
+                    searchButton.setEnabled(true);
+                }
+            });
+
         layout();
     }
 
@@ -136,8 +159,8 @@ public final class SearchWidget extends LayoutContainer
 
         // reset the text field
         textField.setValue("");
-
         SearchableEntity selectedEntity = entityChooser.getSelectedSearchableEntity();
+
         if (viewContext.isSimpleOrEmbeddedMode())
         {
             // redirect to another URL
@@ -149,7 +172,6 @@ public final class SearchWidget extends LayoutContainer
             GlobalSearchTabItemFactory.openTabIfEntitiesFound(viewContext, selectedEntity,
                     queryText);
         }
-
     }
 
     private static boolean hasOnlyWildcards(final String queryText)

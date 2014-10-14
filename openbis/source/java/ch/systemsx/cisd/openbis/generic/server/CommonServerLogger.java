@@ -29,6 +29,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
@@ -110,7 +111,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -147,8 +148,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
 final class CommonServerLogger extends AbstractServerLogger implements ICommonServerForInternalUse
 {
     /**
-     * Creates an instance for the specified session manager, invocation status and elapsed time. The session manager is used to retrieve user
-     * information which will be a part of the log message.
+     * Creates an instance for the specified session manager, invocation status and elapsed time.
+     * The session manager is used to retrieve user information which will be a part of the log
+     * message.
      */
     CommonServerLogger(final ISessionManager<Session> sessionManager,
             IInvocationLoggerContext context)
@@ -348,7 +350,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<Sample> listSamplesByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    public List<Sample> listSamplesByMaterialProperties(String sessionToken,
+            Collection<TechId> materialIds)
     {
         logAccess(sessionToken, "list_samples_by_material_properties", "IDS(%s)", materialIds);
         return null;
@@ -422,7 +425,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<Experiment> listExperiments(String sessionToken, ExperimentType experimentType, ProjectIdentifier project)
+    public List<Experiment> listExperiments(String sessionToken, ExperimentType experimentType,
+            ProjectIdentifier project)
     {
         logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECT(%s)", experimentType, project);
         return null;
@@ -432,7 +436,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     public List<Experiment> listExperiments(final String sessionToken,
             final ExperimentType experimentType, final List<ProjectIdentifier> projects)
     {
-        logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECTS(%s)", experimentType, abbreviate(projects));
+        logAccess(sessionToken, "list_experiments", "TYPE(%s) PROJECTS(%s)", experimentType,
+                abbreviate(projects));
         return null;
     }
 
@@ -575,43 +580,50 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public final String registerEntitytypeAndAssignPropertyTypes(final String sessionToken, final NewETNewPTAssigments newETNewPTAssigments)
+    public final String registerEntitytypeAndAssignPropertyTypes(final String sessionToken,
+            final NewETNewPTAssigments newETNewPTAssigments)
     {
         for (NewPTNewAssigment newAssigment : newETNewPTAssigments.getAssigments())
         {
-            final String entityTypeFormat = newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
-            logTracking(sessionToken, "register_assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
-                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
-                    newAssigment.getAssignment().getPropertyTypeCode(), newAssigment.getAssignment().getEntityTypeCode(),
-                    newAssigment.getAssignment().isMandatory(), newAssigment.getAssignment().getDefaultValue(), newAssigment.getAssignment()
-                            .getSection(),
+            final String entityTypeFormat =
+                    newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
+            logTracking(sessionToken, "register_assign_property_type", " PROPERTY_TYPE(%S) "
+                    + entityTypeFormat
+                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)", newAssigment
+                    .getAssignment().getPropertyTypeCode(), newAssigment.getAssignment()
+                    .getEntityTypeCode(), newAssigment.getAssignment().isMandatory(), newAssigment
+                    .getAssignment().getDefaultValue(), newAssigment.getAssignment().getSection(),
                     newAssigment.getAssignment().getOrdinal());
         }
         return null;
     }
 
     @Override
-    public final String updateEntitytypeAndPropertyTypes(final String sessionToken, final NewETNewPTAssigments newETNewPTAssigments)
+    public final String updateEntitytypeAndPropertyTypes(final String sessionToken,
+            final NewETNewPTAssigments newETNewPTAssigments)
     {
         for (NewPTNewAssigment newAssigment : newETNewPTAssigments.getAssigments())
         {
-            final String entityTypeFormat = newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
-            logTracking(sessionToken, "update_assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
-                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
-                    newAssigment.getAssignment().getPropertyTypeCode(), newAssigment.getAssignment().getEntityTypeCode(),
-                    newAssigment.getAssignment().isMandatory(), newAssigment.getAssignment().getDefaultValue(), newAssigment.getAssignment()
-                            .getSection(),
+            final String entityTypeFormat =
+                    newAssigment.getAssignment().getEntityKind().name() + "_TYPE(%S)";
+            logTracking(sessionToken, "update_assign_property_type", " PROPERTY_TYPE(%S) "
+                    + entityTypeFormat
+                    + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)", newAssigment
+                    .getAssignment().getPropertyTypeCode(), newAssigment.getAssignment()
+                    .getEntityTypeCode(), newAssigment.getAssignment().isMandatory(), newAssigment
+                    .getAssignment().getDefaultValue(), newAssigment.getAssignment().getSection(),
                     newAssigment.getAssignment().getOrdinal());
         }
         return null;
     }
 
     @Override
-    public final String registerAndAssignPropertyType(final String sessionToken, final PropertyType propertyType, NewETPTAssignment assignment)
+    public final String registerAndAssignPropertyType(final String sessionToken,
+            final PropertyType propertyType, NewETPTAssignment assignment)
     {
         final String entityTypeFormat = assignment.getEntityKind().name() + "_TYPE(%S)";
-        logTracking(sessionToken, "register_assign_property_type", " PROPERTY_TYPE(%S) " + entityTypeFormat
-                + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
+        logTracking(sessionToken, "register_assign_property_type", " PROPERTY_TYPE(%S) "
+                + entityTypeFormat + " MANDATORY(%S) DEFAULT(%S) SECTION(%S) PREVIOUS_ORDINAL(%S)",
                 assignment.getPropertyTypeCode(), assignment.getEntityTypeCode(),
                 assignment.isMandatory(), assignment.getDefaultValue(), assignment.getSection(),
                 assignment.getOrdinal());
@@ -705,12 +717,20 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public List<SequenceSearchResultWithFullDataSet> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken,
+            String preferredSearchDomainOrNull, String searchString,
             Map<String, String> optionalParametersOrNull)
     {
-        logAccess(sessionToken, "search_for_datasets_with_sequences", "preferred_database(%s) sequence_snippet(%s)",
-                preferredSequenceDatabaseOrNull, sequenceSnippet);
+        logAccess(sessionToken, "search_on_search_domain",
+                "preferred_search_domain(%s) seerch_string(%s)", preferredSearchDomainOrNull,
+                searchString);
+        return null;
+    }
+
+    @Override
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        logAccess(sessionToken, "list_available_search_domains");
         return null;
     }
 
@@ -801,7 +821,8 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken, Collection<TechId> materialIds)
+    public Collection<TechId> listMaterialIdsByMaterialProperties(String sessionToken,
+            Collection<TechId> materialIds)
     {
         logAccess(sessionToken, "list_material_ids_by_material_properties", "IDS(%s)", materialIds);
         return null;

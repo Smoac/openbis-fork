@@ -16,40 +16,25 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import java.io.Serializable;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Result of a sequence search. Returns the code of the data set where the sequence has been found,
- * the path of the file inside the data set which has the found sequence, and the sequence identifier.
+ * Result location for a search in a sequence in a file in data set.
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("SequenceSearchResult")
-public class SequenceSearchResult implements Serializable
+@JsonObject("DataSetFileSearchResultLocation")
+public class DataSetFileSearchResultLocation implements ISearchDomainResultLocation
 {
     private static final long serialVersionUID = 1L;
-    
-    private String sequenceDatabaseName;
     
     private String dataSetCode;
     
     private String pathInDataSet;
     
-    private String sequenceIdentifier;
+    private String identifier;
     
-    private int positionInSequence;
-
-    public String getSequenceDatabaseName()
-    {
-        return sequenceDatabaseName;
-    }
-
-    public void setSequenceDatabaseName(String sequenceDatabaseKey)
-    {
-        this.sequenceDatabaseName = sequenceDatabaseKey;
-    }
+    private int position;
 
     public String getDataSetCode()
     {
@@ -71,31 +56,32 @@ public class SequenceSearchResult implements Serializable
         this.pathInDataSet = pathInDataSet;
     }
 
-    public String getSequenceIdentifier()
+    public String getIdentifier()
     {
-        return sequenceIdentifier;
+        return identifier;
     }
 
-    public void setSequenceIdentifier(String sequenceIdentifier)
+    public void setIdentifier(String sequenceIdentifier)
     {
-        this.sequenceIdentifier = sequenceIdentifier;
+        this.identifier = sequenceIdentifier;
     }
 
-    public int getPositionInSequence()
+    public int getPosition()
     {
-        return positionInSequence;
+        return position;
     }
 
-    public void setPositionInSequence(int positionInSequence)
+    public void setPosition(int positionInSequence)
     {
-        this.positionInSequence = positionInSequence;
+        this.position = positionInSequence;
     }
 
     @Override
     public String toString()
     {
-        return "Database: " + sequenceDatabaseName + ", Data set: " + dataSetCode + ", path: " + pathInDataSet 
-                + ", identifier: [" + sequenceIdentifier + "], position: " + positionInSequence;
+        return "Data set: " + dataSetCode + ", path: " + pathInDataSet 
+                + ", identifier: [" + identifier + "], position: " + position;
     }
+
 
 }

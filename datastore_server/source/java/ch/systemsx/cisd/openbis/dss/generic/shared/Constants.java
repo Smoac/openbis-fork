@@ -36,8 +36,8 @@ public class Constants
     /** property with processing plugins names separated by delimiter */
     public static final String PROCESSING_PLUGIN_NAMES = "processing-plugins";
 
-    /** property with sequnence databases names separated by delimiter */
-    public static final String SEQUENCE_DATABASES_NAMES = "sequence-databases";
+    /** property with search domain services names separated by delimiter */
+    public static final String SEARCH_DOMAIN_SERVICE_NAMES = "search-domain-services";
     
     /** Key of service property which is a list of data source IDs. */ 
     public static final String DATA_SOURCES_KEY = "data-sources";

@@ -861,16 +861,29 @@ openbis.prototype.searchForDataSetsOnBehalfOfUser = function(searchCriteria, use
 }
 
 /**
- * @see IGeneralInformationService.searchForDataSetsWithSequences(String, String, String, Map<String, String>)
+ * @see IGeneralInformationService.searchOnSearchDomain(String, String, String, Map<String, String>)
  * @method
  */
-openbis.prototype.searchForDataSetsWithSequences = function(preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull, action) {
+openbis.prototype.searchOnSearchDomain = function(preferredSearchDomainOrNull, searchString, optionalParametersOrNull, action) {
 	this._internal.ajaxRequest({
 		url: this._internal.generalInfoServiceUrl,
-		data: { "method" : "searchForDataSetsWithSequences",
+		data: { "method" : "searchOnSearchDomain",
 				"params" : [ this.getSession(),
-							 preferredSequenceDatabaseOrNull,
-							 sequenceSnippet, optionalParametersOrNull ] },
+							 preferredSearchDomainOrNull,
+							 searchString, optionalParametersOrNull ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationService.listAvailableSearchDomains(String)
+ * @method
+ */
+openbis.prototype.listAvailableSearchDomains = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listAvailableSearchDomains",
+				"params" : [ this.getSession()] },
 		success: action
 	});
 }
@@ -1087,6 +1100,20 @@ openbis.prototype.getUserDisplaySettings = function(action) {
 }
 
 /**
+ * @see GeneralInformationService.listDeletions(String, EnumSet<DeletionFetchOption>)
+ * @method
+ */
+openbis.prototype.listDeletions = function(fetchOptions, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listDeletions",
+				"params" : [ this.getSession(),
+				             fetchOptions ] },
+		success: action
+	});
+}
+
+/**
  * ==========================================================================================
  * ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService methods
  * ==========================================================================================
@@ -1228,7 +1255,7 @@ openbis.prototype.registerSamples = function(sampleTypeCode, sessionKey, default
 }
 
 /**
- * @see IGeneralInformationChangingService.registerSamples(String, String, String, String)
+ * @see IGeneralInformationChangingService.updateSamples(String, String, String, String)
  * @method
  */
 openbis.prototype.updateSamples = function(sampleTypeCode, sessionKey, defaultGroupIdentifier, action) {
@@ -1244,7 +1271,7 @@ openbis.prototype.updateSamples = function(sampleTypeCode, sessionKey, defaultGr
 }
 
 /**
- * @see IGeneralInformationChangingService.registerSamples(String, String, String)
+ * @see IGeneralInformationChangingService.uploadedSamplesInfo(String, String, String)
  * @method
  */
 openbis.prototype.uploadedSamplesInfo = function(sampleTypeCode, sessionKey, action) {
@@ -1254,6 +1281,127 @@ openbis.prototype.uploadedSamplesInfo = function(sampleTypeCode, sessionKey, act
 				"params" : [ this.getSession(),
 							 sampleTypeCode,
 							 sessionKey] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deleteProjects(String, List<Long>, String)
+ * @method
+ */
+openbis.prototype.deleteProjects = function(projectIds, reason, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deleteProjects",
+				"params" : [ this.getSession(),
+				             projectIds,
+				             reason] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deleteExperiments(String, List<Long>, String, DeletionType)
+ * @method
+ */
+openbis.prototype.deleteExperiments = function(experimentIds, reason, deletionType, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deleteExperiments",
+				"params" : [ this.getSession(),
+				             experimentIds,
+				             reason,
+				             deletionType ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deleteSamples(String, List<Long>, String, DeletionType)
+ * @method
+ */
+openbis.prototype.deleteSamples = function(sampleIds, reason, deletionType, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deleteSamples",
+				"params" : [ this.getSession(),
+				             sampleIds,
+				             reason,
+				             deletionType ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deleteDataSets(String, List<String>, String, DeletionType)
+ * @method
+ */
+openbis.prototype.deleteDataSets = function(dataSetCodes, reason, deletionType, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deleteDataSets",
+				"params" : [ this.getSession(),
+				             dataSetCodes,
+				             reason,
+				             deletionType ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deleteDataSetsForced(String, List<String>, String, DeletionType)
+ * @method
+ */
+openbis.prototype.deleteDataSetsForced = function(dataSetCodes, reason, deletionType, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deleteDataSetsForced",
+				"params" : [ this.getSession(),
+				             dataSetCodes,
+				             reason,
+				             deletionType ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.revertDeletions(String, List<Long>)
+ * @method
+ */
+openbis.prototype.revertDeletions = function(deletionIds, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "revertDeletions",
+				"params" : [ this.getSession(),
+				             deletionIds ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deletePermanently(String, List<Long>)
+ * @method
+ */
+openbis.prototype.deletePermanently = function(deletionIds, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deletePermanently",
+				"params" : [ this.getSession(),
+				             deletionIds ] },
+		success: action
+	});
+}
+
+/**
+ * @see IGeneralInformationChangingService.deletePermanentlyForced(String, List<Long>)
+ * @method
+ */
+openbis.prototype.deletePermanentlyForced = function(deletionIds, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "deletePermanentlyForced",
+				"params" : [ this.getSession(),
+				             deletionIds ] },
 		success: action
 	});
 }

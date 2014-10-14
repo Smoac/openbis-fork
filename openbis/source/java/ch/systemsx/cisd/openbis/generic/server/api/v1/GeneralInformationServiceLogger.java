@@ -34,6 +34,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
@@ -46,7 +48,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
@@ -296,12 +299,18 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
-            Map<String, String> optionalParametersOrNull)
+    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken, String preferredSearchDomainOrNull,
+            String searchString, Map<String, String> optionalParametersOrNull)
     {
-        logAccess(sessionToken, "search-for-data-sets-with-sequences", "PREFERRED_DATABASE(%s) SEQUENCE_SNIPPET(%s)",
-                preferredSequenceDatabaseOrNull, sequenceSnippet);
+        logAccess(sessionToken, "search-on-search-domain", "PREFERRED_SEARCH_DOMAIN(%s) SEARCH_STRING(%s)",
+                preferredSearchDomainOrNull, searchString);
+        return null;
+    }
+
+    @Override
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        logAccess(sessionToken, "list-available-search-domains");
         return null;
     }
 
@@ -491,4 +500,12 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
                 sessionToken, withRelations);
         return null;
     }
+
+    @Override
+    public List<Deletion> listDeletions(String sessionToken, EnumSet<DeletionFetchOption> fetchOptions)
+    {
+        logAccess(sessionToken, "listDeletions", "fetchOptions(%s)", fetchOptions);
+        return null;
+    }
+
 }

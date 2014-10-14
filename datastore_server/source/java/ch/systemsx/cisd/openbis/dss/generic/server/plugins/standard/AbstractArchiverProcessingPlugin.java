@@ -85,11 +85,15 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     public static final String BATCH_SIZE_IN_BYTES = "batch-size-in-bytes";
 
+    public static final String TEMP_FOLDER = "temp-folder";
+
     private final IStatusChecker archivePrerequisiteOrNull;
 
     private final IStatusChecker unarchivePrerequisiteOrNull;
 
     private final boolean synchronizeArchive;
+
+    private final File tempFolder;
 
     private transient IShareIdManager shareIdManager;
 
@@ -111,6 +115,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
         this.synchronizeArchive = PropertyUtils.getBoolean(properties, SYNCHRONIZE_ARCHIVE, true);
         this.maximumBatchSizeInBytes = PropertyUtils.getInt(properties, BATCH_SIZE_IN_BYTES, 1024 * 1024 * 1024);
+        this.tempFolder = PropertyUtils.getDirectory(properties, TEMP_FOLDER, null);
     }
 
     /**
@@ -630,6 +635,14 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             shareIdManager = ServiceProvider.getShareIdManager();
         }
         return shareIdManager;
+    }
+
+    /**
+     * Temporary folder specified by "temp-folder" property of archive. Default is null.
+     */
+    protected File getTemporaryFolder()
+    {
+        return tempFolder;
     }
 
     private IShareFinder getShareFinder()

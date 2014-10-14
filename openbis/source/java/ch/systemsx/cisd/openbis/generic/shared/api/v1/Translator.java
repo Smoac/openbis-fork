@@ -41,6 +41,10 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType.DataSetTypeInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletedEntity;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityTypeInitializer;
@@ -69,6 +73,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.AttachmentDownloadConstants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.GenericSharedConstants;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IIdHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.PermlinkUtilities;
 import ch.systemsx.cisd.openbis.generic.shared.basic.URLMethodWithParameters;
@@ -805,6 +810,81 @@ public class Translator
         } else
         {
             return new PropertyType(ptInitializer);
+        }
+    }
+    public static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType translate(DeletionType deletionType)
+    {
+        switch (deletionType)
+        {
+            case PERMANENT:
+                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType.PERMANENT;
+            case TRASH:
+                return ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletionType.TRASH;
+            default:
+                throw new IllegalArgumentException("Unknown deletion type: " + deletionType);
+        }
+    }
+
+    public static List<Deletion> translate(List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions)
+    {
+        List<Deletion> result = new LinkedList<Deletion>();
+
+        if (deletions != null)
+        {
+            for (ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion : deletions)
+            {
+                result.add(translate(deletion));
+            }
+        }
+
+        return result;
+    }
+
+    public static Deletion translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion)
+    {
+        Deletion result = new Deletion();
+        result.setId(deletion.getId());
+        result.setReasonOrNull(deletion.getReason());
+        result.setTotalExperimentsCount(deletion.getTotalExperimentsCount());
+        result.setTotalDatasetsCount(deletion.getTotalDatasetsCount());
+        result.setTotalSamplesCount(deletion.getTotalSamplesCount());
+
+        List<DeletedEntity> entities = new LinkedList<DeletedEntity>();
+        for (IEntityInformationHolderWithIdentifier entity : deletion.getDeletedEntities())
+        {
+            entities.add(translate((ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedEntity) entity));
+        }
+        result.setDeletedEntities(entities);
+
+        return result;
+    }
+
+    public static DeletedEntity translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedEntity entity)
+    {
+        DeletedEntity result = new DeletedEntity();
+        result.setId(entity.getId());
+        result.setCode(entity.getCode());
+        result.setPermId(entity.getPermId());
+        result.setIdentifier(entity.getIdentifier());
+        result.setEntityType(entity.getEntityType().getCode());
+        result.setEntityKind(translate(entity.getEntityKind()));
+        return result;
+    }
+
+    public static EntityKind translate(ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind kind)
+    {
+        switch (kind)
+        {
+            case EXPERIMENT:
+                return EntityKind.EXPERIMENT;
+            case SAMPLE:
+                return EntityKind.SAMPLE;
+            case DATA_SET:
+                return EntityKind.DATA_SET;
+            case MATERIAL:
+                return EntityKind.MATERIAL;
+            default:
+                throw new IllegalArgumentException("Unknown entity kind: " + kind);
         }
     }
 }

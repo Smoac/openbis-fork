@@ -241,7 +241,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("20081105092259900-0", dataSets.get(0).getCode());
         assertEquals("STANDARD", dataSets.get(0).getDataStore().getCode());
         assertEquals(0, dataSets.get(0).getProperties().size());
-        assertEquals(24, dataSets.size());
+        assertEquals(25, dataSets.size());
     }
 
     @Test
@@ -421,7 +421,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertEquals("42", ((PhysicalDataSet) dataSet).getShareId());
         assertEquals(4711L, ((PhysicalDataSet) dataSet).getSize().longValue());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((PhysicalDataSet) dataSet).getStatus());
-        assertEquals(21, list.size());
+        assertEquals(22, list.size());
     }
 
     @Test
@@ -432,9 +432,9 @@ public class DatasetListerTest extends AbstractDAOTest
         List<AbstractExternalData> list =
                 lister.listByDataStore(1, 8, DatasetLister.DEFAULT_DATASET_FETCH_OPTIONS);
         fullList.addAll(list);
-        // We get 12 instead of 8 datasets due to the corner case of many datasets having the same
+        // We get 13 instead of 8 datasets due to the corner case of many datasets having the same
         // registration date.
-        assertEquals(12, list.size());
+        assertEquals(13, list.size());
 
         list =
                 lister.listByDataStore(1, list.get(list.size() - 1).getRegistrationDate(), 8,
@@ -465,7 +465,7 @@ public class DatasetListerTest extends AbstractDAOTest
         assertNull(((PhysicalDataSet) dataSet).getShareId());
         assertNull(((PhysicalDataSet) dataSet).getSize());
         assertEquals(DataSetArchivingStatus.AVAILABLE, ((PhysicalDataSet) dataSet).getStatus());
-        assertEquals(21, fullList.size());
+        assertEquals(22, fullList.size());
     }
 
     @Test
@@ -488,7 +488,7 @@ public class DatasetListerTest extends AbstractDAOTest
         DataSetShareId dataSet2 = list.get(1);
         assertEquals("20081105092159111-1", dataSet2.getDataSetCode());
         assertEquals("42", dataSet2.getShareId());
-        assertEquals(31, list.size());
+        assertEquals(32, list.size());
     }
 
     @Test

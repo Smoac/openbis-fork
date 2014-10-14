@@ -30,9 +30,27 @@ public class ZipArchiver extends RsyncArchiver
 
     private static final long serialVersionUID = 1L;
 
+    private static class DatasetFileOperationsManagerFactory implements IDataSetFileOperationsManagerFactory
+    {
+        private static final long serialVersionUID = 1L;
+
+        private Properties properties;
+
+        public DatasetFileOperationsManagerFactory(Properties properties)
+        {
+            this.properties = properties;
+        }
+
+        @Override
+        public IDataSetFileOperationsManager create()
+        {
+            return new DistributedPackagingDataSetFileOperationsManager(properties, new ZipPackageManager(properties));
+        }
+    }
+
     public ZipArchiver(Properties properties, File storeRoot)
     {
-        super(properties, storeRoot, new DistributedPackagingDataSetFileOperationsManager(properties, new ZipPackageManager(properties)));
+        super(properties, storeRoot, new DatasetFileOperationsManagerFactory(properties));
     }
 
 }

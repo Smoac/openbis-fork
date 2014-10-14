@@ -33,13 +33,16 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
 {
 
-    private File packageFile;
+    private final File packageFile;
 
     private File extractTo;
 
-    public TarBasedHierarchicalContent(File packageFile)
+    private final File tempFolder;
+
+    public TarBasedHierarchicalContent(File packageFile, File tempFolder)
     {
         this.packageFile = packageFile;
+        this.tempFolder = tempFolder;
     }
 
     @Override
@@ -87,6 +90,18 @@ public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
         }
     }
 
+    private File getTempFolder()
+    {
+
+        if (tempFolder != null)
+        {
+            return tempFolder;
+        } else
+        {
+            return new File(System.getProperty("java.io.tmpdir"));
+        }
+    }
+
     private void maybeExtract()
     {
         if (extractTo == null)
@@ -95,7 +110,7 @@ public class TarBasedHierarchicalContent extends AbstractHierarchicalContent
 
             try
             {
-                File temp = new File(System.getProperty("java.io.tmpdir"));
+                File temp = getTempFolder();
                 extractTo = new File(temp, UUID.randomUUID().toString());
                 extractTo.mkdirs();
 

@@ -47,14 +47,16 @@ import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.CommonTestUtils;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -187,18 +189,21 @@ public final class DataSetTableTest extends AbstractBOTest
                 }
             });
 
-        List<SequenceSearchResultWithFullDataSet> results =
+        List<SearchDomainSearchResultWithFullDataSet> results =
                 createDataSetTable().searchForDataSetsWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("Database: test-db, Data set: ds1, path: ds1/path, identifier: [id-ds1], position: 42",
+        assertEquals("Search Domain: test-db, Result location: [Data set: ds1, path: ds1/path, "
+                + "identifier: [id-ds1], position: 42]",
                 results.get(0).getSearchResult().toString());
         assertEquals(ds1.getCode(), results.get(0).getDataSet().getCode());
         assertEquals("/G1/P1/exp1", results.get(0).getDataSet().getExperiment().getIdentifier());
-        assertEquals("Database: test-db, Data set: ds3, path: ds3/path, identifier: [id-ds3], position: 42",
+        assertEquals("Search Domain: test-db, Result location: [Data set: ds3, path: ds3/path, "
+                + "identifier: [id-ds3], position: 42]",
                 results.get(1).getSearchResult().toString());
         assertEquals(ds3.getCode(), results.get(1).getDataSet().getCode());
         assertEquals("/G1/P1/exp1", results.get(1).getDataSet().getExperiment().getIdentifier());
-        assertEquals("Database: test-db, Data set: ds3, path: ds3/path, identifier: [id-ds3], position: 42",
+        assertEquals("Search Domain: test-db, Result location: [Data set: ds3, path: ds3/path, "
+                + "identifier: [id-ds3], position: 42]",
                 results.get(2).getSearchResult().toString());
         assertEquals(ds3.getCode(), results.get(2).getDataSet().getCode());
         assertEquals("/G1/P1/exp1", results.get(2).getDataSet().getExperiment().getIdentifier());
@@ -228,15 +233,19 @@ public final class DataSetTableTest extends AbstractBOTest
 
                     one(service).searchForDataSetsWithSequences(dataStore.getSessionToken(),
                             SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
-                    List<SequenceSearchResult> results = new ArrayList<SequenceSearchResult>();
+                    List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
                     for (String foundDataSet : foundDataSets)
                     {
-                        SequenceSearchResult result = new SequenceSearchResult();
-                        result.setSequenceDatabaseName("test-db");
-                        result.setDataSetCode(foundDataSet);
-                        result.setPathInDataSet(foundDataSet + "/path");
-                        result.setPositionInSequence(42);
-                        result.setSequenceIdentifier("id-" + foundDataSet);
+                        SearchDomainSearchResult result = new SearchDomainSearchResult();
+                        SearchDomain searchDomain = new SearchDomain();
+                        searchDomain.setName("test-db");
+                        result.setSearchDomain(searchDomain);
+                        DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
+                        resultLocation.setDataSetCode(foundDataSet);
+                        resultLocation.setPathInDataSet(foundDataSet + "/path");
+                        resultLocation.setPosition(42);
+                        resultLocation.setIdentifier("id-" + foundDataSet);
+                        result.setResultLocation(resultLocation);
                         results.add(result);
                     }
                     will(returnValue(results));

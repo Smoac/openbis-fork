@@ -30,9 +30,26 @@ public class TarArchiver extends RsyncArchiver
 
     private static final long serialVersionUID = 1L;
 
-    public TarArchiver(Properties properties, File storeRoot)
+    private static class DatasetFileOperationsManagerFactory implements IDataSetFileOperationsManagerFactory
     {
-        super(properties, storeRoot, new DistributedPackagingDataSetFileOperationsManager(properties, new TarPackageManager()));
+        private static final long serialVersionUID = 1L;
+
+        private Properties properties;
+
+        public DatasetFileOperationsManagerFactory(Properties properties)
+        {
+            this.properties = properties;
+        }
+
+        @Override
+        public IDataSetFileOperationsManager create()
+        {
+            return new DistributedPackagingDataSetFileOperationsManager(properties, new TarPackageManager(properties));
+        }
     }
 
+    public TarArchiver(Properties properties, File storeRoot)
+    {
+        super(properties, storeRoot, new DatasetFileOperationsManagerFactory(properties));
+    }
 }

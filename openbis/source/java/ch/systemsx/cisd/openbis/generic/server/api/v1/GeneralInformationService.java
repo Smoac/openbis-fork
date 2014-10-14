@@ -84,6 +84,8 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFetchOptions;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStore;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataStoreURLForDataSets;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
@@ -94,8 +96,9 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleFetchOption;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchableEntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SequenceSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SpaceWithProjectsAndRoleAssignments;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
@@ -114,7 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -144,7 +147,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 29;
+    public static final int MINOR_VERSION = 30;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -953,21 +956,31 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     // There is no @ReturnValueFilter because commonServer.searchForDataSetsWithSequences() does
     // already the filtering.
-    public List<SequenceSearchResult> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+    public List<SearchDomainSearchResult> searchOnSearchDomain(String sessionToken,
+            String preferredSearchDomainOrNull, String searchString,
             Map<String, String> optionalParametersOrNull)
     {
         checkSession(sessionToken);
 
-        List<SequenceSearchResult> result = new ArrayList<SequenceSearchResult>();
-        List<SequenceSearchResultWithFullDataSet> list =
-                commonServer.searchForDataSetsWithSequences(sessionToken,
-                        preferredSequenceDatabaseOrNull, sequenceSnippet, optionalParametersOrNull);
-        for (SequenceSearchResultWithFullDataSet sequenceSearchResult : list)
+        List<SearchDomainSearchResult> result = new ArrayList<SearchDomainSearchResult>();
+        List<SearchDomainSearchResultWithFullDataSet> list =
+                commonServer.searchOnSearchDomain(sessionToken, preferredSearchDomainOrNull,
+                        searchString, optionalParametersOrNull);
+        for (SearchDomainSearchResultWithFullDataSet sequenceSearchResult : list)
         {
             result.add(sequenceSearchResult.getSearchResult());
         }
         return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
+    public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
+    {
+        checkSession(sessionToken);
+
+        return commonServer.listAvailableSearchDomains(sessionToken);
     }
 
     @Override
@@ -1327,4 +1340,24 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
         return api;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.SPACE_USER)
+    public List<Deletion> listDeletions(String sessionToken,
+            EnumSet<DeletionFetchOption> fetchOptions)
+    {
+        if (fetchOptions != null && fetchOptions.contains(DeletionFetchOption.ALL_ENTITIES))
+        {
+            return Translator.translate(commonServer.listDeletions(sessionToken, true));
+        } else if (fetchOptions != null
+                && fetchOptions.contains(DeletionFetchOption.ORIGINAL_ENTITIES))
+        {
+            return Translator.translate(commonServer.listOriginalDeletions(sessionToken));
+        } else
+        {
+            return Translator.translate(commonServer.listDeletions(sessionToken, false));
+        }
+    }
+
 }

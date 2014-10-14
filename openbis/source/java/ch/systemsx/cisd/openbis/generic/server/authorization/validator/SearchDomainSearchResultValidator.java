@@ -16,20 +16,20 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SequenceSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
- * Validator of @SequenceSearchResult.
+ * Validator of @SearchdoquenceSearchResult.
  * 
  * @author Franz-Josef Elmer
  */
-public class SequenceSearchResultValidator extends AbstractValidator<SequenceSearchResultWithFullDataSet>
+public class SearchDomainSearchResultValidator extends AbstractValidator<SearchDomainSearchResultWithFullDataSet>
 {
     private final ExternalDataValidator validator = new ExternalDataValidator();
 
     @Override
-    public boolean doValidation(PersonPE person, SequenceSearchResultWithFullDataSet value)
+    public boolean doValidation(PersonPE person, SearchDomainSearchResultWithFullDataSet value)
     {
         return validator.isValid(person, value.getDataSet());
     }

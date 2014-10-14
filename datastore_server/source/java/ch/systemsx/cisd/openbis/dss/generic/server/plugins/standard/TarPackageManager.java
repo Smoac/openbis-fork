@@ -26,6 +26,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
+import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -48,6 +49,13 @@ public class TarPackageManager implements IPackageManager
     private transient IHierarchicalContentProvider contentProvider;
 
     private transient IDataSetDirectoryProvider directoryProvider;
+
+    private final File tempFolder;
+
+    public TarPackageManager(Properties properties)
+    {
+        this.tempFolder = PropertyUtils.getDirectory(properties, RsyncArchiver.TEMP_FOLDER, null);
+    }
 
     @Override
     public String getName(IDatasetLocation dataSetLocation)
@@ -118,7 +126,7 @@ public class TarPackageManager implements IPackageManager
     @Override
     public IHierarchicalContent asHierarchialContent(File packageFile)
     {
-        return new TarBasedHierarchicalContent(packageFile);
+        return new TarBasedHierarchicalContent(packageFile, tempFolder);
     }
 
     private IHierarchicalContentProvider getContentProvider()

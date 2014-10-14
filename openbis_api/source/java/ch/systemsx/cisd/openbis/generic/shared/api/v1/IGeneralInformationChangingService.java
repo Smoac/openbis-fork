@@ -16,10 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1;
 
+import java.util.List;
 import java.util.Map;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
@@ -177,4 +179,86 @@ public interface IGeneralInformationChangingService extends IRpcService
             final String sessionToken,
             final String sampleTypeCode,
             final String sessionKey);
+
+    /**
+     * Deletes the specified projects.
+     * 
+     * @param projectIds Ids of projects to delete
+     * @param reason Reason of the deletion
+     * @since 1.6
+     */
+    public void deleteProjects(String sessionToken, List<Long> projectIds, String reason);
+
+    /**
+     * Deletes or trashes the specified experiments depending on the chosen deletion type.
+     * 
+     * @param experimentIds Ids of experiments to delete
+     * @param reason Reason of the deletion
+     * @param deletionType Type of the deletion
+     * @since 1.6
+     */
+    public void deleteExperiments(String sessionToken, List<Long> experimentIds, String reason,
+            DeletionType deletionType);
+
+    /**
+     * Deletes or trashes the specified samples depending on the chosen deletion type.
+     * 
+     * @param sampleIds Ids of samples to delete
+     * @param reason Reason of the deletion
+     * @param deletionType Type of the deletion
+     * @since 1.6
+     */
+    public void deleteSamples(String sessionToken, List<Long> sampleIds, String reason,
+            DeletionType deletionType);
+
+    /**
+     * Deletes or trashes the specified data sets depending on the chosen deletion type. This method CANNOT delete data sets with deletion_disallow
+     * flag set to true in their type (compare with {@link #deleteDataSetsForced(String, List, String, DeletionType)}.
+     * 
+     * @param dataSetCodes Codes of data sets to delete
+     * @param reason Reason of the deletion
+     * @param deletionType Type of the deletion
+     * @since 1.6
+     */
+    public void deleteDataSets(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType deletionType);
+
+    /**
+     * Deletes or trashes the specified data sets depending on the chosen deletion type. This method CAN delete data sets with deletion_disallow flag
+     * set to true in their type but requires special user privileges (compare with {@link #deleteDataSets(String, List, String, DeletionType)}.
+     * 
+     * @param dataSetCodes Codes of data sets to delete
+     * @param reason Reason of the deletion
+     * @param deletionType Type of the deletion
+     * @since 1.6
+     */
+    public void deleteDataSetsForced(String sessionToken, List<String> dataSetCodes, String reason,
+            DeletionType deletionType);
+
+    /**
+     * Reverts specified deletions (puts back all entities moved to trash in the deletions).
+     * 
+     * @param deletionIds Ids of deletions to be reverted
+     * @since 1.6
+     */
+    public void revertDeletions(String sessionToken, List<Long> deletionIds);
+
+    /**
+     * Permanently deletes entities moved to trash in specified deletions. This method CANNOT delete data sets with deletion_disallow flag set to true
+     * in their type (compare with {@link #deletePermanentlyForced(String, List)})
+     * 
+     * @param deletionIds Ids of deletions to be deleted permanently
+     * @since 1.6
+     */
+    public void deletePermanently(String sessionToken, List<Long> deletionIds);
+
+    /**
+     * Permanently deletes entities moved to trash in specified deletions. It CAN delete data sets with deletion_disallow flag set to true in their
+     * type (compare with {@link #deletePermanently(String, List)}).
+     * 
+     * @param deletionIds Ids of deletions to be deleted permanently
+     * @since 1.6
+     */
+    public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds);
+
 }
