@@ -20,14 +20,7 @@ function SampleFormModel(mode, sample) {
 	
 	this.isFormDirty = false;
 	this.isFormLoaded = false;
-	
-	if(this.mode === FormMode.CREATE && sample.experimentIdentifierOrNull) {
-		this.isELNSubExperiment = true;
-	} else if(!(this.mode === FormMode.CREATE)) {
-		this.isELNSubExperiment = $.inArray(sample.spaceCode, profile.inventorySpaces) === -1 && profile.inventorySpaces.length > 0;;
-	} else {
-		this.isELNSubExperiment = false;
-	}
+	this.isELNSubExperiment = profile.inventorySpaces.length > 0 && $.inArray(sample.spaceCode, profile.inventorySpaces) === -1;
 	
 	//
 	// TO-DO: Legacy code to be refactored

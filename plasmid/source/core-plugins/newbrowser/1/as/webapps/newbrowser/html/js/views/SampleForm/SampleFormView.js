@@ -116,17 +116,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// SELECT EXPERIMENT/SPACE
 		//
 		$formColumn.append($("<legend>").append("Identification Info"));
-		if(this._sampleFormModel.isELNSubExperiment) {
-			$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
-		} else {
-			var spacesDropDown = FormUtil.getSpaceDropdown();
-			$formColumn.append(FormUtil.getFieldForComponentWithLabel(spacesDropDown, "Space"));
-			spacesDropDown.change(function(event){
-				var spacesDropDown = $(this);
-				_this._sampleFormModel.sample.spaceCode = spacesDropDown.val();
-				_this._sampleFormModel.isFormDirty = true;
-			});
-		}
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
 		
 		//
 		// CODE
