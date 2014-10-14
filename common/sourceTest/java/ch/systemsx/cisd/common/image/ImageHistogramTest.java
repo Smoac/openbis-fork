@@ -16,7 +16,7 @@
 
 package ch.systemsx.cisd.common.image;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.awt.Color;
 import java.awt.Graphics;
