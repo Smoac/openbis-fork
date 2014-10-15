@@ -20,7 +20,7 @@ function DataSetFormModel(mode, sample, dataSet) {
 	
 	this.sample = sample;
 	if(!dataSet) {
-		this.dataSet = { properties : [] };
+		this.dataSet = { properties : {} };
 	} else {
 		this.dataSet = dataSet;
 	}

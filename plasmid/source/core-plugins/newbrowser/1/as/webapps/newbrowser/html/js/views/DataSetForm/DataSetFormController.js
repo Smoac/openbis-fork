@@ -84,6 +84,7 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 		var method = null;
 		var sampleIdentifier = null;
 		var dataSetTypeCode = null;
+		var dataSetCode = null;
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
 			method = "insertDataSet";
 			sampleIdentifier = this._dataSetFormModel.sample.identifier;

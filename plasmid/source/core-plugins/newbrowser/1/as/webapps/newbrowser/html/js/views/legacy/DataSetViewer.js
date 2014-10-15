@@ -26,8 +26,9 @@
  * @param {String} datastoreDownloadURL The datastore url in format http://localhost:8889/datastore_server.
  * @param {Map} datasets API result with the datasets to show.
  * @param {Boolean} enableUpload If true, the button to create datasets is shown, this will require the sample to be present.
+ * @param {Boolean} enableOpenDataset If true, pressing on a row opens the dataset form on view mode for the given dataset.
  */
-function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload) {
+function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDownloadURL, datasets, enableUpload, enableOpenDataset) {
 	this.containerId = containerId;
 	this.profile = profile;
 	this.containerIdTitle = containerId + "-title";
@@ -36,6 +37,7 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 	this.sample = sample;
 	this.datasets = datasets;
 	this.enableUpload = enableUpload;
+	this.enableOpenDataset = enableOpenDataset;
 	this.sampleDataSets = {};
 	this.sampleDataSetsFiles = {};
 	this.datastoreDownloadURL = datastoreDownloadURL
@@ -287,7 +289,11 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 		//
 		// Simple Files Table
 		//
-		var $dataSetsTable = $("<table>", { class: "table"});
+		var tableClass = "table";
+		if(this.enableOpenDataset) {
+			tableClass += " table-hover";
+		}
+		var $dataSetsTable = $("<table>", { class: tableClass });
 		$dataSetsTable.append(
 			$("<thead>").append(
 				$("<tr>")
@@ -324,9 +330,13 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 				} else {
 					$tableRow.append(
 								$("<td>").append(
-									$("<a>").attr("href", downloadUrl)
+									$("<a>")
+											.attr("href", downloadUrl)
 											.attr("download", 'download')
 											.html(datasetFiles[i].pathInDataSet)
+											.click(function(event) {
+												event.stopPropagation();
+											})
 								)
 							);
 					
@@ -341,10 +351,21 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 													.attr("href", downloadUrl)
 													.attr("target", "_blank")
 													.append($("<span>").attr("class", "glyphicon glyphicon-search"))
+													.click(function(event) {
+														event.stopPropagation();
+													})
 											)
 									);
 				} else {
 					$tableRow.append($("<td>"));
+				}
+				
+				//Open DataSet
+				if(this.enableOpenDataset) {
+					$tableRow.attr('style', 'cursor: pointer;');
+					$tableRow.click(function(event) {
+						mainController.changeView('showViewDataSetPageFromPermId', dataset.code);
+					});
 				}
 				
 				$dataSetsTableBody.append($tableRow);
