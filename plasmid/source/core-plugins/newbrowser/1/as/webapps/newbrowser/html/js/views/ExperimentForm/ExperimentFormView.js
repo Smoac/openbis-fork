@@ -44,6 +44,23 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		}
 		$formColumn.append($formTitle);
 		
+		if(this._experimentFormModel.mode !== FormMode.CREATE) {
+			//Delete
+			$formTitle.append("&nbsp;");
+			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
+				mainController.serverFacade.deleteExperiments([_this._experimentFormModel.experiment.id], reason, function(data) {
+					Util.showSuccess("Experiment Deleted");
+					
+					var projectIdentifierEnd = _this._experimentFormModel.experiment.identifier.lastIndexOf("/");
+					var projectIdentifier = _this._experimentFormModel.experiment.identifier.substring(0, projectIdentifierEnd);
+					
+					mainController.serverFacade.getProjectFromIdentifier(projectIdentifier, function(project) {
+						mainController.changeView("showProjectPageFromPermId", project.permId);
+					});
+				});
+			}, true));
+		}
+		
 		//
 		// Create Sub Experiment
 		//
@@ -69,14 +86,14 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 					Util.unblockUI();
 				});
 			});
-			$formTitle.append(" ");
+			$formTitle.append("&nbsp;");
 			$formTitle.append($createSubExpBtn);
 			
 			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
 			$editBtn.click(function() {
 				mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
 			});
-			$formTitle.append(" ");
+			$formTitle.append("&nbsp;");
 			$formTitle.append($editBtn);
 		}
 		

@@ -116,9 +116,9 @@ function MainController(profile) {
 								localReference.profile.init(function() {
 									//Start App
 									localReference.inspector = new Inspector(localReference.serverFacade, "mainContainer", localReference.profile);
-								
-									localReference.sideMenu = new SideMenuWidget(localReference, "sideMenu", localReference.serverFacade);
-									localReference.sideMenu.init();
+									
+									localReference.sideMenu = new SideMenuWidgetController(localReference);
+									localReference.sideMenu.init($("#sideMenu"));
 									
 									//Page reload using the URL info
 									var queryString = Util.queryString();
