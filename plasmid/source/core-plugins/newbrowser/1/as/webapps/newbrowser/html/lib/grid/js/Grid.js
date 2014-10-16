@@ -52,11 +52,11 @@ $.extend(Grid.prototype, {
 		});
 
 		thisGrid.columns.forEach(function(column, columnIndex) {
-			var checkbox = $("<input>").attr("type", "checkbox").attr("value", column.property).attr("checked", "checked");
+			var checkbox = $("<input>").attr("type", "checkbox").attr("value", column.property).attr("checked", "checked").attr("style", "margin-left: 5px;");
 			checkbox.change(function() {
 				thisGrid.panel.repeater('render');
 			});
-			var label = $("<label>").attr("role", "menuitem").addClass("checkbox").text(column.label).append(checkbox);
+			var label = $("<label>").attr("role", "menuitem").addClass("checkbox").append(column.label).append(checkbox);
 			var item = $("<li>").attr("role", "presentation").append(label);
 			columnList.append(item);
 		});

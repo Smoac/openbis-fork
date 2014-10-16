@@ -284,7 +284,7 @@ var FormUtil = new function() {
 		$controlGroup.append($controls);
 		$fieldset.append($controlGroup);
 		
-		var $component = $("<span>", {'class' : 'form-control', 'style' : 'border:none; box-shadow:none; background:transparent;'});
+		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
 		$component.text(text);
 		if(id) {
 			$component.attr('id', id);
