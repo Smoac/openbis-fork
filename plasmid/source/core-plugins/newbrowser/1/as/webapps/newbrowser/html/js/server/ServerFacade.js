@@ -172,6 +172,10 @@ function ServerFacade(openbisServer) {
 	this.deleteExperiments = function(experimentIds, reason, callback) {
 		this.openbisServer.deleteExperiments(experimentIds, reason, "TRASH", callback);
 	}
+	
+	this.deleteProjects = function(projectIds, reason, callback) {
+		this.openbisServer.deleteProjects(projectIds, reason, callback);
+	}
 	//
 	// Data Set Related Functions
 	//

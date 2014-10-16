@@ -45,6 +45,14 @@ function ProjectFormView(projectFormController, projectFormModel) {
 		var $formTitle = $("<h2>").append(title);
 		$formColumn.append($formTitle);
 		
+		if(this._projectFormModel.mode !== FormMode.CREATE) {
+			//Delete
+			$formTitle.append("&nbsp;");
+			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
+				_this._projectFormController.deleteProject(reason);
+			}, true));
+		}
+		
 		if(this._projectFormModel.mode === FormMode.VIEW) {
 			var $createExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Experiment");
 			$createExpBtn.click(function() {
@@ -60,9 +68,9 @@ function ProjectFormView(projectFormController, projectFormModel) {
 					Util.unblockUI();
 				});
 			});
-			$formTitle.append(" ");
+			$formTitle.append("&nbsp;");
 			$formTitle.append($createExpBtn);
-			$formTitle.append(" ");
+			$formTitle.append("&nbsp;");
 			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
 			$editBtn.click(function() {
 				_this._projectFormController.enableEditing();

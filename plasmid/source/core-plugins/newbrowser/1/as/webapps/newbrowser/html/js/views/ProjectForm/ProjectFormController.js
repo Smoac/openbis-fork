@@ -23,6 +23,19 @@ function ProjectFormController(mainController, mode, project) {
 		this._projectFormView.repaint($container);
 	}
 	
+	this.deleteProject = function(reason) {
+		var _this = this;
+		mainController.serverFacade.deleteProjects([this._projectFormModel.project.id], reason, function(data) {
+			if(data.error) {
+				Util.showError(data.error.message);
+			} else {
+				Util.showSuccess("Project Deleted");
+				var projectIdentifier = "/" + _this._projectFormModel.project.spaceCode + "/" + _this._projectFormModel.project.code;
+				mainController.sideMenu.deleteUniqueIdAndMoveToParent(projectIdentifier);
+			}
+		});
+	}
+	
 	this.createNewExperiment = function(experimentTypeCode) {
 		var argsMap = {
 				"experimentTypeCode" : experimentTypeCode,
