@@ -68,15 +68,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		if(this._sampleFormModel.mode !== FormMode.CREATE) {
 			//Delete
 			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
-				mainController.serverFacade.deleteSamples([_this._sampleFormModel.sample.id], reason, function(data) {
-					Util.showSuccess("Sample Deleted");
-					if(_this._sampleFormModel.isELNSubExperiment) {
-						mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
-						mainController.changeView("showExperimentPageFromIdentifier", _this._sampleFormModel.sample.experimentIdentifierOrNull);
-					} else {
-						mainController.changeView('showSamplesPage', ":" + _this._sampleFormModel.sample.experimentIdentifierOrNull);
-					}
-				});
+				_this._sampleFormController.deleteSample(reason);
 			}, true));
 			//Pin
 			$formTitle.append("&nbsp;");

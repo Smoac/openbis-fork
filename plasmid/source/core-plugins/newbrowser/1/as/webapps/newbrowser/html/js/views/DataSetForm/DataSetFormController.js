@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function DataSetFormController(mainController, mode, sample, dataset) {
+function DataSetFormController(mainController, mode, sample, dataSet) {
 	this._mainController = mainController;
-	this._dataSetFormModel = new DataSetFormModel(mode, sample, dataset);
+	this._dataSetFormModel = new DataSetFormModel(mode, sample, dataSet);
 	this._dataSetFormView = new DataSetFormView(this, this._dataSetFormModel);
 	
 	this.init = function($container) {
@@ -40,6 +40,18 @@ function DataSetFormController(mainController, mode, sample, dataset) {
 			}
 		}
 		return null;
+	}
+	
+	this.deleteDataSet = function(reason) {
+		var _this = this;
+		mainController.serverFacade.deleteDataSets([this._dataSetFormModel.dataSet.code], reason, function(data) {
+			if(data.error) {
+				Util.showError(data.error.message);
+			} else {
+				Util.showSuccess("Data Set Deleted");
+				mainController.changeView('showViewSamplePageFromPermId', _this._dataSetFormModel.sample.permId);
+			}
+		});
 	}
 	
 	//

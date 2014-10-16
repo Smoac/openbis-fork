@@ -26,15 +26,29 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 		var $wrapper = $('<form>', { class : 'form-horizontal ', 'id' : 'mainDataSetForm', 'role' : 'form'});
 		$wrapper.submit(function(event) {_this._dataSetFormController.submitDataSet(); event.preventDefault();});
 		
+		//Title
 		var titleText = null;
-		var $editButton = "";
 		if(this._dataSetFormModel.mode === FormMode.CREATE) {
-			titleText = 'Create Dataset ';
+			titleText = 'Create Dataset';
 		} else if(this._dataSetFormModel.mode === FormMode.EDIT) {
-			titleText = 'Update Dataset ';
+			titleText = 'Update Dataset';
 		} else if(this._dataSetFormModel.mode === FormMode.VIEW) {
-			titleText = 'View Dataset ';
-			
+			titleText = 'View Dataset';
+		}
+		var $title = $('<h2>').text(titleText);
+		$wrapper.append($title);
+		
+		//Delete Button
+		if(this._dataSetFormModel.mode !== FormMode.CREATE) {
+			$title.append("&nbsp;");
+			$title.append(FormUtil.getDeleteButton(function(reason) {
+				_this._dataSetFormController.deleteDataSet(reason);
+			}, true));
+		}
+		
+		//Edit Button
+		if(this._dataSetFormModel.mode === FormMode.VIEW) {
+			$title.append("&nbsp;");
 			var $editButton = $("<a>", { 'class' : 'btn btn-default'} )
 				.append($('<span>', { 'class' : 'glyphicon glyphicon-edit' }))
 				.append(' Enable Editing');
@@ -42,10 +56,9 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$editButton.click(function() {
 				mainController.changeView('showEditDataSetPageFromPermId', _this._dataSetFormModel.dataSet.code);
 			});
+			
+			$title.append($editButton)
 		}
-		
-		//Edit button;
-		$wrapper.append($('<h2>').text(titleText).append($editButton));
 		
 		//Drop Down DataSetType Field Set
 		var $dataSetTypeFieldSet = $('<div>');

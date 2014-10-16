@@ -50,6 +50,23 @@ function SampleFormController(mainController, mode, sample) {
 		this._storageControllers.push(storageController);
 	}
 	
+	this.deleteSample = function(reason) {
+		var _this = this;
+		mainController.serverFacade.deleteSamples([this._sampleFormModel.sample.id], reason, function(data) {
+			if(data.error) {
+				Util.showError(data.error.message);
+			} else {
+				Util.showSuccess("Sample Deleted");
+				if(_this._sampleFormModel.isELNSubExperiment) {
+					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
+					mainController.changeView("showExperimentPageFromIdentifier", _this._sampleFormModel.sample.experimentIdentifierOrNull);
+				} else {
+					mainController.changeView('showSamplesPage', ":" + _this._sampleFormModel.sample.experimentIdentifierOrNull);
+				}
+			}
+		});
+	}
+	
 	this.createUpdateCopySample = function(isCopyWithNewCode, linkParentsOnCopy, copyChildrenOnCopy) {
 		Util.blockUI();
 		var _this = this;
