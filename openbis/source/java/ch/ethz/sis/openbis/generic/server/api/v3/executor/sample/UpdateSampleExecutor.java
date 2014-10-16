@@ -35,6 +35,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntity
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -120,6 +122,14 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
         List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
 
         assert sampleIds.size() == samples.size();
+
+        for (SamplePE sample : samples)
+        {
+            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
+            {
+                throw new AuthorizationFailureException("Cannot access sample " + sample.getIdentifier());
+            }
+        }
 
         Map<SampleUpdate, SamplePE> result = new HashMap<SampleUpdate, SamplePE>();
 

@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionSize;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -564,9 +565,10 @@ public class SampleUpdateTest extends AbstractSampleTest
         assertIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
         assertTags(sample2.getTags(), "TEST_TAG_2", "TEST_TAG_3");
     }
-    
+
     @Test
-    public void updateSampleRemoveSpace() {
+    public void updateSampleRemoveSpace()
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
@@ -597,9 +599,10 @@ public class SampleUpdateTest extends AbstractSampleTest
         assertEquals(sample.getExperiment(), null);
         assertIdentifier(sample, "/SAMPLE");
     }
-    
+
     @Test
-    public void updateSharedSampleSetSpace() {
+    public void updateSharedSampleSetSpace()
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleCreation creation = new SampleCreation();
@@ -627,7 +630,139 @@ public class SampleUpdateTest extends AbstractSampleTest
         assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
         assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
         assertIdentifier(sample, "/TEST-SPACE/SAMPLE");
-        
+
     }
-    
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedSample()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091219327-1025"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure: Cannot access sample /CISD/CP-TEST-1", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedSpace()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setSpaceId(new SpacePermId("CISD"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure: Cannot access space CISD", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedExperiment()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setExperimentId(new ExperimentPermId("200811050951882-1028"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure: Cannot access experiment /CISD/NEMO/EXP1", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedContainer()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setContainerId(new SamplePermId("200902091219327-1025"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedContained()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getContainedIds().add(new SamplePermId("200902091219327-1025"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedParent()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getParentIds().add(new SamplePermId("200902091219327-1025"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateSampleWithUnauthorizedChild()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getChildIds().add(new SamplePermId("200902091219327-1025"));
+
+        try
+        {
+            v3api.updateSamples(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure", e.getMessage());
+        }
+    }
+
 }

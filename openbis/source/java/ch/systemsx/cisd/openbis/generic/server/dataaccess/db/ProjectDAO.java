@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -133,6 +135,33 @@ public class ProjectDAO extends AbstractGenericEntityDAO<ProjectPE> implements I
         }
 
         return matchingProjects;
+    }
+
+    @Override
+    public List<ProjectPE> listByPermID(Collection<String> values)
+    {
+        return listByIDsOfName("permId", values);
+    }
+
+    @Override
+    public List<ProjectPE> listByIDs(Collection<Long> values)
+    {
+        return listByIDsOfName("id", values);
+    }
+
+    private List<ProjectPE> listByIDsOfName(String idName, Collection<?> values)
+    {
+        if (values == null || values.isEmpty())
+        {
+            return new ArrayList<ProjectPE>();
+        }
+        final List<ProjectPE> list =
+                DAOUtils.listByCollection(getHibernateTemplate(), ProjectPE.class, idName, values);
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("%d projects(s) have been found.", list.size()));
+        }
+        return list;
     }
 
     @Override

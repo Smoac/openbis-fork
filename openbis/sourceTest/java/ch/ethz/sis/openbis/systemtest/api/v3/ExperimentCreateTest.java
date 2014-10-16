@@ -40,7 +40,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifie
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
@@ -48,8 +49,8 @@ import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 public class ExperimentCreateTest extends AbstractExperimentTest
 {
 
-    @Test(expectedExceptions = AuthorizationFailureException.class)
-    public void testCreateExperimentWithFailedAuthorization()
+    @Test
+    public void testCreateExperimentWithUnauthorizedProject()
     {
         String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
 
@@ -58,7 +59,13 @@ public class ExperimentCreateTest extends AbstractExperimentTest
         experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
 
-        v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+        try
+        {
+            v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure", e.getMessage());
+        }
     }
 
     @Test

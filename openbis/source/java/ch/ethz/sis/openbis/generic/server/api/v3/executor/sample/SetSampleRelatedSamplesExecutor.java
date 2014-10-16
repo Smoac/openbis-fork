@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +32,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -44,7 +44,7 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
 {
 
     @Autowired
-    private IListSampleTechIdByIdExecutor listSampleTechIdByIdExecutor;
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Autowired
     private ISetSampleContainerExecutor setSampleContainerExecutor;
@@ -63,11 +63,11 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
     {
     }
 
-    public SetSampleRelatedSamplesExecutor(IListSampleTechIdByIdExecutor listSampleTechIdByIdExecutor,
+    public SetSampleRelatedSamplesExecutor(IMapSampleByIdExecutor mapSampleByIdExecutor,
             ISetSampleContainerExecutor setSampleContainerExecutor, ISetSampleContainedExecutor setSampleContainedExecutor,
             ISetSampleParentsExecutor setSampleParentsExecutor, ISetSampleChildrenExecutor setSampleChildrenExecutor)
     {
-        this.listSampleTechIdByIdExecutor = listSampleTechIdByIdExecutor;
+        this.mapSampleByIdExecutor = mapSampleByIdExecutor;
         this.setSampleContainerExecutor = setSampleContainerExecutor;
         this.setSampleContainedExecutor = setSampleContainedExecutor;
         this.setSampleParentsExecutor = setSampleParentsExecutor;
@@ -77,7 +77,7 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
     @Override
     public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap)
     {
-        Map<ISampleId, Long> relatedSamplesMap = getRelatedSamplesMap(context, creationsMap);
+        Map<ISampleId, SamplePE> relatedSamplesMap = getRelatedSamplesMap(context, creationsMap);
 
         setSampleContainerExecutor.set(context, creationsMap, relatedSamplesMap);
         setSampleContainedExecutor.set(context, creationsMap, relatedSamplesMap);
@@ -85,12 +85,12 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
         setSampleChildrenExecutor.set(context, creationsMap, relatedSamplesMap);
     }
 
-    private Map<ISampleId, Long> getRelatedSamplesMap(IOperationContext context, Map<SampleCreation, SamplePE> createdSamples)
+    private Map<ISampleId, SamplePE> getRelatedSamplesMap(IOperationContext context, Map<SampleCreation, SamplePE> createdSamples)
     {
-        context.pushContextDescription("register samples - verify relationships");
+        context.pushContextDescription("load related samples");
 
-        Collection<ISampleId> relatedSamples = getRelatedSamplesIds(createdSamples.keySet());
-        HashMap<ISampleId, Long> sampleIdToTechIdMap = new HashMap<ISampleId, Long>();
+        Collection<ISampleId> relatedSamplesIds = getRelatedSamplesIds(createdSamples.keySet());
+        HashMap<ISampleId, SamplePE> relatedSamplesMap = new HashMap<ISampleId, SamplePE>();
 
         for (Entry<SampleCreation, SamplePE> entry : createdSamples.entrySet())
         {
@@ -99,41 +99,40 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
 
             if (sampleCreation.getCreationId() != null)
             {
-                sampleIdToTechIdMap.put(sampleCreation.getCreationId(), sample.getId());
+                relatedSamplesMap.put(sampleCreation.getCreationId(), sample);
             }
         }
 
-        List<ISampleId> knownSampleIds = new LinkedList<ISampleId>();
+        List<ISampleId> samplesToLoadIds = new LinkedList<ISampleId>();
 
-        for (ISampleId relatedSample : relatedSamples)
+        for (ISampleId relatedSample : relatedSamplesIds)
         {
             if (relatedSample instanceof CreationId)
             {
-                if (false == sampleIdToTechIdMap.containsKey(relatedSample))
+                if (false == relatedSamplesMap.containsKey(relatedSample))
                 {
                     throw new UserFailureException("Unknown sample creation id: " + relatedSample);
                 }
             }
             else
             {
-                knownSampleIds.add(relatedSample);
+                samplesToLoadIds.add(relatedSample);
             }
         }
-        Collection<Long> techIds = listSampleTechIdByIdExecutor.list(context, knownSampleIds);
+        Map<ISampleId, SamplePE> loadedSamplesMap = mapSampleByIdExecutor.map(context, samplesToLoadIds);
+        relatedSamplesMap.putAll(loadedSamplesMap);
 
-        assert knownSampleIds.size() == techIds.size();
-
-        Iterator<ISampleId> it1 = knownSampleIds.iterator();
-        Iterator<Long> it2 = techIds.iterator();
-
-        while (it1.hasNext())
+        for (ISampleId relatedSampleId : relatedSamplesIds)
         {
-            sampleIdToTechIdMap.put(it1.next(), it2.next());
+            if (false == relatedSamplesMap.containsKey(relatedSampleId))
+            {
+                throw new ObjectNotFoundException(relatedSampleId);
+            }
         }
 
         context.popContextDescription();
 
-        return sampleIdToTechIdMap;
+        return relatedSamplesMap;
     }
 
     private Set<ISampleId> getRelatedSamplesIds(Collection<SampleCreation> sampleCreations)

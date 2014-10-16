@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
@@ -30,7 +28,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.List
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -39,19 +37,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public abstract class AbstractUpdateSampleRelatedSamplesExecutor
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
-
-    protected AbstractUpdateSampleRelatedSamplesExecutor()
-    {
-    }
-
-    public AbstractUpdateSampleRelatedSamplesExecutor(IDAOFactory daoFactory)
-    {
-        this.daoFactory = daoFactory;
-    }
-
-    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap, Map<ISampleId, Long> techIdMap)
+    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap, Map<ISampleId, SamplePE> samplesMap)
     {
         for (SampleUpdate update : updateMap.keySet())
         {
@@ -63,22 +49,37 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
 
                 for (ListUpdateAction<? extends ISampleId> action : listUpdate.getActions())
                 {
-                    Collection<Long> relatedTechIds = new LinkedList<Long>();
+                    Collection<SamplePE> relatedSamples = new LinkedList<SamplePE>();
 
-                    for (ISampleId relatedId : action.getIds())
+                    if (action instanceof ListUpdateActionSet<?> || action instanceof ListUpdateActionAdd<?>)
                     {
-                        relatedTechIds.add(techIdMap.get(relatedId));
-                    }
-
-                    if (action instanceof ListUpdateActionSet<?>)
-                    {
-                        setRelatedSamples(context, sample, relatedTechIds);
-                    } else if (action instanceof ListUpdateActionAdd<?>)
-                    {
-                        addRelatedSamples(context, sample, relatedTechIds);
+                        for (ISampleId relatedId : action.getIds())
+                        {
+                            SamplePE relatedSample = samplesMap.get(relatedId);
+                            if (relatedSample == null)
+                            {
+                                throw new ObjectNotFoundException(relatedId);
+                            }
+                            relatedSamples.add(relatedSample);
+                        }
+                        if (action instanceof ListUpdateActionSet<?>)
+                        {
+                            setRelatedSamples(context, sample, relatedSamples);
+                        } else
+                        {
+                            addRelatedSamples(context, sample, relatedSamples);
+                        }
                     } else if (action instanceof ListUpdateActionRemove<?>)
                     {
-                        removeRelatedSamples(context, sample, relatedTechIds);
+                        for (ISampleId relatedId : action.getIds())
+                        {
+                            SamplePE relatedSample = samplesMap.get(relatedId);
+                            if (relatedSample != null)
+                            {
+                                relatedSamples.add(relatedSample);
+                            }
+                        }
+                        removeRelatedSamples(context, sample, relatedSamples);
                     }
                 }
             }
@@ -88,15 +89,10 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
 
     protected abstract ListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update);
 
-    protected abstract void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds);
+    protected abstract void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<SamplePE> relatedSamples);
 
-    protected abstract void addRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds);
+    protected abstract void addRelatedSamples(IOperationContext context, SamplePE sample, Collection<SamplePE> relatedSamples);
 
-    protected abstract void removeRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds);
-
-    public IDAOFactory getDaoFactory()
-    {
-        return daoFactory;
-    }
+    protected abstract void removeRelatedSamples(IOperationContext context, SamplePE sample, Collection<SamplePE> relatedSamples);
 
 }

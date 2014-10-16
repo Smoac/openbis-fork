@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
-public interface IMapExperimentByIdExecutor
+public interface IMapExperimentByIdExecutor extends IMapObjectByIdExecutor<IExperimentId, ExperimentPE>
 {
-
-    public Map<IExperimentId, ExperimentPE> map(IOperationContext context, Collection<? extends IExperimentId> experimentIds);
 
 }

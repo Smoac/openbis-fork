@@ -31,10 +31,13 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -114,7 +117,14 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
 
         updateEntityPropertyExecutor.update(context, experiment, entityType, experimentCreation.getProperties());
 
-        experiment.setProject(getProjectByIdExecutor.get(context, experimentCreation.getProjectId()));
+        ProjectPE project = getProjectByIdExecutor.get(context, experimentCreation.getProjectId());
+
+        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
+        {
+            throw new AuthorizationFailureException("Cannot access project " + experimentCreation.getProjectId());
+        }
+
+        experiment.setProject(project);
 
         String createdPermId = daoFactory.getPermIdDAO().createPermId();
         experiment.setPermId(createdPermId);

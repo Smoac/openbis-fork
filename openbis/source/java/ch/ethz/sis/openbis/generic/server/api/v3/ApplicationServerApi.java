@@ -16,8 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.authorization.predicate.ListExperimentCreationPredicate;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IListExperimentByIdExecutor;
@@ -63,7 +62,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterio
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.server.AbstractServer;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
-import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.AuthorizationGuard;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
@@ -167,7 +165,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     { RoleWithHierarchy.SPACE_USER })
     @DatabaseCreateOrDeleteModification(value = ObjectKind.EXPERIMENT)
     public List<ExperimentPermId> createExperiments(String sessionToken,
-            @AuthorizationGuard(guardClass = ListExperimentCreationPredicate.class)
             List<ExperimentCreation> creations)
     {
         // REPLACES:
@@ -187,7 +184,11 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Override
     @Transactional
-    public List<SamplePermId> createSamples(String sessionToken, List<SampleCreation> creations)
+    @RolesAllowed(
+    { RoleWithHierarchy.SPACE_USER })
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.SAMPLE)
+    public List<SamplePermId> createSamples(String sessionToken,
+            List<SampleCreation> creations)
     {
         Session session = getSession(sessionToken);
         OperationContext context = new OperationContext(session);
@@ -265,7 +266,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<ExperimentPE> experiments = listExperimentByIdExecutor.list(context, experimentIds);
 
-        return new LinkedList<Experiment>(
+        return new ArrayList<Experiment>(
                 new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments));
     }
 
@@ -280,7 +281,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
 
-        return new LinkedList<Sample>(
+        return new ArrayList<Sample>(
                 new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
     }
 
@@ -305,7 +306,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(experimentIds);
 
-        return new LinkedList<Experiment>(
+        return new ArrayList<Experiment>(
                 new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments));
     }
 
@@ -329,7 +330,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(sampleIds);
 
-        return new LinkedList<Sample>(
+        return new ArrayList<Sample>(
                 new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
     }
 

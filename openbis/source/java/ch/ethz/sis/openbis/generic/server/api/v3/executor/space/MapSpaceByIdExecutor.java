@@ -16,66 +16,53 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.id.space.ISpaceIdTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.space.ListSpaceByPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.IListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.ListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.space.ListerBySpacePermIdId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISpaceDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapSpaceByIdExecutor implements IMapSpaceByIdExecutor
+public class MapSpaceByIdExecutor extends AbstractMapObjectByIdExecutor<ISpaceId, SpacePE> implements IMapSpaceByIdExecutor
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
+    private ISpaceDAO spaceDAO;
 
     @SuppressWarnings("unused")
     private MapSpaceByIdExecutor()
     {
     }
 
-    public MapSpaceByIdExecutor(IDAOFactory daoFactory)
+    public MapSpaceByIdExecutor(ISpaceDAO spaceDAO)
     {
-        this.daoFactory = daoFactory;
+        this.spaceDAO = spaceDAO;
     }
 
     @Override
-    public Map<ISpaceId, SpacePE> map(IOperationContext context, Collection<? extends ISpaceId> spaceIds)
+    protected List<IListObjectById<? extends ISpaceId, SpacePE>> createListers(IOperationContext context)
     {
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.space.ISpaceId> spaceIdsCore =
-                new ListTranslator().translate(spaceIds, new ISpaceIdTranslator());
+        List<IListObjectById<? extends ISpaceId, SpacePE>> listers =
+                new LinkedList<IListObjectById<? extends ISpaceId, SpacePE>>();
+        listers.add(new ListSpaceByPermId(spaceDAO));
+        return listers;
+    }
 
-        @SuppressWarnings("rawtypes")
-        List<IListerById> listers = new LinkedList<IListerById>();
-        listers.add(new ListerBySpacePermIdId(daoFactory));
-
-        List<SpacePE> list = new ListerById(listers).list(spaceIdsCore);
-        Map<ISpaceId, SpacePE> map = new LinkedHashMap<ISpaceId, SpacePE>();
-        int index = 0;
-
-        for (ISpaceId spaceId : spaceIds)
-        {
-            map.put(spaceId, list.get(index));
-            index++;
-        }
-
-        return map;
+    @Autowired
+    private void setDAOFactory(IDAOFactory daoFactory)
+    {
+        spaceDAO = daoFactory.getSpaceDAO();
     }
 
 }

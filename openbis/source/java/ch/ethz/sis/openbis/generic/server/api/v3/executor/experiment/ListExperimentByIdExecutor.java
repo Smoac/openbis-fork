@@ -16,15 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractListObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
@@ -32,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
  * @author pkupczyk
  */
 @Component
-public class ListExperimentByIdExecutor implements IListExperimentByIdExecutor
+public class ListExperimentByIdExecutor extends AbstractListObjectByIdExecutor<IExperimentId, ExperimentPE> implements IListExperimentByIdExecutor
 {
 
     @Autowired
@@ -49,10 +45,9 @@ public class ListExperimentByIdExecutor implements IListExperimentByIdExecutor
     }
 
     @Override
-    public List<ExperimentPE> list(IOperationContext context, Collection<? extends IExperimentId> experimentIds)
+    protected IMapObjectByIdExecutor<IExperimentId, ExperimentPE> getMapExecutor()
     {
-        Map<IExperimentId, ExperimentPE> map = mapExperimentByIdExecutor.map(context, experimentIds);
-        return new ArrayList<ExperimentPE>(map.values());
+        return mapExperimentByIdExecutor;
     }
 
 }

@@ -20,12 +20,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -34,46 +31,32 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public abstract class AbstractSetSampleRelatedSamplesExecutor
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
-
-    protected AbstractSetSampleRelatedSamplesExecutor()
-    {
-    }
-
-    public AbstractSetSampleRelatedSamplesExecutor(IDAOFactory daoFactory)
-    {
-        this.daoFactory = daoFactory;
-    }
-
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, Long> techIdMap)
+    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> sampleMap)
     {
         for (SampleCreation creation : creationsMap.keySet())
         {
             SamplePE sample = creationsMap.get(creation);
-            Collection<? extends ISampleId> sampleIds = getRelatedSamplesIds(context, creation);
+            Collection<? extends ISampleId> relatedSampleIds = getRelatedSamplesIds(context, creation);
 
-            if (sampleIds != null)
+            if (relatedSampleIds != null)
             {
-                Collection<Long> sampleTechIds = new LinkedList<Long>();
+                Collection<SamplePE> relatedSamples = new LinkedList<SamplePE>();
 
-                for (ISampleId sampleId : sampleIds)
+                for (ISampleId relatedSampleId : relatedSampleIds)
                 {
-                    sampleTechIds.add(techIdMap.get(sampleId));
+                    relatedSamples.add(sampleMap.get(relatedSampleId));
                 }
 
-                setRelatedSamples(context, sample, sampleTechIds);
+                if (false == relatedSamples.isEmpty())
+                {
+                    setRelatedSamples(context, sample, relatedSamples);
+                }
             }
         }
     }
 
     protected abstract Collection<? extends ISampleId> getRelatedSamplesIds(IOperationContext context, SampleCreation creation);
 
-    protected abstract void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesTechIds);
-
-    public IDAOFactory getDaoFactory()
-    {
-        return daoFactory;
-    }
+    protected abstract void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<SamplePE> relatedSamples);
 
 }

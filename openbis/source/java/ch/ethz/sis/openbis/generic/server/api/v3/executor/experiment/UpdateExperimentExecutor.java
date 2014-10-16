@@ -35,6 +35,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntity
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
@@ -109,6 +111,14 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
         List<ExperimentPE> experiments = listExperimentByIdExecutor.list(context, experimentIds);
 
         assert experimentIds.size() == experiments.size();
+
+        for (ExperimentPE experiment : experiments)
+        {
+            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
+            {
+                throw new AuthorizationFailureException("Cannot access experiment " + experiment.getIdentifier());
+            }
+        }
 
         Map<ExperimentUpdate, ExperimentPE> result = new HashMap<ExperimentUpdate, ExperimentPE>();
 

@@ -67,9 +67,6 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
-                    allowing(daoFactory).getExperimentDAO();
-                    will(returnValue(experimentDao));
-
                     one(experimentDao).listByPermID(Arrays.asList(permId1.getPermId(), permId2.getPermId(), permId3.getPermId()));
                     will(returnValue(Arrays.asList(experiment2, experiment1, experiment3)));
                 }
@@ -85,7 +82,7 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
 
     private Map<IExperimentId, ExperimentPE> execute(IExperimentId... experimentIds)
     {
-        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(daoFactory);
+        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(experimentDao);
         return executor.map(operationContext, Arrays.asList(experimentIds));
     }
 }

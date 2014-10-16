@@ -16,7 +16,12 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
@@ -24,7 +29,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -34,15 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class UpdateSampleContainedExecutor extends AbstractUpdateSampleRelatedSamplesExecutor implements IUpdateSampleContainedExecutor
 {
 
-    @SuppressWarnings("unused")
-    private UpdateSampleContainedExecutor()
-    {
-    }
-
-    public UpdateSampleContainedExecutor(IDAOFactory daoFactory)
-    {
-        super(daoFactory);
-    }
+    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
+    private IRelationshipService relationshipService;
 
     @Override
     protected ListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update)
@@ -51,21 +50,81 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateSampleRelatedSa
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds)
+    protected void setRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
-        getDaoFactory().getSampleDAO().setSampleContained(sample.getId(), relatedSamplesIds);
+        Set<SamplePE> existingContained = new HashSet<SamplePE>(container.getContained());
+        Set<SamplePE> newContained = new HashSet<SamplePE>(contained);
+
+        for (SamplePE anExistingContained : existingContained)
+        {
+            if (false == newContained.contains(existingContained))
+            {
+                removeFromContainer(relationshipService, context, anExistingContained, container);
+            }
+        }
+
+        for (SamplePE aNewContained : newContained)
+        {
+            if (false == existingContained.contains(aNewContained))
+            {
+                assignToContainer(relationshipService, context, aNewContained, container);
+            }
+        }
     }
 
     @Override
-    protected void addRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds)
+    protected void addRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
-        getDaoFactory().getSampleDAO().addSampleContained(sample.getId(), relatedSamplesIds);
+        for (SamplePE aContained : contained)
+        {
+            assignToContainer(relationshipService, context, aContained, container);
+        }
     }
 
     @Override
-    protected void removeRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds)
+    protected void removeRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
-        getDaoFactory().getSampleDAO().removeSampleContained(sample.getId(), relatedSamplesIds);
+        for (SamplePE aContained : contained)
+        {
+            removeFromContainer(relationshipService, context, aContained, container);
+        }
+    }
+
+    static void assignToContainer(IRelationshipService service, IOperationContext context, SamplePE sample, SamplePE container)
+    {
+        SamplePE previousContainer = sample.getContainer();
+
+        if (previousContainer != null)
+        {
+            if (previousContainer.equals(container))
+            {
+                // nothing to do
+                return;
+            } else
+            {
+                removeFromContainer(service, context, sample, previousContainer);
+            }
+        }
+
+        Set<SamplePE> contained = new HashSet<SamplePE>(container.getContained());
+        contained.add(sample);
+        container.setContained(new ArrayList<SamplePE>(contained));
+
+        service.assignSampleToContainer(context.getSession(), sample, container);
+    }
+
+    static void removeFromContainer(IRelationshipService service, IOperationContext context, SamplePE sample, SamplePE container)
+    {
+        SamplePE previousContainer = sample.getContainer();
+
+        if (previousContainer != null && previousContainer.equals(container))
+        {
+            Set<SamplePE> contained = new HashSet<SamplePE>(container.getContained());
+            contained.remove(sample);
+            container.setContained(new ArrayList<SamplePE>(contained));
+
+            service.removeSampleFromContainer(context.getSession(), sample);
+        }
     }
 
 }

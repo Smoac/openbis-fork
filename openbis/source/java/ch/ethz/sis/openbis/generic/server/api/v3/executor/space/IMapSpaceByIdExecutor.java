@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public interface IMapSpaceByIdExecutor
+public interface IMapSpaceByIdExecutor extends IMapObjectByIdExecutor<ISpaceId, SpacePE>
 {
-
-    public Map<ISpaceId, SpacePE> map(IOperationContext context, Collection<? extends ISpaceId> spaceIds);
 
 }

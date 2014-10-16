@@ -18,14 +18,15 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -35,33 +36,25 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class SetSampleContainerExecutor implements ISetSampleContainerExecutor
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
-
-    @SuppressWarnings("unused")
-    private SetSampleContainerExecutor()
-    {
-    }
-
-    public SetSampleContainerExecutor(IDAOFactory daoFactory)
-    {
-        this.daoFactory = daoFactory;
-    }
+    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
+    private IRelationshipService relationshipService;
 
     @Override
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, Long> techIdMap)
+    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> sampleMap)
     {
-        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-
         for (SampleCreation creation : creationsMap.keySet())
         {
+            context.pushContextDescription("set container for sample " + creation.getCode());
+
             SamplePE sample = creationsMap.get(creation);
             ISampleId containerId = creation.getContainerId();
             if (containerId != null)
             {
-                Long containerTechId = techIdMap.get(containerId);
-                sampleDAO.setSampleContainer(sample.getId(), containerTechId);
+                SamplePE container = sampleMap.get(containerId);
+                relationshipService.assignSampleToContainer(context.getSession(), sample, container);
             }
+
+            context.popContextDescription();
         }
     }
 

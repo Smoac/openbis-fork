@@ -16,15 +16,11 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractListObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
@@ -32,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
  * @author pkupczyk
  */
 @Component
-public class ListSpaceByIdExecutor implements IListSpaceByIdExecutor
+public class ListSpaceByIdExecutor extends AbstractListObjectByIdExecutor<ISpaceId, SpacePE> implements IListSpaceByIdExecutor
 {
 
     @Autowired
@@ -49,10 +45,9 @@ public class ListSpaceByIdExecutor implements IListSpaceByIdExecutor
     }
 
     @Override
-    public List<SpacePE> list(IOperationContext context, Collection<? extends ISpaceId> spaceIds)
+    protected IMapObjectByIdExecutor<ISpaceId, SpacePE> getMapExecutor()
     {
-        Map<ISpaceId, SpacePE> map = mapSpaceByIdExecutor.map(context, spaceIds);
-        return new ArrayList<SpacePE>(map.values());
+        return mapSpaceByIdExecutor;
     }
 
 }

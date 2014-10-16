@@ -23,6 +23,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IGetSpaceByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -60,12 +62,14 @@ public class UpdateSampleSpaceExecutor implements IUpdateSampleSpaceExecutor
             {
                 if (sample.getSpace() != null)
                 {
+                    checkSpace(context, sample.getSpace());
                     relationshipService.shareSample(context.getSession(), sample);
                 }
             }
             else
             {
                 SpacePE space = getSpaceByIdExecutor.get(context, update.getValue());
+                checkSpace(context, space);
 
                 if (sample.getSpace() == null)
                 {
@@ -75,6 +79,14 @@ public class UpdateSampleSpaceExecutor implements IUpdateSampleSpaceExecutor
                     relationshipService.assignSampleToSpace(context.getSession(), sample, space);
                 }
             }
+        }
+    }
+
+    private void checkSpace(IOperationContext context, SpacePE space)
+    {
+        if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))
+        {
+            throw new AuthorizationFailureException("Cannot access space " + space.getCode());
         }
     }
 

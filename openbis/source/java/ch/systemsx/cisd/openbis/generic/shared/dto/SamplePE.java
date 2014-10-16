@@ -811,8 +811,7 @@ public class SamplePE extends AttachmentHolderPE implements IIdAndCodeHolder, Co
         return contained;
     }
 
-    @SuppressWarnings("unused")
-    private void setContained(List<SamplePE> contained)
+    public void setContained(List<SamplePE> contained)
     {
         this.contained = contained;
     }

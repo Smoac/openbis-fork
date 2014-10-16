@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
@@ -66,10 +68,48 @@ public class ExperimentUpdateTest extends AbstractExperimentTest
         Experiment experiment = experiments.get(0);
         assertEquals(experiment.getIdentifier().getIdentifier(), "/CISD/NOE/TEST_EXPERIMENT");
     }
-    
+
     @Test
-    public void samplesAreUpdatedWhenNewProjectOfExperimentIsInAnotherSpace() {
-        
+    public void testUpdateExperimentWithUnauthorizedExperiment()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(new ExperimentPermId("200811050951882-1028"));
+
+        try
+        {
+            v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure: Cannot access experiment /CISD/NEMO/EXP1", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUpdateExperimentWithUnauthorizedProject()
+    {
+        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(new ExperimentPermId("200902091255058-1037"));
+        update.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+
+        try
+        {
+            v3api.updateExperiments(sessionToken, Arrays.asList(update));
+            fail("Expected user failure exception");
+        } catch (UserFailureException e)
+        {
+            AssertionUtil.assertContains("Authorization failure", e.getMessage());
+        }
+    }
+
+    @Test
+    public void samplesAreUpdatedWhenNewProjectOfExperimentIsInAnotherSpace()
+    {
+
     }
 
     @Test

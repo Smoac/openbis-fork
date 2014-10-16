@@ -54,16 +54,16 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
             throws DataAccessException;
 
     /**
-     * Lists experiments of specified type, project and space. All criteria are optional. If no
-     * criteria is specified all experiments are returned. Fetches also properties.
+     * Lists experiments of specified type, project and space. All criteria are optional. If no criteria is specified all experiments are returned.
+     * Fetches also properties.
      */
     public List<ExperimentPE> listExperimentsWithProperties(
             final ExperimentTypePE experimentTypeOrNull, final ProjectPE projectOrNull,
             final SpacePE spaceOrNull) throws DataAccessException;
 
     /**
-     * Lists experiments of specified type, project and space. All criteria are optional. If no
-     * criteria is specified all experiments are returned. Fetches also properties.
+     * Lists experiments of specified type, project and space. All criteria are optional. If no criteria is specified all experiments are returned.
+     * Fetches also properties.
      */
     public List<ExperimentPE> listExperimentsWithProperties(
             final ExperimentTypePE experimentTypeOrNull, final List<ProjectPE> projectsOrNull,
@@ -81,8 +81,8 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public ExperimentPE tryFindByCodeAndProject(ProjectPE project, String experimentCode);
 
     /**
-     * Lists experiments (with minimal additional information) belonging to the given
-     * <code>project</code> and having a property with the specified value.
+     * Lists experiments (with minimal additional information) belonging to the given <code>project</code> and having a property with the specified
+     * value.
      */
     public List<ExperimentPE> listExperimentsByProjectAndProperty(final String propertyCode,
             final String propertyValue, final ProjectPE project) throws DataAccessException;
@@ -99,13 +99,18 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
     public List<String> getSampleCodes(ExperimentPE experiment);
 
     /**
-     * Try to obtain the experiment for the given <var>permId</var>. Returns <code>null</code>, if
-     * no experiment with the given perm id exists.
+     * Try to obtain the experiment for the given <var>permId</var>. Returns <code>null</code>, if no experiment with the given perm id exists.
      */
     public ExperimentPE tryGetByPermID(String permId);
 
+    /**
+     * List experiments by perm ids.
+     */
     public List<ExperimentPE> listByPermID(Collection<String> permId);
 
+    /**
+     * List experiments by ids.
+     */
     public List<ExperimentPE> listByIDs(Collection<Long> ids);
 
     /**

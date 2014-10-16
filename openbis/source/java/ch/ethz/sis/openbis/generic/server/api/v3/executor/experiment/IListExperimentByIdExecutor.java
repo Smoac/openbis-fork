@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.Collection;
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IListObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
-public interface IListExperimentByIdExecutor
+public interface IListExperimentByIdExecutor extends IListObjectByIdExecutor<IExperimentId, ExperimentPE>
 {
-
-    public List<ExperimentPE> list(IOperationContext context, Collection<? extends IExperimentId> experimentIds);
 
 }

@@ -16,18 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
+import java.util.Collections;
+
 import junit.framework.Assert;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.TryGetProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnsupportedObjectIdException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -36,16 +34,16 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 public class TryGetProjectByIdExecutorTest extends AbstractExecutorTest
 {
 
-    private IProjectDAO projectDao;
+    private IMapProjectByIdExecutor mapExecutor;
 
     @Override
     protected void init()
     {
-        projectDao = context.mock(IProjectDAO.class);
+        mapExecutor = context.mock(IMapProjectByIdExecutor.class);
     }
 
     @Test
-    public void testGetByPermId()
+    public void testGetExisting()
     {
         final ProjectPermId permId = new ProjectPermId("TEST_PERM_ID");
         final ProjectPE project = new ProjectPE();
@@ -54,8 +52,8 @@ public class TryGetProjectByIdExecutorTest extends AbstractExecutorTest
         context.checking(new Expectations()
             {
                 {
-                    one(projectDao).tryGetByPermID(permId.getPermId());
-                    will(returnValue(project));
+                    one(mapExecutor).map(operationContext, Collections.singletonList(permId));
+                    will(returnValue(Collections.singletonMap(permId, project)));
                 }
             });
 
@@ -64,15 +62,15 @@ public class TryGetProjectByIdExecutorTest extends AbstractExecutorTest
     }
 
     @Test
-    public void testGetByPermIdNonexistent()
+    public void testGetNonexistent()
     {
         final ProjectPermId permId = new ProjectPermId("NONEXISTENT_PROJECT");
 
         context.checking(new Expectations()
             {
                 {
-                    one(projectDao).tryGetByPermID("NONEXISTENT_PROJECT");
-                    will(returnValue(null));
+                    one(mapExecutor).map(operationContext, Collections.singletonList(permId));
+                    will(returnValue(Collections.emptyMap()));
                 }
             });
 
@@ -80,60 +78,9 @@ public class TryGetProjectByIdExecutorTest extends AbstractExecutorTest
         Assert.assertNull(result);
     }
 
-    @Test
-    public void testGetByIdentifier()
-    {
-        final ProjectIdentifier identifier = new ProjectIdentifier("/TEST_SPACE/TEST_PROJECT");
-        final ProjectPE project = new ProjectPE();
-        project.setId(123L);
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(projectDao).tryFindProject("TEST_SPACE", "TEST_PROJECT");
-                    will(returnValue(project));
-                }
-            });
-
-        ProjectPE result = execute(identifier);
-        Assert.assertEquals(Long.valueOf(123L), result.getId());
-    }
-
-    @Test
-    public void testGetByIdentifierNonexistent()
-    {
-        final ProjectIdentifier identifier = new ProjectIdentifier("/TEST_SPACE/NONEXISTENT_PROJECT");
-
-        context.checking(new Expectations()
-            {
-                {
-                    one(projectDao).tryFindProject("TEST_SPACE", "NONEXISTENT_PROJECT");
-                    will(returnValue(null));
-                }
-            });
-
-        ProjectPE result = execute(identifier);
-        Assert.assertNull(result);
-    }
-
-    @Test(expectedExceptions = { UnsupportedObjectIdException.class })
-    public void testGetByUnknownId()
-    {
-        final IProjectId unknownId = new IProjectId()
-            {
-
-                private static final long serialVersionUID = 1L;
-
-            };
-        final ProjectPE project = new ProjectPE();
-        project.setId(123L);
-
-        execute(unknownId);
-    }
-
     private ProjectPE execute(IProjectId projectId)
     {
-        TryGetProjectByIdExecutor executor = new TryGetProjectByIdExecutor(projectDao);
+        TryGetProjectByIdExecutor executor = new TryGetProjectByIdExecutor(mapExecutor);
         return executor.tryGet(operationContext, projectId);
     }
 }

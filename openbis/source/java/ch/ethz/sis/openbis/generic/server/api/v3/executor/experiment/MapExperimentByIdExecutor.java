@@ -16,68 +16,53 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.id.experiment.IExperimentIdTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ListExperimentByPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.IListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.ListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.experiment.ListerByExperimentPermIdId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.experiment.ListerByExperimentTechIdId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class MapExperimentByIdExecutor implements IMapExperimentByIdExecutor
+public class MapExperimentByIdExecutor extends AbstractMapObjectByIdExecutor<IExperimentId, ExperimentPE> implements IMapExperimentByIdExecutor
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
+    private IExperimentDAO experimentDAO;
 
     @SuppressWarnings("unused")
     private MapExperimentByIdExecutor()
     {
     }
 
-    public MapExperimentByIdExecutor(IDAOFactory daoFactory)
+    public MapExperimentByIdExecutor(IExperimentDAO experimentDAO)
     {
-        this.daoFactory = daoFactory;
+        this.experimentDAO = experimentDAO;
     }
 
     @Override
-    public Map<IExperimentId, ExperimentPE> map(IOperationContext context, Collection<? extends IExperimentId> experimentIds)
+    protected List<IListObjectById<? extends IExperimentId, ExperimentPE>> createListers(IOperationContext context)
     {
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.experiment.IExperimentId> experimentIdsCore =
-                new ListTranslator().translate(experimentIds, new IExperimentIdTranslator());
+        List<IListObjectById<? extends IExperimentId, ExperimentPE>> listers =
+                new LinkedList<IListObjectById<? extends IExperimentId, ExperimentPE>>();
+        listers.add(new ListExperimentByPermId(experimentDAO));
+        return listers;
+    }
 
-        @SuppressWarnings("rawtypes")
-        List<IListerById> listers = new LinkedList<IListerById>();
-        listers.add(new ListerByExperimentTechIdId(daoFactory));
-        listers.add(new ListerByExperimentPermIdId(daoFactory));
-
-        List<ExperimentPE> list = new ListerById(listers).list(experimentIdsCore);
-        Map<IExperimentId, ExperimentPE> map = new LinkedHashMap<IExperimentId, ExperimentPE>();
-        int index = 0;
-
-        for (IExperimentId experimentId : experimentIds)
-        {
-            map.put(experimentId, list.get(index));
-            index++;
-        }
-
-        return map;
+    @Autowired
+    private void setDAOFactory(IDAOFactory daoFactory)
+    {
+        experimentDAO = daoFactory.getExperimentDAO();
     }
 
 }

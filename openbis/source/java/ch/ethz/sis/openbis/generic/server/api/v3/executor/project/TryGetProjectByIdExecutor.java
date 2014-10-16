@@ -16,18 +16,16 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnsupportedObjectIdException;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierFactory;
 
 /**
  * @author pkupczyk
@@ -36,40 +34,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifierF
 public class TryGetProjectByIdExecutor implements ITryGetProjectByIdExecutor
 {
 
-    private IProjectDAO projectDAO;
+    @Autowired
+    private IMapProjectByIdExecutor mapProjectByIdExecutor;
 
     @SuppressWarnings("unused")
     private TryGetProjectByIdExecutor()
     {
     }
 
-    public TryGetProjectByIdExecutor(IProjectDAO projectDAO)
+    public TryGetProjectByIdExecutor(IMapProjectByIdExecutor mapProjectByIdExecutor)
     {
-        this.projectDAO = projectDAO;
+        this.mapProjectByIdExecutor = mapProjectByIdExecutor;
     }
 
     @Override
     public ProjectPE tryGet(IOperationContext context, IProjectId projectId)
     {
-        if (projectId instanceof ProjectPermId)
+        if (projectId == null)
         {
-            ProjectPermId projectPermId = (ProjectPermId) projectId;
-            return projectDAO.tryGetByPermID(projectPermId.getPermId());
+            throw new UserFailureException("Unspecified project id.");
         }
-        if (projectId instanceof ProjectIdentifier)
-        {
-            ProjectIdentifier projectIdentifier = (ProjectIdentifier) projectId;
-            ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier pid =
-                    ProjectIdentifierFactory.parse(projectIdentifier.getIdentifier());
-            return projectDAO.tryFindProject(pid.getSpaceCode(), pid.getProjectCode());
-        }
-        throw new UnsupportedObjectIdException(projectId);
-    }
 
-    @Autowired
-    private void setDAOFactory(IDAOFactory daoFactory)
-    {
-        projectDAO = daoFactory.getProjectDAO();
+        Map<IProjectId, ProjectPE> projects = mapProjectByIdExecutor.map(context, Collections.singletonList(projectId));
+        return projects.get(projectId);
     }
 
 }

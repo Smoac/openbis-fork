@@ -16,58 +16,38 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.id.sample.ISampleIdTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractListObjectByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.IListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.ListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.sample.ListerBySampleIdentifierId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.sample.ListerBySamplePermIdId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.sample.ListerBySampleTechIdId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
  * @author pkupczyk
  */
 @Component
-public class ListSampleByIdExecutor implements IListSampleByIdExecutor
+public class ListSampleByIdExecutor extends AbstractListObjectByIdExecutor<ISampleId, SamplePE> implements IListSampleByIdExecutor
 {
 
     @Autowired
-    private IDAOFactory daoFactory;
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @SuppressWarnings("unused")
     private ListSampleByIdExecutor()
     {
     }
 
-    public ListSampleByIdExecutor(IDAOFactory daoFactory)
+    public ListSampleByIdExecutor(IMapSampleByIdExecutor mapSampleByIdExecutor)
     {
-        this.daoFactory = daoFactory;
+        this.mapSampleByIdExecutor = mapSampleByIdExecutor;
     }
 
     @Override
-    public List<SamplePE> list(IOperationContext context, Collection<? extends ISampleId> sampleIds)
+    protected IMapObjectByIdExecutor<ISampleId, SamplePE> getMapExecutor()
     {
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.sample.ISampleId> sampleIdsCore =
-                new ListTranslator().translate(sampleIds, new ISampleIdTranslator());
-
-        @SuppressWarnings("rawtypes")
-        List<IListerById> listers = new ArrayList<IListerById>();
-        listers.add(new ListerBySamplePermIdId(daoFactory));
-        listers.add(new ListerBySampleTechIdId(daoFactory));
-        listers.add(new ListerBySampleIdentifierId(daoFactory, context.getSession().tryGetPerson().getHomeSpace()));
-
-        return new ListerById(listers).list(sampleIdsCore);
+        return mapSampleByIdExecutor;
     }
 
 }

@@ -17,16 +17,19 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.relationship.IGetParentChildRelationshipIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -36,19 +39,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class UpdateSampleParentsExecutor extends AbstractUpdateSampleRelatedSamplesExecutor implements IUpdateSampleParentsExecutor
 {
 
-    @Autowired
-    private IGetParentChildRelationshipIdExecutor getParentChildRelationshipIdExecutor;
-
-    @SuppressWarnings("unused")
-    private UpdateSampleParentsExecutor()
-    {
-    }
-
-    public UpdateSampleParentsExecutor(IDAOFactory daoFactory, IGetParentChildRelationshipIdExecutor getParentChildRelationshipIdExecutor)
-    {
-        super(daoFactory);
-        this.getParentChildRelationshipIdExecutor = getParentChildRelationshipIdExecutor;
-    }
+    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
+    private IRelationshipService relationshipService;
 
     @Override
     protected ListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update)
@@ -57,27 +49,54 @@ public class UpdateSampleParentsExecutor extends AbstractUpdateSampleRelatedSamp
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds)
+    protected void setRelatedSamples(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
     {
-        getDaoFactory().getSampleDAO().setSampleRelationshipParents(sample.getId(), relatedSamplesIds,
-                getParentChildRelationshipIdExecutor.get(context),
-                context.getSession().tryGetPerson());
+        Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
+        Set<SamplePE> newParents = new HashSet<SamplePE>(parents);
+
+        for (SamplePE anExistingParent : existingParents)
+        {
+            if (false == newParents.contains(anExistingParent))
+            {
+                relationshipService.removeParentFromSample(context.getSession(), child, anExistingParent);
+            }
+        }
+
+        for (SamplePE aNewParent : newParents)
+        {
+            if (false == existingParents.contains(aNewParent))
+            {
+                relationshipService.addParentToSample(context.getSession(), child, aNewParent);
+            }
+        }
     }
 
     @Override
-    protected void addRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds)
+    protected void addRelatedSamples(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
     {
-        getDaoFactory().getSampleDAO().addSampleRelationshipParents(sample.getId(), relatedSamplesIds,
-                getParentChildRelationshipIdExecutor.get(context),
-                context.getSession().tryGetPerson());
+        Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
+
+        for (SamplePE aParent : parents)
+        {
+            if (false == existingParents.contains(aParent))
+            {
+                relationshipService.addParentToSample(context.getSession(), child, aParent);
+            }
+        }
     }
 
     @Override
-    protected void removeRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesIds)
+    protected void removeRelatedSamples(IOperationContext context, SamplePE child, Collection<SamplePE> parents)
     {
-        getDaoFactory().getSampleDAO().removeSampleRelationshipParents(sample.getId(), relatedSamplesIds,
-                getParentChildRelationshipIdExecutor.get(context),
-                context.getSession().tryGetPerson());
+        Set<SamplePE> existingParents = new HashSet<SamplePE>(child.getParents());
+
+        for (SamplePE aParent : parents)
+        {
+            if (existingParents.contains(aParent))
+            {
+                relationshipService.removeParentFromSample(context.getSession(), child, aParent);
+            }
+        }
     }
 
 }

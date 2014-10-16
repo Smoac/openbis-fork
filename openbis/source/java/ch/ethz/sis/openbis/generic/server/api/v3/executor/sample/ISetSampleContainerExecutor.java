@@ -29,6 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface ISetSampleContainerExecutor
 {
 
-    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, Long> techIdMap);
+    public void set(IOperationContext context, Map<SampleCreation, SamplePE> creationsMap, Map<ISampleId, SamplePE> sampleMap);
 
 }

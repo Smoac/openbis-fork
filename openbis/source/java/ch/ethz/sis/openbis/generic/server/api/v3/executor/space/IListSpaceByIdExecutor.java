@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.space;
 
-import java.util.Collection;
-import java.util.List;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IListObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
  */
-public interface IListSpaceByIdExecutor
+public interface IListSpaceByIdExecutor extends IListObjectByIdExecutor<ISpaceId, SpacePE>
 {
-
-    public List<SpacePE> list(IOperationContext context, Collection<? extends ISpaceId> spaceIds);
 
 }

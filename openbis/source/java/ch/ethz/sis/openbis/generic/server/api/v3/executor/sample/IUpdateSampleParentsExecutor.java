@@ -29,6 +29,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public interface IUpdateSampleParentsExecutor
 {
 
-    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap, Map<ISampleId, Long> techIdMap);
+    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap, Map<ISampleId, SamplePE> sampleMap);
 
 }

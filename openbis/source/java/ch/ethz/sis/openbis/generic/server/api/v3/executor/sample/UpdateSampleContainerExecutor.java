@@ -18,15 +18,17 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.ISampleDAO;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -36,24 +38,12 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class UpdateSampleContainerExecutor implements IUpdateSampleContainerExecutor
 {
 
-    @Autowired
-    private IDAOFactory daoFactory;
-
-    @SuppressWarnings("unused")
-    private UpdateSampleContainerExecutor()
-    {
-    }
-
-    public UpdateSampleContainerExecutor(IDAOFactory daoFactory)
-    {
-        this.daoFactory = daoFactory;
-    }
+    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
+    private IRelationshipService relationshipService;
 
     @Override
-    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap, Map<ISampleId, Long> techIdMap)
+    public void update(IOperationContext context, Map<SampleUpdate, SamplePE> updateMap, Map<ISampleId, SamplePE> samplesMap)
     {
-        ISampleDAO sampleDAO = daoFactory.getSampleDAO();
-
         for (SampleUpdate update : updateMap.keySet())
         {
             SamplePE sample = updateMap.get(update);
@@ -61,8 +51,21 @@ public class UpdateSampleContainerExecutor implements IUpdateSampleContainerExec
 
             if (containerUpdate != null && containerUpdate.isModified())
             {
-                Long containerTechId = techIdMap.get(containerUpdate.getValue());
-                sampleDAO.setSampleContainer(sample.getId(), containerTechId);
+                if (containerUpdate.getValue() == null)
+                {
+                    if (sample.getContainer() != null)
+                    {
+                        UpdateSampleContainedExecutor.removeFromContainer(relationshipService, context, sample, sample.getContainer());
+                    }
+                } else
+                {
+                    SamplePE container = samplesMap.get(containerUpdate.getValue());
+                    if (container == null)
+                    {
+                        throw new ObjectNotFoundException(containerUpdate.getValue());
+                    }
+                    UpdateSampleContainedExecutor.assignToContainer(relationshipService, context, sample, container);
+                }
             }
         }
     }

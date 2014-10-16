@@ -17,15 +17,18 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.relationship.IGetParentChildRelationshipIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -35,19 +38,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class SetSampleChildrenExecutor extends AbstractSetSampleRelatedSamplesExecutor implements ISetSampleChildrenExecutor
 {
 
-    @Autowired
-    private IGetParentChildRelationshipIdExecutor getParentChildRelationshipIdExecutor;
-
-    @SuppressWarnings("unused")
-    private SetSampleChildrenExecutor()
-    {
-    }
-
-    public SetSampleChildrenExecutor(IDAOFactory daoFactory, IGetParentChildRelationshipIdExecutor getParentChildRelationshipIdExecutor)
-    {
-        super(daoFactory);
-        this.getParentChildRelationshipIdExecutor = getParentChildRelationshipIdExecutor;
-    }
+    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
+    private IRelationshipService relationshipService;
 
     @Override
     protected Collection<? extends ISampleId> getRelatedSamplesIds(IOperationContext context, SampleCreation creation)
@@ -56,11 +48,22 @@ public class SetSampleChildrenExecutor extends AbstractSetSampleRelatedSamplesEx
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesTechIds)
+    protected void setRelatedSamples(IOperationContext context, SamplePE parent, Collection<SamplePE> children)
     {
-        getDaoFactory().getSampleDAO().setSampleRelationshipChildren(sample.getId(), relatedSamplesTechIds,
-                getParentChildRelationshipIdExecutor.get(context),
-                context.getSession().tryGetPerson());
+        Set<SamplePE> existingChildren = new HashSet<SamplePE>(parent.getChildren());
+
+        context.pushContextDescription("set children for sample " + parent.getCode());
+
+        for (SamplePE child : children)
+        {
+            if (false == existingChildren.contains(child))
+            {
+                relationshipService.addParentToSample(context.getSession(), child, parent);
+                existingChildren.add(child);
+            }
+        }
+
+        context.popContextDescription();
     }
 
 }

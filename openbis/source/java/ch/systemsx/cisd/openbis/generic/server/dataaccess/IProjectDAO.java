@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess;
 
+import java.util.Collection;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
@@ -40,6 +41,16 @@ public interface IProjectDAO extends IGenericDAO<ProjectPE>
      * Lists projects from given space.
      */
     public List<ProjectPE> listProjects(SpacePE space);
+
+    /**
+     * Lists projects by ids.
+     */
+    public List<ProjectPE> listByIDs(Collection<Long> ids);
+
+    /**
+     * Lists projects by perm ids.
+     */
+    public List<ProjectPE> listByPermID(Collection<String> permIds);
 
     /**
      * Returns project for given perm id or null if such a project does not exist.

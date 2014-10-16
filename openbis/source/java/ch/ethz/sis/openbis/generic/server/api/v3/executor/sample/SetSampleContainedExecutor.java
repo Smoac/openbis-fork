@@ -18,12 +18,15 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 
 import java.util.Collection;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -33,15 +36,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 public class SetSampleContainedExecutor extends AbstractSetSampleRelatedSamplesExecutor implements ISetSampleContainedExecutor
 {
 
-    @SuppressWarnings("unused")
-    private SetSampleContainedExecutor()
-    {
-    }
-
-    public SetSampleContainedExecutor(IDAOFactory daoFactory)
-    {
-        super(daoFactory);
-    }
+    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
+    private IRelationshipService relationshipService;
 
     @Override
     protected Collection<? extends ISampleId> getRelatedSamplesIds(IOperationContext context, SampleCreation creation)
@@ -50,9 +46,16 @@ public class SetSampleContainedExecutor extends AbstractSetSampleRelatedSamplesE
     }
 
     @Override
-    protected void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<Long> relatedSamplesTechIds)
+    protected void setRelatedSamples(IOperationContext context, SamplePE container, Collection<SamplePE> contained)
     {
-        getDaoFactory().getSampleDAO().setSampleContained(sample.getId(), relatedSamplesTechIds);
+        context.pushContextDescription("set contained for sample " + container.getCode());
+
+        for (SamplePE aContained : contained)
+        {
+            relationshipService.assignSampleToContainer(context.getSession(), aContained, container);
+        }
+
+        context.popContextDescription();
     }
 
 }

@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.entity;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.id.entitytype.IEntityTypeIdTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.MapObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.entity.ListEntityTypeByPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.IListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.ListerById;
-import ch.systemsx.cisd.openbis.generic.server.business.search.id.entitytype.ListerByEntityTypePermIdId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
@@ -59,24 +56,11 @@ public class MapEntityTypeByIdExecutor implements IMapEntityTypeByIdExecutor
     @Override
     public Map<IEntityTypeId, EntityTypePE> map(IOperationContext context, EntityKind entityKind, Collection<? extends IEntityTypeId> entityTypeIds)
     {
-        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.entitytype.IEntityTypeId> entityTypeIdsCore =
-                new ListTranslator().translate(entityTypeIds, new IEntityTypeIdTranslator());
+        List<IListObjectById<? extends IEntityTypeId, EntityTypePE>> listers =
+                new LinkedList<IListObjectById<? extends IEntityTypeId, EntityTypePE>>();
+        listers.add(new ListEntityTypeByPermId(daoFactory, entityKind));
 
-        @SuppressWarnings("rawtypes")
-        List<IListerById> listers = new LinkedList<IListerById>();
-        listers.add(new ListerByEntityTypePermIdId(daoFactory, entityKind));
-
-        List<EntityTypePE> list = new ListerById(listers).list(entityTypeIdsCore);
-        Map<IEntityTypeId, EntityTypePE> map = new LinkedHashMap<IEntityTypeId, EntityTypePE>();
-        int index = 0;
-
-        for (IEntityTypeId entityTypeId : entityTypeIds)
-        {
-            map.put(entityTypeId, list.get(index));
-            index++;
-        }
-
-        return map;
+        return new MapObjectById<IEntityTypeId, EntityTypePE>().map(listers, entityTypeIds);
     }
 
 }
