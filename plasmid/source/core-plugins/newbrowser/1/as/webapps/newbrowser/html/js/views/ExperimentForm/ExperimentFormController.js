@@ -27,6 +27,14 @@ function ExperimentFormController(mainController, mode, experiment) {
 		return this._experimentFormModel.isFormDirty;
 	}
 	
+	this.deleteExperiment = function(reason) {
+		var _this = this;
+		mainController.serverFacade.deleteExperiments([this._experimentFormModel.experiment.id], reason, function(data) {
+			Util.showSuccess("Experiment Deleted");
+			mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._experimentFormModel.experiment.identifier);
+		});
+	}
+	
 	this.updateExperiment = function() {
 		Util.blockUI();
 		

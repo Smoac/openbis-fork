@@ -29,6 +29,27 @@ function SideMenuWidgetController(mainController) {
     //
     // External API for real time updates
     //
+    
+    this.deleteUniqueIdAndMoveToParent = function(uniqueId) {
+    	var itemsToCheck = [this._sideMenuWidgetModel.menuStructure];
+    	var currentItem = null;
+    	while(currentItem = itemsToCheck.shift()) {
+    		if(currentItem.newMenuIfSelected) {
+    			for (var i = 0; i < currentItem.newMenuIfSelected.children.length; i++) {
+        			var currentItemChild = currentItem.newMenuIfSelected.children[i];
+            		if(currentItemChild.uniqueId === uniqueId) {
+            			currentItem.newMenuIfSelected.children.splice(i,1);
+            			mainController.changeView(currentItem.newViewIfSelected, currentItem.newViewIfSelectedData);
+            			this._sideMenuWidgetModel.pointerToMenuNode = currentItem;
+            			this._sideMenuWidgetView.repaint();
+            			return;
+            		}
+            		itemsToCheck.push(currentItemChild);
+        		}
+    		}
+    	}
+    };
+    
     this.hideSideMenu = function() {
         this._sideMenuWidgetView.hideSideMenu();
     };

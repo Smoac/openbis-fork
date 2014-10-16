@@ -48,16 +48,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			//Delete
 			$formTitle.append("&nbsp;");
 			$formTitle.append(FormUtil.getDeleteButton(function(reason) {
-				mainController.serverFacade.deleteExperiments([_this._experimentFormModel.experiment.id], reason, function(data) {
-					Util.showSuccess("Experiment Deleted");
-					
-					var projectIdentifierEnd = _this._experimentFormModel.experiment.identifier.lastIndexOf("/");
-					var projectIdentifier = _this._experimentFormModel.experiment.identifier.substring(0, projectIdentifierEnd);
-					
-					mainController.serverFacade.getProjectFromIdentifier(projectIdentifier, function(project) {
-						mainController.changeView("showProjectPageFromPermId", project.permId);
-					});
-				});
+				_this._experimentFormController.deleteExperiment(reason);
 			}, true));
 		}
 		
