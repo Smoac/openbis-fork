@@ -144,7 +144,7 @@ function Inspector(serverFacade, containerId, profile) {
 	}
 	
 	this.printInspector = function(entityPermId) {
-		var newWindow = window.open(null,"print " + entityPermId);
+		var newWindow = window.open(undefined,"print " + entityPermId);
 		
 		var pageToPrint = "";
 			pageToPrint += "<html>";
