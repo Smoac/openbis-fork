@@ -58,8 +58,7 @@ function SampleFormController(mainController, mode, sample) {
 			} else {
 				Util.showSuccess("Sample Deleted");
 				if(_this._sampleFormModel.isELNSubExperiment) {
-					mainController.sideMenu.refreshSubExperiment(_this._sampleFormModel.sample.experimentIdentifierOrNull);
-					mainController.changeView("showExperimentPageFromIdentifier", _this._sampleFormModel.sample.experimentIdentifierOrNull);
+					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._sampleFormModel.sample.identifier);
 				} else {
 					mainController.changeView('showSamplesPage', ":" + _this._sampleFormModel.sample.experimentIdentifierOrNull);
 				}
