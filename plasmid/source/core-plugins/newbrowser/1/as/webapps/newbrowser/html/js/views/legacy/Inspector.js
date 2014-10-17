@@ -144,18 +144,22 @@ function Inspector(serverFacade, containerId, profile) {
 	}
 	
 	this.printInspector = function(entityPermId) {
-		var newWindow = window.open(undefined,"print " + entityPermId);
+		for(var i = 0; i < this.inspectedSamples.length; i++) {
+			if(this.inspectedSamples[i].permId === entityPermId) {
+				this.printSample(this.inspectedSamples[i])
+			}
+		}
+	}
+	
+	this.printSample = function(sample) {
+		var newWindow = window.open(undefined,"print " + sample.permId);
 		
 		var pageToPrint = "";
 			pageToPrint += "<html>";
 			pageToPrint += "<head>";
 			pageToPrint += "</head>";
 			pageToPrint += "<body stlye='font-family: '\"'Helvetica Neue\",Helvetica,Arial,sans-serif;'>";
-			for(var i = 0; i < this.inspectedSamples.length; i++) {
-				if(this.inspectedSamples[i].permId === entityPermId) {
-					pageToPrint += this.getInspectorTable(this.inspectedSamples[i], false, false, false);
-				}
-			}
+			pageToPrint += this.getInspectorTable(sample, false, false, false);
 			pageToPrint += "</body>";
 			pageToPrint += "</html>";
 		
@@ -175,7 +179,7 @@ function Inspector(serverFacade, containerId, profile) {
 	}
 	
 	this.printInspectors = function() {
-		var newWindow = window.open(null,"print");
+		var newWindow = window.open(undefined,"print");
 		
 		var pageToPrint = "";
 			pageToPrint += "<html>";

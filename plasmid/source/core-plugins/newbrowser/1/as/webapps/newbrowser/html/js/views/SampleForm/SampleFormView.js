@@ -82,6 +82,13 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 										.append($('<img>', { 'src' : './img/copy-icon.png', 'style' : 'width:16px; height:16px;' }));
 			$copyButton.click(_this._getCopyButtonEvent());
 			$formTitle.append($copyButton);
+			//Print
+			$formTitle.append("&nbsp;");
+			var $printButton = $("<a>", { 'class' : 'btn btn-default'} ).append($('<span>', { 'class' : 'glyphicon glyphicon-print' }));
+			$printButton.click(function() {
+				mainController.inspector.printSample(_this._sampleFormModel.sample);
+			});
+			$formTitle.append($printButton);
 			//Edit
 			if(this._sampleFormModel.mode === FormMode.VIEW) {
 				$formTitle.append("&nbsp;");
