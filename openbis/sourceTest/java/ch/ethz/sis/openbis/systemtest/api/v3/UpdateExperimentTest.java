@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,15 +29,17 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentUpdateTest extends AbstractExperimentTest
+public class UpdateExperimentTest extends AbstractExperimentTest
 {
 
     @Test
@@ -72,44 +73,85 @@ public class ExperimentUpdateTest extends AbstractExperimentTest
     @Test
     public void testUpdateExperimentWithUnauthorizedExperiment()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        ExperimentUpdate update = new ExperimentUpdate();
-        update.setExperimentId(new ExperimentPermId("200811050951882-1028"));
+        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
 
-        try
-        {
-            v3api.updateExperiments(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure: Cannot access experiment /CISD/NEMO/EXP1", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId);
+    }
+
+    @Test
+    public void testUpdateExperimentWithNonexistentExperiment()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId);
     }
 
     @Test
     public void testUpdateExperimentWithUnauthorizedProject()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        ExperimentUpdate update = new ExperimentUpdate();
+        final IProjectId projectId = new ProjectIdentifier("/CISD/NEMO");
+        final ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(new ExperimentPermId("200902091255058-1037"));
-        update.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        update.setProjectId(projectId);
 
-        try
-        {
-            v3api.updateExperiments(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, projectId);
     }
 
     @Test
-    public void samplesAreUpdatedWhenNewProjectOfExperimentIsInAnotherSpace()
+    public void testUpdateExperimentWithNonexistentProject()
     {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
+        final IProjectId projectId = new ProjectIdentifier("IDONTEXIST");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(new ExperimentPermId("200902091255058-1037"));
+        update.setProjectId(projectId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, projectId);
+    }
+
+    @Test
+    public void testUpdateExperimentWhereSamplesAreUpdatedWhenNewProjectOfExperimentIsInAnotherSpace()
+    {
+        // TODO
     }
 
     @Test

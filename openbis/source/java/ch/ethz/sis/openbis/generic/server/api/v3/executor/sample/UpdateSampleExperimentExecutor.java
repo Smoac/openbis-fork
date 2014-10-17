@@ -22,8 +22,9 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IGetExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -62,7 +63,7 @@ public class UpdateSampleExperimentExecutor implements IUpdateSampleExperimentEx
             {
                 if (sample.getExperiment() != null)
                 {
-                    checkExperiment(context, sample.getExperiment());
+                    checkExperiment(context, new ExperimentIdentifier(sample.getExperiment().getIdentifier()), sample.getExperiment());
                     relationshipService.unassignSampleFromExperiment(context.getSession(), sample);
                 }
             }
@@ -71,18 +72,18 @@ public class UpdateSampleExperimentExecutor implements IUpdateSampleExperimentEx
                 ExperimentPE experiment = getExperimentByIdExecutor.get(context, update.getValue());
                 if (false == experiment.equals(sample.getExperiment()))
                 {
-                    checkExperiment(context, experiment);
+                    checkExperiment(context, update.getValue(), experiment);
                     relationshipService.assignSampleToExperiment(context.getSession(), sample, experiment);
                 }
             }
         }
     }
 
-    private void checkExperiment(IOperationContext context, ExperimentPE experiment)
+    private void checkExperiment(IOperationContext context, IExperimentId experimentId, ExperimentPE experiment)
     {
         if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
         {
-            throw new AuthorizationFailureException("Cannot access experiment " + experiment.getIdentifier());
+            throw new UnauthorizedObjectAccessException(experimentId);
         }
     }
 

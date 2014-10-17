@@ -29,6 +29,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.List
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -60,6 +62,10 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
                             {
                                 throw new ObjectNotFoundException(relatedId);
                             }
+                            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), relatedSample))
+                            {
+                                throw new UnauthorizedObjectAccessException(relatedId);
+                            }
                             relatedSamples.add(relatedSample);
                         }
                         if (action instanceof ListUpdateActionSet<?>)
@@ -77,6 +83,10 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
                             if (relatedSample != null)
                             {
                                 relatedSamples.add(relatedSample);
+                            }
+                            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), relatedSample))
+                            {
+                                throw new UnauthorizedObjectAccessException(relatedId);
                             }
                         }
                         removeRelatedSamples(context, sample, relatedSamples);

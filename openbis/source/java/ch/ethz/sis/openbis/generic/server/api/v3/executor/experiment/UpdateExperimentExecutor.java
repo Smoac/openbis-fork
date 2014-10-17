@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,7 +34,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntity
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -52,7 +52,7 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IListExperimentByIdExecutor listExperimentByIdExecutor;
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
     private IUpdateExperimentProjectExecutor updateExperimentProjectExecutor;
@@ -71,13 +71,13 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
     {
     }
 
-    public UpdateExperimentExecutor(IDAOFactory daoFactory, IListExperimentByIdExecutor listExperimentByIdExecutor,
+    public UpdateExperimentExecutor(IDAOFactory daoFactory, IMapExperimentByIdExecutor mapExperimentByIdExecutor,
             IUpdateExperimentProjectExecutor updateExperimentProjectExecutor,
             IUpdateTagForEntityExecutor updateTagForEntityExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
             IVerifyExperimentExecutor verifyExperimentExecutor)
     {
         super();
-        this.listExperimentByIdExecutor = listExperimentByIdExecutor;
+        this.mapExperimentByIdExecutor = mapExperimentByIdExecutor;
         this.updateExperimentProjectExecutor = updateExperimentProjectExecutor;
         this.updateTagForEntityExecutor = updateTagForEntityExecutor;
         this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
@@ -108,28 +108,25 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
                 }
             });
 
-        List<ExperimentPE> experiments = listExperimentByIdExecutor.list(context, experimentIds);
+        Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
 
-        assert experimentIds.size() == experiments.size();
-
-        for (ExperimentPE experiment : experiments)
+        for (IExperimentId experimentId : experimentIds)
         {
+            ExperimentPE experiment = experimentMap.get(experimentId);
+            if (experiment == null)
+            {
+                throw new ObjectNotFoundException(experimentId);
+            }
             if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
             {
-                throw new AuthorizationFailureException("Cannot access experiment " + experiment.getIdentifier());
+                throw new UnauthorizedObjectAccessException(experimentId);
             }
         }
 
         Map<ExperimentUpdate, ExperimentPE> result = new HashMap<ExperimentUpdate, ExperimentPE>();
-
-        Iterator<ExperimentUpdate> it1 = updates.iterator();
-        Iterator<ExperimentPE> it2 = experiments.iterator();
-
-        while (it1.hasNext())
+        for (ExperimentUpdate update : updates)
         {
-            ExperimentUpdate id = it1.next();
-            ExperimentPE experiment = it2.next();
-            result.put(id, experiment);
+            result.put(update, experimentMap.get(update.getExperimentId()));
         }
 
         return result;

@@ -29,7 +29,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterio
 /**
  * @author pkupczyk
  */
-public class SampleSearchTest extends AbstractSampleTest
+public class SearchSampleTest extends AbstractSampleTest
 {
 
     @Test

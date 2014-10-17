@@ -45,7 +45,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 /**
  * @author pkupczyk
  */
-public class SampleListTest extends AbstractSampleTest
+public class ListSampleTest extends AbstractSampleTest
 {
 
     @Test

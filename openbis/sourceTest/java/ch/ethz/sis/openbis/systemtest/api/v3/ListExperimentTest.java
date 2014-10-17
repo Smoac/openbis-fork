@@ -39,7 +39,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 /**
  * @author pkupczyk
  */
-public class ExperimentListTest extends AbstractExperimentTest
+public class ListExperimentTest extends AbstractExperimentTest
 {
 
     @Test

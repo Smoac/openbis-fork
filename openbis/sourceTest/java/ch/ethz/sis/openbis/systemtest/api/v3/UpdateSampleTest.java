@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionSize;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,17 +36,21 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleF
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
 /**
  * @author pkupczyk
  */
-public class SampleUpdateTest extends AbstractSampleTest
+public class UpdateSampleTest extends AbstractSampleTest
 {
 
     @Test
@@ -567,7 +570,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     }
 
     @Test
-    public void updateSampleRemoveSpace()
+    public void testUpdateSampleRemoveSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -601,7 +604,7 @@ public class SampleUpdateTest extends AbstractSampleTest
     }
 
     @Test
-    public void updateSharedSampleSetSpace()
+    public void testUpdateSharedSampleSetSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -636,133 +639,279 @@ public class SampleUpdateTest extends AbstractSampleTest
     @Test
     public void testUpdateSampleWithUnauthorizedSample()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091219327-1025"));
+        final ISampleId sampleId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure: Cannot access sample /CISD/CP-TEST-1", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, sampleId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentSample()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId sampleId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, sampleId);
     }
 
     @Test
     public void testUpdateSampleWithUnauthorizedSpace()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
+        final ISpaceId spaceId = new SpacePermId("CISD");
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setSpaceId(new SpacePermId("CISD"));
+        update.setSpaceId(spaceId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure: Cannot access space CISD", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, spaceId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentSpace()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISpaceId spaceId = new SpacePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setSpaceId(spaceId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, spaceId);
     }
 
     @Test
     public void testUpdateSampleWithUnauthorizedExperiment()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
+        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setExperimentId(new ExperimentPermId("200811050951882-1028"));
+        update.setExperimentId(experimentId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure: Cannot access experiment /CISD/NEMO/EXP1", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentExperiment()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setExperimentId(experimentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId);
     }
 
     @Test
     public void testUpdateSampleWithUnauthorizedContainer()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
+        final ISampleId containerId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setContainerId(new SamplePermId("200902091219327-1025"));
+        update.setContainerId(containerId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containerId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentContainer()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containerId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setContainerId(containerId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containerId);
     }
 
     @Test
     public void testUpdateSampleWithUnauthorizedContained()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
+        final ISampleId containedId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getContainedIds().add(new SamplePermId("200902091219327-1025"));
+        update.getContainedIds().add(containedId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containedId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentContained()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containedId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getContainedIds().add(containedId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containedId);
     }
 
     @Test
     public void testUpdateSampleWithUnauthorizedParent()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
+        final ISampleId parentId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getParentIds().add(new SamplePermId("200902091219327-1025"));
+        update.getParentIds().add(parentId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentParent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId parentId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getParentIds().add(parentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, parentId);
     }
 
     @Test
     public void testUpdateSampleWithUnauthorizedChild()
     {
-        String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleUpdate update = new SampleUpdate();
+        final ISampleId childId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
         update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getChildIds().add(new SamplePermId("200902091219327-1025"));
+        update.getChildIds().add(childId);
 
-        try
-        {
-            v3api.updateSamples(sessionToken, Arrays.asList(update));
-            fail("Expected user failure exception");
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, childId);
+    }
+
+    @Test
+    public void testUpdateSampleWithNonexistentChild()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId childId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getChildIds().add(childId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, childId);
     }
 
 }

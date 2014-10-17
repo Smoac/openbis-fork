@@ -28,7 +28,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperim
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -75,7 +75,7 @@ public class SetSampleExperimentExecutor implements ISetSampleExperimentExecutor
 
                 if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), experiment))
                 {
-                    throw new AuthorizationFailureException("Cannot access experiment " + creation.getExperimentId());
+                    throw new UnauthorizedObjectAccessException(creation.getExperimentId());
                 }
 
                 sample.setExperiment(experiment);

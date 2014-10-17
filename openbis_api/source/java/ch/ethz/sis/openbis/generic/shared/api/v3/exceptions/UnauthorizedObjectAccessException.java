@@ -22,16 +22,16 @@ import ch.systemsx.cisd.common.exceptions.UserFailureException;
 /**
  * @author pkupczyk
  */
-public class ObjectNotFoundException extends UserFailureException
+public class UnauthorizedObjectAccessException extends UserFailureException
 {
 
     private static final long serialVersionUID = 1L;
 
     private IObjectId objectId;
 
-    public ObjectNotFoundException(IObjectId id)
+    public UnauthorizedObjectAccessException(IObjectId id)
     {
-        super("Object with id [" + id + "] has not been found.");
+        super("Object with id [" + id + "]  cannot be accessed.");
         this.objectId = id;
     }
 

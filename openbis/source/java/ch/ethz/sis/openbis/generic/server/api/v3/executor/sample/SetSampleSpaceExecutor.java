@@ -28,7 +28,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.space.IMapSpaceByIdExe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SimpleSpaceValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
@@ -75,7 +75,7 @@ public class SetSampleSpaceExecutor implements ISetSampleSpaceExecutor
 
                 if (false == new SimpleSpaceValidator().doValidation(context.getSession().tryGetPerson(), space))
                 {
-                    throw new AuthorizationFailureException("Cannot access space " + creation.getSpaceId());
+                    throw new UnauthorizedObjectAccessException(creation.getSpaceId());
                 }
 
                 sample.setSpace(space);

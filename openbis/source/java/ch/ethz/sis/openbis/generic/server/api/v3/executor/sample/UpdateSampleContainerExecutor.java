@@ -26,8 +26,11 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
@@ -55,6 +58,7 @@ public class UpdateSampleContainerExecutor implements IUpdateSampleContainerExec
                 {
                     if (sample.getContainer() != null)
                     {
+                        checkContainer(context, new SampleIdentifier(sample.getContainer().getIdentifier()), sample.getContainer());
                         UpdateSampleContainedExecutor.removeFromContainer(relationshipService, context, sample, sample.getContainer());
                     }
                 } else
@@ -64,9 +68,18 @@ public class UpdateSampleContainerExecutor implements IUpdateSampleContainerExec
                     {
                         throw new ObjectNotFoundException(containerUpdate.getValue());
                     }
+                    checkContainer(context, containerUpdate.getValue(), container);
                     UpdateSampleContainedExecutor.assignToContainer(relationshipService, context, sample, container);
                 }
             }
+        }
+    }
+
+    private void checkContainer(IOperationContext context, ISampleId containerId, SamplePE container)
+    {
+        if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), container))
+        {
+            throw new UnauthorizedObjectAccessException(containerId);
         }
     }
 

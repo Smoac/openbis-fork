@@ -31,7 +31,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
@@ -121,7 +121,7 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
 
         if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
         {
-            throw new AuthorizationFailureException("Cannot access project " + experimentCreation.getProjectId());
+            throw new UnauthorizedObjectAccessException(experimentCreation.getProjectId());
         }
 
         experiment.setProject(project);

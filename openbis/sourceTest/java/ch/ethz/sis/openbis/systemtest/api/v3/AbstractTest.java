@@ -15,6 +15,8 @@
  */
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
@@ -30,7 +32,10 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachmen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
@@ -354,6 +359,34 @@ public class AbstractTest extends SystemTestCase
         } catch (NotFetchedException e)
         {
             // ok
+        }
+    }
+
+    protected void assertUnauthorizedObjectAccessException(IDelegatedAction action, IObjectId expectedObjectId)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected an exception to be thrown");
+        } catch (Exception e)
+        {
+            assertNotNull(e.getCause());
+            assertEquals(e.getCause().getClass(), UnauthorizedObjectAccessException.class);
+            assertEquals(((UnauthorizedObjectAccessException) e.getCause()).getObjectId(), expectedObjectId);
+        }
+    }
+
+    protected void assertObjectNotFoundException(IDelegatedAction action, IObjectId expectedObjectId)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected an exception to be thrown");
+        } catch (Exception e)
+        {
+            assertNotNull(e.getCause());
+            assertEquals(e.getCause().getClass(), ObjectNotFoundException.class);
+            assertEquals(((ObjectNotFoundException) e.getCause()).getObjectId(), expectedObjectId);
         }
     }
 

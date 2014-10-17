@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
@@ -54,7 +55,7 @@ public class GetProjectByIdExecutor implements IGetProjectByIdExecutor
         ProjectPE project = tryGetProjectByIdExecutor.tryGet(context, projectId);
         if (project == null)
         {
-            throw new UserFailureException("No project found with this id: " + projectId);
+            throw new ObjectNotFoundException(projectId);
         }
         return project;
     }

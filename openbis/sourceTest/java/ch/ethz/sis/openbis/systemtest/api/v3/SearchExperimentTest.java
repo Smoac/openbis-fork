@@ -29,7 +29,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCrit
 /**
  * @author pkupczyk
  */
-public class ExperimentSearchTest extends AbstractExperimentTest
+public class SearchExperimentTest extends AbstractExperimentTest
 {
 
     @Test

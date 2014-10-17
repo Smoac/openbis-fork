@@ -33,7 +33,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreatio
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 
 /**
@@ -105,18 +106,18 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
 
         List<ISampleId> samplesToLoadIds = new LinkedList<ISampleId>();
 
-        for (ISampleId relatedSample : relatedSamplesIds)
+        for (ISampleId relatedSampleId : relatedSamplesIds)
         {
-            if (relatedSample instanceof CreationId)
+            if (relatedSampleId instanceof CreationId)
             {
-                if (false == relatedSamplesMap.containsKey(relatedSample))
+                if (false == relatedSamplesMap.containsKey(relatedSampleId))
                 {
-                    throw new UserFailureException("Unknown sample creation id: " + relatedSample);
+                    throw new ObjectNotFoundException(relatedSampleId);
                 }
             }
             else
             {
-                samplesToLoadIds.add(relatedSample);
+                samplesToLoadIds.add(relatedSampleId);
             }
         }
         Map<ISampleId, SamplePE> loadedSamplesMap = mapSampleByIdExecutor.map(context, samplesToLoadIds);
@@ -124,9 +125,14 @@ public class SetSampleRelatedSamplesExecutor implements ISetSampleRelatedSamples
 
         for (ISampleId relatedSampleId : relatedSamplesIds)
         {
-            if (false == relatedSamplesMap.containsKey(relatedSampleId))
+            SamplePE relatedSample = relatedSamplesMap.get(relatedSampleId);
+            if (relatedSample == null)
             {
                 throw new ObjectNotFoundException(relatedSampleId);
+            }
+            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), relatedSample))
+            {
+                throw new UnauthorizedObjectAccessException(relatedSampleId);
             }
         }
 

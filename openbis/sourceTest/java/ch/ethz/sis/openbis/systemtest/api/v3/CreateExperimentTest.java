@@ -36,36 +36,59 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * @author pkupczyk
  */
-public class ExperimentCreateTest extends AbstractExperimentTest
+public class CreateExperimentTest extends AbstractExperimentTest
 {
 
     @Test
     public void testCreateExperimentWithUnauthorizedProject()
     {
-        String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+        final String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
 
-        ExperimentCreation experiment = new ExperimentCreation();
+        final IProjectId projectId = new ProjectIdentifier("/TESTGROUP/TESTPROJ");
+        final ExperimentCreation experiment = new ExperimentCreation();
         experiment.setCode("TEST_EXPERIMENT1");
         experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
-        experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        experiment.setProjectId(projectId);
 
-        try
-        {
-            v3api.createExperiments(sessionToken, Arrays.asList(experiment));
-        } catch (UserFailureException e)
-        {
-            AssertionUtil.assertContains("Authorization failure", e.getMessage());
-        }
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, projectId);
+    }
+
+    @Test
+    public void testCreateExperimentWithNonexistentProject()
+    {
+        final String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+        final IProjectId projectId = new ProjectIdentifier("/TESTGROUP/IDONTEXIST");
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setCode("TEST_EXPERIMENT1");
+        experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        experiment.setProjectId(projectId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, projectId);
     }
 
     @Test

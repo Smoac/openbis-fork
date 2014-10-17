@@ -16,17 +16,17 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.project;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import junit.framework.Assert;
 
 import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.GetProjectByIdExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.ITryGetProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
 
 /**
@@ -62,7 +62,7 @@ public class GetProjectByIdExecutorTest extends AbstractExecutorTest
         Assert.assertEquals(Long.valueOf(123L), result.getId());
     }
 
-    @Test(expectedExceptions = UserFailureException.class, expectedExceptionsMessageRegExp = "No project found.*")
+    @Test
     public void testNonexistent()
     {
         final ProjectPermId permId = new ProjectPermId("NONEXISTENT");
@@ -77,7 +77,14 @@ public class GetProjectByIdExecutorTest extends AbstractExecutorTest
                 }
             });
 
-        execute(permId);
+        try
+        {
+            execute(permId);
+            fail("Expected an exception to be thrown.");
+        } catch (ObjectNotFoundException e)
+        {
+            assertEquals(e.getObjectId(), permId);
+        }
     }
 
     private ProjectPE execute(IProjectId projectId)

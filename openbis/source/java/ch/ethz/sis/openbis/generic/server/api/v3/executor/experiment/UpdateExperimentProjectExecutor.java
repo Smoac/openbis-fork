@@ -23,6 +23,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IGetProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
@@ -59,9 +61,17 @@ public class UpdateExperimentProjectExecutor implements IUpdateExperimentProject
             ProjectPE project = getProjectByIdExecutor.get(context, update.getValue());
             if (false == project.equals(experiment.getProject()))
             {
+                checkProject(context, update.getValue(), project);
                 relationshipService.assignExperimentToProject(context.getSession(), experiment, project);
             }
         }
     }
 
+    private void checkProject(IOperationContext context, IProjectId projectId, ProjectPE project)
+    {
+        if (false == new ProjectByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), project))
+        {
+            throw new UnauthorizedObjectAccessException(projectId);
+        }
+    }
 }

@@ -19,7 +19,6 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -35,7 +34,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntity
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
-import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
@@ -52,7 +52,7 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IListSampleByIdExecutor listSampleByIdExecutor;
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Autowired
     private IUpdateSampleSpaceExecutor updateSampleSpaceExecutor;
@@ -77,7 +77,7 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
     {
     }
 
-    public UpdateSampleExecutor(IDAOFactory daoFactory, IListSampleByIdExecutor listSampleByIdExecutor,
+    public UpdateSampleExecutor(IDAOFactory daoFactory, IMapSampleByIdExecutor mapSampleByIdExecutor,
             IUpdateSampleSpaceExecutor updateSampleSpaceExecutor,
             IUpdateSampleExperimentExecutor updateSampleExperimentExecutor, IUpdateSampleRelatedSamplesExecutor updateSampleRelatedSamplesExecutor,
             IUpdateEntityPropertyExecutor updateEntityPropertyExecutor, IUpdateTagForEntityExecutor updateTagForEntityExecutor,
@@ -85,7 +85,7 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
     {
         super();
         this.daoFactory = daoFactory;
-        this.listSampleByIdExecutor = listSampleByIdExecutor;
+        this.mapSampleByIdExecutor = mapSampleByIdExecutor;
         this.updateSampleSpaceExecutor = updateSampleSpaceExecutor;
         this.updateSampleExperimentExecutor = updateSampleExperimentExecutor;
         this.updateSampleRelatedSamplesExecutor = updateSampleRelatedSamplesExecutor;
@@ -119,28 +119,25 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
                 }
             });
 
-        List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
+        Map<ISampleId, SamplePE> sampleMap = mapSampleByIdExecutor.map(context, sampleIds);
 
-        assert sampleIds.size() == samples.size();
-
-        for (SamplePE sample : samples)
+        for (ISampleId sampleId : sampleIds)
         {
+            SamplePE sample = sampleMap.get(sampleId);
+            if (sample == null)
+            {
+                throw new ObjectNotFoundException(sampleId);
+            }
             if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
             {
-                throw new AuthorizationFailureException("Cannot access sample " + sample.getIdentifier());
+                throw new UnauthorizedObjectAccessException(sampleId);
             }
         }
 
         Map<SampleUpdate, SamplePE> result = new HashMap<SampleUpdate, SamplePE>();
-
-        Iterator<SampleUpdate> it1 = updates.iterator();
-        Iterator<SamplePE> it2 = samples.iterator();
-
-        while (it1.hasNext())
+        for (SampleUpdate update : updates)
         {
-            SampleUpdate id = it1.next();
-            SamplePE sample = it2.next();
-            result.put(id, sample);
+            result.put(update, sampleMap.get(update.getSampleId()));
         }
 
         return result;
