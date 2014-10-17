@@ -14,30 +14,25 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.exceptions;
+package ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 
 /**
  * @author pkupczyk
  */
-public class UnauthorizedObjectAccessException extends UserFailureException
+public class ExperimentContextDescription
 {
 
-    private static final long serialVersionUID = 1L;
-
-    private IObjectId objectId;
-
-    public UnauthorizedObjectAccessException(IObjectId id)
+    public static String creating(ExperimentCreation creation)
     {
-        super("Access denied to object with " + id.getClass().getSimpleName() + " = [" + id + "].");
-        this.objectId = id;
+        return "Creating experiment: " + creation.getCode() + " in project: " + creation.getProjectId();
     }
 
-    public IObjectId getObjectId()
+    public static String updating(IExperimentId experimentId)
     {
-        return objectId;
+        return "Updating experiment: " + experimentId;
     }
 
 }

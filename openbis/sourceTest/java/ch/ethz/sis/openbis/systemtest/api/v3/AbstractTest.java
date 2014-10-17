@@ -38,6 +38,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundExcept
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -364,6 +365,11 @@ public class AbstractTest extends SystemTestCase
 
     protected void assertUnauthorizedObjectAccessException(IDelegatedAction action, IObjectId expectedObjectId)
     {
+        assertUnauthorizedObjectAccessException(action, expectedObjectId, null);
+    }
+
+    protected void assertUnauthorizedObjectAccessException(IDelegatedAction action, IObjectId expectedObjectId, String expectedContextDescription)
+    {
         try
         {
             action.execute();
@@ -373,10 +379,19 @@ public class AbstractTest extends SystemTestCase
             assertNotNull(e.getCause());
             assertEquals(e.getCause().getClass(), UnauthorizedObjectAccessException.class);
             assertEquals(((UnauthorizedObjectAccessException) e.getCause()).getObjectId(), expectedObjectId);
+            if (expectedContextDescription != null)
+            {
+                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
+            }
         }
     }
 
     protected void assertObjectNotFoundException(IDelegatedAction action, IObjectId expectedObjectId)
+    {
+        assertObjectNotFoundException(action, expectedObjectId, null);
+    }
+
+    protected void assertObjectNotFoundException(IDelegatedAction action, IObjectId expectedObjectId, String expectedContextDescription)
     {
         try
         {
@@ -387,6 +402,10 @@ public class AbstractTest extends SystemTestCase
             assertNotNull(e.getCause());
             assertEquals(e.getCause().getClass(), ObjectNotFoundException.class);
             assertEquals(((ObjectNotFoundException) e.getCause()).getObjectId(), expectedObjectId);
+            if (expectedContextDescription != null)
+            {
+                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
+            }
         }
     }
 

@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
@@ -86,7 +87,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId);
+            }, experimentId, ExperimentContextDescription.updating(experimentId));
     }
 
     @Test
@@ -105,7 +106,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId);
+            }, experimentId, ExperimentContextDescription.updating(experimentId));
     }
 
     @Test
@@ -113,9 +114,10 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
+        final IExperimentId experimentId = new ExperimentPermId("200902091255058-1037");
         final IProjectId projectId = new ProjectIdentifier("/CISD/NEMO");
         final ExperimentUpdate update = new ExperimentUpdate();
-        update.setExperimentId(new ExperimentPermId("200902091255058-1037"));
+        update.setExperimentId(experimentId);
         update.setProjectId(projectId);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
@@ -125,7 +127,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, projectId);
+            }, projectId, ExperimentContextDescription.updating(experimentId));
     }
 
     @Test
@@ -133,9 +135,10 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
+        final IExperimentId experimentId = new ExperimentPermId("200902091255058-1037");
         final IProjectId projectId = new ProjectIdentifier("IDONTEXIST");
         final ExperimentUpdate update = new ExperimentUpdate();
-        update.setExperimentId(new ExperimentPermId("200902091255058-1037"));
+        update.setExperimentId(experimentId);
         update.setProjectId(projectId);
 
         assertObjectNotFoundException(new IDelegatedAction()
@@ -145,7 +148,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, projectId);
+            }, projectId, ExperimentContextDescription.updating(experimentId));
     }
 
     @Test

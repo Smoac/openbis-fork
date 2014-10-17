@@ -28,6 +28,7 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
@@ -67,7 +68,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, projectId);
+            }, projectId, ExperimentContextDescription.creating(experiment));
     }
 
     @Test
@@ -88,7 +89,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
                 {
                     v3api.createExperiments(sessionToken, Arrays.asList(experiment));
                 }
-            }, projectId);
+            }, projectId, ExperimentContextDescription.creating(experiment));
     }
 
     @Test

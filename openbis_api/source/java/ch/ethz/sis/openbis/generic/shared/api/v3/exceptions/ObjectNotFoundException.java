@@ -31,7 +31,7 @@ public class ObjectNotFoundException extends UserFailureException
 
     public ObjectNotFoundException(IObjectId id)
     {
-        super("Object with id [" + id + "] has not been found.");
+        super("Object with " + id.getClass().getSimpleName() + " = [" + id + "] has not been found.");
         this.objectId = id;
     }
 

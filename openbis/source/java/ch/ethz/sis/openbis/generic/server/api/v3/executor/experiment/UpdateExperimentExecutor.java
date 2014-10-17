@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
@@ -112,6 +113,8 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
 
         for (IExperimentId experimentId : experimentIds)
         {
+            context.pushContextDescription(ExperimentContextDescription.updating(experimentId));
+
             ExperimentPE experiment = experimentMap.get(experimentId);
             if (experiment == null)
             {
@@ -121,6 +124,8 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
             {
                 throw new UnauthorizedObjectAccessException(experimentId);
             }
+
+            context.popContextDescription();
         }
 
         Map<ExperimentUpdate, ExperimentPE> result = new HashMap<ExperimentUpdate, ExperimentPE>();
@@ -134,7 +139,7 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
 
     private void updateExperiment(IOperationContext context, ExperimentUpdate update, ExperimentPE experiment)
     {
-        context.pushContextDescription("update experiment " + update.getExperimentId());
+        context.pushContextDescription(ExperimentContextDescription.updating(update.getExperimentId()));
 
         updateExperimentProjectExecutor.update(context, experiment, update.getProjectId());
         updateEntityPropertyExecutor.update(context, experiment, experiment.getEntityType(), update.getProperties());

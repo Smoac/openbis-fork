@@ -28,6 +28,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IGetEntityTypeB
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IGetProjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -88,14 +89,14 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     {
         List<ExperimentPermId> result = new LinkedList<ExperimentPermId>();
 
-        for (ExperimentCreation experimentCreation : creations)
+        for (ExperimentCreation creation : creations)
         {
-            context.pushContextDescription("register experiment " + experimentCreation.getCode());
+            context.pushContextDescription(ExperimentContextDescription.creating(creation));
 
-            ExperimentPE experiment = createExperimentPE(context, experimentCreation);
+            ExperimentPE experiment = createExperimentPE(context, creation);
             daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, context.getSession().tryGetPerson());
-            createAttachmentExecutor.create(context, experiment, experimentCreation.getAttachments());
-            addTagToEntityExecutor.add(context, experiment, experimentCreation.getTagIds());
+            createAttachmentExecutor.create(context, experiment, creation.getAttachments());
+            addTagToEntityExecutor.add(context, experiment, creation.getTagIds());
             result.add(new ExperimentPermId(experiment.getPermId()));
 
             context.popContextDescription();
