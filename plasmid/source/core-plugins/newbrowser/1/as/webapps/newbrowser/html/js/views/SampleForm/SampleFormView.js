@@ -121,6 +121,7 @@ function SampleFormView(sampleFormController, sampleFormModel) {
 		// SELECT EXPERIMENT/SPACE
 		//
 		$formColumn.append($("<legend>").append("Identification Info"));
+		$formColumn.append(FormUtil.getFieldForLabelWithText("Type", this._sampleFormModel.sample.sampleTypeCode));
 		$formColumn.append(FormUtil.getFieldForLabelWithText("Experiment", this._sampleFormModel.sample.experimentIdentifierOrNull));
 		
 		//
