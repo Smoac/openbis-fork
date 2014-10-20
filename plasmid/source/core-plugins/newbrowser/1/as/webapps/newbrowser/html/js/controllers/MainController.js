@@ -379,7 +379,6 @@ function MainController(profile) {
 	this._showBlancPage = function() {
 		//Show Hello Page
 		$("#mainContainer").empty();
-		mainController.serverFacade.fileTemplateDownload();
 		
 		this.currentView = null;
 	}

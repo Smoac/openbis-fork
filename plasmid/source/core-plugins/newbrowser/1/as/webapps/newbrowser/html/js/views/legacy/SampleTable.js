@@ -199,6 +199,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 						dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
 						dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
 						dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create Sample</a></li>";
+						dropDownMenu += "	<li role='presentation'><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Batch Register Samples</a></li>";
+						dropDownMenu += "	<li role='presentation'><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Batch Update Samples</a></li>";
 						dropDownMenu += "</ul>";
 						dropDownMenu += "</span>";
 					$("#"+this.sampleTableId).append(dropDownMenu);
@@ -648,7 +650,10 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 							Util.showError(data.error.message, function() {Util.unblockUI();});
 						} else if(data.result) {
 							var extraMessage = "<br> It can take a couple of minutes to have them available.";
-							Util.showSuccess(data.result + extraMessage, function() {Util.unblockUI();});
+							Util.showSuccess(data.result + extraMessage, function() {
+								Util.unblockUI();
+								mainController.changeView('showSamplesPage', ':' + _this.experimentIdentifier);
+							});
 						} else {
 							Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
 						}
