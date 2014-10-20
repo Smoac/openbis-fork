@@ -599,8 +599,8 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 			dropDownMenu += "<a href='#' data-toggle='dropdown' class='dropdown-toggle btn btn-default'>Options <b class='caret'></b></a>";
 			dropDownMenu += "<ul class='dropdown-menu' role='menu' aria-labelledby='sampleTableDropdown'>";
 			dropDownMenu += "	<li role='presentation'><a class='' title='create a new sample' href=\"javascript:mainController.currentView.createNewSample();\">Create Sample</a></li>";
-			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToRegister' style='display:none;' /><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Batch Register " + sampleTypeDisplayName + "</a></li>";
-			dropDownMenu += "	<li role='presentation'><input type='file' id='fileToUpdate' style='display:none;' /><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Batch Update " + sampleTypeDisplayName + "</a></li>";
+			dropDownMenu += "	<li role='presentation'><a class='' title='register new samples' href=\"javascript:mainController.currentView.registerSamples();\">Batch Register Samples</a></li>";
+			dropDownMenu += "	<li role='presentation'><a class='' title='update existing samples'href=\"javascript:mainController.currentView.updateSamples();\">Batch Update Samples</a></li>";
 			dropDownMenu += "</ul>";
 			dropDownMenu += "</span>";
 			
@@ -636,66 +636,64 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 	}
 	
 	this.registerSamples = function() {
-		var localReference = this;
-		$("#fileToRegister").unbind('change');
-		$("#fileToRegister").change(function() {
+		var _this = this;
+		var typeAndFileController = new TypeAndFileController('Register Samples', function(type, file) {
 			Util.blockUI();
-			localReference.serverFacade.fileUpload("fileToRegister", function(result) {
-				//Code After the upload
-				localReference.serverFacade.uploadedSamplesInfo(localReference.sampleTypeCode, "sample-file-upload", 
-					function(infoData) {
-						var finalCallback = function(data) {
-							if(data.error) {
-								Util.showError(data.error.message, function() {Util.unblockUI();});
-							} else if(data.result) {
-								var extraMessage = "<br> It can take a couple of minutes to have them available.";
-								Util.showSuccess(data.result + extraMessage, function() {Util.unblockUI();});
-							} else {
-								Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
-							}
-						};
-						
-						if(infoData.result.identifiersPressent) {
-							localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", null, finalCallback);
+			_this.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
+			//Code After the upload
+				_this.serverFacade.uploadedSamplesInfo(typeAndFileController.getSampleTypeCode(), "sample-file-upload", 
+				function(infoData) {
+					var finalCallback = function(data) {
+						if(data.error) {
+							Util.showError(data.error.message, function() {Util.unblockUI();});
+						} else if(data.result) {
+							var extraMessage = "<br> It can take a couple of minutes to have them available.";
+							Util.showSuccess(data.result + extraMessage, function() {Util.unblockUI();});
 						} else {
-							localReference.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
-								var spaces = [];
-								for(var i = 0; i < data.result.length; i++) {
-									spaces.push(data.result[i].code);
-								}
-								
-								var component = "<select id='sampleSpaceSelector' class='form-control' required>";
-								component += "<option disabled=\"disabled\" selected></option>";
-								for(var i = 0; i < spaces.length; i++) {
-									component += "<option value='"+spaces[i]+"'>"+spaces[i]+"</option>";
-								}
-								component += "</select>";
-								
-								Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn btn-default' id='spaceSelectionCancel'>Cancel</a>");
-								
-								$("#sampleSpaceSelector").on("change", function(event) {
-									var space = $("#sampleSpaceSelector")[0].value;
-									Util.blockUI();
-									localReference.serverFacade.registerSamples(localReference.sampleTypeCode, "sample-file-upload", '/' + space, finalCallback);
-								});
-								
-								$("#spaceSelectionCancel").on("click", function(event) { 
-									Util.unblockUI();
-								});
-								
-							});
+							Util.showError("Unknown response. Probably an error happened.", function() {Util.unblockUI();});
 						}
+					};
+					
+					if(infoData.result.identifiersPressent) {
+						_this.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null, finalCallback);
+					} else {
+						_this.serverFacade.listSpacesWithProjectsAndRoleAssignments(null, function(data) {
+							var spaces = [];
+							for(var i = 0; i < data.result.length; i++) {
+								spaces.push(data.result[i].code);
+							}
+							
+							var component = "<select id='sampleSpaceSelector' class='form-control' required>";
+							component += "<option disabled=\"disabled\" selected></option>";
+							for(var i = 0; i < spaces.length; i++) {
+								component += "<option value='"+spaces[i]+"'>"+spaces[i]+"</option>";
+							}
+							component += "</select>";
+							
+							Util.blockUI("Space not found, please select it for automatic generation: <br><br>" + component + "<br> or <a class='btn btn-default' id='spaceSelectionCancel'>Cancel</a>");
+							
+							$("#sampleSpaceSelector").on("change", function(event) {
+								var space = $("#sampleSpaceSelector")[0].value;
+								Util.blockUI();
+								_this.serverFacade.registerSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", '/' + space, finalCallback);
+							});
+							
+							$("#spaceSelectionCancel").on("click", function(event) { 
+								Util.unblockUI();
+							});
+							
+						});
 					}
-				);
+				}
+			);
 			});
 		});
-		$("#fileToRegister").click();
+		typeAndFileController.init();
 	}
 	
 	this.updateSamples = function() {
-		var localReference = this;
-		$("#fileToUpdate").unbind('change');
-		$("#fileToUpdate").change(function() {
+		var _this = this;
+		var typeAndFileController = new TypeAndFileController('Update Samples', function(type, file) {
 			Util.blockUI();
 			var finalCallback = function(data) {
 				if(data.error) {
@@ -707,12 +705,12 @@ function SampleTable(serverFacade, sampleTableId, profile, sampleTypeCode, inspe
 				}
 			};
 			
-			localReference.serverFacade.fileUpload("fileToUpdate", function(result) {
+			_this.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
 				//Code After the upload
-				localReference.serverFacade.updateSamples(localReference.sampleTypeCode, "sample-file-upload", null,finalCallback);
+				_this.serverFacade.updateSamples(typeAndFileController.getSampleTypeCode(), "sample-file-upload", null,finalCallback);
 			});
 		});
-		$("#fileToUpdate").click();
+		typeAndFileController.init();
 	}
 	
 	this.previewNoteForSample = function(sample, attachTo) {

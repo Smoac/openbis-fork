@@ -205,10 +205,7 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.updateSamples(sampleTypeCode, fileKeyAtHTTPSession, somethingOrNull, callbackFunction);
 	}
 
-	this.fileUpload = function(fileComponentId, callbackFunction) {
-		//File
-		var file = document.getElementById(fileComponentId).files[0];
-		
+	this.fileUpload = function(file, callbackFunction) {
 		//Building Form Data Object for Multipart File Upload
 		var formData = new FormData();
 		formData.append("sessionKeysNumber", 1);
@@ -222,6 +219,26 @@ function ServerFacade(openbisServer) {
 			contentType: false,
 			processData: false,
 			data: formData,
+			success: function(result) {
+				callbackFunction(result);
+			}
+		});
+	}
+	
+	this.fileTemplateDownload = function(entityType, operationKind) {
+		$.ajax({
+			type: 'POST',
+			url: '/openbis/openbis/template-download',
+			data: {
+				'entityKind' : 'SAMPLE',
+				'entityType' : 'UNKNOWN',
+				'autoGenerate' : false,
+				'with_experiments' : true,
+				'with_space' : true,
+				'batch_operation_kind' :'REGISTRATION',
+				'timestamp' :  new Date().getTime(),
+				'sessionID' : this.openbisServer.getSession()
+			},
 			success: function(result) {
 				callbackFunction(result);
 			}
