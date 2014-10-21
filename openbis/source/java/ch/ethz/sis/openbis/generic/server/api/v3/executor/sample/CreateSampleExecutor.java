@@ -36,6 +36,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreatio
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -98,45 +99,14 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
     @Override
     public List<SamplePermId> create(IOperationContext context, List<SampleCreation> creations)
     {
-        // TODO split this method
         List<SamplePermId> permIdsAll = new LinkedList<SamplePermId>();
         Map<SampleCreation, SamplePE> samplesAll = new LinkedHashMap<SampleCreation, SamplePE>();
 
         int batchSize = 1000;
-        int batchStart = 0;
-
-        while (batchStart < creations.size())
+        for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
         {
             List<SampleCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
-            Map<SampleCreation, SamplePE> batchMap = new LinkedHashMap<SampleCreation, SamplePE>();
-
-            daoFactory.setBatchUpdateMode(true);
-
-            for (SampleCreation creation : creationsBatch)
-            {
-                context.pushContextDescription("register sample " + creation.getCode());
-
-                SamplePE sample = createSamplePE(context, creation);
-
-                permIdsAll.add(new SamplePermId(sample.getPermId()));
-                samplesAll.put(creation, sample);
-                batchMap.put(creation, sample);
-
-                context.popContextDescription();
-            }
-
-            setSampleSpaceExecutor.set(context, batchMap);
-            setSampleExperimentExecutor.set(context, batchMap);
-            setSampleTypeExecutor.set(context, batchMap);
-
-            for (Map.Entry<SampleCreation, SamplePE> batchEntry : batchMap.entrySet())
-            {
-                updateEntityPropertyExecutor.update(context, batchEntry.getValue(), batchEntry.getValue().getEntityType(), batchEntry.getKey()
-                        .getProperties());
-            }
-
-            daoFactory.getSampleDAO().createOrUpdateSamples(new ArrayList<SamplePE>(batchMap.values()), context.getSession().tryGetPerson(), false);
-            daoFactory.setBatchUpdateMode(false);
+            createSamples(context, creationsBatch, permIdsAll, samplesAll);
 
             for (SampleCreation creation : creationsBatch)
             {
@@ -147,8 +117,6 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
 
             daoFactory.getSessionFactory().getCurrentSession().flush();
             daoFactory.getSessionFactory().getCurrentSession().clear();
-
-            batchStart += batchSize;
         }
 
         reloadSamples(samplesAll);
@@ -162,18 +130,51 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
         return permIdsAll;
     }
 
+    private void createSamples(IOperationContext context, List<SampleCreation> creationsBatch, 
+            List<SamplePermId> permIdsAll, Map<SampleCreation, SamplePE> samplesAll)
+    {
+        Map<SampleCreation, SamplePE> batchMap = new LinkedHashMap<SampleCreation, SamplePE>();
+
+        daoFactory.setBatchUpdateMode(true);
+
+        for (SampleCreation creation : creationsBatch)
+        {
+            context.pushContextDescription("register sample " + creation.getCode());
+
+            SamplePE sample = createSamplePE(context, creation);
+
+            permIdsAll.add(new SamplePermId(sample.getPermId()));
+            samplesAll.put(creation, sample);
+            batchMap.put(creation, sample);
+
+            context.popContextDescription();
+        }
+
+        setSampleSpaceExecutor.set(context, batchMap);
+        setSampleExperimentExecutor.set(context, batchMap);
+        setSampleTypeExecutor.set(context, batchMap);
+
+        for (Map.Entry<SampleCreation, SamplePE> batchEntry : batchMap.entrySet())
+        {
+            SamplePE sample = batchEntry.getValue();
+            Map<String, String> properties = batchEntry.getKey().getProperties();
+            updateEntityPropertyExecutor.update(context, sample, sample.getEntityType(), properties);
+        }
+
+        PersonPE modifier = context.getSession().tryGetPerson();
+        daoFactory.getSampleDAO().createOrUpdateSamples(new ArrayList<SamplePE>(batchMap.values()), modifier, false);
+        daoFactory.setBatchUpdateMode(false);
+    }
+
     private SamplePE createSamplePE(IOperationContext context, SampleCreation sampleCreation)
     {
-        SamplePE sample = new SamplePE();
-
-        if (sampleCreation.getCode() != null)
-        {
-            sample.setCode(sampleCreation.getCode());
-        } else
+        if (sampleCreation.getCode() == null)
         {
             throw new UserFailureException("No code for sample provided");
         }
-
+        
+        SamplePE sample = new SamplePE();
+        sample.setCode(sampleCreation.getCode());
         String createdPermId = daoFactory.getPermIdDAO().createPermId();
         sample.setPermId(createdPermId);
         sample.setRegistrator(context.getSession().tryGetPerson());

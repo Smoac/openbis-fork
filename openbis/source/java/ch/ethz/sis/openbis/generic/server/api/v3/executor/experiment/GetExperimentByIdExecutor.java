@@ -58,12 +58,12 @@ public class GetExperimentByIdExecutor implements IGetExperimentByIdExecutor
 
         Map<IExperimentId, ExperimentPE> experiments = mapExperimentByIdExecutor.map(context, Collections.singletonList(experimentId));
 
-        if (experiments.isEmpty())
+        ExperimentPE experiment = experiments.get(experimentId);
+        if (experiment == null)
         {
             throw new ObjectNotFoundException(experimentId);
         }
-
-        return experiments.get(experimentId);
+        return experiment;
     }
 
 }

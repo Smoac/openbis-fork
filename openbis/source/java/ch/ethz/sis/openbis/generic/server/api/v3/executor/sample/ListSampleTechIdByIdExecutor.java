@@ -33,6 +33,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 @Component
 public class ListSampleTechIdByIdExecutor implements IListSampleTechIdByIdExecutor
 {
+    private static final Transformer<SamplePE, Long> SAMPLE_TO_ID_TRANSFORMER = new Transformer<SamplePE, Long>()
+        {
+            @Override
+            public Long transform(SamplePE input)
+            {
+                return input.getId();
+            }
+        };
 
     @Autowired
     private IListSampleByIdExecutor listSampleByIdExecutor;
@@ -52,13 +60,6 @@ public class ListSampleTechIdByIdExecutor implements IListSampleTechIdByIdExecut
     {
         List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
 
-        return org.apache.commons.collections.CollectionUtils.collect(samples, new Transformer<SamplePE, Long>()
-            {
-                @Override
-                public Long transform(SamplePE input)
-                {
-                    return input.getId();
-                }
-            });
+        return org.apache.commons.collections.CollectionUtils.collect(samples, SAMPLE_TO_ID_TRANSFORMER);
     }
 }

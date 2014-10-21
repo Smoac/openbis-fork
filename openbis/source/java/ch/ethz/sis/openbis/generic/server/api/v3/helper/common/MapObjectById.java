@@ -65,34 +65,31 @@ public class MapObjectById<ID, OBJECT>
         for (Class idClass : idClassToIdListMap.keySet())
         {
             List idList = idClassToIdListMap.get(idClass);
-            IListObjectById listerForIdClass = null;
-
-            for (IListObjectById lister : listers)
+            IListObjectById listerForIdClass = findLister(listers, idClass, idList); 
+            List objects = listerForIdClass.listByIds(idList);
+            if (objects != null)
             {
-                if (lister.getIdClass().equals(idClass))
+                for (Object object : objects)
                 {
-                    listerForIdClass = lister;
-                }
-            }
-
-            if (listerForIdClass == null)
-            {
-                throw new UnsupportedObjectIdException((IObjectId) idList.iterator().next());
-            } else
-            {
-                List objects = listerForIdClass.listByIds(idList);
-                if (objects != null)
-                {
-                    for (Object object : objects)
-                    {
-                        Object createId = listerForIdClass.createId(object);
-                        idToObject.put(createId, object);
-                    }
+                    Object createId = listerForIdClass.createId(object);
+                    idToObject.put(createId, object);
                 }
             }
         }
 
         return idToObject;
+    }
+
+    private IListObjectById findLister(List<IListObjectById<? extends ID, OBJECT>> listers, Class idClass, List idList)
+    {
+        for (IListObjectById lister : listers)
+        {
+            if (lister.getIdClass().equals(idClass))
+            {
+                return lister;
+            }
+        }
+        throw new UnsupportedObjectIdException((IObjectId) idList.iterator().next());
     }
 
     public Map<ID, OBJECT> map(List<IListObjectById<? extends ID, OBJECT>> listers, Collection<? extends ID> ids)
