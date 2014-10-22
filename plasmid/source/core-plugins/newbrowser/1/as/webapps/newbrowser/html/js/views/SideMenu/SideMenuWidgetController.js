@@ -133,6 +133,7 @@ function SideMenuWidgetController(mainController) {
     // Init method that builds the menu object hierarchy
     //
     this.init = function($container) {
+    	this._sideMenuWidgetModel.$container = $container;
         var _this = this;
 
         this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
