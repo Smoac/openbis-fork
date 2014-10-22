@@ -171,8 +171,11 @@ function SideMenuWidgetController(mainController) {
                     var menuItemProject = new SideMenuWidgetComponent(true, false, project.code, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromPermId", project.permId, "(Project)");
                     newMenuIfSelectedSpace.children.push(menuItemProject);
                 }
+                
+                newMenuIfSelectedSpace.children.sort(naturalSortSideMenuWidgetComponent); //Sort Projects
             }
-
+            _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Spaces
+            
             //Fill Experiments
             mainController.serverFacade.listExperiments(projectsToAskForExperiments, function(experiments) {
                 var experimentsToAskForSamples = [];
@@ -200,6 +203,7 @@ function SideMenuWidgetController(mainController) {
                         var menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.identifier, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier, "(Experiment)");
                         projectNode.newMenuIfSelected.children.push(menuItemExperiment);
                     }
+                    projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
                 }
 
                 //Fill Sub Experiments
@@ -220,6 +224,7 @@ function SideMenuWidgetController(mainController) {
                                 experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
                             }
                         }
+                        experimentNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
                     }
 
                     //Fill Inventory
