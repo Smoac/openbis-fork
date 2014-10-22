@@ -40,6 +40,7 @@ public class Utils
 
     static
     {
+        MIMETYPES.addMimeTypes("application/xml qcml");
         MIMETYPES.addMimeTypes("application/pdf pdf");
         MIMETYPES.addMimeTypes("image/svg+xml svg");
         MIMETYPES.addMimeTypes("video/webm webm");
