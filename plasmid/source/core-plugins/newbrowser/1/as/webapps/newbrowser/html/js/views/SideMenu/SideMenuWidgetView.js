@@ -135,12 +135,12 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         searchElement.keyup(searchFunction);
 
         var $searchForm = $("<li>")
-                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;"})
-                        .append(searchElement)
-                        .append('&nbsp;')
-                        .append(dropDownSearch)
-                        );
-
+                .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;", "style": "padding-right:0px;"})
+                        .append(searchElement));
+        var $searchFormDropdown = $("<li>")
+        .append($("<form>", {"class": "navbar-form", "onsubmit": "return false;"})
+                .append(dropDownSearch));
+        
         var logoutButton = $("<a>", {"id": "logout-button", "href": ""}).append($("<span>", {"class": "glyphicon glyphicon-off"}));
         logoutButton.click(function() {
             $('body').addClass('bodyLogin');
@@ -155,7 +155,10 @@ function SideMenuWidgetView(sideMenuWidgetController, sideMenuWidgetModel) {
         $headerItemList.append($pinButton);
         $headerItemList.append($toggleButton);
         $headerItemList.append($searchForm);
-
+        if(dropDownSearch !== "") {
+        	$headerItemList.append($searchFormDropdown);
+        }
+        
         var $body = $("<div>", {"id": "sideMenuBody"});
         $widget
                 .append($header)
