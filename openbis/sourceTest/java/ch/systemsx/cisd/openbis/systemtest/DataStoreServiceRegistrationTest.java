@@ -45,6 +45,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatastoreServiceDescriptions;
 /**
  * @author Franz-Josef Elmer
  */
+/*
+ * This test registers a new data store "ABC" for which a new entry in data_stores table is added and an entry in
+ * DataStoreServiceRegistrator.dataStoreToServicesMap map is created. As the database transaction is always rolled back after each test, the entry in
+ * data_stores table is removed. The rollback does not influence DataStoreServiceRegistrator.dataStoreToServicesMap which still contains "ABC" data
+ * store. Because of this inconsistent state other test that use DataStoreServiceRegistrator may fail. That's why "ANewMetadataUITest" test was added
+ * to be executed first (before the inconsistent state is created).
+ */
+@Test(dependsOnGroups = { "ANewMetadataUITest" })
 public class DataStoreServiceRegistrationTest extends SystemTestCase
 {
     private static final String DOWNLOAD_URL = "blabla";
@@ -95,10 +103,10 @@ public class DataStoreServiceRegistrationTest extends SystemTestCase
         dataStoreServerInfo.setDownloadUrl(DOWNLOAD_URL);
         DatastoreServiceDescription r1 =
                 DatastoreServiceDescription.reporting("R1", "r1", new String[]
-                    { "H.*", "UNKNOWN" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
+                { "H.*", "UNKNOWN" }, DATASTORE_CODE, ReportingPluginType.TABLE_MODEL);
         DatastoreServiceDescription p1 =
                 DatastoreServiceDescription.processing("P1", "p1", new String[]
-                    { "H.*", "C.*" }, DATASTORE_CODE);
+                { "H.*", "C.*" }, DATASTORE_CODE);
         dataStoreServerInfo.setServicesDescriptions(new DatastoreServiceDescriptions(Arrays
                 .asList(r1), Arrays.asList(p1)));
         dataStoreServerInfo.setDataSourceDefinitions(Arrays.<DataSourceDefinition> asList());

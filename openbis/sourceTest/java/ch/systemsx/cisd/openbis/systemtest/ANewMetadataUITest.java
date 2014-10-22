@@ -28,6 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleTypePropertyType;
 
+@Test(groups = "ANewMetadataUITest")
 public class ANewMetadataUITest extends SystemTestCase
 {
 
@@ -248,7 +249,7 @@ public class ANewMetadataUITest extends SystemTestCase
         return false;
     }
 
-    public void registerEntitytypeAndAssignPropertyTypesWithId(int testId) throws Exception
+    private void registerEntitytypeAndAssignPropertyTypesWithId(int testId) throws Exception
     {
         for (EntityKind entityKind : EntityKind.values())
         {
