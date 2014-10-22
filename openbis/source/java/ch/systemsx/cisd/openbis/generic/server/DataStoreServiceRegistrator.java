@@ -174,14 +174,12 @@ public class DataStoreServiceRegistrator implements IDataStoreServiceRegistrator
 
         Set<Entry<String, Map<DataStoreServiceKind, Map<String, DatastoreServiceDescription>>>> entrySet =
                 dataStoreToServicesMap.entrySet();
-        System.out.println("DEBUG/ANTTI: "+entrySet);        
         for (Entry<String, Map<DataStoreServiceKind, Map<String, DatastoreServiceDescription>>> entry : entrySet)
         {
             String dataStoreCode = entry.getKey();
             Map<DataStoreServiceKind, Map<String, DatastoreServiceDescription>> serviceKindToServicesMap =
                     entry.getValue();
             DataStorePE dataStore = dataStoreDAO.tryToFindDataStoreByCode(dataStoreCode);
-            System.out.println("DEBUG/ANTTI: "+dataStoreCode+", "+dataStore+", "+serviceKindToServicesMap);
             Set<DataStoreServicePE> services = dataStore.getServices();
             for (DataStoreServicePE service : services)
             {
