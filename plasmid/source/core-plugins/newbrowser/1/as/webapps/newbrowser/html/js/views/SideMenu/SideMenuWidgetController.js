@@ -66,7 +66,7 @@ function SideMenuWidgetController(mainController) {
         var projectIdentifier = "/" + spaceCode + "/" + projectCode;
         var menuItemProject = new SideMenuWidgetComponent(true, false, projectCode, projectIdentifier, menuItemSpace, newMenuIfSelectedProject, "showProjectPageFromIdentifier", projectIdentifier, "(Project)");
         menuItemSpace.newMenuIfSelected.children.push(menuItemProject);
-
+        menuItemSpace.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent);
         this._sideMenuWidgetView.repaint();
     };
 
@@ -95,7 +95,7 @@ function SideMenuWidgetController(mainController) {
         }
 
         projectNode.newMenuIfSelected.children.push(menuItemExperiment);
-
+        projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent);
         this._sideMenuWidgetView.repaint();
     };
 
@@ -391,4 +391,8 @@ function SideMenuWidgetComponent(isSelectable, isTitle, displayName, uniqueId, p
     this.newMenuIfSelected = newMenuIfSelected;
     this.newViewIfSelected = newViewIfSelected;
     this.newViewIfSelectedData = newViewIfSelectedData;
+}
+
+var naturalSortSideMenuWidgetComponent = function(componentA, componentB){
+  	return naturalSort(componentA.displayName, componentB.displayName);
 }
