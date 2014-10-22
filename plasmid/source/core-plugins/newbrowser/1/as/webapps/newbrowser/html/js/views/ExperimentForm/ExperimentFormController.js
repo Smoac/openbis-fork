@@ -29,13 +29,26 @@ function ExperimentFormController(mainController, mode, experiment) {
 	
 	this.deleteExperiment = function(reason) {
 		var _this = this;
-		mainController.serverFacade.deleteExperiments([this._experimentFormModel.experiment.id], reason, function(data) {
-			if(data.error) {
-				Util.showError(data.error.message);
-			} else {
-				Util.showSuccess("Experiment Deleted");
-				mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._experimentFormModel.experiment.identifier);
-			}
+		
+		mainController.serverFacade.listSamplesForExperiments([this._experimentFormModel.experiment], function(dataSamples) {
+			mainController.serverFacade.deleteExperiments([_this._experimentFormModel.experiment.id], reason, function(dataExperiment) {
+				if(dataExperiment.error) {
+					Util.showError(dataExperiment.error.message);
+				} else {
+					Util.showSuccess("Experiment Deleted");
+					
+					//Take out samples from inspector
+					if(dataSamples.result && dataSamples.result.length > 0) {
+						for(var i = 0; i < dataSamples.result.length; i++) {
+							var sample = dataSamples.result[i];
+							mainController.inspector.toggleInspectPermId(sample.permId);
+						}
+					}
+					
+					//Delete experiment from UI
+					mainController.sideMenu.deleteUniqueIdAndMoveToParent(_this._experimentFormModel.experiment.identifier);
+				}
+			});
 		});
 	}
 	
