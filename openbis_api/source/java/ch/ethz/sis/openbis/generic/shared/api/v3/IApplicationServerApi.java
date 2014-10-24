@@ -18,14 +18,19 @@ package ch.ethz.sis.openbis.generic.shared.api.v3;
 
 import java.util.List;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -121,6 +126,26 @@ public interface IApplicationServerApi extends IRpcService
     // - GeneralInformationService.listSamplesForExperiment(String experimentIdentifier)
 
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions);
+
+    // REPLACES:
+    // - IGeneralInformationChangingService.deleteExperiments(List<Long>, String, DeletionType)
+    public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions);
+
+    // REPLACES:
+    // - IGeneralInformationChangingService.deleteSamples(List<Long>, String, DeletionType)
+    public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions);
+
+    // REPLACES:
+    // - IGeneralInformationService.listDeletions(EnumSet<DeletionFetchOption>)
+    public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions);
+
+    // REPLACES:
+    // - IGeneralInformationChangingService.revertDeletions(List<Long>)
+    public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
+
+    // REPLACES:
+    // - IGeneralInformationChangingService.deletePermanently(List<Long>)
+    public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
     // NOTES:
     // - initially the new API methods should operate on concrete types (not interfaces) but in the future we want to operate on interfaces only

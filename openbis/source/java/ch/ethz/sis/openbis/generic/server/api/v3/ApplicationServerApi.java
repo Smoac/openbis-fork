@@ -43,14 +43,19 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriteri
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchTranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -344,6 +349,58 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         return new ArrayList<Sample>(
                 new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.EXPERIMENT, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_EXPERIMENT")
+    public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.SAMPLE, ObjectKind.DELETION })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_POWER_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("DELETE_SAMPLE")
+    public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions)
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = ObjectKind.DELETION)
+    @DatabaseUpdateModification(value = { ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("RESTORE")
+    public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    @Transactional
+    @DatabaseCreateOrDeleteModification(value = { ObjectKind.DELETION, ObjectKind.EXPERIMENT, ObjectKind.SAMPLE, ObjectKind.DATA_SET })
+    @RolesAllowed({ RoleWithHierarchy.SPACE_ADMIN, RoleWithHierarchy.SPACE_ETL_SERVER })
+    @Capability("PURGE")
+    public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
+    {
+        // TODO Auto-generated method stub
     }
 
     @Override
