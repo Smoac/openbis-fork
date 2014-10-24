@@ -206,7 +206,7 @@ $.extend(DefaultProfile.prototype, {
 		/*
 		 * Used by Sample Table
 		 */
-		this.isShowUnavailablePreviewOnSampleTable = true;
+		this.isShowUnavailablePreviewOnSampleTable = false;
 		
 		
 		/*

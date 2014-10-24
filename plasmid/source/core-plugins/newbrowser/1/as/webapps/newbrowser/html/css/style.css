@@ -178,13 +178,13 @@ h1, h2, legend {
 }
 
 /* tool box */
-.paginationTop span {
-    float: left;
-}
 
 .toolBox {
-	float: right !important;
-	margin-right: 150px;
+	margin-bottom : 10px;
+}
+
+.toolBox span {
+	display: inline-block;
 }
 
 .toolBox a {
@@ -192,6 +192,9 @@ h1, h2, legend {
 }
 
 /* filter and pagination */
+.paginationTop span {
+    float: left;
+}
 
 .tableFilterContainer {
 	text-align:left;

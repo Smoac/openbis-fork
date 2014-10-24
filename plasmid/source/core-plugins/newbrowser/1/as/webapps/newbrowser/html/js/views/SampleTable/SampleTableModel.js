@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function DataGridView(dataGridController, dataGridModel) {
-	this._dataGridController = dataGridController;
-	this._dataGridModel = dataGridModel;
-	
-	this.repaint = function($container) {
-		$container.empty();
-		var grid = new Grid(this._dataGridModel.columns, this._dataGridModel.data);
-		grid.addRowClickListener(this._dataGridModel.rowClickEventHandler);
-		
-		if(this._dataGridModel.title) {
-			$container.append($("<h1>").append(this._dataGridModel.title));
-		}
-		
-		$container.append(grid.render());
-	}
+
+function SampleTableModel(experimentIdentifier) {
+	this.experimentIdentifier = experimentIdentifier;
+	this.sampleTypesOnExperiment = {};
+	this.allSamplesFromExperiment = new Array();
 }

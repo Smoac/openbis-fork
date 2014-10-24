@@ -673,20 +673,20 @@ function ServerFacade(openbisServer) {
 		var optionalParametersOrNull = {
 				"SEQ-1" : JSON.stringify({
 					"searchDomain" : "Echo database",
-					"dataSetCode" : "20141010105346206-1",
+					"dataSetCode" : "20141023091944740-99",
 					"pathInDataSet" : "PATH-1",
 					"sequenceIdentifier" : "ID-1",
 					"positionInSequence" : "1"
 				}),
 				"SEQ-2" : JSON.stringify({
 					"searchDomain" : "Echo database",
-					"dataSetCode" : "20141010105439367-2",
+					"dataSetCode" : "20141023091930970-98",
 					"pathInDataSet" : "PATH-2",
 					"sequenceIdentifier" : "ID-2",
 					"positionInSequence" : "2"
 				})
 		}
 		
-		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, optionalParametersOrNull, callbackFunction);
+		this.openbisServer.searchOnSearchDomain(preferredSearchDomainOrNull, searchText, null, callbackFunction);
 	}
 }

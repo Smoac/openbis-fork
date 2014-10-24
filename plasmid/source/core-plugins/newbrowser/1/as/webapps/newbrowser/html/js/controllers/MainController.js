@@ -383,15 +383,18 @@ function MainController(profile) {
 		this.currentView = null;
 	}
 	
-	this._showSamplesPage = function(sampleTypeCode) {
-		//Update menu
-		var sampleType = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-		
-		//Show Sample Table
-		var sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);
-		sampleTable.init();
-		
-		this.currentView = sampleTable;
+	this._showSamplesPage = function(experimentIdentifier) {
+		var sampleTableController = new SampleTableController(this, experimentIdentifier);
+		sampleTableController.init($("#mainContainer"));
+		this.currentView = sampleTableController;
+//		//Update menu
+//		var sampleType = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
+//		
+//		//Show Sample Table
+//		var sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);
+//		sampleTable.init();
+//		
+//		this.currentView = sampleTable;
 	}
 
 	this._showSampleHierarchyPage = function(permId) {
@@ -588,7 +591,7 @@ function MainController(profile) {
 									mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
 								}
 								
-								var dataGrid = new DataGridController(localReference, searchDomainLabel + " Search Results", columns, getDataList, rowClick);
+								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick);
 								localReference.currentView = dataGrid;
 								dataGrid.init($("#mainContainer"));
 								history.pushState(null, "", ""); //History Push State
