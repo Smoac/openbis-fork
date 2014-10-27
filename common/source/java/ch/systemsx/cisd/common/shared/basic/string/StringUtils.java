@@ -70,11 +70,20 @@ public final class StringUtils
      */
     public final static String joinList(final List<String> list)
     {
+        return joinList(list, ",");
+    }
+
+    /**
+     * Joins the elements using comma as a separator. <br>
+     * Example: "a", "b", "c" -> "a, b, c"
+     */
+    public final static String joinList(final List<String> list, String separator)
+    {
         if (list == null)
         {
             return null;
         }
-        return join(list.toArray(new String[0]), ",");
+        return join(list.toArray(new String[0]), separator);
     }
 
     /**
