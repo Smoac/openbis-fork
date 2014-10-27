@@ -1,5 +1,5 @@
 /*!
- * Fuel UX v3.1.0
+ * Fuel UX v3.0.2
  * Copyright 2012-2014 ExactTarget
  * Licensed under the BSD-3-Clause license ()
  */
@@ -675,7 +675,6 @@
 				this.$input.val( this.formatDate( date ) );
 				this.inputValue = this.$input.val();
 				this.$input.focus();
-				this.$element.trigger( 'dateClicked.fu.datepicker', date );
 			},
 
 			destroy: function() {
@@ -957,7 +956,7 @@
 				for ( i = 0; i < rows; i++ ) {
 					$tr = $( '<tr></tr>' );
 					for ( j = 0; j < 7; j++ ) {
-						$td = $( '<td></td>' );
+						$td = $( '<td><span><button type="button" class="datepicker-date">' + curDate + '</button></span></td>' );
 						if ( stage === -1 ) {
 							$td.addClass( 'last-month' );
 						} else if ( stage === 1 ) {
@@ -993,12 +992,6 @@
 						}
 						if ( selected && curYear === selected.year && curMonth === selected.month && curDate === selected.date ) {
 							$td.addClass( 'selected' );
-						}
-
-						if ( $td.hasClass( 'restricted' ) ) {
-							$td.html( '<span><b class="datepicker-date">' + curDate + '</b></span>' );
-						} else {
-							$td.html( '<span><button type="button" class="datepicker-date">' + curDate + '</button></span>' );
 						}
 
 						curDate++;
@@ -2024,7 +2017,7 @@
 
 			action: function() {
 				var val = this.$input.val();
-				var inputEmptyOrUnchanged = ( val === '' || val === this.activeSearch );
+				var inputEmptyOrUnchanged = val === '' || val === this.activeSearch;
 
 				if ( this.activeSearch && inputEmptyOrUnchanged ) {
 					this.clear();
@@ -2046,22 +2039,15 @@
 			},
 
 			keypressed: function( e ) {
-				var remove = 'glyphicon-remove';
-				var search = 'glyphicon-search';
-				var val;
+				var val, inputPresentAndUnchanged;
 
 				if ( e.which === 13 ) {
 					e.preventDefault();
 					this.action();
 				} else {
 					val = this.$input.val();
-					if ( !val ) {
-						this.clear();
-					} else if ( val !== this.activeSearch ) {
-						this.$icon.removeClass( remove ).addClass( search );
-					} else {
-						this.$icon.removeClass( search ).addClass( remove );
-					}
+					inputPresentAndUnchanged = val && ( val === this.activeSearch );
+					this.$icon.attr( 'class', inputPresentAndUnchanged ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-search' );
 				}
 			},
 
@@ -2213,8 +2199,7 @@
 
 			itemChanged: function( e ) {
 
-				//selectedItem needs to be <li> since the data is stored there, not in <a>
-				this.doSelect( $( e.target ).closest( 'li' ) );
+				this.doSelect( $( e.target ).parent() );
 
 				// pass object including text and any data-attributes
 				// to onchange event
@@ -2856,7 +2841,7 @@
 				var loader = $parent.find( '.tree-loader:eq(0)' );
 
 				loader.removeClass( 'hide' );
-				this.options.dataSource( $parent.data(), function( items ) {
+				this.options.dataSource( this.options.folderSelect ? $parent.data() : $el.data(), function( items ) {
 					loader.addClass( 'hide' );
 
 					$.each( items.data, function( index, value ) {
@@ -2872,16 +2857,16 @@
 							$entity.data( value );
 						}
 
-						// Decorate $entity with data or other attributes making the
-						// element easily accessable with libraries like jQuery.
+						// Decorate $entity with data making the element
+						// easily accessable with libraries like jQuery.
 						//
 						// Values are contained within the object returned
-						// for folders and items as attr:
+						// for folders and items as dataAttributes:
 						//
 						// {
 						//     name: "An Item",
 						//     type: 'item',
-						//     attr = {
+						//     dataAttributes = {
 						//         'classes': 'required-item red-text',
 						//         'data-parent': parentId,
 						//         'guid': guid,
@@ -2890,11 +2875,11 @@
 						// };
 
 						// add attributes to tree-branch or tree-item
-						var attr = value[ 'attr' ] || value.dataAttributes || [];
-						$.each( attr, function( key, value ) {
+						var dataAttributes = value.dataAttributes || [];
+						$.each( dataAttributes, function( key, value ) {
 							switch ( key ) {
-								case 'cssClass':
 								case 'class':
+								case 'classes':
 								case 'className':
 									$entity.addClass( value );
 									break;
@@ -2934,7 +2919,6 @@
 
 			selectItem: function( el ) {
 				var $el = $( el );
-				var selData = $el.data();
 				var $all = this.$element.find( '.tree-selected' );
 				var data = [];
 				var $icon = $el.find( '.icon-item' );
@@ -2949,12 +2933,12 @@
 				} else if ( $all[ 0 ] !== $el[ 0 ] ) {
 					$all.removeClass( 'tree-selected' )
 						.find( '.glyphicon' ).removeClass( 'glyphicon-ok' ).addClass( 'fueluxicon-bullet' );
-					data.push( selData );
+					data.push( $el.data() );
 				}
 
 				var eventType = 'selected';
 				if ( $el.hasClass( 'tree-selected' ) ) {
-					eventType = 'deselected';
+					eventType = 'unselected';
 					$el.removeClass( 'tree-selected' );
 					if ( $icon.hasClass( 'glyphicon-ok' ) || $icon.hasClass( 'fueluxicon-bullet' ) ) {
 						$icon.removeClass( 'glyphicon-ok' ).addClass( 'fueluxicon-bullet' );
@@ -2966,14 +2950,15 @@
 						$icon.removeClass( 'fueluxicon-bullet' ).addClass( 'glyphicon-ok' );
 					}
 					if ( this.options.multiSelect ) {
-						data.push( selData );
+						data.push( $el.data() );
 					}
 				}
 
-				this.$element.trigger( eventType + '.fu.tree', {
-					target: selData,
-					selected: data
-				} );
+				if ( data.length ) {
+					this.$element.trigger( 'selected', {
+						selected: data
+					} );
+				}
 
 				// Return new list of selected items, the item
 				// clicked, and the type of event:
@@ -3034,20 +3019,19 @@
 					.removeClass( 'glyphicon-folder-close glyphicon-folder-open' )
 					.addClass( classToAdd );
 
-				this.$element.trigger( eventType + '.fu.tree', $branch.data() );
+				this.$element.trigger( eventType, $branch.data() );
 			},
 
 			selectFolder: function( clickedElement ) {
 				var $clickedElement = $( clickedElement );
 				var $clickedBranch = $clickedElement.closest( '.tree-branch' );
 				var $selectedBranch = this.$element.find( '.tree-branch.tree-selected' );
-				var clickedData = $clickedBranch.data();
 				var selectedData = [];
 				var eventType = 'selected';
 
 				// select clicked item
 				if ( $clickedBranch.hasClass( 'tree-selected' ) ) {
-					eventType = 'deselected';
+					eventType = 'unselected';
 					$clickedBranch.removeClass( 'tree-selected' );
 				} else {
 					$clickedBranch.addClass( 'tree-selected' );
@@ -3068,13 +3052,14 @@
 				} else if ( $selectedBranch[ 0 ] !== $clickedElement[ 0 ] ) {
 					$selectedBranch.removeClass( 'tree-selected' );
 
-					selectedData.push( clickedData );
+					selectedData.push( $clickedBranch.data() );
 				}
 
-				this.$element.trigger( eventType + '.fu.tree', {
-					target: clickedData,
-					selected: selectedData
-				} );
+				if ( selectedData.length ) {
+					this.$element.trigger( 'selected.fu.tree', {
+						selected: selectedData
+					} );
+				}
 
 				// Return new list of selected items, the item
 				// clicked, and the type of event:
@@ -3870,21 +3855,14 @@
 
 			suggestionClick: function( e ) {
 				var $item = $( e.currentTarget );
-				var item = {
-					text: $item.html(),
-					value: $item.data( 'value' )
-				};
 
 				e.preventDefault();
 				this.$addItem.val( '' );
 
-				if ( $item.data( 'attr' ) ) {
-					item.attr = JSON.parse( $item.data( 'attr' ) );
-				}
-
-				item.data = $item.data( 'data' );
-
-				this.addItems( item, true );
+				this.addItems( {
+					text: $item.html(),
+					value: $item.data( 'value' )
+				}, true );
 
 				// needs to be after addItems for IE
 				this._closeSuggestions();
@@ -3922,16 +3900,7 @@
 							el: self.$pillHTML
 						};
 
-						if ( value[ 'attr' ] ) {
-							data[ 'attr' ] = value.attr; // avoid confusion with $.attr();
-						}
-
-						if ( value[ 'data' ] ) {
-							data[ 'data' ] = value.data;
-						}
-
 						items[ i ] = data;
-
 					} );
 
 					if ( this.options.edit && this.currentEdit ) {
@@ -3947,7 +3916,7 @@
 						if ( this.options.edit && this.currentEdit ) {
 							self.options.onAdd( items[ 0 ], $.proxy( self.saveEdit, this ) );
 						} else {
-							self.options.onAdd( items[ 0 ], $.proxy( self.placeItems, this ) );
+							self.options.onAdd( items[ 0 ], $.proxy( self.placeItems, this, true ) );
 						}
 					} else {
 						if ( this.options.edit && this.currentEdit ) {
@@ -3994,7 +3963,7 @@
 			//First parameter is index (optional)
 			//Second parameter is new arguments
 			placeItems: function() {
-				var $newHtml = [];
+				var newHtml = '';
 				var items;
 				var index;
 				var $neighbor;
@@ -4020,25 +3989,7 @@
 						$item.attr( 'data-value', item.value );
 						$item.find( 'span:first' ).html( item.text );
 
-						// DOM attributes
-						if ( item[ 'attr' ] ) {
-							$.each( item[ 'attr' ], function( key, value ) {
-
-								if ( key === 'cssClass' || key === 'class' ) {
-									$item.addClass( value );
-								} else {
-									$item.attr( key, value );
-								}
-
-							} );
-
-						}
-
-						if ( item[ 'data' ] ) {
-							$item.data( 'data', item.data );
-						}
-
-						$newHtml.push( $item );
+						newHtml += $item.wrap( '<div></div>' ).parent().html();
 					} );
 
 					if ( this.$pillGroup.children( '.pill' ).length > 0 ) {
@@ -4046,15 +3997,15 @@
 							$neighbor = this.$pillGroup.find( '.pill:nth-child(' + index + ')' );
 
 							if ( $neighbor.length ) {
-								$neighbor.before( $newHtml );
+								$neighbor.before( newHtml );
 							} else {
-								this.$pillGroup.children( '.pill:last' ).after( $newHtml );
+								this.$pillGroup.children( '.pill:last' ).after( newHtml );
 							}
 						} else {
-							this.$pillGroup.children( '.pill:last' ).after( $newHtml );
+							this.$pillGroup.children( '.pill:last' ).after( newHtml );
 						}
 					} else {
-						this.$pillGroup.prepend( $newHtml );
+						this.$pillGroup.prepend( newHtml );
 					}
 
 					if ( isInternal ) {
@@ -4070,7 +4021,6 @@
 				var self = this;
 				var text = this.$addItem.val();
 				var value;
-				var attr;
 				var $lastItem;
 				var $selection;
 
@@ -4082,7 +4032,6 @@
 						if ( $selection.length ) {
 							text = $selection.html();
 							value = $selection.data( 'value' );
-							attr = $selection.data( 'attr' );
 						}
 					}
 
@@ -4090,18 +4039,10 @@
 						this._closeSuggestions();
 						this.$addItem.hide();
 
-						if ( attr ) {
-							this.addItems( {
-								text: text,
-								value: value,
-								attr: JSON.parse( attr )
-							}, true );
-						} else {
-							this.addItems( {
-								text: text,
-								value: value
-							}, true );
-						}
+						this.addItems( {
+							text: text,
+							value: value
+						}, true );
 
 						setTimeout( function() {
 							self.$addItem.show().val( '' ).attr( {
@@ -4204,7 +4145,7 @@
 			//Must match syntax of placeItem so addItem callback is called when an item is edited
 			//expecting to receive an array back from the callback containing edited items
 			saveEdit: function() {
-				var item = arguments[ 0 ][ 0 ] ? arguments[ 0 ][ 0 ] : arguments[ 0 ];
+				var item = arguments[ 0 ][ 0 ];
 
 				this.currentEdit = $( item.el );
 				this.currentEdit.data( 'value', item.value );
@@ -4336,33 +4277,20 @@
 
 			_openSuggestions: function( e, data ) {
 				var markup = '';
-				var $suggestionList = $( '<ul>' );
 
 				if ( this.callbackId !== e.timeStamp ) {
 					return false;
 				}
 
 				if ( data.data && data.data.length ) {
-
 					$.each( data.data, function( index, value ) {
 						var val = value.value ? value.value : value.text;
-
-						// markup concatentation is 10x faster, but does not allow data store
-						var $suggestion = $( '<li data-value="' + val + '">' + value.text + '</li>' );
-
-						if ( value.attr ) {
-							$suggestion.data( 'attr', JSON.stringify( value.attr ) );
-						}
-
-						if ( value.data ) {
-							$suggestion.data( 'data', value.data );
-						}
-
-						$suggestionList.append( $suggestion );
+						markup += '<li data-value="' + val + '">' + value.text + '</li>';
 					} );
 
 					// suggestion dropdown
-					this.$suggest.html( '' ).append( $suggestionList.children() );
+
+					this.$suggest.html( '' ).append( markup );
 					$( document.body ).trigger( 'suggested.fu.pillbox', this.$suggest );
 				}
 			},
@@ -4501,7 +4429,7 @@
 
 		var Repeater = function( element, options ) {
 			var self = this;
-			var $btn, currentView;
+			var currentView;
 
 			this.$element = $( element );
 
@@ -4540,39 +4468,27 @@
 			this.$primaryPaging.find( '.combobox' ).combobox();
 			this.$search.search();
 
-			this.$filters.on( 'changed.fu.selectlist', function( e, value ) {
-				self.$element.trigger( 'filtered.fu.repeater', value );
-				self.render( {
-					clearInfinite: true,
-					pageIncrement: null
-				} );
-			} );
+			this.$filters.on( 'changed.fu.selectlist', $.proxy( this.render, this, {
+				clearInfinite: true,
+				pageIncrement: null
+			} ) );
 			this.$nextBtn.on( 'click.fu.repeater', $.proxy( this.next, this ) );
-			this.$pageSize.on( 'changed.fu.selectlist', function( e, value ) {
-				self.$element.trigger( 'pageSizeChanged.fu.repeater', value );
-				self.render( {
-					pageIncrement: null
-				} );
-			} );
+			this.$pageSize.on( 'changed.fu.selectlist', $.proxy( this.render, this, {
+				pageIncrement: null
+			} ) );
 			this.$prevBtn.on( 'click.fu.repeater', $.proxy( this.previous, this ) );
 			this.$primaryPaging.find( '.combobox' ).on( 'changed.fu.combobox', function( evt, data ) {
-				self.$element.trigger( 'pageChanged.fu.repeater', [ data.text, data ] );
 				self.pageInputChange( data.text );
 			} );
-			this.$search.on( 'searched.fu.search cleared.fu.search', function( e, value ) {
-				self.$element.trigger( 'searchChanged.fu.repeater', value );
-				self.render( {
-					clearInfinite: true,
-					pageIncrement: null
-				} );
-			} );
-			this.$secondaryPaging.on( 'blur.fu.repeater', function( e ) {
+			this.$search.on( 'searched.fu.search cleared.fu.search', $.proxy( this.render, this, {
+				clearInfinite: true,
+				pageIncrement: null
+			} ) );
+			this.$secondaryPaging.on( 'blur.fu.repeater', function() {
 				self.pageInputChange( self.$secondaryPaging.val() );
 			} );
-			this.$secondaryPaging.on( 'keyup', function( e ) {
-				if ( e.keyCode === 13 ) {
-					self.pageInputChange( self.$secondaryPaging.val() );
-				}
+			this.$secondaryPaging.on( 'change.fu.repeater', function() {
+				self.pageInputChange( self.$secondaryPaging.val() );
 			} );
 			this.$views.find( 'input' ).on( 'change.fu.repeater', $.proxy( this.viewChanged, this ) );
 
@@ -4587,12 +4503,7 @@
 
 			this.$loader.loader();
 			this.$loader.loader( 'pause' );
-			if ( this.options.defaultView !== -1 ) {
-				currentView = this.options.defaultView;
-			} else {
-				$btn = this.$views.find( 'label.active input' );
-				currentView = ( $btn.length > 0 ) ? $btn.val() : 'list';
-			}
+			currentView = ( this.options.defaultView !== -1 ) ? this.options.defaultView : this.$views.find( 'label.active input' ).val();
 
 			this.initViews( function() {
 				self.resize();
@@ -4628,13 +4539,10 @@
 				options = options || {};
 
 				if ( !options.preserve ) {
-					//Just trash everything because preserve is false
 					this.$canvas.empty();
 				} else if ( !this.infiniteScrollingEnabled || options.clearInfinite ) {
-					//Preserve clear only if infiniteScrolling is disabled or if specifically told to do so
 					scan( this.$canvas );
 				}
-				//otherwise don't clear because infiniteScrolling is enabled
 			},
 
 			destroy: function() {
@@ -4669,11 +4577,11 @@
 
 				options = options || {};
 
-				opts.filter = ( this.$filters.length > 0 ) ? this.$filters.selectlist( 'selectedItem' ) : 'all';
+				opts.filter = this.$filters.selectlist( 'selectedItem' );
 				opts.view = this.currentView;
 
 				if ( !this.infiniteScrollingEnabled ) {
-					opts.pageSize = ( this.$pageSize.length > 0 ) ? parseInt( this.$pageSize.selectlist( 'selectedItem' ).value, 10 ) : 25;
+					opts.pageSize = parseInt( this.$pageSize.selectlist( 'selectedItem' ).value, 10 );
 				}
 				if ( options.pageIncrement !== undefined ) {
 					if ( options.pageIncrement === null ) {
@@ -4684,7 +4592,7 @@
 				}
 				opts.pageIndex = this.currentPage;
 
-				val = ( this.$search.length > 0 ) ? this.$search.find( 'input' ).val() : '';
+				val = this.$search.find( 'input' ).val();
 				if ( val !== '' ) {
 					opts.search = val;
 				}
@@ -4804,12 +4712,11 @@
 				this.$start.html( data.start || '' );
 			},
 
-			next: function( e ) {
+			next: function() {
 				var d = 'disabled';
 				this.$nextBtn.attr( d, d );
 				this.$prevBtn.attr( d, d );
 				this.pageIncrement = 1;
-				this.$element.trigger( 'nextClicked.fu.repeater' );
 				this.render( {
 					pageIncrement: this.pageIncrement
 				} );
@@ -4821,7 +4728,6 @@
 					this.lastPageInput = val;
 					val = parseInt( val, 10 ) - 1;
 					pageInc = val - this.currentPage;
-					this.$element.trigger( 'pageChanged.fu.repeater', val );
 					this.render( {
 						pageIncrement: pageInc
 					} );
@@ -4895,7 +4801,6 @@
 				this.$nextBtn.attr( d, d );
 				this.$prevBtn.attr( d, d );
 				this.pageIncrement = -1;
-				this.$element.trigger( 'previousClicked.fu.repeater' );
 				this.render( {
 					pageIncrement: this.pageIncrement
 				} );
@@ -4908,45 +4813,34 @@
 				var prevView;
 
 				var start = function() {
-					var next = function() {
-						if ( !self.infiniteScrollingEnabled || ( self.infiniteScrollingEnabled && viewChanged ) ) {
-							self.$loader.show().loader( 'play' );
-						}
-						self.getDataOptions( options, function( opts ) {
-							self.options.dataSource( opts, function( data ) {
-								var renderer = viewObj.renderer;
-								if ( self.infiniteScrollingEnabled ) {
-									self.infiniteScrollingCallback( {} );
-								} else {
-									self.itemization( data );
-									self.pagination( data );
-								}
-								if ( renderer ) {
-									self.runRenderer( self.$canvas, renderer, data, function() {
-										if ( self.infiniteScrollingEnabled ) {
-											if ( viewChanged || options.clearInfinite ) {
-												self.initInfiniteScrolling();
-											}
-											self.infiniteScrollPaging( data, options );
-										}
-										self.$loader.hide().loader( 'pause' );
-										self.$element.trigger( 'loaded.fu.repeater' );
-									} );
-								}
-							} );
-						} );
-					};
-
 					options.preserve = ( options.preserve !== undefined ) ? options.preserve : !viewChanged;
 					self.clear( options );
-					if ( !viewChanged && viewObj.cleared ) {
-						viewObj.cleared.call( self, {}, function() {
-							next();
-						} );
-					} else {
-						next();
+					if ( !self.infiniteScrollingEnabled || ( self.infiniteScrollingEnabled && viewChanged ) ) {
+						self.$loader.show().loader( 'play' );
 					}
-
+					self.getDataOptions( options, function( opts ) {
+						self.options.dataSource( opts, function( data ) {
+							var renderer = viewObj.renderer;
+							if ( self.infiniteScrollingEnabled ) {
+								self.infiniteScrollingCallback( {} );
+							} else {
+								self.itemization( data );
+								self.pagination( data );
+							}
+							if ( renderer ) {
+								self.runRenderer( self.$canvas, renderer, data, function() {
+									if ( self.infiniteScrollingEnabled ) {
+										if ( viewChanged || options.clearInfinite ) {
+											self.initInfiniteScrolling();
+										}
+										self.infiniteScrollPaging( data, options );
+									}
+									self.$loader.hide().loader( 'pause' );
+									self.$element.trigger( 'loaded.fu.repeater' );
+								} );
+							}
+						} );
+					} );
 				};
 
 				options = options || {};
@@ -5127,10 +5021,8 @@
 
 			viewChanged: function( e ) {
 				var $selected = $( e.target );
-				var val = $selected.val();
-				this.$element.trigger( 'viewChanged.fu.repeater', val );
 				this.render( {
-					changeView: val,
+					changeView: $selected.val(),
 					pageIncrement: null
 				} );
 			}
@@ -5163,20 +5055,17 @@
 
 		//views object contains keyed list of view plugins, each an object with following optional parameters:
 		//{
-		//cleared: function(helpers, callback){},
-		//dataOptions: function(helpers, callback){},
-		//initialize: function(helpers, callback){},
-		//selected: function(helpers, callback){},
-		//resize: function(helpers, callback){},
+		//initialize: function(){},
+		//selected: function(){},
 		//renderer: {}
 		//}
 		//renderer object contains following optional parameters:
 		//{
-		//before: function(helpers, callback){},
-		//after: function(helpers, callback){},
-		//complete: function(helpers, callback){},
+		//before: function(helpers){},
+		//after: function(helpers){},
+		//complete: function(helpers){},
 		//repeat: 'parameter.subparameter.etc',
-		//render: function(helpers, callback){},
+		//render: function(helpers){},
 		//nested: [ *array of renderer objects* ]
 		//}
 
@@ -5198,7 +5087,6 @@
 		};
 
 
-
 	} )( jQuery );
 
 
@@ -5218,15 +5106,14 @@
 
 		if ( $.fn.repeater ) {
 
-			//ADDITIONAL METHODS
-			$.fn.repeater.Constructor.prototype.list_clearSelectedItems = function() {
+			$.fn.repeater.Constructor.prototype.clearSelectedItems = function() {
 				this.$canvas.find( '.repeater-list-check' ).remove();
-				this.$canvas.find( '.repeater-list table tbody tr.selected' ).removeClass( 'selected' );
+				this.$canvas.find( '.repeater-list-items tr.selected' ).removeClass( 'selected' );
 			};
 
-			$.fn.repeater.Constructor.prototype.list_getSelectedItems = function() {
+			$.fn.repeater.Constructor.prototype.getSelectedItems = function() {
 				var selected = [];
-				this.$canvas.find( '.repeater-list table tbody tr.selected' ).each( function() {
+				this.$canvas.find( '.repeater-list-items tr.selected' ).each( function() {
 					var $item = $( this );
 					selected.push( {
 						data: $item.data( 'item_data' ),
@@ -5236,24 +5123,7 @@
 				return selected;
 			};
 
-			$.fn.repeater.Constructor.prototype.list_positionHeadings = function() {
-				var $wrapper = this.$element.find( '.repeater-list-wrapper' );
-				var offsetLeft = $wrapper.offset().left;
-				var scrollLeft = $wrapper.scrollLeft();
-				if ( scrollLeft > 0 ) {
-					$wrapper.find( '.repeater-list-heading' ).each( function() {
-						var $heading = $( this );
-						var left = ( $heading.parents( 'th:first' ).offset().left - offsetLeft ) + 'px';
-						$heading.addClass( 'shifted' ).css( 'left', left );
-					} );
-				} else {
-					$wrapper.find( '.repeater-list-heading' ).each( function() {
-						$( this ).removeClass( 'shifted' ).css( 'left', '' );
-					} );
-				}
-			};
-
-			$.fn.repeater.Constructor.prototype.list_setSelectedItems = function( items, force ) {
+			$.fn.repeater.Constructor.prototype.setSelectedItems = function( items, force ) {
 				var selectable = this.options.list_selectable;
 				var self = this;
 				var data, i, $item, l;
@@ -5270,7 +5140,7 @@
 					select = ( select !== undefined ) ? select : true;
 					if ( select ) {
 						if ( !force && selectable !== 'multi' ) {
-							self.list_clearSelectedItems();
+							self.clearSelectedItems();
 						}
 						if ( !$itm.hasClass( 'selected' ) ) {
 							$itm.addClass( 'selected' );
@@ -5294,28 +5164,17 @@
 				}
 				for ( i = 0; i < l; i++ ) {
 					if ( items[ i ].index !== undefined ) {
-						$item = this.$canvas.find( '.repeater-list table tbody tr:nth-child(' + ( items[ i ].index + 1 ) + ')' );
+						$item = this.$canvas.find( '.repeater-list-items tr:nth-child(' + ( items[ i ].index + 1 ) + ')' );
 						if ( $item.length > 0 ) {
 							selectItem( $item, items[ i ].selected );
 						}
 					} else if ( items[ i ].property !== undefined && items[ i ].value !== undefined ) {
 						//lint demanded this function not be within this loop
-						this.$canvas.find( '.repeater-list table tbody tr' ).each( eachFunc );
+						this.$canvas.find( '.repeater-list-items tr' ).each( eachFunc );
 					}
 				}
 			};
 
-			$.fn.repeater.Constructor.prototype.list_sizeHeadings = function() {
-				var $table = this.$element.find( '.repeater-list table' );
-				$table.find( 'thead th' ).each( function() {
-					var $hr = $( this );
-					var $heading = $hr.find( '.repeater-list-heading' );
-					$heading.outerHeight( $hr.outerHeight() );
-					$heading.outerWidth( $hr.outerWidth() );
-				} );
-			};
-
-			//ADDITIONAL DEFAULT OPTIONS
 			$.fn.repeater.defaults = $.extend( {}, $.fn.repeater.defaults, {
 				list_columnRendered: null,
 				list_columnSizing: true,
@@ -5327,14 +5186,7 @@
 				list_rowRendered: null
 			} );
 
-			//EXTENSION DEFINITION
 			$.fn.repeater.views.list = {
-				cleared: function( helpers, callback ) {
-					if ( this.options.list_columnSyncing ) {
-						this.list_sizeHeadings();
-					}
-					callback();
-				},
 				dataOptions: function( opts, callback ) {
 					if ( this.list_sortDirection ) {
 						opts.sortDirection = this.list_sortDirection;
@@ -5361,44 +5213,13 @@
 						this.infiniteScrolling( true, opts );
 					}
 
-					callback();
+					callback( {} );
 				},
-				resize: function( helpers, callback ) {
-					if ( this.options.list_columnSyncing ) {
-						this.list_sizeHeadings();
-					}
-					callback();
-				},
-				renderer: { //RENDERING REPEATER-LIST, REPEATER-LIST-WRAPPER, AND TABLE
+				renderer: {
 					complete: function( helpers, callback ) {
-						if ( this.options.list_columnSyncing ) {
-							this.list_sizeHeadings();
-							this.list_positionHeadings();
-						}
-						callback();
+						columnSyncing.call( this, helpers, callback );
 					},
-					render: function( helpers, callback ) {
-						var $list = this.$element.find( '.repeater-list' );
-						var self = this;
-						var $item;
-						if ( $list.length > 0 ) {
-							callback( {
-								action: 'none',
-								item: $list
-							} );
-						} else {
-							$item = $( '<div class="repeater-list" data-preserve="shallow"><div class="repeater-list-wrapper" data-infinite="true" data-preserve="shallow"><table aria-readonly="true" class="table" data-container="true" data-preserve="shallow" role="grid"></table></div></div>' );
-							$item.find( '.repeater-list-wrapper' ).on( 'scroll.fu.repeaterList', function() {
-								if ( self.options.list_columnSyncing ) {
-									self.list_positionHeadings();
-								}
-							} );
-							callback( {
-								item: $item
-							} );
-						}
-					},
-					nested: [ { //RENDERING THEAD
+					nested: [ {
 						complete: function( helpers, callback ) {
 							var auto = [];
 							var self = this;
@@ -5409,22 +5230,22 @@
 							} else {
 								i = 0;
 								taken = 0;
-								helpers.item.find( 'th' ).each( function() {
-									var $th = $( this );
-									var isLast = ( $th.next( 'th' ).length === 0 );
+								helpers.item.find( 'td' ).each( function() {
+									var $col = $( this );
+									var isLast = ( $col.next( 'td' ).length === 0 ) ? true : false;
 									var width;
 									if ( self.list_columns[ i ].width !== undefined ) {
 										width = self.list_columns[ i ].width;
-										$th.outerWidth( width );
-										taken += $th.outerWidth();
+										$col.outerWidth( width );
+										taken += $col.outerWidth();
 										if ( !isLast ) {
 											self.list_columns[ i ]._auto_width = width;
 										} else {
-											$th.outerWidth( '' );
+											$col.outerWidth( '' );
 										}
 									} else {
 										auto.push( {
-											col: $th,
+											col: $col,
 											index: i,
 											last: isLast
 										} );
@@ -5475,7 +5296,8 @@
 								this.list_firstRender = false;
 								this.$loader.removeClass( 'noHeader' );
 								callback( {
-									item: '<thead data-preserve="deep"><tr data-container="true"></tr></thead>'
+									action: 'prepend',
+									item: '<table class="table repeater-list-header" data-preserve="deep" role="grid" aria-readonly="true"><tr data-container="true"></tr></table>'
 								} );
 							} else {
 								this.list_columnsSame = true;
@@ -5484,56 +5306,46 @@
 								} );
 							}
 						},
-						nested: [ { //RENDERING COLUMN HEADERS (TH AND REPEATER-LIST-HEADING)
+						nested: [ {
 							render: function( helpers, callback ) {
-								var chevDown = 'glyphicon-chevron-down';
-								var chevron = '.glyphicon.rlc:first';
-								var chevUp = 'glyphicon-chevron-up';
-								var $div = $( '<div class="repeater-list-heading"><span class="glyphicon rlc"></span></div>' );
+								var chev = 'glyphicon-chevron';
+								var chevDown = chev + '-down';
+								var chevUp = chev + '-up';
 								var index = helpers.index;
-								var $item = $( '<th></th>' );
 								var self = this;
 								var subset = helpers.subset;
-								var $both, className, sortable, $span, $spans;
+								var cssClass, $item, sortable, $span;
 
-								$div.prepend( helpers.subset[ helpers.index ].label );
-								$item.html( $div.html() ).find( '[id]' ).removeAttr( 'id' );
-								$item.append( $div );
-
-								$both = $item.add( $div );
-								$span = $div.find( chevron );
-								$spans = $span.add( $item.find( chevron ) );
-
-								className = subset[ index ].className;
-								if ( className !== undefined ) {
-									$both.addClass( className );
-								}
+								cssClass = subset[ index ].cssClass;
+								$item = $( '<td><span class="glyphicon"></span></td>' );
+								$item.addClass( ( ( cssClass !== undefined ) ? cssClass : '' ) ).prepend( subset[ index ].label );
+								$span = $item.find( 'span.glyphicon:first' );
 
 								sortable = subset[ index ].sortable;
 								if ( sortable ) {
-									$both.addClass( 'sortable' );
-									$div.on( 'click.fu.repeaterList', function() {
+									$item.addClass( 'sortable' );
+									$item.on( 'click.fu.repeater-list', function() {
 										self.list_sortProperty = ( typeof sortable === 'string' ) ? sortable : subset[ index ].property;
-										if ( $div.hasClass( 'sorted' ) ) {
+										if ( $item.hasClass( 'sorted' ) ) {
 											if ( $span.hasClass( chevUp ) ) {
-												$spans.removeClass( chevUp ).addClass( chevDown );
+												$span.removeClass( chevUp ).addClass( chevDown );
 												self.list_sortDirection = 'desc';
 											} else {
 												if ( !self.options.list_sortClearing ) {
-													$spans.removeClass( chevDown ).addClass( chevUp );
+													$span.removeClass( chevDown ).addClass( chevUp );
 													self.list_sortDirection = 'asc';
 												} else {
-													$both.removeClass( 'sorted' );
-													$spans.removeClass( chevDown );
+													$item.removeClass( 'sorted' );
+													$span.removeClass( chevDown );
 													self.list_sortDirection = null;
 													self.list_sortProperty = null;
 												}
 											}
 										} else {
-											helpers.container.find( 'th, .repeater-list-heading' ).removeClass( 'sorted' );
-											$spans.removeClass( chevDown ).addClass( chevUp );
+											helpers.container.find( 'td' ).removeClass( 'sorted' );
+											$span.removeClass( chevDown ).addClass( chevUp );
 											self.list_sortDirection = 'asc';
-											$both.addClass( 'sorted' );
+											$item.addClass( 'sorted' );
 										}
 										self.render( {
 											clearInfinite: true,
@@ -5541,15 +5353,14 @@
 										} );
 									} );
 								}
-
 								if ( subset[ index ].sortDirection === 'asc' || subset[ index ].sortDirection === 'desc' ) {
-									helpers.container.find( 'th, .repeater-list-heading' ).removeClass( 'sorted' );
-									$both.addClass( 'sortable sorted' );
+									helpers.container.find( 'td' ).removeClass( 'sorted' );
+									$item.addClass( 'sortable sorted' );
 									if ( subset[ index ].sortDirection === 'asc' ) {
-										$spans.addClass( chevUp );
+										$span.addClass( chevUp );
 										this.list_sortDirection = 'asc';
 									} else {
-										$spans.addClass( chevDown );
+										$span.addClass( chevDown );
 										this.list_sortDirection = 'desc';
 									}
 									this.list_sortProperty = ( typeof sortable === 'string' ) ? sortable : subset[ index ].property;
@@ -5561,27 +5372,39 @@
 							},
 							repeat: 'data.columns'
 						} ]
-					}, { //RENDERING TBODY
+					}, {
+						after: function( helpers, callback ) {
+							var canvas = this.$canvas;
+							var header = canvas.find( '.repeater-list-header' );
+							if ( this.staticHeight ) {
+								helpers.item.height( canvas.height() - header.outerHeight() );
+							}
+							callback();
+						},
 						render: function( helpers, callback ) {
-							var $item = $( '<tbody data-container="true"></tbody>' );
+							var $item = this.$canvas.find( '.repeater-list-wrapper' );
 							var obj = {};
 							var $empty;
-
-							if ( helpers.data.items.length < 1 ) {
-								obj.skipNested = true;
-								$empty = $( '<tr class="empty"><td colspan="' + this.list_columns.length + '"></td></tr>' );
-								$empty.find( 'td' ).append( this.options.list_noItemsHTML );
-								$item.append( $empty );
+							if ( $item.length > 0 ) {
+								obj.action = 'none';
+							} else {
+								$item = $( '<div class="repeater-list-wrapper" data-infinite="true"><table class="table repeater-list-items" data-container="true" role="grid" aria-readonly="true"></table></div>' );
 							}
 							obj.item = $item;
-
+							if ( helpers.data.items.length < 1 ) {
+								obj.skipNested = true;
+								$empty = $( '<tr class="empty"><td></td></tr>' );
+								$empty.find( 'td' ).append( this.options.list_noItemsHTML );
+								$item.find( '.repeater-list-items' ).append( $empty );
+							} else {
+								$item.find( '.repeater-list-items tr.empty:first' ).remove();
+							}
 							callback( obj );
 						},
-						nested: [ { //RENDERING ROWS (TR)
+						nested: [ {
 							complete: function( helpers, callback ) {
 								var obj = {
-									container: helpers.container,
-									rowData: helpers.subset[ helpers.index ]
+									container: helpers.container
 								};
 								if ( helpers.item !== undefined ) {
 									obj.item = helpers.item;
@@ -5602,32 +5425,34 @@
 									$item.addClass( 'selectable' );
 									$item.attr( 'tabindex', 0 ); // allow items to be tabbed to / focused on
 									$item.data( 'item_data', helpers.subset[ helpers.index ] );
-									$item.on( 'click.fu.repeaterList', function() {
+									$item.on( 'click.fu.repeater-list', function() {
 										var $row = $( this );
 										if ( $row.hasClass( 'selected' ) ) {
 											$row.removeClass( 'selected' );
 											$row.find( '.repeater-list-check' ).remove();
-											self.$element.trigger( 'deselected.fu.repeaterList', $row );
+											self.$element.trigger( 'itemDeselected.fu.repeater', $row );
 										} else {
 											if ( self.options.list_selectable !== 'multi' ) {
 												self.$canvas.find( '.repeater-list-check' ).remove();
-												self.$canvas.find( '.repeater-list tbody tr.selected' ).each( function() {
+												self.$canvas.find( '.repeater-list-items tr.selected' ).each( function() {
 													$( this ).removeClass( 'selected' );
-													self.$element.trigger( 'deselected.fu.repeaterList', $( this ) );
+													self.$element.trigger( 'itemDeselected.fu.repeater', $( this ) );
 												} );
 											}
 											$row.addClass( 'selected' );
 											$row.find( 'td:first' ).prepend( '<div class="repeater-list-check"><span class="glyphicon glyphicon-ok"></span></div>' );
-											self.$element.trigger( 'selected.fu.repeaterList', $row );
+											self.$element.trigger( 'itemSelected.fu.repeater', $row );
 										}
 									} );
 									// allow selection via enter key
 									$item.keyup( function( e ) {
 										if ( e.keyCode === 13 ) {
-											$item.trigger( 'clicked.fu.repeaterList' );
+											$item.trigger( 'click.fu.repeater-list' );
 										}
 									} );
 								}
+
+
 
 								this.list_curRowIndex = helpers.index;
 								callback( {
@@ -5635,12 +5460,10 @@
 								} );
 							},
 							repeat: 'data.items',
-							nested: [ { //RENDERING COLUMNS (TD)
+							nested: [ {
 								after: function( helpers, callback ) {
 									var obj = {
-										container: helpers.container,
-										columnAttr: helpers.subset[ helpers.index ].property,
-										rowData: helpers.data.items[ this.list_curRowIndex ]
+										container: helpers.container
 									};
 									if ( helpers.item !== undefined ) {
 										obj.item = helpers.item;
@@ -5654,12 +5477,12 @@
 									}
 								},
 								render: function( helpers, callback ) {
-									var className = helpers.subset[ helpers.index ].className;
+									var cssClass = helpers.subset[ helpers.index ].cssClass;
 									var content = helpers.data.items[ this.list_curRowIndex ][ helpers.subset[ helpers.index ].property ];
 									var $item = $( '<td></td>' );
 									var width = helpers.subset[ helpers.index ]._auto_width;
 
-									$item.addClass( ( ( className !== undefined ) ? className : '' ) ).append( content );
+									$item.addClass( ( ( cssClass !== undefined ) ? cssClass : '' ) ).append( content );
 									if ( width !== undefined ) {
 										$item.outerWidth( width );
 									}
@@ -5671,9 +5494,39 @@
 							} ]
 						} ]
 					} ]
+				},
+				resize: function( helpers, callback ) {
+					columnSyncing.call( this, {
+						data: {
+							items: [ '' ]
+						}
+					}, callback );
 				}
 			};
 
+			var columnSyncing = function( helpers, callback ) {
+				var i = 0;
+				var widths = [];
+				var $header, $items;
+
+				if ( !this.options.list_columnSyncing || ( helpers.data.items.length < 1 ) ) {
+					callback();
+				} else {
+					$header = this.$element.find( '.repeater-list-header:first' );
+					$items = this.$element.find( '.repeater-list-items:first' );
+					$items.find( 'tr:first td' ).each( function() {
+						widths.push( $( this ).outerWidth() );
+					} );
+					widths.pop();
+					$header.find( 'td' ).each( function() {
+						if ( widths[ i ] !== undefined ) {
+							$( this ).outerWidth( widths[ i ] );
+						}
+						i++;
+					} );
+					callback();
+				}
+			};
 		}
 
 
@@ -5696,74 +5549,12 @@
 
 		if ( $.fn.repeater ) {
 
-			//ADDITIONAL METHODS
-			$.fn.repeater.Constructor.prototype.thumbnail_clearSelectedItems = function() {
-				this.$canvas.find( '.repeater-thumbnail-cont .repeater-thumbnail.selected' ).removeClass( 'selected' );
-			};
-
-			$.fn.repeater.Constructor.prototype.thumbnail_getSelectedItems = function() {
-				var selected = [];
-				this.$canvas.find( '.repeater-thumbnail-cont .repeater-thumbnail.selected' ).each( function() {
-					selected.push( $( this ) );
-				} );
-				return selected;
-			};
-
-			$.fn.repeater.Constructor.prototype.thumbnail_setSelectedItems = function( items, force ) {
-				var selectable = this.options.thumbnail_selectable;
-				var self = this;
-				var i, $item, l;
-
-				var eachFunc = function() {
-					$item = $( this );
-					if ( $item.is( items[ i ].selector ) ) {
-						selectItem( $item, items[ i ].selected );
-					}
-				};
-
-				var selectItem = function( $itm, select ) {
-					select = ( select !== undefined ) ? select : true;
-					if ( select ) {
-						if ( !force && selectable !== 'multi' ) {
-							self.thumbnail_clearSelectedItems();
-						}
-						$itm.addClass( 'selected' );
-					} else {
-						$itm.removeClass( 'selected' );
-					}
-				};
-
-				if ( !$.isArray( items ) ) {
-					items = [ items ];
-				}
-				if ( force === true || selectable === 'multi' ) {
-					l = items.length;
-				} else if ( selectable ) {
-					l = ( items.length > 0 ) ? 1 : 0;
-				} else {
-					l = 0;
-				}
-				for ( i = 0; i < l; i++ ) {
-					if ( items[ i ].index !== undefined ) {
-						$item = this.$canvas.find( '.repeater-thumbnail-cont .repeater-thumbnail:nth-child(' + ( items[ i ].index + 1 ) + ')' );
-						if ( $item.length > 0 ) {
-							selectItem( $item, items[ i ].selected );
-						}
-					} else if ( items[ i ].selector ) {
-						this.$canvas.find( '.repeater-thumbnail-cont .repeater-thumbnail' ).each( eachFunc );
-					}
-				}
-			};
-
-			//ADDITIONAL DEFAULT OPTIONS
 			$.fn.repeater.defaults = $.extend( {}, $.fn.repeater.defaults, {
 				thumbnail_infiniteScroll: false,
 				thumbnail_itemRendered: null,
-				thumbnail_selectable: false,
-				thumbnail_template: '<div class="thumbnail repeater-thumbnail"><img height="75" src="{{src}}" width="65"><span>{{name}}</span></div>'
+				thumbnail_template: '<div class="thumbnail repeater-thumbnail" style="background-color: {{color}};"><img height="75" src="{{src}}" width="65"><span>{{name}}</span></div>'
 			} );
 
-			//EXTENSION DEFINITION
 			$.fn.repeater.views.thumbnail = {
 				selected: function( helpers, callback ) {
 					var infScroll = this.options.thumbnail_infiniteScroll;
@@ -5776,7 +5567,7 @@
 				},
 				renderer: {
 					render: function( helpers, callback ) {
-						var $item = this.$canvas.find( '.repeater-thumbnail-cont' );
+						var $item = this.$element.find( '.repeater-thumbnail-cont' );
 						var obj = {};
 						var $empty;
 						if ( $item.length > 0 ) {
@@ -5798,35 +5589,10 @@
 					nested: [ {
 						after: function( helpers, callback ) {
 							var obj = {
-								container: helpers.container,
-								itemData: helpers.subset[ helpers.index ]
+								container: helpers.container
 							};
-							var selectable = this.options.thumbnail_selectable;
-							var selected = 'selected';
-							var self = this;
-							var $item;
 							if ( helpers.item !== undefined ) {
 								obj.item = helpers.item;
-								if ( selectable ) {
-									$item = $( obj.item );
-									$item.addClass( 'selectable' );
-									$item.on( 'click', function() {
-										if ( !$item.hasClass( selected ) ) {
-											if ( selectable !== 'multi' ) {
-												self.$canvas.find( '.repeater-thumbnail-cont .repeater-thumbnail.selected' ).each( function() {
-													var $itm = $( this );
-													$itm.removeClass( selected );
-													self.$element.trigger( 'deselected.fu.repeaterThumbnail', $itm );
-												} );
-											}
-											$item.addClass( selected );
-											self.$element.trigger( 'selected.fu.repeaterThumbnail', $item );
-										} else {
-											$item.removeClass( selected );
-											self.$element.trigger( 'deselected.fu.repeaterThumbnail', $item );
-										}
-									} );
-								}
 							}
 							if ( this.options.thumbnail_itemRendered ) {
 								this.options.thumbnail_itemRendered( obj, function() {

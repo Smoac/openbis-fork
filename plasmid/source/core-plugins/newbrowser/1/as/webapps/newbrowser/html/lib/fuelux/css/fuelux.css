@@ -1,5 +1,5 @@
 /*!
- * Fuel UX v3.1.0 
+ * Fuel UX v3.0.2 
  * Copyright 2012-2014 ExactTarget
  * Licensed under the BSD-3-Clause license ()
  */
@@ -82,13 +82,6 @@
 .fuelux .checkbox input[type="checkbox"]:hover + .checkbox-label,
 .fuelux .checkbox .checkbox-label:hover {
   color: #999999;
-}
-.fuelux .form-horizontal .checkbox-inline {
-  padding-top: 0;
-}
-.fuelux .input-group-addon.checkbox-custom.checkbox-inline:before {
-  left: 11px;
-  top: 9px;
 }
 .fuelux .checkbox-custom {
   position: relative;
@@ -180,17 +173,12 @@
   vertical-align: middle;
   width: 14.29%;
 }
-.fuelux .datepicker-calendar-days td b,
 .fuelux .datepicker-calendar-days td button {
   color: #231f20;
   display: inline-block;
-  font-weight: normal;
   height: 30px;
   text-decoration: none;
   width: 30px;
-}
-.fuelux .datepicker-calendar-days td b {
-  line-height: 30px;
 }
 .fuelux .datepicker-calendar-days td span {
   display: block;
@@ -199,7 +187,6 @@
   background: #b7e3f8;
   text-decoration: none;
 }
-.fuelux .datepicker-calendar-days td.current-day b,
 .fuelux .datepicker-calendar-days td.current-day button {
   border: 1px solid #1d75bb;
 }
@@ -207,16 +194,13 @@
 .fuelux .datepicker-calendar-days td.next-month {
   background: #e3e2e1;
 }
-.fuelux .datepicker-calendar-days td.past b,
 .fuelux .datepicker-calendar-days td.past button {
   color: #8d8787;
 }
-.fuelux .datepicker-calendar-days td.restricted b,
 .fuelux .datepicker-calendar-days td.restricted button {
   cursor: no-drop;
   position: relative;
 }
-.fuelux .datepicker-calendar-days td.restricted b:before,
 .fuelux .datepicker-calendar-days td.restricted button:before {
   border-top: 1px solid #a94442;
   bottom: 0;
@@ -227,7 +211,6 @@
   right: 5px;
   top: 50%;
 }
-.fuelux .datepicker-calendar-days td.restricted b:hover,
 .fuelux .datepicker-calendar-days td.restricted button:hover {
   background: none;
 }
@@ -237,16 +220,11 @@
 .fuelux .datepicker-calendar-days td.selected span:hover {
   background: #0f5f9f;
 }
-.fuelux .datepicker-calendar-days td.selected b,
 .fuelux .datepicker-calendar-days td.selected button {
   color: #fff;
 }
 .fuelux .datepicker-calendar-days td.selected.current-day {
   box-shadow: 0 0 0 1px #fff offset;
-}
-.fuelux .datepicker-calendar-days td.selected.current-day span:hover b,
-.fuelux .datepicker-calendar-days td.selected.current-day span:hover button {
-  border-color: #0f5f9f;
 }
 .fuelux .datepicker-calendar-days th {
   font-weight: bold;
@@ -584,9 +562,6 @@
 .fuelux textarea.glass[disabled] {
   cursor: not-allowed;
 }
-.fuelux .input-group-addon {
-  padding: 6px 18px;
-}
 .fuelux [data-toggle="buttons"] > .btn > input[type="radio"],
 .fuelux [data-toggle="buttons"] > .btn > input[type="checkbox"] {
   display: inline;
@@ -822,13 +797,6 @@
 .fuelux .radio .radio-label:hover {
   color: #999999;
 }
-.fuelux .form-horizontal .radio-inline {
-  padding-top: 0;
-}
-.fuelux .input-group-addon.radio-custom.radio-inline:before {
-  left: 11px;
-  top: 9px;
-}
 .fuelux .radio-custom {
   position: relative;
   /* for keyboard tabbing */
@@ -1018,85 +986,11 @@
   line-height: 34px;
   margin-right: 10px;
 }
-.fuelux .repeater[data-currentview="list"] .repeater-canvas.scrolling {
-  overflow: visible;
-}
-.fuelux .repeater[data-currentview="list"] .repeater-canvas.scrolling .repeater-list {
-  bottom: 0;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.fuelux .repeater[data-currentview="list"] .repeater-canvas.scrolling .repeater-list-wrapper {
-  height: 100%;
-  overflow: auto;
-}
 .fuelux .repeater[data-currentview="list"] .repeater-loader {
   margin-top: -12px;
 }
 .fuelux .repeater[data-currentview="list"] .repeater-loader.noHeader {
   margin-top: -32px;
-}
-.fuelux .repeater[data-currentview="list"] .repeater-viewport {
-  overflow: hidden;
-}
-.fuelux .repeater-list {
-  position: relative;
-}
-.fuelux .repeater-list table {
-  margin-bottom: 0;
-  width: 100%;
-}
-.fuelux .repeater-list table tbody td {
-  border-bottom: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  border-top: none;
-}
-.fuelux .repeater-list table tbody td:first-child {
-  border-left: none;
-}
-.fuelux .repeater-list table tbody tr.empty td {
-  border-bottom: none;
-  font-style: italic;
-  padding: 20px;
-  text-align: center;
-  width: 100%;
-}
-.fuelux .repeater-list table tbody tr.selectable:hover {
-  background: #d9edf7;
-  cursor: pointer;
-}
-.fuelux .repeater-list table tbody tr.selected {
-  background: #66AFE9;
-  color: #fff;
-}
-.fuelux .repeater-list table tbody tr.selected:hover {
-  background: #428bca;
-}
-.fuelux .repeater-list table tbody tr.selected td:first-child {
-  padding-left: 30px;
-}
-.fuelux .repeater-list table thead > tr > th {
-  background: none;
-  border-bottom: 1px solid transparent;
-  border-left: 1px solid transparent;
-  border-top: none;
-  color: rgba(0, 0, 0, 0);
-  line-height: 1.42857;
-  padding: 8px;
-}
-.fuelux .repeater-list table thead > tr > th:first-child {
-  border-left: none;
-}
-.fuelux .repeater-list table thead > tr > th.sorted span.glyphicon {
-  display: block;
-  visibility: hidden;
-}
-.fuelux .repeater-list table thead > tr > th span.glyphicon {
-  display: none;
-  float: right;
-  margin-top: 2px;
 }
 .fuelux .repeater-list-check {
   display: inline-block;
@@ -1111,29 +1005,29 @@
   position: absolute;
   top: 2px;
 }
-.fuelux .repeater-list-heading {
-  background: #F9F9F9;
+.fuelux .repeater-list-header,
+.fuelux .repeater-list-items {
+  margin-bottom: 0;
+  width: 100%;
+}
+.fuelux .repeater-list-header td,
+.fuelux .repeater-list-items td {
   border-bottom: 1px solid #ddd;
   border-left: 1px solid #ddd;
   border-top: none;
-  color: #333;
-  line-height: 1.42857;
-  margin-left: -9px;
-  padding: 8px;
-  position: absolute;
-  top: 0;
-  z-index: 1;
 }
-.fuelux .repeater-list-heading.shifted {
-  margin-left: -1px;
+.fuelux .repeater-list-header td:first-child,
+.fuelux .repeater-list-items td:first-child {
+  border-left: none;
 }
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .fuelux .repeater-list-heading.shifted {
-    margin-left: 0;
-  }
+.fuelux .repeater-list-header {
+  background: #F9F9F9;
 }
-.fuelux .repeater-list-heading.sortable:hover,
-.fuelux .repeater-list-heading.sortable.sorted {
+.fuelux .repeater-list-header td {
+  font-weight: bold;
+}
+.fuelux .repeater-list-header td.sortable:hover,
+.fuelux .repeater-list-header td.sortable.sorted {
   background: #F1F1F1;
   cursor: pointer;
   background-color: #f1f1f1;
@@ -1145,44 +1039,59 @@
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff9f9f9', endColorstr='#ffe5e5e5', GradientType=0);
 }
-.fuelux .repeater-list-heading.sortable.sorted span.glyphicon {
+.fuelux .repeater-list-header td.sortable.sorted span.glyphicon {
   display: block;
-  visibility: visible;
 }
-.fuelux .repeater-list-heading span.glyphicon {
+.fuelux .repeater-list-header td span.glyphicon {
   display: none;
   float: right;
   margin-top: 2px;
+}
+.fuelux .repeater-list-items tr.empty td {
+  border-bottom: none;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+}
+.fuelux .repeater-list-items tr.selectable:hover {
+  background: #d9edf7;
+  cursor: pointer;
+}
+.fuelux .repeater-list-items tr.selected {
+  background: #66AFE9;
+  color: #fff;
+}
+.fuelux .repeater-list-items tr.selected:hover {
+  background: #428bca;
+}
+.fuelux .repeater-list-items tr.selected td:first-child {
+  padding-left: 30px;
+}
+.fuelux .repeater-list-wrapper {
+  overflow-y: auto;
 }
 .fuelux .repeater-thumbnail {
   border: 1px solid #ddd;
   color: #666;
   float: left;
-  min-height: 110px;
-  min-width: 100px;
-  margin: 8px 7px;
+  font-size: 12px;
+  height: 130px;
+  line-height: 36px;
+  margin: 10px 12px;
   text-align: center;
-}
-.fuelux .repeater-thumbnail.selectable:hover {
-  background: #d9edf7;
-  cursor: pointer;
-}
-.fuelux .repeater-thumbnail.selected {
-  background: #66AFE9;
-  color: #fff;
-}
-.fuelux .repeater-thumbnail.selected:hover {
-  background: #428bca;
+  width: 100px;
+  -webkit-box-shadow: 0 1px 4px 0 #ddd;
+  box-shadow: 0 1px 4px 0 #ddd;
 }
 .fuelux .repeater-thumbnail img {
   display: block;
-  margin-top: 10px;
-  margin-bottom: 3px;
+  margin-top: 12px;
 }
 .fuelux .repeater-thumbnail-cont {
   height: 100%;
   overflow-y: auto;
-  padding: 6px;
+  padding: 10px;
   width: 100%;
 }
 .fuelux .repeater-thumbnail-cont div.empty {
