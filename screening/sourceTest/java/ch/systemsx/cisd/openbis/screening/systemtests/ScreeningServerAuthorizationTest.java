@@ -32,6 +32,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 
 /**
@@ -44,30 +47,37 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
     private static final String TEST_USER = "test-user";
     private static final String SPACE_CODE = "CISD";
     
+    private ICommonServerForInternalUse commonServer;
+    private IScreeningServer screeningServer;
+    private IScreeningApiServer screeningApiServer;
     private String userSessionToken;
 
     @BeforeMethod
     public void setUp()
     {
-        ICommonServerForInternalUse commonServerInternal =
+        commonServer =
                 (ICommonServerForInternalUse) applicationContext
                         .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
-        String systemSessionToken = commonServerInternal.tryToAuthenticateAsSystem().getSessionToken();
-        if (hasSpace(systemSessionToken, SPACE_CODE) == false)
+        Object serverBean = applicationContext
+                .getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
+        screeningServer = (IScreeningServer) serverBean;
+        screeningApiServer = (IScreeningApiServer) serverBean;
+        String sessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
+        if (hasSpace(sessionToken, SPACE_CODE) == false)
         {
-            commonServerInternal.registerSpace(systemSessionToken, SPACE_CODE, null);
+            commonServer.registerSpace(sessionToken, SPACE_CODE, null);
         }
-        if (hasPerson(systemSessionToken, TEST_USER) == false)
+        if (hasPerson(sessionToken, TEST_USER) == false)
         {
-            commonServerInternal.registerPerson(systemSessionToken, TEST_USER);
+            commonServer.registerPerson(sessionToken, TEST_USER);
             Grantee grantee = Grantee.createPerson(TEST_USER);
-            commonServerInternal.registerSpaceRole(systemSessionToken, RoleCode.OBSERVER, new SpaceIdentifier(
+            commonServer.registerSpaceRole(sessionToken, RoleCode.OBSERVER, new SpaceIdentifier(
                     SPACE_CODE), grantee);
         }
-        userSessionToken = commonServerInternal.tryAuthenticate(TEST_USER, "abc").getSessionToken();
+        userSessionToken = commonServer.tryAuthenticate(TEST_USER, "abc").getSessionToken();
     }
 
-    private boolean hasSpace(String systemSessionToken, String spaceCode)
+    private boolean hasSpace(String sessionToken, String spaceCode)
     {
         List<Space> spaces =
                 commonServer.listSpaces(sessionToken, DatabaseInstanceIdentifier.HOME_INSTANCE);
@@ -81,7 +91,7 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
         return false;
     }
     
-    private boolean hasPerson(String systemSessionToken, String personID)
+    private boolean hasPerson(String sessionToken, String personID)
     {
         List<Person> persons = commonServer.listPersons(sessionToken);
         for (Person person : persons)

@@ -18,8 +18,8 @@ package ch.systemsx.cisd.common.image;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -262,7 +262,6 @@ public class MixColors
      * @param quadratic If <code>true</code>, use a quadratic (weighted) additive color mixture, otherwise use a linear (unweighted) additive color
      *            mixture.
      * @param saturationEnhancementFactor If > 0, perform a saturation enhancement step with the given factor.
-     * @whitePointColor output of the brightest color in the output mix
      * @return Returns the mixed image.
      */
     public static BufferedImage mixImages(BufferedImage[] images, Color[] colors,
@@ -270,23 +269,21 @@ public class MixColors
     {
         assert colors.length == images.length : "number of colors and images do not match";
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
         ColorMergingAlgorithm mergeColorsAlgorithm =
                 createColorMergingAlgorithm(quadratic, saturationEnhancementFactor, images);
 
         int width = images[0].getWidth();
         int height = images[0].getHeight();
         final BufferedImage mixed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < height; ++y)
+
+        for (int y = 0; y < images[0].getHeight(); ++y)
         {
-            for (int x = 0; x < width; ++x)
+            for (int x = 0; x < images[0].getWidth(); ++x)
             {
                 Color mixColor = mergeColorsAlgorithm.merge(colors, x, y, images);
                 mixed.setRGB(x, y, mixColor.getRGB());
             }
         }
-        operationLog.info("MIXING " + images.length + " images (" + width + "x" + height + ") took " + stopWatch);
         return mixed;
     }
 
@@ -329,6 +326,20 @@ public class MixColors
         for (int i = 0; i < numberOfImages; ++i)
         {
             isGrayscale = isGrayscale && images[i].getColorModel().getNumColorComponents() == 1;
+            ColorModel colorModel = images[i].getColorModel();
+            int componentSize;
+            try
+            {
+                componentSize = colorModel.getComponentSize(0);
+            } catch (NullPointerException e)
+            {
+                operationLog.info("Could not determine the componentSize of an image. Potentially using non 8-bit image in merging");
+                continue;
+            }
+            if (componentSize != 8)
+            {
+                throw new IllegalArgumentException("Only 8-bit images can be merged.");
+            }
         }
         return createColorMergingAlgorithm(quadratic, saturationEnhancementFactor, isGrayscale,
                 numberOfImages);

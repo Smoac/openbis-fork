@@ -610,8 +610,7 @@ public class SimpleImageDataSetRegistrator
                                                 imageFile.getPath()));
                         return null;
                     }
-                    IntensityRescaling.addToLevelStats(histogram, DssScreeningUtils.createPixels(image), 
-                            ch.systemsx.cisd.common.image.IntensityRescaling.Channel.RED);
+                    IntensityRescaling.addToLevelStats(histogram, image);
                 }
             } catch (Exception ex)
             {

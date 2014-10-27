@@ -6,12 +6,10 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
-import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
-import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
  * Transformation performed by
- * {@link IntensityRescaling#rescaleIntensityBitShiftTo8Bits(Pixels, int)}
+ * {@link IntensityRescaling#rescaleIntensityBitShiftTo8Bits(java.awt.image.BufferedImage, int)}
  * <p>
  * Warning: The serialized version of this class can be stored in the database for each image.
  * Moving this class to a different package or changing it in a backward incompatible way would make
@@ -43,8 +41,7 @@ final class BitShiftingImageTransformerFactory implements IImageTransformerFacto
                     {
                         return image;
                     }
-                    Pixels pixels = DssScreeningUtils.createPixels(image);
-                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(pixels, shiftBits);
+                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(image, shiftBits);
                 }
             };
     }

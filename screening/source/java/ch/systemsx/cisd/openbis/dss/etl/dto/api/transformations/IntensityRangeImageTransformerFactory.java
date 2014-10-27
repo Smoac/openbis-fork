@@ -25,11 +25,9 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
-import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
-import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
- * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(Pixels, Levels, Channel...)}.
+ * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)}.
  * <p>
  * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
  * in a backward incompatible way would make all the saved transformations invalid.
@@ -72,17 +70,15 @@ public class IntensityRangeImageTransformerFactory implements IImageTransformerF
                     Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
-                        Pixels pixels = DssScreeningUtils.createPixels(image);
                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
                         if (channels.size() != 1)
                         {
-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                         }
-                        Channel channel = channels.iterator().next();
-                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, channel);
+                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                                channels.iterator().next());
                     }
-                    Pixels pixels = DssScreeningUtils.createPixels(image);
-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
             };
     }

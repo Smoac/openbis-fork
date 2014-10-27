@@ -35,15 +35,4 @@ public class HCSImageDatasetLoaderFactory
     {
         return ImagingDatasetLoader.tryCreate(DssScreeningUtils.getQuery(), datasetCode, content);
     }
-
-    public static IImagingDatasetLoader create(IHierarchicalContent content, String datasetCode)
-    {
-        IImagingDatasetLoader loader = tryCreate(content, datasetCode);
-        if (loader == null)
-        {
-            throw new IllegalStateException(String.format(
-                    "Dataset '%s' not found in the imaging database.", datasetCode));
-        }
-        return loader;
-    }
 }

@@ -17,6 +17,8 @@
 package ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.util.EnumSet;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import ch.systemsx.cisd.base.image.IImageTransformer;
@@ -24,18 +26,13 @@ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.image.IntensityRescaling;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
 import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
-import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
-import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
-import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
 
 /**
- * Transformation performed by
- * {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(Pixels, Levels, Channel...)} where levels are
- * computed automatically by {@link IntensityRescaling#computeLevels(Pixels, float, Channel...)}.
+ * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)} where levels are computed automatically
+ * by {@link IntensityRescaling#computeLevels(BufferedImage, float)}.
  * <p>
- * Warning: The serialized version of this class can be stored in the database for each image.
- * Moving this class to a different package or changing it in a backward incompatible way would make
- * all the saved transformations invalid.
+ * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+ * in a backward incompatible way would make all the saved transformations invalid.
  * 
  * @author Tomasz Pylak
  */
@@ -61,19 +58,41 @@ public class AutoRescaleIntensityImageTransformerFactory implements IImageTransf
                 {
                     if (IntensityRescaling.isNotGrayscale(image))
                     {
-                        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
-                        if (channel == null)
+                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+                        if (channels.size() != 1)
                         {
                             return image;
+                        } else
+                        {
+                            Channel channel = channels.iterator().next();
+                            Levels levels =
+                                    IntensityRescaling.computeLevels(toGrayScale(image, channel),
+                                            threshold);
+                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+                                    channel);
                         }
-                        Pixels pixels = DssScreeningUtils.createPixels(image);
-                        Levels levels = IntensityRescaling.computeLevels(pixels, threshold, channel);
-                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
                     }
-                    Pixels pixels = DssScreeningUtils.createPixels(image);
-                    Levels levels = IntensityRescaling.computeLevels(pixels, threshold, Channel.RED);
-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.RED);
+                    Levels levels = IntensityRescaling.computeLevels(toGrayScale(image, Channel.RED), threshold);
+                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
                 }
             };
+    }
+
+    private BufferedImage toGrayScale(BufferedImage image, Channel channel)
+    {
+        BufferedImage gray =
+                new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        WritableRaster raster = gray.getRaster();
+
+        for (int y = 0; y < image.getHeight(); y++)
+        {
+            for (int x = 0; x < image.getWidth(); x++)
+            {
+                int value = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
+                raster.setPixel(x, y, new int[]
+                { value });
+            }
+        }
+        return gray;
     }
 }

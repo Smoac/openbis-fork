@@ -40,7 +40,7 @@ public class AbsoluteImageReference extends AbstractImageReference
 
     private final RequestedImageSize imageSize;
 
-    private final ImageTransfomationFactories imageTransformationFactories;
+    private final ImageTransfomationFactories imageTransfomationFactories;
 
     private final ImageLibraryInfo imageLibraryOrNull;
 
@@ -71,7 +71,7 @@ public class AbsoluteImageReference extends AbstractImageReference
         this.uniqueId = uniqueId;
         this.imageSize = imageSize;
         this.channelColor = channelColor;
-        this.imageTransformationFactories = imageTransfomationFactories;
+        this.imageTransfomationFactories = imageTransfomationFactories;
         this.imageLibraryOrNull = imageLibraryOrNull;
         this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
         this.channelCodeOrNull = channelCodeOrNull;
@@ -143,7 +143,8 @@ public class AbsoluteImageReference extends AbstractImageReference
         {
             return image.getColorModel().getPixelSize();
         }
-        return Utils.loadUnchangedImageColorDepth(contentNode, tryGetImageID(), imageLibraryOrNull);
+        return Utils.loadUnchangedImageColorDepth(contentNode, channelCodeOrNull,
+                imageLibraryOrNull);
     }
 
     public RequestedImageSize getRequestedSize()
@@ -151,9 +152,9 @@ public class AbsoluteImageReference extends AbstractImageReference
         return imageSize;
     }
 
-    public ImageTransfomationFactories getImageTransformationFactories()
+    public ImageTransfomationFactories getImageTransfomationFactories()
     {
-        return imageTransformationFactories;
+        return imageTransfomationFactories;
     }
 
     public ChannelColorRGB getChannelColor()
@@ -178,7 +179,7 @@ public class AbsoluteImageReference extends AbstractImageReference
     {
         ColorComponent colorComponent = null;
         return new AbsoluteImageReference(contentNode, uniqueId, tryGetImageID(), colorComponent,
-                imageSize, channelColor, imageTransformationFactories, imageLibraryOrNull,
+                imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull,
                 singleChannelTransformationCodeOrNull, null);
     }
 }

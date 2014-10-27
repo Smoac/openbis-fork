@@ -39,7 +39,6 @@ import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
-import ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -255,18 +254,17 @@ abstract public class AbstractDatasetDownloadServlet extends HttpServlet
     }
 
     protected static final BufferedImage createThumbnail(IHierarchicalContentNode fileNode,
-            Size thumbnailSize, IImageToPixelsConverter converterOrNull)
+            Size thumbnailSize)
     {
-        BufferedImage image = ImageUtil.loadImageForDisplay(fileNode, converterOrNull);
-        return createThumbnail(image, thumbnailSize, converterOrNull);
+        BufferedImage image = ImageUtil.loadImageForDisplay(fileNode);
+        return createThumbnail(image, thumbnailSize);
     }
 
-    protected static final BufferedImage createThumbnail(BufferedImage image, Size thumbnailSize, 
-            IImageToPixelsConverter converterOrNull)
+    protected static final BufferedImage createThumbnail(BufferedImage image, Size thumbnailSize)
     {
         int width = thumbnailSize.getWidth();
         int height = thumbnailSize.getHeight();
-        return ImageUtil.createThumbnailForDisplay(image, width, height, converterOrNull);
+        return ImageUtil.createThumbnailForDisplay(image, width, height);
     }
 
     // if display mode describes a thumbnail return its expected size

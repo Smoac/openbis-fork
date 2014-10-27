@@ -334,7 +334,6 @@ public abstract class SystemTestCase extends AssertJUnit
 
     protected void moveFileToIncoming(File exampleDataSet) throws IOException
     {
-        operationLog.info("Drop an example data set for " + getClass().getSimpleName());
         FileUtils.moveDirectoryToDirectory(exampleDataSet, getIncomingDirectory(), false);
     }
 

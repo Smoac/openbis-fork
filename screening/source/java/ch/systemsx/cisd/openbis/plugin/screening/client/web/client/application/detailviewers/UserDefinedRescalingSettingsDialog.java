@@ -132,7 +132,7 @@ public class UserDefinedRescalingSettingsDialog extends Dialog
         for (SingleChannelIntesityRange scir : this.intensitiesPerChannel)
         {
             scir.minTextField.setValue(0);
-            scir.maxTextField.setValue(255);
+            scir.maxTextField.setValue(65535);
 
             IntensityRange range = intensitiesPerChannel.get(scir.channelCode.getItem());
             if (range != null)

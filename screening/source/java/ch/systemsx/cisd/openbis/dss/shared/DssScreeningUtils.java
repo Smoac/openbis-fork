@@ -16,17 +16,11 @@
 
 package ch.systemsx.cisd.openbis.dss.shared;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-
 import javax.sql.DataSource;
 
-import loci.formats.gui.Index16ColorModel;
 import net.lemnik.eodsql.QueryTool;
 
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
-import ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter;
-import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
@@ -40,16 +34,7 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.Trans
  */
 public class DssScreeningUtils
 {
-    public static final IImageToPixelsConverter CONVERTER = new IImageToPixelsConverter()
-        {
-            @Override
-            public Pixels convert(BufferedImage image)
-            {
-                return createPixels(image);
-            }
-        };
-
-    private static IImagingReadonlyQueryDAO query;
+    private static final IImagingReadonlyQueryDAO query = createQuery();
 
     static
     {
@@ -61,15 +46,12 @@ public class DssScreeningUtils
      */
     public static IImagingReadonlyQueryDAO getQuery()
     {
-        if (query == null)
-        {
-            query = createQuery();
-        }
         return query;
     }
 
     /**
-     * Creates a DAO based on imaging database specified in DSS service.properties by data source {@link ScreeningConstants#IMAGING_DATA_SOURCE}.
+     * Creates a DAO based on imaging database specified in DSS service.properties by data source
+     * {@link ScreeningConstants#IMAGING_DATA_SOURCE}.
      * <p>
      * Returned query is reused and should not be closed.
      * </p>
@@ -83,7 +65,8 @@ public class DssScreeningUtils
     }
 
     /**
-     * Creates a new query each time when it is called. Returned query should be closed after all operations are done.
+     * Creates a new query each time when it is called. Returned query should be closed after all
+     * operations are done.
      */
     public static IImagingTransformerDAO createImagingTransformerDAO()
     {
@@ -92,38 +75,5 @@ public class DssScreeningUtils
                         ScreeningConstants.IMAGING_DATA_SOURCE);
         return QueryTool.getQuery(dataSource, IImagingTransformerDAO.class);
     }
-    
-    /**
-     * Creates {@link Pixels} wrapper object for the specified image which can also handle
-     * 16bit index color models. Such color models are used when reading Nikon microscopy
-     * image files with ND2Reader of BioFormats.
-     */
-    public static Pixels createPixels(BufferedImage image)
-    {
-        return new Pixels(image)
-            {
-                @Override
-                protected int[][] tryCreateColorIndexMap(ColorModel colorModel)
-                {
-                    int[][] indexMap = super.tryCreateColorIndexMap(colorModel);
-                    if (indexMap == null && colorModel instanceof Index16ColorModel)
-                    {
-                        Index16ColorModel indexColorModel = (Index16ColorModel) colorModel;
-                        indexMap = new int[3][1 << 16];
-                        copyTo(indexColorModel.getReds(), indexMap[0]);
-                        copyTo(indexColorModel.getGreens(), indexMap[1]);
-                        copyTo(indexColorModel.getBlues(), indexMap[2]);
-                    }
-                    return indexMap;
-                }
 
-                private void copyTo(short[] shorts, int[] integers)
-                {
-                    for (int i = 0; i < shorts.length; i++)
-                    {
-                        integers[i] = shorts[i] & 0xffff;
-                    }
-                }
-            };
-    }
 }
