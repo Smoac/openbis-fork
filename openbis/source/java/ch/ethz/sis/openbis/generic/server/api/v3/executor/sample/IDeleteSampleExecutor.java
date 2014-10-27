@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.sample;
+
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 
 /**
  * @author pkupczyk
  */
-public class DeletionId
+public interface IDeleteSampleExecutor
 {
+
+    public IDeletionId delete(IOperationContext context, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions);
 
 }

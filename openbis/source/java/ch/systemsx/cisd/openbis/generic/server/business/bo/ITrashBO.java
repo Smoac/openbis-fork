@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.generic.server.business.bo;
 import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 
 /**
  * Handles the trash of entities.
@@ -27,6 +28,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
  */
 public interface ITrashBO
 {
+
+    public DeletionPE getDeletion();
+
     public void createDeletion(String reason);
 
     public void trashSamples(List<TechId> sampleIds);

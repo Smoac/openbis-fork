@@ -65,6 +65,12 @@ public class TrashBO extends AbstractBusinessObject implements ITrashBO
     }
 
     @Override
+    public DeletionPE getDeletion()
+    {
+        return deletion;
+    }
+
+    @Override
     public void createDeletion(String reason)
     {
         try

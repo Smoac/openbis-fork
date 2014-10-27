@@ -28,9 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IListExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IListSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
@@ -108,6 +110,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IListExperimentByIdExecutor listExperimentByIdExecutor;
 
     @Autowired
+    private ICreateExperimentExecutor createExperimentExecutor;
+
+    @Autowired
+    private IUpdateExperimentExecutor updateExperimentExecutor;
+
+    @Autowired
+    private IDeleteExperimentExecutor deleteExperimentExecutor;
+
+    @Autowired
     private IListSampleByIdExecutor listSampleByIdExecutor;
 
     @Autowired
@@ -117,10 +128,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IUpdateSampleExecutor updateSampleExecutor;
 
     @Autowired
-    private ICreateExperimentExecutor createExperimentExecutor;
-
-    @Autowired
-    private IUpdateExperimentExecutor updateExperimentExecutor;
+    private IDeleteSampleExecutor deleteSampleExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -358,8 +366,20 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Capability("DELETE_EXPERIMENT")
     public IDeletionId deleteExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            return deleteExperimentExecutor.delete(context, experimentIds, deletionOptions);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
+            // the clear is necessary, as deleting experiments involves sql queries, that are not visible to cached PE objects
+            getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
     }
 
     @Override
@@ -369,8 +389,20 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Capability("DELETE_SAMPLE")
     public IDeletionId deleteSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            return deleteSampleExecutor.delete(context, sampleIds, deletionOptions);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
+            // the clear is necessary, as deleting samples involves sql queries, that are not visible to cached PE objects
+            getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
     }
 
     @Override
