@@ -64,6 +64,34 @@ function SampleTableController(mainController, experimentIdentifier) {
 				label : 'Code',
 				property : 'code',
 				sortable : true
+			}, {
+				label : 'Preview',
+				property : 'preview',
+				sortable : false,
+				render : function(data) {
+					var previewContainer = $("<div>");
+					mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
+						data.result.forEach(function(dataset) {
+							var listFilesForDataSetCallback = function(dataFiles) {
+								var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+								var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
+								previewImage.click(function(event) {
+									Util.showImage(downloadUrl);
+									event.stopPropagation();
+								});
+								previewContainer.append(previewImage);
+							};
+							mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
+						});
+					});
+					return previewContainer;
+				},
+				filter : function(data, filter) {
+					return false;
+				},
+				sort : function(data1, data2, asc) {
+					return 0;
+				}
 			}];
 			
 			
@@ -78,7 +106,7 @@ function SampleTableController(mainController, experimentIdentifier) {
 			columns.push({
 				label : "Operations",
 				property : 'operations',
-				sortable : true,
+				sortable : false,
 				render : function(data) {
 					//Dropdown Setup
 					var $dropDownMenu = $("<span>", { class : 'dropdown' });
