@@ -32,7 +32,6 @@ $.extend(DefaultProfile.prototype, {
 		//
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
-		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
 		this.inventorySpaces = ["INVENTORY"];
 		
 		this.isInventorySpace = function(spaceCode) {
