@@ -33,7 +33,6 @@ $.extend(DefaultProfile.prototype, {
 		
 		this.searchDomains = [ { "@id" : -1, "@type" : "GobalSearch", label : "Global", name : "global"}];
 		this.ELNExperiments = ["SYSTEM_EXPERIMENT"];
-		this.notShowTypes = ["SYSTEM_EXPERIMENT"];
 		this.inventorySpaces = ["INVENTORY"];
 		
 		this.isInventorySpace = function(spaceCode) {
@@ -427,14 +426,7 @@ $.extend(DefaultProfile.prototype, {
 		}
 		
 		this.getAllSampleTypes = function() {
-			var sampleTypes = [];
-			for(var i = 0; i < this.allSampleTypes.length; i++) {
-				var sampleType = this.allSampleTypes[i];
-				if($.inArray(sampleType.code, this.notShowTypes) === -1) {
-					sampleTypes.push(sampleType);
-				}
-			}
-			return sampleTypes;
+			return this.allSampleTypes;
 		}
 		
 		this.initPropertyTypes = function(callback) {

@@ -56,30 +56,6 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 		// Create Sub Experiment
 		//
 		if(this._experimentFormModel.mode === FormMode.VIEW) {
-			var $createSubExpBtn = $("<a>", { "class" : "btn btn-default"}).append("Create Sub Experiment");
-			$createSubExpBtn.click(function() {
-				var $dropdown = FormUtil.getSampleTypeDropdown("sampleTypeDropdown", true);
-				Util.blockUI("Select the type for the sub Experiment: <br><br>" + $dropdown[0].outerHTML + "<br> or <a class='btn btn-default' id='sampleTypeDropdownCancel'>Cancel</a>");
-				
-				$("#sampleTypeDropdown").on("change", function(event) {
-					var sampleTypeCode = $("#sampleTypeDropdown")[0].value;
-					var argsMap = {
-							"sampleTypeCode" : sampleTypeCode,
-							"experimentIdentifier" : _this._experimentFormModel.experiment.identifier
-					}
-					var argsMapStr = JSON.stringify(argsMap);
-					
-					Util.unblockUI();
-					mainController.changeView("showCreateSubExperimentPage", argsMapStr);
-				});
-				
-				$("#sampleTypeDropdownCancel").on("click", function(event) { 
-					Util.unblockUI();
-				});
-			});
-			$formTitle.append("&nbsp;");
-			$formTitle.append($createSubExpBtn);
-			
 			var $editBtn = $("<a>", { "class" : "btn btn-default"}).append("<span class='glyphicon glyphicon-edit'></span> Enable Editing");
 			$editBtn.click(function() {
 				mainController.changeView("showEditExperimentPageFromIdentifier", _this._experimentFormModel.experiment.identifier);
@@ -230,36 +206,7 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			$formColumn.append($fieldset);
 		}
 		
-		if(this._experimentFormModel.mode === FormMode.VIEW || this._experimentFormModel.mode === FormMode.EDIT) {
-			var $subExperiments = $('<div>').append($('<legend>').text("Sub Experiments"));
-			var $subExperimentsList = $('<div>', { "id" : "samplesDataSource" });
-			$subExperiments.append($subExperimentsList);
-			this._experimentFormController._mainController.serverFacade.listSamplesForExperiments([this._experimentFormModel.experiment], function(data) {
-				if(data.result && data.result.length > 0) {
-					//Table Structure
-					var $table = $("<table>", { class : "table" });
-					var $thead = $("<thead>");
-					var $tbody = $("<tbody>");
-					$table.append($thead).append($tbody);
-					$thead.append($("<tr>").append("<th>Code</th>").append("<th>Name</th>").append("<th>Type</th>").append("<th>Metadata</th>"));
-					for(var i = 0; i < data.result.length; i++) {
-						var subExperiment = data.result[i];
-						var link = $("<a>", { "style" : "cursor:pointer;" }).append(subExperiment.code);
-						var clickFunction = function(permId) {
-							return function() {
-								_this._experimentFormController._mainController.changeView("showViewSamplePageFromPermId", permId);
-							}
-						}
-						link.click(clickFunction(subExperiment.permId));
-						$tbody.append($("<tr>").append($("<td>").append(link)).append("<td>" + Util.getEmptyIfNull(subExperiment.properties[profile.propertyReplacingCode]) + "</td>").append("<td>" + subExperiment.sampleTypeCode + "</td>").append("<td>" + Util.getMapAsString(subExperiment.properties, 200) + "</td>"));
-					}
-					$subExperimentsList.append($table);
-				} else {
-					$subExperimentsList.append("This experiment don't have sub experiments.");
-				}
-			});
-			$formColumn.append($subExperiments);
-		}
+		//Create/Update Buttons
 		if(this._experimentFormModel.mode === FormMode.EDIT || this._experimentFormModel.mode === FormMode.CREATE) {
 			var label = "";
 			
@@ -272,6 +219,13 @@ function ExperimentFormView(experimentFormController, experimentFormModel) {
 			var $updateBtn = $("<input>", { "type": "submit", "class" : "btn btn-primary", 'value' : label });
 			$formColumn.append($updateBtn);
 		}
+		
+		//Sample List Container
+		$formColumn.append($("<legend>").append("Samples"));
+		var sampleListContainer = $("<div>");
+		$formColumn.append(sampleListContainer);
+		var sampleList = new SampleTableController(this._experimentFormController, null, this._experimentFormModel.experiment.identifier);
+		sampleList.init(sampleListContainer);
 		
 		$container.append($form);
 		

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-function SampleTableModel(experimentIdentifier) {
+function SampleTableModel(title, experimentIdentifier) {
+	this.title = title;
 	this.experimentIdentifier = experimentIdentifier;
 	this.sampleTypesOnExperiment = {};
 	this.allSamplesFromExperiment = new Array();

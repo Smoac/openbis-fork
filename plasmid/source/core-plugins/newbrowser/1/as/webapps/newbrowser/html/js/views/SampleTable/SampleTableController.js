@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-function SampleTableController(mainController, experimentIdentifier) {
-	this._mainController = mainController;
-	this._sampleTableModel = new SampleTableModel(experimentIdentifier);
+function SampleTableController(parentController, title, experimentIdentifier) {
+	this._parentController = parentController;
+	this._sampleTableModel = new SampleTableModel(title, experimentIdentifier);
 	this._sampleTableView = new SampleTableView(this, this._sampleTableModel);
 	
 	this.init = function($container) {

@@ -20,8 +20,10 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.repaint = function($container) {
 		$container.empty();
-		var $title = $("<h1>").append(this._sampleTableModel.experimentIdentifier + " Samples");
-		$container.append($title);
+		if(this._sampleTableModel.title) {
+			var $title = $("<h1>").append(this._sampleTableModel.title);
+			$container.append($title);
+		}
 		
 		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
 		$toolbox.append(this._getExperimentSampleTypesDropdown()).append(" ").append(this._getOptionsMenu());

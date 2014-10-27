@@ -384,17 +384,9 @@ function MainController(profile) {
 	}
 	
 	this._showSamplesPage = function(experimentIdentifier) {
-		var sampleTableController = new SampleTableController(this, experimentIdentifier);
+		var sampleTableController = new SampleTableController(this, experimentIdentifier + " Samples", experimentIdentifier);
 		sampleTableController.init($("#mainContainer"));
 		this.currentView = sampleTableController;
-//		//Update menu
-//		var sampleType = this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
-//		
-//		//Show Sample Table
-//		var sampleTable = new SampleTable(this.serverFacade, "mainContainer", this.profile, sampleTypeCode, true, true, false, false, false, this.inspector);
-//		sampleTable.init();
-//		
-//		this.currentView = sampleTable;
 	}
 
 	this._showSampleHierarchyPage = function(permId) {
