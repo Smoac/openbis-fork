@@ -289,24 +289,95 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 					var sampleType = _this.profile.getSampleTypeForSampleTypeCode(sampleTypeCode);
 					
 					if(sampleType !== null) {
-						//Clear last state
-						if(_this._lastUsedId) {
-							$('#'+_this._lastUsedId + "-table").empty();
-							$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
-						}
-						//Put new state
-						var onClick = function(sample) {
-							$('#'+_this._lastUsedId + "-table").empty();
-							$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
-							_this.removeSample(sampleId);
-							_this.addSample(sample);
-							$("#" + id).css({"background-color" : "#FFFFFF" });
-						}
-						$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
-						var	sampleTable = new SampleTable(_this.serverFacade,tableId,_this.profile, sampleTypeCode, false, false, onClick, false, true);
-						sampleTable.init();
-						//Store new state
-						_this._lastUsedId = id;
+						
+						mainController.serverFacade.searchWithType(sampleTypeCode, null, function(samples) {
+							//Clear last state
+							if(_this._lastUsedId) {
+								$('#'+_this._lastUsedId + "-table").empty();
+								$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
+							}
+							//Put new state
+							var rowClick = function(e) {
+								$('#'+_this._lastUsedId + "-table").empty();
+								$("#"+_this._lastUsedId).css({"background-color" : "#FFFFFF" });
+								_this.removeSample(sampleId);
+								mainController.serverFacade.searchWithUniqueId(e.data.permId, function(data) {
+									_this.addSample(data[0]);
+								});
+								$("#" + id).css({"background-color" : "#FFFFFF" });
+							}
+							$("#" + id).css({"border-radius" : "10px", "padding" : "10px", "background-color" : "#EEEEEE" });
+							
+							//Create grid model for sample type
+							var propertyCodes = profile.getAllPropertiCodesForTypeCode(sampleTypeCode);
+							var propertyCodesDisplayNames = profile.getPropertiesDisplayNamesForTypeCode(sampleTypeCode, propertyCodes);
+							
+							//Fill Columns model
+							var columns = [ {
+								label : 'Code',
+								property : 'code',
+								sortable : true
+							}, {
+								label : 'Preview',
+								property : 'preview',
+								sortable : false,
+								render : function(data) {
+									var previewContainer = $("<div>");
+									mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
+										data.result.forEach(function(dataset) {
+											var listFilesForDataSetCallback = function(dataFiles) {
+												var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+												var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
+												previewImage.click(function(event) {
+													Util.showImage(downloadUrl);
+													event.stopPropagation();
+												});
+												previewContainer.append(previewImage);
+											};
+											mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
+										});
+									});
+									return previewContainer;
+								},
+								filter : function(data, filter) {
+									return false;
+								},
+								sort : function(data1, data2, asc) {
+									return 0;
+								}
+							}];
+							
+							
+							for (var idx = 0; idx < propertyCodes.length; idx++) {
+								columns.push({
+									label : propertyCodesDisplayNames[idx],
+									property : propertyCodes[idx],
+									sortable : true
+								});
+							}
+							
+							//Fill data model
+							var getDataList = function(callback) {
+								var dataList = [];
+								for(var sIdx = 0; sIdx < samples.length; sIdx++) {
+									var sample = samples[sIdx];
+									var sampleModel = { 'code' : sample.code, 'permId' : sample.permId };
+									for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
+										var property = propertyCodes[pIdx];
+										sampleModel[property] = sample.properties[property];
+									}
+									dataList.push(sampleModel);
+								}
+								callback(dataList);
+							};
+							
+							var dataGrid = new DataGridController(null, columns, getDataList, rowClick);
+							dataGrid.init($("#" + tableId));
+							
+							//Store new state
+							_this._lastUsedId = id;
+						});
+						
 					} else {
 						_this._addAny(id, tableId, sampleId);
 					}
@@ -323,7 +394,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			$component.append($label);
 			$component.append($controls);
 			
-			$component.append($("<div>", { "id" : tableId}));
+			$component.append($("<div>", { "id" : tableId, 'style' : 'clear: both;' }));
 		return $component;
 	}
 	
