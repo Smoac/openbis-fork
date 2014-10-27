@@ -534,17 +534,126 @@ function MainController(profile) {
 					$("#search").addClass("search-query-searching");
 					if(!searchDomain || searchDomain === profile.getSearchDomains()[0].name) { //Global Search
 						localReference.serverFacade.searchWithText(value, function(data) {
-							if(localSearchId === localReference.lastSearchId) {
-								$("#search").removeClass("search-query-searching");
-								//Update Main Container
-								var sampleTable = new SampleTable(localReference.serverFacade, "mainContainer", localReference.profile, localReference.profile.searchType["TYPE"], true, false, false, true, false, localReference.inspector);
-								sampleTable.reloadWithSamples(data);
-								localReference.currentView = sampleTable;
-								Util.unblockUI();
-								history.pushState(null, "", ""); //History Push State
-							} else {
-								//Discard old response, was triggered but a new one was started
+							var columns = [ {
+								label : 'Code',
+								property : 'code',
+								sortable : true
+							}, {
+								label : 'Preview',
+								property : 'preview',
+								sortable : false,
+								render : function(data) {
+									var previewContainer = $("<div>");
+									mainController.serverFacade.searchDataSetsWithTypeForSamples("ELN_PREVIEW", [data.permId], function(data) {
+										data.result.forEach(function(dataset) {
+											var listFilesForDataSetCallback = function(dataFiles) {
+												var downloadUrl = profile.allDataStores[0].downloadUrl + '/' + dataset.code + "/" + dataFiles.result[1].pathInDataSet + "?sessionID=" + mainController.serverFacade.getSession();
+												var previewImage = $("<img>", { 'src' : downloadUrl, 'class' : 'zoomableImage', 'style' : 'height:80px;' });
+												previewImage.click(function(event) {
+													Util.showImage(downloadUrl);
+													event.stopPropagation();
+												});
+												previewContainer.append(previewImage);
+											};
+											mainController.serverFacade.listFilesForDataSet(dataset.code, "/", true, listFilesForDataSetCallback);
+										});
+									});
+									return previewContainer;
+								},
+								filter : function(data, filter) {
+									return false;
+								},
+								sort : function(data1, data2, asc) {
+									return 0;
+								}
+							}, {
+								label : 'Sample Type',
+								property : 'sampleTypeCode',
+								sortable : true
+							}, {
+								label : 'Matched Text',
+								property : 'matchedText',
+								sortable : true
+							}, {
+								label : 'Matched Field',
+								property : 'matchedField',
+								sortable : true
+							}, {
+								label : 'Properties',
+								property : 'properties',
+								sortable : true,
+								render : function(data) {
+									var toShow = data.properties;
+									if(data.properties.length > 200) {
+										toShow = toShow.substring(0, 200) + "...";
+									}
+									return toShow;
+								},
+								filter : function(data, filter) {
+									return false;
+								},
+								sort : function(data1, data2, asc) {
+									return 0;
+								}
+							}];
+							
+							var getDataList = function(callback) {
+								var dataList = [];
+								var searchRegexp = new RegExp(value, "i");
+								var matchedText = null;
+								var matchedField = null;
+								
+								//Check Properties
+								for(var i = 0; i < data.length; i++) {
+									var sample = data[i];
+									for (propertyName in sample.properties) {
+										var propertyValue = sample.properties[propertyName];
+										if (propertyValue && searchRegexp.test(propertyValue)) {
+											var cleanPropertyValue = ""
+											
+											if(propertyValue.indexOf("<root>") != -1) {
+												if(profile.getHTMLTableFromXML) {
+													return profile.getHTMLTableFromXML(propertyValue);
+												} else {
+													if(propertyValue) {
+														propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
+													}
+													cleanPropertyValue = propertyValue;
+												}
+											} else {
+												if(propertyValue) {
+													propertyValue = Util.replaceURLWithHTMLLinks(propertyValue);
+												}
+												cleanPropertyValue = propertyValue;
+											}
+											
+											matchedText = cleanPropertyValue;
+											matchedField = propertyName;
+											break;
+										}
+									}
+									
+									//properties
+									dataList.push({
+										permId : sample.permId,
+										code : sample.code,
+										sampleTypeCode : sample.sampleTypeCode,
+										matchedText : matchedText,
+										matchedField : matchedField,
+										properties : Util.getMapAsString(sample.properties)
+									});
+								}
+								callback(dataList);
+							};
+							
+							var rowClick = function(e) {
+								mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
 							}
+							
+							var dataGrid = new DataGridController("Search Results", columns, getDataList, rowClick);
+							localReference.currentView = dataGrid;
+							dataGrid.init($("#mainContainer"));
+							history.pushState(null, "", ""); //History Push State
 						});
 					} else { //Search Domain
 						localReference.serverFacade.searchOnSearchDomain(searchDomain, value, function(data) {
