@@ -15,6 +15,8 @@
  */
 package ch.systemsx.cisd.etlserver.plugins;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -46,10 +48,14 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             LogFactory.getLogger(LogCategory.OPERATION, AbstractDataSetDeletionPostProcessingMaintenanceTask.class);
 
     protected static final String DELAY_AFTER_DELETION = "delay-after-user-deletion";
+    
+    protected static final String CHUNK_SIZE = "chunk-size";
 
     protected final IEncapsulatedOpenBISService openBISService;
 
     protected long delayAfterDeletion;
+    
+    protected int chunkSize;
 
     ITimeProvider timeProvider;
 
@@ -69,8 +75,8 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
     public void setUp(String pluginName, Properties properties)
     {
         int delayInMinutes = PropertyUtils.getInt(properties, DELAY_AFTER_DELETION, 0);
-
         delayAfterDeletion = delayInMinutes * DateUtils.MILLIS_PER_MINUTE;
+        chunkSize = PropertyUtils.getInt(properties, CHUNK_SIZE, Integer.MAX_VALUE);
     }
 
     @Override
@@ -85,6 +91,16 @@ public abstract class AbstractDataSetDeletionPostProcessingMaintenanceTask imple
             Long lastSeenEventId = getLastSeenEventId();
             List<DeletedDataSet> deletedDataSets =
                     openBISService.listDeletedDataSets(lastSeenEventId, computeMaxDeletionDate());
+            if (deletedDataSets.size() > chunkSize) {
+                Collections.sort(deletedDataSets, new Comparator<DeletedDataSet>() {
+                    @Override
+                    public int compare(DeletedDataSet arg0, DeletedDataSet arg1)
+                    {
+                        return new Long(arg0.getEventId()).compareTo(new Long(arg1.getEventId()));
+                    }
+                });
+                deletedDataSets = deletedDataSets.subList(0, chunkSize);
+            }
             if (deletedDataSets.size() > 0)
             {
                 
