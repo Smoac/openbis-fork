@@ -79,7 +79,7 @@ $.extend(Grid.prototype, {
 			});
 		});
 
-		// add a dummy empty column (repeater does not properly handle visibility of the last column)
+		// HACK: Add a dummy empty column (repeater does not properly handle visibility of the last column)
 		columns.push({
 			label : null,
 			property : null,
@@ -197,6 +197,7 @@ $.extend(Grid.prototype, {
 			setTimeout(function() {
 				thisGrid.result = result;
 				callback(result);
+				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid
 			}, 1);
 		});
 	},
