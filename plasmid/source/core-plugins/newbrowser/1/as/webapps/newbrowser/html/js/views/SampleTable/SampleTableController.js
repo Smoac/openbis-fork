@@ -18,7 +18,6 @@ function SampleTableController(mainController, experimentIdentifier) {
 	this._mainController = mainController;
 	this._sampleTableModel = new SampleTableModel(experimentIdentifier);
 	this._sampleTableView = new SampleTableView(this, this._sampleTableModel);
-	this._dataGridController = null;
 	
 	this.init = function($container) {
 		var _this = this;
@@ -116,7 +115,9 @@ function SampleTableController(mainController, experimentIdentifier) {
 					
 					var $togglePinOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Pin/Unpin'}).append("Pin/Unpin"));
 					$togglePinOption.click(function(e) {
-						mainController.inspector.toggleInspectSample(data.sampleObject);
+						mainController.serverFacade.searchWithUniqueId(data.permId, function(samples) {
+							mainController.inspector.toggleInspectSample(samples[0]);
+						});
 					});
 					$list.append($togglePinOption);
 					
@@ -141,7 +142,7 @@ function SampleTableController(mainController, experimentIdentifier) {
 				var dataList = [];
 				for(var sIdx = 0; sIdx < samples.length; sIdx++) {
 					var sample = samples[sIdx];
-					var sampleModel = { 'code' : sample.code, 'permId' : sample.permId, 'sampleObject' : sample };
+					var sampleModel = { 'code' : sample.code, 'permId' : sample.permId };
 					for (var pIdx = 0; pIdx < propertyCodes.length; pIdx++) {
 						var property = propertyCodes[pIdx];
 						sampleModel[property] = sample.properties[property];
@@ -157,8 +158,8 @@ function SampleTableController(mainController, experimentIdentifier) {
 			}
 			
 			//Create and display table
-			this._dataGridController = new DataGridController(null, columns, getDataList, rowClick);
-			this._dataGridController.init(this._sampleTableView.getTableContainer());
+			var dataGridController = new DataGridController(null, columns, getDataList, rowClick);
+			dataGridController.init(this._sampleTableView.getTableContainer());
 		}
 	}
 }
