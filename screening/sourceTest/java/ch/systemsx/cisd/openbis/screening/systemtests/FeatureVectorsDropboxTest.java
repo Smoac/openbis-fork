@@ -24,20 +24,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
-import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureInformation;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVector;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.FeatureVectorDataset;
@@ -51,39 +42,12 @@ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.Plate;
     { "slow", "systemtest" })
 public class FeatureVectorsDropboxTest extends AbstractScreeningSystemTestCase
 {
-    private MockHttpServletRequest request;
-
-    private String sessionToken;
-
-    private IScreeningClientService screeningClientService;
-
-    private IScreeningApiServer screeningServer;
-
-    private IScreeningOpenbisServiceFacade screeningFacade;
-
     @BeforeTest
     public void dropAnExampleDataSet() throws IOException, Exception
     {
         File exampleDataSet = createTestDataContents();
         moveFileToIncoming(exampleDataSet);
         waitUntilDataSetImported(FINISHED_POST_REGISTRATION_CONDITION);
-    }
-
-    @BeforeMethod
-    public void setUp() throws Exception
-    {
-        screeningClientService =
-                (IScreeningClientService) applicationContext
-                        .getBean(ResourceNames.SCREENING_PLUGIN_SERVICE);
-        request = new MockHttpServletRequest();
-        ((SpringRequestContextProvider) applicationContext.getBean("request-context-provider"))
-                .setRequest(request);
-        Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
-        screeningServer = (IScreeningApiServer) bean;
-        sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
-        screeningFacade =
-                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
-                        TestInstanceHostUtils.getOpenBISUrl(), screeningServer);
     }
 
     @AfterMethod

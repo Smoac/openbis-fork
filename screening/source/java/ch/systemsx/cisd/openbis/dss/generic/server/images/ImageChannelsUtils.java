@@ -33,6 +33,8 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.image.IImageTransformerFactory;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.common.image.ImageHistogram;
+import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
 import ch.systemsx.cisd.common.image.MixColors;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
@@ -48,6 +50,7 @@ import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
 import ch.systemsx.cisd.openbis.dss.etl.dto.ImageTransfomationFactories;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.ChannelColorRGB;
 import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.AutoRescaleIntensityImageTransformerFactory;
+import ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.IntensityRangeImageTransformerFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.ResponseContentStream;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
 import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
@@ -618,13 +621,63 @@ public class ImageChannelsUtils
         List<ImageWithReference> images =
                 calculateSingleImagesForDisplay(imageReferences, null, null, transformationInfo);
         BufferedImage mergedImage = mergeImages(images);
+        // non-user transformation - apply color range fix after mixing
+        Map<String, String> transMap = transformationInfo.tryGetTransformationCodeForChannels();
+        IImageTransformerFactory channelTransformation = mergedChannelTransformationOrNull;
+        if ((transMap == null || transMap.isEmpty()) && channelTransformation == null) 
+        {
+            ImageHistogram histogram = ImageHistogram.calculateHistogram(mergedImage);
+            int[] redHistogram = histogram.getRedHistogram();
+            int[] greenHistogram = histogram.getGreenHistogram();
+            int[] blueHistogram = histogram.getBlueHistogram();
+            Levels levels = calculateLevels(redHistogram, greenHistogram, blueHistogram);
+            int minLevel = levels.getMinLevel();
+            int maxLevel = levels.getMaxLevel();
+            channelTransformation = new IntensityRangeImageTransformerFactory(minLevel, maxLevel);
+        }
         // NOTE: even if we are not merging all the channels but just few of them we use the
         // merged-channel transformation
         if (transformationInfo.isApplyNonImageLevelTransformation())
         {
-            mergedImage = applyImageTransformation(mergedImage, mergedChannelTransformationOrNull);
+            mergedImage = applyImageTransformation(mergedImage, channelTransformation);
         }
         return mergedImage;
+    }
+    
+    private static Levels calculateLevels(int[]... histograms)
+    {
+        int min = Integer.MAX_VALUE;
+        int max = 0;
+        for (int[] histogram : histograms)
+        {
+            min = Math.min(min, getIndexOfFirstNonZero(histogram));
+            max = Math.max(max,  getIndexOfLastNonZero(histogram));
+        }
+        return new Levels(min, max);
+    }
+    
+    private static int getIndexOfFirstNonZero(int[] array)
+    {
+        for (int i = 0; i < array.length; i++)
+        {
+            if (array[i] != 0)
+            {
+                return i;
+            }
+        }
+        return 0;
+    }
+    
+    private static int getIndexOfLastNonZero(int[] array)
+    {
+        for (int i = array.length - 1; i >= 0; i--)
+        {
+            if (array[i] != 0)
+            {
+                return i;
+            }
+        }
+        return 0;
     }
 
     private static BufferedImage transform(BufferedImage image,

@@ -32,52 +32,42 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy.RoleC
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SpaceIdentifier;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.IScreeningServer;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
 import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
 
 /**
- * 
- *
  * @author Franz-Josef Elmer
  */
 public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTestCase
 {
     private static final String TEST_USER = "test-user";
+
     private static final String SPACE_CODE = "CISD";
-    
-    private ICommonServerForInternalUse commonServer;
-    private IScreeningServer screeningServer;
-    private IScreeningApiServer screeningApiServer;
+
+
     private String userSessionToken;
 
     @BeforeMethod
     public void setUp()
     {
-        commonServer =
+        ICommonServerForInternalUse commonServerInternal =
                 (ICommonServerForInternalUse) applicationContext
                         .getBean(ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER);
-        Object serverBean = applicationContext
-                .getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
-        screeningServer = (IScreeningServer) serverBean;
-        screeningApiServer = (IScreeningApiServer) serverBean;
-        String sessionToken = commonServer.tryToAuthenticateAsSystem().getSessionToken();
-        if (hasSpace(sessionToken, SPACE_CODE) == false)
+        String systemSessionToken = commonServerInternal.tryToAuthenticateAsSystem().getSessionToken();
+        if (hasSpace(systemSessionToken, SPACE_CODE) == false)
         {
-            commonServer.registerSpace(sessionToken, SPACE_CODE, null);
+            commonServerInternal.registerSpace(systemSessionToken, SPACE_CODE, null);
         }
-        if (hasPerson(sessionToken, TEST_USER) == false)
+        if (hasPerson(systemSessionToken, TEST_USER) == false)
         {
-            commonServer.registerPerson(sessionToken, TEST_USER);
+            commonServerInternal.registerPerson(systemSessionToken, TEST_USER);
             Grantee grantee = Grantee.createPerson(TEST_USER);
-            commonServer.registerSpaceRole(sessionToken, RoleCode.OBSERVER, new SpaceIdentifier(
+            commonServerInternal.registerSpaceRole(systemSessionToken, RoleCode.OBSERVER, new SpaceIdentifier(
                     SPACE_CODE), grantee);
         }
-        userSessionToken = commonServer.tryAuthenticate(TEST_USER, "abc").getSessionToken();
+        userSessionToken = commonServerInternal.tryAuthenticate(TEST_USER, "abc").getSessionToken();
     }
 
-    private boolean hasSpace(String sessionToken, String spaceCode)
+    private boolean hasSpace(String systemSessionToken, String spaceCode)
     {
         List<Space> spaces =
                 commonServer.listSpaces(sessionToken, DatabaseInstanceIdentifier.HOME_INSTANCE);
@@ -90,8 +80,8 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
         }
         return false;
     }
-    
-    private boolean hasPerson(String sessionToken, String personID)
+
+    private boolean hasPerson(String systemSessionToken, String personID)
     {
         List<Person> persons = commonServer.listPersons(sessionToken);
         for (Person person : persons)
@@ -103,19 +93,19 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
         }
         return false;
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testSetSessionUserFailsBecauseOfNonAuthorized()
     {
         screeningServer.setSessionUser(userSessionToken, "system");
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testListPlatesFailsBecauseOfAuthorization()
     {
         screeningApiServer.listPlates(userSessionToken, new ExperimentIdentifier("a", "b", "c", "d"));
     }
-    
+
     @Test(expectedExceptions = AuthorizationFailureException.class)
     public void testRegisterLibraryFailsBecauseOfNonAuthorized()
     {
@@ -123,5 +113,5 @@ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTes
                 Collections.<NewMaterial> emptyList(), Collections.<NewMaterial> emptyList(),
                 Collections.<NewSamplesWithTypes> emptyList());
     }
-    
+
 }
