@@ -245,7 +245,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
                     IHierarchicalContentNode root = content.getRootNode();
                     IHierarchicalContentNode archivedRoot = archivedContent.getRootNode();
 
-                    status = checkHierarchySizeAndChecksums(root, archivedRoot, checksumVerificationCondition);
+                    status = checkHierarchySizeAndChecksums(root, "", archivedRoot, checksumVerificationCondition);
                 } catch (Throwable t)
                 {
                     status = Status.createError("Sanity check for data set " + dataSetCode + " failed: " + t);
@@ -268,11 +268,26 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
         return statuses;
     }
 
-    @Private
-    static Status checkHierarchySizeAndChecksums(IHierarchicalContentNode node,
+    private static String pathCombine(String part1, String part2)
+    {
+        if (part1.equals(""))
+        {
+            return part2;
+        }
+        if (part2.equals(""))
+        {
+            return part1;
+        }
+        return part1 + File.separator + part2;
+    }
+
+    public static Status checkHierarchySizeAndChecksums(
+            IHierarchicalContentNode node,
+            String originalNodeContext,
             IHierarchicalContentNode retrievedNode, ChecksumVerificationCondition checksumVerificationCondition)
     {
-        String relativePath = node.getRelativePath();
+
+        String relativePath = pathCombine(originalNodeContext, node.getRelativePath());
         String relativePathOfRetrieved = retrievedNode.getRelativePath();
         if (relativePath.equals(relativePathOfRetrieved) == false)
         {
@@ -303,7 +318,7 @@ public class RsyncArchiver extends AbstractArchiverProcessingPlugin
             for (int i = 0; i < size; i++)
             {
                 Status status =
-                        checkHierarchySizeAndChecksums(childNodes.get(i),
+                        checkHierarchySizeAndChecksums(childNodes.get(i), originalNodeContext,
                                 childNodesOfRetrieved.get(i), checksumVerificationCondition);
                 if (status.isError())
                 {

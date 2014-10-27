@@ -96,6 +96,29 @@ public class ZipPackageManager implements IPackageManager
     }
 
     @Override
+    public void create(File packageFile, List<AbstractExternalData> dataSets)
+    {
+        ZipDataSetPackager packager = null;
+
+        try
+        {
+            DataSetExistenceChecker existenceChecker =
+                    new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
+            packager = new ZipDataSetPackager(packageFile, compress, getContentProvider(), existenceChecker);
+            for (AbstractExternalData dataSet : dataSets)
+            {
+                packager.addDataSetTo(dataSet.getCode(), dataSet);
+            }
+        } finally
+        {
+            if (packager != null)
+            {
+                packager.close();
+            }
+        }
+    }
+
+    @Override
     public List<VerificationError> verify(File packageFile)
     {
         return new ZipFileIntegrityVerifier().verify(packageFile);

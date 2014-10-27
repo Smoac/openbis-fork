@@ -30,10 +30,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
  */
 public interface IPackageManager
 {
-
     String getName(IDatasetLocation dataSetLocation);
 
     void create(File packageFile, AbstractExternalData dataSet);
+
+    void create(File packageFile, List<AbstractExternalData> dataSets);
 
     List<VerificationError> verify(File packageFile);
 

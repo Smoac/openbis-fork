@@ -16,22 +16,18 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
-import java.io.File;
-import java.util.Properties;
+import java.util.List;
 
 import ch.rinn.restrictions.Private;
-import ch.systemsx.cisd.common.filesystem.FileOperations;
-import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.filesystem.HostAwareFile;
-import ch.systemsx.cisd.common.filesystem.IPathCopier;
-import ch.systemsx.cisd.common.filesystem.highwatermark.HostAwareFileWithHighwaterMark;
-import ch.systemsx.cisd.common.filesystem.ssh.ISshCommandExecutor;
-import ch.systemsx.cisd.openbis.dss.generic.server.IDataSetFileOperationsExecutor;
-import ch.systemsx.cisd.openbis.dss.generic.server.LocalDataSetFileOperationsExcecutor;
-import ch.systemsx.cisd.openbis.dss.generic.server.RemoteDataSetFileOperationsExecutor;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.Copier;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * @author Jakub Straszewski
@@ -40,134 +36,89 @@ public abstract class AbstractDataSetFileOperationsManager
 {
 
     @Private
-    protected static final String DESTINATION_KEY = "destination";
+    public static final String DESTINATION_KEY = "destination";
 
     @Private
-    protected static final String TIMEOUT_KEY = "timeout";
+    public static final String TIMEOUT_KEY = "timeout";
 
     @Private
-    protected static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
+    public static final String RSYNC_PASSWORD_FILE_KEY = "rsync-password-file";
 
     @Private
     protected static final String CHECK_EXISTENCE_FAILED = "couldn't check existence";
 
     @Private
-    protected static final String DESTINATION_DOES_NOT_EXIST = "destination doesn't exist";
+    public static final String DESTINATION_DOES_NOT_EXIST = "destination doesn't exist";
 
     @Private
-    protected static final String RSYNC_EXEC = "rsync";
+    public static final String RSYNC_EXEC = "rsync";
 
     @Private
-    protected static final String SSH_EXEC = "ssh";
+    public static final String SSH_EXEC = "ssh";
 
     @Private
-    protected static final String GFIND_EXEC = "find";
+    public static final String GFIND_EXEC = "find";
 
     @Private
-    protected static final long DEFAULT_TIMEOUT_SECONDS = 15;
+    public static final long DEFAULT_TIMEOUT_SECONDS = 15;
 
     @Private
-    protected static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
+    public static final String FOLDER_OF_AS_DELETED_MARKED_DATA_SETS = "DELETED";
 
-    public static class ArchiveDestination
+    protected transient IEncapsulatedOpenBISService service;
+
+    protected transient IDataSetDirectoryProvider directoryProvider;
+
+    protected IEncapsulatedOpenBISService getService()
     {
-        private final String destination;
-
-        private final IDataSetFileOperationsExecutor executor;
-
-        private final boolean isHosted;
-
-        private final long timeoutInMillis;
-
-        private ArchiveDestination(String destination, IDataSetFileOperationsExecutor executor, boolean isHosted, long timeoutInMillis)
+        if (service == null)
         {
-            this.destination = destination;
-            this.executor = executor;
-            this.isHosted = isHosted;
-            this.timeoutInMillis = timeoutInMillis;
+            service = ServiceProvider.getOpenBISService();
         }
-
-        public String getDestination()
-        {
-            return destination;
-        }
-
-        public IDataSetFileOperationsExecutor getExecutor()
-        {
-            return executor;
-        }
-
-        public boolean isHosted()
-        {
-            return isHosted;
-        }
-
-        public long getTimeoutInMillis()
-        {
-            return timeoutInMillis;
-        }
-
+        return service;
     }
 
-    protected static ArchiveDestination createArchiveDestinationManager(Properties properties,
-            IPathCopierFactory pathCopierFactory,
-            ISshCommandExecutorFactory sshCommandExecutorFactory, String archiveDestinationHost, long timeoutInMillis)
+    protected IDataSetDirectoryProvider getDirectoryProvider()
     {
-        HostAwareFile hostAwareFile = HostAwareFileWithHighwaterMark.create(archiveDestinationHost, -1);
-        boolean isHosted = hostAwareFile.tryGetHost() != null;
-        String destination = hostAwareFile.getPath();
-        IDataSetFileOperationsExecutor executor;
-
-        if (false == isHosted)
+        if (directoryProvider == null)
         {
-            executor = createLocalDataSetFileOperationsExecutor(properties, pathCopierFactory, hostAwareFile, timeoutInMillis);
-        } else
-        {
-            executor =
-                    createRemoteDataSetFileOperationsExecutor(properties, pathCopierFactory, sshCommandExecutorFactory, hostAwareFile,
-                            timeoutInMillis);
+            directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
         }
-        return new ArchiveDestination(destination, executor, isHosted, timeoutInMillis);
+        return directoryProvider;
     }
 
-    protected static RemoteDataSetFileOperationsExecutor createRemoteDataSetFileOperationsExecutor(Properties properties,
-            IPathCopierFactory pathCopierFactory, ISshCommandExecutorFactory sshCommandExecutorFactory, HostAwareFile hostAwareFile,
-            long timeoutInMillis)
+    protected AbstractExternalData getDataSetWithAllMetaData(DatasetDescription datasetDescription)
     {
-        String hostOrNull = hostAwareFile.tryGetHost();
-        File sshExecutable = Copier.getExecutable(properties, SSH_EXEC);
-        File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
-        File gfindExecutable = Copier.getExecutable(properties, GFIND_EXEC);
-
-        IPathCopier copier =
-                pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
-        copier.check();
-        String rsyncModule = hostAwareFile.tryGetRsyncModule();
-        String rsyncPasswordFile = properties.getProperty(RSYNC_PASSWORD_FILE_KEY);
-        FileUtilities.checkPathCopier(copier, hostOrNull, null, rsyncModule, rsyncPasswordFile,
-                timeoutInMillis);
-        ISshCommandExecutor sshCommandExecutor = sshCommandExecutorFactory.create(sshExecutable, hostOrNull);
-        RemoteDataSetFileOperationsExecutor result = new RemoteDataSetFileOperationsExecutor(sshCommandExecutor, copier,
-                gfindExecutable, hostOrNull, rsyncModule, rsyncPasswordFile,
-                timeoutInMillis);
-        return result;
+        AbstractExternalData dataSet = getService().tryGetDataSet(datasetDescription.getDataSetCode());
+        String experimentIdentifier = datasetDescription.getExperimentIdentifier();
+        dataSet.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(experimentIdentifier)));
+        String sampleIdentifier = datasetDescription.getSampleIdentifier();
+        if (sampleIdentifier != null)
+        {
+            dataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier)));
+        }
+        List<ContainerDataSet> containerDataSets = dataSet.getContainerDataSets();
+        if (containerDataSets != null)
+        {
+            for (ContainerDataSet containerDataSet : containerDataSets)
+            {
+                // Inject container properties
+                if (containerDataSet.getProperties() == null)
+                {
+                    containerDataSet.setDataSetProperties(getService().tryGetDataSet(containerDataSet.getCode()).getProperties());
+                }
+                // Inject full container experiment with properties
+                String containerExperimentIdentifier = containerDataSet.getExperiment().getIdentifier();
+                containerDataSet.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(containerExperimentIdentifier)));
+                // Inject full container sample with properties
+                Sample sample = containerDataSet.getSample();
+                if (sample != null)
+                {
+                    String containerSampleIdentifier = sample.getIdentifier();
+                    containerDataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(containerSampleIdentifier)));
+                }
+            }
+        }
+        return dataSet;
     }
-
-    protected static LocalDataSetFileOperationsExcecutor createLocalDataSetFileOperationsExecutor(Properties properties,
-            IPathCopierFactory pathCopierFactory,
-            HostAwareFile hostAwareFile, long timeoutInMillis)
-    {
-        File sshExecutable = null; // don't use ssh locally
-        File rsyncExecutable = Copier.getExecutable(properties, RSYNC_EXEC);
-        IPathCopier copier =
-                pathCopierFactory.create(rsyncExecutable, sshExecutable, timeoutInMillis);
-        copier.check();
-        String rsyncModule = hostAwareFile.tryGetRsyncModule();
-        String rsyncPasswordFile = properties.getProperty(RSYNC_PASSWORD_FILE_KEY);
-        LocalDataSetFileOperationsExcecutor result = new LocalDataSetFileOperationsExcecutor(
-                FileOperations.getMonitoredInstanceForCurrentThread(), copier,
-                rsyncModule, rsyncPasswordFile);
-        return result;
-    }
-
 }

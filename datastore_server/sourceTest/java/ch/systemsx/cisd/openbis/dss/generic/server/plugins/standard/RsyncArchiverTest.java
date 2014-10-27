@@ -301,7 +301,22 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
                         .getRootNode();
         assertEquals(
                 "OK",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
+                        RsyncArchiver.ChecksumVerificationCondition.YES).toString());
+    }
+
+    @Test
+    public void testCheckHierarchySizeAndChecksumsHappyCaseWithContainers()
+    {
+        IHierarchicalContentNode root1 =
+                new MockContent(":0:0", "f2.txt:15:13", "f1.txt:5:-3")
+                        .getRootNode();
+        IHierarchicalContentNode root2 =
+                new MockContent(":0:0", "a/:0:0", "a/f1.txt:5:-3", "a/f2.txt:15:13", "r.txt:7:17")
+                        .getRootNode().getChildNodes().get(0);
+        assertEquals(
+                "OK",
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "a", root2,
                         RsyncArchiver.ChecksumVerificationCondition.YES).toString());
     }
 
@@ -315,7 +330,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         assertEquals(
                 "ERROR: \"Different paths: Path in the store is 'a/f1.txt' "
                         + "and in the archive 'a/f3.txt'.\"",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
                         RsyncArchiver.ChecksumVerificationCondition.YES).toString());
     }
 
@@ -328,7 +343,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
                 "ERROR: \"The path 'a' should be in store and archive either "
                         + "both directories or files but not mixed: In the store it is a directory "
                         + "but in the archive it is a file.\"",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
                         RsyncArchiver.ChecksumVerificationCondition.YES).toString());
     }
 
@@ -341,7 +356,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
                 new MockContent(":0:0", "a/:0:0", "a/f2.txt:15:13").getRootNode();
         assertEquals(
                 "ERROR: \"The directory 'a' has in the store 2 files but 1 in the archive.\"",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
                         RsyncArchiver.ChecksumVerificationCondition.YES).toString());
     }
 
@@ -352,7 +367,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         IHierarchicalContentNode root2 = new MockContent(":0:0", "r.txt:9:17").getRootNode();
         assertEquals(
                 "ERROR: \"The file 'r.txt' has in the store 7 bytes but 9 in the archive.\"",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
                         RsyncArchiver.ChecksumVerificationCondition.YES).toString());
     }
 
@@ -364,7 +379,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         assertEquals(
                 "ERROR: \"The file 'r.txt' has in the store the checksum 00000017 "
                         + "but 00000018 in the archive.\"",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
                         RsyncArchiver.ChecksumVerificationCondition.YES).toString());
     }
 
@@ -374,7 +389,7 @@ public class RsyncArchiverTest extends AbstractArchiverTestCase
         IHierarchicalContentNode root2 = new MockContent(":0:0", "r.txt:7:18").getRootNode();
         assertEquals(
                 "OK",
-                RsyncArchiver.checkHierarchySizeAndChecksums(root1, root2,
+                RsyncArchiver.checkHierarchySizeAndChecksums(root1, "", root2,
                         RsyncArchiver.ChecksumVerificationCondition.NO).toString());
     }
 }

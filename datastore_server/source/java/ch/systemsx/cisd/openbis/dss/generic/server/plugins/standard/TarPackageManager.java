@@ -84,6 +84,30 @@ public class TarPackageManager implements IPackageManager
     }
 
     @Override
+    public void create(File packageFile, List<AbstractExternalData> dataSets)
+    {
+        TarDataSetPackager packager = null;
+
+        try
+        {
+            DataSetExistenceChecker existenceChecker =
+                    new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
+            packager = new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker);
+
+            for (AbstractExternalData dataSet : dataSets)
+            {
+                packager.addDataSetTo(dataSet.getCode() + "/", dataSet);
+            }
+        } finally
+        {
+            if (packager != null)
+            {
+                packager.close();
+            }
+        }
+    }
+
+    @Override
     public List<VerificationError> verify(File packageFile)
     {
         return Collections.emptyList();

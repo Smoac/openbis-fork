@@ -31,6 +31,8 @@ import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.AbstractDataSetFileOperationsManager;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.ArchiveDestination;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.ArchiveDestinationFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
@@ -51,7 +53,7 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetFileOperationsManager.class);
 
-    private final ArchiveDestination archiveDestinationManager;
+    private final ArchiveDestination archiveDestination;
 
     public DataSetFileOperationsManager(Properties properties,
             IPathCopierFactory pathCopierFactory,
@@ -63,8 +65,9 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
 
         String hostFile = PropertyUtils.getMandatoryProperty(properties, DESTINATION_KEY);
 
-        this.archiveDestinationManager =
-                createArchiveDestinationManager(properties, pathCopierFactory, sshCommandExecutorFactory, hostFile, timeoutInMillis);
+        ArchiveDestinationFactory factory =
+                new ArchiveDestinationFactory(properties, pathCopierFactory, sshCommandExecutorFactory, hostFile, timeoutInMillis);
+        this.archiveDestination = factory.createArchiveDestination();
     }
 
     /**
@@ -76,18 +79,18 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     {
         try
         {
-            File destinationFolder = new File(archiveDestinationManager.getDestination(), dataset.getDataSetLocation());
+            File destinationFolder = new File(archiveDestination.getDestination(), dataset.getDataSetLocation());
             if (createFolderIfNotExists(destinationFolder.getParentFile())
                     || destinationExists(destinationFolder).isSuccess() == false)
             {
                 operationLog.info("Copy dataset '" + dataset.getDataSetCode() + "' from '"
                         + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
-                archiveDestinationManager.getExecutor().copyDataSetToDestination(originalData, destinationFolder.getParentFile());
+                archiveDestination.getExecutor().copyDataSetToDestination(originalData, destinationFolder.getParentFile());
             } else
             {
                 operationLog.info("Update dataset '" + dataset.getDataSetCode() + "' from '"
                         + originalData.getPath() + "' to '" + destinationFolder.getParentFile());
-                archiveDestinationManager.getExecutor().syncDataSetWithDestination(originalData, destinationFolder.getParentFile());
+                archiveDestination.getExecutor().syncDataSetWithDestination(originalData, destinationFolder.getParentFile());
             }
 
             return Status.OK;
@@ -106,13 +109,13 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     {
         try
         {
-            File destinationFolder = new File(archiveDestinationManager.getDestination(), dataset.getDataSetLocation());
+            File destinationFolder = new File(archiveDestination.getDestination(), dataset.getDataSetLocation());
             checkDestinationExists(destinationFolder);
             File folder = originalData.getParentFile();
             operationLog.info("Retrieve data set '" + dataset.getDataSetCode() + "' from '"
                     + destinationFolder.getPath() + "' to '" + folder);
             folder.mkdirs();
-            archiveDestinationManager.getExecutor().retrieveDataSetFromDestination(folder, destinationFolder);
+            archiveDestination.getExecutor().retrieveDataSetFromDestination(folder, destinationFolder);
             return Status.OK;
         } catch (ExceptionWithStatus ex)
         {
@@ -138,7 +141,7 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
                 @Override
                 public void delete(File dataSetFolder, String dataSetCode)
                 {
-                    archiveDestinationManager.getExecutor().deleteFolder(dataSetFolder);
+                    archiveDestination.getExecutor().deleteFolder(dataSetFolder);
                 }
             });
     }
@@ -158,10 +161,10 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
                 public void delete(File dataSetFolder, String dataSetCode)
                 {
                     File deletedFolder =
-                            new File(archiveDestinationManager.getDestination(), FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
-                    archiveDestinationManager.getExecutor().createFolder(deletedFolder);
+                            new File(archiveDestination.getDestination(), FOLDER_OF_AS_DELETED_MARKED_DATA_SETS);
+                    archiveDestination.getExecutor().createFolder(deletedFolder);
                     File markerFile = new File(deletedFolder, dataSetCode);
-                    archiveDestinationManager.getExecutor().createMarkerFile(markerFile);
+                    archiveDestination.getExecutor().createMarkerFile(markerFile);
                 }
             });
     }
@@ -170,7 +173,7 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     {
         try
         {
-            File destinationFolder = new File(archiveDestinationManager.getDestination(), dataset.getDataSetLocation());
+            File destinationFolder = new File(archiveDestination.getDestination(), dataset.getDataSetLocation());
             BooleanStatus destinationExists = destinationExists(destinationFolder);
             if (destinationExists.isSuccess())
             {
@@ -197,8 +200,8 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     {
         try
         {
-            File destinationFolder = new File(archiveDestinationManager.getDestination(), dataset.getDataSetLocation());
-            BooleanStatus resultStatus = archiveDestinationManager.getExecutor().checkSame(originalData, destinationFolder);
+            File destinationFolder = new File(archiveDestination.getDestination(), dataset.getDataSetLocation());
+            BooleanStatus resultStatus = archiveDestination.getExecutor().checkSame(originalData, destinationFolder);
             String message = resultStatus.tryGetMessage();
             if (message != null) // if there is a message something went wrong
             {
@@ -220,8 +223,8 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     {
         try
         {
-            File destinationFolder = new File(archiveDestinationManager.getDestination(), dataset.getDataSetLocation());
-            BooleanStatus resultStatus = archiveDestinationManager.getExecutor().exists(destinationFolder);
+            File destinationFolder = new File(archiveDestination.getDestination(), dataset.getDataSetLocation());
+            BooleanStatus resultStatus = archiveDestination.getExecutor().exists(destinationFolder);
             String message = resultStatus.tryGetMessage();
             if (message != null) // if there is a message something went wrong
             {
@@ -249,7 +252,7 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
         BooleanStatus destinationExists = destinationExists(destinationFolder);
         if (destinationExists.isSuccess() == false)
         {
-            archiveDestinationManager.getExecutor().createFolder(destinationFolder);
+            archiveDestination.getExecutor().createFolder(destinationFolder);
             return true;
         }
         return false;
@@ -257,7 +260,7 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
 
     private BooleanStatus destinationExists(File destinationFolder)
     {
-        BooleanStatus destinationExists = archiveDestinationManager.getExecutor().exists(destinationFolder);
+        BooleanStatus destinationExists = archiveDestination.getExecutor().exists(destinationFolder);
         if (destinationExists.isError())
         {
             operationLog.error("Could not check existence of '" + destinationFolder + "': "
@@ -270,14 +273,14 @@ public class DataSetFileOperationsManager extends AbstractDataSetFileOperationsM
     @Override
     public boolean isHosted()
     {
-        return archiveDestinationManager.isHosted();
+        return archiveDestination.isHosted();
     }
 
     @Override
     public IHierarchicalContent getAsHierarchicalContent(DatasetDescription dataset)
     {
         return new DefaultFileBasedHierarchicalContentFactory()
-                .asHierarchicalContent(new File(archiveDestinationManager.getDestination(), dataset.getDataSetLocation()), null);
+                .asHierarchicalContent(new File(archiveDestination.getDestination(), dataset.getDataSetLocation()), null);
     }
 
 }
