@@ -75,11 +75,11 @@ $.extend(Grid.prototype, {
 			thisGrid.getVisibleColumns().forEach(function(head) {
 				headings.push(head.property);
 			});
-			thisGrid.getDataList(function(data) {
-				var csv = CSV.objectToCsv(data, {columns: headings});
-				var blob = new Blob([csv], {type: 'text'});
-				saveAs(blob,'exportedTable.txt');
-			});
+			var data = thisGrid.result.items;
+			
+			var csv = CSV.objectToCsv(data, {columns: headings});
+			var blob = new Blob([csv], {type: 'text'});
+			saveAs(blob,'exportedTable.txt');
 		});
 	},
 	
