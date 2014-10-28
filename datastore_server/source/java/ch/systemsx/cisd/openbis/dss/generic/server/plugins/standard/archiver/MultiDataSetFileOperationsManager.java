@@ -45,13 +45,13 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandE
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TarPackageManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * @author Jakub Straszewski
  */
-public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperationsManager implements Serializable
+public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperationsManager implements IMultiDataSetFileOperationsManager,
+        Serializable
 {
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION, MultiDataSetFileOperationsManager.class);
 

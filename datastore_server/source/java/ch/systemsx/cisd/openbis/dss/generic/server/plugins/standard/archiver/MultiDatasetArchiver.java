@@ -44,7 +44,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
-    private transient MultiDataSetFileOperationsManager fileOperations;
+    private transient IMultiDataSetFileOperationsManager fileOperations;
 
     private final FileOperationsManagerFactory fileOperationsFactory;
 
@@ -59,7 +59,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
             this.properties = properties;
         }
 
-        private MultiDataSetFileOperationsManager create()
+        private IMultiDataSetFileOperationsManager create()
         {
             return new MultiDataSetFileOperationsManager(properties, new RsyncArchiveCopierFactory(), new SshCommandExecutorFactory());
         }
@@ -267,7 +267,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return BooleanStatus.createFalse();
     }
 
-    public MultiDataSetFileOperationsManager getFileOperations()
+    public IMultiDataSetFileOperationsManager getFileOperations()
     {
         if (fileOperations == null)
         {
