@@ -40,6 +40,11 @@ public class MultiDatasetArchiverDBTransaction
         this.transaction = getTransactionalQuery();
     }
 
+    public static IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
+    {
+        return QueryTool.getQuery(dataSource, IMultiDataSetArchiverReadonlyQueryDAO.class);
+    }
+
     private static IMultiDataSetArchiverQueryDAO getTransactionalQuery()
     {
         return QueryTool.getQuery(dataSource, IMultiDataSetArchiverQueryDAO.class);
@@ -63,14 +68,6 @@ public class MultiDatasetArchiverDBTransaction
         container.setId(id);
 
         return container;
-    }
-
-    /**
-     * Returns null if no data set found
-     */
-    public MultiDataSetArchiverDataSetDTO getDataSetByCode(String dataSetCode)
-    {
-        return transaction.getDataSetForCode(dataSetCode);
     }
 
     public MultiDataSetArchiverDataSetDTO insertDataset(DatasetDescription dataSet,

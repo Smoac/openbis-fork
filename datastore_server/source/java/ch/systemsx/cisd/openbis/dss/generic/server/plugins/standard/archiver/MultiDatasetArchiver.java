@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArch
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
@@ -90,15 +91,21 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doArchive(List<DatasetDescription> dataSets, ArchiverTaskContext context)
     {
-        verifyDataSetsSize(dataSets);
 
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
+
+        filterAlreadyPresentInArchive(dataSets, result);
+
+        if (dataSets.isEmpty())
+        {
+            return result;
+        }
+
         MultiDatasetArchiverDBTransaction transaction = new MultiDatasetArchiverDBTransaction();
-
-        filterAlreadyPresentInArchive(dataSets, result, transaction);
-
         try
         {
+            verifyDataSetsSize(dataSets);
+
             result = doArchive(dataSets, transaction, context);
 
             transaction.commit();
@@ -119,14 +126,15 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return result;
     }
 
-    private void filterAlreadyPresentInArchive(List<DatasetDescription> dataSets, DatasetProcessingStatuses result,
-            MultiDatasetArchiverDBTransaction transaction)
+    private void filterAlreadyPresentInArchive(List<DatasetDescription> dataSets, DatasetProcessingStatuses result)
     {
+        IMultiDataSetArchiverReadonlyQueryDAO query = MultiDatasetArchiverDBTransaction.getReadonlyQuery();
+
         Iterator<DatasetDescription> it = dataSets.iterator();
         while (it.hasNext())
         {
             DatasetDescription dataSet = it.next();
-            if (transaction.getDataSetByCode(dataSet.getDataSetCode()) != null)
+            if (query.getDataSetForCode(dataSet.getDataSetCode()) != null)
             {
                 result.addResult(dataSet.getDataSetCode(), Status.OK, Operation.ARCHIVE);
                 it.remove();
