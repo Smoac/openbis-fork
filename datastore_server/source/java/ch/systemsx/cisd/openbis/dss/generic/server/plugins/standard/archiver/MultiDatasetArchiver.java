@@ -24,6 +24,7 @@ import java.util.Properties;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
+import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -124,7 +125,9 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
             if (datasetSize < minimumContainerSize)
             {
                 throw new IllegalArgumentException("Dataset " + dataSets.get(0).getDataSetCode()
-                        + " is too small to be archived with multi dataset archiver.");
+                        + " is too small (" + FileUtilities.byteCountToDisplaySize(datasetSize) 
+                        + ") to be archived with multi dataset archiver because minimum size is " 
+                        + FileUtilities.byteCountToDisplaySize(minimumContainerSize) + ".");
             }
             // if single dataset is bigger than specified maximum, we should still allow it being
         }
@@ -132,11 +135,17 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         {
             if (datasetSize < minimumContainerSize)
             {
-                throw new IllegalArgumentException("Datasets specified for archiving are too small to be archived with multi dataset archiver.");
+                throw new IllegalArgumentException("Set of data sets specified for archiving is too small ("
+                        + FileUtilities.byteCountToDisplaySize(datasetSize) 
+                        + ") to be archived with multi dataset archiver because minimum size is " 
+                        + FileUtilities.byteCountToDisplaySize(minimumContainerSize) + ".");
             }
             else if (datasetSize > maximumContainerSize)
             {
-                throw new IllegalArgumentException("Datasets specified for archiving are too big to be archived with multi dataset archiver.");
+                throw new IllegalArgumentException("Set of data sets specified for archiving is too big ("
+                        + FileUtilities.byteCountToDisplaySize(datasetSize) 
+                        + ") to be archived with multi dataset archiver because maximum size is " 
+                        + FileUtilities.byteCountToDisplaySize(maximumContainerSize) + ".");
             }
         }
     }

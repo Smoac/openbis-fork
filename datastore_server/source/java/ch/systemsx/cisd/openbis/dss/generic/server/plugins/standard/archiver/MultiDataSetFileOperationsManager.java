@@ -128,6 +128,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         return finalArchive;
     }
 
+    @Override
     public Status deleteContainerFromStage(String containerPath)
     {
         File stageArchiveContainerFile = new File(getStageArchive().getDestination(), containerPath);
@@ -141,6 +142,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         return success ? Status.OK : Status.createError("Couldn't delete archive container '" + containerPath);
     }
 
+    @Override
     public Status createContainerInStage(String containerPath, List<DatasetDescription> datasetDescriptions)
     {
         File stageArchiveContainerFile = new File(getStageArchive().getDestination(), containerPath);
@@ -201,6 +203,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     /**
      * Returns container path local to the archive root.
      */
+    @Override
     public String generateContainerPath(List<DatasetDescription> dataSets)
     {
         String name = packageManager.getName(dataSets.get(0).getDataSetCode());
@@ -220,6 +223,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
      * Copies specified dataset's data to destination specified in constructor. The path at the destination is defined by the original location of the
      * data set.
      */
+    @Override
     public Status copyToFinalDestination(String containerLocalPath)
     {
         ArchiveDestination stageDestination = getStageArchive();
@@ -249,6 +253,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         }
     }
 
+    @Override
     public Status deleteContainerFromFinalDestination(String containerLocalPath)
     {
         try
@@ -272,6 +277,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
             }
         };
 
+    @Override
     public IHierarchicalContent getContainerAsHierarchicalContent(String containerPath)
     {
         ArchiveDestination archiveDestination = getFinalArchive();
