@@ -16,6 +16,7 @@ $.extend(Grid.prototype, {
 		$.get("./lib/grid/js/Grid.html", function(template) {
 			thisGrid.panel.html(template);
 			thisGrid.renderColumnDropdown();
+			thisGrid.renderCSVButton();
 			thisGrid.panel.repeater({
 				defaultView : "list",
 				dataSource : function(options, callback) {
@@ -66,6 +67,22 @@ $.extend(Grid.prototype, {
 		return this.columns;
 	},
 
+	renderCSVButton: function() {
+		var thisGrid = this;
+		var a = thisGrid.panel.find("#download-button");
+		a.click(function() {
+			var headings = [];
+			thisGrid.getVisibleColumns().forEach(function(head) {
+				headings.push(head.property);
+			});
+			thisGrid.getDataList(function(data) {
+				var csv = CSV.objectToCsv(data, {columns: headings});
+				var blob = new Blob([csv], {type: 'text'});
+				saveAs(blob,'exportedTable.txt');
+			});
+		});
+	},
+	
 	getVisibleColumns : function() {
 		var thisGrid = this;
 		var columns = [];
