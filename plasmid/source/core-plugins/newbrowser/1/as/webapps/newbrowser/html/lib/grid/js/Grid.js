@@ -79,7 +79,7 @@ $.extend(Grid.prototype, {
 			
 			var csv = CSV.objectToCsv(data, {columns: headings});
 			var blob = new Blob([csv], {type: 'text'});
-			saveAs(blob,'exportedTable.txt');
+			saveAs(blob,'exportedTable.csv');
 		});
 	},
 	
