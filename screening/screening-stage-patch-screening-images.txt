@@ -1,0 +1,2180 @@
+### Eclipse Workspace Patch 1.0
+#P screening
+Index: source/java/ch/systemsx/cisd/openbis/dss/shared/DssScreeningUtils.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/shared/DssScreeningUtils.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/shared/DssScreeningUtils.java	(working copy)
+@@ -16,11 +16,17 @@
+ 
+ package ch.systemsx.cisd.openbis.dss.shared;
+ 
++import java.awt.image.BufferedImage;
++import java.awt.image.ColorModel;
++
+ import javax.sql.DataSource;
+ 
++import loci.formats.gui.Index16ColorModel;
+ import net.lemnik.eodsql.QueryTool;
+ 
+ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
++import ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
+ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.IImagingReadonlyQueryDAO;
+@@ -34,7 +40,16 @@
+  */
+ public class DssScreeningUtils
+ {
+-    private static final IImagingReadonlyQueryDAO query = createQuery();
++    public static final IImageToPixelsConverter CONVERTER = new IImageToPixelsConverter()
++        {
++            @Override
++            public Pixels convert(BufferedImage image)
++            {
++                return createPixels(image);
++            }
++        };
++
++    private static IImagingReadonlyQueryDAO query;
+ 
+     static
+     {
+@@ -46,12 +61,15 @@
+      */
+     public static IImagingReadonlyQueryDAO getQuery()
+     {
++        if (query == null)
++        {
++            query = createQuery();
++        }
+         return query;
+     }
+ 
+     /**
+-     * Creates a DAO based on imaging database specified in DSS service.properties by data source
+-     * {@link ScreeningConstants#IMAGING_DATA_SOURCE}.
++     * Creates a DAO based on imaging database specified in DSS service.properties by data source {@link ScreeningConstants#IMAGING_DATA_SOURCE}.
+      * <p>
+      * Returned query is reused and should not be closed.
+      * </p>
+@@ -65,8 +83,7 @@
+     }
+ 
+     /**
+-     * Creates a new query each time when it is called. Returned query should be closed after all
+-     * operations are done.
++     * Creates a new query each time when it is called. Returned query should be closed after all operations are done.
+      */
+     public static IImagingTransformerDAO createImagingTransformerDAO()
+     {
+@@ -75,5 +92,38 @@
+                         ScreeningConstants.IMAGING_DATA_SOURCE);
+         return QueryTool.getQuery(dataSource, IImagingTransformerDAO.class);
+     }
++    
++    /**
++     * Creates {@link Pixels} wrapper object for the specified image which can also handle
++     * 16bit index color models. Such color models are used when reading Nikon microscopy
++     * image files with ND2Reader of BioFormats.
++     */
++    public static Pixels createPixels(BufferedImage image)
++    {
++        return new Pixels(image)
++            {
++                @Override
++                protected int[][] tryCreateColorIndexMap(ColorModel colorModel)
++                {
++                    int[][] indexMap = super.tryCreateColorIndexMap(colorModel);
++                    if (indexMap == null && colorModel instanceof Index16ColorModel)
++                    {
++                        Index16ColorModel indexColorModel = (Index16ColorModel) colorModel;
++                        indexMap = new int[3][1 << 16];
++                        copyTo(indexColorModel.getReds(), indexMap[0]);
++                        copyTo(indexColorModel.getGreens(), indexMap[1]);
++                        copyTo(indexColorModel.getBlues(), indexMap[2]);
++                    }
++                    return indexMap;
++                }
+ 
++                private void copyTo(short[] shorts, int[] integers)
++                {
++                    for (int i = 0; i < shorts.length; i++)
++                    {
++                        integers[i] = shorts[i] & 0xffff;
++                    }
++                }
++            };
++    }
+ }
+Index: sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageChannelsUtilsTest.java
+===================================================================
+--- sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageChannelsUtilsTest.java	(revision 32656)
++++ sourceTest/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageChannelsUtilsTest.java	(working copy)
+@@ -23,6 +23,7 @@
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.HashMap;
++import java.util.List;
+ import java.util.Map;
+ 
+ import org.apache.commons.io.IOUtils;
+@@ -60,7 +61,7 @@
+ /**
+  * @author Franz-Josef Elmer
+  */
+-@Friend(toClasses = ImageChannelsUtils.class)
++@Friend(toClasses = {ImageLoadingHelper.class, ImageChannelsUtils.class})
+ public class ImageChannelsUtilsTest extends AssertJUnit
+ {
+     public static final File TEST_IMAGE_FOLDER = new File("../screening/sourceTest/java/"
+@@ -83,6 +84,7 @@
+                     for (int y = 0; y < height; y++)
+                     {
+                         int rgb = image.getRGB(x, y);
++                        System.out.println(x+" "+y+" "+Integer.toHexString(rgb));
+                         output.setRGB(x, y, (rgb & 0xff) << 16);
+                     }
+                 }
+@@ -122,8 +124,7 @@
+ 
+         try
+         {
+-            createImageChannelsUtils(null).calculateBufferedImage(imageRef,
+-                    createSingleChannelTransformationParams());
++            createImage(imageRef, createSingleChannelTransformationParams(), null);
+             fail("EnvironmentFailureException expected");
+         } catch (EnvironmentFailureException ex)
+         {
+@@ -164,14 +165,25 @@
+         final DatasetAcquiredImagesReference imageRef = createDatasetAcquiredImagesReference();
+         prepareExpectations(absoluteImageReference, imageRef);
+ 
++        ImageTransformationParams transformationParams = createSingleChannelTransformationParams();
+         BufferedImage image =
+-                createImageChannelsUtils(thumbnailSizeOrNull).calculateBufferedImage(imageRef,
+-                        createSingleChannelTransformationParams());
++                createImage(imageRef, transformationParams, thumbnailSizeOrNull);
+         assertEquals(expectedImageContentDescription, getImageContentDescription(image));
+ 
+         context.assertIsSatisfied();
+     }
+ 
++    private BufferedImage createImage(final DatasetAcquiredImagesReference imageRef, 
++            ImageTransformationParams transformationParams, Size thumbnailSizeOrNull)
++    {
++        ImageLoadingHelper imageHelper = new ImageLoadingHelper(ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
++        new RequestedImageSize(thumbnailSizeOrNull, false), null);
++        boolean mergeAllChannels = imageHelper.isMergeAllChannels(imageRef);
++        List<AbsoluteImageReference> imageContents =
++                imageHelper.fetchImageContents(imageRef, mergeAllChannels, false, transformationParams);
++        return ImageChannelsUtils.calculateBufferedImage(imageContents, transformationParams);
++    }
++
+     private void prepareExpectations(final AbsoluteImageReference absoluteImageReferenceOrNull,
+             final DatasetAcquiredImagesReference imageRef)
+     {
+@@ -214,7 +226,7 @@
+         String transformationCode = "MY_TRANSFORMATION";
+         Map<String, IImageTransformerFactory> transformations =
+                 createImageTransformationsMap(transformationCode, transformerFactory);
+-        imgRef.getImageTransfomationFactories().setForChannel(transformations);
++        imgRef.getImageTransformationFactories().setForChannel(transformations);
+ 
+         prepareExpectations(imgRef, imageRef);
+         context.checking(new Expectations()
+@@ -225,13 +237,11 @@
+                 }
+             });
+ 
+-        BufferedImage image =
+-                createImageChannelsUtils(null).calculateBufferedImage(
+-                        imageRef,
+-                        new ImageTransformationParams(true, false, transformationCode,
+-                                new HashMap<String, String>()));
+-        assertEquals("e00 f00 f00 e00\n" + "f00 c00 c00 f00\n" + "f00 c00 c00 f00\n"
+-                + "e00 f00 f00 e00\n", getImageContentDescription(image));
++        ImageTransformationParams transformationParams = new ImageTransformationParams(true, false, transformationCode,
++                new HashMap<String, String>());
++        BufferedImage image = createImage(imageRef, transformationParams, null);
++        assertEquals("0e0 0f0 0f0 0e0\n" + "0f0 0c0 0c0 0f0\n" + "0f0 0c0 0c0 0f0\n"
++                + "0e0 0f0 0f0 0e0\n", getImageContentDescription(image));
+ 
+         context.assertIsSatisfied();
+     }
+@@ -249,17 +259,10 @@
+             RequestedImageSize imageSize)
+     {
+         return new AbsoluteImageReference(image(fileName), "id42", null, null, imageSize,
+-                new ChannelColorRGB(0, 0, 255), new ImageTransfomationFactories(), null, null,
++                new ChannelColorRGB(0, 255, 0), new ImageTransfomationFactories(), null, null,
+                 "ch2");
+     }
+ 
+-    private ImageChannelsUtils createImageChannelsUtils(Size thumbnailSizeOrNull)
+-    {
+-        return new ImageChannelsUtils(
+-                ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader),
+-                new RequestedImageSize(thumbnailSizeOrNull, false), null);
+-    }
+-
+     public void assertPNG(IHierarchicalContentNode image)
+     {
+         InputStream inputStream = image.getInputStream();
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/HCSImageDatasetLoaderFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/HCSImageDatasetLoaderFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/HCSImageDatasetLoaderFactory.java	(working copy)
+@@ -35,4 +35,15 @@
+     {
+         return ImagingDatasetLoader.tryCreate(DssScreeningUtils.getQuery(), datasetCode, content);
+     }
++
++    public static IImagingDatasetLoader create(IHierarchicalContent content, String datasetCode)
++    {
++        IImagingDatasetLoader loader = tryCreate(content, datasetCode);
++        if (loader == null)
++        {
++            throw new IllegalStateException(String.format(
++                    "Dataset '%s' not found in the imaging database.", datasetCode));
++        }
++        return loader;
++    }
+ }
+Index: sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/AbstractScreeningSystemTestCase.java
+===================================================================
+--- sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/AbstractScreeningSystemTestCase.java	(revision 32665)
++++ sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/AbstractScreeningSystemTestCase.java	(working copy)
+@@ -94,17 +94,12 @@
+         
+     }
+     
+-    private static interface IImageLoader
+-    {
+-        public BufferedImage load();
+-
+-    }
+     /**
+      * Helper class to load an image from the image download servlet.
+      *
+      * @author Franz-Josef Elmer
+      */
+-    protected static final class ImageLoader implements IImageLoader
++    protected static final class ImageLoader
+     {
+         private static final class OverlayChannel
+         {
+@@ -138,7 +133,6 @@
+             url.addParameter(ImageServletUrlParameters.DATASET_CODE_PARAM, dataSet.getCode());
+         }
+         
+-        @Override
+         public BufferedImage load()
+         {
+             try
+@@ -271,7 +265,7 @@
+         }
+         
+         /**
+-         * Asserts no failures occurred for all invocations of {@link #check(File, IImageLoader)}.
++         * Asserts no failures occurred for all invocations of {@link #check(File, ImageLoader)}.
+          * Otherwise an {@link AssertionError} is thrown.
+          */
+         public void assertNoFailures()
+@@ -284,38 +278,10 @@
+         }
+         
+         /**
+-         * Checks that the specified reference image is equals to the image loaded from the specified file
+-         * in the specified data set.
+-         */
+-        public void check(File referenceImage, final String sessionToken, final AbstractExternalData dataSet, 
+-                final String pathInDataSet)
+-        {
+-            check(referenceImage, new IImageLoader()
+-                {
+-                    
+-                    @Override
+-                    public BufferedImage load()
+-                    {
+-                        URLMethodWithParameters url = new URLMethodWithParameters(dataSet.getDataStore().getHostUrl() 
+-                                + "/datastore_server/" + dataSet.getCode() + "/" + pathInDataSet);
+-                        url.addParameter(Utils.SESSION_ID_PARAM, sessionToken);
+-                        url.addParameter("mode", "simpleHtml");
+-                        try
+-                        {
+-                            return ImageIO.read(new URL(url.toString()));
+-                        } catch (Exception ex)
+-                        {
+-                            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+-                        }
+-                    }
+-                });
+-        }
+-        
+-        /**
+          * Checks that the specified reference image is equals to the image loaded by the specified image loader.
+          * A report is created in case of a failure.
+          */
+-        public void check(File referenceImage, IImageLoader imageLoader)
++        public void check(File referenceImage, ImageLoader imageLoader)
+         {
+             FailureReport report = new FailureReport(referenceImage);
+             try
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/jython/v1/SimpleImageDataSetRegistrator.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/jython/v1/SimpleImageDataSetRegistrator.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/jython/v1/SimpleImageDataSetRegistrator.java	(working copy)
+@@ -602,7 +602,8 @@
+                                             imageFile.getPath()));
+                     return null;
+                 }
+-                IntensityRescaling.addToLevelStats(histogram, image);
++                IntensityRescaling.addToLevelStats(histogram, DssScreeningUtils.createPixels(image),
++                        ch.systemsx.cisd.common.image.IntensityRescaling.Channel.RED);
+             }
+         }
+         return IntensityRescaling.computeLevels(histogram, threshold);
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/BitShiftingImageTransformerFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/BitShiftingImageTransformerFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/BitShiftingImageTransformerFactory.java	(working copy)
+@@ -6,10 +6,12 @@
+ import ch.systemsx.cisd.base.image.IImageTransformer;
+ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+ import ch.systemsx.cisd.common.image.IntensityRescaling;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ 
+ /**
+  * Transformation performed by
+- * {@link IntensityRescaling#rescaleIntensityBitShiftTo8Bits(java.awt.image.BufferedImage, int)}
++ * {@link IntensityRescaling#rescaleIntensityBitShiftTo8Bits(Pixels, int)}
+  * <p>
+  * Warning: The serialized version of this class can be stored in the database for each image.
+  * Moving this class to a different package or changing it in a backward incompatible way would make
+@@ -41,7 +43,8 @@
+                     {
+                         return image;
+                     }
+-                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(image, shiftBits);
++                    Pixels pixels = DssScreeningUtils.createPixels(image);
++                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(pixels, shiftBits);
+                 }
+             };
+     }
+Index: source/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageChannelsUtils.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageChannelsUtils.java	(revision 32665)
++++ source/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageChannelsUtils.java	(working copy)
+@@ -20,8 +20,6 @@
+ import java.awt.Color;
+ import java.awt.Graphics2D;
+ import java.awt.image.BufferedImage;
+-import java.awt.image.RenderedImage;
+-import java.io.File;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.List;
+@@ -30,11 +28,13 @@
+ import org.apache.log4j.Logger;
+ 
+ import ch.rinn.restrictions.Private;
++import ch.systemsx.cisd.base.image.IImageTransformer;
+ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+-import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+ import ch.systemsx.cisd.common.exceptions.UserFailureException;
+-import ch.systemsx.cisd.common.image.ImageHistogram;
++import ch.systemsx.cisd.common.image.IntensityRescaling;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
+ import ch.systemsx.cisd.common.image.MixColors;
+ import ch.systemsx.cisd.common.logging.LogCategory;
+ import ch.systemsx.cisd.common.logging.LogFactory;
+@@ -61,6 +61,7 @@
+ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ import ch.systemsx.cisd.openbis.generic.shared.dto.OpenBISSessionHolder;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.basic.dto.ScreeningConstants;
+@@ -69,8 +70,12 @@
+ /**
+  * Utility classes to create an image of a specified size containing one channel or a subset of all
+  * channels.
++ * <p>
++ * In autumn 2014 this class went throw a bigger refactoring in order to make the code more understandable. 
++ * The images created by this class are the result of little processing pipelines. 
+  * 
+  * @author Tomasz Pylak
++ * @author Franz-Josef Elmer
+  */
+ public class ImageChannelsUtils
+ {
+@@ -79,34 +84,47 @@
+ 
+     // MIME type of the images which are produced by this class
+     public static final String IMAGES_CONTENT_TYPE = "image/png";
++    
++    private static interface IColorTransformation
++    {
++        int transform(int rgb);
++    }
+ 
+-    public static interface IDatasetDirectoryProvider
++    private static interface IImageCalculator
+     {
+-        /** directory where dataset can be found in DSS store */
+-        File getDatasetRoot(String datasetCode);
++        public BufferedImage create(AbsoluteImageReference imageContent);
+     }
+ 
+-    private final IImagingLoaderStrategy imageLoaderStrategy;
++    /**
++     * Data class which contains an {@link AbsoluteImageReference} and its corresponding image
++     * which is often no longer the unchanged image from {@link AbsoluteImageReference#getUnchangedImage()}.
++     */
++    private static class ImageWithReference
++    {
++        private BufferedImage image;
+ 
+-    private final RequestedImageSize imageSizeLimit;
++        private final AbsoluteImageReference reference;
+ 
+-    private final String singleChannelTransformationCodeOrNull;
++        public ImageWithReference(BufferedImage image, AbsoluteImageReference reference)
++        {
++            this.image = image;
++            this.reference = reference;
++        }
+ 
+-    @Private
+-    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy,
+-            RequestedImageSize imageSizeLimit, String singleChannelTransformationCodeOrNull)
+-    {
+-        this.imageLoaderStrategy = imageLoaderStrategy;
+-        this.imageSizeLimit = imageSizeLimit;
+-        this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
+-    }
++        public BufferedImage getBufferedImage()
++        {
++            return image;
++        }
++        
++        public void setImage(BufferedImage image)
++        {
++            this.image = image;
++        }
+ 
+-    @Private
+-    ImageChannelsUtils(IImagingLoaderStrategy imageLoaderStrategy, Size imageSizeLimitOrNull,
+-            String singleChannelTransformationCodeOrNull)
+-    {
+-        this(imageLoaderStrategy, new RequestedImageSize(imageSizeLimitOrNull, false),
+-                singleChannelTransformationCodeOrNull);
++        public AbsoluteImageReference getReference()
++        {
++            return reference;
++        }
+     }
+ 
+     /**
+@@ -146,7 +164,7 @@
+ 
+     /**
+      * Returns content of image for the specified tile in the specified size and for the requested
+-     * channel or with all channels merged.
++     * channel or with all channels merged. This method is called by the servlets which delivers images.
+      * 
+      * @param params
+      * @param contentProvider
+@@ -154,57 +172,59 @@
+     public static ResponseContentStream getImageStream(ImageGenerationDescription params,
+             IHierarchicalContentProvider contentProvider)
+     {
+-        Size thumbnailSizeOrNull = params.tryGetThumbnailSize();
+-
+-        ImageRepresentationFormat existingRepresentationFormat =
+-                RepresentationUtil.tryGetRepresentationFormat(params);
+-
+-        if (existingRepresentationFormat != null && existingRepresentationFormat.getColorDepth() != null
+-                && existingRepresentationFormat.getColorDepth() == 8)
++        BufferedImage image = calculateImage(params, contentProvider);
++        image = drawOverlays(image, params, contentProvider);
++        if (image == null)
+         {
+-            IHierarchicalContentNode content =
+-                    tryGetRawContentOfExistingThumbnail(params, existingRepresentationFormat);
+-            if (content != null)
+-            {
+-                return asResponseContentStream(content);
+-            }
++            throw new UserFailureException("No image is available for parameters: " + params);
+         }
+-
+-        BufferedImage image = null;
++        return createResponseContentStream(image, null);
++    }
++    
++    private static BufferedImage calculateImage(ImageGenerationDescription params, 
++            IHierarchicalContentProvider contentProvider)
++    {
+         DatasetAcquiredImagesReference imageChannels = params.tryGetImageChannels();
+-        if (imageChannels != null)
++        if (imageChannels == null)
+         {
+-            RequestedImageSize imageSize = new RequestedImageSize(thumbnailSizeOrNull, false);
+-            image =
+-                    calculateBufferedImage(imageChannels,
+-                            params.tryGetSingleChannelTransformationCode(),
+-                            params.tryGetTransformationsPerChannel(), contentProvider, imageSize);
++            return null;
+         }
++        RequestedImageSize imageSize = new RequestedImageSize(params.tryGetThumbnailSize(), false);
++        String transformationCode = params.tryGetSingleChannelTransformationCode();
++        Map<String, String> transformationsPerChannel = params.tryGetTransformationsPerChannel();
++        ImageLoadingHelper imageLoadingHelper = new ImageLoadingHelper(imageChannels, contentProvider, imageSize, transformationCode);
++        boolean mergeAllChannels = imageLoadingHelper.isMergeAllChannels(imageChannels);
++        ImageTransformationParams transformationInfo = new ImageTransformationParams(true, mergeAllChannels,
++                        transformationCode, transformationsPerChannel);
++        List<AbsoluteImageReference> imageContents =
++                imageLoadingHelper.fetchImageContents(imageChannels, mergeAllChannels, false, transformationInfo);
++        return calculateBufferedImage(imageContents, transformationInfo);
++    }
+ 
+-        RequestedImageSize overlaySize = calcOverlaySize(image, thumbnailSizeOrNull);
++    private static BufferedImage drawOverlays(BufferedImage imageOrNull, ImageGenerationDescription params, 
++            IHierarchicalContentProvider contentProvider)
++    {
++        RequestedImageSize overlaySize = calcOverlaySize(imageOrNull, params.tryGetThumbnailSize());
++        BufferedImage imageWithOverlays = imageOrNull;
+         for (DatasetAcquiredImagesReference overlayChannels : params.getOverlayChannels())
+         {
+             // NOTE: never merges the overlays, draws each channel separately (merging looses
+             // transparency and is slower)
+-            List<ImageWithReference> overlayImages =
+-                    getSingleImagesSkipNonExisting(overlayChannels, overlaySize,
+-                            params.tryGetSingleChannelTransformationCode(), contentProvider);
++            String transformationCode = params.tryGetSingleChannelTransformationCode();
++            List<ImageWithReference> overlayImages = getSingleImagesSkipNonExisting(overlayChannels, 
++                    overlaySize, transformationCode, contentProvider);
+             for (ImageWithReference overlayImage : overlayImages)
+             {
+-                if (image != null)
++                if (imageWithOverlays != null)
+                 {
+-                    drawOverlay(image, overlayImage);
++                    drawOverlay(imageWithOverlays, overlayImage);
+                 } else
+                 {
+-                    image = overlayImage.getBufferedImage();
++                    imageWithOverlays = overlayImage.getBufferedImage();
+                 }
+             }
+         }
+-        if (image == null)
+-        {
+-            throw new UserFailureException("No image is available for parameters: " + params);
+-        }
+-        return createResponseContentStream(image, null);
++        return imageWithOverlays;
+     }
+ 
+     private static List<ImageWithReference> getSingleImagesSkipNonExisting(
+@@ -212,17 +232,22 @@
+             String singleChannelTransformationCodeOrNull,
+             IHierarchicalContentProvider contentProvider)
+     {
+-        ImageChannelsUtils utils =
+-                createImageChannelsUtils(imagesReference, contentProvider, imageSize,
+-                        singleChannelTransformationCodeOrNull);
+-        boolean mergeAllChannels = utils.isMergeAllChannels(imagesReference);
+-        ImageTransformationParams transformationInfo =
+-                new ImageTransformationParams(true, mergeAllChannels, null,
+-                        new HashMap<String, String>());
++        ImageLoadingHelper imageLoadingHelper = new ImageLoadingHelper(imagesReference,
++                contentProvider, imageSize, singleChannelTransformationCodeOrNull);
++        boolean mergeAllChannels = imageLoadingHelper.isMergeAllChannels(imagesReference);
++        final ImageTransformationParams transformationInfo =
++                new ImageTransformationParams(true, mergeAllChannels, null, new HashMap<String, String>());
+         List<AbsoluteImageReference> imageContents =
+-                utils.fetchImageContents(imagesReference, mergeAllChannels, true,
++                imageLoadingHelper.fetchImageContents(imagesReference, mergeAllChannels, true,
+                         transformationInfo);
+-        return calculateSingleImagesForDisplay(imageContents, transformationInfo, 0.0f, null);
++        return calculateSingleImages(imageContents, new IImageCalculator()
++            {
++                @Override
++                public BufferedImage create(AbsoluteImageReference imageContent)
++                {
++                    return calculateAndTransformSingleImageForDisplay(imageContent, transformationInfo, 0f);
++                }
++            });
+     }
+ 
+     private static RequestedImageSize getSize(BufferedImage img, boolean highQuality)
+@@ -260,116 +285,6 @@
+         return asResponseContentStream(imageContent);
+     }
+ 
+-    private static BufferedImage calculateBufferedImage(
+-            DatasetAcquiredImagesReference imageChannels,
+-            String singleChannelTransformationCodeOrNull,
+-            Map<String, String> transformationsPerChannels,
+-            IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit)
+-    {
+-        ImageChannelsUtils imageChannelsUtils =
+-                createImageChannelsUtils(imageChannels, contentProvider, imageSizeLimit,
+-                        singleChannelTransformationCodeOrNull);
+-        boolean useMergedChannelsTransformation =
+-                imageChannelsUtils.isMergeAllChannels(imageChannels);
+-        ImageTransformationParams transformationInfo =
+-                new ImageTransformationParams(true, useMergedChannelsTransformation,
+-                        singleChannelTransformationCodeOrNull, transformationsPerChannels);
+-
+-        return imageChannelsUtils.calculateBufferedImage(imageChannels, transformationInfo);
+-    }
+-
+-    private static ImageChannelsUtils createImageChannelsUtils(
+-            DatasetAcquiredImagesReference imageChannels,
+-            IHierarchicalContentProvider contentProvider, RequestedImageSize imageSizeLimit,
+-            String singleChannelTransformationCodeOrNull)
+-    {
+-        IImagingDatasetLoader imageAccessor = createImageAccessor(imageChannels, contentProvider);
+-        return new ImageChannelsUtils(
+-                ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
+-                imageSizeLimit, singleChannelTransformationCodeOrNull);
+-    }
+-
+-    @Private
+-    BufferedImage calculateBufferedImage(DatasetAcquiredImagesReference imageChannels,
+-            ImageTransformationParams transformationInfo)
+-    {
+-        boolean mergeAllChannels = isMergeAllChannels(imageChannels);
+-        List<AbsoluteImageReference> imageContents =
+-                fetchImageContents(imageChannels, mergeAllChannels, false, transformationInfo);
+-        return calculateBufferedImage(imageContents, transformationInfo);
+-    }
+-
+-    private boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels)
+-    {
+-        return imageChannels.isMergeAllChannels(getAllChannelCodes());
+-    }
+-
+-    /**
+-     * @param skipNonExisting if true references to non-existing images are ignored, otherwise an
+-     *            exception is thrown
+-     * @param mergeAllChannels true if all existing channel images should be merged
+-     * @param transformationInfo
+-     */
+-    private List<AbsoluteImageReference> fetchImageContents(
+-            DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels,
+-            boolean skipNonExisting, ImageTransformationParams transformationInfo)
+-    {
+-        List<String> channelCodes = imagesReference.getChannelCodes(getAllChannelCodes());
+-        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
+-        for (String channelCode : channelCodes)
+-        {
+-            ImageChannelStackReference channelStackReference =
+-                    imagesReference.getChannelStackReference();
+-            AbsoluteImageReference image =
+-                    imageLoaderStrategy.tryGetImage(channelCode, channelStackReference,
+-                            imageSizeLimit, singleChannelTransformationCodeOrNull);
+-            if (image == null && skipNonExisting == false)
+-            {
+-                throw createImageNotFoundException(channelStackReference, channelCode);
+-            }
+-            if (image != null)
+-            {
+-                images.add(image);
+-            }
+-        }
+-
+-        // Optimization for a case where all channels are on one image
+-        if (mergeAllChannels
+-                && (false == shouldApplySingleChannelsTransformations(transformationInfo)))
+-        {
+-            AbsoluteImageReference allChannelsImageReference =
+-                    tryCreateAllChannelsImageReference(images);
+-            if (allChannelsImageReference != null)
+-            {
+-                images.clear();
+-                images.add(allChannelsImageReference);
+-            }
+-        }
+-        return images;
+-    }
+-
+-    private boolean shouldApplySingleChannelsTransformations(
+-            ImageTransformationParams transformationInfo)
+-    {
+-        if (transformationInfo == null
+-                || transformationInfo.tryGetTransformationCodeForChannels() == null
+-                || transformationInfo.tryGetTransformationCodeForChannels().size() == 0)
+-        {
+-            return false;
+-        }
+-
+-        return true;
+-    }
+-
+-    private static IImagingDatasetLoader createImageAccessor(
+-            DatasetAcquiredImagesReference imagesReference,
+-            IHierarchicalContentProvider contentProvider)
+-    {
+-        String datasetCode = imagesReference.getDatasetCode();
+-        IHierarchicalContent dataSetRoot = contentProvider.asContent(datasetCode);
+-        return createDatasetLoader(dataSetRoot, datasetCode);
+-    }
+-
+     /**
+      * Returns content of the image which is representative for the given dataset.
+      */
+@@ -377,32 +292,18 @@
+             IHierarchicalContent dataSetRoot, String datasetCode, Location wellLocationOrNull,
+             Size imageSizeLimitOrNull, String singleChannelTransformationCodeOrNull)
+     {
+-        IImagingDatasetLoader imageAccessor = createDatasetLoader(dataSetRoot, datasetCode);
+-        List<AbsoluteImageReference> imageReferences =
+-                new ImageChannelsUtils(
+-                        ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor),
+-                        imageSizeLimitOrNull, singleChannelTransformationCodeOrNull)
+-                        .getRepresentativeImageReferences(wellLocationOrNull);
+-        BufferedImage image =
+-                calculateBufferedImage(imageReferences, new ImageTransformationParams(true, true,
+-                        null, new HashMap<String, String>()));
++        IImagingDatasetLoader imageAccessor = HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
++        IImagingLoaderStrategy loaderStrategy = ImagingLoaderStrategyFactory.createImageLoaderStrategy(imageAccessor);
++        ImageLoadingHelper imageLoadingHelper = 
++                new ImageLoadingHelper(loaderStrategy, imageSizeLimitOrNull, singleChannelTransformationCodeOrNull);
++        List<AbsoluteImageReference> imageReferences = imageLoadingHelper.getRepresentativeImageReferences(wellLocationOrNull);
++        ImageTransformationParams transformationParams = new ImageTransformationParams(true, true,
++                        null, new HashMap<String, String>());
++        BufferedImage image = calculateBufferedImage(imageReferences, transformationParams);
+         String name = createFileName(datasetCode, wellLocationOrNull, imageSizeLimitOrNull);
+         return createResponseContentStream(image, name);
+     }
+ 
+-    private static IImagingDatasetLoader createDatasetLoader(IHierarchicalContent dataSetRoot,
+-            String datasetCode)
+-    {
+-        IImagingDatasetLoader loader =
+-                HCSImageDatasetLoaderFactory.tryCreate(dataSetRoot, datasetCode);
+-        if (loader == null)
+-        {
+-            throw new IllegalStateException(String.format(
+-                    "Dataset '%s' not found in the imaging database.", datasetCode));
+-        }
+-        return loader;
+-    }
+-
+     private static String createFileName(String datasetCode, Location wellLocationOrNull,
+             Size imageSizeLimitOrNull)
+     {
+@@ -441,16 +342,16 @@
+                         chosenChannelCode == null ? ScreeningConstants.MERGED_CHANNELS
+                                 : chosenChannelCode);
+ 
+-        ImageChannelsUtils imageChannelsUtils =
+-                new ImageChannelsUtils(imageLoaderStrategy, imageSizeLimitOrNull,
++        ImageLoadingHelper imageLoadingHelper =
++                new ImageLoadingHelper(imageLoaderStrategy, imageSizeLimitOrNull,
+                         singleChannelImageTransformationCodeOrNull);
+-        boolean mergeAllChannels = imageChannelsUtils.isMergeAllChannels(imagesReference);
++        boolean mergeAllChannels = imageLoadingHelper.isMergeAllChannels(imagesReference);
+         ImageTransformationParams transformationInfo =
+                 new ImageTransformationParams(transform, mergeAllChannels,
+                         singleChannelImageTransformationCodeOrNull, new HashMap<String, String>());
+ 
+         List<AbsoluteImageReference> imageContents =
+-                imageChannelsUtils.fetchImageContents(imagesReference, mergeAllChannels, false,
++                imageLoadingHelper.fetchImageContents(imagesReference, mergeAllChannels, false,
+                         transformationInfo);
+ 
+         IHierarchicalContentNode contentNode = tryGetRawContent(convertToPng, imageContents);
+@@ -492,149 +393,137 @@
+         }
+         return null;
+     }
+-
+-    private List<AbsoluteImageReference> getRepresentativeImageReferences(
+-            Location wellLocationOrNull)
+-    {
+-        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
+-
+-        for (String chosenChannel : getAllChannelCodes())
+-        {
+-            AbsoluteImageReference image =
+-                    getRepresentativeImageReference(chosenChannel, wellLocationOrNull);
+-            images.add(image);
+-        }
+-        return images;
+-    }
+-
+-    private List<String> getAllChannelCodes()
++    /**
++     * Calculates from the specified image reference (i.e. image file content and meta data from imaging database)
++     * an 8-bit colored gray image for display purposes. This is done by the following steps:
++     * <ol>
++     * <li>Load the unchanged image from the file content. This done by {@link ImageUtil#loadUnchangedImage(IHierarchicalContentNode, String, String, String, ch.systemsx.cisd.imagereaders.IReadParams)}.
++     * <li>Re-scale intensities to 8-bit if at least one color component has more than 8 bit. This is done by {@link IntensityRescaling}.
++     * <li>Re-size to the requested size. This is done by {@link ImageUtil#rescale(BufferedImage, int, int, boolean, boolean, ch.systemsx.cisd.common.image.IntensityRescaling.IImageToPixelsConverter)}.
++     * <li>Extract the color component, if specified.
++     * <li>Apply any transformation as revealed from the imaging database. This can include user-specified intensity ranges.
++     * If there is no transformation in the imaging database {@link AutoRescaleIntensityImageTransformerFactory} is used.
++     * <li>Finally the gray image is colored by the corresponding channel color.
++     * </ol>
++     */
++    private static BufferedImage calculateAndTransformSingleImageForDisplay(
++            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
++            Float threshold)
+     {
+-        return imageLoaderStrategy.getImageParameters().getChannelsCodes();
++        BufferedImage image = imageReference.getUnchangedImage();
++        image = rescaleIfNot8Bit(image, threshold);
++        image = resize(image, imageReference.getRequestedSize());
++        image = extractChannel(image, imageReference.tryGetColorComponent());
++        image = transform(image, imageReference, transformationInfo, threshold);
++        image = transformGrayToColor(image, imageReference.getChannelColor());
++        return image;
+     }
+ 
+-    /**
+-     * @throw {@link EnvironmentFailureException} when image does not exist
+-     */
+-    private AbsoluteImageReference getRepresentativeImageReference(String channelCode,
+-            Location wellLocationOrNull)
++    public static BufferedImage rescaleIfNot8Bit(BufferedImage image, Float threshold)
+     {
+-        AbsoluteImageReference image =
+-                imageLoaderStrategy.tryGetRepresentativeImage(channelCode, wellLocationOrNull,
+-                        imageSizeLimit, singleChannelTransformationCodeOrNull);
+-        if (image != null)
++        if (ImageUtil.getMaxNumberOfBitsPerComponent(image) <= 8)
+         {
+             return image;
+-        } else
+-        {
+-            throw EnvironmentFailureException.fromTemplate(
+-                    "No representative "
+-                            + (imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image")
+-                            + " found for well %s and channel %s", wellLocationOrNull, channelCode);
+         }
++        Pixels pixels = DssScreeningUtils.createPixels(image);
++        float thresholdValue = getThresholdValue(threshold);
++        Levels levels = IntensityRescaling.computeLevels(pixels, thresholdValue, Channel.values());
++        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+     }
+ 
+-    /**
+-     * @param threshold
+-     * @param useMergedChannelsTransformation sometimes we can have a single image which contain all
+-     *            channels merged. In this case a different transformation will be applied to it.
+-     */
+-    private static BufferedImage calculateAndTransformSingleImageForDisplay(
+-            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo,
+-            Float threshold)
++    private static float getThresholdValue(Float threshold)
+     {
+-        BufferedImage image = calculateSingleImage(imageReference);
+-        image = transform(image, imageReference, transformationInfo);
+-        image =
+-                threshold == null ? ImageUtil.convertForDisplayIfNecessary(image) : ImageUtil
+-                        .convertForDisplayIfNecessary(image, threshold);
+-        return image;
++        return threshold == null ? ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold;
+     }
+-
+-    private static BufferedImage calculateSingleImage(AbsoluteImageReference imageReference)
++    
++    public static BufferedImage transformGrayToColor(BufferedImage image, final ChannelColorRGB channelColor)
+     {
+-        long start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
+-        BufferedImage image = imageReference.getUnchangedImage();
+-        if (operationLog.isDebugEnabled())
++        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
++        if (channel == null)
+         {
+-            operationLog.debug("Load original image: " + (System.currentTimeMillis() - start));
++            return image;
+         }
+-
+-        // resized the image if necessary
+-        RequestedImageSize requestedSize = imageReference.getRequestedSize();
+-
++        return transformColor(image, createColorTransformation(channel, channelColor));
++    }
++    
++    private static BufferedImage resize(BufferedImage image, RequestedImageSize requestedSize)
++    {
+         Size size = requestedSize.tryGetThumbnailSize();
+-        if (size != null)
++        if (size == null)
+         {
+-            start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
+-            image =
+-                    ImageUtil.rescale(image, size.getWidth(), size.getHeight(),
+-                            requestedSize.enlargeIfNecessary(),
+-                            requestedSize.isHighQualityRescalingRequired());
+-            if (operationLog.isDebugEnabled())
+-            {
+-                operationLog.debug("Create thumbnail: " + (System.currentTimeMillis() - start));
+-            }
++            return image;
+         }
++        boolean enlarge = requestedSize.enlargeIfNecessary();
++        boolean highQuality8Bit = requestedSize.isHighQualityRescalingRequired();
++        return ImageUtil.rescale(image, size.getWidth(), size.getHeight(), enlarge, highQuality8Bit, DssScreeningUtils.CONVERTER);
++    }
+ 
+-        // choose color component if necessary
+-        final ColorComponent colorComponentOrNull = imageReference.tryGetColorComponent();
+-        if (colorComponentOrNull != null)
+-        {
+-            start = operationLog.isDebugEnabled() ? System.currentTimeMillis() : 0;
+-            image = transformToChannel(image, colorComponentOrNull);
+-            if (operationLog.isDebugEnabled())
++    private static IColorTransformation createColorTransformation(final Channel channel, final ChannelColorRGB channelColor)
++    {
++        float[] channelHSB = Color.RGBtoHSB(channelColor.getR(), channelColor.getG(), channelColor.getB(), null);
++        final float hue = channelHSB[0];
++        final float saturation = channelHSB[1];
++        final float brightnessScale = channelHSB[2] / 255;
++        return new IColorTransformation()
+             {
+-                operationLog
+-                        .debug("Select single channel: " + (System.currentTimeMillis() - start));
+-            }
+-        }
+-        return image;
++                @Override
++                public int transform(int rgb)
++                {
++                    int gray = (rgb >> channel.getShift()) & 0xff;
++                    return Color.HSBtoRGB(hue, saturation, brightnessScale * gray);
++                }
++            };
+     }
+ 
+-    /**
+-     * @param allChannelsMerged if true then we use one special transformation on the merged images
+-     *            instead of transforming every single image.
+-     */
+-    private static BufferedImage calculateBufferedImage(
+-            List<AbsoluteImageReference> imageReferences,
++    @Private
++    static BufferedImage calculateBufferedImage(List<AbsoluteImageReference> imageReferences,
+             ImageTransformationParams transformationInfo)
+     {
+         AbsoluteImageReference singleImageReference = imageReferences.get(0);
+         if (imageReferences.size() == 1)
+         {
+-            return calculateAndTransformSingleImageForDisplay(singleImageReference,
+-                    transformationInfo, null);
++            return calculateAndTransformSingleImageForDisplay(singleImageReference, transformationInfo, null);
+         } else
+         {
+             IImageTransformerFactory mergedChannelTransformationOrNull =
+-                    singleImageReference.getImageTransfomationFactories().tryGetForMerged();
+-            return mergeChannels(imageReferences, transformationInfo,
+-                    mergedChannelTransformationOrNull);
++                    singleImageReference.getImageTransformationFactories().tryGetForMerged();
++            return mergeChannels(imageReferences, transformationInfo, mergedChannelTransformationOrNull);
+         }
+     }
+ 
++    /**
++     * Creates a colored image by merging at least two gray images. This done by the following steps:
++     * <ol>
++     * <li>The images are loaded a processed similar to {@link #calculateAndTransformSingleImageForDisplay(AbsoluteImageReference, ImageTransformationParams, Float)}.
++     * <li>The processed images (colored gray 8-bit images) are merged.
++     * <li>The merged image is transformed either by a transformation found in imaging database or
++     * by an intensity range re-scaling transformation. 
++     * </ol>
++     */
+     private static BufferedImage mergeChannels(List<AbsoluteImageReference> imageReferences,
+             ImageTransformationParams transformationInfo,
+             IImageTransformerFactory mergedChannelTransformationOrNull)
+     {
+-        // We do not transform single images here.
+-        List<ImageWithReference> images =
+-                calculateSingleImagesForDisplay(imageReferences, null, null, transformationInfo);
++        assert transformationInfo != null;
++        List<ImageWithReference> images = new ArrayList<ImageWithReference>();
++        for (AbsoluteImageReference imageReference : imageReferences)
++        {
++            images.add(new ImageWithReference(imageReference.getUnchangedImage(), imageReference));
++        }
++        calculateImagesForMerging(images, transformationInfo);
+         BufferedImage mergedImage = mergeImages(images);
++        
+         // non-user transformation - apply color range fix after mixing
+         Map<String, String> transMap = transformationInfo.tryGetTransformationCodeForChannels();
+         IImageTransformerFactory channelTransformation = mergedChannelTransformationOrNull;
+         if ((transMap == null || transMap.isEmpty()) && channelTransformation == null) 
+         {
+-            ImageHistogram histogram = ImageHistogram.calculateHistogram(mergedImage);
+-            int[] redHistogram = histogram.getRedHistogram();
+-            int[] greenHistogram = histogram.getGreenHistogram();
+-            int[] blueHistogram = histogram.getBlueHistogram();
+-            Levels levels = calculateLevels(redHistogram, greenHistogram, blueHistogram);
++            Levels levels = IntensityRescaling.computeLevels(DssScreeningUtils.createPixels(mergedImage), 30);
+             int minLevel = levels.getMinLevel();
+             int maxLevel = levels.getMaxLevel();
+             channelTransformation = new IntensityRangeImageTransformerFactory(minLevel, maxLevel);
+         }
++        
+         // NOTE: even if we are not merging all the channels but just few of them we use the
+         // merged-channel transformation
+         if (transformationInfo.isApplyNonImageLevelTransformation())
+@@ -643,53 +532,45 @@
+         }
+         return mergedImage;
+     }
+-    
+-    private static Levels calculateLevels(int[]... histograms)
+-    {
+-        int min = Integer.MAX_VALUE;
+-        int max = 0;
+-        for (int[] histogram : histograms)
+-        {
+-            min = Math.min(min, getIndexOfFirstNonZero(histogram));
+-            max = Math.max(max,  getIndexOfLastNonZero(histogram));
+-        }
+-        return new Levels(min, max);
+-    }
+-    
+-    private static int getIndexOfFirstNonZero(int[] array)
++
++    private static void calculateImagesForMerging(List<ImageWithReference> images, ImageTransformationParams transformationInfo)
+     {
+-        for (int i = 0; i < array.length; i++)
++        for (ImageWithReference imageWithReference : images)
+         {
+-            if (array[i] != 0)
+-            {
+-                return i;
+-            }
++            BufferedImage image = imageWithReference.getBufferedImage();
++            AbsoluteImageReference imageReference = imageWithReference.getReference();
++            image = rescaleIfNot8Bit(image, 0f);
++            image = resize(image, imageReference.getRequestedSize());
++            image = transformForChannel(image, imageReference, transformationInfo);
++            image = transformGrayToColor(image, imageReference.getChannelColor());
++            imageWithReference.setImage(image);
+         }
+-        return 0;
+     }
+-    
+-    private static int getIndexOfLastNonZero(int[] array)
++
++    private static BufferedImage transformForChannel(BufferedImage image, AbsoluteImageReference imageReference,
++            ImageTransformationParams transformationInfo)
+     {
+-        for (int i = array.length - 1; i >= 0; i--)
++        String channelCode = imageReference.tryGetChannelCode();
++        String transformationCode = transformationInfo.tryGetTransformationCodeForChannel(channelCode);
++        boolean applyNonImageLevelTransformation = false;
++        if (transformationCode != null)
+         {
+-            if (array[i] != 0)
+-            {
+-                return i;
+-            }
++            applyNonImageLevelTransformation = transformationInfo.isApplyNonImageLevelTransformation();
+         }
+-        return 0;
++        ImageTransformationParams info 
++                = new ImageTransformationParams(applyNonImageLevelTransformation, false, transformationCode, null);
++        return transform(image, imageReference, info, 0f);
+     }
+ 
+-    private static BufferedImage transform(BufferedImage image,
+-            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo)
++	private static BufferedImage transform(BufferedImage image,
++            AbsoluteImageReference imageReference, ImageTransformationParams transformationInfo, Float threshold)
+     {
+         BufferedImage resultImage = image;
+-        ImageTransfomationFactories transfomations =
+-                imageReference.getImageTransfomationFactories();
++        ImageTransfomationFactories transformations = imageReference.getImageTransformationFactories();
+         // image level transformation is applied always, as it cannot be applied or changed in
+         // external image viewer
+ 
+-        resultImage = applyImageTransformation(resultImage, transfomations.tryGetForImage());
++        resultImage = applyImageTransformation(resultImage, transformations.tryGetForImage());
+ 
+         if (transformationInfo.isApplyNonImageLevelTransformation() == false)
+         {
+@@ -698,32 +579,27 @@
+         IImageTransformerFactory channelLevelTransformationOrNull = null;
+         if (transformationInfo.isUseMergedChannelsTransformation())
+         {
+-            channelLevelTransformationOrNull = transfomations.tryGetForMerged();
++            channelLevelTransformationOrNull = transformations.tryGetForMerged();
+         } else
+         {
+-            String channelTransformationCode =
+-                    transformationInfo.tryGetSingleChannelTransformationCode() == null ? transfomations
+-                            .tryGetDefaultTransformationCode()
+-                            : transformationInfo
+-                                    .tryGetSingleChannelTransformationCode();
+-
++            String transformationCode = transformationInfo.tryGetSingleChannelTransformationCode();
++            String channelTransformationCode = transformationCode;
++            if (transformationCode == null)
++            {
++                channelTransformationCode = transformations.tryGetDefaultTransformationCode();
++            }
+             if (channelTransformationCode != null
+                     && (false == channelTransformationCode.equals(imageReference
+                             .tryGetSingleChannelTransformationCode())))
+             {
+-                channelLevelTransformationOrNull =
+-                        transfomations.tryGetForChannel(transformationInfo
+-                                .tryGetSingleChannelTransformationCode());
++                channelLevelTransformationOrNull = transformations.tryGetForChannel(transformationCode);
+             }
+-
+             if (channelLevelTransformationOrNull == null)
+             {
+-                channelLevelTransformationOrNull =
+-                        new AutoRescaleIntensityImageTransformerFactory(
+-                                ImageUtil.DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR);
++                channelLevelTransformationOrNull = new AutoRescaleIntensityImageTransformerFactory(
++                                getThresholdValue(threshold));
+             }
+         }
+-
+         return applyImageTransformation(resultImage, channelLevelTransformationOrNull);
+     }
+ 
+@@ -734,111 +610,23 @@
+         {
+             return image;
+         }
+-        return transformerFactoryOrNull.createTransformer().transform(image);
++        IImageTransformer transformer = transformerFactoryOrNull.createTransformer();
++        BufferedImage transformedImage = transformer.transform(image);
++        return transformedImage;
+     }
+ 
+-    private static class ImageWithReference
+-    {
+-        private final BufferedImage image;
+-
+-        private final AbsoluteImageReference reference;
+-
+-        public ImageWithReference(BufferedImage image, AbsoluteImageReference reference)
+-        {
+-            this.image = image;
+-            this.reference = reference;
+-        }
+-
+-        public BufferedImage getBufferedImage()
+-        {
+-            return image;
+-        }
+-
+-        public AbsoluteImageReference getReference()
+-        {
+-            return reference;
+-        }
+-    }
+-
+-    /**
+-     * @param transformationInfoOrNull if null all transformations (including image-level) will be
+-     *            skipped
+-     * @param transformationInfo
+-     */
+-    private static List<ImageWithReference> calculateSingleImagesForDisplay(
+-            List<AbsoluteImageReference> imageReferences,
+-            ImageTransformationParams transformationInfoOrNull, Float threshold,
+-            ImageTransformationParams transformationInfoForMergingOrNull)
++    private static List<ImageWithReference> calculateSingleImages(List<AbsoluteImageReference> imageContents, 
++            IImageCalculator imageCalculator)
+     {
+         List<ImageWithReference> images = new ArrayList<ImageWithReference>();
+-        for (AbsoluteImageReference imageRef : imageReferences)
++        for (AbsoluteImageReference imageContent : imageContents)
+         {
+-            BufferedImage image;
+-            if (transformationInfoOrNull != null)
+-            {
+-                image =
+-                        calculateAndTransformSingleImageForDisplay(imageRef,
+-                                transformationInfoOrNull, threshold);
+-            } else if (transformationInfoForMergingOrNull != null
+-                    && null != transformationInfoForMergingOrNull
+-                            .tryGetTransformationCodeForChannel(imageRef.tryGetChannelCode()))
+-            {
+-                String transformationCode =
+-                        transformationInfoForMergingOrNull
+-                                .tryGetTransformationCodeForChannel(imageRef.tryGetChannelCode());
+-                image =
+-                        calculateAndTransformSingleImageForDisplay(
+-                                imageRef,
+-                                new ImageTransformationParams(transformationInfoForMergingOrNull
+-                                        .isApplyNonImageLevelTransformation(), false,
+-                                        transformationCode, null), threshold);
+-            } else
+-            {
+-                // NOTE: here we skip image level transformations as well
+-                image = calculateSingleImage(imageRef);
+-                image =
+-                        threshold == null ? ImageUtil.convertForDisplayIfNecessary(image)
+-                                : ImageUtil.convertForDisplayIfNecessary(image, threshold);
+-            }
+-            images.add(new ImageWithReference(image, imageRef));
++            BufferedImage image = imageCalculator.create(imageContent);
++            images.add(new ImageWithReference(image, imageContent));
+         }
+         return images;
+     }
+-
+-    // Checks if all images differ only at the color component level and stem from the same page
+-    // of the same file. If that's the case any image from the collection contains the merged
+-    // channels image (if we erase the color component).
+-    private static AbsoluteImageReference tryCreateAllChannelsImageReference(
+-            List<AbsoluteImageReference> imageReferences)
+-    {
+-        AbsoluteImageReference lastFound = null;
+-        for (AbsoluteImageReference image : imageReferences)
+-        {
+-            if (lastFound == null)
+-            {
+-                lastFound = image;
+-            } else
+-            {
+-                if (equals(image.tryGetImageID(), lastFound.tryGetImageID()) == false
+-                        || image.getUniqueId().equals(lastFound.getUniqueId()) == false)
+-                {
+-                    return null;
+-                }
+-            }
+-        }
+-        if (lastFound != null)
+-        {
+-            return lastFound.createWithoutColorComponent();
+-        } else
+-        {
+-            return null;
+-        }
+-    }
+-
+-    private static boolean equals(String i1OrNull, String i2OrNull)
+-    {
+-        return (i1OrNull == null) ? (i2OrNull == null) : i1OrNull.equals(i2OrNull);
+-    }
++    
+ 
+     // this method always returns RGB images, even if the input was in grayscale
+     private static BufferedImage mergeImages(List<ImageWithReference> images)
+@@ -962,59 +750,55 @@
+         return image.getBufferedImage().getColorModel().hasAlpha();
+     }
+ 
+-    // --------- common
+-
+-    private EnvironmentFailureException createImageNotFoundException(
+-            ImageChannelStackReference channelStackReference, String chosenChannelCode)
+-    {
+-        return EnvironmentFailureException.fromTemplate(
+-                "No " + (imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image")
+-                        + " found for channel stack %s and channel %s", channelStackReference,
+-                chosenChannelCode);
+-    }
+-
+     /**
+      * Transforms the given <var>bufferedImage</var> by selecting a single channel from it.
+      */
+-    public static BufferedImage transformToChannel(BufferedImage bufferedImage,
+-            ColorComponent colorComponent)
++    public static BufferedImage extractChannel(BufferedImage bufferedImage, final ColorComponent colorComponent)
+     {
+-        BufferedImage newImage = createNewRGBImage(bufferedImage);
+-        int width = bufferedImage.getWidth();
+-        int height = bufferedImage.getHeight();
++        if (colorComponent == null)
++        {
++            return bufferedImage;
++        }
++        return transformColor(bufferedImage, new IColorTransformation()
++            {
++                @Override
++                public int transform(int rgb)
++                {
++                    // We reset all ingredients besides the one which is specified by color component.
++                    // The result is the rgb value with only one component which is non-zero.
++                    return colorComponent.extractSingleComponent(rgb).getRGB();
++                }
++            });
++    }
++    
++    public static BufferedImage transformColor(BufferedImage bufferedImage, IColorTransformation transformation)
++    {
++        Pixels pixels = DssScreeningUtils.createPixels(bufferedImage);
++        int width = pixels.getWidth();
++        int height = pixels.getHeight();
++        int[][] pixelData = pixels.getPixelData();
++        BufferedImage newImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+         for (int y = 0; y < height; y++)
+         {
++            int offset = y * width;
+             for (int x = 0; x < width; x++)
+             {
+-                int rgb = bufferedImage.getRGB(x, y);
+-                int channelColor = extractSingleComponent(rgb, colorComponent);
+-                newImage.setRGB(x, y, channelColor);
++                int pixelIndex = offset + x;
++                int rgb = 0;
++                for (int i = 0; i < 3; i++)
++                {
++                    int band = Math.min(i, pixelData.length - 1);
++                    rgb = (rgb << 8) + (pixelData[band][pixelIndex] & 0xff);
++                }
++                newImage.setRGB(x, y, transformation.transform(rgb));
+             }
+         }
+         return newImage;
+     }
+-
+-    // We reset all ingredients besides the one which is specified by color component.
+-    // The result is the rgb value with only one component which is non-zero.
+-    private static int extractSingleComponent(int rgb, ColorComponent colorComponent)
+-    {
+-        return colorComponent.extractSingleComponent(rgb).getRGB();
+-    }
+-
+-    // NOTE: drawing on this image will not preserve transparency - but we do not need it and the
+-    // image is smaller
+-    private static BufferedImage createNewRGBImage(RenderedImage bufferedImage)
+-    {
+-        BufferedImage newImage =
+-                new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),
+-                        BufferedImage.TYPE_INT_RGB);
+-        return newImage;
+-    }
+-
++    
+     private static IHierarchicalContentNode createPngContent(BufferedImage image, String nameOrNull)
+     {
+         final byte[] output = ImageUtil.imageToPngFast(image);
+         return new ByteArrayBasedContentNode(output, nameOrNull);
+     }
+-
+ }
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/BitShiftingImageTransformerFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/BitShiftingImageTransformerFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/BitShiftingImageTransformerFactory.java	(working copy)
+@@ -6,6 +6,8 @@
+ import ch.systemsx.cisd.base.image.IImageTransformer;
+ import ch.systemsx.cisd.base.image.IImageTransformerFactory;
+ import ch.systemsx.cisd.common.image.IntensityRescaling;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ 
+ /**
+  * This class is obsolete, and should not be used. Use {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.ConvertToolImageTransformer}
+@@ -38,7 +40,8 @@
+                     {
+                         return image;
+                     }
+-                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(image, shiftBits);
++                    Pixels pixels = DssScreeningUtils.createPixels(image);
++                    return IntensityRescaling.rescaleIntensityBitShiftTo8Bits(pixels, shiftBits);
+                 }
+             };
+     }
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/Utils.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/Utils.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/Utils.java	(working copy)
+@@ -47,8 +47,9 @@
+             imageLibraryNameOrNull = imageLibraryOrNull.getName();
+             imageLibraryReaderNameOrNull = imageLibraryOrNull.getReaderName();
+         }
+-        return ImageUtil.loadUnchangedImage(contentNode, imageIdOrNull, imageLibraryNameOrNull,
++        BufferedImage image = ImageUtil.loadUnchangedImage(contentNode, imageIdOrNull, imageLibraryNameOrNull,
+                 imageLibraryReaderNameOrNull, null);
++        return image;
+     }
+ 
+     public static Size loadUnchangedImageSize(IHierarchicalContentNode contentNode,
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/Hdf5ThumbnailGenerator.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/Hdf5ThumbnailGenerator.java	(revision 32665)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/Hdf5ThumbnailGenerator.java	(working copy)
+@@ -65,6 +65,7 @@
+ import ch.systemsx.cisd.openbis.dss.generic.server.images.ImageChannelsUtils;
+ import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
+ import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.imaging.dataaccess.ColorComponent;
+ 
+ /**
+@@ -444,7 +445,7 @@
+         }
+ 
+         boolean highQuality = thumbnailsStorageFormat.isHighQuality();
+-        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality);
++        BufferedImage rescaledImage = ImageUtil.rescale(image, widht, height, false, highQuality, DssScreeningUtils.CONVERTER);
+         
+         final List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
+         for (String channelCode : getChannelsToProcess(imageFileInfo.getChannelCode()))
+@@ -475,26 +476,14 @@
+     private BufferedImage applyTransformationsChain(BufferedImage image,
+             ColorComponent colorComponent, IImageTransformer transformer)
+     {
+-        return applyTransformationIfNeeded(extractSingleChannelIfNeeded(image, colorComponent),
+-                transformer);
++        BufferedImage extractedChannelImage = ImageChannelsUtils.extractChannel(image, colorComponent);
++        return applyTransformationIfNeeded(extractedChannelImage, transformer);
+     }
+ 
+     private BufferedImage applyTransformationsChain(BufferedImage image, String channelCode,
+             ColorComponent colorComponent)
+     {
+-        return applyTransformationsChain(image, colorComponent,
+-                tryCreateImageTransformer(channelCode));
+-    }
+-
+-    private static BufferedImage extractSingleChannelIfNeeded(BufferedImage image,
+-            ColorComponent colorComponent)
+-    {
+-        if (colorComponent != null)
+-        {
+-            return ImageChannelsUtils.transformToChannel(image, colorComponent);
+-        }
+-
+-        return image;
++        return applyTransformationsChain(image, colorComponent, tryCreateImageTransformer(channelCode));
+     }
+ 
+     private static BufferedImage applyTransformationIfNeeded(BufferedImage image,
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/jython/v2/SimpleImageDataSetRegistrator.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/jython/v2/SimpleImageDataSetRegistrator.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/jython/v2/SimpleImageDataSetRegistrator.java	(working copy)
+@@ -610,7 +610,8 @@
+                                                 imageFile.getPath()));
+                         return null;
+                     }
+-                    IntensityRescaling.addToLevelStats(histogram, image);
++                    IntensityRescaling.addToLevelStats(histogram, DssScreeningUtils.createPixels(image), 
++                            ch.systemsx.cisd.common.image.IntensityRescaling.Channel.RED);
+                 }
+             } catch (Exception ex)
+             {
+Index: sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/ScreeningServerAuthorizationTest.java
+===================================================================
+--- sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/ScreeningServerAuthorizationTest.java	(revision 32665)
++++ sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/ScreeningServerAuthorizationTest.java	(working copy)
+@@ -35,15 +35,15 @@
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ExperimentIdentifier;
+ 
+ /**
++ * 
++ *
+  * @author Franz-Josef Elmer
+  */
+ public class ScreeningServerAuthorizationTest extends AbstractScreeningSystemTestCase
+ {
+     private static final String TEST_USER = "test-user";
+-
+     private static final String SPACE_CODE = "CISD";
+-
+-
++    
+     private String userSessionToken;
+ 
+     @BeforeMethod
+@@ -80,7 +80,7 @@
+         }
+         return false;
+     }
+-
++    
+     private boolean hasPerson(String systemSessionToken, String personID)
+     {
+         List<Person> persons = commonServer.listPersons(sessionToken);
+@@ -93,19 +93,19 @@
+         }
+         return false;
+     }
+-
++    
+     @Test(expectedExceptions = AuthorizationFailureException.class)
+     public void testSetSessionUserFailsBecauseOfNonAuthorized()
+     {
+         screeningServer.setSessionUser(userSessionToken, "system");
+     }
+-
++    
+     @Test(expectedExceptions = AuthorizationFailureException.class)
+     public void testListPlatesFailsBecauseOfAuthorization()
+     {
+         screeningApiServer.listPlates(userSessionToken, new ExperimentIdentifier("a", "b", "c", "d"));
+     }
+-
++    
+     @Test(expectedExceptions = AuthorizationFailureException.class)
+     public void testRegisterLibraryFailsBecauseOfNonAuthorized()
+     {
+@@ -113,5 +113,5 @@
+                 Collections.<NewMaterial> emptyList(), Collections.<NewMaterial> emptyList(),
+                 Collections.<NewSamplesWithTypes> emptyList());
+     }
+-
++    
+ }
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/AutoRescaleIntensityImageTransformerFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/AutoRescaleIntensityImageTransformerFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/AutoRescaleIntensityImageTransformerFactory.java	(working copy)
+@@ -17,8 +17,6 @@
+ package ch.systemsx.cisd.openbis.dss.etl.dto.api.v1.transformations;
+ 
+ import java.awt.image.BufferedImage;
+-import java.awt.image.WritableRaster;
+-import java.util.EnumSet;
+ 
+ import ch.systemsx.cisd.base.annotation.JsonObject;
+ import ch.systemsx.cisd.base.image.IImageTransformer;
+@@ -26,6 +24,9 @@
+ import ch.systemsx.cisd.common.image.IntensityRescaling;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
++import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ 
+ /**
+  * This class is obsolete, and should not be used. Use
+@@ -56,42 +57,19 @@
+                 {
+                     if (IntensityRescaling.isNotGrayscale(image))
+                     {
+-                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+-                        if (channels.size() != 1)
++                        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
++                        if (channel == null)
+                         {
+                             return image;
+-                        } else
+-                        {
+-                            Channel channel = channels.iterator().next();
+-                            Levels levels =
+-                                    IntensityRescaling.computeLevels(toGrayScale(image, channel),
+-                                            threshold);
+-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+-                                    channel);
+                         }
++                        Pixels pixels = DssScreeningUtils.createPixels(image);
++                        Levels levels = IntensityRescaling.computeLevels(pixels, threshold, channel);
++                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                     }
+-                    Levels levels = IntensityRescaling.computeLevels(toGrayScale(image, Channel.RED), threshold);
+-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
++                    Pixels pixels = DssScreeningUtils.createPixels(image);
++                    Levels levels = IntensityRescaling.computeLevels(pixels, threshold, Channel.RED);
++                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.RED);
+                 }
+             };
+     }
+-
+-    private BufferedImage toGrayScale(BufferedImage image, Channel channel)
+-    {
+-        BufferedImage gray =
+-                new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+-        WritableRaster raster = gray.getRaster();
+-
+-        for (int y = 0; y < image.getHeight(); y++)
+-        {
+-            for (int x = 0; x < image.getWidth(); x++)
+-            {
+-                int value = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
+-                raster.setPixel(x, y, new int[]
+-                    { value });
+-            }
+-        }
+-        return gray;
+-    }
+-
+ }
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/SimpleImageDataConfig.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/SimpleImageDataConfig.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/SimpleImageDataConfig.java	(working copy)
+@@ -215,7 +215,7 @@
+ 
+     private List<String> thumbnailsGenerationImageMagicParams = Collections.emptyList();
+ 
+-    private boolean generateThumbnailsIn8BitHighQuality = false;
++    private boolean generateThumbnailsIn8BitHighQuality = true;
+ 
+     private double allowedMachineLoadDuringThumbnailsGeneration = 1.0;
+ 
+@@ -674,12 +674,10 @@
+     }
+ 
+     /**
+-     * If true and thumbnails generation is switched on, thumbnails will be generated with high
+-     * quality.
+-     * <p>
+-     * Be careful: high quality means that the generation will take longer and the image will be
+-     * converted to 8 bit color depth. This option is useful for segmentation images, images with 8
+-     * bit color depth or when no 16 bit transformation has to be applied to the images.
++     * By default thumbnails are created in high-quality. But this is more time consuming.
++     * Set to <code>false</code> suppresses thumbnail creation in high quality. But this isn't
++     * recommended for 12-bit or 16-bit images. 
++     * This flag is ignored if ImageMagic should be used for thumbnail generation.
+      */
+     public void setGenerateHighQuality8BitThumbnails(boolean highQualityThumbnails)
+     {
+Index: source/java/ch/systemsx/cisd/openbis/plugin/screening/client/web/client/application/detailviewers/UserDefinedRescalingSettingsDialog.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/plugin/screening/client/web/client/application/detailviewers/UserDefinedRescalingSettingsDialog.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/plugin/screening/client/web/client/application/detailviewers/UserDefinedRescalingSettingsDialog.java	(working copy)
+@@ -132,7 +132,7 @@
+         for (SingleChannelIntesityRange scir : this.intensitiesPerChannel)
+         {
+             scir.minTextField.setValue(0);
+-            scir.maxTextField.setValue(65535);
++            scir.maxTextField.setValue(255);
+ 
+             IntensityRange range = intensitiesPerChannel.get(scir.channelCode.getItem());
+             if (range != null)
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/AbsoluteImageReference.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/AbsoluteImageReference.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/AbsoluteImageReference.java	(working copy)
+@@ -40,7 +40,7 @@
+ 
+     private final RequestedImageSize imageSize;
+ 
+-    private final ImageTransfomationFactories imageTransfomationFactories;
++    private final ImageTransfomationFactories imageTransformationFactories;
+ 
+     private final ImageLibraryInfo imageLibraryOrNull;
+ 
+@@ -71,7 +71,7 @@
+         this.uniqueId = uniqueId;
+         this.imageSize = imageSize;
+         this.channelColor = channelColor;
+-        this.imageTransfomationFactories = imageTransfomationFactories;
++        this.imageTransformationFactories = imageTransfomationFactories;
+         this.imageLibraryOrNull = imageLibraryOrNull;
+         this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
+         this.channelCodeOrNull = channelCodeOrNull;
+@@ -143,8 +143,7 @@
+         {
+             return image.getColorModel().getPixelSize();
+         }
+-        return Utils.loadUnchangedImageColorDepth(contentNode, channelCodeOrNull,
+-                imageLibraryOrNull);
++        return Utils.loadUnchangedImageColorDepth(contentNode, tryGetImageID(), imageLibraryOrNull);
+     }
+ 
+     public RequestedImageSize getRequestedSize()
+@@ -152,9 +151,9 @@
+         return imageSize;
+     }
+ 
+-    public ImageTransfomationFactories getImageTransfomationFactories()
++    public ImageTransfomationFactories getImageTransformationFactories()
+     {
+-        return imageTransfomationFactories;
++        return imageTransformationFactories;
+     }
+ 
+     public ChannelColorRGB getChannelColor()
+@@ -179,7 +178,7 @@
+     {
+         ColorComponent colorComponent = null;
+         return new AbsoluteImageReference(contentNode, uniqueId, tryGetImageID(), colorComponent,
+-                imageSize, channelColor, imageTransfomationFactories, imageLibraryOrNull,
++                imageSize, channelColor, imageTransformationFactories, imageLibraryOrNull,
+                 singleChannelTransformationCodeOrNull, null);
+     }
+ }
+\ No newline at end of file
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/AutoRescaleIntensityImageTransformerFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/AutoRescaleIntensityImageTransformerFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/AutoRescaleIntensityImageTransformerFactory.java	(working copy)
+@@ -17,8 +17,6 @@
+ package ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations;
+ 
+ import java.awt.image.BufferedImage;
+-import java.awt.image.WritableRaster;
+-import java.util.EnumSet;
+ 
+ import ch.systemsx.cisd.base.annotation.JsonObject;
+ import ch.systemsx.cisd.base.image.IImageTransformer;
+@@ -26,13 +24,18 @@
+ import ch.systemsx.cisd.common.image.IntensityRescaling;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
++import ch.systemsx.cisd.openbis.dss.generic.shared.utils.ImageUtil;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ 
+ /**
+- * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)} where levels are computed automatically
+- * by {@link IntensityRescaling#computeLevels(BufferedImage, float)}.
++ * Transformation performed by
++ * {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(Pixels, Levels, Channel...)} where levels are
++ * computed automatically by {@link IntensityRescaling#computeLevels(Pixels, float, Channel...)}.
+  * <p>
+- * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+- * in a backward incompatible way would make all the saved transformations invalid.
++ * Warning: The serialized version of this class can be stored in the database for each image.
++ * Moving this class to a different package or changing it in a backward incompatible way would make
++ * all the saved transformations invalid.
+  * 
+  * @author Tomasz Pylak
+  */
+@@ -58,41 +61,19 @@
+                 {
+                     if (IntensityRescaling.isNotGrayscale(image))
+                     {
+-                        EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+-                        if (channels.size() != 1)
++                        Channel channel = ImageUtil.getRepresentativeChannelIfEffectiveGray(image);
++                        if (channel == null)
+                         {
+                             return image;
+-                        } else
+-                        {
+-                            Channel channel = channels.iterator().next();
+-                            Levels levels =
+-                                    IntensityRescaling.computeLevels(toGrayScale(image, channel),
+-                                            threshold);
+-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+-                                    channel);
+                         }
++                        Pixels pixels = DssScreeningUtils.createPixels(image);
++                        Levels levels = IntensityRescaling.computeLevels(pixels, threshold, channel);
++                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                     }
+-                    Levels levels = IntensityRescaling.computeLevels(toGrayScale(image, Channel.RED), threshold);
+-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
++                    Pixels pixels = DssScreeningUtils.createPixels(image);
++                    Levels levels = IntensityRescaling.computeLevels(pixels, threshold, Channel.RED);
++                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.RED);
+                 }
+             };
+     }
+-
+-    private BufferedImage toGrayScale(BufferedImage image, Channel channel)
+-    {
+-        BufferedImage gray =
+-                new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+-        WritableRaster raster = gray.getRaster();
+-
+-        for (int y = 0; y < image.getHeight(); y++)
+-        {
+-            for (int x = 0; x < image.getWidth(); x++)
+-            {
+-                int value = (image.getRGB(x, y) >> channel.getShift()) & 0xff;
+-                raster.setPixel(x, y, new int[]
+-                { value });
+-            }
+-        }
+-        return gray;
+-    }
+ }
+Index: sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/TransformedImageRepresentationsTest.java
+===================================================================
+--- sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/TransformedImageRepresentationsTest.java	(revision 32656)
++++ sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/TransformedImageRepresentationsTest.java	(working copy)
+@@ -28,7 +28,6 @@
+ 
+ import org.apache.commons.io.FileUtils;
+ import org.apache.commons.io.IOUtils;
+-import org.springframework.mock.web.MockHttpServletRequest;
+ import org.testng.annotations.AfterMethod;
+ import org.testng.annotations.BeforeMethod;
+ import org.testng.annotations.BeforeTest;
+@@ -38,17 +37,11 @@
+ import com.googlecode.jsonrpc4j.ProxyUtil;
+ 
+ import ch.systemsx.cisd.common.filesystem.FileUtilities;
+-import ch.systemsx.cisd.common.servlet.SpringRequestContextProvider;
+ import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
+ import ch.systemsx.cisd.openbis.dss.screening.shared.api.v1.IDssServiceRpcScreening;
+ import ch.systemsx.cisd.openbis.generic.shared.util.TestInstanceHostUtils;
+ import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IPlateImageHandler;
+-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.IScreeningOpenbisServiceFacade;
+-import ch.systemsx.cisd.openbis.plugin.screening.client.api.v1.ScreeningOpenbisServiceFacade;
+-import ch.systemsx.cisd.openbis.plugin.screening.client.web.client.IScreeningClientService;
+-import ch.systemsx.cisd.openbis.plugin.screening.shared.ResourceNames;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.json.ScreeningObjectMapper;
+-import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.IScreeningApiServer;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.DatasetImageRepresentationFormats;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageDatasetReference;
+ import ch.systemsx.cisd.openbis.plugin.screening.shared.api.v1.dto.ImageRepresentationFormat;
+@@ -63,16 +56,6 @@
+ { "slow", "systemtest" })
+ public class TransformedImageRepresentationsTest extends AbstractScreeningSystemTestCase
+ {
+-    private MockHttpServletRequest request;
+-
+-    private String sessionToken;
+-
+-    private IScreeningClientService screeningClientService;
+-
+-    private IScreeningApiServer screeningServer;
+-
+-    private IScreeningOpenbisServiceFacade screeningFacade;
+-
+     private IDssServiceRpcScreening screeningJsonApi;
+ 
+     @BeforeTest
+@@ -86,19 +69,6 @@
+     @BeforeMethod
+     public void setUp() throws Exception
+     {
+-        screeningClientService =
+-                (IScreeningClientService) applicationContext
+-                        .getBean(ResourceNames.SCREENING_PLUGIN_SERVICE);
+-        request = new MockHttpServletRequest();
+-        ((SpringRequestContextProvider) applicationContext.getBean("request-context-provider"))
+-                .setRequest(request);
+-        Object bean = applicationContext.getBean(ResourceNames.SCREENING_PLUGIN_SERVER);
+-        screeningServer = (IScreeningApiServer) bean;
+-        sessionToken = screeningClientService.tryToLogin("admin", "a").getSessionID();
+-        screeningFacade =
+-                ScreeningOpenbisServiceFacade.tryCreateForTest(sessionToken,
+-                        TestInstanceHostUtils.getOpenBISUrl(), screeningServer);
+-
+         JsonRpcHttpClient client =
+                 new JsonRpcHttpClient(new ScreeningObjectMapper(), new URL(
+                         TestInstanceHostUtils.getDSSUrl()
+@@ -247,7 +217,7 @@
+     @Override
+     protected int dataSetImportWaitDurationInSeconds()
+     {
+-        return 6000;
++        return 60;
+     }
+ 
+ }
+Index: source/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageLoadingHelper.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageLoadingHelper.java	(revision 0)
++++ source/java/ch/systemsx/cisd/openbis/dss/generic/server/images/ImageLoadingHelper.java	(working copy)
+@@ -0,0 +1,207 @@
++/*
++ * Copyright 2014 ETH Zuerich, SIS
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package ch.systemsx.cisd.openbis.dss.generic.server.images;
++
++import java.util.ArrayList;
++import java.util.List;
++
++import ch.rinn.restrictions.Private;
++import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
++import ch.systemsx.cisd.hcs.Location;
++import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
++import ch.systemsx.cisd.openbis.dss.etl.AbsoluteImageReference;
++import ch.systemsx.cisd.openbis.dss.etl.HCSImageDatasetLoaderFactory;
++import ch.systemsx.cisd.openbis.dss.etl.IImagingDatasetLoader;
++import ch.systemsx.cisd.openbis.dss.etl.IImagingLoaderStrategy;
++import ch.systemsx.cisd.openbis.dss.etl.ImagingLoaderStrategyFactory;
++import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.DatasetAcquiredImagesReference;
++import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageChannelStackReference;
++import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.ImageTransformationParams;
++import ch.systemsx.cisd.openbis.dss.generic.server.images.dto.RequestedImageSize;
++import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
++import ch.systemsx.cisd.openbis.dss.generic.shared.dto.Size;
++
++/**
++ * Helper class for loading images using an {@link IImagingLoaderStrategy}. Actually this class
++ * doesn't load images but it creates {@link AbsoluteImageReference} instances which contain lazily loaded images 
++ * and meta data from the imaging database.
++ * <p>
++ * This code has been refactored out of {@link ImageChannelsUtils} in autumn 2014.
++ *
++ * @author Franz-Josef Elmer
++ */
++class ImageLoadingHelper
++{
++    private static IImagingLoaderStrategy createLoaderStrategy(DatasetAcquiredImagesReference imageChannels,
++            IHierarchicalContentProvider contentProvider)
++    {
++        String datasetCode = imageChannels.getDatasetCode();
++        IHierarchicalContent dataSetRoot = contentProvider.asContent(datasetCode);
++        IImagingDatasetLoader loader = HCSImageDatasetLoaderFactory.create(dataSetRoot, datasetCode);
++        return ImagingLoaderStrategyFactory.createImageLoaderStrategy(loader);
++    }
++    
++    private final IImagingLoaderStrategy imageLoaderStrategy;
++    
++    private final RequestedImageSize imageSizeLimit;
++    
++    private final String singleChannelTransformationCodeOrNull;
++    
++    @Private
++    ImageLoadingHelper(IImagingLoaderStrategy imageLoaderStrategy,
++            RequestedImageSize imageSizeLimit, String singleChannelTransformationCodeOrNull)
++    {
++        this.imageLoaderStrategy = imageLoaderStrategy;
++        this.imageSizeLimit = imageSizeLimit;
++        this.singleChannelTransformationCodeOrNull = singleChannelTransformationCodeOrNull;
++    }
++    
++    ImageLoadingHelper(IImagingLoaderStrategy imageLoaderStrategy, Size imageSizeLimitOrNull,
++            String singleChannelTransformationCodeOrNull)
++    {
++        this(imageLoaderStrategy, new RequestedImageSize(imageSizeLimitOrNull, false),
++                singleChannelTransformationCodeOrNull);
++    }
++    
++    ImageLoadingHelper(DatasetAcquiredImagesReference imageChannels, IHierarchicalContentProvider contentProvider, 
++            RequestedImageSize imageSizeLimit, String singleChannelTransformationCodeOrNull)
++    {
++        this(createLoaderStrategy(imageChannels, contentProvider), imageSizeLimit, singleChannelTransformationCodeOrNull);
++    }
++    
++    boolean isMergeAllChannels(DatasetAcquiredImagesReference imageChannels)
++    {
++        return imageChannels.isMergeAllChannels(getAllChannelCodes());
++    }
++
++    /**
++     * @param skipNonExisting if true references to non-existing images are ignored, otherwise an
++     *            exception is thrown
++     * @param mergeAllChannels true if all existing channel images should be merged
++     * @param transformationInfo
++     */
++    List<AbsoluteImageReference> fetchImageContents(
++            DatasetAcquiredImagesReference imagesReference, boolean mergeAllChannels,
++            boolean skipNonExisting, ImageTransformationParams transformationInfo)
++    {
++        List<String> channelCodes = imagesReference.getChannelCodes(getAllChannelCodes());
++        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
++        for (String channelCode : channelCodes)
++        {
++            ImageChannelStackReference channelStackReference = imagesReference.getChannelStackReference();
++            AbsoluteImageReference image = imageLoaderStrategy.tryGetImage(channelCode, channelStackReference,
++                            imageSizeLimit, singleChannelTransformationCodeOrNull);
++            if (image == null && skipNonExisting == false)
++            {
++                String item = imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image";
++                throw EnvironmentFailureException.fromTemplate("No %s found for channel stack %s and channel %s", 
++                        item, channelStackReference, channelCode);
++            }
++            if (image != null)
++            {
++                images.add(image);
++            }
++        }
++
++        // Optimization for a case where all channels are on one image
++        if (mergeAllChannels && (false == shouldApplySingleChannelsTransformations(transformationInfo)))
++        {
++            AbsoluteImageReference allChannelsImageReference = tryCreateAllChannelsImageReference(images);
++            if (allChannelsImageReference != null)
++            {
++                images.clear();
++                images.add(allChannelsImageReference);
++            }
++        }
++        return images;
++    }
++
++    List<AbsoluteImageReference> getRepresentativeImageReferences(Location wellLocationOrNull)
++    {
++        List<AbsoluteImageReference> images = new ArrayList<AbsoluteImageReference>();
++
++        for (String chosenChannel : getAllChannelCodes())
++        {
++            images.add(getRepresentativeImageReference(chosenChannel, wellLocationOrNull));
++        }
++        return images;
++    }
++
++    private List<String> getAllChannelCodes()
++    {
++        return imageLoaderStrategy.getImageParameters().getChannelsCodes();
++    }
++
++    /**
++     * @throw {@link EnvironmentFailureException} when image does not exist
++     */
++    private AbsoluteImageReference getRepresentativeImageReference(String channelCode,
++            Location wellLocationOrNull)
++    {
++        AbsoluteImageReference image = imageLoaderStrategy.tryGetRepresentativeImage(channelCode, 
++                wellLocationOrNull, imageSizeLimit, singleChannelTransformationCodeOrNull);
++        if (image != null)
++        {
++            return image;
++        }
++        String item = imageSizeLimit.isThumbnailRequired() ? "thumbnail" : "image";
++        throw EnvironmentFailureException.fromTemplate("No representative %s found for well %s and channel %s", 
++                item, wellLocationOrNull, channelCode);
++    }
++
++    private boolean shouldApplySingleChannelsTransformations(ImageTransformationParams transformationInfo)
++    {
++        return transformationInfo != null
++                && transformationInfo.tryGetTransformationCodeForChannels() != null
++                && transformationInfo.tryGetTransformationCodeForChannels().size() > 0;
++    }
++
++    // Checks if all images differ only at the color component level and stem from the same page
++    // of the same file. If that's the case any image from the collection contains the merged
++    // channels image (if we erase the color component).
++    private AbsoluteImageReference tryCreateAllChannelsImageReference(
++            List<AbsoluteImageReference> imageReferences)
++    {
++        AbsoluteImageReference lastFound = null;
++        for (AbsoluteImageReference image : imageReferences)
++        {
++            if (lastFound == null)
++            {
++                lastFound = image;
++            } else
++            {
++                if (equals(image.tryGetImageID(), lastFound.tryGetImageID()) == false
++                        || image.getUniqueId().equals(lastFound.getUniqueId()) == false)
++                {
++                    return null;
++                }
++            }
++        }
++        if (lastFound != null)
++        {
++            return lastFound.createWithoutColorComponent();
++        } else
++        {
++            return null;
++        }
++    }
++
++    private static boolean equals(String i1OrNull, String i2OrNull)
++    {
++        return (i1OrNull == null) ? (i2OrNull == null) : i1OrNull.equals(i2OrNull);
++    }
++}
+\ No newline at end of file
+Index: sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/MicroscopyImageDropboxTest.java
+===================================================================
+--- sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/MicroscopyImageDropboxTest.java	(revision 32665)
++++ sourceTest/java/ch/systemsx/cisd/openbis/screening/systemtests/MicroscopyImageDropboxTest.java	(working copy)
+@@ -68,9 +68,6 @@
+         dataSetType = new DataSetType("MICROSCOPY_IMG_OVERVIEW");
+         dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
+         registerDataSetType(commonServer, dataSetType);
+-        dataSetType = new DataSetType("MICROSCOPY_REPRESENTATIVE_IMG");
+-        dataSetType.setDataSetKind(DataSetKind.PHYSICAL);
+-        registerDataSetType(commonServer, dataSetType);
+         dataSetType = new DataSetType("MICROSCOPY_IMG_CONTAINER");
+         dataSetType.setDataSetKind(DataSetKind.CONTAINER);
+         registerDataSetType(commonServer, dataSetType);
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/IntensityRangeImageTransformerFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/IntensityRangeImageTransformerFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/v1/transformations/IntensityRangeImageTransformerFactory.java	(working copy)
+@@ -25,10 +25,13 @@
+ import ch.systemsx.cisd.common.image.IntensityRescaling;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ 
+ /**
+  * This class is obsolete, and should not be used. Use
+- * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.IntensityRangeImageTransformerFactory} instead
++ * {@link ch.systemsx.cisd.openbis.dss.etl.dto.api.transformations.IntensityRangeImageTransformerFactory}
++ * instead
+  * 
+  * @author Jakub Straszewski
+  */
+@@ -65,18 +68,23 @@
+                 @Override
+                 public BufferedImage transform(BufferedImage image)
+                 {
+-                    Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
+                     if (IntensityRescaling.isNotGrayscale(image))
+                     {
+                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+                         if (channels.size() != 1)
+                         {
+-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
++                            return image;
++                        } else
++                        {
++                            Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
++                            Pixels pixels = DssScreeningUtils.createPixels(image);
++                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels,
++                                    channels.iterator().next());
+                         }
+-                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+-                                channels.iterator().next());
+                     }
+-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
++                    Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
++                    Pixels pixels = DssScreeningUtils.createPixels(image);
++                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                 }
+             };
+     }
+Index: source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/IntensityRangeImageTransformerFactory.java
+===================================================================
+--- source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/IntensityRangeImageTransformerFactory.java	(revision 32656)
++++ source/java/ch/systemsx/cisd/openbis/dss/etl/dto/api/transformations/IntensityRangeImageTransformerFactory.java	(working copy)
+@@ -25,9 +25,11 @@
+ import ch.systemsx.cisd.common.image.IntensityRescaling;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Channel;
+ import ch.systemsx.cisd.common.image.IntensityRescaling.Levels;
++import ch.systemsx.cisd.common.image.IntensityRescaling.Pixels;
++import ch.systemsx.cisd.openbis.dss.shared.DssScreeningUtils;
+ 
+ /**
+- * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(BufferedImage, Levels)}.
++ * Transformation performed by {@link IntensityRescaling#rescaleIntensityLevelTo8Bits(Pixels, Levels, Channel...)}.
+  * <p>
+  * Warning: The serialized version of this class can be stored in the database for each image. Moving this class to a different package or changing it
+  * in a backward incompatible way would make all the saved transformations invalid.
+@@ -70,15 +72,17 @@
+                     Levels levels = new Levels(blackPointIntensity, whitePointIntensity);
+                     if (IntensityRescaling.isNotGrayscale(image))
+                     {
++                        Pixels pixels = DssScreeningUtils.createPixels(image);
+                         EnumSet<Channel> channels = IntensityRescaling.getUsedRgbChannels(image);
+                         if (channels.size() != 1)
+                         {
+-                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
++                            return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                         }
+-                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels,
+-                                channels.iterator().next());
++                        Channel channel = channels.iterator().next();
++                        return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, channel);
+                     }
+-                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(image, levels);
++                    Pixels pixels = DssScreeningUtils.createPixels(image);
++                    return IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, levels, Channel.values());
+                 }
+             };
+     }
