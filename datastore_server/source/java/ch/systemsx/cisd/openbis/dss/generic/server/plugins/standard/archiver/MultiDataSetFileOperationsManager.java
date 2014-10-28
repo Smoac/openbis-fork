@@ -143,31 +143,28 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
 
     public Status createContainerInStage(String containerPath, List<DatasetDescription> datasetDescriptions)
     {
-        List<AbstractExternalData> dataSets = new LinkedList<AbstractExternalData>();
-
-        IShareIdManager shareIdManager = getDirectoryProvider().getShareIdManager();
-
-        for (DatasetDescription datasetDescription : datasetDescriptions)
-        {
-            AbstractExternalData dataSet = getDataSetWithAllMetaData(datasetDescription);
-            dataSets.add(dataSet);
-            shareIdManager.lock(dataSet.getCode());
-            operationLog.info("Archive dataset " + dataSet.getCode() + " in " + containerPath);
-        }
-
         File stageArchiveContainerFile = new File(getStageArchive().getDestination(), containerPath);
-
-        boolean result = createFolderIfNotExists(stageArchive, stageArchiveContainerFile.getParentFile());
-
-        // TODO: react somehow?
-        if (result)
-        {
-            operationLog.warn("File already exists in archive " + stageArchiveContainerFile.getParentFile());
-        }
-
+        IShareIdManager shareIdManager = getDirectoryProvider().getShareIdManager();
         Status status = Status.OK;
         try
         {
+            List<AbstractExternalData> dataSets = new LinkedList<AbstractExternalData>();
+            for (DatasetDescription datasetDescription : datasetDescriptions)
+            {
+                AbstractExternalData dataSet = getDataSetWithAllMetaData(datasetDescription);
+                dataSets.add(dataSet);
+                shareIdManager.lock(dataSet.getCode());
+                operationLog.info("Archive dataset " + dataSet.getCode() + " in " + containerPath);
+            }
+            
+            boolean result = createFolderIfNotExists(stageArchive, stageArchiveContainerFile.getParentFile());
+            
+            // TODO: react somehow?
+            if (result)
+            {
+                operationLog.warn("File already exists in archive " + stageArchiveContainerFile.getParentFile());
+            }
+            
             packageManager.create(stageArchiveContainerFile, dataSets); // packagemanager
         } catch (Exception ex)
         {
@@ -188,7 +185,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
                     }
                 }
 
-                operationLog.info("Data sets '" + "dataSetCode" + "' archived: " + containerPath);
+                operationLog.info("Data sets archived: " + containerPath);
             } catch (Exception ex)
             {
                 operationLog.error("Couldn't create package file: " + containerPath, ex);

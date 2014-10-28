@@ -177,34 +177,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
             archivedContent = getFileOperations().getContainerAsHierarchicalContent(containerPath);
 
-            for (DatasetDescription dataset : dataSets)
-            {
-                String dataSetCode = dataset.getDataSetCode();
-                IHierarchicalContent content = null;
-                try
-                {
-                    content = context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
-
-                    IHierarchicalContentNode root = content.getRootNode();
-                    IHierarchicalContentNode archiveDataSetRoot = archivedContent.getNode(dataset.getDataSetCode());
-
-                    status =
-                            RsyncArchiver.checkHierarchySizeAndChecksums(root, dataSetCode, archiveDataSetRoot,
-                                    RsyncArchiver.ChecksumVerificationCondition.IF_AVAILABLE);
-
-                    if (status.isError())
-                    {
-                        throw new Exception(status.tryGetErrorMessage());
-                    }
-                } finally
-                {
-                    if (content != null)
-                    {
-                        content.close();
-                    }
-                }
-                statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
-            }
+            checkArchivedDataSets(archivedContent, dataSets, context, statuses);
         } catch (Exception ex)
         {
             getFileOperations().deleteContainerFromFinalDestination(containerPath);
@@ -223,6 +196,40 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         }
         return statuses;
 
+    }
+
+    private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets, 
+            ArchiverTaskContext context, DatasetProcessingStatuses statuses)
+    {
+        Status status;
+        for (DatasetDescription dataset : dataSets)
+        {
+            String dataSetCode = dataset.getDataSetCode();
+            IHierarchicalContent content = null;
+            try
+            {
+                content = context.getHierarchicalContentProvider().asContentWithoutModifyingAccessTimestamp(dataSetCode);
+
+                IHierarchicalContentNode root = content.getRootNode();
+                IHierarchicalContentNode archiveDataSetRoot = archivedContent.getNode(dataset.getDataSetCode());
+
+                status =
+                        RsyncArchiver.checkHierarchySizeAndChecksums(root, dataSetCode, archiveDataSetRoot,
+                                RsyncArchiver.ChecksumVerificationCondition.IF_AVAILABLE);
+
+                if (status.isError())
+                {
+                    throw new RuntimeException(status.tryGetErrorMessage());
+                }
+            } finally
+            {
+                if (content != null)
+                {
+                    content.close();
+                }
+            }
+            statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
+        }
     }
 
     private long getDataSetsSize(List<DatasetDescription> ds)

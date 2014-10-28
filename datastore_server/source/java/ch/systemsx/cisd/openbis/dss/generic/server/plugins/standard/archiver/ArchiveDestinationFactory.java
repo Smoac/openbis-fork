@@ -80,7 +80,7 @@ public class ArchiveDestinationFactory implements Serializable
         return new ArchiveDestination(destination, executor, isHosted, timeoutInMillis);
     }
 
-    protected static RemoteDataSetFileOperationsExecutor createRemoteDataSetFileOperationsExecutor(Properties properties,
+    private static RemoteDataSetFileOperationsExecutor createRemoteDataSetFileOperationsExecutor(Properties properties,
             IPathCopierFactory pathCopierFactory, ISshCommandExecutorFactory sshCommandExecutorFactory, HostAwareFile hostAwareFile,
             long timeoutInMillis)
     {
@@ -103,7 +103,7 @@ public class ArchiveDestinationFactory implements Serializable
         return result;
     }
 
-    protected static LocalDataSetFileOperationsExcecutor createLocalDataSetFileOperationsExecutor(Properties properties,
+    private static LocalDataSetFileOperationsExcecutor createLocalDataSetFileOperationsExecutor(Properties properties,
             IPathCopierFactory pathCopierFactory,
             HostAwareFile hostAwareFile, long timeoutInMillis)
     {
