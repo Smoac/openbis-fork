@@ -65,6 +65,14 @@ public class MultiDatasetArchiverDBTransaction
         return container;
     }
 
+    /**
+     * Returns null if no data set found
+     */
+    public MultiDataSetArchiverDataSetDTO getDataSetByCode(String dataSetCode)
+    {
+        return transaction.getDataSetForCode(dataSetCode);
+    }
+
     public MultiDataSetArchiverDataSetDTO insertDataset(DatasetDescription dataSet,
             MultiDataSetArchiverContainerDTO container)
     {
@@ -74,7 +82,7 @@ public class MultiDatasetArchiverDBTransaction
 
         if (mads != null)
         {
-            throw new IllegalStateException("Trying to add dataset that has already been added.");
+            throw new IllegalStateException("Dataset " + dataSet.getDataSetCode() + "is already archived in other container");
         }
 
         mads = new MultiDataSetArchiverDataSetDTO(0, code, container.getId(), dataSet.getDataSetSize());

@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -92,8 +93,9 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         verifyDataSetsSize(dataSets);
 
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
-
         MultiDatasetArchiverDBTransaction transaction = new MultiDatasetArchiverDBTransaction();
+
+        filterAlreadyPresentInArchive(dataSets, result, transaction);
 
         try
         {
@@ -117,6 +119,21 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return result;
     }
 
+    private void filterAlreadyPresentInArchive(List<DatasetDescription> dataSets, DatasetProcessingStatuses result,
+            MultiDatasetArchiverDBTransaction transaction)
+    {
+        Iterator<DatasetDescription> it = dataSets.iterator();
+        while (it.hasNext())
+        {
+            DatasetDescription dataSet = it.next();
+            if (transaction.getDataSetByCode(dataSet.getDataSetCode()) != null)
+            {
+                result.addResult(dataSet.getDataSetCode(), Status.OK, Operation.ARCHIVE);
+                it.remove();
+            }
+        }
+    }
+
     private void verifyDataSetsSize(List<DatasetDescription> dataSets)
     {
         long datasetSize = getDataSetsSize(dataSets);
@@ -125,8 +142,8 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
             if (datasetSize < minimumContainerSize)
             {
                 throw new IllegalArgumentException("Dataset " + dataSets.get(0).getDataSetCode()
-                        + " is too small (" + FileUtilities.byteCountToDisplaySize(datasetSize) 
-                        + ") to be archived with multi dataset archiver because minimum size is " 
+                        + " is too small (" + FileUtilities.byteCountToDisplaySize(datasetSize)
+                        + ") to be archived with multi dataset archiver because minimum size is "
                         + FileUtilities.byteCountToDisplaySize(minimumContainerSize) + ".");
             }
             // if single dataset is bigger than specified maximum, we should still allow it being
@@ -136,15 +153,15 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
             if (datasetSize < minimumContainerSize)
             {
                 throw new IllegalArgumentException("Set of data sets specified for archiving is too small ("
-                        + FileUtilities.byteCountToDisplaySize(datasetSize) 
-                        + ") to be archived with multi dataset archiver because minimum size is " 
+                        + FileUtilities.byteCountToDisplaySize(datasetSize)
+                        + ") to be archived with multi dataset archiver because minimum size is "
                         + FileUtilities.byteCountToDisplaySize(minimumContainerSize) + ".");
             }
             else if (datasetSize > maximumContainerSize)
             {
                 throw new IllegalArgumentException("Set of data sets specified for archiving is too big ("
-                        + FileUtilities.byteCountToDisplaySize(datasetSize) 
-                        + ") to be archived with multi dataset archiver because maximum size is " 
+                        + FileUtilities.byteCountToDisplaySize(datasetSize)
+                        + ") to be archived with multi dataset archiver because maximum size is "
                         + FileUtilities.byteCountToDisplaySize(maximumContainerSize) + ".");
             }
         }
@@ -207,7 +224,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
     }
 
-    private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets, 
+    private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,
             ArchiverTaskContext context, DatasetProcessingStatuses statuses)
     {
         Status status;
