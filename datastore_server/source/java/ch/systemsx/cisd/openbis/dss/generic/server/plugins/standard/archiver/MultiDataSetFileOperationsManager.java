@@ -43,9 +43,9 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPackageMana
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TarPackageManager;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -61,6 +61,8 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
 
     private static final String FINAL_DESTINATION_KEY = "final-destination";
 
+    static final String WITH_SHARDING_KEY = "with-sharding";
+
     private transient ArchiveDestination stageArchive;
 
     private transient ArchiveDestination finalArchive;
@@ -69,16 +71,20 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
 
     private final ArchiveDestinationFactory finalArchivefactory;
 
+    private final boolean withSharding;
+
     protected IPackageManager packageManager;
 
     // TODO: some features existing in rsync archiver:
-    // - with sharding
     // - ignore existing
 
     public MultiDataSetFileOperationsManager(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
         this.packageManager = new TarPackageManager(properties);
+
+        this.withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
+
         long timeoutInSeconds =
                 PropertyUtils.getLong(properties, TIMEOUT_KEY, DEFAULT_TIMEOUT_SECONDS);
         long timeoutInMillis = timeoutInSeconds * DateUtils.MILLIS_PER_SECOND;
@@ -196,11 +202,21 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     }
 
     /**
-     * Returns container path local to the archive root
+     * Returns container path local to the archive root.
      */
-    public String getContainerPath(MultiDataSetArchiverContainerDTO container)
+    public String generateContainerPath(List<DatasetDescription> dataSets)
     {
-        return container.getPath() + ".tar";
+        String name = packageManager.getName(dataSets.get(0).getDataSetCode());
+
+        if (withSharding)
+        {
+            return dataSets.get(0).getDataSetLocation() + "/" + name;
+        }
+        else
+        {
+            return name;
+        }
+
     }
 
     /**

@@ -146,14 +146,17 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
 
-        MultiDataSetArchiverContainerDTO container = transaction.createContainer();
+        // for sharding we use the location of the first datast
+
+        String containerPath = getFileOperations().generateContainerPath(dataSets);
+
+        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerPath);
 
         for (DatasetDescription dataSet : dataSets)
         {
             transaction.insertDataset(dataSet, container);
         }
 
-        String containerPath = getFileOperations().getContainerPath(container);
         IHierarchicalContent archivedContent = null;
 
         try
@@ -235,13 +238,21 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets, ArchiverTaskContext context)
     {
-        throw new NotImplementedException("Unarchiving is not yet implemented for multi dataset archiver");
+        if (datasets.size() > 0)
+        {
+            throw new NotImplementedException("Unarchiving is not yet implemented for multi dataset archiver");
+        }
+        return new DatasetProcessingStatuses();
     }
 
     @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
     {
-        throw new NotImplementedException("Deleting from archive is not yet implemented for multi dataset archiver");
+        if (datasets.size() > 0)
+        {
+            throw new NotImplementedException("Deleting from archive is not yet implemented for multi dataset archiver");
+        }
+        return new DatasetProcessingStatuses();
     }
 
     @Override

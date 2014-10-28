@@ -23,14 +23,13 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * @author pkupczyk
  */
 public interface IPackageManager
 {
-    String getName(IDatasetLocation dataSetLocation);
+    String getName(String dataSetCode);
 
     void create(File packageFile, AbstractExternalData dataSet);
 

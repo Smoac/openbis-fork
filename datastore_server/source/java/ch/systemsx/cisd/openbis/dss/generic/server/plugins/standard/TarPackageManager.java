@@ -38,7 +38,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * @author pkupczyk
@@ -58,9 +57,9 @@ public class TarPackageManager implements IPackageManager
     }
 
     @Override
-    public String getName(IDatasetLocation dataSetLocation)
+    public String getName(String dataSetCode)
     {
-        return dataSetLocation.getDataSetCode() + ".tar";
+        return dataSetCode + ".tar";
     }
 
     @Override

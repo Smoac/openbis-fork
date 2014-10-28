@@ -9,18 +9,15 @@ CREATE DOMAIN CODE AS VARCHAR(40);
 
 CREATE DOMAIN FILE_PATH AS VARCHAR(1000);
 
-CREATE DOMAIN LOCATION AS VARCHAR(40) CHECK (VALUE IN ('STAGE', 'FINAL'));
-
 /* ---------------------------------------------------------------------- */
 /* Tables                                                                 */
 /* ---------------------------------------------------------------------- */
 
 CREATE TABLE CONTAINERS (
   ID bigserial NOT NULL,
-  CODE CODE NOT NULL,
   PATH FILE_PATH,
-  LOCATION LOCATION NOT NULL,
-  
+
+  UNIQUE (PATH),
   PRIMARY KEY (ID)
 );
 

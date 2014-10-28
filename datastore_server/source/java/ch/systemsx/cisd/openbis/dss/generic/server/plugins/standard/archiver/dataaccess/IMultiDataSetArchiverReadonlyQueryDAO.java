@@ -31,7 +31,7 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
      * SELECT CONTAINER
      */
     final static String SELECT_CONTAINER =
-            " SELECT id, code, path, location"
+            " SELECT id, path"
                     + "FROM containers ";
 
     @Select(sql = SELECT_CONTAINER + "WHERE id = ?{1}")
@@ -46,7 +46,7 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
                     + "FROM data_sets ";
 
     @Select(sql = SELECT_DATA_SET + "WHERE id = ?{1}")
-    public MultiDataSetArchiverDataSetDTO getDataSetForId(long containerId);
+    public MultiDataSetArchiverDataSetDTO getDataSetForId(long dataSetId);
 
     @Select(sql = SELECT_DATA_SET + "WHERE code = ?{1}")
     public MultiDataSetArchiverDataSetDTO getDataSetForCode(String code);

@@ -16,10 +16,7 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
 
@@ -35,10 +32,6 @@ public class MultiDatasetArchiverDBTransaction
 {
 
     private static DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("multi-dataset-archiver-db");
-
-    private static SimpleDateFormat simpleDateformat = new SimpleDateFormat("yyyy_MM_dd__HH_mm_ss");
-
-    private static AtomicInteger containerCounter = new AtomicInteger(1);
 
     private IMultiDataSetArchiverQueryDAO transaction;
 
@@ -60,11 +53,11 @@ public class MultiDatasetArchiverDBTransaction
     /**
      * Creates a new container
      */
-    public MultiDataSetArchiverContainerDTO createContainer()
+    public MultiDataSetArchiverContainerDTO createContainer(String path)
     {
-        String path = String.format("%s/%s/%s", "code", simpleDateformat.format(new Date()), containerCounter.incrementAndGet());
+
         MultiDataSetArchiverContainerDTO container =
-                new MultiDataSetArchiverContainerDTO(0, "code", path, MultiDataSetArchiverContainerDTO.LOCATION_STAGE, false);
+                new MultiDataSetArchiverContainerDTO(0, path);
 
         long id = transaction.addContainer(container);
         container.setId(id);

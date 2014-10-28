@@ -21,28 +21,19 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.da
  */
 public class MultiDataSetArchiverContainerDTO
 {
-    public static final String LOCATION_STAGE = "STAGE";
-
-    public static final String LOCATION_FINAL = "FINAL";
 
     private long id;
 
-    private String code;
-
     private String path;
-
-    private String location;
 
     public MultiDataSetArchiverContainerDTO()
     {
     }
 
-    public MultiDataSetArchiverContainerDTO(long id, String code, String path, String location, boolean closed)
+    public MultiDataSetArchiverContainerDTO(long id, String path)
     {
         this.id = id;
-        this.code = code;
         this.path = path;
-        this.location = location;
     }
 
     public void setId(long id)
@@ -55,25 +46,15 @@ public class MultiDataSetArchiverContainerDTO
         return id;
     }
 
-    public String getCode()
-    {
-        return code;
-    }
-
     public String getPath()
     {
         return path;
     }
 
-    public String getLocation()
-    {
-        return location;
-    }
-
     @Override
     public String toString()
     {
-        return "MultiDataSetArchiverContainerDTO [id=" + id + ", code=" + code + ", path=" + path + ", location=" + location + "]";
+        return "MultiDataSetArchiverContainerDTO [id=" + id + ", path=" + path + "]";
     }
 
 }

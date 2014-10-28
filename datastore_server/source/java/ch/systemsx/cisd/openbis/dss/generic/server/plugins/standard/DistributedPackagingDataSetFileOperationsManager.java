@@ -350,7 +350,7 @@ public class DistributedPackagingDataSetFileOperationsManager extends AbstractDa
 
     private String createPackageFileName(IDatasetLocation datasetLocation)
     {
-        return packageManager.getName(datasetLocation);
+        return packageManager.getName(datasetLocation.getDataSetCode());
     }
 
     private File getArchiveFolder(File baseFolder, IDatasetLocation datasetLocation, boolean forWriting)

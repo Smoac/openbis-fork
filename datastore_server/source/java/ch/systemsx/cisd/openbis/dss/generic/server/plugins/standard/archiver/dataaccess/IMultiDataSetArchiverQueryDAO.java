@@ -30,9 +30,9 @@ public interface IMultiDataSetArchiverQueryDAO extends TransactionQuery, IMultiD
      */
 
     final static String INSERT_CONTAINER = "INSERT INTO containers "
-            + "(code, path, location) "
+            + "(path) "
             + "values "
-            + "(?{1.code}, ?{1.path}, ?{1.location}) "
+            + "(?{1.path}) "
             + "RETURNING ID";
 
     @Select(sql = INSERT_CONTAINER)
@@ -42,9 +42,7 @@ public interface IMultiDataSetArchiverQueryDAO extends TransactionQuery, IMultiD
 
     final static String UPDATE_CONTAINER = "UPDATE containers "
             + "SET "
-            + "code = ?{1.code}, "
             + "path = ?{1.path}, "
-            + "location = ?{1.location}, "
             + "where ID = ?{1.id}";
 
     @Update(UPDATE_CONTAINER)

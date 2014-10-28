@@ -44,7 +44,6 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 import de.schlichtherle.io.rof.SimpleReadOnlyFile;
 import de.schlichtherle.util.zip.BasicZipFile;
@@ -70,9 +69,9 @@ public class ZipPackageManager implements IPackageManager
     }
 
     @Override
-    public String getName(IDatasetLocation dataSetLocation)
+    public String getName(String dataSetCode)
     {
-        return dataSetLocation.getDataSetCode() + ".zip";
+        return dataSetCode + ".zip";
     }
 
     @Override
