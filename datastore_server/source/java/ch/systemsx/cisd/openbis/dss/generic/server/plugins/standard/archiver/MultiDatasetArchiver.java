@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -35,6 +36,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchive
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -89,12 +91,12 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> dataSets, ArchiverTaskContext context)
+    protected DatasetProcessingStatuses doArchive(List<DatasetDescription> paramDataSets, ArchiverTaskContext context)
     {
-
+        LinkedList<DatasetDescription> dataSets = new LinkedList<DatasetDescription>(paramDataSets);
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
 
-        filterAlreadyPresentInArchive(dataSets, result);
+        filterBasedOnArchiveStatus(dataSets, result, FilterOption.FILTER_ARCHIVED, Status.OK, Operation.ARCHIVE);
 
         if (dataSets.isEmpty())
         {
@@ -106,7 +108,9 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         {
             verifyDataSetsSize(dataSets);
 
-            result = doArchive(dataSets, transaction, context);
+            DatasetProcessingStatuses archiveResult = doArchive(dataSets, transaction, context);
+
+            result.addResults(archiveResult);
 
             transaction.commit();
             transaction.close();
@@ -126,17 +130,45 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return result;
     }
 
-    private void filterAlreadyPresentInArchive(List<DatasetDescription> dataSets, DatasetProcessingStatuses result)
+    private static enum FilterOption
     {
-        IMultiDataSetArchiverReadonlyQueryDAO query = MultiDatasetArchiverDBTransaction.getReadonlyQuery();
+        FILTER_ARCHIVED,
+        FILTER_UNARCHIVED
+    }
 
-        Iterator<DatasetDescription> it = dataSets.iterator();
+    /**
+     * NOTE: This method MODIFIES both arguments. It removes items from dataSets list and adds values to result. Re Iterate over the
+     * <code>dataSets</code> and removes those which are present in the archive already (or not present, depending on the <code>filterOption</code>).
+     * For those removed data sets it adds entry with <code>status</code> for <code>operation</code> in <code>result</code>
+     */
+    private void filterBasedOnArchiveStatus(LinkedList<? extends IDatasetLocation> dataSets, DatasetProcessingStatuses result,
+            FilterOption filterOption,
+            Status status, Operation operation)
+    {
+
+        Iterator<? extends IDatasetLocation> it = dataSets.iterator();
         while (it.hasNext())
         {
-            DatasetDescription dataSet = it.next();
-            if (query.getDataSetForCode(dataSet.getDataSetCode()) != null)
+            IDatasetLocation dataSet = it.next();
+            boolean isPresentInArchive = isDataSetPresentInArchive(dataSet.getDataSetCode());
+
+            boolean isFiltered;
+
+            switch (filterOption)
             {
-                result.addResult(dataSet.getDataSetCode(), Status.OK, Operation.ARCHIVE);
+                case FILTER_ARCHIVED:
+                    isFiltered = isPresentInArchive;
+                    break;
+                case FILTER_UNARCHIVED:
+                    isFiltered = (false == isPresentInArchive);
+                    break;
+                default:
+                    throw new IllegalStateException("All cases should be covered");
+            }
+
+            if (isFiltered)
+            {
+                result.addResult(dataSet.getDataSetCode(), status, operation);
                 it.remove();
             }
         }
@@ -289,23 +321,36 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doDeleteFromArchive(List<? extends IDatasetLocation> datasets)
     {
-        if (datasets.size() > 0)
+        LinkedList<IDatasetLocation> localDataSets = new LinkedList<IDatasetLocation>(datasets);
+        DatasetProcessingStatuses results = new DatasetProcessingStatuses();
+
+        filterBasedOnArchiveStatus(localDataSets, results, FilterOption.FILTER_UNARCHIVED, Status.OK, Operation.DELETE_FROM_ARCHIVE);
+
+        if (localDataSets.size() > 0)
         {
             throw new NotImplementedException("Deleting from archive is not yet implemented for multi dataset archiver");
         }
-        return new DatasetProcessingStatuses();
+        return results;
     }
 
     @Override
+    // TODO: implement a real check? Run the checkArchivedDataSets logic
     protected BooleanStatus isDataSetSynchronizedWithArchive(DatasetDescription dataset, ArchiverTaskContext context)
     {
-        return BooleanStatus.createFalse();
+        return isDataSetPresentInArchive(dataset);
     }
 
     @Override
-    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataset)
+    protected BooleanStatus isDataSetPresentInArchive(DatasetDescription dataSet)
     {
-        return BooleanStatus.createFalse();
+        return BooleanStatus.createFromBoolean(isDataSetPresentInArchive(dataSet.getDataSetCode()));
+    }
+
+    protected boolean isDataSetPresentInArchive(String dataSetCode)
+    {
+        IMultiDataSetArchiverReadonlyQueryDAO query = MultiDatasetArchiverDBTransaction.getReadonlyQuery();
+        MultiDataSetArchiverDataSetDTO dataSetInArchiveDB = query.getDataSetForCode(dataSetCode);
+        return dataSetInArchiveDB != null;
     }
 
     public IMultiDataSetFileOperationsManager getFileOperations()
