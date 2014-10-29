@@ -31,8 +31,8 @@ $.extend(Grid.prototype, {
 						var rowIndex = helpers.item[0].rowIndex;
 						thisGrid.notifyRowClickListeners({
 							"index" : rowIndex,
-							"data" : thisGrid.result.datas[rowIndex],
-							"item" : thisGrid.result.items[rowIndex]
+							"data" : thisGrid.result.datas[rowIndex-1],
+							"item" : thisGrid.result.items[rowIndex-1]
 						});
 					});
 
