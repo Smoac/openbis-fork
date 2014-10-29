@@ -20,7 +20,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -32,12 +37,30 @@ public class Deletion implements Serializable
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty
+    private DeletionFetchOptions fetchOptions;
+
+    @JsonProperty
     private IDeletionId id;
 
+    @JsonProperty
     private String reason;
 
+    @JsonProperty
     private List<DeletedObject> deletedObjects = new ArrayList<DeletedObject>();
 
+    @JsonIgnore
+    public DeletionFetchOptions getFetchOptions()
+    {
+        return fetchOptions;
+    }
+
+    public void setFetchOptions(DeletionFetchOptions fetchOptions)
+    {
+        this.fetchOptions = fetchOptions;
+    }
+
+    @JsonIgnore
     public IDeletionId getId()
     {
         return id;
@@ -48,6 +71,7 @@ public class Deletion implements Serializable
         this.id = id;
     }
 
+    @JsonIgnore
     public String getReason()
     {
         return reason;
@@ -58,9 +82,17 @@ public class Deletion implements Serializable
         this.reason = reason;
     }
 
+    @JsonIgnore
     public List<DeletedObject> getDeletedObjects()
     {
-        return deletedObjects;
+        if (getFetchOptions().hasDeletedObjects())
+        {
+            return deletedObjects;
+        }
+        else
+        {
+            throw new NotFetchedException("Deleted objects have not been fetched.");
+        }
     }
 
     public void setDeletedObjects(List<DeletedObject> deletedObjects)

@@ -34,7 +34,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAc
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ExperimentByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.IExperimentBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -57,6 +56,23 @@ public class DeleteExperimentExecutor implements IDeleteExperimentExecutor
     @Override
     public IDeletionId delete(IOperationContext context, List<? extends IExperimentId> experimentIds, ExperimentDeletionOptions deletionOptions)
     {
+        if (context == null)
+        {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
+        if (experimentIds == null)
+        {
+            throw new IllegalArgumentException("Experiment ids cannot be null");
+        }
+        if (deletionOptions == null)
+        {
+            throw new IllegalArgumentException("Deletion options cannot be null");
+        }
+        if (deletionOptions.getReason() == null)
+        {
+            throw new IllegalArgumentException("Deletion reason cannot be null");
+        }
+
         Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
         List<TechId> experimentTechIds = new LinkedList<TechId>();
 
@@ -74,27 +90,12 @@ public class DeleteExperimentExecutor implements IDeleteExperimentExecutor
             experimentTechIds.add(new TechId(experiment.getId()));
         }
 
-        switch (deletionOptions.getDeletionType())
-        {
-            case PERMANENT:
-                deletePermanently(context, experimentTechIds, deletionOptions);
-                return null;
-            case TRASH:
-                return trash(context, experimentTechIds, deletionOptions);
-            default:
-                throw new IllegalArgumentException("Unknown deletion type: " + deletionOptions.getDeletionType());
-        }
+        return trash(context, experimentTechIds, deletionOptions);
     }
 
     private void updateModificationDateAndModifierOfRelatedProject(IOperationContext context, ExperimentPE experiment)
     {
         RelationshipUtils.updateModificationDateAndModifier(experiment.getProject(), context.getSession());
-    }
-
-    private void deletePermanently(IOperationContext context, List<TechId> experimentTechIds, ExperimentDeletionOptions deletionOptions)
-    {
-        IExperimentBO experimentBO = businessObjectFactory.createExperimentBO(context.getSession());
-        experimentBO.deleteByTechIds(experimentTechIds, deletionOptions.getReason());
     }
 
     private IDeletionId trash(IOperationContext context, List<TechId> experimentTechIds, ExperimentDeletionOptions deletionOptions)

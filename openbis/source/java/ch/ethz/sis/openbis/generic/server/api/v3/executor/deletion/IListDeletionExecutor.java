@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("SampleDeletionOptions")
-public class SampleDeletionOptions extends AbstractObjectDeletionOptions
+public interface IListDeletionExecutor
 {
 
-    private static final long serialVersionUID = 1L;
+    public List<Deletion> list(IOperationContext context, DeletionFetchOptions fetchOptions);
 
 }

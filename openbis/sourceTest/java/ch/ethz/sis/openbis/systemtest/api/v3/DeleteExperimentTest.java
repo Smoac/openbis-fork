@@ -23,7 +23,6 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.DeletionType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
@@ -41,14 +40,13 @@ public class DeleteExperimentTest extends AbstractExperimentTest
 {
 
     @Test
-    public void testDeleteExperimentWithTrashType()
+    public void testDeleteExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentPermId permId = createExperimentToDelete();
 
         ExperimentDeletionOptions options = new ExperimentDeletionOptions();
-        options.setDeletionType(DeletionType.TRASH);
         options.setReason("It is just a test");
 
         IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);
@@ -71,7 +69,6 @@ public class DeleteExperimentTest extends AbstractExperimentTest
                     String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
                     ExperimentDeletionOptions options = new ExperimentDeletionOptions();
-                    options.setDeletionType(DeletionType.TRASH);
                     options.setReason("It is just a test");
 
                     v3api.deleteExperiments(sessionToken, Collections.singletonList(permId), options);

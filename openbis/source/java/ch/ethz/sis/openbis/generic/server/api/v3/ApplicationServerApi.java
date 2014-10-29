@@ -27,6 +27,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletionExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IRevertDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IListExperimentByIdExecutor;
@@ -36,6 +39,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleEx
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IListSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.DeletionTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.EntityAttributeProviderFactory;
@@ -129,6 +133,15 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IDeleteSampleExecutor deleteSampleExecutor;
+
+    @Autowired
+    private IListDeletionExecutor listDeletionExecutor;
+
+    @Autowired
+    private IRevertDeletionExecutor revertDeletionExecutor;
+
+    @Autowired
+    private IConfirmDeletionExecutor confirmDeletionExecutor;
 
     // Default constructor needed by Spring
     public ApplicationServerApi()
@@ -410,8 +423,19 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @RolesAllowed({ RoleWithHierarchy.SPACE_USER, RoleWithHierarchy.SPACE_ETL_SERVER })
     public List<Deletion> listDeletions(String sessionToken, DeletionFetchOptions fetchOptions)
     {
-        // TODO Auto-generated method stub
-        return null;
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listDeletionExecutor.list(context, fetchOptions);
+
+            return new ArrayList<Deletion>(
+                    new DeletionTranslator(new TranslationContext(session), fetchOptions, getDAOFactory()).translate(deletions));
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     @Override
@@ -422,7 +446,19 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Capability("RESTORE")
     public void revertDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
-        // TODO Auto-generated method stub
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            revertDeletionExecutor.revert(context, deletionIds);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
+            getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
     }
 
     @Override
@@ -432,7 +468,19 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Capability("PURGE")
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds)
     {
-        // TODO Auto-generated method stub
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            confirmDeletionExecutor.confirm(context, deletionIds);
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        } finally
+        {
+            getDAOFactory().getSessionFactory().getCurrentSession().clear();
+        }
     }
 
     @Override

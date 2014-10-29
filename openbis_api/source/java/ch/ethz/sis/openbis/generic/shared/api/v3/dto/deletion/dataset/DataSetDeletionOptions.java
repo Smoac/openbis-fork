@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.dataset;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-public class AbstractTrashableObjectDeletionOptions extends AbstractObjectDeletionOptions
+@JsonObject("DataSetDeletionOptions")
+public class DataSetDeletionOptions extends AbstractObjectDeletionOptions
 {
 
     private static final long serialVersionUID = 1L;
-
-    private DeletionType deletionType = DeletionType.TRASH;
-
-    public DeletionType getDeletionType()
-    {
-        return deletionType;
-    }
-
-    public void setDeletionType(DeletionType deletionType)
-    {
-        this.deletionType = deletionType;
-    }
 
 }

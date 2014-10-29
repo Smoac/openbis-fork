@@ -56,18 +56,33 @@ public class DeletionTable extends AbstractBusinessObject implements IDeletionTa
     @Override
     public void load(boolean withEntities)
     {
-        load(withEntities, false);
+        List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
+        load(deletionPEs, withEntities, false);
+    }
+
+    @Override
+    public void load(List<Long> deletionIds, boolean withEntities)
+    {
+        List<DeletionPE> deletionPEs = getDeletionDAO().findAllById(deletionIds);
+        load(deletionPEs, withEntities, false);
     }
 
     @Override
     public void loadOriginal()
     {
-        load(true, true);
+        List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
+        load(deletionPEs, true, true);
     }
 
-    private void load(boolean withEntities, boolean onlyOriginal)
+    @Override
+    public void loadOriginal(List<Long> deletionIds)
     {
-        final List<DeletionPE> deletionPEs = getDeletionDAO().listAllEntities();
+        List<DeletionPE> deletionPEs = getDeletionDAO().findAllById(deletionIds);
+        load(deletionPEs, true, true);
+    }
+
+    private void load(List<DeletionPE> deletionPEs, boolean withEntities, boolean onlyOriginal)
+    {
         Collections.sort(deletionPEs);
         deletions = DeletionTranslator.translate(deletionPEs);
         if (false == withEntities)

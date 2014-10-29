@@ -1616,7 +1616,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_OBSERVER)
     @ReturnValueFilter(validatorClass = SearchDomainSearchResultValidator.class)
-    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken, 
+    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken,
             String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull)
     {
         Session session = getSession(sessionToken);
@@ -1631,7 +1631,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     public List<SearchDomain> listAvailableSearchDomains(String sessionToken)
     {
         Session session = getSession(sessionToken);
-        
+
         IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
         return dataSetTable.listAvailableSearchDomains();
     }

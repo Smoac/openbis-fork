@@ -35,7 +35,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAc
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
@@ -60,6 +59,23 @@ public class DeleteSampleExecutor implements IDeleteSampleExecutor
     @Override
     public IDeletionId delete(IOperationContext context, List<? extends ISampleId> sampleIds, SampleDeletionOptions deletionOptions)
     {
+        if (context == null)
+        {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
+        if (sampleIds == null)
+        {
+            throw new IllegalArgumentException("Sample ids cannot be null");
+        }
+        if (deletionOptions == null)
+        {
+            throw new IllegalArgumentException("Deletion options cannot be null");
+        }
+        if (deletionOptions.getReason() == null)
+        {
+            throw new IllegalArgumentException("Deletion reason cannot be null");
+        }
+
         Map<ISampleId, SamplePE> sampleMap = mapSampleByIdExecutor.map(context, sampleIds);
         List<TechId> sampleTechIds = new LinkedList<TechId>();
 
@@ -77,16 +93,7 @@ public class DeleteSampleExecutor implements IDeleteSampleExecutor
             sampleTechIds.add(new TechId(sample.getId()));
         }
 
-        switch (deletionOptions.getDeletionType())
-        {
-            case PERMANENT:
-                deletePermanently(context, sampleTechIds, deletionOptions);
-                return null;
-            case TRASH:
-                return trash(context, sampleTechIds, deletionOptions);
-            default:
-                throw new IllegalArgumentException("Unknown deletion type: " + deletionOptions.getDeletionType());
-        }
+        return trash(context, sampleTechIds, deletionOptions);
     }
 
     private void updateModificationDateAndModifierOfRelatedEntities(IOperationContext context, SamplePE sample)
@@ -118,12 +125,6 @@ public class DeleteSampleExecutor implements IDeleteSampleExecutor
                 RelationshipUtils.updateModificationDateAndModifier(childSample, context.getSession());
             }
         }
-    }
-
-    private void deletePermanently(IOperationContext context, List<TechId> sampleTechIds, SampleDeletionOptions deletionOptions)
-    {
-        ISampleTable sampleTable = businessObjectFactory.createSampleTable(context.getSession());
-        sampleTable.deleteByTechIds(sampleTechIds, deletionOptions.getReason());
     }
 
     private IDeletionId trash(IOperationContext context, List<TechId> sampleTechIds, SampleDeletionOptions deletionOptions)

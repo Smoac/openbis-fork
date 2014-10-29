@@ -28,36 +28,20 @@ public class DeletionFetchOptions implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private DeletedObjectFetchOptions allDeletedObjects;
+    private DeletedObjectFetchOptions deletedObjects;
 
-    private DeletedObjectFetchOptions originallyDeletedObjects;
-
-    public DeletedObjectFetchOptions fetchAllDeletedObjects()
+    public DeletedObjectFetchOptions fetchDeletedObjects()
     {
-        if (allDeletedObjects == null)
+        if (deletedObjects == null)
         {
-            allDeletedObjects = new DeletedObjectFetchOptions();
+            deletedObjects = new DeletedObjectFetchOptions();
         }
-        return allDeletedObjects;
+        return deletedObjects;
     }
 
-    public boolean hasAllDeletedObjects()
+    public boolean hasDeletedObjects()
     {
-        return allDeletedObjects != null;
-    }
-
-    public DeletedObjectFetchOptions fetchOriginallyDeletedObjects()
-    {
-        if (originallyDeletedObjects == null)
-        {
-            originallyDeletedObjects = new DeletedObjectFetchOptions();
-        }
-        return originallyDeletedObjects;
-    }
-
-    public boolean hasOriginallyDeletedObjects()
-    {
-        return originallyDeletedObjects != null;
+        return deletedObjects != null;
     }
 
 }

@@ -30,15 +30,18 @@ public interface IDeletionTable
     /**
      * Load all {@link Deletion} objects.
      * 
-     * @param withEntities If <code>true</code> deletion objects will be enriched with those deleted
-     *            entities which are the root of the deletion tree.
+     * @param withEntities If <code>true</code> deletion objects will be enriched with those deleted entities which are the root of the deletion tree.
      */
     public void load(boolean withEntities);
+
+    public void load(List<Long> deletionIds, boolean withEntities);
 
     /**
      * Load all {@link Deletion} objects with original entities.
      */
     public void loadOriginal();
+
+    public void loadOriginal(List<Long> deletionIds);
 
     public List<Deletion> getDeletions();
 }

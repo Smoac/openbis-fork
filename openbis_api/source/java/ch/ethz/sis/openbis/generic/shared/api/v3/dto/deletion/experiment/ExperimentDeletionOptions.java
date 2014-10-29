@@ -16,14 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractTrashableObjectDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.AbstractObjectDeletionOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("ExperimentDeletionOptions")
-public class ExperimentDeletionOptions extends AbstractTrashableObjectDeletionOptions
+public class ExperimentDeletionOptions extends AbstractObjectDeletionOptions
 {
 
     private static final long serialVersionUID = 1L;
