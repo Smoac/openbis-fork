@@ -174,7 +174,6 @@ function SideMenuWidgetController(mainController) {
                 
                 newMenuIfSelectedSpace.children.sort(naturalSortSideMenuWidgetComponent); //Sort Projects
             }
-            _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Spaces
             
             //Fill Experiments
             mainController.serverFacade.listExperiments(projectsToAskForExperiments, function(experiments) {
