@@ -29,6 +29,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreatio
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
@@ -44,7 +45,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 public class AbstractDeletionTest extends AbstractTest
 {
 
-    protected ExperimentPermId createExperimentToDelete()
+    protected ExperimentPermId createCisdExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -62,7 +63,7 @@ public class AbstractDeletionTest extends AbstractTest
         return permIds.get(0);
     }
 
-    protected SamplePermId createSampleToDelete(IExperimentId experimentId)
+    protected SamplePermId createCisdSample(IExperimentId experimentId)
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -83,59 +84,92 @@ public class AbstractDeletionTest extends AbstractTest
 
     protected void assertExperimentExists(IExperimentId experimentId)
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Experiment> result = v3api.listExperiments(sessionToken, Collections.singletonList(experimentId), new ExperimentFetchOptions());
-        Assert.assertEquals(1, result.size());
+        assertExperimentExists(experimentId, true);
     }
 
     protected void assertExperimentDoesNotExist(IExperimentId experimentId)
     {
+        assertExperimentExists(experimentId, false);
+    }
+
+    private void assertExperimentExists(IExperimentId experimentId, boolean exists)
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> result = v3api.listExperiments(sessionToken, Collections.singletonList(experimentId), new ExperimentFetchOptions());
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(exists ? 1 : 0, result.size());
     }
 
     protected void assertSampleExists(ISampleId sampleId)
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Sample> result = v3api.listSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
-        Assert.assertEquals(1, result.size());
+        assertSampleExists(sampleId, true);
     }
 
     protected void assertSampleDoesNotExist(ISampleId sampleId)
     {
+        assertSampleExists(sampleId, false);
+    }
+
+    private void assertSampleExists(ISampleId sampleId, boolean exists)
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Sample> result = v3api.listSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
-        Assert.assertEquals(0, result.size());
+        Assert.assertEquals(exists ? 1 : 0, result.size());
+    }
+
+    protected void assertDataSetExists(DataSetPermId dataSetId)
+    {
+        assertDataSetExists(dataSetId, true);
+    }
+
+    protected void assertDataSetDoesNotExist(DataSetPermId dataSetId)
+    {
+        assertDataSetExists(dataSetId, false);
+    }
+
+    private void assertDataSetExists(DataSetPermId dataSetId, boolean exists)
+    {
+        String sessionToken = generalInformationService.tryToAuthenticateForAllServices(TEST_USER, PASSWORD);
+
+        ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria criteria =
+                new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria();
+        criteria.addMatchClause(ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause.createAttributeMatch(
+                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute.CODE, dataSetId.getPermId()));
+
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet> result = generalInformationService.searchForDataSets(sessionToken, criteria);
+        Assert.assertEquals(exists ? 1 : 0, result.size());
     }
 
     protected void assertDeletionExists(IDeletionId deletionId)
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Deletion> result = v3api.listDeletions(sessionToken, new DeletionFetchOptions());
-
-        for (Deletion item : result)
-        {
-            if (item.getId().equals(deletionId))
-            {
-                return;
-            }
-        }
-
-        Assert.fail("Deletion " + deletionId + " does not exist");
+        assertDeletionExists(deletionId, true);
     }
 
     protected void assertDeletionDoesNotExist(IDeletionId deletionId)
     {
+        assertDeletionExists(deletionId, false);
+    }
+
+    private void assertDeletionExists(IDeletionId deletionId, boolean exists)
+    {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Deletion> result = v3api.listDeletions(sessionToken, new DeletionFetchOptions());
+        Deletion found = null;
 
         for (Deletion item : result)
         {
             if (item.getId().equals(deletionId))
             {
-                Assert.fail("Deletion " + deletionId + " exists");
+                found = item;
+                break;
             }
+        }
+
+        if (exists)
+        {
+            Assert.assertNotNull(found);
+        } else
+        {
+            Assert.assertNull(found);
         }
     }
 

@@ -45,8 +45,8 @@ public class ListDeletionTest extends AbstractDeletionTest
         DeletionFetchOptions fetchOptions = new DeletionFetchOptions();
         List<Deletion> beforeDeletions = v3api.listDeletions(sessionToken, fetchOptions);
 
-        ExperimentPermId experimentId = createExperimentToDelete();
-        SamplePermId sampleId = createSampleToDelete(experimentId);
+        ExperimentPermId experimentId = createCisdExperiment();
+        SamplePermId sampleId = createCisdSample(experimentId);
 
         ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
         deletionOptions.setReason("It is just a test");
@@ -79,11 +79,15 @@ public class ListDeletionTest extends AbstractDeletionTest
         fetchOptions.fetchDeletedObjects();
         List<Deletion> beforeDeletions = v3api.listDeletions(sessionToken, fetchOptions);
 
-        ExperimentPermId experimentId = createExperimentToDelete();
-        SamplePermId sampleId = createSampleToDelete(experimentId);
+        ExperimentPermId experimentId = createCisdExperiment();
+        SamplePermId sampleId = createCisdSample(experimentId);
 
         ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
         deletionOptions.setReason("It is just a test");
+
+        assertExperimentExists(experimentId);
+        assertSampleExists(sampleId);
+
         IDeletionId deletionId = v3api.deleteExperiments(sessionToken, Collections.singletonList(experimentId), deletionOptions);
 
         assertExperimentDoesNotExist(experimentId);
@@ -108,7 +112,7 @@ public class ListDeletionTest extends AbstractDeletionTest
 
         String adminSessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentToDelete();
+        ExperimentPermId experimentId = createCisdExperiment();
         ExperimentDeletionOptions deletionOptions = new ExperimentDeletionOptions();
         deletionOptions.setReason("It is just a test");
         v3api.deleteExperiments(adminSessionToken, Collections.singletonList(experimentId), deletionOptions);

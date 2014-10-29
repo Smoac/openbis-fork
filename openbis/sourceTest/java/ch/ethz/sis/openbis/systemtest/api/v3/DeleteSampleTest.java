@@ -17,26 +17,22 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import java.util.Collections;
-import java.util.List;
 
 import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.deletion.IDeletionId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 
 /**
  * @author pkupczyk
  */
-public class DeleteSampleTest extends AbstractSampleTest
+public class DeleteSampleTest extends AbstractDeletionTest
 {
 
     @Test
@@ -44,22 +40,74 @@ public class DeleteSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        SamplePermId permId = createSampleToDelete();
+        ExperimentPermId experimentPermId = createCisdExperiment();
+        SamplePermId samplePermId = createCisdSample(experimentPermId);
 
         SampleDeletionOptions options = new SampleDeletionOptions();
         options.setReason("It is just a test");
 
-        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
+        assertExperimentExists(experimentPermId);
+        assertSampleExists(samplePermId);
+
+        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
         Assert.assertNotNull(deletionId);
 
-        List<Sample> samples = v3api.listSamples(sessionToken, Collections.singletonList(permId), new SampleFetchOptions());
-        Assert.assertEquals(0, samples.size());
+        assertExperimentExists(experimentPermId);
+        assertSampleDoesNotExist(samplePermId);
+    }
+
+    @Test
+    public void testDeleteSampleWithDataSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SamplePermId samplePermId = new SamplePermId("200902091225616-1027");
+        DataSetPermId dataSetPermId1 = new DataSetPermId("20081105092159333-3");
+        DataSetPermId dataSetPermId2 = new DataSetPermId("20110805092359990-17");
+
+        SampleDeletionOptions options = new SampleDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertSampleExists(samplePermId);
+        assertDataSetExists(dataSetPermId1);
+        assertDataSetExists(dataSetPermId2);
+
+        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
+        Assert.assertNotNull(deletionId);
+
+        assertSampleDoesNotExist(samplePermId);
+        assertDataSetDoesNotExist(dataSetPermId1);
+        assertDataSetDoesNotExist(dataSetPermId2);
+    }
+
+    @Test
+    public void testDeleteSampleWithContainedSamples()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SamplePermId samplePermId = new SamplePermId("200811050919915-8");
+        SamplePermId containedPermId1 = new SamplePermId("200811050919915-9");
+        SamplePermId containedPermId2 = new SamplePermId("200811050919915-10");
+
+        SampleDeletionOptions options = new SampleDeletionOptions();
+        options.setReason("It is just a test");
+
+        assertSampleExists(samplePermId);
+        assertSampleExists(containedPermId1);
+        assertSampleExists(containedPermId2);
+
+        IDeletionId deletionId = v3api.deleteSamples(sessionToken, Collections.singletonList(samplePermId), options);
+        Assert.assertNotNull(deletionId);
+
+        assertSampleDoesNotExist(samplePermId);
+        assertSampleDoesNotExist(containedPermId1);
+        assertSampleDoesNotExist(containedPermId2);
     }
 
     @Test
     public void testDeleteSampleWithUnauthorizedSample()
     {
-        final SamplePermId permId = createSampleToDelete();
+        final SamplePermId permId = createCisdSample(null);
 
         assertUnauthorizedObjectAccessException(new IDelegatedAction()
             {
@@ -74,24 +122,6 @@ public class DeleteSampleTest extends AbstractSampleTest
                     v3api.deleteSamples(sessionToken, Collections.singletonList(permId), options);
                 }
             }, permId);
-    }
-
-    private SamplePermId createSampleToDelete()
-    {
-        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE_TO_DELETE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("CISD"));
-
-        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
-        List<Sample> samples = v3api.listSamples(sessionToken, permIds, new SampleFetchOptions());
-
-        Assert.assertEquals(1, samples.size());
-        Assert.assertEquals("SAMPLE_TO_DELETE", samples.get(0).getCode());
-
-        return permIds.get(0);
     }
 
 }

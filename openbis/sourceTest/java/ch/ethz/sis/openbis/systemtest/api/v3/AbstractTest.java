@@ -23,11 +23,13 @@ import java.lang.reflect.Method;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
@@ -39,6 +41,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAc
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.systemtest.SystemTestCase;
 
 /**
@@ -58,6 +61,12 @@ public class AbstractTest extends SystemTestCase
     protected static final String PASSWORD = "password";
 
     private BufferedAppender logRecorder;
+
+    @Autowired
+    protected IApplicationServerApi v3api;
+
+    @Autowired
+    protected IGeneralInformationService generalInformationService;
 
     @BeforeClass
     public void beforeClass()
