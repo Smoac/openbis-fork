@@ -58,7 +58,6 @@ $.extend(DefaultProfile.prototype, {
 		this.allPropertyTypes = [];
 		this.displaySettings = {};
 		
-		this.typePropertiesForTable = {};
 		this.typePropertiesForSmallTable = {};
 		
 		this.colorForInspectors = {};
@@ -200,12 +199,6 @@ $.extend(DefaultProfile.prototype, {
 		//
 		// Per Lab Extensions
 		//
-		
-		/*
-		 * Used by Sample Table
-		 */
-		this.isShowUnavailablePreviewOnSampleTable = false;
-		
 		
 		/*
 		 * Used by DataSet Form
