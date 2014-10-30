@@ -83,6 +83,15 @@ public class ServiceProviderTestWrapper
     public static <T> T mock(Mockery mockery, final Class<T> clazz)
     {
         final T mock = mockery.mock(clazz);
+        addMock(mockery, clazz, mock);
+        return mock;
+    }
+
+    /**
+     * Sets specified mock instance up within the mocked application context of ServiceProvider.
+     */
+    public static <T> void addMock(Mockery mockery, final Class<T> clazz, final T mock)
+    {
         mockery.checking(new Expectations()
             {
                 {
@@ -91,8 +100,6 @@ public class ServiceProviderTestWrapper
                     will(returnValue(mock));
                 }
             });
-
-        return mock;
     }
 
 }

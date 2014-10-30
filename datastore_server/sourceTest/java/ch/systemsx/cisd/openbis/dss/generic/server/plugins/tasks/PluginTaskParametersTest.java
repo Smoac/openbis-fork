@@ -36,13 +36,9 @@ import org.testng.annotations.Test;
 
 import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
-import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
-import ch.systemsx.cisd.common.server.ISessionTokenProvider;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.generic.server.IServletPropertiesManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoProcessingPlugin;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.demo.DemoReportingPlugin;
@@ -50,9 +46,8 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.dss.generic.shared.DataSetProcessingContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SimpleFileContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatastoreServiceDescription;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -78,48 +73,8 @@ public class PluginTaskParametersTest extends AbstractFileSystemTestCase
     {
         context = new Mockery();
         servletPropertiesManager = context.mock(IServletPropertiesManager.class);
-        contentProvider = new IHierarchicalContentProvider()
-            {
-
-                @Override
-                public IHierarchicalContent asContent(String dataSetCode)
-                {
-                    File dataSetFolder = new File(STORE_ROOT, dataSetCode);
-                    return new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(
-                            dataSetFolder, IDelegatedAction.DO_NOTHING);
-                }
-
-                @Override
-                public IHierarchicalContent asContent(File datasetDirectory)
-                {
-                    return null;
-                }
-
-                @Override
-                public IHierarchicalContent asContentWithoutModifyingAccessTimestamp(String dataSetCode)
-                {
-                    return null; // not necessary for this test
-                }
-
-                @Override
-                public IHierarchicalContent asContent(IDatasetLocation datasetLocation)
-                {
-                    return null;
-                }
-
-                @Override
-                public IHierarchicalContent asContent(AbstractExternalData dataSet)
-                {
-                    return null;
-                }
-
-                @Override
-                public IHierarchicalContentProvider cloneFor(
-                        ISessionTokenProvider sessionTokenProvider)
-                {
-                    return null;
-                }
-            };
+        final File root = STORE_ROOT;
+        contentProvider = new SimpleFileContentProvider(root);
         final BeanFactory beanFactory = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);
 

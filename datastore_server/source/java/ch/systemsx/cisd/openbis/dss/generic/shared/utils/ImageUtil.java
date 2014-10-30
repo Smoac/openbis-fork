@@ -931,14 +931,30 @@ public class ImageUtil
         if (channel != null)
         {
             Pixels pixels = converterOrNull == null ? new Pixels(image) : converterOrNull.convert(image);
-            Levels intensityRange = IntensityRescaling.computeLevels(pixels,
-                    threshold == null ? DEFAULT_IMAGE_OPTIMAL_RESCALING_FACTOR : threshold, channel);
             convertToGray(pixels);
+            int bits = guessNumberOfBitsOfIntensityResolution(pixels, image);
             BufferedImage result =
-                    IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, intensityRange, Channel.values());
+                    IntensityRescaling.rescaleIntensityLevelTo8Bits(pixels, new Levels(0, 1 << bits), Channel.values());
             return result;
         }
         return image;
+    }
+    
+    public static int guessNumberOfBitsOfIntensityResolution(Pixels pixels, BufferedImage image)
+    {
+        int maxLevel = IntensityRescaling.computeLevels(pixels, 0, Channel.values()).getMaxLevel();
+        if (maxLevel > 4096)
+        {
+            return 16;
+        }
+        if (image.getColorModel().getClass().getSimpleName().equals("Index16ColorModel"))
+        {
+            // This is a heuristic for Nikon ND2 images read by BioFormat ND2Reader which uses
+            // loci.formats.gui.Index16ColorModel. 
+            // Note, that bio format JAR isn't part of classpath of datastore_server project.
+            return 12;
+        }
+        return 16;
     }
 
     private static void convertToGray(Pixels pixels)
@@ -977,8 +993,7 @@ public class ImageUtil
     
     /**
      * Returns the maximum bit resolution of the specified image. It returns the maximum of the array
-     * returned by {@link ColorModel#getComponentSize()}. If not defined (which should be only the case
-     * for Index16ColorModel of the BioFormats library) {@link ColorModel#getPixelSize()} is returned.
+     * returned by {@link ColorModel#getComponentSize()}. If not defined {@link ColorModel#getPixelSize()} is returned.
      */
     public static int getMaxNumberOfBitsPerComponent(BufferedImage image)
     {

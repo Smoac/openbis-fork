@@ -57,11 +57,11 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
 
     private static final long serialVersionUID = 1L;
 
-    private static final String STAGING_DESTINATION_KEY = "staging-destination";
+    public static final String STAGING_DESTINATION_KEY = "staging-destination";
 
-    private static final String FINAL_DESTINATION_KEY = "final-destination";
+    public static final String FINAL_DESTINATION_KEY = "final-destination";
 
-    static final String WITH_SHARDING_KEY = "with-sharding";
+    public static final String WITH_SHARDING_KEY = "with-sharding";
 
     private transient ArchiveDestination stageArchive;
 
