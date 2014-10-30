@@ -34,6 +34,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
@@ -63,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 /**
  * @author Franz-Josef Elmer
  */
+@Friend(toClasses = MultiDatasetArchiver.class)
 public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
 {
     private static final class RecordingStatusUpdater implements IDataSetStatusUpdater
