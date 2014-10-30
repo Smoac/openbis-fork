@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.lemnik.eodsql.BaseQuery;
@@ -229,6 +230,30 @@ public class ExperimentDAO extends AbstractGenericEntityWithPropertiesDAO<Experi
                     experiment, experimentCode, project));
         }
         return experiment;
+    }
+
+    @Override
+    public List<ExperimentPE> listByProjectAndCodes(final ProjectPE project, final Collection<String> experimentCodes)
+    {
+        assert project != null : "Unspecified project.";
+        assert experimentCodes != null : "Unspecified experiment codes.";
+
+        Collection<String> dbExperimentCodes = new LinkedList<String>();
+        for (String experimentCode : experimentCodes)
+        {
+            dbExperimentCodes.add(CodeConverter.tryToDatabase(experimentCode));
+        }
+
+        final Criteria criteria = getSession().createCriteria(getEntityClass());
+        criteria.add(Restrictions.in("code", dbExperimentCodes));
+        criteria.add(Restrictions.eq("projectInternal", project));
+        final List<ExperimentPE> experiments = cast(criteria.list());
+
+        if (operationLog.isDebugEnabled())
+        {
+            operationLog.debug(String.format("Found %s experiments", experiments.size()));
+        }
+        return experiments;
     }
 
     @Override

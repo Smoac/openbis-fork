@@ -80,6 +80,8 @@ public interface IExperimentDAO extends IGenericDAO<ExperimentPE>
      */
     public ExperimentPE tryFindByCodeAndProject(ProjectPE project, String experimentCode);
 
+    public List<ExperimentPE> listByProjectAndCodes(ProjectPE project, Collection<String> experimentCodes);
+
     /**
      * Lists experiments (with minimal additional information) belonging to the given <code>project</code> and having a property with the specified
      * value.

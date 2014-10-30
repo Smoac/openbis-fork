@@ -25,10 +25,12 @@ import org.springframework.stereotype.Component;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.AbstractMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.common.IListObjectById;
+import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ListExperimentByIdentifier;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ListExperimentByPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 
 /**
@@ -38,6 +40,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 public class MapExperimentByIdExecutor extends AbstractMapObjectByIdExecutor<IExperimentId, ExperimentPE> implements IMapExperimentByIdExecutor
 {
 
+    private IProjectDAO projectDAO;
+
     private IExperimentDAO experimentDAO;
 
     @SuppressWarnings("unused")
@@ -45,8 +49,9 @@ public class MapExperimentByIdExecutor extends AbstractMapObjectByIdExecutor<IEx
     {
     }
 
-    public MapExperimentByIdExecutor(IExperimentDAO experimentDAO)
+    public MapExperimentByIdExecutor(IProjectDAO projectDAO, IExperimentDAO experimentDAO)
     {
+        this.projectDAO = projectDAO;
         this.experimentDAO = experimentDAO;
     }
 
@@ -56,12 +61,14 @@ public class MapExperimentByIdExecutor extends AbstractMapObjectByIdExecutor<IEx
         List<IListObjectById<? extends IExperimentId, ExperimentPE>> listers =
                 new LinkedList<IListObjectById<? extends IExperimentId, ExperimentPE>>();
         listers.add(new ListExperimentByPermId(experimentDAO));
+        listers.add(new ListExperimentByIdentifier(projectDAO, experimentDAO));
         return listers;
     }
 
     @Autowired
     private void setDAOFactory(IDAOFactory daoFactory)
     {
+        projectDAO = daoFactory.getProjectDAO();
         experimentDAO = daoFactory.getExperimentDAO();
     }
 

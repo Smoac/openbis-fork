@@ -16,9 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
@@ -27,10 +25,14 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IExperimentDAO;
+import ch.systemsx.cisd.openbis.generic.server.dataaccess.IProjectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SpacePE;
 
 /**
  * @author pkupczyk
@@ -38,18 +40,20 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
 {
 
+    private IProjectDAO projectDao;
+
     private IExperimentDAO experimentDao;
 
     @Override
     protected void init()
     {
+        projectDao = context.mock(IProjectDAO.class);
         experimentDao = context.mock(IExperimentDAO.class);
     }
 
     @Test
-    public void test()
+    public void testMapWithPermIds()
     {
-
         final ExperimentPermId permId1 = new ExperimentPermId("PERM_1");
         final ExperimentPermId permId2 = new ExperimentPermId("PERM_2");
         final ExperimentPermId permId3 = new ExperimentPermId("PERM_3");
@@ -73,16 +77,129 @@ public class MapExperimentByIdExecutorTest extends AbstractExecutorTest
             });
 
         Map<IExperimentId, ExperimentPE> map = execute(permId1, permId2, permId3);
-        List<ExperimentPE> experiments = new ArrayList<ExperimentPE>(map.values());
 
-        Assert.assertEquals(experiment1.getPermId(), experiments.get(0).getPermId());
-        Assert.assertEquals(experiment2.getPermId(), experiments.get(1).getPermId());
-        Assert.assertEquals(experiment3.getPermId(), experiments.get(2).getPermId());
+        Assert.assertTrue(experiment1 == map.get(permId1));
+        Assert.assertTrue(experiment2 == map.get(permId2));
+        Assert.assertTrue(experiment3 == map.get(permId3));
+    }
+
+    @Test
+    public void testMapWithIdentifiers()
+    {
+        final SpacePE space1 = new SpacePE();
+        space1.setCode("SPACE_1");
+        final SpacePE space2 = new SpacePE();
+        space2.setCode("SPACE_2");
+
+        final ProjectPE project11 = new ProjectPE();
+        project11.setSpace(space1);
+        project11.setCode("PROJECT_1");
+        final ProjectPE project12 = new ProjectPE();
+        project12.setSpace(space1);
+        project12.setCode("PROJECT_2");
+        final ProjectPE project21 = new ProjectPE();
+        project21.setSpace(space2);
+        project21.setCode("PROJECT_1");
+
+        final ExperimentIdentifier identifier1 = new ExperimentIdentifier("/SPACE_1/PROJECT_1/EXPERIMENT_1");
+        final ExperimentIdentifier identifier2 = new ExperimentIdentifier("/SPACE_1/PROJECT_1/EXPERIMENT_2");
+        final ExperimentIdentifier identifier3 = new ExperimentIdentifier("/SPACE_1/PROJECT_2/EXPERIMENT_3");
+        final ExperimentIdentifier identifier4 = new ExperimentIdentifier("/SPACE_2/PROJECT_1/EXPERIMENT_4");
+
+        final ExperimentPE experiment1 = new ExperimentPE();
+        experiment1.setProject(project11);
+        experiment1.setCode("EXPERIMENT_1");
+        final ExperimentPE experiment2 = new ExperimentPE();
+        experiment2.setProject(project11);
+        experiment2.setCode("EXPERIMENT_2");
+        final ExperimentPE experiment3 = new ExperimentPE();
+        experiment3.setProject(project12);
+        experiment3.setCode("EXPERIMENT_3");
+        final ExperimentPE experiment4 = new ExperimentPE();
+        experiment4.setProject(project21);
+        experiment4.setCode("EXPERIMENT_4");
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(projectDao).tryFindProject("SPACE_1", "PROJECT_1");
+                    will(returnValue(project11));
+
+                    one(projectDao).tryFindProject("SPACE_1", "PROJECT_2");
+                    will(returnValue(project12));
+
+                    one(projectDao).tryFindProject("SPACE_2", "PROJECT_1");
+                    will(returnValue(project21));
+
+                    one(experimentDao).listByProjectAndCodes(project11, Arrays.asList("EXPERIMENT_1", "EXPERIMENT_2"));
+                    will(returnValue(Arrays.asList(experiment1, experiment2)));
+
+                    one(experimentDao).listByProjectAndCodes(project12, Arrays.asList("EXPERIMENT_3"));
+                    will(returnValue(Arrays.asList(experiment3)));
+
+                    one(experimentDao).listByProjectAndCodes(project21, Arrays.asList("EXPERIMENT_4"));
+                    will(returnValue(Arrays.asList(experiment4)));
+                }
+            });
+
+        Map<IExperimentId, ExperimentPE> map = execute(identifier1, identifier2, identifier3, identifier4);
+
+        Assert.assertTrue(experiment1 == map.get(identifier1));
+        Assert.assertTrue(experiment2 == map.get(identifier2));
+        Assert.assertTrue(experiment3 == map.get(identifier3));
+        Assert.assertTrue(experiment4 == map.get(identifier4));
+    }
+
+    @Test
+    public void testMapWithMixedIds()
+    {
+        final SpacePE space1 = new SpacePE();
+        space1.setCode("SPACE_1");
+
+        final ProjectPE project11 = new ProjectPE();
+        project11.setSpace(space1);
+        project11.setCode("PROJECT_1");
+
+        final ExperimentPE experiment1 = new ExperimentPE();
+        experiment1.setProject(project11);
+        experiment1.setCode("EXPERIMENT_1");
+
+        final ExperimentPE experiment2 = new ExperimentPE();
+        experiment2.setCode("EXPERIMENT_2");
+        experiment2.setPermId("PERM_1");
+
+        final ExperimentPE experiment3 = new ExperimentPE();
+        experiment3.setCode("EXPERIMENT_3");
+        experiment3.setPermId("PERM_2");
+
+        final ExperimentIdentifier identifier1 = new ExperimentIdentifier("/SPACE_1/PROJECT_1/EXPERIMENT_1");
+        final ExperimentPermId permId1 = new ExperimentPermId("PERM_1");
+        final ExperimentPermId permId2 = new ExperimentPermId("PERM_2");
+
+        context.checking(new Expectations()
+            {
+                {
+                    one(experimentDao).listByPermID(Arrays.asList(permId1.getPermId(), permId2.getPermId()));
+                    will(returnValue(Arrays.asList(experiment3, experiment2)));
+
+                    one(projectDao).tryFindProject("SPACE_1", "PROJECT_1");
+                    will(returnValue(project11));
+
+                    one(experimentDao).listByProjectAndCodes(project11, Arrays.asList("EXPERIMENT_1"));
+                    will(returnValue(Arrays.asList(experiment1)));
+                }
+            });
+
+        Map<IExperimentId, ExperimentPE> map = execute(permId1, identifier1, permId2);
+
+        Assert.assertTrue(experiment1 == map.get(identifier1));
+        Assert.assertTrue(experiment2 == map.get(permId1));
+        Assert.assertTrue(experiment3 == map.get(permId2));
     }
 
     private Map<IExperimentId, ExperimentPE> execute(IExperimentId... experimentIds)
     {
-        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(experimentDao);
+        MapExperimentByIdExecutor executor = new MapExperimentByIdExecutor(projectDao, experimentDao);
         return executor.map(operationContext, Arrays.asList(experimentIds));
     }
 }

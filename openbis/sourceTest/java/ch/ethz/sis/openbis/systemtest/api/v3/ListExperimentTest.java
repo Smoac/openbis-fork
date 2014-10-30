@@ -34,6 +34,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 
 /**
@@ -65,6 +66,25 @@ public class ListExperimentTest extends AbstractExperimentTest
 
         assertEquals(1, experiments.size());
         assertEquals(experiments.get(0).getIdentifier().toString(), "/CISD/NEMO/EXP1");
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testListExperimentsByIdentifier()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        List<Experiment> experiments =
+                v3api.listExperiments(sessionToken, Arrays.asList(new ExperimentIdentifier("/CISD/NOE/EXP-TEST-2"),
+                        new ExperimentIdentifier("/TEST-SPACE/NOE/EXP-TEST-2"), new ExperimentIdentifier("/CISD/NEMO/EXP10"),
+                        new ExperimentIdentifier("/NONEXISTENT_SPACE/NEMO/EXP1"), new ExperimentIdentifier("/CISD/NONEXISTENT_PROJECT/EXP1"),
+                        new ExperimentIdentifier("/CISD/NEMO/EXP11"), new ExperimentIdentifier("/CISD/NEMO/NONEXISTENT_EXPERIMENT")),
+                        new ExperimentFetchOptions());
+
+        assertEquals(4, experiments.size());
+        assertEquals(experiments.get(0).getIdentifier().toString(), "/CISD/NOE/EXP-TEST-2");
+        assertEquals(experiments.get(1).getIdentifier().toString(), "/TEST-SPACE/NOE/EXP-TEST-2");
+        assertEquals(experiments.get(2).getIdentifier().toString(), "/CISD/NEMO/EXP10");
+        assertEquals(experiments.get(3).getIdentifier().toString(), "/CISD/NEMO/EXP11");
         v3api.logout(sessionToken);
     }
 
