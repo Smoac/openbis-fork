@@ -222,7 +222,8 @@ $.extend(Grid.prototype, {
 						$(tableHeads[hIdx]).remove();
 					}
 				}
-				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid
+				$(window).trigger('resize'); // HACK: Fixes table rendering issues when refreshing the grid on fuelux 3.1.0 for all browsers
+				$(thisGrid.panel).hide().show(0); // HACK: Fixes Chrome rendering issues when refreshing the grid on fuelux 3.1.0
 			}, 1);
 		});
 	},
