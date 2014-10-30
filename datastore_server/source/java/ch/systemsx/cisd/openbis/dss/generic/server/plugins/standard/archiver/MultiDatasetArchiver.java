@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
@@ -34,7 +35,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArch
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDBTransaction;
@@ -82,6 +83,8 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final Long DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES = 80L * 1024 * 1024 * 1024;
 
+    private IMultiDatasetArchiverDBTransaction transaction;
+
     public MultiDatasetArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
@@ -103,24 +106,23 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
             return result;
         }
 
-        MultiDatasetArchiverDBTransaction transaction = new MultiDatasetArchiverDBTransaction();
         try
         {
             verifyDataSetsSize(dataSets);
 
-            DatasetProcessingStatuses archiveResult = doArchive(dataSets, transaction, context);
+            DatasetProcessingStatuses archiveResult = archiveDataSets(dataSets, context);
 
             result.addResults(archiveResult);
 
-            transaction.commit();
-            transaction.close();
+            getTransaction().commit();
+            getTransaction().close();
         } catch (Exception e)
         {
             operationLog.warn("Archiving of " + dataSets.size() + " data sets failed", e);
             try
             {
-                transaction.rollback();
-                transaction.close();
+                getTransaction().rollback();
+                getTransaction().close();
             } catch (Exception ex)
             {
                 operationLog.warn("Rollback of multi dataset db transaction failed", ex);
@@ -207,8 +209,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         }
     }
 
-    private DatasetProcessingStatuses doArchive(List<DatasetDescription> dataSets, MultiDatasetArchiverDBTransaction transaction,
-            ArchiverTaskContext context) throws Exception
+    private DatasetProcessingStatuses archiveDataSets(List<DatasetDescription> dataSets, ArchiverTaskContext context) throws Exception
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
 
@@ -216,11 +217,11 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
         String containerPath = getFileOperations().generateContainerPath(dataSets);
 
-        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerPath);
+        MultiDataSetArchiverContainerDTO container = getTransaction().createContainer(containerPath);
 
         for (DatasetDescription dataSet : dataSets)
         {
-            transaction.insertDataset(dataSet, container);
+            getTransaction().insertDataset(dataSet, container);
         }
 
         IHierarchicalContent archivedContent = null;
@@ -348,8 +349,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
     protected boolean isDataSetPresentInArchive(String dataSetCode)
     {
-        IMultiDataSetArchiverReadonlyQueryDAO query = MultiDatasetArchiverDBTransaction.getReadonlyQuery();
-        MultiDataSetArchiverDataSetDTO dataSetInArchiveDB = query.getDataSetForCode(dataSetCode);
+        MultiDataSetArchiverDataSetDTO dataSetInArchiveDB = getTransaction().getDataSetForCode(dataSetCode);
         return dataSetInArchiveDB != null;
     }
 
@@ -360,5 +360,14 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
             fileOperations = fileOperationsFactory.create();
         }
         return fileOperations;
+    }
+
+    @Private IMultiDatasetArchiverDBTransaction getTransaction()
+    {
+        if (transaction == null)
+        {
+            transaction = new MultiDatasetArchiverDBTransaction();
+        }
+        return transaction;
     }
 }

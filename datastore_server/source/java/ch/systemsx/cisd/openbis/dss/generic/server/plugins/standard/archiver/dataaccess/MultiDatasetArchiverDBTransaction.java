@@ -28,7 +28,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Jakub Straszewski
  */
-public class MultiDatasetArchiverDBTransaction
+public class MultiDatasetArchiverDBTransaction implements IMultiDatasetArchiverDBTransaction
 {
 
     private static DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("multi-dataset-archiver-db");
@@ -40,16 +40,12 @@ public class MultiDatasetArchiverDBTransaction
         this.transaction = getTransactionalQuery();
     }
 
-    public static IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
-    {
-        return QueryTool.getQuery(dataSource, IMultiDataSetArchiverReadonlyQueryDAO.class);
-    }
-
     private static IMultiDataSetArchiverQueryDAO getTransactionalQuery()
     {
         return QueryTool.getQuery(dataSource, IMultiDataSetArchiverQueryDAO.class);
     }
 
+    @Override
     public List<MultiDataSetArchiverDataSetDTO> getDataSetsForContainer(MultiDataSetArchiverContainerDTO container)
     {
         return transaction.listDataSetsForContainerId(container.getId());
@@ -58,6 +54,7 @@ public class MultiDatasetArchiverDBTransaction
     /**
      * Creates a new container
      */
+    @Override
     public MultiDataSetArchiverContainerDTO createContainer(String path)
     {
 
@@ -70,12 +67,13 @@ public class MultiDatasetArchiverDBTransaction
         return container;
     }
 
+    @Override
     public MultiDataSetArchiverDataSetDTO insertDataset(DatasetDescription dataSet,
             MultiDataSetArchiverContainerDTO container)
     {
         String code = dataSet.getDataSetCode();
 
-        MultiDataSetArchiverDataSetDTO mads = transaction.getDataSetForCode(code);
+        MultiDataSetArchiverDataSetDTO mads = getDataSetForCode(code);
 
         if (mads != null)
         {
@@ -90,9 +88,16 @@ public class MultiDatasetArchiverDBTransaction
         return mads;
     }
 
+    @Override
+    public MultiDataSetArchiverDataSetDTO getDataSetForCode(String code)
+    {
+        return transaction.getDataSetForCode(code);
+    }
+
     /**
      * @see net.lemnik.eodsql.TransactionQuery#commit()
      */
+    @Override
     public void commit()
     {
         transaction.commit();
@@ -101,6 +106,7 @@ public class MultiDatasetArchiverDBTransaction
     /**
      * @see net.lemnik.eodsql.TransactionQuery#rollback()
      */
+    @Override
     public void rollback()
     {
         transaction.rollback();
@@ -109,6 +115,7 @@ public class MultiDatasetArchiverDBTransaction
     /**
      * @see net.lemnik.eodsql.BaseQuery#close()
      */
+    @Override
     public void close()
     {
         transaction.close();
