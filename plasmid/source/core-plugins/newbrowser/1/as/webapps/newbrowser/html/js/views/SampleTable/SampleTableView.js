@@ -26,7 +26,12 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		}
 		
 		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
-		$toolbox.append(this._getExperimentSampleTypesDropdown()).append(" ").append(this._getOptionsMenu());
+		
+		if(this._sampleTableModel.experimentIdentifier) {
+			$toolbox.append(this._getExperimentSampleTypesDropdown()).append(" ").append(this._getOptionsMenu());
+		} else {
+			$toolbox.append(this._getAllSampleTypesDropdown());
+		}
 		
 		$container.append($toolbox);
 		$container.append(this._tableContainer);
@@ -72,12 +77,26 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		var _this = this;
 		var	$sampleTypesSelector = $('<select>', { 'id' : 'sampleTypeCodesToShow', class : 'form-control' });
 		$sampleTypesSelector.append($('<option>', { 'value' : '' }).text(''));
-		for(sampleTypeCode in this._sampleTableModel.sampleTypesOnExperiment) {
+		for(sampleTypeCode in this._sampleTableModel.sampleTypes) {
 			$sampleTypesSelector.append($('<option>', { 'value' : sampleTypeCode }).text(sampleTypeCode));
 		}
 		$sampleTypesSelector.change(function(event) {
 			var sampleTypeToShow = $(this).val();
 			_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
+		});
+		
+		return $("<span>").append($sampleTypesSelector);
+	}
+	
+	this._getAllSampleTypesDropdown = function() {
+		var _this = this;
+		var $sampleTypesSelector = FormUtil.getSampleTypeDropdown(null, false);
+		$sampleTypesSelector.change(function() {
+			var sampleTypeToShow = $(this).val();
+			mainController.serverFacade.searchWithType(sampleTypeToShow, null, function(samples) {
+				_this._sampleTableModel.allSamples = samples;
+				_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
+			});
 		});
 		
 		return $("<span>").append($sampleTypesSelector);

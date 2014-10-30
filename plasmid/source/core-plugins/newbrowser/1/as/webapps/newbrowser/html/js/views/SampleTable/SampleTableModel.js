@@ -17,6 +17,6 @@
 function SampleTableModel(title, experimentIdentifier) {
 	this.title = title;
 	this.experimentIdentifier = experimentIdentifier;
-	this.sampleTypesOnExperiment = {};
-	this.allSamplesFromExperiment = new Array();
+	this.sampleTypes = {};
+	this.allSamples = new Array();
 }

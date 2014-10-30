@@ -384,7 +384,18 @@ function MainController(profile) {
 	}
 	
 	this._showSamplesPage = function(experimentIdentifier) {
-		var sampleTableController = new SampleTableController(this, experimentIdentifier + " Samples", experimentIdentifier);
+		var sampleTableController = null;
+		
+		if(experimentIdentifier === "null") { //Fix for reloads when there is text on the url
+			experimentIdentifier = null;
+		}
+		
+		if(experimentIdentifier) {
+			sampleTableController = new SampleTableController(this, experimentIdentifier + " Samples", experimentIdentifier);
+		} else {
+			sampleTableController = new SampleTableController(this, "Sample Browser", null);
+		}
+		
 		sampleTableController.init($("#mainContainer"));
 		this.currentView = sampleTableController;
 	}

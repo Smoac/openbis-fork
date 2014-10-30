@@ -22,21 +22,28 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 	this.init = function($container) {
 		var _this = this;
 		Util.blockUI();
-		this._loadExperimentData(function() {
+		
+		var callback = function() {
 			_this._sampleTableView.repaint($container);
 			Util.unblockUI();
-		});
+		};
+		
+		if(this._sampleTableModel.experimentIdentifier) {
+			this._loadExperimentData(callback);
+		} else {
+			callback();
+		}
 	}
 	
 	this._loadExperimentData = function(callback) {
 		var _this = this;
 		mainController.serverFacade.searchWithExperiment(this._sampleTableModel.experimentIdentifier, function(experimentSamples) {
-			_this._sampleTableModel.allSamplesFromExperiment = experimentSamples;
+			_this._sampleTableModel.allSamples = experimentSamples;
 			for(var i = 0; i < experimentSamples.length; i++) {
-				if(_this._sampleTableModel.sampleTypesOnExperiment[experimentSamples[i].sampleTypeCode]) {
-					_this._sampleTableModel.sampleTypesOnExperiment[experimentSamples[i].sampleTypeCode] = _this._sampleTableModel.sampleTypesOnExperiment[experimentSamples[i].sampleTypeCode] + 1;
+				if(_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode]) {
+					_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode] = _this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode] + 1;
 				} else {
-					_this._sampleTableModel.sampleTypesOnExperiment[experimentSamples[i].sampleTypeCode] = 1;
+					_this._sampleTableModel.sampleTypes[experimentSamples[i].sampleTypeCode] = 1;
 				}
 			}
 			callback();
@@ -44,11 +51,11 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 	}
 	
 	this._reloadTableWithSampleType = function(selectedSampleTypeCode) {
-		if(sampleTypeCode !== '') { //Verify something selected
+		if(selectedSampleTypeCode !== '') { //Verify something selected
 			//Get samples from type
 			var samples = [];
-			for (var idx = 0; idx < this._sampleTableModel.allSamplesFromExperiment.length; idx++) {
-				var sampleToCheckType = this._sampleTableModel.allSamplesFromExperiment[idx];
+			for (var idx = 0; idx < this._sampleTableModel.allSamples.length; idx++) {
+				var sampleToCheckType = this._sampleTableModel.allSamples[idx];
 				if(sampleToCheckType.sampleTypeCode === selectedSampleTypeCode) {
 					samples.push(sampleToCheckType);
 				}
