@@ -27,6 +27,8 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		
 		var $toolbox = $("<div>", { 'id' : 'toolBoxContainer', class : 'toolBox'});
 		
+		$toolbox.append("Sample Type: ");
+		
 		if(this._sampleTableModel.experimentIdentifier) {
 			$toolbox.append(this._getExperimentSampleTypesDropdown()).append(" ").append(this._getOptionsMenu());
 		} else {
