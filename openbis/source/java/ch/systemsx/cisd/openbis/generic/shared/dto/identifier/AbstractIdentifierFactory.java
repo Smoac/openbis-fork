@@ -26,8 +26,7 @@ import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.DatabaseInstanceIdentifier.Constants;
 
 /**
- * A general parser to get the database instance code and the group code out of the given string.
- * The expected format is the following:
+ * A general parser to get the database instance code and the group code out of the given string. The expected format is the following:
  * 
  * <pre>
  * [&lt;database-instance-code&gt;:][/&lt;space-code&gt;/]
@@ -87,7 +86,7 @@ public abstract class AbstractIdentifierFactory
                 ILLEGAL_PATTERN_CHARACTERS_TEMPLATE);
     }
 
-    protected final static String assertValidCode(final String textOrNull)
+    public final static String assertValidCode(final String textOrNull)
             throws UserFailureException
     {
         assertValidCharacters(textOrNull, ALLOWED_CODE_REGEXP, ILLEGAL_CODE_CHARACTERS_TEMPLATE);

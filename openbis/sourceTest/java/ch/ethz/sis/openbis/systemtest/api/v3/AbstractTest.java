@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
@@ -369,6 +370,28 @@ public class AbstractTest extends SystemTestCase
         } catch (NotFetchedException e)
         {
             // ok
+        }
+    }
+
+    protected void assertUserFailureException(IDelegatedAction action, String expectedMessage)
+    {
+        assertUserFailureException(action, expectedMessage, null);
+    }
+
+    protected void assertUserFailureException(IDelegatedAction action, String expectedMessage, String expectedContextDescription)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected an exception to be thrown");
+        } catch (Exception e)
+        {
+            assertEquals(e.getClass(), UserFailureException.class);
+            AssertionUtil.assertContains(expectedMessage, e.getMessage());
+            if (expectedContextDescription != null)
+            {
+                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
+            }
         }
     }
 

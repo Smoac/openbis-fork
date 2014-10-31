@@ -22,11 +22,10 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.GetTagNameExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
@@ -53,7 +52,7 @@ public class GetTagNameExecutorTest extends AbstractExecutorTest
         Assert.assertEquals("TEST_PERM_ID", name);
     }
 
-    @Test(expectedExceptions = { UserFailureException.class }, expectedExceptionsMessageRegExp = ".*doesn't belong to the user.*")
+    @Test(expectedExceptions = { UnauthorizedObjectAccessException.class }, expectedExceptionsMessageRegExp = ".*/OTHER_USER/TEST_PERM_ID.*")
     public void testWithPermIdForDifferentUser()
     {
         final Session session = createSession();

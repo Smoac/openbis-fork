@@ -16,6 +16,8 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.tag;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +56,7 @@ public class CreateTagExecutor implements ICreateTagExecutor
         MetaprojectPE tag = new MetaprojectPE();
         tag.setName(getTagNameExecutor.getTagName(context, tagId));
         tag.setOwner(context.getSession().tryGetPerson());
+        tag.setCreationDate(new Date());
         daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(tag, context.getSession().tryGetPerson());
         return tag;
     }

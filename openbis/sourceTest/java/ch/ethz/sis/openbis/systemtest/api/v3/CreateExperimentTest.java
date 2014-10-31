@@ -17,10 +17,11 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertNotNull;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
@@ -49,6 +51,64 @@ import ch.systemsx.cisd.common.action.IDelegatedAction;
  */
 public class CreateExperimentTest extends AbstractExperimentTest
 {
+
+    @Test
+    public void testCreateExperimentWithoutCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, "Code cannot be empty", ExperimentContextDescription.creating(experiment));
+    }
+
+    @Test
+    public void testCreateExperimentWithIncorrectCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setCode("?!*");
+        experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, "The code '?!*' contains illegal characters", ExperimentContextDescription.creating(experiment));
+    }
+
+    @Test
+    public void testCreateExperimentWithoutProject()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setCode("TEST_EXPERIMENT1");
+        experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, "Project id cannot be null", ExperimentContextDescription.creating(experiment));
+    }
 
     @Test
     public void testCreateExperimentWithUnauthorizedProject()
@@ -93,7 +153,217 @@ public class CreateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testCreateExperiment()
+    public void testCreateExperimentWithoutType()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setCode("TEST_EXPERIMENT1");
+        experiment.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, "Type id cannot be null", ExperimentContextDescription.creating(experiment));
+    }
+
+    @Test
+    public void testCreateExperimentWithNonexistentType()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IEntityTypeId typeId = new EntityTypePermId("IDONTEXIST");
+        final IProjectId projectId = new ProjectIdentifier("/TESTGROUP/TESTPROJ");
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setCode("TEST_EXPERIMENT1");
+        experiment.setTypeId(typeId);
+        experiment.setProjectId(projectId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, typeId, ExperimentContextDescription.creating(experiment));
+    }
+
+    @Test
+    public void testCreateExperimentWithExistingTag()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final Date now = new Date();
+
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        creation.setTagIds(Arrays.asList(new TagPermId("/test/TEST_METAPROJECTS")));
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchTags();
+
+        List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, fetchOptions);
+
+        assertEquals(experiments.size(), 1);
+
+        Experiment experiment = experiments.get(0);
+
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/TESTGROUP/TESTPROJ/TEST_EXPERIMENT1");
+        assertEquals(experiment.getTags().size(), 1);
+
+        Tag tag = experiment.getTags().iterator().next();
+
+        assertEquals(tag.getName(), "TEST_METAPROJECTS");
+        assertEquals(tag.getPermId().getPermId(), "/test/TEST_METAPROJECTS");
+        assertTrue(tag.getRegistrationDate().getTime() < now.getTime());
+    }
+
+    @Test
+    public void testCreateExperimentWithNonexistentTag()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final Date now = new Date();
+
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        creation.setTagIds(Arrays.asList(new TagPermId("/test/NEW_TAG_THAT_SHOULD_BE_CREATED")));
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchTags();
+
+        List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, fetchOptions);
+
+        assertEquals(experiments.size(), 1);
+
+        Experiment experiment = experiments.get(0);
+
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/TESTGROUP/TESTPROJ/TEST_EXPERIMENT1");
+        assertEquals(experiment.getTags().size(), 1);
+
+        Tag tag = experiment.getTags().iterator().next();
+
+        assertEquals(tag.getName(), "NEW_TAG_THAT_SHOULD_BE_CREATED");
+        assertEquals(tag.getPermId().getPermId(), "/test/NEW_TAG_THAT_SHOULD_BE_CREATED");
+        // there can be a 1 second rounding when converting database date to java date
+        assertTrue(tag.getRegistrationDate().getTime() + 1000 >= now.getTime());
+    }
+
+    @Test
+    public void testCreateExperimentWithUnauthorizedTag()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ITagId tagId = new TagPermId("/test/TEST_METAPROJECTS");
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+        creation.setTagIds(Arrays.asList(tagId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
+                }
+            }, tagId, ExperimentContextDescription.creating(creation));
+    }
+
+    @Test
+    public void testCreateExperimentWithNonexistentPropertyCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        creation.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
+                }
+            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
+    }
+
+    @Test
+    public void testCreateExperimentWithIncorrectPropertyValue()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+        creation.setProperty("PURCHASE_DATE", "this should be a date");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(creation));
+                }
+            }, "Date value 'this should be a date' has improper format");
+    }
+
+    @Test
+    public void testCreateWithMandatoryFieldsOnly()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT1");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/TESTGROUP/TESTPROJ"));
+
+        List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+
+        assertEquals(permIds.size(), 1);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchType();
+        fetchOptions.fetchProject();
+        fetchOptions.fetchModifier();
+        fetchOptions.fetchRegistrator();
+        fetchOptions.fetchProperties();
+        fetchOptions.fetchAttachments().fetchContent();
+        fetchOptions.fetchTags();
+
+        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, fetchOptions);
+
+        assertEquals(experiments.size(), 1);
+
+        Experiment experiment = experiments.get(0);
+        assertEquals(experiment.getCode(), "TEST_EXPERIMENT1");
+        assertEquals(experiment.getPermId(), permIds.get(0));
+        assertEquals(experiment.getIdentifier().getIdentifier(), "/TESTGROUP/TESTPROJ/TEST_EXPERIMENT1");
+        assertNotNull(experiment.getType().getCode(), "SIRNA_HCS");
+        assertNotNull(experiment.getProject().getIdentifier(), "/TESTGROUP/TESTPROJ");
+        assertTrue(experiment.getProperties().isEmpty());
+        assertTrue(experiment.getAttachments().isEmpty());
+        assertTrue(experiment.getTags().isEmpty());
+        assertEquals(experiment.getRegistrator().getUserId(), TEST_USER);
+        assertEquals(experiment.getModifier().getUserId(), TEST_USER);
+    }
+
+    @Test
+    public void testCreateExperiments()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -137,15 +407,6 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experimentFetchOptions.fetchTags();
 
         List<Experiment> experiments = v3api.listExperiments(sessionToken, result, experimentFetchOptions);
-
-        Collections.sort(experiments, new Comparator<Experiment>()
-            {
-                @Override
-                public int compare(Experiment arg0, Experiment arg1)
-                {
-                    return arg0.getCode().compareTo(arg1.getCode());
-                }
-            });
 
         Assert.assertEquals(2, experiments.size());
 

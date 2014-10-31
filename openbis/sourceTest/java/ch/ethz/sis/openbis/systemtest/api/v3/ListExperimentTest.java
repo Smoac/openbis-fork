@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -44,24 +45,12 @@ public class ListExperimentTest extends AbstractExperimentTest
 {
 
     @Test
-    public void testListExperimentsByTechId()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Experiment> experiments =
-                v3api.listExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
-                        new ExperimentFetchOptions());
-
-        assertEquals(1, experiments.size());
-        assertEquals(experiments.get(0).getIdentifier().toString(), "/CISD/NEMO/EXP1");
-        v3api.logout(sessionToken);
-    }
-
-    @Test
     public void testListExperimentsByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
-                v3api.listExperiments(sessionToken, Collections.singletonList(new ExperimentPermId("200811050951882-1028")),
+                v3api.listExperiments(sessionToken,
+                        Arrays.asList(new ExperimentPermId("NONEXISTENT_EXPERIMENT"), new ExperimentPermId("200811050951882-1028")),
                         new ExperimentFetchOptions());
 
         assertEquals(1, experiments.size());
@@ -94,10 +83,8 @@ public class ListExperimentTest extends AbstractExperimentTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         List<Experiment> experiments =
                 v3api.listExperiments(sessionToken,
-                        Arrays.asList(new ExperimentPermId("200811050951882-1028"), new ExperimentPermId("200811050952663-1029"),
-                                new ExperimentPermId(
-                                        "200811050952663-1030")),
-                        new ExperimentFetchOptions());
+                        Arrays.asList(new ExperimentIdentifier("/CISD/NEMO/EXP1"), new ExperimentPermId("200811050952663-1029"),
+                                new ExperimentIdentifier("/CISD/NEMO/EXP11")), new ExperimentFetchOptions());
         assertEquals(3, experiments.size());
         assertEquals(experiments.get(0).getIdentifier().toString(), "/CISD/NEMO/EXP1");
         assertEquals(experiments.get(1).getPermId().toString(), "200811050952663-1029");
@@ -120,6 +107,7 @@ public class ListExperimentTest extends AbstractExperimentTest
         assertEquals(experiment.getCode(), "EXP1");
         assertEquals(experiment.getIdentifier().toString(), "/CISD/NEMO/EXP1");
         assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(experiment.getRegistrationDate()), "2008-11-05 09:21:51");
+        assertNotNull(experiment.getModificationDate());
 
         assertTypeNotFetched(experiment);
         assertProjectNotFetched(experiment);
@@ -153,6 +141,7 @@ public class ListExperimentTest extends AbstractExperimentTest
         assertEquals(type.getPermId().toString(), "SIRNA_HCS");
         assertEquals(type.getCode(), "SIRNA_HCS");
         assertEquals(type.getDescription(), "Small Interfering RNA High Content Screening");
+        assertNotNull(type.getModificationDate());
 
         assertProjectNotFetched(experiment);
         assertPropertiesNotFetched(experiment);

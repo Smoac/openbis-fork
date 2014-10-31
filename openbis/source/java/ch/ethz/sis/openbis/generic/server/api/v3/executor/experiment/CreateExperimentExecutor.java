@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,12 +34,14 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experimen
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ProjectPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -109,6 +112,20 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     {
         ExperimentPE experiment = new ExperimentPE();
 
+        if (StringUtils.isEmpty(experimentCreation.getCode()))
+        {
+            throw new UserFailureException("Code cannot be empty.");
+        }
+        if (experimentCreation.getTypeId() == null)
+        {
+            throw new UserFailureException("Type id cannot be null.");
+        }
+        if (experimentCreation.getProjectId() == null)
+        {
+            throw new UserFailureException("Project id cannot be null.");
+        }
+
+        ExperimentIdentifierFactory.assertValidCode(experimentCreation.getCode());
         experiment.setCode(experimentCreation.getCode());
         experiment.setRegistrator(context.getSession().tryGetPerson());
 

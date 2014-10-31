@@ -22,8 +22,8 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
-import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
 
 /**
@@ -54,8 +54,7 @@ public class GetTagNameExecutor implements IGetTagNameExecutor
             String userId = context.getSession().tryGetPerson().getUserId();
             if (ownerId.equals(userId) == false)
             {
-                throw new UserFailureException("Tag id '" + tagId
-                        + "' doesn't belong to the user " + userId + ".");
+                throw new UnauthorizedObjectAccessException(tagId);
             }
             return name;
         }
