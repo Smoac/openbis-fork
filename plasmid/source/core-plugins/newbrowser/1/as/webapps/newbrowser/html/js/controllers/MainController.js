@@ -391,7 +391,7 @@ function MainController(profile) {
 		}
 		
 		if(experimentIdentifier) {
-			sampleTableController = new SampleTableController(this, experimentIdentifier + " Samples", experimentIdentifier);
+			sampleTableController = new SampleTableController(this, "Experiment " + experimentIdentifier, experimentIdentifier);
 		} else {
 			sampleTableController = new SampleTableController(this, "Sample Browser", null);
 		}
