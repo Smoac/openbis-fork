@@ -189,21 +189,17 @@ $.extend(Grid.prototype, {
 			dataList = thisGrid.sortData(dataList, options.sortProperty, options.sortDirection);
 
 			var result = {};
-			var defaultPageSize = 50;
-			var startIndex = options.pageIndex * (options.pageSize || defaultPageSize);
-			var endIndex = startIndex + (options.pageSize || defaultPageSize);
-			endIndex = (endIndex <= result.count) ? endIndex : dataList.length;
-
 			result.count = dataList.length;
 			result.datas = [];
 			result.items = [];
 			result.columns = thisGrid.getVisibleColumns();
 			result.page = options.pageIndex;
-			result.pages = Math.ceil(result.count / (options.pageSize || defaultPageSize));
-			result.start = startIndex + 1;
-			result.end = endIndex;
-
-			dataList = dataList.slice(startIndex, endIndex);
+			result.pages = Math.ceil(result.count / options.pageSize);
+			result.start = options.pageIndex * options.pageSize;
+			result.end = result.start + options.pageSize;
+			result.end = (result.end <= result.count) ? result.end : result.count;
+			
+			dataList = dataList.slice(result.start, result.end);
 			itemList = thisGrid.renderData(dataList);
 			itemList.forEach(function(item, index) {
 				result.datas.push(dataList[index]);
