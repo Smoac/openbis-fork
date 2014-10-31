@@ -1,6 +1,15 @@
 <style type="text/css">
+
+ /*
+  * Hover highlights the rows
+  */
+ .fuelux .repeater-list-wrapper tr:hover {
+ 	background-color: #F5F5F5;
+ 	cursor: pointer;
+ }
+ 
 /*
- * Fuelux table fix in conjuntion with adding a row on the javascript
+ * Bugfix: Fuelux don't refresh last column correctly so we add a dummy one and hide, check also javascript part
  */
  .fuelux .repeater-list-wrapper td:last-child,
  .fuelux .repeater-list-wrapper th:last-child {
@@ -8,11 +17,18 @@
  }
  
  /*
-  * Hover highlights the rows
+  * Bugfix: Dropdown issues in Chrome getting hiden by other components
   */
- .fuelux .repeater-list-wrapper tr:hover {
- 	background-color: #F5F5F5;
- 	cursor: pointer;
+ .fuelux {
+ 	overflow: visible !important;
+ }
+ 
+ .repeater {
+ 	z-index: 1;
+ }
+ 
+ .repeater ul {
+ 	z-index: 100000;
  }
  
 </style>
