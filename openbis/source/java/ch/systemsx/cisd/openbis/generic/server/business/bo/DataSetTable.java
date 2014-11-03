@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -863,11 +865,67 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
         Map<DataStorePE, List<ExternalDataPE>> datasetsByStore = groupExternalDataByDataStores();
         Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService =
                 enrichWithService(datasetsByStore);
+
+        boolean needRefresh = prepareForUnarchiving(datasetsWithService);
+
+        if (needRefresh)
+        {
+            datasetsByStore = groupExternalDataByDataStores();
+            datasetsWithService =
+                    enrichWithService(datasetsByStore);
+        }
+
         int result =
                 filterByStatusAndUpdate(datasetsByStore, DataSetArchivingStatus.ARCHIVED,
                         DataSetArchivingStatus.UNARCHIVE_PENDING);
         performUnarchiving(datasetsWithService);
         return result;
+    }
+
+    /**
+     * Asks datastore servers for the extended list of datasets to unarchive, and reloads itself.
+     * 
+     * @return true if the reaload of data has happened
+     */
+    private boolean prepareForUnarchiving(Map<DataStoreWithService, List<ExternalDataPE>> datasetsWithService)
+    {
+        List<String> result = new LinkedList<String>();
+
+        boolean enhancementsFound = false;
+
+        for (Entry<DataStoreWithService, List<ExternalDataPE>> entry : datasetsWithService.entrySet())
+        {
+            DataStoreWithService dssws = entry.getKey();
+            DataStorePE dataStore = dssws.dataStore;
+            IDataStoreService service = dssws.service;
+            List<ExternalDataPE> datasets = entry.getValue();
+            if (datasets.isEmpty())
+            {
+                continue;
+            }
+
+            List<String> dataSetCodes = new LinkedList<String>();
+            for (ExternalDataPE data : datasets)
+            {
+                dataSetCodes.add(data.getCode());
+            }
+
+            List<String> enhancedCodes = service.getDataSetCodesForUnarchiving(dataStore.getSessionToken(), session.getSessionToken(),
+                    dataSetCodes, tryGetLoggedUserId());
+            result.addAll(enhancedCodes);
+
+            if (new HashSet<String>(enhancedCodes).containsAll(dataSetCodes))
+            {
+                enhancementsFound = true;
+            }
+        }
+
+        if (enhancementsFound)
+        {
+            loadByDataSetCodes(result, false, true);
+            return true;
+        }
+        return false;
     }
 
     @Override
