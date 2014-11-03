@@ -206,7 +206,7 @@ public class CreateSampleTest extends AbstractSampleTest
                 Arrays.asList(samp1, samp2, sampleWithOutSpace));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSampleType();
+        fetchOptions.fetchType();
         fetchOptions.fetchSpace();
         fetchOptions.fetchRegistrator();
         fetchOptions.fetchAttachments().fetchContent();
@@ -219,7 +219,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
         Sample sampleWithSpace1 = samples.get(0);
         assertEquals(sampleWithSpace1.getCode(), "SAMPLE_WITH_SPACE1");
-        assertEquals(sampleWithSpace1.getSampleType().getCode(), "CELL_PLATE");
+        assertEquals(sampleWithSpace1.getType().getCode(), "CELL_PLATE");
         assertEquals(sampleWithSpace1.getSpace().getPermId().getPermId(), "CISD");
         assertEquals(sampleWithSpace1.getIdentifier().getIdentifier(), "/CISD/MP002-1:SAMPLE_WITH_SPACE1");
         assertEquals(sampleWithSpace1.getRegistrator().getUserId(), TEST_USER);
@@ -236,7 +236,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
         Sample sampleWithSpace2 = samples.get(1);
         assertEquals(sampleWithSpace2.getCode(), "SAMPLE_WITH_SPACE2");
-        assertEquals(sampleWithSpace2.getSampleType().getCode(), "CELL_PLATE");
+        assertEquals(sampleWithSpace2.getType().getCode(), "CELL_PLATE");
         assertEquals(sampleWithSpace2.getSpace().getPermId().getPermId(), "CISD");
         assertEquals(sampleWithSpace2.getIdentifier().getIdentifier(), "/CISD/MP002-1:SAMPLE_WITH_SPACE2");
         assertEquals(sampleWithSpace2.getRegistrator().getUserId(), TEST_USER);
@@ -251,7 +251,7 @@ public class CreateSampleTest extends AbstractSampleTest
 
         Sample sampleWithoutSpace = samples.get(2);
         assertEquals(sampleWithoutSpace.getCode(), "SAMPLE_WITHOUT_SPACE");
-        assertEquals(sampleWithoutSpace.getSampleType().getCode(), "CELL_PLATE");
+        assertEquals(sampleWithoutSpace.getType().getCode(), "CELL_PLATE");
         assertEquals(sampleWithoutSpace.getSpace(), null);
         assertEquals(sampleWithoutSpace.getIdentifier().getIdentifier(), "/SAMPLE_WITHOUT_SPACE");
         assertEquals(sampleWithoutSpace.getRegistrator().getUserId(), TEST_USER);

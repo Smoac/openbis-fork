@@ -36,7 +36,7 @@ public class SampleFetchOptions implements Serializable
     private static final long serialVersionUID = 1L;
 
     @JsonProperty
-    private SampleTypeFetchOptions sampleType;
+    private SampleTypeFetchOptions type;
 
     @JsonProperty
     private SpaceFetchOptions space;
@@ -71,23 +71,23 @@ public class SampleFetchOptions implements Serializable
     @JsonProperty
     private AttachmentFetchOptions attachments;
 
-    public SampleTypeFetchOptions fetchSampleType()
+    public SampleTypeFetchOptions fetchType()
     {
-        if (sampleType == null)
+        if (type == null)
         {
-            sampleType = new SampleTypeFetchOptions();
+            type = new SampleTypeFetchOptions();
         }
-        return sampleType;
+        return type;
     }
 
-    public SampleTypeFetchOptions fetchSampleType(SampleTypeFetchOptions fetchOptions)
+    public SampleTypeFetchOptions fetchType(SampleTypeFetchOptions fetchOptions)
     {
-        return sampleType = fetchOptions;
+        return type = fetchOptions;
     }
 
-    public boolean hasSampleType()
+    public boolean hasType()
     {
-        return sampleType != null;
+        return type != null;
     }
 
     public SpaceFetchOptions fetchSpace()

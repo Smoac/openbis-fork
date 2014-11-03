@@ -62,7 +62,7 @@ public class Sample implements Serializable
     private Date modificationDate;
 
     @JsonProperty
-    private SampleType sampleType;
+    private SampleType type;
 
     @JsonProperty
     private Space space;
@@ -164,11 +164,11 @@ public class Sample implements Serializable
     }
 
     @JsonIgnore
-    public SampleType getSampleType()
+    public SampleType getType()
     {
-        if (getFetchOptions().hasSampleType())
+        if (getFetchOptions().hasType())
         {
-            return sampleType;
+            return type;
         }
         else
         {
@@ -176,9 +176,9 @@ public class Sample implements Serializable
         }
     }
 
-    public void setSampleType(SampleType sampleType)
+    public void setType(SampleType type)
     {
-        this.sampleType = sampleType;
+        this.type = type;
     }
 
     @JsonIgnore

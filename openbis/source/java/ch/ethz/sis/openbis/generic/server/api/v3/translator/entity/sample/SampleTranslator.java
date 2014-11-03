@@ -152,12 +152,12 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
             result.getFetchOptions().fetchContained(getFetchOptions().fetchContained());
         }
 
-        if (getFetchOptions().hasSampleType())
+        if (getFetchOptions().hasType())
         {
             SampleType sampleType =
-                    new SampleTypeTranslator(getTranslationContext(), getFetchOptions().fetchSampleType()).translate(samplePe.getSampleType());
-            result.setSampleType(sampleType);
-            result.getFetchOptions().fetchSampleType(getFetchOptions().fetchSampleType());
+                    new SampleTypeTranslator(getTranslationContext(), getFetchOptions().fetchType()).translate(samplePe.getSampleType());
+            result.setType(sampleType);
+            result.getFetchOptions().fetchType(getFetchOptions().fetchType());
         }
 
         if (getFetchOptions().hasTags())

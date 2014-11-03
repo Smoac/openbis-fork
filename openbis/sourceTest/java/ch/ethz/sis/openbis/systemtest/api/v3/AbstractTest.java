@@ -20,6 +20,7 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -439,6 +440,22 @@ public class AbstractTest extends SystemTestCase
                 AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
             }
         }
+    }
+
+    protected void assertContainSameObjects(Collection<?> c1, Collection<?> c2, int expectedSameObjectCount)
+    {
+        int count = 0;
+        for (Object o1 : c1)
+        {
+            for (Object o2 : c2)
+            {
+                if (o1 == o2)
+                {
+                    count++;
+                }
+            }
+        }
+        assertEquals(count, expectedSameObjectCount);
     }
 
 }

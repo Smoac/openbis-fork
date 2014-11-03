@@ -18,6 +18,8 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -192,6 +194,8 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertEquals(map.get(permId1).getPermId(), permId1);
         assertEquals(map.get(identifier2).getIdentifier(), identifier2);
 
+        assertTrue(map.get(identifier1) == map.get(permId1));
+
         v3api.logout(sessionToken);
     }
 
@@ -289,6 +293,30 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testMapExperimentsWithTypeReused()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchType();
+
+        ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+        ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+
+        assertEquals(2, map.size());
+        Experiment experiment1 = map.get(identifier1);
+        Experiment experiment2 = map.get(identifier2);
+
+        assertFalse(experiment1 == experiment2);
+        assertEquals(experiment1.getType().getCode(), "SIRNA_HCS");
+        assertEquals(experiment2.getType().getCode(), "SIRNA_HCS");
+        assertTrue(experiment1.getType() == experiment2.getType());
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
     public void testMapExperimentsWithAttachment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -359,6 +387,30 @@ public class MapExperimentTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
+    @Test()
+    public void testMapExperimentsWithProjectReused()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchProject();
+
+        ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+        ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+
+        assertEquals(2, map.size());
+        Experiment experiment1 = map.get(identifier1);
+        Experiment experiment2 = map.get(identifier2);
+
+        assertFalse(experiment1 == experiment2);
+        assertEquals(experiment1.getProject().getCode(), "NEMO");
+        assertEquals(experiment2.getProject().getCode(), "NEMO");
+        assertTrue(experiment1.getProject() == experiment2.getProject());
+
+        v3api.logout(sessionToken);
+    }
+
     @Test
     public void testMapExperimentsWithProperties()
     {
@@ -419,6 +471,30 @@ public class MapExperimentTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
+    @Test()
+    public void testMapExperimentsWithRegistratorReused()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchRegistrator();
+
+        ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+        ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+
+        assertEquals(2, map.size());
+        Experiment experiment1 = map.get(identifier1);
+        Experiment experiment2 = map.get(identifier2);
+
+        assertFalse(experiment1 == experiment2);
+        assertEquals(experiment1.getRegistrator().getUserId(), "test");
+        assertEquals(experiment2.getRegistrator().getUserId(), "test");
+        assertTrue(experiment1.getRegistrator() == experiment2.getRegistrator());
+
+        v3api.logout(sessionToken);
+    }
+
     @Test
     public void testMapExperimentsWithModifier()
     {
@@ -445,6 +521,30 @@ public class MapExperimentTest extends AbstractExperimentTest
         assertPropertiesNotFetched(experiment);
         assertTagsNotFetched(experiment);
         assertRegistratorNotFetched(experiment);
+        v3api.logout(sessionToken);
+    }
+
+    @Test()
+    public void testMapExperimentsWithModifierReused()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchModifier();
+
+        ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
+        ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP10");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(identifier1, identifier2), fetchOptions);
+
+        assertEquals(2, map.size());
+        Experiment experiment1 = map.get(identifier1);
+        Experiment experiment2 = map.get(identifier2);
+
+        assertFalse(experiment1 == experiment2);
+        assertEquals(experiment1.getModifier().getUserId(), "test_role");
+        assertEquals(experiment2.getModifier().getUserId(), "test_role");
+        assertTrue(experiment1.getModifier() == experiment2.getModifier());
+
         v3api.logout(sessionToken);
     }
 
@@ -483,4 +583,26 @@ public class MapExperimentTest extends AbstractExperimentTest
         v3api.logout(sessionToken);
     }
 
+    @Test
+    public void testMapExperimentsWithTagsReused()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchTags();
+
+        ExperimentPermId permId1 = new ExperimentPermId("200811050952663-1030");
+        ExperimentPermId permId2 = new ExperimentPermId("201206190940555-1032");
+
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, Arrays.asList(permId1, permId2), fetchOptions);
+
+        assertEquals(2, map.size());
+        Experiment experiment1 = map.get(permId1);
+        Experiment experiment2 = map.get(permId2);
+
+        assertEquals(experiment1.getTags().size(), 2);
+        assertEquals(experiment2.getTags().size(), 1);
+        assertContainSameObjects(experiment1.getTags(), experiment2.getTags(), 1);
+
+        v3api.logout(sessionToken);
+    }
 }
