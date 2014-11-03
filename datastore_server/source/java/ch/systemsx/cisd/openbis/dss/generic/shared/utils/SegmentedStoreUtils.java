@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,8 +50,8 @@ import ch.systemsx.cisd.common.logging.ISimpleLogger;
 import ch.systemsx.cisd.common.logging.LogLevel;
 import ch.systemsx.cisd.common.utilities.ITimeProvider;
 import ch.systemsx.cisd.common.utilities.SystemTimeProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IChecksumProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -229,25 +230,56 @@ public class SegmentedStoreUtils
             List<DatasetDescription> dataSets, IDataSetDirectoryProvider dataSetDirectoryProvider, 
             IShareIdManager shareIdManager, ISimpleLogger logger)
     {
-        long requestedSpace = calculateTotalSizeOfDataSetsToKeep(dataSets);
+        List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>(dataSets);
+        List<SimpleDataSetInformationDTO> filteredDataSetsInShare 
+                = new ArrayList<SimpleDataSetInformationDTO>(unarchivingScratchShare.getDataSetsOrderedBySize());
+        removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
+        long requestedSpace = calculateTotalSizeOfDataSetsToKeep(filteredDataSets);
         long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
-        if (actualFreeSpace > requestedSpace)
+        if (actualFreeSpace < requestedSpace)
         {
-            return;
+            Collections.sort(filteredDataSetsInShare, MODIFICATION_TIMESTAMP_COMPARATOR);
+            List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
+                    listDataSetsToRemoveFromShare(filteredDataSetsInShare, requestedSpace, actualFreeSpace,
+                            unarchivingScratchShare, logger);
+            logger.log(LogLevel.INFO, "Remove the following data sets from share '" + unarchivingScratchShare.getShareId() 
+                    + "' and set their archiving status back to ARCHIVED: " 
+                    + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
+            service.archiveDataSets(extractCodes(dataSetsToRemoveFromShare), false);
+            for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
+            {
+                deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
+            }
+            logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
+                    + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
+                    + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
+            actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
         }
-        List<SimpleDataSetInformationDTO> dataSetsInShare = listRemovableDataSets(unarchivingScratchShare, dataSets);
-        Collections.sort(dataSetsInShare, MODIFICATION_TIMESTAMP_COMPARATOR);
-        List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
-                listDataSetsToRemoveFromShare(dataSetsInShare, requestedSpace, actualFreeSpace,
-                        unarchivingScratchShare, logger);
-        service.archiveDataSets(extractCodes(dataSetsToRemoveFromShare), false);
-        for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
+        logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '" 
+                + unarchivingScratchShare.getShareId() + "': " + FileUtilities.byteCountToDisplaySize(actualFreeSpace) 
+                + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: " 
+                + FileUtilities.byteCountToDisplaySize(requestedSpace));
+    }
+    
+    private static void removeCommonDataSets(List<DatasetDescription> dataSets, List<SimpleDataSetInformationDTO> dataSetsInShare)
+    {
+        Set<String> extractCodes = new HashSet<String>(extractCodes(dataSetsInShare));
+        for (Iterator<DatasetDescription> iterator = dataSets.iterator(); iterator.hasNext();)
         {
-            deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
+            DatasetDescription dataSet = iterator.next();
+            if (extractCodes.remove(dataSet.getDataSetCode()))
+            {
+                iterator.remove();
+            }
         }
-        logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
-                + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
-                + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
+        for (Iterator<SimpleDataSetInformationDTO> iterator = dataSetsInShare.iterator(); iterator.hasNext();)
+        {
+            SimpleDataSetInformationDTO dataSet = iterator.next();
+            if (extractCodes.contains(dataSet.getDataSetCode()) == false)
+            {
+                iterator.remove();
+            }
+        }
     }
 
     private static long calculateTotalSizeOfDataSetsToKeep(List<DatasetDescription> dataSets)
@@ -263,25 +295,6 @@ public class SegmentedStoreUtils
             size += dataSetSize;
         }
         return size;
-    }
-    
-    private static List<SimpleDataSetInformationDTO> listRemovableDataSets(Share share, 
-            List<DatasetDescription> dataSets)
-    {
-        Set<String> dataSetsToBeKept = new HashSet<String>();
-        for (DatasetDescription dataSet : dataSets)
-        {
-            dataSetsToBeKept.add(dataSet.getDataSetCode());
-        }
-        List<SimpleDataSetInformationDTO> dataSetsInShare = new ArrayList<SimpleDataSetInformationDTO>();
-        for (SimpleDataSetInformationDTO dataSetInShare : share.getDataSetsOrderedBySize())
-        {
-            if (dataSetsToBeKept.contains(dataSetInShare.getDataStoreCode()) == false)
-            {
-                dataSetsInShare.add(dataSetInShare);
-            }
-        }
-        return dataSetsInShare;
     }
     
     private static List<String> extractCodes(List<SimpleDataSetInformationDTO> dataSets)
@@ -306,14 +319,11 @@ public class SegmentedStoreUtils
             freeSpace += dataSetInShare.getDataSetSize();
             dataSetsToRemoveFromShare.add(dataSetInShare);
         }
-        logger.log(LogLevel.INFO, "Remove the following data sets from share '" + share.getShareId() 
-                + "' and set their archiving status back to ARCHIVED: " 
-                + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
         if (requestedSpace >= freeSpace)
         {
-            throw new EnvironmentFailureException("After removing all removable data sets from share '"
-                    + share.getShareId() + "' there is still only " + FileUtilities.byteCountToDisplaySize(freeSpace)
-                    + " free space less than the requested " + FileUtilities.byteCountToDisplaySize(requestedSpace) + ".");
+            throw new EnvironmentFailureException("Even after removing all removable data sets from share '"
+                    + share.getShareId() + "' there would be still only " + FileUtilities.byteCountToDisplaySize(freeSpace)
+                    + " free space which is less than the requested " + FileUtilities.byteCountToDisplaySize(requestedSpace) + ".");
         }
         return dataSetsToRemoveFromShare;
     }

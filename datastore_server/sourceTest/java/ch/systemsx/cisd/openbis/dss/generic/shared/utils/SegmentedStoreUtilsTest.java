@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -131,7 +132,22 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
 
     @Test
-    public void testFreeSpace()
+    public void testFreeSpaceNothingToDo()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_KB);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L);
+
+        SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1), dataSetDirectoryProvider,
+                shareIdManager, log);
+
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
+        assertEquals("INFO: Free space on unarchiving scratch share '1': 12.00 KB, "
+                + "requested space for unarchiving 1 data sets: 11.00 KB\n", log.toString());
+    }
+
+    @Test
+    public void testFreeSpaceRemovingOneDataSet()
     {
         SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_KB);
         SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_KB);
@@ -142,73 +158,93 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share.addDataSet(ds5);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
-        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L, 22L);
         prepareSetArchingStatus(ds1);
         File file = prepareDeleteFromShare(ds1);
         assertEquals(true, file.exists());
-
+        
         SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds2, ds4), dataSetDirectoryProvider,
                 shareIdManager, log);
-
+        
         assertEquals(false, file.exists());
-        assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(0).getPath());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(1).getPath());
+        assertEquals(2, recordingFileMatcher.getRecordedObjects().size());
         assertEquals("INFO: Remove the following data sets from share '1' and set their archiving status "
                 + "back to ARCHIVED: [ds-1]\n"
                 + "INFO: Await for data set ds-1 to be unlocked.\n"
                 + "INFO: Start deleting data set ds-1 at " + shareFolder + "/abc/ds-1\n"
                 + "INFO: Data set ds-1 at " + shareFolder + "/abc/ds-1 has been successfully deleted.\n"
                 + "INFO: The following data sets have been successfully removed from share '1' "
-                + "and their archiving status has been successfully set back to ARCHIVED: [ds-1]\n", log.toString());
+                + "and their archiving status has been successfully set back to ARCHIVED: [ds-1]\n"
+                + "INFO: Free space on unarchiving scratch share '1': 22.00 KB, requested space for "
+                + "unarchiving 2 data sets: 21.00 KB\n", log.toString());
     }
-
-    private File prepareDeleteFromShare(final SimpleDataSetInformationDTO dataSet)
+    
+    @Test
+    public void testFreeSpaceForThreeDataSetsOneAlreadyInShare()
     {
-        final File file = new File(shareFolder, dataSet.getDataSetLocation());
-        context.checking(new Expectations()
-            {
-                {
-                    one(shareIdManager).await(dataSet.getDataSetCode());
-                    one(dataSetDirectoryProvider).getDataSetDirectory(dataSet);
-                    will(returnValue(file));
-                }
-            });
-        return file;
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_KB);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.addDataSet(ds5);
+        share.addDataSet(ds3);
+        share.addDataSet(ds1);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L, 24L);
+        prepareSetArchingStatus(ds3);
+        File file = prepareDeleteFromShare(ds3);
+        assertEquals(true, file.exists());
+        
+        SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1, ds2, ds4), dataSetDirectoryProvider,
+                shareIdManager, log);
+        
+        assertEquals(false, file.exists());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(0).getPath());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(1).getPath());
+        assertEquals(2, recordingFileMatcher.getRecordedObjects().size());
+        assertEquals("INFO: Remove the following data sets from share '1' and set their archiving status "
+                + "back to ARCHIVED: [ds-3]\n"
+                + "INFO: Await for data set ds-3 to be unlocked.\n"
+                + "INFO: Start deleting data set ds-3 at " + shareFolder + "/abc/ds-3\n"
+                + "INFO: Data set ds-3 at " + shareFolder + "/abc/ds-3 has been successfully deleted.\n"
+                + "INFO: The following data sets have been successfully removed from share '1' "
+                + "and their archiving status has been successfully set back to ARCHIVED: [ds-3]\n"
+                + "INFO: Free space on unarchiving scratch share '1': 24.00 KB, requested space for "
+                + "unarchiving 2 data sets: 21.00 KB\n", log.toString());
     }
-
-    private void prepareSetArchingStatus(final SimpleDataSetInformationDTO... dataSets)
+    
+    @Test
+    public void testFreeSpaceRemovingDataSetsButStillNotEnoughFreeSpace()
     {
-        context.checking(new Expectations()
-            {
-                {
-                    List<String> dataSetCodes = new ArrayList<String>();
-                    for (SimpleDataSetInformationDTO dataSet : dataSets)
-                    {
-                        dataSetCodes.add(dataSet.getDataSetCode());
-                    }
-                    one(service).archiveDataSets(dataSetCodes, false);
-                }
-            });
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_KB);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.addDataSet(ds3);
+        share.addDataSet(ds2);
+        share.addDataSet(ds1);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(2L);
+        
+        try
+        {
+            SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds4, ds5, ds1), dataSetDirectoryProvider,
+                    shareIdManager, log);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Even after removing all removable data sets from share '1' there would be "
+                    + "still only 24.00 KB free space which is less than the requested 25.00 KB.", ex.getMessage());
+        }
+        
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
+        assertEquals("", log.toString());
     }
-
-    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long freeSpace)
-    {
-        final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
-        context.checking(new Expectations()
-            {
-                {
-                    try
-                    {
-                        one(freeSpaceProvider).freeSpaceKb(with(recorder));
-                        will(returnValue(freeSpace));
-                    } catch (IOException ex)
-                    {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-        return recorder;
-    }
-
+    
     @Test
     public void testGetDataSetsPerShare()
     {
@@ -635,6 +671,59 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             actualNames.add(child.getName());
         }
         assertEquals(Arrays.asList(names).toString(), actualNames.toString());
+    }
+
+    private File prepareDeleteFromShare(final SimpleDataSetInformationDTO dataSet)
+    {
+        final File file = new File(shareFolder, dataSet.getDataSetLocation());
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).await(dataSet.getDataSetCode());
+                    one(dataSetDirectoryProvider).getDataSetDirectory(dataSet);
+                    will(returnValue(file));
+                }
+            });
+        return file;
+    }
+
+    private void prepareSetArchingStatus(final SimpleDataSetInformationDTO... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<String> dataSetCodes = new ArrayList<String>();
+                    for (SimpleDataSetInformationDTO dataSet : dataSets)
+                    {
+                        dataSetCodes.add(dataSet.getDataSetCode());
+                    }
+                    one(service).archiveDataSets(dataSetCodes, false);
+                }
+            });
+    }
+
+    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long... freeSpaceValues)
+    {
+        final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
+        final Sequence sequence = context.sequence("free space");
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        for (long freeSpace : freeSpaceValues)
+                        {
+                            one(freeSpaceProvider).freeSpaceKb(with(recorder));
+                            will(returnValue(freeSpace));
+                            inSequence(sequence);
+                        }
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        return recorder;
     }
 
     private List<DatasetDescription> asDatasetDescriptions(SimpleDataSetInformationDTO... dataSets)
