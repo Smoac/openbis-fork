@@ -135,7 +135,7 @@ def findGitSvnVersion(lines) {
             return a.split("@")[1].split()[0].toInteger()
         }
     }
-    throw new Exception("Couldn't get svn version from git")
+    return "LOCAL_COMMIT"
 }
 
 def calculateBuildInfo() {
