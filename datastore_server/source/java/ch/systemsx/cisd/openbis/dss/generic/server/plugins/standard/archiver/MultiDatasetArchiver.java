@@ -18,6 +18,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,12 +36,16 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArch
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDBTransaction;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -85,12 +90,19 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
     private IMultiDatasetArchiverDBTransaction transaction;
 
+    private IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
+
+    public static final String UNARCHIVING_SHARE_ID = "unarchiving-share-id";
+
+    private final String unarchivingShareId;
+
     public MultiDatasetArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
         this.fileOperationsFactory = new FileOperationsManagerFactory(properties);
+        this.unarchivingShareId = PropertyUtils.getMandatoryProperty(properties, UNARCHIVING_SHARE_ID);
     }
 
     @Override
@@ -310,13 +322,124 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> datasets, ArchiverTaskContext context)
+    public List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
     {
-        if (datasets.size() > 0)
+        assertAllDataSetsInTheSameContainer(dataSetCodes);
+        return getCodesOfAllDataSetsInContainer(dataSetCodes);
+    }
+
+    @Override
+    protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> parameterDataSets, ArchiverTaskContext context)
+    {
+        List<String> dataSetCodes = translateToDataSetCodes(parameterDataSets);
+        long containerId = assertAllDataSetsInTheSameContainer(dataSetCodes);
+        List<PhysicalDataSet> dataSets = translateToPhysicalDataSets(dataSetCodes);
+        assertNoAvailableDatasets(dataSets);
+
+        for (PhysicalDataSet physicalDataSet : dataSets)
         {
-            throw new NotImplementedException("Unarchiving is not yet implemented for multi dataset archiver");
+            String dataSetCode = physicalDataSet.getCode();
+
+            String shareId = getShareIdManager().getShareId(dataSetCode);
+            if (shareId.equals(unarchivingShareId) == false)
+            {
+                getService().updateShareIdAndSize(dataSetCode, unarchivingShareId, physicalDataSet.getSize());
+                getShareIdManager().setShareId(dataSetCode, unarchivingShareId);
+            }
+
         }
-        return new DatasetProcessingStatuses();
+
+        MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
+
+        ((MultiDataSetFileOperationsManager) getFileOperations()).restoreDataSetsFromContainerInFinalDestination(
+                container.getPath(),
+
+                unarchivingShareId, parameterDataSets);
+
+        DatasetProcessingStatuses result = new DatasetProcessingStatuses();
+        result.addResult(parameterDataSets, Status.OK, Operation.UNARCHIVE);
+        return result;
+    }
+
+    private void assertNoAvailableDatasets(List<PhysicalDataSet> dataSets)
+    {
+        for (PhysicalDataSet physicalDataSet : dataSets)
+        {
+            if (physicalDataSet.isAvailable())
+            {
+                throw new IllegalArgumentException("Dataset '" + physicalDataSet.getCode() + "'specified for unarchiving is available");
+            }
+        }
+    }
+
+    private List<String> getCodesOfAllDataSetsInContainer(List<String> dataSetCodes)
+    {
+
+        MultiDataSetArchiverDataSetDTO dataset = getReadonlyQuery().getDataSetForCode(dataSetCodes.get(0));
+        Long containerId = dataset.getContainerId();
+        List<MultiDataSetArchiverDataSetDTO> dbDataSets = getReadonlyQuery().listDataSetsForContainerId(containerId);
+
+        List<String> enhancedDataSetCodes = new LinkedList<String>();
+        for (MultiDataSetArchiverDataSetDTO dbDataSet : dbDataSets)
+        {
+            enhancedDataSetCodes.add(dbDataSet.getCode());
+        }
+        return enhancedDataSetCodes;
+    }
+
+    private List<PhysicalDataSet> translateToPhysicalDataSets(List<String> dataSetCodes)
+    {
+        List<PhysicalDataSet> result = new LinkedList<PhysicalDataSet>();
+        for (AbstractExternalData dataSet : getService().listDataSetsByCode(dataSetCodes))
+        {
+            if (dataSet.tryGetAsDataSet() != null)
+            {
+                result.add(dataSet.tryGetAsDataSet());
+            }
+            else
+            {
+                throw new IllegalStateException("All data sets in container are expected to be physical datasets, but data set '" + dataSet.getCode()
+                        + "' is not ");
+            }
+        }
+        return result;
+    }
+
+    private List<String> translateToDataSetCodes(List<? extends IDatasetLocation> dataSets)
+    {
+        LinkedList<String> result = new LinkedList<String>();
+        for (IDatasetLocation dataSet : dataSets)
+        {
+            result.add(dataSet.getDataSetCode());
+        }
+        return result;
+    }
+
+    /**
+     * @return ID of container that groups all listed data sets
+     * @throws exception if not all data sets are in the same container
+     */
+    private long assertAllDataSetsInTheSameContainer(List<String> dataSetCodes)
+    {
+        HashSet<Long> containerIds = new HashSet<Long>();
+        long containerId = -1;
+        for (String code : dataSetCodes)
+        {
+            MultiDataSetArchiverDataSetDTO dataSet = getTransaction().getDataSetForCode(code);
+            if (dataSet == null)
+            {
+                throw new IllegalArgumentException("Dataset " + code
+                        + " was selected for unarchiving, but is not present in the archive");
+            }
+            containerIds.add(dataSet.getContainerId());
+            containerId = dataSet.getContainerId();
+        }
+        if (containerIds.size() > 1)
+        {
+            throw new IllegalArgumentException("Datasets selected for unarchiving do not all belong to one container, but to " + containerIds.size()
+                    + " different containers");
+        }
+        return containerId;
     }
 
     @Override
@@ -353,7 +476,8 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return dataSetInArchiveDB != null;
     }
 
-    @Private IMultiDataSetFileOperationsManager getFileOperations()
+    @Private
+    IMultiDataSetFileOperationsManager getFileOperations()
     {
         if (fileOperations == null)
         {
@@ -362,12 +486,22 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return fileOperations;
     }
 
-    @Private IMultiDatasetArchiverDBTransaction getTransaction()
+    @Private
+    IMultiDatasetArchiverDBTransaction getTransaction()
     {
         if (transaction == null)
         {
             transaction = new MultiDatasetArchiverDBTransaction();
         }
         return transaction;
+    }
+
+    IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
+    {
+        if (readonlyQuery == null)
+        {
+            readonlyQuery = MultiDatasetArchiverDataSourceUtil.getReadonlyQueryDAO();
+        }
+        return readonlyQuery;
     }
 }

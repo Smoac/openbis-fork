@@ -31,7 +31,7 @@ public interface IMultiDataSetArchiverReadonlyQueryDAO extends BaseQuery
      * SELECT CONTAINER
      */
     final static String SELECT_CONTAINER =
-            " SELECT id, path"
+            " SELECT id, path "
                     + "FROM containers ";
 
     @Select(sql = SELECT_CONTAINER + "WHERE id = ?{1}")

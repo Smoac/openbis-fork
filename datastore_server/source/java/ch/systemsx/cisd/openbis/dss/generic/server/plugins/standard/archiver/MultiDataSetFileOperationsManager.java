@@ -19,6 +19,7 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -39,10 +40,8 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPackageManager;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPathCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.ISshCommandExecutorFactory;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.TarPackageManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
@@ -73,7 +72,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
 
     private final boolean withSharding;
 
-    protected IPackageManager packageManager;
+    protected IMultiDataSetPackageManager packageManager;
 
     // TODO: some features existing in rsync archiver:
     // - ignore existing
@@ -81,7 +80,7 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
     public MultiDataSetFileOperationsManager(Properties properties, IPathCopierFactory pathCopierFactory,
             ISshCommandExecutorFactory sshCommandExecutorFactory)
     {
-        this.packageManager = new TarPackageManager(properties);
+        this.packageManager = new MultiDataSetPackageManager(properties);
 
         this.withSharding = PropertyUtils.getBoolean(properties, WITH_SHARDING_KEY, false);
 
@@ -142,6 +141,22 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         return success ? Status.OK : Status.createError("Couldn't delete archive container '" + containerPath);
     }
 
+    public Status restoreDataSetsFromContainerInFinalDestination(String containerPath, String unarchivingShareId,
+            List<DatasetDescription> dataSetDescriptions)
+    {
+        HashMap<String, File> dataSetToLocation = new HashMap<String, File>();
+        for (DatasetDescription datasetDescription : dataSetDescriptions)
+        {
+            File location = getDirectoryProvider().getDataSetDirectory(unarchivingShareId, datasetDescription.getDataSetLocation());
+            dataSetToLocation.put(datasetDescription.getDataSetCode(), location);
+        }
+
+        File stageArchiveContainerFile = new File(getFinalArchive().getDestination(), containerPath);
+        packageManager.extractMultiDataSets(stageArchiveContainerFile, dataSetToLocation);
+
+        return Status.OK;
+    }
+
     @Override
     public Status createContainerInStage(String containerPath, List<DatasetDescription> datasetDescriptions)
     {
@@ -158,16 +173,16 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
                 shareIdManager.lock(dataSet.getCode());
                 operationLog.info("Archive dataset " + dataSet.getCode() + " in " + containerPath);
             }
-            
+
             boolean result = createFolderIfNotExists(stageArchive, stageArchiveContainerFile.getParentFile());
-            
+
             // TODO: react somehow?
             if (result)
             {
                 operationLog.warn("File already exists in archive " + stageArchiveContainerFile.getParentFile());
             }
-            
-            packageManager.create(stageArchiveContainerFile, dataSets); // packagemanager
+
+            packageManager.create(stageArchiveContainerFile, dataSets);
         } catch (Exception ex)
         {
             status = Status.createError(ex.toString());

@@ -28,7 +28,7 @@ public class MultiDataSetArchiverDataSetDTO
 
     private String code;
 
-    @ResultColumn("CNTR_ID")
+    @ResultColumn("CTNR_ID")
     private long containerId;
 
     @ResultColumn("SIZE_IN_BYTES")

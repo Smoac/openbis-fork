@@ -16,30 +16,16 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
-import java.util.List;
+import java.io.File;
+import java.util.HashMap;
 
 import ch.systemsx.cisd.common.exceptions.Status;
-import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.IPackageManager;
 
 /**
  * @author Jakub Straszewski
  */
-public interface IMultiDataSetFileOperationsManager
+public interface IMultiDataSetPackageManager extends IPackageManager
 {
-    String generateContainerPath(List<DatasetDescription> dataSets);
-
-    Status createContainerInStage(String containerPath, List<DatasetDescription> datasetDescriptions);
-
-    Status copyToFinalDestination(String containerLocalPath);
-
-    Status deleteContainerFromFinalDestination(String containerLocalPath);
-
-    Status deleteContainerFromStage(String containerPath);
-
-    /**
-     * Get's the content of archived content in final destination.
-     */
-    IHierarchicalContent getContainerAsHierarchicalContent(String containerPath);
-
+    Status extractMultiDataSets(File packageFile, HashMap<String, File> dataSetCodeToDirectory);
 }

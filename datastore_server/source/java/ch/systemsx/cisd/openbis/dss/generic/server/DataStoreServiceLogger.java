@@ -165,6 +165,13 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
+    public List<String> getDataSetCodesForUnarchiving(String sessionToken, String userSessionToken, List<String> datasets, String userId)
+    {
+        log("getDataSetCodesForUnarchiving", "NO_OF_DATASETS(%s)", datasets.size());
+        return null;
+    }
+
+    @Override
     public LinkModel retrieveLinkFromDataSet(String sessionToken, String serviceKey,
             DatasetDescription dataSet)
     {
@@ -198,11 +205,11 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken, 
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet, 
+    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
+            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull)
     {
-        log("searchForDataSetsWithSequences", "SEQUENCE_DATABASE(%s) SEQUENCE_SNIPPET(%s)", 
+        log("searchForDataSetsWithSequences", "SEQUENCE_DATABASE(%s) SEQUENCE_SNIPPET(%s)",
                 preferredSequenceDatabaseOrNull, sequenceSnippet);
         return null;
     }

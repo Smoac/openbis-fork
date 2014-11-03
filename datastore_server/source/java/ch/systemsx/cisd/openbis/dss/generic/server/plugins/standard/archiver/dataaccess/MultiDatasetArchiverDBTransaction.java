@@ -18,11 +18,6 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.da
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import net.lemnik.eodsql.QueryTool;
-
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -31,18 +26,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 public class MultiDatasetArchiverDBTransaction implements IMultiDatasetArchiverDBTransaction
 {
 
-    private static DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("multi-dataset-archiver-db");
-
     private IMultiDataSetArchiverQueryDAO transaction;
 
     public MultiDatasetArchiverDBTransaction()
     {
-        this.transaction = getTransactionalQuery();
-    }
-
-    private static IMultiDataSetArchiverQueryDAO getTransactionalQuery()
-    {
-        return QueryTool.getQuery(dataSource, IMultiDataSetArchiverQueryDAO.class);
+        this.transaction = MultiDatasetArchiverDataSourceUtil.getTransactionalQuery();
     }
 
     @Override

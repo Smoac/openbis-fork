@@ -20,20 +20,18 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archi
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.STAGING_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDatasetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDatasetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
+import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDatasetArchiver.UNARCHIVING_SHARE_ID;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
-
-import javassist.bytecode.analysis.MultiArrayType;
 
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -54,6 +52,7 @@ import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
@@ -208,14 +207,16 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
 
         private IMultiDataSetFileOperationsManager fileManager;
 
+        private IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
+
         public MockMultiDatasetArchiver(Properties properties, File storeRoot,
                 IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager,
                 IDataSetStatusUpdater statusUpdater, IMultiDatasetArchiverDBTransaction transaction,
-                IMultiDataSetFileOperationsManager fileManager)
+                IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO)
         {
             super(properties, storeRoot);
             this.transaction = transaction;
-            this.fileManager = fileManager;
+            this.readonlyDAO = readonlyDAO;
             setService(openBISService);
             setShareIdManager(shareIdManager);
             setStatusUpdater(statusUpdater);
@@ -232,6 +233,12 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
         {
             return transaction;
         }
+
+        @Override
+        IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
+        {
+            return readonlyDAO;
+        }
     }
 
     private static final String EXPERIMENT_IDENTIFIER = "/S/P/E";
@@ -241,6 +248,8 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
     private Mockery context;
 
     private IMultiDatasetArchiverDBTransaction transaction;
+
+    private IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
 
     private IDataSetDirectoryProvider directoryProvider;
 
@@ -311,9 +320,11 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty(STAGING_DESTINATION_KEY, staging.getAbsolutePath());
         properties.setProperty(FINAL_DESTINATION_KEY, archive.getAbsolutePath());
+        properties.setProperty(UNARCHIVING_SHARE_ID, "2");
         directoryProvider = new MockDataSetDirectoryProvider(store, share.getName(), shareIdManager);
         archiverContext = new ArchiverTaskContext(directoryProvider, hierarchicalContentProvider);
         experiment = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).type("MET").getExperiment();
+        readonlyDAO = context.mock(IMultiDataSetArchiverReadonlyQueryDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -341,28 +352,28 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
         // To following line of code should also be called at the end of each test method.
         // Otherwise one does not known which test failed.
         context.assertIsSatisfied();
-        
+
         ServiceProviderTestWrapper.restoreApplicationContext();
     }
-    
+
     @Test
     public void testArchiveDataSetsWhichAreTooSmall()
     {
         prepareUpdateShareIdAndSize(ds1, 10);
         prepareUpdateShareIdAndSize(ds2, 20);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "35");
-        
+
         MultiDatasetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, false);
-        
+
         assertEquals("[ERROR: \"Set of data sets specified for archiving is too small (30 bytes) "
-                + "to be archived with multi dataset archiver because minimum size is 35 bytes.\"]", 
+                + "to be archived with multi dataset archiver because minimum size is 35 bytes.\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
         assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true, closed: true", transaction.toString());
         context.assertIsSatisfied();
     }
-    
+
     @Test
     public void testArchiveDataSetsWhichAreTooBig()
     {
@@ -370,12 +381,12 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
         prepareUpdateShareIdAndSize(ds2, 20);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "25");
         properties.setProperty(MAXIMUM_CONTAINER_SIZE_IN_BYTES, "27");
-        
+
         MultiDatasetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, false);
-        
+
         assertEquals("[ERROR: \"Set of data sets specified for archiving is too big (30 bytes) "
-                + "to be archived with multi dataset archiver because maximum size is 27 bytes.\"]", 
+                + "to be archived with multi dataset archiver because maximum size is 27 bytes.\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
         assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true, closed: true", transaction.toString());
@@ -651,8 +662,8 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
         context.checking(new Expectations()
             {
                 {
-                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(dataSets), 
-                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT, 
+                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(dataSets),
+                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
                             TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
                 }
             });
@@ -704,7 +715,7 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
     private MultiDatasetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
         return new MockMultiDatasetArchiver(properties, store, openBISService, shareIdManager, statusUpdater,
-                transaction, fileManagerOrNull);
+                transaction, fileManagerOrNull, readonlyDAO);
     }
 
     private DatasetDescription dataSet(final String code, String content)

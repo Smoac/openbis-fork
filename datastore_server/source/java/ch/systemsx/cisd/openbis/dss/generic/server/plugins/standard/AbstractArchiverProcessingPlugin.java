@@ -636,7 +636,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
     }
 
-    private IShareIdManager getShareIdManager()
+    protected IShareIdManager getShareIdManager()
     {
         if (shareIdManager == null)
         {
@@ -748,4 +748,9 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return maximumBatchSizeInBytes;
     }
 
+    @Override
+    public List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
+    {
+        return dataSetCodes;
+    }
 }
