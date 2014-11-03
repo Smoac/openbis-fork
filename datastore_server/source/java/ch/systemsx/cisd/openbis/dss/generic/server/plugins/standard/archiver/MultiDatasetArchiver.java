@@ -353,7 +353,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         return dataSetInArchiveDB != null;
     }
 
-    public IMultiDataSetFileOperationsManager getFileOperations()
+    @Private IMultiDataSetFileOperationsManager getFileOperations()
     {
         if (fileOperations == null)
         {
