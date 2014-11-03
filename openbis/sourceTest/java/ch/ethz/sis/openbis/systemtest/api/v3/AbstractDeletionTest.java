@@ -16,8 +16,10 @@
 
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -55,7 +57,8 @@ public class AbstractDeletionTest extends AbstractTest
         creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, new ExperimentFetchOptions());
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, new ExperimentFetchOptions());
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         Assert.assertEquals(1, experiments.size());
         Assert.assertEquals("EXPERIMENT_TO_DELETE", experiments.get(0).getCode());
@@ -74,7 +77,8 @@ public class AbstractDeletionTest extends AbstractTest
         creation.setExperimentId(experimentId);
 
         List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
-        List<Sample> samples = v3api.listSamples(sessionToken, permIds, new SampleFetchOptions());
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, new SampleFetchOptions());
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Assert.assertEquals(1, samples.size());
         Assert.assertEquals("SAMPLE_TO_DELETE", samples.get(0).getCode());
@@ -95,8 +99,9 @@ public class AbstractDeletionTest extends AbstractTest
     private void assertExperimentExists(IExperimentId experimentId, boolean exists)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Experiment> result = v3api.listExperiments(sessionToken, Collections.singletonList(experimentId), new ExperimentFetchOptions());
-        Assert.assertEquals(exists ? 1 : 0, result.size());
+        Map<IExperimentId, Experiment> map =
+                v3api.mapExperiments(sessionToken, Collections.singletonList(experimentId), new ExperimentFetchOptions());
+        Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
     protected void assertSampleExists(ISampleId sampleId)
@@ -112,8 +117,8 @@ public class AbstractDeletionTest extends AbstractTest
     private void assertSampleExists(ISampleId sampleId, boolean exists)
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Sample> result = v3api.listSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
-        Assert.assertEquals(exists ? 1 : 0, result.size());
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Collections.singletonList(sampleId), new SampleFetchOptions());
+        Assert.assertEquals(exists ? 1 : 0, map.size());
     }
 
     protected void assertDataSetExists(DataSetPermId dataSetId)

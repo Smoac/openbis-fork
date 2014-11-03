@@ -17,13 +17,15 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -39,6 +41,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.Exp
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
@@ -209,7 +212,8 @@ public class CreateExperimentTest extends AbstractExperimentTest
         fetchOptions.fetchTags();
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         assertEquals(experiments.size(), 1);
 
@@ -241,7 +245,8 @@ public class CreateExperimentTest extends AbstractExperimentTest
         fetchOptions.fetchTags();
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         assertEquals(experiments.size(), 1);
 
@@ -345,7 +350,8 @@ public class CreateExperimentTest extends AbstractExperimentTest
         fetchOptions.fetchAttachments().fetchContent();
         fetchOptions.fetchTags();
 
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, permIds, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         assertEquals(experiments.size(), 1);
 
@@ -406,7 +412,8 @@ public class CreateExperimentTest extends AbstractExperimentTest
         experimentFetchOptions.fetchAttachments().fetchContent();
         experimentFetchOptions.fetchTags();
 
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, result, experimentFetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, result, experimentFetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         Assert.assertEquals(2, experiments.size());
 

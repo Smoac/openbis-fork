@@ -14,39 +14,30 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.collection;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.common;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 
 /**
  * @author pkupczyk
  */
-public abstract class AbstractCollectionTranslator
+public class SetTranslator extends AbstractCollectionTranslator
 {
 
-    public <I, O> Collection<O> translate(Collection<? extends I> collection, ITranslator<I, O> itemTranslator)
+    @Override
+    public <I, O> Set<O> translate(Collection<? extends I> collection, ITranslator<I, O> itemTranslator)
     {
-        if (collection == null)
-        {
-            return null;
-        }
-
-        Collection<O> result = createCollection();
-
-        for (I item : collection)
-        {
-            O translationResult = itemTranslator.translate(item);
-            if (translationResult != null)
-            {
-                result.add(translationResult);
-            }
-        }
-
-        return result;
+        return (Set<O>) super.translate(collection, itemTranslator);
     }
 
-    protected abstract <O> Collection<O> createCollection();
+    @Override
+    protected <O> Collection<O> createCollection()
+    {
+        return new HashSet<O>();
+    }
 
 }

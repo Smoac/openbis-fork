@@ -20,6 +20,7 @@ import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContain
 import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionSize;
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +79,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchExperiment();
         fetchOptions.fetchProperties();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         AssertionUtil.assertCollectionSize(samples, 1);
 
         Sample sample = samples.get(0);
@@ -108,7 +111,9 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchExperiment();
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 1);
 
@@ -190,7 +195,9 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchExperiment();
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 1);
 
@@ -217,7 +224,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 1);
 
@@ -255,7 +264,9 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchProperties();
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 1);
 
@@ -291,7 +302,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchContainer();
         fetchOptions.fetchContained();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 2);
 
@@ -351,7 +363,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchContainer();
         fetchOptions.fetchContained();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 5);
 
@@ -422,7 +435,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchParents();
         fetchOptions.fetchChildren();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 5);
 
@@ -493,7 +507,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchParents();
         fetchOptions.fetchChildren();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 5);
 
@@ -555,7 +570,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchTags();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertCollectionSize(samples, 2);
 
@@ -594,7 +610,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchExperiment();
         fetchOptions.fetchProperties();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         AssertionUtil.assertCollectionSize(samples, 1);
 
         Sample sample = samples.get(0);
@@ -626,7 +644,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         fetchOptions.fetchExperiment();
         fetchOptions.fetchProperties();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, ids, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         AssertionUtil.assertCollectionSize(samples, 1);
 
         Sample sample = samples.get(0);

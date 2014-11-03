@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
@@ -115,17 +116,18 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     }
 
     @Override
-    public List<Experiment> listExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
+    public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
+            ExperimentFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "list-experiments", "EXPERIMENT_IDS(%s) FETCH_OPTIONS(%s)", experimentIds, fetchOptions);
+        logAccess(sessionToken, "map-experiments", "EXPERIMENT_IDS(%s) FETCH_OPTIONS(%s)", experimentIds, fetchOptions);
         return null;
     }
 
     @Override
-    public List<Sample> listSamples(String sessionToken,
+    public Map<ISampleId, Sample> mapSamples(String sessionToken,
             List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions)
     {
-        logAccess(sessionToken, "list-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", sampleIds, fetchOptions);
+        logAccess(sessionToken, "map-samples", "SAMPLE_IDS(%s) FETCH_OPTIONS(%s)", sampleIds, fetchOptions);
         return null;
     }
 

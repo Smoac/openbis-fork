@@ -15,7 +15,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.Relations;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToManyRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ToOneRelation;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.collection.ListTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.ListTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.attachment.AttachmentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.person.PersonTranslator;
@@ -217,22 +217,10 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         }
 
         @Override
-        protected Collection<Experiment> getTranslatedCollection(Collection<ExperimentPE> originalCollection)
+        protected Map<ExperimentPE, Experiment> getTranslatedMap(Collection<ExperimentPE> originalCollection)
         {
             return new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
                     .fetchExperiment()).translate(originalCollection);
-        }
-
-        @Override
-        protected String getOriginalId(ExperimentPE original)
-        {
-            return original.getIdentifier();
-        }
-
-        @Override
-        protected String getTranslatedId(Experiment translated)
-        {
-            return translated.getIdentifier().getIdentifier();
         }
 
     }
@@ -270,22 +258,10 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         }
 
         @Override
-        protected Collection<Sample> getTranslatedCollection(Collection<SamplePE> originalCollection)
+        protected Map<SamplePE, Sample> getTranslatedMap(Collection<SamplePE> originalCollection)
         {
             return new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
                     .fetchParents()).translate(originalCollection);
-        }
-
-        @Override
-        protected String getOriginalId(SamplePE original)
-        {
-            return original.getIdentifier();
-        }
-
-        @Override
-        protected String getTranslatedId(Sample translated)
-        {
-            return translated.getIdentifier().getIdentifier();
         }
 
     }

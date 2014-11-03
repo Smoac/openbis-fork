@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3;
 
 import java.util.List;
+import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
@@ -98,14 +99,15 @@ public interface IApplicationServerApi extends IRpcService
     // - ServiceForDataStoreServer.listExperiments(List<ExperimentIdentifier>, ExperimentFetchOptions)
     // - GeneralInformationService.listExperiments(List<String> experimentIdentifiers)
 
-    public List<Experiment> listExperiments(String sessionToken, List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions);
+    public Map<IExperimentId, Experiment> mapExperiments(String sessionToken, List<? extends IExperimentId> experimentIds,
+            ExperimentFetchOptions fetchOptions);
 
     // REPLACES:
     // - ServiceForDataStoreServer.tryGetSampleWithExperiment(SampleIdentifier)
     // - ServiceForDataStoreServer.listSamplesByPermId(List<String>)
     // - ServiceForDataStoreServer.tryGetPropertiesOfSample(SampleIdentifier)
 
-    public List<Sample> listSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
+    public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds, SampleFetchOptions fetchOptions);
 
     // REPLACES:
     // - ServiceForDataStoreServer.listExperimentsForProjects(List<ProjectIdentifier>, ExperimentFetchOptions)

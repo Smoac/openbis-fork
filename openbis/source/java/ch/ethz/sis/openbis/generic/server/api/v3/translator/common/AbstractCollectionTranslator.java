@@ -14,30 +14,39 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.server.api.v3.translator.collection;
+package ch.ethz.sis.openbis.generic.server.api.v3.translator.common;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.ITranslator;
 
 /**
  * @author pkupczyk
  */
-public class ListTranslator extends AbstractCollectionTranslator
+public abstract class AbstractCollectionTranslator
 {
 
-    @Override
-    public <I, O> List<O> translate(Collection<? extends I> collection, ITranslator<I, O> itemTranslator)
+    public <I, O> Collection<O> translate(Collection<? extends I> collection, ITranslator<I, O> itemTranslator)
     {
-        return (List<O>) super.translate(collection, itemTranslator);
+        if (collection == null)
+        {
+            return null;
+        }
+
+        Collection<O> result = createCollection();
+
+        for (I item : collection)
+        {
+            O translationResult = itemTranslator.translate(item);
+            if (translationResult != null)
+            {
+                result.add(translationResult);
+            }
+        }
+
+        return result;
     }
 
-    @Override
-    protected <O> Collection<O> createCollection()
-    {
-        return new ArrayList<O>();
-    }
+    protected abstract <O> Collection<O> createCollection();
 
 }

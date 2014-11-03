@@ -19,8 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -50,20 +49,20 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     @Override
     protected O doTranslate(I object)
     {
-        Collection<O> translated = doTranslate(Collections.singleton(object));
+        Map<I, O> translated = doTranslate(Collections.singleton(object));
         if (translated.isEmpty())
         {
             return null;
         } else
         {
-            return translated.iterator().next();
+            return translated.get(object);
         }
     }
 
     @Override
-    protected Collection<O> doTranslate(Collection<I> inputs)
+    protected Map<I, O> doTranslate(Collection<I> inputs)
     {
-        List<O> translated = new LinkedList<O>();
+        Map<I, O> translated = new LinkedHashMap<I, O>();
         Map<I, O> updated = new HashMap<I, O>();
 
         for (I input : inputs)
@@ -92,7 +91,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     }
 
     @SuppressWarnings("unchecked")
-    private void handleAlreadyTranslatedInput(I input, List<O> translated, Map<I, O> updated)
+    private void handleAlreadyTranslatedInput(I input, Map<I, O> translated, Map<I, O> updated)
     {
         Long id = input.getId();
         O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), id);
@@ -112,7 +111,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
             if (getTranslationCache().isFetchedWithOptions(output, getFetchOptions()))
             {
-                translated.add(output);
+                translated.put(input, output);
             } else
             {
                 if (operationLog.isDebugEnabled())
@@ -122,12 +121,12 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
 
                 getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
                 updated.put(input, output);
-                translated.add(output);
+                translated.put(input, output);
             }
         }
     }
 
-    private void handleNewInput(I input, List<O> translated, Map<I, O> updated)
+    private void handleNewInput(I input, Map<I, O> translated, Map<I, O> updated)
     {
         Long id = input.getId();
         if (shouldTranslate(input))
@@ -142,7 +141,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
             getTranslationCache().putTranslatedObject(getClass().getName(), id, output);
             getTranslationCache().setFetchedWithOptions(output, getFetchOptions());
             updated.put(input, output);
-            translated.add(output);
+            translated.put(input, output);
 
             if (operationLog.isDebugEnabled())
             {

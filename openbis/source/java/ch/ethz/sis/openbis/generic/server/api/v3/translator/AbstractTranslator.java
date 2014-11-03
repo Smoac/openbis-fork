@@ -17,7 +17,8 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author pkupczyk
@@ -37,7 +38,7 @@ public abstract class AbstractTranslator<I, O> implements ITranslator<I, O>
     }
 
     @Override
-    public final Collection<O> translate(Collection<I> objects)
+    public final Map<I, O> translate(Collection<I> objects)
     {
         if (objects == null)
         {
@@ -47,18 +48,18 @@ public abstract class AbstractTranslator<I, O> implements ITranslator<I, O>
         return doTranslate(objects);
     }
 
-    protected Collection<O> doTranslate(Collection<I> objects)
+    protected Map<I, O> doTranslate(Collection<I> objects)
     {
-        Collection<O> translatedCollection = new LinkedList<O>();
+        Map<I, O> translatedMap = new LinkedHashMap<I, O>();
         for (I object : objects)
         {
             O translated = doTranslate(object);
             if (translated != null)
             {
-                translatedCollection.add(translated);
+                translatedMap.put(object, translated);
             }
         }
-        return translatedCollection;
+        return translatedMap;
     }
 
     protected abstract O doTranslate(I object);

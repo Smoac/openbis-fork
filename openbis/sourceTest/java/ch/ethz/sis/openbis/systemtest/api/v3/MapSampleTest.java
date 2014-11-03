@@ -20,9 +20,12 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -38,6 +41,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleF
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
@@ -45,16 +49,158 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 /**
  * @author pkupczyk
  */
-public class ListSampleTest extends AbstractSampleTest
+public class MapSampleTest extends AbstractSampleTest
 {
 
     @Test
-    public void testListSamplesWithoutFetchOptions()
+    public void testMapSamplesByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091219327-1025")),
+
+        SamplePermId permId1 = new SamplePermId("200902091219327-1025");
+        SamplePermId permId2 = new SamplePermId("201206191219327-1055");
+
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Arrays.asList(permId1, permId2),
                         new SampleFetchOptions());
+
+        assertEquals(2, map.size());
+
+        Iterator<Sample> iter = map.values().iterator();
+        assertEquals(iter.next().getPermId(), permId1);
+        assertEquals(iter.next().getPermId(), permId2);
+
+        assertEquals(map.get(permId1).getPermId(), permId1);
+        assertEquals(map.get(permId2).getPermId(), permId2);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapSamplesByIdentifier()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SampleIdentifier identifier3 = new SampleIdentifier("/CISD/3VCP8");
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(identifier1, identifier2, identifier3), new SampleFetchOptions());
+
+        assertEquals(3, map.size());
+
+        Iterator<Sample> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+        assertEquals(iter.next().getIdentifier(), identifier2);
+        assertEquals(iter.next().getIdentifier(), identifier3);
+
+        assertEquals(map.get(identifier1).getIdentifier(), identifier1);
+        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+        assertEquals(map.get(identifier3).getIdentifier(), identifier3);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapSamplesByNonexistentIds()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SampleIdentifier identifier3 = new SampleIdentifier("/NONEXISTENT_SPACE/CP-TEST-1");
+        SamplePermId permId1 = new SamplePermId("200902091250077-1026");
+        SamplePermId permId2 = new SamplePermId("NONEXISTENT_SAMPLE");
+        SampleIdentifier identifier4 = new SampleIdentifier("/CISD/NONEXISTENT_SAMPLE");
+        SampleIdentifier identifier5 = new SampleIdentifier("/CISD/3VCP8");
+        SamplePermId permId3 = new SamplePermId("200902091225616-1027");
+
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken,
+                        Arrays.asList(identifier1, identifier2, identifier3, permId1, permId2, identifier4, identifier5, permId3),
+                        new SampleFetchOptions());
+
+        assertEquals(5, map.size());
+
+        Iterator<Sample> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+        assertEquals(iter.next().getIdentifier(), identifier2);
+        assertEquals(iter.next().getPermId(), permId1);
+        assertEquals(iter.next().getIdentifier(), identifier5);
+        assertEquals(iter.next().getPermId(), permId3);
+
+        assertEquals(map.get(identifier1).getIdentifier(), identifier1);
+        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+        assertEquals(map.get(permId1).getPermId(), permId1);
+        assertEquals(map.get(identifier5).getIdentifier(), identifier5);
+        assertEquals(map.get(permId3).getPermId(), permId3);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapSamplesByDifferentIds()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
+        SamplePermId permId = new SamplePermId("200902091250077-1026");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Arrays.asList(identifier1, permId, identifier2), new SampleFetchOptions());
+
+        assertEquals(3, map.size());
+
+        Iterator<Sample> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+        assertEquals(iter.next().getPermId(), permId);
+        assertEquals(iter.next().getIdentifier(), identifier2);
+
+        assertEquals(map.get(identifier1).getIdentifier(), identifier1);
+        assertEquals(map.get(permId).getPermId(), permId);
+        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapSamplesByDuplicatedIds()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        // "/CISD/CP-TEST-1" and "200902091219327-1025" is the same sample
+        SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
+        SamplePermId permId1 = new SamplePermId("200902091219327-1025");
+        SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
+        SamplePermId permId2 = new SamplePermId("200902091219327-1025");
+
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Arrays.asList(identifier1, permId1, identifier2, permId2), new SampleFetchOptions());
+
+        assertEquals(3, map.size());
+
+        Iterator<Sample> iter = map.values().iterator();
+        assertEquals(iter.next().getIdentifier(), identifier1);
+        assertEquals(iter.next().getPermId(), permId1);
+        assertEquals(iter.next().getIdentifier(), identifier2);
+
+        assertEquals(map.get(identifier1).getIdentifier(), identifier1);
+        assertEquals(map.get(permId1).getPermId(), permId1);
+        assertEquals(map.get(identifier2).getIdentifier(), identifier2);
+
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapSamplesWithoutFetchOptions()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091219327-1025")),
+                        new SampleFetchOptions());
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
@@ -75,7 +221,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithModifier()
+    public void testMapSamplesWithModifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -89,9 +235,11 @@ public class ListSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchModifier().fetchRegistrator();
         fetchOptions.fetchRegistrator();
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, newSamplePermIds,
+
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, newSamplePermIds,
                         fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertEquals(1, samples.size());
 
@@ -115,16 +263,17 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSampleWithTags()
+    public void testMapSampleWithTags()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         TagFetchOptions tagfe = fetchOptions.fetchTags();
         tagfe.fetchOwner();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("201206191219327-1055")),
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("201206191219327-1055")),
                         fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertEquals(1, samples.size());
 
@@ -151,14 +300,16 @@ public class ListSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-    public void testListSamplesWithSpace()
+    public void testMapSamplesWithSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchSpace();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091219327-1025")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091219327-1025")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         Sample sample = samples.get(0);
         assertEquals(sample.getSpace().getCode(), "CISD");
         assertExperimentNotFetched(sample);
@@ -169,7 +320,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithParentsAndProperties()
+    public void testMapSamplesWithParentsAndProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -177,8 +328,10 @@ public class ListSampleTest extends AbstractSampleTest
         // fetch parents and their properties
         fetchOptions.fetchParents().fetchProperties();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-982")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-982")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
@@ -202,7 +355,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithParents()
+    public void testMapSamplesWithParents()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -244,7 +397,8 @@ public class ListSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds =
                 v3api.createSamples(sessionToken,
                         Arrays.asList(sampleCreation, parent1Creation, parent2Creation, grandparent1Creation, grandparent2Creation));
-        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Sample sample = samples.get(0);
         Sample parent1 = samples.get(1);
@@ -269,7 +423,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithChildren()
+    public void testMapSamplesWithChildren()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -277,8 +431,10 @@ public class ListSampleTest extends AbstractSampleTest
         // fetch parents and their properties
         fetchOptions.fetchChildren();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050929940-1019")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050929940-1019")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
@@ -300,7 +456,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithContainer()
+    public void testMapSamplesWithContainer()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -309,8 +465,10 @@ public class ListSampleTest extends AbstractSampleTest
         fetchOptions.fetchContained().fetchContainer();
         fetchOptions.fetchProperties();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050919915-8")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050919915-8")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
@@ -341,7 +499,7 @@ public class ListSampleTest extends AbstractSampleTest
      * Test that translation can handle reference loops
      */
     @Test
-    public void testListSamplesWithContainerLoop()
+    public void testMapSamplesWithContainerLoop()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -350,8 +508,10 @@ public class ListSampleTest extends AbstractSampleTest
         fetchOptions.fetchContained().fetchContainer(fetchOptions);
         fetchOptions.fetchProperties();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050919915-8")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050919915-8")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
@@ -381,16 +541,18 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithExperiment()
+    public void testMapSamplesWithExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         fetchOptions.fetchExperiment();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), new SampleIdentifier("/CISD/RP1-B1X"),
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), new SampleIdentifier("/CISD/RP1-B1X"),
                         new SampleIdentifier("/CISD/RP2-A1X")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(samples.size(), 3);
 
         Sample sample1 = samples.get(0);
@@ -411,7 +573,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithMultipleFetchOptions()
+    public void testMapSamplesWithMultipleFetchOptions()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -420,8 +582,10 @@ public class ListSampleTest extends AbstractSampleTest
         fetchOptions.fetchContained().fetchContainer().fetchExperiment();
         fetchOptions.fetchProperties();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091250077-1050")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091250077-1050")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(1, samples.size());
 
         Sample sample = samples.get(0);
@@ -440,7 +604,7 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithType()
+    public void testMapSamplesWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -448,8 +612,10 @@ public class ListSampleTest extends AbstractSampleTest
         // fetch parents and their properties
         fetchOptions.fetchSampleType();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-979")), fetchOptions);
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-979")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
         assertEquals(samples.size(), 1);
 
         Sample sample = samples.get(0);
@@ -472,23 +638,25 @@ public class ListSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testListSamplesWithUnauthorizedSpace()
+    public void testMapSamplesWithUnauthorizedSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        List<Sample> samples = v3api.listSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertEquals(samples.size(), 1);
         v3api.logout(sessionToken);
 
         sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-        samples = v3api.listSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+        map = v3api.mapSamples(sessionToken, Arrays.asList(new SampleIdentifier("/CISD/CP-TEST-1")), new SampleFetchOptions());
+        samples = new ArrayList<Sample>(map.values());
 
         assertEquals(samples.size(), 0);
         v3api.logout(sessionToken);
     }
 
     @Test
-    public void testListSamplesOrder()
+    public void testMapSamplesOrder()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -496,13 +664,14 @@ public class ListSampleTest extends AbstractSampleTest
         // fetch parents and their properties
         fetchOptions.fetchSampleType();
 
-        List<Sample> samples =
-                v3api.listSamples(sessionToken,
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken,
                         Arrays.asList(
                                 new SamplePermId("200811050946559-979"),
                                 new SampleIdentifier("/CISD/MP002-1"),
                                 new SamplePermId("200811050919915-8")
                                 ), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         assertEquals(samples.get(0).getPermId(), new SamplePermId("200811050946559-979"));
         assertEquals(samples.get(1).getIdentifier(), new SampleIdentifier("/CISD/MP002-1"));

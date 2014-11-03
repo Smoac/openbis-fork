@@ -19,11 +19,13 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -100,7 +102,8 @@ public class CreateSampleTest extends AbstractSampleTest
         fetchOptions.fetchContained();
         fetchOptions.fetchContainer();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Sample container = samples.get(0);
         Sample subSample = samples.get(1);
@@ -147,7 +150,8 @@ public class CreateSampleTest extends AbstractSampleTest
         fetchOptions.fetchChildren(fetchOptions);
         fetchOptions.fetchParents(fetchOptions);
 
-        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Sample parent = samples.get(0);
         Sample child = samples.get(1);
@@ -210,8 +214,8 @@ public class CreateSampleTest extends AbstractSampleTest
         fetchOptions.fetchTags();
         fetchOptions.fetchParents();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds,
-                fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         Sample sampleWithSpace1 = samples.get(0);
         assertEquals(sampleWithSpace1.getCode(), "SAMPLE_WITH_SPACE1");
@@ -255,7 +259,10 @@ public class CreateSampleTest extends AbstractSampleTest
         SampleFetchOptions onlyParentsAndChildren = new SampleFetchOptions();
         onlyParentsAndChildren.fetchParents();
         onlyParentsAndChildren.fetchChildren();
-        samples = v3api.listSamples(sessionToken, sample2Parents, onlyParentsAndChildren);
+
+        map = v3api.mapSamples(sessionToken, sample2Parents, onlyParentsAndChildren);
+        samples = new ArrayList<Sample>(map.values());
+
         for (Sample sample : samples)
         {
             AssertionUtil.assertCollectionContainsString(sample.getParents(), sampleWithoutSpace.getPermId().getPermId());
@@ -408,7 +415,8 @@ public class CreateSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchContainer();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 2);
 
@@ -433,7 +441,8 @@ public class CreateSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
         fetchOptions.fetchContainer();
 
-        List<Sample> samples = v3api.listSamples(sessionToken, sampleIds, fetchOptions);
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
 
         AssertionUtil.assertCollectionSize(samples, 2);
 

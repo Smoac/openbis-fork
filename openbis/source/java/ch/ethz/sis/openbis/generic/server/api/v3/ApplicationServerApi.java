@@ -19,6 +19,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -32,13 +33,15 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletion
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IRevertDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExperimentExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IListExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IListSampleByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.DeletionTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
@@ -111,7 +114,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IRelationshipService relationshipService;
 
     @Autowired
-    private IListExperimentByIdExecutor listExperimentByIdExecutor;
+    private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
     private ICreateExperimentExecutor createExperimentExecutor;
@@ -123,7 +126,7 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IDeleteExperimentExecutor deleteExperimentExecutor;
 
     @Autowired
-    private IListSampleByIdExecutor listSampleByIdExecutor;
+    private IMapSampleByIdExecutor mapSampleByIdExecutor;
 
     @Autowired
     private ICreateSampleExecutor createSampleExecutor;
@@ -287,40 +290,33 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Experiment> listExperiments(String sessionToken,
+    public Map<IExperimentId, Experiment> mapExperiments(String sessionToken,
             List<? extends IExperimentId> experimentIds, ExperimentFetchOptions fetchOptions)
     {
-        if (experimentIds == null)
-        {
-            throw new IllegalArgumentException("Experiment ids cannot be null");
-        }
-        if (fetchOptions == null)
-        {
-            throw new IllegalArgumentException("Fetch options cannot be null");
-        }
-
         Session session = getSession(sessionToken);
         OperationContext context = new OperationContext(session);
 
-        List<ExperimentPE> experiments = listExperimentByIdExecutor.list(context, experimentIds);
+        Map<IExperimentId, ExperimentPE> map = mapExperimentByIdExecutor.map(context, experimentIds);
 
-        return new ArrayList<Experiment>(
-                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments));
+        return new MapTranslator<IExperimentId, IExperimentId, ExperimentPE, Experiment>().translate(map, new IdentityTranslator<IExperimentId>(),
+                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
+                        fetchOptions));
     }
 
     @Override
     @Transactional(readOnly = true)
     @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
-    public List<Sample> listSamples(String sessionToken, List<? extends ISampleId> sampleIds,
+    public Map<ISampleId, Sample> mapSamples(String sessionToken, List<? extends ISampleId> sampleIds,
             SampleFetchOptions fetchOptions)
     {
         Session session = getSession(sessionToken);
         OperationContext context = new OperationContext(session);
 
-        List<SamplePE> samples = listSampleByIdExecutor.list(context, sampleIds);
+        Map<ISampleId, SamplePE> map = mapSampleByIdExecutor.map(context, sampleIds);
 
-        return new ArrayList<Sample>(
-                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
+        return new MapTranslator<ISampleId, ISampleId, SamplePE, Sample>().translate(map, new IdentityTranslator<ISampleId>(),
+                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory,
+                        fetchOptions));
     }
 
     @Override
@@ -344,8 +340,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(experimentIds);
 
-        return new ArrayList<Experiment>(
-                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments));
+        Map<ExperimentPE, Experiment> translatedMap =
+                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments);
+        return new ArrayList<Experiment>(translatedMap.values());
     }
 
     @Override
@@ -368,8 +365,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
         List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(sampleIds);
 
-        return new ArrayList<Sample>(
-                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples));
+        Map<SamplePE, Sample> translatedMap =
+                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples);
+        return new ArrayList<Sample>(translatedMap.values());
     }
 
     @Override
@@ -430,8 +428,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         {
             List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = listDeletionExecutor.list(context, fetchOptions);
 
-            return new ArrayList<Deletion>(
-                    new DeletionTranslator(new TranslationContext(session), fetchOptions, getDAOFactory()).translate(deletions));
+            Map<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion, Deletion> translatedMap =
+                    new DeletionTranslator(new TranslationContext(session), fetchOptions, getDAOFactory()).translate(deletions);
+            return new ArrayList<Deletion>(translatedMap.values());
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

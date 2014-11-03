@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,40 +42,25 @@ public abstract class ToManyRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> im
     private Map<OWNER, Collection<TRANSLATED>> getTranslatedMap()
     {
         Map<OWNER, Collection<ORIGINAL>> ownerToOriginalCollectionMap = getOriginalMap();
-        Map<RELATED_ID, ORIGINAL> originalIdToOriginalMap = new HashMap<RELATED_ID, ORIGINAL>();
+        Set<ORIGINAL> originalSet = new HashSet<ORIGINAL>();
 
-        // get all original objects without duplicates (duplicates are identified by the same ids)
-
-        for (Collection<ORIGINAL> originalCollection : ownerToOriginalCollectionMap.values())
+        for (Map.Entry<OWNER, Collection<ORIGINAL>> entry : ownerToOriginalCollectionMap.entrySet())
         {
-            if (originalCollection != null)
+            if (entry.getValue() != null)
             {
-                for (ORIGINAL original : originalCollection)
+                for (ORIGINAL original : entry.getValue())
                 {
                     if (original != null)
                     {
-                        RELATED_ID originalId = getOriginalId(original);
-                        if (false == originalIdToOriginalMap.containsKey(originalId))
-                        {
-                            originalIdToOriginalMap.put(originalId, original);
-                        }
+                        originalSet.add(original);
                     }
                 }
             }
         }
 
-        // translate the original objects
-
-        Map<RELATED_ID, TRANSLATED> translatedIdToTranslatedMap = new HashMap<RELATED_ID, TRANSLATED>();
-        for (TRANSLATED translated : getTranslatedCollection(originalIdToOriginalMap.values()))
-        {
-            RELATED_ID translatedId = getTranslatedId(translated);
-            translatedIdToTranslatedMap.put(translatedId, translated);
-        }
-
-        // create a map from an owner to a translated objects collection
-
+        Map<ORIGINAL, TRANSLATED> originalToTranslatedMap = getTranslatedMap(originalSet);
         Map<OWNER, Collection<TRANSLATED>> result = new HashMap<OWNER, Collection<TRANSLATED>>();
+
         for (Map.Entry<OWNER, Collection<ORIGINAL>> ownerToOriginalCollectionEntry : ownerToOriginalCollectionMap.entrySet())
         {
             OWNER owner = ownerToOriginalCollectionEntry.getKey();
@@ -99,9 +85,11 @@ public abstract class ToManyRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> im
                 {
                     if (original != null)
                     {
-                        RELATED_ID originalId = getOriginalId(original);
-                        TRANSLATED translated = translatedIdToTranslatedMap.get(originalId);
-                        translatedCollection.add(translated);
+                        TRANSLATED translated = originalToTranslatedMap.get(original);
+                        if (translated != null)
+                        {
+                            translatedCollection.add(translated);
+                        }
                     } else
                     {
                         translatedCollection.add(null);
@@ -130,10 +118,6 @@ public abstract class ToManyRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> im
 
     protected abstract Map<OWNER, Collection<ORIGINAL>> getOriginalMap();
 
-    protected abstract Collection<TRANSLATED> getTranslatedCollection(Collection<ORIGINAL> originalCollection);
-
-    protected abstract RELATED_ID getOriginalId(ORIGINAL original);
-
-    protected abstract RELATED_ID getTranslatedId(TRANSLATED translated);
+    protected abstract Map<ORIGINAL, TRANSLATED> getTranslatedMap(Collection<ORIGINAL> originalCollection);
 
 }

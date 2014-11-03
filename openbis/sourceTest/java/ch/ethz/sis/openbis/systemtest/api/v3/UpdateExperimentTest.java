@@ -18,8 +18,10 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
@@ -63,7 +65,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, ids, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         AssertionUtil.assertCollectionSize(experiments, 1);
 
@@ -178,7 +181,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchProperties();
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, ids, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         AssertionUtil.assertCollectionSize(experiments, 1);
 
@@ -209,7 +213,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
         fetchOptions.fetchTags();
-        List<Experiment> experiments = v3api.listExperiments(sessionToken, ids, fetchOptions);
+        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
+        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
         AssertionUtil.assertCollectionSize(experiments, 1);
 
