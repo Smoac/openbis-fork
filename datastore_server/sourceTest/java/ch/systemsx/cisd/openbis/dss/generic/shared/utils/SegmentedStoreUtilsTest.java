@@ -132,15 +132,36 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testFreeSpaceForAShareWhichIsNotAnUnarchivingScratchShare()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_KB);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+
+        try
+        {
+            SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1), dataSetDirectoryProvider,
+                    shareIdManager, log);
+            fail("EnvironmentFailureException expected.");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Share '1' isn't an unarchving scratch share. Such a share has the property "
+                    + "unarchiving-scratch-share of the file share.properties set to 'true'.", ex.getMessage());
+        }
+
+        assertEquals("", log.toString());
+    }
+    
+    @Test
     public void testFreeSpaceNothingToDo()
     {
         SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_KB);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
         RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L);
-
+        
         SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1), dataSetDirectoryProvider,
                 shareIdManager, log);
-
+        
         assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
         assertEquals("INFO: Free space on unarchiving scratch share '1': 12.00 KB, "
                 + "requested space for unarchiving 1 data sets: 11.00 KB\n", log.toString());
@@ -155,6 +176,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_KB);
         SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_KB);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
         share.addDataSet(ds5);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
@@ -190,6 +212,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_KB);
         SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_KB);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
         share.addDataSet(ds5);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
@@ -225,6 +248,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_KB);
         SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_KB);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
         share.addDataSet(ds3);
         share.addDataSet(ds2);
         share.addDataSet(ds1);
@@ -522,6 +546,79 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 shareIdManager, checksumProvider, log);
 
         fail();
+    }
+    
+    @Test
+    public void testMoveDataSetToAnotherShareWhichIsAnUnarchivingScratchShare()
+    {
+        File share1 = new File(workingDirectory, "store/1");
+        File share1uuid01 = new File(share1, "uuid/01");
+        File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
+        File original = new File(dataSetDirInStore, "original");
+        original.mkdirs();
+        final File helloFile = new File(original, "hello.txt");
+        FileUtilities.writeToFile(helloFile, "hello world");
+        File share2 = new File(workingDirectory, "store/2");
+        share2.mkdirs();
+        FileUtilities.writeToFile(new File(share2, ShareFactory.SHARE_PROPS_FILE), 
+                ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + "=true");
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet("ds-1");
+                    will(returnValue(new PhysicalDataSet()));
+
+                    one(shareIdManager).lock("ds-1");
+                    one(shareIdManager).releaseLock("ds-1");
+                }
+            });
+        
+        try
+        {
+            SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
+                    shareIdManager, checksumProvider, log);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Share '2' is a scratch share for unarchiving purposes. "
+                    + "No data sets can be moved from/to such a share.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testMoveDataSetFromAnUnarchivingScratchShareToAnotherShare()
+    {
+        File share1 = new File(workingDirectory, "store/1");
+        File share1uuid01 = new File(share1, "uuid/01");
+        File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
+        File original = new File(dataSetDirInStore, "original");
+        original.mkdirs();
+        FileUtilities.writeToFile(new File(share1, ShareFactory.SHARE_PROPS_FILE), 
+                ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + "=true");
+        final File helloFile = new File(original, "hello.txt");
+        FileUtilities.writeToFile(helloFile, "hello world");
+        File share2 = new File(workingDirectory, "store/2");
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet("ds-1");
+                    will(returnValue(new PhysicalDataSet()));
+
+                    one(shareIdManager).lock("ds-1");
+                    one(shareIdManager).releaseLock("ds-1");
+                }
+            });
+
+        try
+        {
+            SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
+                    shareIdManager, checksumProvider, log);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Share '1' is a scratch share for unarchiving purposes. "
+                    + "No data sets can be moved from/to such a share.", ex.getMessage());
+        }
     }
 
     @Test

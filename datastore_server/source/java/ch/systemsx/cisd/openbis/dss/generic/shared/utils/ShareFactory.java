@@ -48,7 +48,6 @@ public class ShareFactory
     @Private
     static final String SPEED_FILE = "speed";
 
-    @Private
     public static final String SHARE_PROPS_FILE = "share.properties";
 
     @Private
@@ -60,6 +59,8 @@ public class ShareFactory
     public static final String WITHDRAW_SHARE_PROP = "withdraw-share";
     
     public static final String IGNORED_FOR_SHUFFLING_PROP = "ignored-for-shuffling";
+    
+    public static final String UNARCHIVING_SCRATCH_SHARE_PROP = "unarchiving-scratch-share";
 
     public static final String EXPERIMENTS_PROP = "experiments";
 
@@ -71,6 +72,8 @@ public class ShareFactory
 
     private boolean ignoredForShuffling;
     
+    private boolean unarchivingScratchShare;
+    
     private Set<String> experimentIdentifiers = Collections.emptySet();
 
     Share createShare(final SharesHolder sharesHolder, File shareRoot,
@@ -81,6 +84,7 @@ public class ShareFactory
         Share share = new Share(sharesHolder, shareRoot, speed, freeSpaceProvider);
         share.setShufflePriority(shufflePriority);
         share.setWithdrawShare(withdrawShare);
+        share.setUnarchivingScratchShare(unarchivingScratchShare);
         share.setIgnoredForShuffling(ignoredForShuffling);
         share.setExperimentIdentifiers(experimentIdentifiers);
         return share;
@@ -99,20 +103,7 @@ public class ShareFactory
         File propsFile = new File(shareRoot, SHARE_PROPS_FILE);
         if (propsFile.isFile())
         {
-            Properties props = new Properties();
-            FileInputStream fis = null;
-            try
-            {
-                fis = new FileInputStream(propsFile);
-                props.load(fis);
-            } catch (IOException ioex)
-            {
-                log.log(LogLevel.WARN, "Error while reading from " + propsFile.getAbsolutePath()
-                        + " : " + ioex.getMessage());
-            } finally
-            {
-                IOUtils.closeQuietly(fis);
-            }
+            Properties props = loadShareProperties(propsFile, log);
 
             if (props.containsKey(SPEED_HINT_PROP))
             {
@@ -148,11 +139,31 @@ public class ShareFactory
 
             withdrawShare = PropertyUtils.getBoolean(props, WITHDRAW_SHARE_PROP, false);
             ignoredForShuffling = PropertyUtils.getBoolean(props, IGNORED_FOR_SHUFFLING_PROP, false);
+            unarchivingScratchShare = PropertyUtils.getBoolean(props, UNARCHIVING_SCRATCH_SHARE_PROP, false);
             experimentIdentifiers =
                     new HashSet<String>(Arrays.asList(PropertyParametersUtil.parseItemisedProperty(
                             props.getProperty(EXPERIMENTS_PROP, ""), EXPERIMENTS_PROP)));
         }
 
+    }
+
+    private Properties loadShareProperties(File propsFile, ISimpleLogger log)
+    {
+        Properties props = new Properties();
+        FileInputStream fis = null;
+        try
+        {
+            fis = new FileInputStream(propsFile);
+            props.load(fis);
+        } catch (IOException ioex)
+        {
+            log.log(LogLevel.WARN, "Error while reading from " + propsFile.getAbsolutePath()
+                    + " : " + ioex.getMessage());
+        } finally
+        {
+            IOUtils.closeQuietly(fis);
+        }
+        return props;
     }
 
     private void readSpeedFile(File shareRoot, ISimpleLogger log)

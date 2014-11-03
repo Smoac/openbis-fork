@@ -230,6 +230,13 @@ public class SegmentedStoreUtils
             List<DatasetDescription> dataSets, IDataSetDirectoryProvider dataSetDirectoryProvider, 
             IShareIdManager shareIdManager, ISimpleLogger logger)
     {
+        if (unarchivingScratchShare.isUnarchivingScratchShare() == false)
+        {
+            throw new EnvironmentFailureException("Share '" + unarchivingScratchShare.getShareId() 
+                    + "' isn't an unarchving scratch share. Such a share has the property " 
+                    + ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + " of the file " 
+                    + ShareFactory.SHARE_PROPS_FILE + " set to 'true'.");
+        }
         List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>(dataSets);
         List<SimpleDataSetInformationDTO> filteredDataSetsInShare 
                 = new ArrayList<SimpleDataSetInformationDTO>(unarchivingScratchShare.getDataSetsOrderedBySize());
@@ -403,6 +410,8 @@ public class SegmentedStoreUtils
             {
                 return;
             }
+            assertNoUnarchivingScratchShare(oldShare, logger);
+            assertNoUnarchivingScratchShare(share, logger);
             File dataSetDirInNewShare = new File(share, relativePath);
             dataSetDirInNewShare.mkdirs();
             copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
@@ -419,6 +428,16 @@ public class SegmentedStoreUtils
             shareIdManager.releaseLock(dataSetCode);
         }
         deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
+    }
+    
+    private static void assertNoUnarchivingScratchShare(File share, ISimpleLogger logger)
+    {
+        if (new ShareFactory().createShare(share, null, logger).isUnarchivingScratchShare())
+        {
+            throw new EnvironmentFailureException("Share '" + share.getName() 
+                    + "' is a scratch share for unarchiving purposes. "
+                    + "No data sets can be moved from/to such a share.");
+        }
     }
 
     /**
