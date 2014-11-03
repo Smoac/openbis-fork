@@ -42,6 +42,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String dataSetLocation;
 
     private Date registrationTimestamp;
+    
+    private Date modificationTimestamp;
 
     private Long dataSetSize;
 
@@ -134,6 +136,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setRegistrationTimestamp(Date registrationTimestamp)
     {
         this.registrationTimestamp = registrationTimestamp;
+    }
+
+    public Date getModificationTimestamp()
+    {
+        return modificationTimestamp;
+    }
+
+    public void setModificationTimestamp(Date modificationTimestamp)
+    {
+        this.modificationTimestamp = modificationTimestamp;
     }
 
     public int getSpeedHint()

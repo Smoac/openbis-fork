@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -48,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ProxyShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -84,6 +86,10 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
     private File store;
 
+    private int modificationTimestamp;
+
+    private File shareFolder;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -106,6 +112,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         log = new MockLogger();
         store = new File(workingDirectory, "store");
         store.mkdirs();
+        shareFolder = new File(store, "1");
         new File(store, "blabla").mkdirs();
         new File(store, "error").mkdirs();
     }
@@ -121,6 +128,85 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             // assert expectations were met, including the name of the failed method
             throw new Error(method.getName() + "() : ", t);
         }
+    }
+
+    @Test
+    public void testFreeSpace()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_KB);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_KB);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.addDataSet(ds5);
+        share.addDataSet(ds3);
+        share.addDataSet(ds1);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L);
+        prepareSetArchingStatus(ds1);
+        File file = prepareDeleteFromShare(ds1);
+        assertEquals(true, file.exists());
+
+        SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds2, ds4), dataSetDirectoryProvider,
+                shareIdManager, log);
+
+        assertEquals(false, file.exists());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
+        assertEquals("INFO: Remove the following data sets from share '1' and set their archiving status "
+                + "back to ARCHIVED: [ds-1]\n"
+                + "INFO: Await for data set ds-1 to be unlocked.\n"
+                + "INFO: Start deleting data set ds-1 at " + shareFolder + "/abc/ds-1\n"
+                + "INFO: Data set ds-1 at " + shareFolder + "/abc/ds-1 has been successfully deleted.\n"
+                + "INFO: The following data sets have been successfully removed from share '1' "
+                + "and their archiving status has been successfully set back to ARCHIVED: [ds-1]\n", log.toString());
+    }
+
+    private File prepareDeleteFromShare(final SimpleDataSetInformationDTO dataSet)
+    {
+        final File file = new File(shareFolder, dataSet.getDataSetLocation());
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).await(dataSet.getDataSetCode());
+                    one(dataSetDirectoryProvider).getDataSetDirectory(dataSet);
+                    will(returnValue(file));
+                }
+            });
+        return file;
+    }
+
+    private void prepareSetArchingStatus(final SimpleDataSetInformationDTO... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<String> dataSetCodes = new ArrayList<String>();
+                    for (SimpleDataSetInformationDTO dataSet : dataSets)
+                    {
+                        dataSetCodes.add(dataSet.getDataSetCode());
+                    }
+                    one(service).archiveDataSets(dataSetCodes, false);
+                }
+            });
+    }
+
+    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long freeSpace)
+    {
+        final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        one(freeSpaceProvider).freeSpaceKb(with(recorder));
+                        will(returnValue(freeSpace));
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        return recorder;
     }
 
     @Test
@@ -482,13 +568,13 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share1.mkdirs();
         FileUtilities.writeToFile(new File(share1, "share.properties"),
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
-        
+
         String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
-        
+
         assertEquals("1", share);
         assertEquals("", log.toString());
     }
-    
+
     @Test
     public void testGetSharesFilterOutIgnoredForShuffling()
     {
@@ -498,15 +584,15 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
         File share2 = new File(store, "2");
         share2.mkdirs();
-        
+
         List<Share> shares =
                 SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
                         freeSpaceProvider, service, log, timeProvider);
-        
+
         assertEquals("2", shares.get(0).getShareId());
         assertEquals(1, shares.size());
     }
-    
+
     @Test
     public void testGetAllShares()
     {
@@ -516,11 +602,11 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
         File share2 = new File(store, "2");
         share2.mkdirs();
-        
+
         List<Share> shares =
                 SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, false,
                         freeSpaceProvider, service, log, timeProvider);
-        
+
         assertEquals("1", shares.get(0).getShareId());
         assertEquals("2", shares.get(1).getShareId());
         assertEquals(2, shares.size());
@@ -551,6 +637,27 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(Arrays.asList(names).toString(), actualNames.toString());
     }
 
+    private List<DatasetDescription> asDatasetDescriptions(SimpleDataSetInformationDTO... dataSets)
+    {
+        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            DatasetDescription datasetDescription = new DatasetDescription();
+            datasetDescription.setDataSetCode(dataSet.getDataSetCode());
+            datasetDescription.setDataSetSize(dataSet.getDataSetSize());
+            result.add(datasetDescription);
+        }
+        return result;
+    }
+
+    private SimpleDataSetInformationDTO dataSet(int id, long size)
+    {
+        File dsFile = new File(shareFolder, "abc/ds-" + id);
+        dsFile.mkdirs();
+        FileUtilities.writeToFile(new File(dsFile, "read.me"), id + " nice works!");
+        return dataSet(dsFile, DATA_STORE_CODE, size);
+    }
+
     private SimpleDataSetInformationDTO dataSet(File dataSetFile, String dataStoreCode, Long size)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
@@ -561,6 +668,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         dataSet.setDataSetShareId(path.substring(0, indexOfFirstSeparator));
         dataSet.setDataSetLocation(path.substring(indexOfFirstSeparator + 1));
         dataSet.setDataSetSize(size);
+        dataSet.setModificationTimestamp(new Date(modificationTimestamp += 10000));
         return dataSet;
     }
 

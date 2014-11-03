@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.apache.commons.io.FileUtils;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -53,6 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
@@ -81,6 +84,15 @@ public class SegmentedStoreUtils
             public int compare(Share o1, Share o2)
             {
                 return o1.getShareId().compareTo(o2.getShareId());
+            }
+        };
+
+    private static final Comparator<SimpleDataSetInformationDTO> MODIFICATION_TIMESTAMP_COMPARATOR = new Comparator<SimpleDataSetInformationDTO>()
+        {
+            @Override
+            public int compare(SimpleDataSetInformationDTO d1, SimpleDataSetInformationDTO d2)
+            {
+                return d1.getModificationTimestamp().compareTo(d2.getModificationTimestamp());
             }
         };
 
@@ -203,6 +215,107 @@ public class SegmentedStoreUtils
                 String.format("Obtained the list of all datasets in all shares in %.2f s.",
                         (System.currentTimeMillis() - start) / 1000.0));
         return shares;
+    }
+    
+    /**
+     * Frees space in specified share for unarchived data sets. This method assumes that the size of 
+     * all specified data sets are known by the {@link DatasetDescription} objects. Data sets with oldest
+     * modification date are removed first. The archiving status of these data sets are set back to ARCHIVED.
+     * 
+     * @param dataSets The data sets which should be kept (if already in the specified share). In addition
+     *                  they specify the amount spaced to be freed. 
+     */
+    public static void freeSpace(Share unarchivingScratchShare, IEncapsulatedOpenBISService service, 
+            List<DatasetDescription> dataSets, IDataSetDirectoryProvider dataSetDirectoryProvider, 
+            IShareIdManager shareIdManager, ISimpleLogger logger)
+    {
+        long requestedSpace = calculateTotalSizeOfDataSetsToKeep(dataSets);
+        long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
+        if (actualFreeSpace > requestedSpace)
+        {
+            return;
+        }
+        List<SimpleDataSetInformationDTO> dataSetsInShare = listRemovableDataSets(unarchivingScratchShare, dataSets);
+        Collections.sort(dataSetsInShare, MODIFICATION_TIMESTAMP_COMPARATOR);
+        List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
+                listDataSetsToRemoveFromShare(dataSetsInShare, requestedSpace, actualFreeSpace,
+                        unarchivingScratchShare, logger);
+        service.archiveDataSets(extractCodes(dataSetsToRemoveFromShare), false);
+        for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
+        {
+            deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
+        }
+        logger.log(LogLevel.INFO, "The following data sets have been successfully removed from share '"
+                + unarchivingScratchShare.getShareId() + "' and their archiving status has been successfully "
+                + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
+    }
+
+    private static long calculateTotalSizeOfDataSetsToKeep(List<DatasetDescription> dataSets)
+    {
+        long size = 0;
+        for (DatasetDescription dataSet : dataSets)
+        {
+            Long dataSetSize = dataSet.getDataSetSize();
+            if (dataSetSize == null)
+            {
+                throw new IllegalArgumentException("Unknown size of data set '" + dataSet.getDataSetCode() + "'.");
+            }
+            size += dataSetSize;
+        }
+        return size;
+    }
+    
+    private static List<SimpleDataSetInformationDTO> listRemovableDataSets(Share share, 
+            List<DatasetDescription> dataSets)
+    {
+        Set<String> dataSetsToBeKept = new HashSet<String>();
+        for (DatasetDescription dataSet : dataSets)
+        {
+            dataSetsToBeKept.add(dataSet.getDataSetCode());
+        }
+        List<SimpleDataSetInformationDTO> dataSetsInShare = new ArrayList<SimpleDataSetInformationDTO>();
+        for (SimpleDataSetInformationDTO dataSetInShare : share.getDataSetsOrderedBySize())
+        {
+            if (dataSetsToBeKept.contains(dataSetInShare.getDataStoreCode()) == false)
+            {
+                dataSetsInShare.add(dataSetInShare);
+            }
+        }
+        return dataSetsInShare;
+    }
+    
+    private static List<String> extractCodes(List<SimpleDataSetInformationDTO> dataSets)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            codes.add(dataSet.getDataSetCode());
+        }
+        return codes;
+    }
+
+    private static List<SimpleDataSetInformationDTO> listDataSetsToRemoveFromShare(
+            List<SimpleDataSetInformationDTO> dataSetsInShare,
+            long requestedSpace, long actualFreeSpace, Share share, ISimpleLogger logger)
+    {
+        long freeSpace = actualFreeSpace;
+        List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare = new ArrayList<SimpleDataSetInformationDTO>();
+        for (int i = 0, n = dataSetsInShare.size(); i < n && requestedSpace >= freeSpace; i++)
+        {
+            SimpleDataSetInformationDTO dataSetInShare = dataSetsInShare.get(i);
+            freeSpace += dataSetInShare.getDataSetSize();
+            dataSetsToRemoveFromShare.add(dataSetInShare);
+        }
+        logger.log(LogLevel.INFO, "Remove the following data sets from share '" + share.getShareId() 
+                + "' and set their archiving status back to ARCHIVED: " 
+                + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
+        if (requestedSpace >= freeSpace)
+        {
+            throw new EnvironmentFailureException("After removing all removable data sets from share '"
+                    + share.getShareId() + "' there is still only " + FileUtilities.byteCountToDisplaySize(freeSpace)
+                    + " free space less than the requested " + FileUtilities.byteCountToDisplaySize(requestedSpace) + ".");
+        }
+        return dataSetsToRemoveFromShare;
     }
 
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
