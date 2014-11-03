@@ -20,7 +20,6 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archi
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.STAGING_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDatasetArchiver.MAXIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDatasetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
-import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDatasetArchiver.UNARCHIVING_SHARE_ID;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -320,7 +319,6 @@ public class MultiDatasetArchiverTest extends AbstractFileSystemTestCase
         properties = new Properties();
         properties.setProperty(STAGING_DESTINATION_KEY, staging.getAbsolutePath());
         properties.setProperty(FINAL_DESTINATION_KEY, archive.getAbsolutePath());
-        properties.setProperty(UNARCHIVING_SHARE_ID, "2");
         directoryProvider = new MockDataSetDirectoryProvider(store, share.getName(), shareIdManager);
         archiverContext = new ArchiverTaskContext(directoryProvider, hierarchicalContentProvider);
         experiment = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).type("MET").getExperiment();

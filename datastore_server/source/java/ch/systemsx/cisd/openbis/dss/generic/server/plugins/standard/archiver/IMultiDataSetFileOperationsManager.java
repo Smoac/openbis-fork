@@ -20,6 +20,7 @@ import java.util.List;
 
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
@@ -42,4 +43,6 @@ public interface IMultiDataSetFileOperationsManager
      */
     IHierarchicalContent getContainerAsHierarchicalContent(String containerPath);
 
+    Status restoreDataSetsFromContainerInFinalDestination(String containerPath,
+            List<? extends IDatasetLocation> dataSetLocations);
 }

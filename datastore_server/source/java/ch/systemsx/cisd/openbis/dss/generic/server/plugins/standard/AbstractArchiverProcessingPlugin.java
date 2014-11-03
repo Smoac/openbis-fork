@@ -653,7 +653,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return tempFolder;
     }
 
-    private IShareFinder getShareFinder()
+    protected IShareFinder getShareFinder()
     {
         Properties props =
                 PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,

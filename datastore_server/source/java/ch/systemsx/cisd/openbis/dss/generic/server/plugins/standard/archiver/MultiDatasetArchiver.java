@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
@@ -88,13 +89,9 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final Long DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES = 80L * 1024 * 1024 * 1024;
 
-    private IMultiDatasetArchiverDBTransaction transaction;
+    private transient IMultiDatasetArchiverDBTransaction transaction;
 
-    private IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
-
-    public static final String UNARCHIVING_SHARE_ID = "unarchiving-share-id";
-
-    private final String unarchivingShareId;
+    private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
     public MultiDatasetArchiver(Properties properties, File storeRoot)
     {
@@ -102,7 +99,6 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
         this.maximumContainerSize = PropertyUtils.getLong(properties, MAXIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES);
         this.fileOperationsFactory = new FileOperationsManagerFactory(properties);
-        this.unarchivingShareId = PropertyUtils.getMandatoryProperty(properties, UNARCHIVING_SHARE_ID);
     }
 
     @Override
@@ -329,40 +325,35 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
+    protected IShareFinder getShareFinder()
+    {
+        return new MultiDataSetArchiverShareFinder();
+    }
+
+    @Override
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> parameterDataSets, ArchiverTaskContext context)
     {
+        for (DatasetDescription dataSet : parameterDataSets)
+        {
+            context.getUnarchivingPreparation().prepareForUnarchiving(dataSet);
+        }
+
         List<String> dataSetCodes = translateToDataSetCodes(parameterDataSets);
         long containerId = assertAllDataSetsInTheSameContainer(dataSetCodes);
-        List<PhysicalDataSet> dataSets = translateToPhysicalDataSets(dataSetCodes);
-        assertNoAvailableDatasets(dataSets);
-
-        for (PhysicalDataSet physicalDataSet : dataSets)
-        {
-            String dataSetCode = physicalDataSet.getCode();
-
-            String shareId = getShareIdManager().getShareId(dataSetCode);
-            if (shareId.equals(unarchivingShareId) == false)
-            {
-                getService().updateShareIdAndSize(dataSetCode, unarchivingShareId, physicalDataSet.getSize());
-                getShareIdManager().setShareId(dataSetCode, unarchivingShareId);
-            }
-
-        }
+        assertNoAvailableDatasets(dataSetCodes);
 
         MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
 
-        ((MultiDataSetFileOperationsManager) getFileOperations()).restoreDataSetsFromContainerInFinalDestination(
-                container.getPath(),
-
-                unarchivingShareId, parameterDataSets);
+        getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), parameterDataSets);
 
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
         result.addResult(parameterDataSets, Status.OK, Operation.UNARCHIVE);
         return result;
     }
 
-    private void assertNoAvailableDatasets(List<PhysicalDataSet> dataSets)
+    private void assertNoAvailableDatasets(List<String> dataSetCodes)
     {
+        List<PhysicalDataSet> dataSets = translateToPhysicalDataSets(dataSetCodes);
         for (PhysicalDataSet physicalDataSet : dataSets)
         {
             if (physicalDataSet.isAvailable())
