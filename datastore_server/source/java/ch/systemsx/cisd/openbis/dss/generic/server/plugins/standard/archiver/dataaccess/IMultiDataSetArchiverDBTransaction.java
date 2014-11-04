@@ -38,19 +38,8 @@ public interface IMultiDataSetArchiverDBTransaction
 
     public MultiDataSetArchiverDataSetDTO getDataSetForCode(String code);
 
-    /**
-     * @see net.lemnik.eodsql.TransactionQuery#commit()
-     */
     public void commit();
 
-    /**
-     * @see net.lemnik.eodsql.TransactionQuery#rollback()
-     */
     public void rollback();
-
-    /**
-     * @see net.lemnik.eodsql.BaseQuery#close()
-     */
-    public void close();
 
 }

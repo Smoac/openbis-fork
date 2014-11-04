@@ -18,10 +18,12 @@ package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import ch.rinn.restrictions.Private;
@@ -123,14 +125,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             result.addResults(archiveResult);
 
             getTransaction().commit();
-            getTransaction().close();
         } catch (Exception e)
         {
             operationLog.warn("Archiving of " + dataSets.size() + " data sets failed", e);
             try
             {
                 getTransaction().rollback();
-                getTransaction().close();
             } catch (Exception ex)
             {
                 operationLog.warn("Rollback of multi dataset db transaction failed", ex);
@@ -412,7 +412,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
      */
     private long assertAllDataSetsInTheSameContainer(List<String> dataSetCodes)
     {
-        HashSet<Long> containerIds = new HashSet<Long>();
+        Map<Long, List<String>> containers = new LinkedHashMap<Long, List<String>>();
         long containerId = -1;
         for (String code : dataSetCodes)
         {
@@ -422,13 +422,19 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
                 throw new IllegalArgumentException("Dataset " + code
                         + " was selected for unarchiving, but is not present in the archive");
             }
-            containerIds.add(dataSet.getContainerId());
+            List<String> list = containers.get(dataSet.getContainerId());
+            if (list == null)
+            {
+                list = new ArrayList<String>();
+                containers.put(dataSet.getContainerId(), list);
+            }
+            list.add(dataSet.getCode());
             containerId = dataSet.getContainerId();
         }
-        if (containerIds.size() > 1)
+        if (containers.size() > 1)
         {
-            throw new IllegalArgumentException("Datasets selected for unarchiving do not all belong to one container, but to " + containerIds.size()
-                    + " different containers");
+            throw new IllegalArgumentException("Datasets selected for unarchiving do not all belong to one container, "
+                    + "but to " + containers.size() + " different containers: " + containers);
         }
         return containerId;
     }

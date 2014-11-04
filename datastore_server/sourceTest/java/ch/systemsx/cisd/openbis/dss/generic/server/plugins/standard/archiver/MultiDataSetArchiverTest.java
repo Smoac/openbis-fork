@@ -111,8 +111,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private boolean rolledBack;
 
-        private boolean closed;
-
         @Override
         public List<MultiDataSetArchiverDataSetDTO> getDataSetsForContainer(MultiDataSetArchiverContainerDTO container)
         {
@@ -171,12 +169,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
-        public void close()
-        {
-            closed = true;
-        }
-
-        @Override
         public String toString()
         {
             StringBuilder builder = new StringBuilder();
@@ -192,7 +184,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             }
             builder.append("\ncomitted: ").append(committed);
             builder.append(", rolledBack: ").append(rolledBack);
-            builder.append(", closed: ").append(closed);
             return builder.toString();
         }
 
@@ -262,10 +253,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private DatasetDescription ds2;
 
-    private DatasetDescription ds3;
-
-    private DatasetDescription ds4;
-
     private File store;
 
     private File share;
@@ -314,8 +301,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         archive.mkdirs();
         ds1 = dataSet("ds1", "0123456789");
         ds2 = dataSet("ds2", "01234567890123456789");
-        ds3 = dataSet("ds3", "012345678901234567890123456789");
-        ds4 = dataSet("ds4", "0123456789012345678901234567890123456789");
         properties = new Properties();
         properties.setProperty(STAGING_DESTINATION_KEY, staging.getAbsolutePath());
         properties.setProperty(FINAL_DESTINATION_KEY, archive.getAbsolutePath());
@@ -368,7 +353,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "to be archived with multi dataset archiver because minimum size is 35 bytes.\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
-        assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true, closed: true", transaction.toString());
+        assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -387,7 +372,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "to be archived with multi dataset archiver because maximum size is 27 bytes.\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
-        assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true, closed: true", transaction.toString());
+        assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -431,7 +416,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: true, rolledBack: false, closed: true", transaction.toString());
+                + "comitted: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -497,7 +482,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds1.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=2, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: true, rolledBack: false, closed: true", transaction.toString());
+                + "comitted: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -520,7 +505,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=path]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: false, rolledBack: false, closed: false", transaction.toString());
+                + "comitted: false, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -570,7 +555,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "MultiDataSetArchiverContainerDTO [id=2, path=ds1.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=3, code=ds1, containerId=2, sizeInBytes=10]\n"
-                + "comitted: true, rolledBack: false, closed: true", transaction.toString());
+                + "comitted: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -601,7 +586,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: true, rolledBack: false, closed: true", transaction.toString());
+                + "comitted: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
