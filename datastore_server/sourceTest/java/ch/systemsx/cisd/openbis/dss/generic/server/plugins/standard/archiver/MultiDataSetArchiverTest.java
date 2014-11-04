@@ -20,11 +20,15 @@ import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archi
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetArchiver.MINIMUM_CONTAINER_SIZE_IN_BYTES;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.FINAL_DESTINATION_KEY;
 import static ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.MultiDataSetFileOperationsManager.STAGING_DESTINATION_KEY;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory.SHARE_PROPS_FILE;
+import static ch.systemsx.cisd.openbis.dss.generic.shared.utils.ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,8 +51,9 @@ import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
-import ch.systemsx.cisd.common.time.TimingParameters;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
+import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.MockDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
@@ -56,6 +61,7 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDeleter;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetStatusUpdater;
@@ -66,8 +72,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SimpleFileContentProvider;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
@@ -81,6 +89,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 @Friend(toClasses = MultiDataSetArchiver.class)
 public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 {
+    private static final String DSS_CODE = "DSS";
+
     private static final class RecordingStatusUpdater implements IDataSetStatusUpdater
     {
         private StringBuilder builder = new StringBuilder();
@@ -99,7 +109,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
     }
 
-    private static final class MockMultiDataSetArchiverDBTransaction implements IMultiDataSetArchiverDBTransaction
+    private static final class MockMultiDataSetArchiverDBTransaction 
+            implements IMultiDataSetArchiverDBTransaction, IMultiDataSetArchiverReadonlyQueryDAO
     {
         private int id;
 
@@ -157,6 +168,46 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
 
         @Override
+        public MultiDataSetArchiverContainerDTO getContainerForId(long containerId)
+        {
+            for (MultiDataSetArchiverContainerDTO container : containers)
+            {
+                if (container.getId() == containerId)
+                {
+                    return container;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public MultiDataSetArchiverDataSetDTO getDataSetForId(long dataSetId)
+        {
+            for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
+            {
+                if (dataSet.getId() == dataSetId)
+                {
+                    return dataSet;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public List<MultiDataSetArchiverDataSetDTO> listDataSetsForContainerId(long containerId)
+        {
+            List<MultiDataSetArchiverDataSetDTO> result = new ArrayList<MultiDataSetArchiverDataSetDTO>();
+            for (MultiDataSetArchiverDataSetDTO dataSet : dataSets)
+            {
+                if (dataSet.getContainerId() == containerId)
+                {
+                    result.add(dataSet);
+                }
+            }
+            return result;
+        }
+
+        @Override
         public void commit()
         {
             committed = true;
@@ -166,6 +217,17 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         public void rollback()
         {
             rolledBack = true;
+        }
+
+        @Override
+        public void close()
+        {
+        }
+
+        @Override
+        public boolean isClosed()
+        {
+            return false;
         }
 
         @Override
@@ -206,6 +268,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         {
             super(properties, storeRoot);
             this.transaction = transaction;
+            this.fileManager = fileManager;
             this.readonlyDAO = readonlyDAO;
             setService(openBISService);
             setShareIdManager(shareIdManager);
@@ -231,15 +294,43 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         }
     }
 
+    private static final class MockDataSetDeleter implements IDataSetDeleter
+    {
+        private StringBuilder recorder = new StringBuilder();
+
+        private File share;
+
+        MockDataSetDeleter(File share)
+        {
+            this.share = share;
+        }
+
+        @Override
+        public void scheduleDeletionOfDataSets(List<? extends IDatasetLocation> dataSets,
+                int maxNumberOfRetries, long waitingTimeBetweenRetries)
+        {
+            recorder.append(dataSets).append('\n');
+            for (IDatasetLocation datasetLocation : dataSets)
+            {
+                FileUtilities.deleteRecursively(new File(share, datasetLocation.getDataSetLocation()));
+            }
+        }
+
+        @Override
+        public String toString()
+        {
+            return recorder.toString();
+        }
+
+    }
+
     private static final String EXPERIMENT_IDENTIFIER = "/S/P/E";
 
     private BufferedAppender logRecorder;
 
     private Mockery context;
 
-    private IMultiDataSetArchiverDBTransaction transaction;
-
-    private IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
+    private MockMultiDataSetArchiverDBTransaction transaction;
 
     private IDataSetDirectoryProvider directoryProvider;
 
@@ -275,6 +366,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private IDataSetDeleter dataSetDeleter;
 
+    private IConfigProvider configProvider;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -283,17 +376,19 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         store = new File(workingDirectory, "store");
         share = new File(store, "1");
         share.mkdirs();
+        FileUtilities.writeToFile(new File(share, SHARE_PROPS_FILE), UNARCHIVING_SCRATCH_SHARE_PROP + " = true");
         context = new Mockery();
         BeanFactory beanFactory = context.mock(BeanFactory.class);
         ServiceProviderTestWrapper.setApplicationContext(beanFactory);
         shareIdManager = ServiceProviderTestWrapper.mock(context, IShareIdManager.class);
         openBISService = ServiceProviderTestWrapper.mock(context, IEncapsulatedOpenBISService.class);
         dssService = ServiceProviderTestWrapper.mock(context, IDataStoreServiceInternal.class);
+        configProvider = ServiceProviderTestWrapper.mock(context, IConfigProvider.class);
         hierarchicalContentProvider = new SimpleFileContentProvider(share);
         ServiceProviderTestWrapper.addMock(context, IHierarchicalContentProvider.class,
                 hierarchicalContentProvider);
         fileOperations = context.mock(IMultiDataSetFileOperationsManager.class);
-        dataSetDeleter = context.mock(IDataSetDeleter.class);
+        dataSetDeleter = new MockDataSetDeleter(share);
         statusUpdater = new RecordingStatusUpdater();
         staging = new File(workingDirectory, "staging");
         staging.mkdirs();
@@ -307,7 +402,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         directoryProvider = new MockDataSetDirectoryProvider(store, share.getName(), shareIdManager);
         archiverContext = new ArchiverTaskContext(directoryProvider, hierarchicalContentProvider);
         experiment = new ExperimentBuilder().identifier(EXPERIMENT_IDENTIFIER).type("MET").getExperiment();
-        readonlyDAO = context.mock(IMultiDataSetArchiverReadonlyQueryDAO.class);
         context.checking(new Expectations()
             {
                 {
@@ -319,6 +413,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
                     allowing(openBISService).tryGetExperiment(ExperimentIdentifierFactory.parse(EXPERIMENT_IDENTIFIER));
                     will(returnValue(experiment));
+
+                    allowing(configProvider).getDataStoreCode();
+                    will(returnValue(DSS_CODE));
                 }
             });
     }
@@ -395,7 +492,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
-        checkArchive(new File(archive, ds2.getDataSetCode() + ".tar"), ":\n"
+        assertContent(":\n"
                 + "  ds2:\n"
                 + "    data:\n"
                 + "      >01234567890123456789\n"
@@ -412,7 +509,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\texperiment_code\tE\n"
                 + "      >experiment\texperiment_type_code\tMET\n"
                 + "      >experiment\tregistration_timestamp\t\n"
-                + "      >experiment\tregistrator\t\n");
+                + "      >experiment\tregistrator\t\n", new File(archive, ds2.getDataSetCode() + ".tar"));
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
@@ -443,7 +540,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
         assertEquals("[ds1.tar]", Arrays.asList(archive.list()).toString());
-        checkArchive(new File(archive, ds1.getDataSetCode() + ".tar"), ":\n"
+        assertContent(":\n"
                 + "  ds1:\n"
                 + "    data:\n"
                 + "      >0123456789\n"
@@ -477,7 +574,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\texperiment_code\tE\n"
                 + "      >experiment\texperiment_type_code\tMET\n"
                 + "      >experiment\tregistration_timestamp\t\n"
-                + "      >experiment\tregistrator\t\n");
+                + "      >experiment\tregistrator\t\n", new File(archive, ds1.getDataSetCode() + ".tar"));
         assertEquals("[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds1.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n"
@@ -518,7 +615,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiverContainerDTO container = transaction.createContainer("path");
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds2, container);
-        prepareScheduleDeletion(ds1, ds2);
+        assertEquals(true, new File(share, ds1.getDataSetCode()).exists());
+        assertEquals(true, new File(share, ds2.getDataSetCode()).exists());
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
@@ -532,7 +630,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
-        checkArchive(new File(archive, ds1.getDataSetCode() + ".tar"), ":\n"
+        assertEquals(false, new File(share, ds1.getDataSetCode()).exists());
+        assertEquals(false, new File(share, ds2.getDataSetCode()).exists());
+        assertContent(":\n"
                 + "  ds1:\n"
                 + "    data:\n"
                 + "      >0123456789\n"
@@ -549,17 +649,18 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "      >experiment\texperiment_code\tE\n"
                 + "      >experiment\texperiment_type_code\tMET\n"
                 + "      >experiment\tregistration_timestamp\t\n"
-                + "      >experiment\tregistrator\t\n");
+                + "      >experiment\tregistrator\t\n", new File(archive, ds1.getDataSetCode() + ".tar"));
         assertEquals("[ds1, ds2]: ARCHIVED true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=path]\n"
                 + "MultiDataSetArchiverContainerDTO [id=2, path=ds1.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=3, code=ds1, containerId=2, sizeInBytes=10]\n"
                 + "comitted: true, rolledBack: false", transaction.toString());
+        assertEquals("[Dataset 'ds1', Dataset 'ds2']\n", dataSetDeleter.toString());
         context.assertIsSatisfied();
     }
 
-    // @Test(groups = "broken")
+    // @Test
     public void testArchiveDataSetFails()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
@@ -579,6 +680,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(fileOperations);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
 
+        assertEquals("", logRecorder.getLogContent());
         assertEquals("[ERROR: \"Archiving failed to calculate dataset sizes:Oohps!\"]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.listFiles()).toString());
         File archiveFile = new File(archive, ds2.getDataSetCode() + ".tar");
@@ -590,13 +692,155 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
 
-    private void checkArchive(File archiveFile, String content)
+    @Test
+    public void testUnarchive()
     {
-        assertEquals(true, archiveFile.exists());
-        IHierarchicalContentNode rootNode = new TarBasedHierarchicalContent(archiveFile, staging).getRootNode();
+        prepareUpdateShareIdAndSize(ds1, 10);
+        prepareLockAndReleaseDataSet(ds1);
+        prepareUpdateShareIdAndSize(ds2, 20);
+        prepareLockAndReleaseDataSet(ds2);
+        properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+        MultiDataSetArchiver archiver = createArchiver(null);
+        ProcessingStatus status = archiver.archive(Arrays.asList(ds1, ds2), archiverContext, true);
+        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - "
+                + "Archiving of the following datasets has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
+                + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
+                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath(),
+                logRecorder.getLogContent());
+        logRecorder.resetLogContent();
+        assertEquals("[]", status.getErrorStatuses().toString());
+        assertEquals(false, new File(share, ds1.getDataSetCode()).exists());
+        assertEquals(false, new File(share, ds2.getDataSetCode()).exists());
+        assertEquals("[ds1, ds2]: ARCHIVED true\n", statusUpdater.toString());
+        prepareListDataSetsByCode(DataSetArchivingStatus.ARCHIVED, ds1, ds2);
+
+        status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
+
+        assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
+                + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n", getFilteredLogContent());
+        assertEquals("[ds1, ds2]: ARCHIVED true\n[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
+        assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
+        assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testUnarchiveWithDataSetsFromDifferentContainers()
+    {
+        MultiDataSetArchiverContainerDTO c1 = transaction.createContainer("c1");
+        MultiDataSetArchiverContainerDTO c2 = transaction.createContainer("c2");
+        ds1.setDataSetSize(10L);
+        ds2.setDataSetSize(20L);
+        transaction.insertDataset(ds1, c1);
+        transaction.insertDataset(ds2, c2);
+        properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
+        MultiDataSetArchiver archiver = createArchiver(null);
+        
+        ProcessingStatus status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
+        
+        assertEquals("[ERROR: \"Unarchiving failed: Datasets selected for unarchiving do not all "
+                + "belong to one container, but to 2 different containers: {0=[ds1], 1=[ds2]}\"]", 
+                status.getErrorStatuses().toString());
+        context.assertIsSatisfied();
+    }
+    
+    @Test
+    public void testGetDataSetCodesForUnarchiving()
+    {
+        MultiDataSetArchiverContainerDTO c1 = transaction.createContainer("c1");
+        ds1.setDataSetSize(10L);
+        ds2.setDataSetSize(20L);
+        transaction.insertDataset(ds1, c1);
+        transaction.insertDataset(ds2, c1);
+        MultiDataSetArchiver archiver = createArchiver(null);
+        
+        List<String> codes = archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds2.getDataSetCode()));
+        
+        assertEquals("[ds1, ds2]", codes.toString());
+        context.assertIsSatisfied();
+    }
+
+    @Test
+    public void testGetDataSetCodesForUnarchivingFromDifferentContainers()
+    {
+        MultiDataSetArchiverContainerDTO c1 = transaction.createContainer("c1");
+        MultiDataSetArchiverContainerDTO c2 = transaction.createContainer("c2");
+        ds1.setDataSetSize(10L);
+        ds2.setDataSetSize(20L);
+        transaction.insertDataset(ds1, c1);
+        transaction.insertDataset(ds2, c2);
+        MultiDataSetArchiver archiver = createArchiver(null);
+        
+        try
+        {
+            archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()));
+            fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex)
+        {
+            assertEquals("Datasets selected for unarchiving do not all belong to one container, "
+                    + "but to 2 different containers: {0=[ds1], 1=[ds2]}", ex.getMessage());
+        }
+        context.assertIsSatisfied();
+    }
+    
+    private void prepareListDataSetsByCode(final DataSetArchivingStatus archivingStatus, final DatasetDescription... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<String> codes = new ArrayList<String>();
+                    List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+                    for (DatasetDescription dataSet : dataSets)
+                    {
+                        codes.add(dataSet.getDataSetCode());
+                        result.add(new DataSetBuilder().code(dataSet.getDataSetCode())
+                                .status(archivingStatus).getDataSet());
+                    }
+                    one(openBISService).listDataSetsByCode(codes);
+                    will(returnValue(result));
+                }
+            });
+    }
+
+    private String getFilteredLogContent()
+    {
+        StringBuilder builder = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(new StringReader(logRecorder.getLogContent()));
+        try
+        {
+            String line;
+            while ((line = bufferedReader.readLine()) != null)
+            {
+                if (line.contains("Obtained the list of all") == false)
+                {
+                    builder.append(line).append('\n');
+                }
+            }
+        } catch (IOException ex)
+        {
+            throw CheckedExceptionTunnel.wrapIfNecessary(ex);
+        }
+        return builder.toString();
+    }
+
+    private void assertContent(String expectedContent, File file)
+    {
+        assertEquals(true, file.exists());
+        IHierarchicalContent content;
+        if (file.getName().endsWith("tar"))
+        {
+            content = new TarBasedHierarchicalContent(file, staging);
+        } else
+        {
+            content = new DefaultFileBasedHierarchicalContentFactory().asHierarchicalContent(file, null);
+        }
+        IHierarchicalContentNode rootNode = content.getRootNode();
         StringBuilder builder = new StringBuilder();
         renderContent(rootNode, builder, "");
-        assertEquals(content, builder.toString());
+        assertEquals(expectedContent, builder.toString());
     }
 
     private void renderContent(IHierarchicalContentNode node, StringBuilder builder, String indent)
@@ -638,18 +882,6 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         {
             throw CheckedExceptionTunnel.wrapIfNecessary(e);
         }
-    }
-
-    private void prepareScheduleDeletion(final DatasetDescription... dataSets)
-    {
-        context.checking(new Expectations()
-            {
-                {
-                    one(dataSetDeleter).scheduleDeletionOfDataSets(Arrays.asList(dataSets),
-                            TimingParameters.DEFAULT_MAXIMUM_RETRY_COUNT,
-                            TimingParameters.DEFAULT_INTERVAL_TO_WAIT_AFTER_FAILURE_SECONDS);
-                }
-            });
     }
 
     private void prepareFileOperationsGenerateContainerPath(final String containerPath, final DatasetDescription... dataSets)
@@ -698,7 +930,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private MultiDataSetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
         return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater,
-                transaction, fileManagerOrNull, readonlyDAO);
+                transaction, fileManagerOrNull, transaction);
     }
 
     private DatasetDescription dataSet(final String code, String content)
@@ -718,7 +950,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
                     allowing(openBISService).tryGetDataSet(code);
                     PhysicalDataSet physicalDataSet = new DataSetBuilder(0).code(code).type("MDT")
-                            .store(new DataStoreBuilder("DSS").getStore()).fileFormat("TXT")
+                            .store(new DataStoreBuilder(DSS_CODE).getStore()).fileFormat("TXT")
                             .experiment(experiment).location(code).getDataSet();
                     will(returnValue(physicalDataSet));
                 }
