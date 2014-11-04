@@ -23,14 +23,14 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Jakub Straszewski
  */
-public class MultiDatasetArchiverDBTransaction implements IMultiDatasetArchiverDBTransaction
+public class MultiDataSetArchiverDBTransaction implements IMultiDataSetArchiverDBTransaction
 {
 
     private IMultiDataSetArchiverQueryDAO transaction;
 
-    public MultiDatasetArchiverDBTransaction()
+    public MultiDataSetArchiverDBTransaction()
     {
-        this.transaction = MultiDatasetArchiverDataSourceUtil.getTransactionalQuery();
+        this.transaction = MultiDataSetArchiverDataSourceUtil.getTransactionalQuery();
     }
 
     @Override

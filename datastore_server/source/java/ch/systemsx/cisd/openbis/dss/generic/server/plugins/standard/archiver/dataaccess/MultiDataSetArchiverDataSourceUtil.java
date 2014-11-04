@@ -25,7 +25,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 /**
  * @author Jakub Straszewski
  */
-public class MultiDatasetArchiverDataSourceUtil
+public class MultiDataSetArchiverDataSourceUtil
 {
     private static DataSource dataSource = ServiceProvider.getDataSourceProvider().getDataSource("multi-dataset-archiver-db");
 

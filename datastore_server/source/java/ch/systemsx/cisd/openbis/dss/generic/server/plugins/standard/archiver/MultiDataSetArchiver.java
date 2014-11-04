@@ -36,12 +36,12 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.AbstractArch
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiveCopierFactory;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.RsyncArchiver;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.SshCommandExecutorFactory;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDataSetArchiverReadonlyQueryDAO;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.IMultiDatasetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverContainerDTO;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDBTransaction;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDBTransaction;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDatasetArchiverDataSourceUtil;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -52,7 +52,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Jakub Straszewski
  */
-public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
+public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 {
     private static final long serialVersionUID = 1L;
 
@@ -89,11 +89,11 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final Long DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES = 80L * 1024 * 1024 * 1024;
 
-    private transient IMultiDatasetArchiverDBTransaction transaction;
+    private transient IMultiDataSetArchiverDBTransaction transaction;
 
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
-    public MultiDatasetArchiver(Properties properties, File storeRoot)
+    public MultiDataSetArchiver(Properties properties, File storeRoot)
     {
         super(properties, storeRoot, null, null);
         this.minimumContainerSize = PropertyUtils.getLong(properties, MINIMUM_CONTAINER_SIZE_IN_BYTES, DEFAULT_MINIMUM_CONTAINER_SIZE_IN_BYTES);
@@ -478,11 +478,11 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Private
-    IMultiDatasetArchiverDBTransaction getTransaction()
+    IMultiDataSetArchiverDBTransaction getTransaction()
     {
         if (transaction == null)
         {
-            transaction = new MultiDatasetArchiverDBTransaction();
+            transaction = new MultiDataSetArchiverDBTransaction();
         }
         return transaction;
     }
@@ -491,7 +491,7 @@ public class MultiDatasetArchiver extends AbstractArchiverProcessingPlugin
     {
         if (readonlyQuery == null)
         {
-            readonlyQuery = MultiDatasetArchiverDataSourceUtil.getReadonlyQueryDAO();
+            readonlyQuery = MultiDataSetArchiverDataSourceUtil.getReadonlyQueryDAO();
         }
         return readonlyQuery;
     }

@@ -23,7 +23,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 /**
  * @author Franz-Josef Elmer
  */
-public interface IMultiDatasetArchiverDBTransaction
+public interface IMultiDataSetArchiverDBTransaction
 {
 
     public List<MultiDataSetArchiverDataSetDTO> getDataSetsForContainer(MultiDataSetArchiverContainerDTO container);
