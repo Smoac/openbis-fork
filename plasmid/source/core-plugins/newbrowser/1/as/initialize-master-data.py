@@ -18,12 +18,15 @@
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
 ##
-## Help Methods
+## Globals
 ##
 vocabulariesCache = {};
 propertiesCache = {};
 tr = service.transaction()
 
+##
+## API Facade
+##
 def createVocabularyWithTerms(vocabularyCode, terms):
 	vocabulary = tr.createNewVocabulary(vocabularyCode);
 	addTerms(vocabulary, terms);
@@ -77,9 +80,8 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
 	propertyAssignment.setSection(section);
 
 ##
-## Vocabularies
+## Vocabulary Types
 ##
-
 createVocabularyWithTerms("HOST", [
 										["MOUSE", "mouse"],
 										["RAT", "rat"],
@@ -347,7 +349,6 @@ createVocabularyWithTerms("MACHINE", [
 ##
 ## DataSet Types
 ##
-
 createDataSetTypeWithProperties("ELN_PREVIEW", "PHYSICAL", "ELN Preview image", []);
 
 createDataSetTypeWithProperties("SEQ_FILE", "PHYSICAL", "", [
@@ -391,7 +392,6 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 ##
 ## Sample Types
 ##
-
 createSampleTypeWithProperties("ANTIBODY", "", [
 	["NAME", 				"General", 				"Name", 				DataType.VARCHAR,				None,		"Name"],
 	["HOST", 				"General", 				"Host", 				DataType.CONTROLLEDVOCABULARY,	"HOST", 	"Host used to produce the antibody"],
@@ -408,3 +408,12 @@ createSampleTypeWithProperties("ANTIBODY", "", [
 	["NOTES", 				"Comments", 			"Notes", 				DataType.MULTILINE_VARCHAR,		None, 		"Notes"],
 	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("CHEMICAL", "", [
+	["NAME", 				"General", 				"Name", 				DataType.MULTILINE_VARCHAR,		None,		"Name"],
+	["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product"],
+	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product"],
+	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product"],
+	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.VARCHAR,				None,		"Several comments can be added by different users"],
+]);
+
