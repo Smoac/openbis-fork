@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetRelationshipPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DeletionPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
@@ -84,12 +85,14 @@ public class DeleteDataSetExecutor implements IDeleteDataSetExecutor
 
         Map<IDataSetId, DataPE> dataSetMap = mapDataSetByIdExecutor.map(context, dataSetIds);
 
+        ExperimentByIdentiferValidator validator = new ExperimentByIdentiferValidator();
+        PersonPE person = context.getSession().tryGetPerson();
         for (Map.Entry<IDataSetId, DataPE> entry : dataSetMap.entrySet())
         {
             IDataSetId dataSetId = entry.getKey();
             DataPE dataSet = entry.getValue();
 
-            if (false == new ExperimentByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), dataSet.getExperiment()))
+            if (false == validator.doValidation(person, dataSet.getExperiment()))
             {
                 throw new UnauthorizedObjectAccessException(dataSetId);
             }
