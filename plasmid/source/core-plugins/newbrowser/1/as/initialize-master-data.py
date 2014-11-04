@@ -437,3 +437,15 @@ createSampleTypeWithProperties("MEDIA", "", [
 	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Deatails for solution/buffer preparation"],
 	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
+	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name"],
+	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab"],
+	["DETAILS", 			"Recipe",				"Details",				DataType.MULTILINE_VARCHAR,		None,			"Details and tips about how to prepare the solution/buffer"],
+	["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product"],
+	["STOCK_CONCENTRATION", "Storage",				"Stock concentration",	DataType.VARCHAR,				None,			"Stock concentration of the solution where the product is kept in the lab"],
+	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared"],
+	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Notes"],
+	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users"]
+]);
