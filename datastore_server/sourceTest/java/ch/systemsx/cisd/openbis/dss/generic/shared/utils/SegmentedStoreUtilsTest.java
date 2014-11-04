@@ -47,6 +47,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProxyShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
@@ -151,7 +152,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
         assertEquals("", log.toString());
     }
-    
+
     @Test
     public void testFreeSpaceNothingToDo()
     {
@@ -159,10 +160,10 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
         share.setUnarchivingScratchShare(true);
         RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12L);
-        
+
         SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1), dataSetDirectoryProvider,
                 shareIdManager, log);
-        
+
         assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
         assertEquals("INFO: Free space on unarchiving scratch share '1': 12.00 KB, "
                 + "requested space for unarchiving 1 data sets: 11.00 KB\n", log.toString());
@@ -185,10 +186,10 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         prepareSetArchingStatus(ds1);
         File file = prepareDeleteFromShare(ds1);
         assertEquals(true, file.exists());
-        
+
         SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds2, ds4), dataSetDirectoryProvider,
                 shareIdManager, log);
-        
+
         assertEquals(false, file.exists());
         assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(0).getPath());
         assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(1).getPath());
@@ -203,7 +204,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 + "INFO: Free space on unarchiving scratch share '1': 22.00 KB, requested space for "
                 + "unarchiving 2 data sets: 21.00 KB\n", log.toString());
     }
-    
+
     @Test
     public void testFreeSpaceForThreeDataSetsOneAlreadyInShare()
     {
@@ -221,10 +222,10 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         prepareSetArchingStatus(ds3);
         File file = prepareDeleteFromShare(ds3);
         assertEquals(true, file.exists());
-        
+
         SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1, ds2, ds4), dataSetDirectoryProvider,
                 shareIdManager, log);
-        
+
         assertEquals(false, file.exists());
         assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(0).getPath());
         assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(1).getPath());
@@ -239,7 +240,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 + "INFO: Free space on unarchiving scratch share '1': 24.00 KB, requested space for "
                 + "unarchiving 2 data sets: 21.00 KB\n", log.toString());
     }
-    
+
     @Test
     public void testFreeSpaceRemovingDataSetsButStillNotEnoughFreeSpace()
     {
@@ -254,7 +255,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share.addDataSet(ds2);
         share.addDataSet(ds1);
         RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(2L);
-        
+
         try
         {
             SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds4, ds5, ds1), dataSetDirectoryProvider,
@@ -265,11 +266,11 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             assertEquals("Even after removing all removable data sets from share '1' there would be "
                     + "still only 24.00 KB free space which is less than the requested 25.00 KB.", ex.getMessage());
         }
-        
+
         assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
         assertEquals("", log.toString());
     }
-    
+
     @Test
     public void testGetDataSetsPerShare()
     {
@@ -318,7 +319,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             });
 
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                         freeSpaceProvider, service, log, timeProvider);
         Share share1 = shares.get(0);
         long freeSpace = share1.calculateFreeSpace();
@@ -548,7 +549,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
         fail();
     }
-    
+
     @Test
     public void testMoveDataSetToAnotherShareWhichIsAnUnarchivingScratchShare()
     {
@@ -561,7 +562,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         FileUtilities.writeToFile(helloFile, "hello world");
         File share2 = new File(workingDirectory, "store/2");
         share2.mkdirs();
-        FileUtilities.writeToFile(new File(share2, ShareFactory.SHARE_PROPS_FILE), 
+        FileUtilities.writeToFile(new File(share2, ShareFactory.SHARE_PROPS_FILE),
                 ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + "=true");
         context.checking(new Expectations()
             {
@@ -573,7 +574,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                     one(shareIdManager).releaseLock("ds-1");
                 }
             });
-        
+
         try
         {
             SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
@@ -585,7 +586,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                     + "No data sets can be moved from/to such a share.", ex.getMessage());
         }
     }
-    
+
     @Test
     public void testMoveDataSetFromAnUnarchivingScratchShareToAnotherShare()
     {
@@ -594,7 +595,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
         File original = new File(dataSetDirInStore, "original");
         original.mkdirs();
-        FileUtilities.writeToFile(new File(share1, ShareFactory.SHARE_PROPS_FILE), 
+        FileUtilities.writeToFile(new File(share1, ShareFactory.SHARE_PROPS_FILE),
                 ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + "=true");
         final File helloFile = new File(original, "hello.txt");
         FileUtilities.writeToFile(helloFile, "hello world");
@@ -720,7 +721,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share2.mkdirs();
 
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                         freeSpaceProvider, service, log, timeProvider);
 
         assertEquals("2", shares.get(0).getShareId());
@@ -738,7 +739,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share2.mkdirs();
 
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, false,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, FilterOptions.ALL,
                         freeSpaceProvider, service, log, timeProvider);
 
         assertEquals("1", shares.get(0).getShareId());

@@ -80,6 +80,8 @@ public class SegmentedStoreUtils
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
+    private static final Long MINIMUM_FREE_SCRATCH_SPACE = 1024L * 1024 * 1024;
+
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {
             @Override
@@ -111,6 +113,11 @@ public class SegmentedStoreUtils
                 return SHARE_ID_PATTERN.matcher(name).matches();
             }
         };
+
+    public static enum FilterOptions
+    {
+        ALL, AVAILABLE_FOR_SHUFFLING, ARCHIVING_SCRATCH
+    }
 
     /**
      * Lists all folders in specified store root directory which match share pattern.
@@ -190,21 +197,20 @@ public class SegmentedStoreUtils
      * Gets a list of all shares of specified store root directory. As a side effect it calculates and updates the size of all data sets if necessary.
      * 
      * @param dataStoreCode Code of the data store to which the root belongs.
-     * @param filterOutToBeIgnoredForShuffling If <code>true</code> no share will be returned which has property
-     *            <code>ignored-for-shuffling == true</code>
+     * @param filterOptions Specifies what kind of shares should be filtered out from the result
      * @param incomingShares Set of IDs of incoming shares. Will be used to mark {@link Share} object in the returned list.
      * @param freeSpaceProvider Provider of free space used for all shares.
      * @param service Access to openBIS API in order to get all data sets and to update data set size.
      * @param log Logger for logging size calculations.
      */
     public static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
-            boolean filterOutToBeIgnoredForShuffling, Set<String> incomingShares,
+            FilterOptions filterOptions, Set<String> incomingShares,
             IFreeSpaceProvider freeSpaceProvider, IEncapsulatedOpenBISService service,
             ISimpleLogger log)
     {
         final long start = System.currentTimeMillis();
         List<Share> shares =
-                getSharesWithDataSets(storeRoot, dataStoreCode, filterOutToBeIgnoredForShuffling,
+                getSharesWithDataSets(storeRoot, dataStoreCode, filterOptions,
                         freeSpaceProvider, service, log, SystemTimeProvider.SYSTEM_TIME_PROVIDER);
         for (Share share : shares)
         {
@@ -242,7 +248,7 @@ public class SegmentedStoreUtils
         removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
         long requestedSpace = calculateTotalSizeOfDataSetsToKeep(filteredDataSets);
         long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
-        if (actualFreeSpace < requestedSpace)
+        if (isNotEnoughFreeSpace(requestedSpace, actualFreeSpace))
         {
             Collections.sort(filteredDataSetsInShare, MODIFICATION_TIMESTAMP_COMPARATOR);
             List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
@@ -305,7 +311,7 @@ public class SegmentedStoreUtils
         }
         return size;
     }
-    
+
     private static List<String> extractCodes(List<SimpleDataSetInformationDTO> dataSets)
     {
         List<String> codes = new ArrayList<String>();
@@ -322,27 +328,32 @@ public class SegmentedStoreUtils
     {
         long freeSpace = actualFreeSpace;
         List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare = new ArrayList<SimpleDataSetInformationDTO>();
-        for (int i = 0, n = dataSetsInShare.size(); i < n && requestedSpace >= freeSpace; i++)
+        for (int i = 0, n = dataSetsInShare.size(); i < n && isNotEnoughFreeSpace(requestedSpace, freeSpace); i++)
         {
             SimpleDataSetInformationDTO dataSetInShare = dataSetsInShare.get(i);
             freeSpace += dataSetInShare.getDataSetSize();
             dataSetsToRemoveFromShare.add(dataSetInShare);
         }
-        if (requestedSpace >= freeSpace)
+        if (isNotEnoughFreeSpace(requestedSpace, freeSpace))
         {
             throw new EnvironmentFailureException("Even after removing all removable data sets from share '"
                     + share.getShareId() + "' there would be still only " + FileUtilities.byteCountToDisplaySize(freeSpace)
-                    + " free space which is less than the requested " + FileUtilities.byteCountToDisplaySize(requestedSpace) + ".");
+                    + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace) + " is requested.");
         }
         return dataSetsToRemoveFromShare;
     }
 
+    private static boolean isNotEnoughFreeSpace(long requestedSpace, long freeSpace)
+    {
+        return requestedSpace + MINIMUM_FREE_SCRATCH_SPACE >= freeSpace;
+    }
+
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
-            boolean filterOutToBeIgnoredForShuffling, IFreeSpaceProvider freeSpaceProvider,
+            FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
             IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares =
-                getShares(storeRoot, dataStoreCode, filterOutToBeIgnoredForShuffling,
+                getShares(storeRoot, dataStoreCode, filterOptions,
                         freeSpaceProvider, service, log, timeProvider);
         final List<Share> list = new ArrayList<Share>(shares.values());
         Collections.sort(list, SHARE_COMPARATOR);
@@ -350,7 +361,7 @@ public class SegmentedStoreUtils
     }
 
     private static Map<String, Share> getShares(File storeRoot, String dataStoreCode,
-            boolean filterOutToBeIgnoredForShuffling, IFreeSpaceProvider freeSpaceProvider,
+            FilterOptions filterOptions, IFreeSpaceProvider freeSpaceProvider,
             IEncapsulatedOpenBISService service, ISimpleLogger log, ITimeProvider timeProvider)
     {
         final Map<String, Share> shares = new HashMap<String, Share>();
@@ -360,12 +371,28 @@ public class SegmentedStoreUtils
         {
             final Share share =
                     new ShareFactory().createShare(sharesHolder, file, freeSpaceProvider, log);
-            if (filterOutToBeIgnoredForShuffling == false || share.isIgnoredForShuffling() == false)
+
+            if (isShareSelected(share, filterOptions))
             {
                 shares.put(share.getShareId(), share);
             }
         }
         return shares;
+    }
+
+    private static boolean isShareSelected(Share share, FilterOptions filterOptions)
+    {
+        switch (filterOptions)
+        {
+            case ALL:
+                return true;
+            case ARCHIVING_SCRATCH:
+                return share.isUnarchivingScratchShare();
+            case AVAILABLE_FOR_SHUFFLING:
+                return false == (share.isIgnoredForShuffling() || share.isUnarchivingScratchShare());
+            default:
+                throw new IllegalStateException("All cases covered");
+        }
     }
 
     /**

@@ -25,12 +25,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
+import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
+import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
@@ -45,11 +50,22 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dataaccess.MultiDataSetArchiverDataSourceUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
+import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SimpleDataSetHelper;
 
 /**
  * @author Jakub Straszewski
@@ -91,8 +107,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     public static final Long DEFAULT_MAXIMUM_CONTAINER_SIZE_IN_BYTES = 80L * 1024 * 1024 * 1024;
 
-    private transient IMultiDataSetArchiverDBTransaction transaction;
-
     private transient IMultiDataSetArchiverReadonlyQueryDAO readonlyQuery;
 
     public MultiDataSetArchiver(Properties properties, File storeRoot)
@@ -116,21 +130,25 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             return result;
         }
 
+        IMultiDataSetArchiverDBTransaction transaction = getTransaction();
+
         try
         {
             verifyDataSetsSize(dataSets);
 
-            DatasetProcessingStatuses archiveResult = archiveDataSets(dataSets, context);
+            DatasetProcessingStatuses archiveResult = archiveDataSets(dataSets, context, transaction);
 
             result.addResults(archiveResult);
 
-            getTransaction().commit();
+            transaction.commit();
+            transaction.close();
         } catch (Exception e)
         {
             operationLog.warn("Archiving of " + dataSets.size() + " data sets failed", e);
             try
             {
-                getTransaction().rollback();
+                transaction.rollback();
+                transaction.close();
             } catch (Exception ex)
             {
                 operationLog.warn("Rollback of multi dataset db transaction failed", ex);
@@ -151,7 +169,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
      * <code>dataSets</code> and removes those which are present in the archive already (or not present, depending on the <code>filterOption</code>).
      * For those removed data sets it adds entry with <code>status</code> for <code>operation</code> in <code>result</code>
      */
-    private void filterBasedOnArchiveStatus(LinkedList<? extends IDatasetLocation> dataSets, 
+    private void filterBasedOnArchiveStatus(LinkedList<? extends IDatasetLocation> dataSets,
             DatasetProcessingStatuses result, FilterOption filterOption, Status status, Operation operation)
     {
         for (Iterator<? extends IDatasetLocation> iterator = dataSets.iterator(); iterator.hasNext();)
@@ -214,7 +232,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
     }
 
-    private DatasetProcessingStatuses archiveDataSets(List<DatasetDescription> dataSets, ArchiverTaskContext context) throws Exception
+    private DatasetProcessingStatuses archiveDataSets(List<DatasetDescription> dataSets, ArchiverTaskContext context,
+            IMultiDataSetArchiverDBTransaction transaction) throws Exception
     {
         DatasetProcessingStatuses statuses = new DatasetProcessingStatuses();
 
@@ -222,11 +241,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         String containerPath = getFileOperations().generateContainerPath(dataSets);
 
-        MultiDataSetArchiverContainerDTO container = getTransaction().createContainer(containerPath);
+        MultiDataSetArchiverContainerDTO container = transaction.createContainer(containerPath);
 
         for (DatasetDescription dataSet : dataSets)
         {
-            getTransaction().insertDataset(dataSet, container);
+            transaction.insertDataset(dataSet, container);
         }
 
         IHierarchicalContent archivedContent = null;
@@ -315,10 +334,36 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    public List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
+    public java.util.List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
     {
         assertAllDataSetsInTheSameContainer(dataSetCodes);
         return getCodesOfAllDataSetsInContainer(dataSetCodes);
+    }
+
+    @Override
+    protected IUnarchivingPreparation getUnarchivingPreparation()
+    {
+        Share scratchShare = findScratchShare();
+
+        IDataSetDirectoryProvider directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
+
+        return new MultiDataSetUnarchivingPreparations(scratchShare, getShareIdManager(), getService(), directoryProvider);
+    }
+
+    private Share findScratchShare()
+    {
+        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
+        Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
+        IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
+        List<Share> shares =
+                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ARCHIVING_SCRATCH, incomingShares,
+                        freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
+        if (shares.size() != 1)
+        {
+            throw new ConfigurationFailureException("There should be exactly one unarchiving scratch share configured!");
+        }
+        Share scratchShare = shares.get(0);
+        return scratchShare;
     }
 
     @Override
@@ -327,13 +372,51 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         return new MultiDataSetArchiverShareFinder();
     }
 
+    public static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation
+    {
+        private final Share scratchShare;
+
+        private final IEncapsulatedOpenBISService service;
+
+        private final IShareIdManager shareIdManager;
+
+        private final IDataSetDirectoryProvider directoryProvider;
+
+        MultiDataSetUnarchivingPreparations(Share scratchShare, IShareIdManager shareIdManager, IEncapsulatedOpenBISService service,
+                IDataSetDirectoryProvider directoryProvider)
+        {
+            this.shareIdManager = shareIdManager;
+            this.service = service;
+            this.scratchShare = scratchShare;
+            this.directoryProvider = directoryProvider;
+        }
+
+        @Override
+        public void prepareForUnarchiving(List<DatasetDescription> dataSets)
+        {
+            for (DatasetDescription dataSet : dataSets)
+            {
+                SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
+                String dataSetCode = dataSet.getDataSetCode();
+                translatedDataSet.setDataSetShareId(null);
+                String oldShareId = shareIdManager.getShareId(dataSetCode);
+                String newShareId = scratchShare.getShareId();
+                if (newShareId.equals(oldShareId) == false)
+                {
+                    service.updateShareIdAndSize(dataSetCode, newShareId, dataSet.getDataSetSize());
+                    shareIdManager.setShareId(dataSetCode, newShareId);
+                }
+            }
+
+            SegmentedStoreUtils.freeSpace(scratchShare, service, dataSets, directoryProvider, shareIdManager, new Log4jSimpleLogger(operationLog));
+
+        }
+    }
+
     @Override
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> parameterDataSets, ArchiverTaskContext context)
     {
-        for (DatasetDescription dataSet : parameterDataSets)
-        {
-            context.getUnarchivingPreparation().prepareForUnarchiving(dataSet);
-        }
+        context.getUnarchivingPreparation().prepareForUnarchiving(parameterDataSets);
 
         List<String> dataSetCodes = translateToDataSetCodes(parameterDataSets);
         long containerId = assertAllDataSetsInTheSameContainer(dataSetCodes);
@@ -413,7 +496,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         long containerId = -1;
         for (String code : dataSetCodes)
         {
-            MultiDataSetArchiverDataSetDTO dataSet = getTransaction().getDataSetForCode(code);
+            MultiDataSetArchiverDataSetDTO dataSet = getReadonlyQuery().getDataSetForCode(code);
             if (dataSet == null)
             {
                 throw new IllegalArgumentException("Dataset " + code
@@ -466,7 +549,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
     protected boolean isDataSetPresentInArchive(String dataSetCode)
     {
-        MultiDataSetArchiverDataSetDTO dataSetInArchiveDB = getTransaction().getDataSetForCode(dataSetCode);
+        MultiDataSetArchiverDataSetDTO dataSetInArchiveDB = getReadonlyQuery().getDataSetForCode(dataSetCode);
         return dataSetInArchiveDB != null;
     }
 
@@ -483,11 +566,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     @Private
     IMultiDataSetArchiverDBTransaction getTransaction()
     {
-        if (transaction == null)
-        {
-            transaction = new MultiDataSetArchiverDBTransaction();
-        }
-        return transaction;
+        return new MultiDataSetArchiverDBTransaction();
     }
 
     IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()

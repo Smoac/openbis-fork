@@ -42,4 +42,6 @@ public interface IMultiDataSetArchiverDBTransaction
 
     public void rollback();
 
+    public void close();
+
 }

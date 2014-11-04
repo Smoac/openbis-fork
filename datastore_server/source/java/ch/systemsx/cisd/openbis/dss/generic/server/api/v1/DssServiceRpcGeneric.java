@@ -65,6 +65,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.NewDataSetDTO;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.v1.ShareInfo;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DatasetLocationUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
@@ -453,7 +454,7 @@ public class DssServiceRpcGeneric extends AbstractDssServiceRpc<IDssServiceRpcGe
         getOpenBISService().checkSession(sessionToken);
         List<Share> shares =
                 SegmentedStoreUtils.getSharesWithDataSets(getStoreDirectory(), dataStoreCode,
-                        false, Collections.<String> emptySet(), freeSpaceProvider,
+                        FilterOptions.ALL, Collections.<String> emptySet(), freeSpaceProvider,
                         getOpenBISService(), new Log4jSimpleLogger(operationLog));
         List<ShareInfo> result = new ArrayList<ShareInfo>();
         for (Share share : shares)

@@ -100,4 +100,12 @@ public class MultiDataSetArchiverDBTransaction implements IMultiDataSetArchiverD
         transaction.rollback();
     }
 
+    /**
+     * @see net.lemnik.eodsql.TransactionQuery#close()
+     */
+    @Override
+    public void close()
+    {
+        transaction.close();
+    }
 }

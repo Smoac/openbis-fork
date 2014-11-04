@@ -49,12 +49,13 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DssPropertyParametersUtil;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
- * Maintenance task which shuffles data sets between shares of a segmented store. This task is
- * supposed to prevent incoming shares from having not enough space.
+ * Maintenance task which shuffles data sets between shares of a segmented store. This task is supposed to prevent incoming shares from having not
+ * enough space.
  * 
  * @author Franz-Josef Elmer
  */
@@ -241,7 +242,7 @@ public class SegmentedStoreShufflingTask implements IDataStoreLockingMaintenance
 
     private List<Share> listShares()
     {
-        return SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, true,
+        return SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                 Collections.<String> emptySet(), freeSpaceProvider, service, operationLogger);
     }
 

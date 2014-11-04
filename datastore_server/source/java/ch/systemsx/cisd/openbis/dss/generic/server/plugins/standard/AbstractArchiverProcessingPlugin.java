@@ -59,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.StandardShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
@@ -359,14 +360,19 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private void setUpUnarchivingPreparation(ArchiverTaskContext context)
     {
+        context.setUnarchivingPreparation(getUnarchivingPreparation());
+    }
+
+    protected IUnarchivingPreparation getUnarchivingPreparation()
+    {
         String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
         Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
         IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, true, incomingShares,
+                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ALL, incomingShares,
                         freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
-        context.setUnarchivingPreparation(new UnarchivingPreparation(getShareFinder(),
-                getShareIdManager(), getService(), shares));
+        return new UnarchivingPreparation(getShareFinder(),
+                getShareIdManager(), getService(), shares);
     }
 
     /**
@@ -717,7 +723,15 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
 
         @Override
-        public void prepareForUnarchiving(DatasetDescription dataSet)
+        public void prepareForUnarchiving(List<DatasetDescription> dataSets)
+        {
+            for (DatasetDescription datasetDescription : dataSets)
+            {
+                findAndUpdateShareForDataset(datasetDescription);
+            }
+        }
+
+        protected void findAndUpdateShareForDataset(DatasetDescription dataSet)
         {
             SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
             String dataSetCode = dataSet.getDataSetCode();

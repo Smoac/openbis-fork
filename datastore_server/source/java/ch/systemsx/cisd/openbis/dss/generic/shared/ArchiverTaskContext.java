@@ -16,24 +16,27 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared;
 
-import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import java.util.List;
 
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 
 /**
  * Context for perfoming archiving/unarchiving.
- *
+ * 
  * @author Franz-Josef Elmer
  */
 public class ArchiverTaskContext
 {
     private final IDataSetDirectoryProvider directoryProvider;
+
     private IUnarchivingPreparation unarchivingPreparation = new IUnarchivingPreparation()
         {
             @Override
-            public void prepareForUnarchiving(DatasetDescription dataSet)
+            public void prepareForUnarchiving(List<DatasetDescription> dataSet)
             {
             }
         };
+
     private final IHierarchicalContentProvider hierarchicalContentProvider;
 
     public ArchiverTaskContext(IDataSetDirectoryProvider directoryProvider,
@@ -66,6 +69,5 @@ public class ArchiverTaskContext
     {
         return unarchivingPreparation;
     }
-    
-    
+
 }
