@@ -55,6 +55,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
@@ -129,8 +130,8 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Returns first the id of the first incoming share folder of specified store root which allows
-     * to move a file from specified incoming folder to the incoming share.
+     * Returns first the id of the first incoming share folder of specified store root which allows to move a file from specified incoming folder to
+     * the incoming share.
      */
     public static String findIncomingShare(File incomingFolder, File storeRoot, ISimpleLogger logger)
     {
@@ -186,17 +187,14 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Gets a list of all shares of specified store root directory. As a side effect it calculates
-     * and updates the size of all data sets if necessary.
+     * Gets a list of all shares of specified store root directory. As a side effect it calculates and updates the size of all data sets if necessary.
      * 
      * @param dataStoreCode Code of the data store to which the root belongs.
-     * @param filterOutToBeIgnoredForShuffling If <code>true</code> no share will be returned which
-     *            has property <code>ignored-for-shuffling == true</code>
-     * @param incomingShares Set of IDs of incoming shares. Will be used to mark {@link Share}
-     *            object in the returned list.
+     * @param filterOutToBeIgnoredForShuffling If <code>true</code> no share will be returned which has property
+     *            <code>ignored-for-shuffling == true</code>
+     * @param incomingShares Set of IDs of incoming shares. Will be used to mark {@link Share} object in the returned list.
      * @param freeSpaceProvider Provider of free space used for all shares.
-     * @param service Access to openBIS API in order to get all data sets and to update data set
-     *            size.
+     * @param service Access to openBIS API in order to get all data sets and to update data set size.
      * @param log Logger for logging size calculations.
      */
     public static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,
@@ -217,29 +215,30 @@ public class SegmentedStoreUtils
                         (System.currentTimeMillis() - start) / 1000.0));
         return shares;
     }
-    
+
     /**
-     * Frees space in specified share for unarchived data sets. This method assumes that the size of 
-     * all specified data sets are known by the {@link DatasetDescription} objects. Data sets with oldest
-     * modification date are removed first. The archiving status of these data sets are set back to ARCHIVED.
+     * Frees space in specified share for unarchived data sets. This method assumes that the size of all specified data sets are known by the
+     * {@link DatasetDescription} objects. Data sets with oldest modification date are removed first. The archiving status of these data sets are set
+     * back to ARCHIVED.
      * 
-     * @param dataSets The data sets which should be kept (if already in the specified share). In addition
-     *                  they specify the amount spaced to be freed. 
+     * @param dataSets The data sets which should be kept (if already in the specified share). In addition they specify the amount of space to be
+     *            freed.
      */
-    public static void freeSpace(Share unarchivingScratchShare, IEncapsulatedOpenBISService service, 
-            List<DatasetDescription> dataSets, IDataSetDirectoryProvider dataSetDirectoryProvider, 
+    public static void freeSpace(Share unarchivingScratchShare, IEncapsulatedOpenBISService service,
+            List<DatasetDescription> dataSets, IDataSetDirectoryProvider dataSetDirectoryProvider,
             IShareIdManager shareIdManager, ISimpleLogger logger)
     {
         if (unarchivingScratchShare.isUnarchivingScratchShare() == false)
         {
-            throw new EnvironmentFailureException("Share '" + unarchivingScratchShare.getShareId() 
-                    + "' isn't an unarchving scratch share. Such a share has the property " 
-                    + ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + " of the file " 
+            throw new EnvironmentFailureException("Share '" + unarchivingScratchShare.getShareId()
+                    + "' isn't an unarchving scratch share. Such a share has the property "
+                    + ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + " of the file "
                     + ShareFactory.SHARE_PROPS_FILE + " set to 'true'.");
         }
         List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>(dataSets);
-        List<SimpleDataSetInformationDTO> filteredDataSetsInShare 
-                = new ArrayList<SimpleDataSetInformationDTO>(unarchivingScratchShare.getDataSetsOrderedBySize());
+        List<SimpleDataSetInformationDTO> filteredDataSetsInShare =
+                new ArrayList<SimpleDataSetInformationDTO>(unarchivingScratchShare.getDataSetsOrderedBySize());
+
         removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
         long requestedSpace = calculateTotalSizeOfDataSetsToKeep(filteredDataSets);
         long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
@@ -249,10 +248,10 @@ public class SegmentedStoreUtils
             List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
                     listDataSetsToRemoveFromShare(filteredDataSetsInShare, requestedSpace, actualFreeSpace,
                             unarchivingScratchShare, logger);
-            logger.log(LogLevel.INFO, "Remove the following data sets from share '" + unarchivingScratchShare.getShareId() 
-                    + "' and set their archiving status back to ARCHIVED: " 
+            logger.log(LogLevel.INFO, "Remove the following data sets from share '" + unarchivingScratchShare.getShareId()
+                    + "' and set their archiving status back to ARCHIVED: "
                     + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
-            service.archiveDataSets(extractCodes(dataSetsToRemoveFromShare), false);
+            service.updateDataSetStatuses(extractCodes(dataSetsToRemoveFromShare), DataSetArchivingStatus.ARCHIVED, true);
             for (SimpleDataSetInformationDTO dataSet : dataSetsToRemoveFromShare)
             {
                 deleteDataSet(dataSet, dataSetDirectoryProvider, shareIdManager, logger);
@@ -262,12 +261,15 @@ public class SegmentedStoreUtils
                     + "set back to ARCHIVED: " + CollectionUtils.abbreviate(extractCodes(dataSetsToRemoveFromShare), 10));
             actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
         }
-        logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '" 
-                + unarchivingScratchShare.getShareId() + "': " + FileUtilities.byteCountToDisplaySize(actualFreeSpace) 
-                + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: " 
+        logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '"
+                + unarchivingScratchShare.getShareId() + "': " + FileUtilities.byteCountToDisplaySize(actualFreeSpace)
+                + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: "
                 + FileUtilities.byteCountToDisplaySize(requestedSpace));
     }
-    
+
+    /**
+     * Remove common data sets from both lists
+     */
     private static void removeCommonDataSets(List<DatasetDescription> dataSets, List<SimpleDataSetInformationDTO> dataSetsInShare)
     {
         Set<String> extractCodes = new HashSet<String>(extractCodes(dataSetsInShare));
@@ -367,17 +369,15 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Moves the specified data set to the specified share. The data set is folder in the store its
-     * name is the data set code. The destination folder is <code>share</code>. Its name is the
-     * share id.
+     * Moves the specified data set to the specified share. The data set is folder in the store its name is the data set code. The destination folder
+     * is <code>share</code>. Its name is the share id.
      * <p>
      * This method works as follows:
      * <ol>
      * <li>Copying data set to new share.
      * <li>Sanity check of successfully copied data set.
      * <li>Changing share id in openBIS AS.
-     * <li>Deletes the data set at the old location after all locks on the data set have been
-     * released.
+     * <li>Deletes the data set at the old location after all locks on the data set have been released.
      * </ol>
      * 
      * @param service to access openBIS AS.
@@ -415,8 +415,8 @@ public class SegmentedStoreUtils
             File dataSetDirInNewShare = new File(share, relativePath);
             dataSetDirInNewShare.mkdirs();
             copyToShare(dataSetDirInStore, dataSetDirInNewShare, logger);
-            logger.log(LogLevel.INFO, "Verifying structure, size and optional checksum of " 
-            		+ "data set content in share " + share.getName() + ".");
+            logger.log(LogLevel.INFO, "Verifying structure, size and optional checksum of "
+                    + "data set content in share " + share.getName() + ".");
             long size =
                     assertEqualSizeAndChildren(dataSetCode, dataSetDirInStore, dataSetDirInStore,
                             dataSetDirInNewShare, dataSetDirInNewShare, checksumProvider);
@@ -429,20 +429,19 @@ public class SegmentedStoreUtils
         }
         deleteDataSet(dataSetCode, dataSetDirInStore, shareIdManager, logger);
     }
-    
+
     private static void assertNoUnarchivingScratchShare(File share, ISimpleLogger logger)
     {
         if (new ShareFactory().createShare(share, null, logger).isUnarchivingScratchShare())
         {
-            throw new EnvironmentFailureException("Share '" + share.getName() 
+            throw new EnvironmentFailureException("Share '" + share.getName()
                     + "' is a scratch share for unarchiving purposes. "
                     + "No data sets can be moved from/to such a share.");
         }
     }
 
     /**
-     * Deletes specified data set at specified location. This methods waits until any locks on the
-     * specified data set have been released.
+     * Deletes specified data set at specified location. This methods waits until any locks on the specified data set have been released.
      */
     protected static void deleteDataSet(final String dataSetCode, final File dataSetDirInStore,
             final IShareIdManager shareIdManager, final ISimpleLogger logger)
@@ -453,8 +452,7 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Deletes specified data set. This methods waits until any locks on the specified data set have
-     * been released.
+     * Deletes specified data set. This methods waits until any locks on the specified data set have been released.
      */
     public static void deleteDataSet(final IDatasetLocation dataSet,
             final IDataSetDirectoryProvider dataSetDirectoryProvider,
@@ -468,8 +466,7 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Deletes specified data set at specified location. This methods doesn't wait for any locks and
-     * removes the data set instantly.
+     * Deletes specified data set at specified location. This methods doesn't wait for any locks and removes the data set instantly.
      */
     public static void deleteDataSetInstantly(final String dataSetCode,
             final File dataSetDirInStore, final ISimpleLogger logger)
@@ -489,8 +486,7 @@ public class SegmentedStoreUtils
     }
 
     /**
-     * Deletes specified data set in the old share if it is already in the new one or in the new one
-     * if it is still in the old one.
+     * Deletes specified data set in the old share if it is already in the new one or in the new one if it is still in the old one.
      * 
      * @param shareIdManager provides the current share.
      */
