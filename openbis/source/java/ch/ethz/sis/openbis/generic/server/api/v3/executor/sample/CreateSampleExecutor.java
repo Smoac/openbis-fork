@@ -25,7 +25,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
@@ -33,11 +35,17 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.ICreateAtta
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IAddTagToEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.server.authorization.validator.SampleByIdentiferValidator;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.DataAccessExceptionTranslator;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
+import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.RelationshipUtils;
 
 /**
@@ -99,38 +107,44 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
     @Override
     public List<SamplePermId> create(IOperationContext context, List<SampleCreation> creations)
     {
-        List<SamplePermId> permIdsAll = new LinkedList<SamplePermId>();
-        Map<SampleCreation, SamplePE> samplesAll = new LinkedHashMap<SampleCreation, SamplePE>();
-
-        int batchSize = 1000;
-        for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
+        try
         {
-            List<SampleCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
-            createSamples(context, creationsBatch, permIdsAll, samplesAll);
+            List<SamplePermId> permIdsAll = new LinkedList<SamplePermId>();
+            Map<SampleCreation, SamplePE> samplesAll = new LinkedHashMap<SampleCreation, SamplePE>();
 
-            for (SampleCreation creation : creationsBatch)
+            int batchSize = 1000;
+            for (int batchStart = 0; batchStart < creations.size(); batchStart += batchSize)
             {
-                SamplePE sample = samplesAll.get(creation);
-                createAttachmentExecutor.create(context, sample, creation.getAttachments());
-                addTagToEntityExecutor.add(context, sample, creation.getTagIds());
+                List<SampleCreation> creationsBatch = creations.subList(batchStart, Math.min(batchStart + batchSize, creations.size()));
+                createSamples(context, creationsBatch, permIdsAll, samplesAll);
+
+                for (SampleCreation creation : creationsBatch)
+                {
+                    SamplePE sample = samplesAll.get(creation);
+                    createAttachmentExecutor.create(context, sample, creation.getAttachments());
+                    addTagToEntityExecutor.add(context, sample, creation.getTagIds());
+                }
+
+                daoFactory.getSessionFactory().getCurrentSession().flush();
+                daoFactory.getSessionFactory().getCurrentSession().clear();
             }
+
+            reloadSamples(samplesAll);
+
+            setSampleRelatedSamplesExecutor.set(context, samplesAll);
+            verifySampleExecutor.verify(context, samplesAll.values());
 
             daoFactory.getSessionFactory().getCurrentSession().flush();
             daoFactory.getSessionFactory().getCurrentSession().clear();
+            return permIdsAll;
+        } catch (DataAccessException e)
+        {
+            DataAccessExceptionTranslator.throwException(e, "Sample", EntityKind.SAMPLE);
+            return null;
         }
-
-        reloadSamples(samplesAll);
-
-        setSampleRelatedSamplesExecutor.set(context, samplesAll);
-        verifySampleExecutor.verify(context, samplesAll.values());
-
-        daoFactory.getSessionFactory().getCurrentSession().flush();
-        daoFactory.getSessionFactory().getCurrentSession().clear();
-
-        return permIdsAll;
     }
 
-    private void createSamples(IOperationContext context, List<SampleCreation> creationsBatch, 
+    private void createSamples(IOperationContext context, List<SampleCreation> creationsBatch,
             List<SamplePermId> permIdsAll, Map<SampleCreation, SamplePE> samplesAll)
     {
         Map<SampleCreation, SamplePE> batchMap = new LinkedHashMap<SampleCreation, SamplePE>();
@@ -157,6 +171,12 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
         for (Map.Entry<SampleCreation, SamplePE> batchEntry : batchMap.entrySet())
         {
             SamplePE sample = batchEntry.getValue();
+
+            if (false == new SampleByIdentiferValidator().doValidation(context.getSession().tryGetPerson(), sample))
+            {
+                throw new UnauthorizedObjectAccessException(new SampleIdentifier(sample.getIdentifier()));
+            }
+
             Map<String, String> properties = batchEntry.getKey().getProperties();
             updateEntityPropertyExecutor.update(context, sample, sample.getEntityType(), properties);
         }
@@ -168,11 +188,13 @@ public class CreateSampleExecutor implements ICreateSampleExecutor
 
     private SamplePE createSamplePE(IOperationContext context, SampleCreation sampleCreation)
     {
-        if (sampleCreation.getCode() == null)
+        if (StringUtils.isEmpty(sampleCreation.getCode()))
         {
-            throw new UserFailureException("No code for sample provided");
+            throw new UserFailureException("Code cannot be empty.");
         }
-        
+
+        SampleIdentifierFactory.assertValidCode(sampleCreation.getCode());
+
         SamplePE sample = new SamplePE();
         sample.setCode(sampleCreation.getCode());
         String createdPermId = daoFactory.getPermIdDAO().createPermId();

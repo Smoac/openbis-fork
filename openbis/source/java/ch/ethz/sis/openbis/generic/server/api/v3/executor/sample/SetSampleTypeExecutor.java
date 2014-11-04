@@ -68,7 +68,7 @@ public class SetSampleTypeExecutor implements ISetSampleTypeExecutor
 
             if (creation.getTypeId() == null)
             {
-                throw new UserFailureException("No type for sample provided");
+                throw new UserFailureException("Type id cannot be null.");
             } else
             {
                 EntityTypePE type = typeMap.get(creation.getTypeId());

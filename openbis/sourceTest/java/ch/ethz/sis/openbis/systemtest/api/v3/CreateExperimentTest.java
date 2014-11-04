@@ -75,6 +75,28 @@ public class CreateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testCreateExperimentWithExistingCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentCreation experiment = new ExperimentCreation();
+        experiment.setCode("EXPERIMENT_WITH_EXISTING_CODE");
+        experiment.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        experiment.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+
+        v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createExperiments(sessionToken, Arrays.asList(experiment));
+                }
+            }, "Experiment already exists in the database and needs to be unique", ExperimentContextDescription.creating(experiment));
+    }
+
+    @Test
     public void testCreateExperimentWithIncorrectCode()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -307,7 +329,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testCreateExperimentWithIncorrectPropertyValue()
+    public void testCreateExperimentWithIncorrectDatePropertyValue()
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 

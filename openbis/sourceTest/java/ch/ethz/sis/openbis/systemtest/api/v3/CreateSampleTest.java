@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.fail;
 
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -58,6 +61,477 @@ import ch.systemsx.cisd.common.test.AssertionUtil;
  */
 public class CreateSampleTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testCreateSampleWithoutCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final SampleCreation sample = sampleCreation(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(sample));
+                }
+            }, "Code cannot be empty");
+    }
+
+    @Test
+    public void testCreateSampleWithExistingCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation sample = sampleCreation("SAMPLE_WITH_EXISTING_CODE");
+        v3api.createSamples(sessionToken, Arrays.asList(sample));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(sample));
+                }
+            }, "Insert/Update of sample (code: SAMPLE_WITH_EXISTING_CODE) failed because sample with the same code already exists");
+    }
+
+    @Test
+    public void testCreateSampleWithIncorrectCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final SampleCreation sample = sampleCreation("?!*");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(sample));
+                }
+            }, "The code '?!*' contains illegal characters");
+    }
+
+    @Test
+    public void testCreateSampleWithoutType()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation sample = new SampleCreation();
+        sample.setCode("SAMPLE_WITHOUT_TYPE");
+        sample.setSpaceId(new SpacePermId("CISD"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(sample));
+                }
+            }, "Type id cannot be null");
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentType()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final IEntityTypeId typeId = new EntityTypePermId("IDONTEXIST");
+        final SampleCreation sample = new SampleCreation();
+        sample.setTypeId(typeId);
+        sample.setCode("SAMPLE_WITH_NONEXISTENT_TYPE");
+        sample.setSpaceId(new SpacePermId("CISD"));
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(sample));
+                }
+            }, typeId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentPropertyCode()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_NONEXISTENT_PROPERTY_CODE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(creation));
+                }
+            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
+    }
+
+    @Test
+    public void testCreateSampleWithIncorrectVocabularyPropertyValue()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_INCORRECT_PROPERTY_VALUE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+        creation.setProperty("ORGANISM", "NON_EXISTENT_ORGANISM");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(creation));
+                }
+            }, "Vocabulary value 'NON_EXISTENT_ORGANISM' is not valid. It must exist in 'ORGANISM' controlled vocabulary");
+    }
+
+    @Test
+    public void testCreateSampleWithoutMandatoryPropertyValue()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_EMPTY_MANDATORY_PROPERTY");
+        creation.setTypeId(new EntityTypePermId("CONTROL_LAYOUT"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Arrays.asList(creation));
+                }
+            }, "Value of mandatory property '$PLATE_GEOMETRY' not specified");
+    }
+
+    @Test
+    public void testCreateSampleWithoutSpaceButWithExperiment()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SHARED_SAMPLE_TEST");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, "Shared samples cannot be attached to experiments");
+    }
+
+    @Test
+    public void testCreateSampleWithoutSpaceAsAdminUser()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SHARED_SAMPLE_TEST");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchSpace();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
+        Sample sample = map.values().iterator().next();
+
+        assertEquals(sample.getCode(), "SHARED_SAMPLE_TEST");
+        assertNull(sample.getSpace());
+    }
+
+    @Test
+    public void testCreateSampleWithoutSpaceAsSpaceUser()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SHARED_SAMPLE_TEST");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, new SampleIdentifier("/SHARED_SAMPLE_TEST"));
+    }
+
+    @Test
+    public void testCreateSampleWithUnauthorizedSpace()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISpaceId spaceId = new SpacePermId("CISD");
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("UNAUTHORIZED_SPACE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(spaceId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, spaceId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentSpace()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISpaceId spaceId = new SpacePermId("IDONTEXIST");
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("NONEXISTENT_SPACE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(spaceId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, spaceId);
+    }
+
+    @Test
+    public void testCreateSampleWithInconsistentSpace()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE_WITH_INCONSISTENT_SPACE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, "Sample space must be the same as experiment space");
+    }
+
+    @Test
+    public void testCreateSampleWithUnauthorizedExperiment()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("UNAUTHORIZED_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(experimentId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, experimentId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentExperiment()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
+        final SampleCreation creation = new SampleCreation();
+        creation.setCode("NONEXISTENT_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(experimentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, experimentId);
+    }
+
+    @Test
+    public void testCreateSampleWithUnauthorizedParent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId parentId = createCisdSample("PARENT_SAMPLE");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_PARENT");
+        creation.setParentIds(Collections.singletonList(parentId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentParent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId parentId = new SamplePermId("IDONTEXIST");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_PARENT");
+        creation.setParentIds(Collections.singletonList(parentId));
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testCreateSampleWithUnauthorizedChild()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId childId = createCisdSample("CHILD_SAMPLE");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CHILD");
+        creation.setChildIds(Collections.singletonList(childId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, childId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentChild()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId childId = new SamplePermId("IDONTEXIST");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CHILD");
+        creation.setChildIds(Collections.singletonList(childId));
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, childId);
+    }
+
+    @Test
+    public void testCreateSampleWithUnauthorizedContainer()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containerId = createCisdSample("CONTAINER_SAMPLE");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CONTAINER");
+        creation.setContainerId(containerId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, containerId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonExistentContainer()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containerId = new SamplePermId("IDONTEXIST");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CONTAINER");
+        creation.setContainerId(containerId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, containerId);
+    }
+
+    @Test
+    public void testCreateSampleWithUnauthorizedContained()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containedId = createCisdSample("CONTAINED_SAMPLE");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CONTAINED");
+        creation.setContainedIds(Collections.singletonList(containedId));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, containedId);
+    }
+
+    @Test
+    public void testCreateSampleWithNonexistentContained()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containedId = new SamplePermId("IDONTEXIST");
+        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CONTAINED");
+        creation.setContainedIds(Collections.singletonList(containedId));
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
+                }
+            }, containedId);
+    }
 
     @DataProvider(name = "tf-ft-tt")
     Object[][] getDataProviderForRelationTest()
@@ -473,259 +947,6 @@ public class CreateSampleTest extends AbstractSampleTest
         {
             AssertionUtil.assertContains("cannot be it's own container. (Context: [])", ufe.getMessage());
         }
-    }
-
-    @Test
-    public void testCreateSampleWithoutCode()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        SampleCreation sample = sampleCreation(null);
-        try
-        {
-            v3api.createSamples(sessionToken, Arrays.asList(sample));
-            fail("Expected user failure exception");
-        } catch (UserFailureException ufe)
-        {
-            AssertionUtil.assertContains("No code for sample provided", ufe.getMessage());
-        }
-    }
-
-    @Test
-    public void testCreateSampleWithUnauthorizedSpace()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISpaceId spaceId = new SpacePermId("CISD");
-        final SampleCreation creation = new SampleCreation();
-        creation.setCode("UNAUTHORIZED_SPACE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(spaceId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, spaceId);
-    }
-
-    @Test
-    public void testCreateSampleWithNonexistentSpace()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISpaceId spaceId = new SpacePermId("IDONTEXIST");
-        final SampleCreation creation = new SampleCreation();
-        creation.setCode("NONEXISTENT_SPACE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(spaceId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, spaceId);
-    }
-
-    @Test
-    public void testCreateSampleWithUnauthorizedExperiment()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
-        final SampleCreation creation = new SampleCreation();
-        creation.setCode("UNAUTHORIZED_EXPERIMENT");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
-        creation.setExperimentId(experimentId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, experimentId);
-    }
-
-    @Test
-    public void testCreateSampleWithNonexistentExperiment()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
-        final SampleCreation creation = new SampleCreation();
-        creation.setCode("NONEXISTENT_EXPERIMENT");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
-        creation.setExperimentId(experimentId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, experimentId);
-    }
-
-    @Test
-    public void testCreateSampleWithUnauthorizedParent()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId parentId = createCisdSample("PARENT_SAMPLE");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_PARENT");
-        creation.setParentIds(Collections.singletonList(parentId));
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, parentId);
-    }
-
-    @Test
-    public void testCreateSampleWithNonexistentParent()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId parentId = new SamplePermId("IDONTEXIST");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_PARENT");
-        creation.setParentIds(Collections.singletonList(parentId));
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, parentId);
-    }
-
-    @Test
-    public void testCreateSampleWithUnauthorizedChild()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId childId = createCisdSample("CHILD_SAMPLE");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CHILD");
-        creation.setChildIds(Collections.singletonList(childId));
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, childId);
-    }
-
-    @Test
-    public void testCreateSampleWithNonexistentChild()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId childId = new SamplePermId("IDONTEXIST");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CHILD");
-        creation.setChildIds(Collections.singletonList(childId));
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, childId);
-    }
-
-    @Test
-    public void testCreateSampleWithUnauthorizedContainer()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containerId = createCisdSample("CONTAINER_SAMPLE");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CONTAINER");
-        creation.setContainerId(containerId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, containerId);
-    }
-
-    @Test
-    public void testCreateSampleWithNonExistentContainer()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containerId = new SamplePermId("IDONTEXIST");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CONTAINER");
-        creation.setContainerId(containerId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, containerId);
-    }
-
-    @Test
-    public void testCreateSampleWithUnauthorizedContained()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containedId = createCisdSample("CONTAINED_SAMPLE");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_UNAUTHORIZED_CONTAINED");
-        creation.setContainedIds(Collections.singletonList(containedId));
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, containedId);
-    }
-
-    @Test
-    public void testCreateSampleWithNonexistentContained()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containedId = new SamplePermId("IDONTEXIST");
-        final SampleCreation creation = sampleCreation("TEST-SPACE", "HAS_NONEXISTENT_CONTAINED");
-        creation.setContainedIds(Collections.singletonList(containedId));
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.createSamples(sessionToken, Collections.singletonList(creation));
-                }
-            }, containedId);
     }
 
     private SampleCreation sampleCreation(String code)
