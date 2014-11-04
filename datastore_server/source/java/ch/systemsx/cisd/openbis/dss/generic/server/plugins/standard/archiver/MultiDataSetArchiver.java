@@ -151,15 +151,12 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
      * <code>dataSets</code> and removes those which are present in the archive already (or not present, depending on the <code>filterOption</code>).
      * For those removed data sets it adds entry with <code>status</code> for <code>operation</code> in <code>result</code>
      */
-    private void filterBasedOnArchiveStatus(LinkedList<? extends IDatasetLocation> dataSets, DatasetProcessingStatuses result,
-            FilterOption filterOption,
-            Status status, Operation operation)
+    private void filterBasedOnArchiveStatus(LinkedList<? extends IDatasetLocation> dataSets, 
+            DatasetProcessingStatuses result, FilterOption filterOption, Status status, Operation operation)
     {
-
-        Iterator<? extends IDatasetLocation> it = dataSets.iterator();
-        while (it.hasNext())
+        for (Iterator<? extends IDatasetLocation> iterator = dataSets.iterator(); iterator.hasNext();)
         {
-            IDatasetLocation dataSet = it.next();
+            IDatasetLocation dataSet = iterator.next();
             boolean isPresentInArchive = isDataSetPresentInArchive(dataSet.getDataSetCode());
 
             boolean isFiltered;
@@ -179,7 +176,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             if (isFiltered)
             {
                 result.addResult(dataSet.getDataSetCode(), status, operation);
-                it.remove();
+                iterator.remove();
             }
         }
     }

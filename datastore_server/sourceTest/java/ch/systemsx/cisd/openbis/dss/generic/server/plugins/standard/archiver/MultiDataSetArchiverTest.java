@@ -118,6 +118,10 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private List<MultiDataSetArchiverDataSetDTO> dataSets = new ArrayList<MultiDataSetArchiverDataSetDTO>();
 
+        private List<MultiDataSetArchiverContainerDTO> uncommittedContainers = new ArrayList<MultiDataSetArchiverContainerDTO>();
+        
+        private List<MultiDataSetArchiverDataSetDTO> uncommittedDataSets = new ArrayList<MultiDataSetArchiverDataSetDTO>();
+        
         private boolean committed;
 
         private boolean rolledBack;
@@ -140,7 +144,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         public MultiDataSetArchiverContainerDTO createContainer(String path)
         {
             MultiDataSetArchiverContainerDTO container = new MultiDataSetArchiverContainerDTO(id++, path);
-            containers.add(container);
+            uncommittedContainers.add(container);
             return container;
         }
 
@@ -150,7 +154,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             String dataSetCode = dataSet.getDataSetCode();
             Long dataSetSize = dataSet.getDataSetSize();
             MultiDataSetArchiverDataSetDTO dataSetDTO = new MultiDataSetArchiverDataSetDTO(id++, dataSetCode, container.getId(), dataSetSize);
-            dataSets.add(dataSetDTO);
+            uncommittedDataSets.add(dataSetDTO);
             return dataSetDTO;
         }
 
@@ -210,13 +214,23 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         @Override
         public void commit()
         {
+            containers.addAll(uncommittedContainers);
+            dataSets.addAll(uncommittedDataSets);
             committed = true;
+            clearUncommitted();
         }
 
         @Override
         public void rollback()
         {
             rolledBack = true;
+            clearUncommitted();
+        }
+        
+        private void clearUncommitted()
+        {
+            uncommittedContainers.clear();
+            uncommittedDataSets.clear();
         }
 
         @Override
@@ -244,7 +258,23 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
             {
                 builder.append('\n').append(dataSet);
             }
-            builder.append("\ncomitted: ").append(committed);
+            if (uncommittedContainers.isEmpty() == false)
+            {
+                builder.append("\nUncommitted containers:");
+                for (MultiDataSetArchiverContainerDTO container : uncommittedContainers)
+                {
+                    builder.append('\n').append(container);
+                }
+            }
+            if (uncommittedDataSets.isEmpty() == false)
+            {
+                builder.append("\nUncommitted data sets:");
+                for (MultiDataSetArchiverDataSetDTO dataSet : uncommittedDataSets)
+                {
+                    builder.append('\n').append(dataSet);
+                }
+            }
+            builder.append("\ncommitted: ").append(committed);
             builder.append(", rolledBack: ").append(rolledBack);
             return builder.toString();
         }
@@ -450,7 +480,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "to be archived with multi dataset archiver because minimum size is 35 bytes.\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
-        assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true", transaction.toString());
+        assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -469,7 +499,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "to be archived with multi dataset archiver because maximum size is 27 bytes.\"]",
                 status.getErrorStatuses().toString());
         assertEquals("[ds1, ds2]: AVAILABLE false\n", statusUpdater.toString());
-        assertEquals("Containers:\nData sets:\ncomitted: false, rolledBack: true", transaction.toString());
+        assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -513,7 +543,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: true, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -579,7 +609,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds1.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds1, containerId=0, sizeInBytes=10]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=2, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: true, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -590,6 +620,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiverContainerDTO container = transaction.createContainer("path");
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds2, container);
+        transaction.commit();
 
         MultiDataSetArchiver archiver = createArchiver(null);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
@@ -602,7 +633,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=path]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: false, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -615,6 +646,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiverContainerDTO container = transaction.createContainer("path");
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds2, container);
+        transaction.commit();
         assertEquals(true, new File(share, ds1.getDataSetCode()).exists());
         assertEquals(true, new File(share, ds2.getDataSetCode()).exists());
 
@@ -655,16 +687,15 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "MultiDataSetArchiverContainerDTO [id=2, path=ds1.tar]\n"
                 + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
                 + "MultiDataSetArchiverDataSetDTO [id=3, code=ds1, containerId=2, sizeInBytes=10]\n"
-                + "comitted: true, rolledBack: false", transaction.toString());
+                + "committed: true, rolledBack: false", transaction.toString());
         assertEquals("[Dataset 'ds1', Dataset 'ds2']\n", dataSetDeleter.toString());
         context.assertIsSatisfied();
     }
 
-    // @Test
+    @Test
     public void testArchiveDataSetFails()
     {
         prepareUpdateShareIdAndSize(ds2, 20);
-        prepareLockAndReleaseDataSet(ds2);
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         final String containerPath = "data-set-path";
         prepareFileOperationsGenerateContainerPath(containerPath, ds2);
@@ -680,15 +711,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         MultiDataSetArchiver archiver = createArchiver(fileOperations);
         ProcessingStatus status = archiver.archive(Arrays.asList(ds2), archiverContext, false);
 
-        assertEquals("", logRecorder.getLogContent());
-        assertEquals("[ERROR: \"Archiving failed to calculate dataset sizes:Oohps!\"]", status.getErrorStatuses().toString());
+        assertEquals("[ERROR: \"Couldn't create package file in stage archive data-set-path\"]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.listFiles()).toString());
         File archiveFile = new File(archive, ds2.getDataSetCode() + ".tar");
         assertEquals(false, archiveFile.exists());
-        assertEquals("[ds2]: AVAILABLE true\n", statusUpdater.toString());
-        assertEquals("Containers:\nMultiDataSetArchiverContainerDTO [id=0, path=ds2.tar]\n"
-                + "Data sets:\nMultiDataSetArchiverDataSetDTO [id=1, code=ds2, containerId=0, sizeInBytes=20]\n"
-                + "comitted: true, rolledBack: false", transaction.toString());
+        assertEquals("[ds2]: AVAILABLE false\n", statusUpdater.toString());
+        assertEquals("Containers:\nData sets:\ncommitted: false, rolledBack: true", transaction.toString());
         context.assertIsSatisfied();
     }
 
@@ -736,6 +764,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds1, c1);
         transaction.insertDataset(ds2, c2);
+        transaction.commit();
         properties.setProperty(MINIMUM_CONTAINER_SIZE_IN_BYTES, "15");
         MultiDataSetArchiver archiver = createArchiver(null);
         
@@ -755,6 +784,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds1, c1);
         transaction.insertDataset(ds2, c1);
+        transaction.commit();
         MultiDataSetArchiver archiver = createArchiver(null);
         
         List<String> codes = archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds2.getDataSetCode()));
@@ -772,6 +802,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         ds2.setDataSetSize(20L);
         transaction.insertDataset(ds1, c1);
         transaction.insertDataset(ds2, c2);
+        transaction.commit();
         MultiDataSetArchiver archiver = createArchiver(null);
         
         try
