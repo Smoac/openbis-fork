@@ -414,7 +414,7 @@ createSampleTypeWithProperties("CHEMICAL", "", [
 	["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product"],
 	["ARTICLE_NUMBER", 		"Supplier and storage", "Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product"],
 	["STORAGE", 			"Supplier and storage", "Storage", 				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product"],
-	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.VARCHAR,				None,		"Several comments can be added by different users"]
+	["XMLCOMMENTS", 		"Comments", 			"Comments List", 		DataType.XML,					None,		"Several comments can be added by different users"]
 ]);
 
 createSampleTypeWithProperties("ENZYME", "", [
@@ -423,5 +423,17 @@ createSampleTypeWithProperties("ENZYME", "", [
 	["ARTICLE_NUMBER", 		"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,		"Article number of the product"],
 	["KIT", 				"Supplier and storage",	"Kit including",		DataType.MULTILINE_VARCHAR,		None,		"What the company includes with the enzyme"],
 	["STORAGE",				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",	"Storage conditions of the product"],
-	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.VARCHAR,				None,		"Several comments can be added by different users"]
+	["XMLCOMMENTS",			"Comments",				"Comments List",		DataType.XML,					None,		"Several comments can be added by different users"]
+]);
+
+createSampleTypeWithProperties("MEDIA", "", [
+	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name"],
+	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab"],
+	["ORGANISM", 			"General",				"Organism",				DataType.CONTROLLEDVOCABULARY,	"ORGANISM",		"For what organism this medium is used"],
+	["STORAGE", 			"Storage",				"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",		"Storage conditions of the product"],
+	["STOCK_CONCENTRATION", "Storage",				"Stock concentration",	DataType.VARCHAR,				None,			"Stock concentration of the solution where the product is kept in the lab"],
+	["STERILIZATION", 		"Storage",				"Sterilization",		DataType.CONTROLLEDVOCABULARY,	"STERILIZATION","How the solution/buffer is sterilized when prepared"],
+	["PUBLICATION", 		"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,			"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Deatails for solution/buffer preparation"],
+	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users"]
 ]);
