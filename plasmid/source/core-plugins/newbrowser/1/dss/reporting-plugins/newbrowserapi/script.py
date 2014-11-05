@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+# IDataSetRegistrationTransactionV2 Class
 from ch.systemsx.cisd.openbis.dss.client.api.v1 import DssComponentFactory
 from org.apache.commons.io import IOUtils
 from java.io import File
@@ -27,6 +28,8 @@ def process(tr, parameters, tableBuilder):
 	
 	isOk = False;
 	
+	if method == "init":
+		isOk = init(tr, parameters, tableBuilder);
 	if method == "insertProject":
 		isOk = insertUpdateProject(tr, parameters, tableBuilder);
 	if method == "updateProject":
@@ -62,6 +65,33 @@ def process(tr, parameters, tableBuilder):
 		row.setCell("STATUS","FAIL");
 		row.setCell("MESSAGE", "Operation Failed");
 
+def init(tr, parameters, tableBuilder):
+	tr.createNewSpace("INVENTORY", None);
+	tr.createNewProject("/INVENTORY/MATERIALS");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/ANTIBODY", 		"ANTIBODY");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/BACTERIA", 		"BACTERIA");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/CHEMICAL", 		"CHEMICAL");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/ENZYME", 			"ENZYME");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/CELL_LINE",		"CELL_LINE");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/FLY", 				"FLY");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/MEDIA", 			"MEDIA");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/OLIGO", 			"OLIGO");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/PLASMID", 			"PLASMID");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/YEAST", 			"YEAST");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/SOLUTION_BUFFER", 	"SOLUTION_BUFFER");
+	tr.createNewExperiment("/INVENTORY/MATERIALS/RNA", 				"RNA");
+	
+	tr.createNewProject("/INVENTORY/METHODS");
+	tr.createNewExperiment("/INVENTORY/METHODS/GENERAL_PROTOCOL", 			"GENERAL_PROTOCOL");
+	tr.createNewExperiment("/INVENTORY/METHODS/PCR_PROTOCOL", 				"PCR_PROTOCOL");
+	tr.createNewExperiment("/INVENTORY/METHODS/WESTERN_BLOTTING_PROTOCOL", 	"WESTERN_BLOTTING_PROTOCOL");
+	
+	tr.createNewSpace("DEFAULT_LAB_NOTEBOOK", None);
+	tr.createNewProject("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT");
+	tr.createNewExperiment("/DEFAULT_LAB_NOTEBOOK/DEFAULT_PROJECT/DEFAULT_EXPERIMENT", 	"DEFAULT_EXPERIMENT");
+	
+	return True;
+	
 def getThreadProperties(transaction):
   threadPropertyDict = {}
   threadProperties = transaction.getGlobalState().getThreadParameters().getThreadProperties()

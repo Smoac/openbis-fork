@@ -461,8 +461,18 @@ $.extend(DefaultProfile.prototype, {
 					}
 					
 					localReference.serverFacade.listSpaces(function(spaces) {
-						localReference.allSpaces = spaces;
-						callback();
+						if($.inArray("INVENTORY", spaces) === -1) {
+							mainController.serverFacade.createReportFromAggregationService(localReference.getDefaultDataStoreCode(), {"method" : "init" }, function() {
+								localReference.serverFacade.listSpaces(function(spaces) {
+									localReference.allSpaces = spaces;
+									callback();
+								});
+							});
+								
+						} else {
+							localReference.allSpaces = spaces;
+							callback();
+						}
 					})
 				}
 			);
