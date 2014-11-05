@@ -495,3 +495,34 @@ createSampleTypeWithProperties("OLIGO", "", [
 	["SEQUENC", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide"],
 	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("RNA", "", [
+	["RNA_NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand"],
+	["TARGET", 					"General",				"Target of the RNA",	DataType.VARCHAR,				None,				"Target of the oligonucleotide"],
+	["TYPE", 					"General",				"Type of RNA",			DataType.CONTROLLEDVOCABULARY,	"RNA_TYPE",			"Type of RNA in terms of function: mimic of RNAi or inhibitor of RNAi"],
+	["STRAND", 					"Details",				"Strand",				DataType.CONTROLLEDVOCABULARY,	"STRAND",			"Double or single strand RNA"],
+	["BACKBONE_TYPE", 			"Details",				"Backbone type",		DataType.CONTROLLEDVOCABULARY,	"RNA_BACKBONE",		"Type of backbone, modifications in the backbone"],
+	["MODIFICATIONS", 			"Details",				"Modifications",		DataType.VARCHAR,				None,				"Modifications of the ordered oligonucleotide"],
+	["SEQUENCE", 				"Details",				"Sequence",				DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide"],
+	["SUPPLIER", 				"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,				"Supplier of the product"],
+	["ARTICLE_NUMBER", 			"Supplier and storage",	"Art. Number",			DataType.MULTILINE_VARCHAR,		None,				"Article number of the product"],
+	["STORAGE", 				"Supplier and storage",	"Storage",				DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product"],
+	["PUBLICATION", 			"Comments",				"Publication",			DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["XMLCOMMENTS", 			"Comments",				"Comments List",		DataType.XML,					None,				"Several comments can be added by different users"]
+]);
+
+createSampleTypeWithProperties("PLASMID", "", [
+	["PLASMID_NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name"],
+	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
+	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number"],
+	["BACKBONE", 						"Details",				"Backbone",							DataType.CONTROLLEDVOCABULARY,	"BACKBONE",							"Backbone of the plasmid"],
+	["BACTERIAL_ANTIBIOTIC_RESISTANCE", "Details",				"Bacterial Antibiotic Resistance",	DataType.CONTROLLEDVOCABULARY,	"BACTERIAL_ANTIBIOTIC_RESISTANCE",	"Bacterial antibiotic resistance"],
+	["MARKER", 							"Details",				"Marke",							DataType.CONTROLLEDVOCABULARY,	"MARKER",							"Marker to select the strain/cell line after transformation/transfection"],
+	["OTHER_MARKER", 					"Details",				"Other Marker",						DataType.VARCHAR,				None,								"Other marker useful for selection"],
+	["FLANKING_RESTRICTION_ENZYMES", 	"Details",				"Flanking Restriction Enzymes",		DataType.VARCHAR,				None,								"Restriction enzymes sites flanking the insert of the plasmid"],
+	["OLIGOS_TEMPLATE", 				"Details",				"Oligos and template",				DataType.MULTILINE_VARCHAR,		None,								"Oligos and template used to clone the single parts of the plasmid"],
+	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab"],
+	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes"],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users"]
+]);
