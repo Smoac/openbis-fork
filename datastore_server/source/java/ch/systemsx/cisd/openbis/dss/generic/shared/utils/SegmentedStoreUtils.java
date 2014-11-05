@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
@@ -80,7 +81,7 @@ public class SegmentedStoreUtils
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
-    private static final Long MINIMUM_FREE_SCRATCH_SPACE = 1024L * 1024 * 1024;
+    @Private static final Long MINIMUM_FREE_SCRATCH_SPACE = FileUtils.ONE_GB;
 
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {
@@ -116,7 +117,32 @@ public class SegmentedStoreUtils
 
     public static enum FilterOptions
     {
-        ALL, AVAILABLE_FOR_SHUFFLING, ARCHIVING_SCRATCH
+        ALL()
+        {
+            @Override
+            boolean isSelected(Share share)
+            {
+                return true;
+            }
+        },
+        AVAILABLE_FOR_SHUFFLING()
+        {
+            @Override
+            boolean isSelected(Share share)
+            {
+                return false == (share.isIgnoredForShuffling() || share.isUnarchivingScratchShare());
+            }
+        },
+        ARCHIVING_SCRATCH()
+        {
+            @Override
+            boolean isSelected(Share share)
+            {
+                return share.isUnarchivingScratchShare();
+            }
+        };
+
+        abstract boolean isSelected(Share share);
     }
 
     /**
@@ -338,7 +364,8 @@ public class SegmentedStoreUtils
         {
             throw new EnvironmentFailureException("Even after removing all removable data sets from share '"
                     + share.getShareId() + "' there would be still only " + FileUtilities.byteCountToDisplaySize(freeSpace)
-                    + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace) + " is requested.");
+                    + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace) 
+                    + " is requested.");
         }
         return dataSetsToRemoveFromShare;
     }
@@ -372,27 +399,12 @@ public class SegmentedStoreUtils
             final Share share =
                     new ShareFactory().createShare(sharesHolder, file, freeSpaceProvider, log);
 
-            if (isShareSelected(share, filterOptions))
+            if (filterOptions.isSelected(share))
             {
                 shares.put(share.getShareId(), share);
             }
         }
         return shares;
-    }
-
-    private static boolean isShareSelected(Share share, FilterOptions filterOptions)
-    {
-        switch (filterOptions)
-        {
-            case ALL:
-                return true;
-            case ARCHIVING_SCRATCH:
-                return share.isUnarchivingScratchShare();
-            case AVAILABLE_FOR_SHUFFLING:
-                return false == (share.isIgnoredForShuffling() || share.isUnarchivingScratchShare());
-            default:
-                throw new IllegalStateException("All cases covered");
-        }
     }
 
     /**
