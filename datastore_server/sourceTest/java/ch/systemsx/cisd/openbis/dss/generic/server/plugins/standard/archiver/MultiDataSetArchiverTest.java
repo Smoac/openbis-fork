@@ -775,7 +775,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
                 + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
                 + "INFO  OPERATION.AbstractDatastorePlugin - Free space on unarchiving scratch share '1': "
-                + "36.00 GB, requested space for unarchiving 2 data sets: 30.00 GB\n", getFilteredLogContent());
+                + "35.00 GB, requested space for unarchiving 2 data sets: 30.00 GB\n", getFilteredLogContent());
         assertEquals("[ds1, ds2]: ARCHIVED true\n[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
         assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
