@@ -596,3 +596,16 @@ createSampleTypeWithProperties("FLY", "", [
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
 	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
+	["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name"],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
+	["EXPERIMENTAL_GOALS", 				"General",				"Experimental goals",					DataType.MULTILINE_VARCHAR,		None,								"Goal of the experiment"],
+	["EXPERIMENTAL_RESULTS", 			"General",				"Experimental results",					DataType.MULTILINE_VARCHAR,		None,								"Brief summary of the results obtained"],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
+	["EXPERIMENTAL_READOUT", 			"Readout details",		"Experimental readout",					DataType.CONTROLLEDVOCABULARY,	"EXPERIMENTAL_READOUT",				"Experimental readout used in the experiment"],
+	["MACHINE", 						"Readout details",		"Machine",								DataType.CONTROLLEDVOCABULARY,	"MACHINE",							"Machine used to perform the experiment"],
+	["FREEFORM_TABLE_STATE", 			"Readout details",		"",										DataType.MULTILINE_VARCHAR,		None,								"Table describing how the order of samples measured in the experiments"],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
+]);
