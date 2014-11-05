@@ -53,7 +53,7 @@ public class MapSampleTest extends AbstractSampleTest
 {
 
     @Test
-    public void testMapSamplesByPermId()
+    public void testMapByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -77,7 +77,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesByIdentifier()
+    public void testMapByIdentifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -102,7 +102,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesByNonexistentIds()
+    public void testMapByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -139,7 +139,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesByDifferentIds()
+    public void testMapByIdsDifferent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -165,7 +165,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesByDuplicatedIds()
+    public void testMapByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -195,7 +195,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesByUnauthorizedIds()
+    public void testMapByIdsUnauthorized()
     {
         SampleIdentifier identifier1 = new SampleIdentifier("/CISD/CP-TEST-1");
         SampleIdentifier identifier2 = new SampleIdentifier("/TEST-SPACE/CP-TEST-4");
@@ -226,7 +226,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithoutFetchOptions()
+    public void testMapWithFetchOptionsEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         Map<ISampleId, Sample> map =
@@ -254,7 +254,38 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithModifier()
+    public void testMapWithFetchOptionsNested()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+
+        // fetch parents and their properties
+        fetchOptions.fetchContained().fetchContainer().fetchExperiment();
+        fetchOptions.fetchProperties();
+
+        Map<ISampleId, Sample> map =
+                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091250077-1050")), fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
+        assertEquals(1, samples.size());
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getCode(), "PLATE_WELLSEARCH");
+
+        // assert that contained / container is fetched
+        Assert.assertTrue(sample.getContained().get(0).getContainer() == sample);
+
+        // assert properties are fetched (original fetch options)
+        assertEquals(sample.getProperties().size(), 0);
+
+        // assert that experiment is fetched as well. (fetch options via contained container)
+        Experiment experiment = sample.getExperiment();
+        assertEquals(experiment.getIdentifier().toString(), "/CISD/DEFAULT/EXP-WELLS");
+        v3api.logout(sessionToken);
+    }
+
+    @Test
+    public void testMapWithModifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -296,7 +327,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithModifierReused()
+    public void testMapWithModifierReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -321,7 +352,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithTags()
+    public void testMapWithTags()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -359,7 +390,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithTagsReused()
+    public void testMapWithTagsReused()
     {
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
@@ -383,7 +414,7 @@ public class MapSampleTest extends AbstractSampleTest
         v3api.logout(sessionToken);
     }
 
-    public void testMapSamplesWithSpace()
+    public void testMapWithSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -403,7 +434,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithSpaceReused()
+    public void testMapWithSpaceReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -428,7 +459,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithParentsAndProperties()
+    public void testMapWithParentsAndProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -463,7 +494,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithParents()
+    public void testMapWithParents()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -531,7 +562,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithParentsReused()
+    public void testMapWithParentsReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -556,7 +587,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithChildren()
+    public void testMapWithChildren()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -589,7 +620,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithChildrenReused()
+    public void testMapWithChildrenReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -614,7 +645,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithContainer()
+    public void testMapWithContainer()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -654,7 +685,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithContainerReused()
+    public void testMapWithContainerReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -682,7 +713,7 @@ public class MapSampleTest extends AbstractSampleTest
      * Test that translation can handle reference loops
      */
     @Test
-    public void testMapSamplesWithContainerLoop()
+    public void testMapWithContainerLoop()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -724,7 +755,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithExperiment()
+    public void testMapWithExperiment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -756,7 +787,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithExperimentReused()
+    public void testMapWithExperimentReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -782,38 +813,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithMultipleFetchOptions()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-
-        // fetch parents and their properties
-        fetchOptions.fetchContained().fetchContainer().fetchExperiment();
-        fetchOptions.fetchProperties();
-
-        Map<ISampleId, Sample> map =
-                v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091250077-1050")), fetchOptions);
-        List<Sample> samples = new ArrayList<Sample>(map.values());
-
-        assertEquals(1, samples.size());
-
-        Sample sample = samples.get(0);
-        assertEquals(sample.getCode(), "PLATE_WELLSEARCH");
-
-        // assert that contained / container is fetched
-        Assert.assertTrue(sample.getContained().get(0).getContainer() == sample);
-
-        // assert properties are fetched (original fetch options)
-        assertEquals(sample.getProperties().size(), 0);
-
-        // assert that experiment is fetched as well. (fetch options via contained container)
-        Experiment experiment = sample.getExperiment();
-        assertEquals(experiment.getIdentifier().toString(), "/CISD/DEFAULT/EXP-WELLS");
-        v3api.logout(sessionToken);
-    }
-
-    @Test
-    public void testMapSamplesWithType()
+    public void testMapWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -847,7 +847,7 @@ public class MapSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testMapSamplesWithTypeReused()
+    public void testMapWithTypeReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 

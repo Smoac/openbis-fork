@@ -40,6 +40,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
+import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -389,6 +390,28 @@ public class AbstractTest extends SystemTestCase
         {
             assertEquals(e.getClass(), UserFailureException.class);
             AssertionUtil.assertContains(expectedMessage, e.getMessage());
+            if (expectedContextDescription != null)
+            {
+                AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());
+            }
+        }
+    }
+
+    protected void assertAuthorizationFailureException(IDelegatedAction action)
+    {
+        assertAuthorizationFailureException(action, null);
+    }
+
+    protected void assertAuthorizationFailureException(IDelegatedAction action, String expectedContextDescription)
+    {
+        try
+        {
+            action.execute();
+            fail("Expected an exception to be thrown");
+        } catch (Exception e)
+        {
+            assertNotNull(e.getCause());
+            assertEquals(e.getCause().getClass(), AuthorizationFailureException.class);
             if (expectedContextDescription != null)
             {
                 AssertionUtil.assertContains("(Context: [" + expectedContextDescription + "])", e.getMessage());

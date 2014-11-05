@@ -20,8 +20,10 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -29,13 +31,22 @@ import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentCon
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
 
@@ -46,7 +57,45 @@ public class UpdateExperimentTest extends AbstractExperimentTest
 {
 
     @Test
-    public void testUpdateExperimentSetProject()
+    public void testUpdateWithExperimentUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId, ExperimentContextDescription.updating(experimentId));
+    }
+
+    @Test
+    public void testUpdateWithExperimentNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId, ExperimentContextDescription.updating(experimentId));
+    }
+
+    @Test
+    public void testUpdateWithProject()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -75,45 +124,75 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testUpdateExperimentWithUnauthorizedExperiment()
+    public void testUpdateWithProjectNull()
     {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+
         final ExperimentUpdate update = new ExperimentUpdate();
-        update.setExperimentId(experimentId);
+        update.setExperimentId(ids.get(0));
+        update.setProjectId(null);
 
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+        assertUserFailureException(new IDelegatedAction()
             {
                 @Override
                 public void execute()
                 {
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
-            }, experimentId, ExperimentContextDescription.updating(experimentId));
+            }, ExperimentContextDescription.updating(ids.get(0)));
     }
 
     @Test
-    public void testUpdateExperimentWithNonexistentExperiment()
+    public void testUpdateWithProjectInDifferentSpace()
     {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
-        final ExperimentUpdate update = new ExperimentUpdate();
-        update.setExperimentId(experimentId);
+        ExperimentCreation experimentCreation = new ExperimentCreation();
+        experimentCreation.setCode("TEST_EXPERIMENT_WITH_SAMPLES");
+        experimentCreation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        experimentCreation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        experimentCreation.setProperty("DESCRIPTION", "a description");
 
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
-                }
-            }, experimentId, ExperimentContextDescription.updating(experimentId));
+        List<ExperimentPermId> experimentIds = v3api.createExperiments(sessionToken, Arrays.asList(experimentCreation));
+        IExperimentId experimentId = experimentIds.get(0);
+
+        SampleCreation sampleCreation = new SampleCreation();
+        sampleCreation.setCode("TEST_SAMPLE_WITH_EXPERIMENT");
+        sampleCreation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        sampleCreation.setSpaceId(new SpacePermId("CISD"));
+        sampleCreation.setExperimentId(experimentId);
+
+        List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleCreation));
+        ISampleId sampleId = sampleIds.get(0);
+
+        final ExperimentUpdate experimentUpdate = new ExperimentUpdate();
+        experimentUpdate.setExperimentId(experimentId);
+        experimentUpdate.setProjectId(new ProjectIdentifier("/TEST-SPACE/TEST-PROJECT"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
+
+        SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
+        sampleFetchOptions.fetchSpace();
+        sampleFetchOptions.fetchExperiment();
+
+        Map<ISampleId, Sample> sampleMap = v3api.mapSamples(sessionToken, sampleIds, sampleFetchOptions);
+        Sample sample = sampleMap.get(sampleId);
+
+        assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
+        assertEquals(sample.getExperiment().getPermId(), experimentId);
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/TEST_EXPERIMENT_WITH_SAMPLES");
     }
 
     @Test
-    public void testUpdateExperimentWithUnauthorizedProject()
+    public void testUpdateWithProjectUnauthorized()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
@@ -134,7 +213,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testUpdateExperimentWithNonexistentProject()
+    public void testUpdateWithProjectNonexistent()
     {
         final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
@@ -155,13 +234,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testUpdateExperimentWhereSamplesAreUpdatedWhenNewProjectOfExperimentIsInAnotherSpace()
-    {
-        // TODO
-    }
-
-    @Test
-    public void testUpdateExperimentSetProperties()
+    public void testUpdateWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -192,35 +265,302 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testUpdateExperimentSetTags()
+    public void testUpdateWithPropertyCodeNonexistent()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentCreation creation = new ExperimentCreation();
         creation.setCode("TEST_EXPERIMENT");
         creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
         creation.setProperty("DESCRIPTION", "a description");
-        creation.setTagIds(Arrays.asList(new TagNameId("TEST_TAG_1")));
 
         List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
 
-        ExperimentUpdate update = new ExperimentUpdate();
+        final ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(ids.get(0));
-        update.getTagIds().set(new TagNameId("TEST_TAG_2"));
+        update.setProperty("NONEXISTENT_PROPERTY_CODE", "any value");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, "Property type with code 'NONEXISTENT_PROPERTY_CODE' does not exist");
+    }
+
+    @Test
+    public void testUpdateWithPropertyValueIncorrect()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(ids.get(0));
+        update.setProperty("PURCHASE_DATE", "this should be a date");
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, "Date value 'this should be a date' has improper format");
+    }
+
+    @Test
+    public void testUpdateWithPropertyValueMandatoryButNull()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentPermId permId = createExperimentWithoutTags();
+
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(permId);
+        update.setProperty("DESCRIPTION", null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, "Value of mandatory property 'DESCRIPTION' not specified");
+    }
+
+    @Test
+    public void testUpdateWithTagsAddExisting()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().add(new TagNameId("TEST_TAG_2"));
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
-        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchTags();
-        Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
-        List<Experiment> experiments = new ArrayList<Experiment>(map.values());
-
-        AssertionUtil.assertCollectionSize(experiments, 1);
-
-        Experiment experiment = experiments.get(0);
-        assertEquals(1, experiment.getTags().size());
-        assertEquals("TEST_TAG_2", experiment.getTags().iterator().next().getName());
+        assertTags(experimentId, "/test/TEST_TAG_1", "/test/TEST_TAG_2");
     }
 
+    @Test
+    public void testUpdateWithTagsAddNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentPermId experimentId = createExperimentWithoutTags();
+        final TagPermId tagId = new TagPermId("/test/THIS_TAG_SHOULD_BE_CREATED");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().add(tagId);
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertTags(experimentId, "/test/THIS_TAG_SHOULD_BE_CREATED");
+    }
+
+    @Test
+    public void testUpdateWithTagsAddUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final ExperimentPermId experimentId = createExperimentWithoutTags();
+
+        final TagPermId tagId = new TagPermId("/test_space/TEST_METAPROJECTS");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().add(tagId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, tagId);
+    }
+
+    @Test
+    public void testUpdateWithTagsRemoveExisting()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().remove(new TagPermId("/test/TEST_TAG_1"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertTags(experimentId, "/test/TEST_TAG_2");
+    }
+
+    @Test
+    public void testUpdateWithTagsRemoveNonexistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().remove(new TagPermId("/test/THIS_TAG_DOES_NOT_EXIST"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertTags(experimentId, "/test/TEST_TAG_1", "/test/TEST_TAG_2");
+    }
+
+    @Test
+    public void testUpdateWithTagsRemoveUnassigned()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().remove(new TagPermId("/test/TEST_METAPROJECTS"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertTags(experimentId, "/test/TEST_TAG_1", "/test/TEST_TAG_2");
+    }
+
+    @Test
+    public void testUpdateWithTagsRemoveUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_POWER_USER_CISD, PASSWORD);
+
+        final ITagId tagId = new TagPermId("/test/TEST_TAG_1");
+        final ExperimentPermId experimentId = createExperimentWithTags(tagId);
+
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().remove(tagId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, tagId);
+    }
+
+    @Test
+    public void testUpdateWithTagsSetExisting()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().set(new TagPermId("/test/TEST_METAPROJECTS"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertTags(experimentId, "/test/TEST_METAPROJECTS");
+    }
+
+    @Test
+    public void testUpdateWithTagsSetNonexistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().set(new TagNameId("THIS_TAG_DOES_NOT_EXIST"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertTags(experimentId, "/test/THIS_TAG_DOES_NOT_EXIST");
+    }
+
+    @Test
+    public void testUpdateWithTagsSetUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+
+        final ITagId tagId = new TagPermId("/test_space/TEST_METAPROJECTS");
+        final ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getTagIds().set(tagId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateExperiments(sessionToken, Arrays.asList(update));
+                }
+            }, tagId);
+    }
+
+    private ExperimentPermId createExperimentWithoutTags()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        return ids.get(0);
+    }
+
+    private ExperimentPermId createExperimentWithTags(ITagId... tags)
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+        creation.setTagIds(Arrays.asList(tags));
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        return ids.get(0);
+    }
+
+    private void assertTags(IExperimentId experimentId, String... expectedTagPermIds)
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchTags();
+
+        Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+        assertEquals(experiments.size(), 1);
+
+        Set<String> actualTagPermIds = new HashSet<String>();
+        for (Tag tag : experiments.get(experimentId).getTags())
+        {
+            actualTagPermIds.add(tag.getPermId().getPermId());
+        }
+        assertEquals(actualTagPermIds, new HashSet<String>(Arrays.asList(expectedTagPermIds)));
+    }
 }

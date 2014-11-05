@@ -49,7 +49,7 @@ public class MapExperimentTest extends AbstractExperimentTest
 {
 
     @Test
-    public void testMapExperimentsByPermId()
+    public void testMapByPermId()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -73,7 +73,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsByIdentifier()
+    public void testMapByIdentifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -101,7 +101,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsByNonexistentIds()
+    public void testMapByIdsNonexistent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -144,7 +144,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsByDifferentIds()
+    public void testMapByIdsDifferent()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -170,7 +170,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsByDuplicatedIds()
+    public void testMapByIdsDuplicated()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -200,7 +200,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsByUnauthorizedIds()
+    public void testMapByIdsUnauthorized()
     {
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
@@ -231,7 +231,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithoutFetchOptions()
+    public void testMapWithFetchOptionsEmpty()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -260,7 +260,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithType()
+    public void testMapWithType()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -293,7 +293,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithTypeReused()
+    public void testMapWithTypeReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -317,7 +317,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithAttachment()
+    public void testMapWithAttachment()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -356,7 +356,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapExperimentsWithProject()
+    public void testMapWithProject()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -388,7 +388,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapExperimentsWithProjectReused()
+    public void testMapWithProjectReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -412,7 +412,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithProperties()
+    public void testMapWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -443,7 +443,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithRegistrator()
+    public void testMapWithRegistrator()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -472,7 +472,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapExperimentsWithRegistratorReused()
+    public void testMapWithRegistratorReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -496,7 +496,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithModifier()
+    public void testMapWithModifier()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -525,7 +525,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test()
-    public void testMapExperimentsWithModifierReused()
+    public void testMapWithModifierReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -549,7 +549,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithTags()
+    public void testMapWithTags()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
@@ -584,7 +584,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testMapExperimentsWithTagsReused()
+    public void testMapWithTagsReused()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();

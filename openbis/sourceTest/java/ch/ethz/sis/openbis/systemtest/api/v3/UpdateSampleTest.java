@@ -55,7 +55,7 @@ public class UpdateSampleTest extends AbstractSampleTest
 {
 
     @Test
-    public void testUpdateSample()
+    public void testUpdateWithSampleExisting()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -92,7 +92,238 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetExperimentInTheSameSpace()
+    public void testUpdateWithSampleNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId sampleId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, sampleId);
+    }
+
+    @Test
+    public void testUpdateWithSampleUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId sampleId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(sampleId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, sampleId);
+    }
+
+    @Test
+    public void testUpdateWithSpace()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("CISD"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
+        AssertionUtil.assertCollectionSize(samples, 1);
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getIdentifier().getIdentifier(), "/TEST-SPACE/SAMPLE");
+    }
+
+    @Test
+    public void testUpdateWithSpaceUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISpaceId spaceId = new SpacePermId("CISD");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setSpaceId(spaceId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, spaceId);
+    }
+
+    @Test
+    public void testUpdateWithSpaceNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISpaceId spaceId = new SpacePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setSpaceId(spaceId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, spaceId);
+    }
+
+    @Test
+    public void testUpdateWithSpaceNullForSpaceSampleAsAdminUser()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(new ExperimentPermId("201206190940555-1032"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(null);
+        update.setExperimentId(null);
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchSpace();
+        fetchOptions.fetchExperiment();
+        fetchOptions.fetchProperties();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
+        AssertionUtil.assertCollectionSize(samples, 1);
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getSpace(), null);
+        assertEquals(sample.getExperiment(), null);
+        assertIdentifier(sample, "/SAMPLE");
+    }
+
+    @Test
+    public void testUpdateWithSpaceNullForSpaceSampleAsSpaceUser()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
+        creation.setExperimentId(new ExperimentPermId("201206190940555-1032"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(null);
+        update.setExperimentId(null);
+
+        assertAuthorizationFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            });
+    }
+
+    @Test
+    public void testUpdateWithSpaceNotNullForSharedSampleAsAdminUser()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(new SpacePermId("TEST-SPACE"));
+        update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchSpace();
+        fetchOptions.fetchExperiment();
+        fetchOptions.fetchProperties();
+
+        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
+        List<Sample> samples = new ArrayList<Sample>(map.values());
+
+        AssertionUtil.assertCollectionSize(samples, 1);
+
+        Sample sample = samples.get(0);
+        assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
+        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+        assertIdentifier(sample, "/TEST-SPACE/SAMPLE");
+    }
+
+    @Test
+    public void testUpdateWithSpaceNotNullForSharedSampleAsSpaceUser()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        SampleCreation creation = new SampleCreation();
+        creation.setCode("SAMPLE");
+        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
+
+        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(ids.get(0));
+        update.setSpaceId(new SpacePermId("TEST-SPACE"));
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    String sessionToken2 = v3api.login(TEST_SPACE_USER, PASSWORD);
+                    v3api.updateSamples(sessionToken2, Arrays.asList(update));
+                }
+            }, ids.get(0));
+    }
+
+    @Test
+    public void testUpdateWithExperimentInTheSameSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -122,7 +353,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetExperimentInDifferentSpace()
+    public void testUpdateWithExperimentInDifferentSpace()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -149,7 +380,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetExperimentForSharedSample()
+    public void testUpdateWithExperimentForSharedSample()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -175,7 +406,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetExperimentToNull()
+    public void testUpdateWithExperimentNull()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -206,36 +437,47 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetSpace()
+    public void testUpdateWithExperimentUnauthorized()
     {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
-        SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("CISD"));
+        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setExperimentId(experimentId);
 
-        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
-
-        SampleUpdate update = new SampleUpdate();
-        update.setSampleId(ids.get(0));
-        update.setSpaceId(new SpacePermId("TEST-SPACE"));
-
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
-
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
-        List<Sample> samples = new ArrayList<Sample>(map.values());
-
-        AssertionUtil.assertCollectionSize(samples, 1);
-
-        Sample sample = samples.get(0);
-        assertEquals(sample.getIdentifier().getIdentifier(), "/TEST-SPACE/SAMPLE");
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId);
     }
 
     @Test
-    public void testUpdateSampleSetProperties()
+    public void testUpdateWithExperimentNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setExperimentId(experimentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, experimentId);
+    }
+
+    @Test
+    public void testUpdateWithProperties()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -280,7 +522,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetContainer()
+    public void testUpdateWithContainer()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -318,7 +560,47 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetAddRemoveContained()
+    public void testUpdateWithContainerUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containerId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setContainerId(containerId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containerId);
+    }
+
+    @Test
+    public void testUpdateWithContainerNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containerId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.setContainerId(containerId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containerId);
+    }
+
+    @Test
+    public void testUpdateWithContainedSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -391,7 +673,47 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetAddRemoveParents()
+    public void testUpdateWithContainedUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containedId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getContainedIds().add(containedId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containedId);
+    }
+
+    @Test
+    public void testUpdateWithContainedNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId containedId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getContainedIds().add(containedId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, containedId);
+    }
+
+    @Test
+    public void testUpdateWithParentsSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -463,7 +785,47 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetAddRemoveChildren()
+    public void testUpdateWithParentUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId parentId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getParentIds().add(parentId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testUpdateWithParentNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId parentId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getParentIds().add(parentId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, parentId);
+    }
+
+    @Test
+    public void testUpdateWithChildrenSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -535,7 +897,47 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateSampleSetAddRemoveTags()
+    public void testUpdateWithChildUnauthorized()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId childId = new SamplePermId("200902091219327-1025");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getChildIds().add(childId);
+
+        assertUnauthorizedObjectAccessException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, childId);
+    }
+
+    @Test
+    public void testUpdateWithChildNonexistent()
+    {
+        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
+
+        final ISampleId childId = new SamplePermId("IDONTEXIST");
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200902091250077-1060"));
+        update.getChildIds().add(childId);
+
+        assertObjectNotFoundException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, childId);
+    }
+
+    @Test
+    public void testUpdateWithTagsWithSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -583,355 +985,6 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         assertIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
         assertTags(sample2.getTags(), "TEST_TAG_2", "TEST_TAG_3");
-    }
-
-    @Test
-    public void testUpdateSampleRemoveSpace()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-        creation.setSpaceId(new SpacePermId("TEST-SPACE"));
-        creation.setExperimentId(new ExperimentPermId("201206190940555-1032"));
-
-        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
-
-        SampleUpdate update = new SampleUpdate();
-        update.setSampleId(ids.get(0));
-        update.setSpaceId(null);
-        update.setExperimentId(null);
-
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
-
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
-        fetchOptions.fetchExperiment();
-        fetchOptions.fetchProperties();
-
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
-        List<Sample> samples = new ArrayList<Sample>(map.values());
-
-        AssertionUtil.assertCollectionSize(samples, 1);
-
-        Sample sample = samples.get(0);
-        assertEquals(sample.getSpace(), null);
-        assertEquals(sample.getExperiment(), null);
-        assertIdentifier(sample, "/SAMPLE");
-    }
-
-    @Test
-    public void testUpdateSharedSampleSetSpace()
-    {
-        String sessionToken = v3api.login(TEST_USER, PASSWORD);
-
-        SampleCreation creation = new SampleCreation();
-        creation.setCode("SAMPLE");
-        creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
-
-        List<SamplePermId> ids = v3api.createSamples(sessionToken, Arrays.asList(creation));
-
-        SampleUpdate update = new SampleUpdate();
-        update.setSampleId(ids.get(0));
-        update.setSpaceId(new SpacePermId("TEST-SPACE"));
-        update.setExperimentId(new ExperimentPermId("201206190940555-1032"));
-
-        v3api.updateSamples(sessionToken, Arrays.asList(update));
-
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
-        fetchOptions.fetchExperiment();
-        fetchOptions.fetchProperties();
-
-        Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
-        List<Sample> samples = new ArrayList<Sample>(map.values());
-
-        AssertionUtil.assertCollectionSize(samples, 1);
-
-        Sample sample = samples.get(0);
-        assertEquals(sample.getSpace().getCode(), "TEST-SPACE");
-        assertEquals(sample.getExperiment().getIdentifier().getIdentifier(), "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
-        assertIdentifier(sample, "/TEST-SPACE/SAMPLE");
-
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedSample()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId sampleId = new SamplePermId("200902091219327-1025");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(sampleId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, sampleId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentSample()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId sampleId = new SamplePermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(sampleId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, sampleId);
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedSpace()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISpaceId spaceId = new SpacePermId("CISD");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setSpaceId(spaceId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, spaceId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentSpace()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISpaceId spaceId = new SpacePermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setSpaceId(spaceId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, spaceId);
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedExperiment()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final IExperimentId experimentId = new ExperimentPermId("200811050951882-1028");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setExperimentId(experimentId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, experimentId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentExperiment()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final IExperimentId experimentId = new ExperimentPermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setExperimentId(experimentId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, experimentId);
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedContainer()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containerId = new SamplePermId("200902091219327-1025");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setContainerId(containerId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, containerId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentContainer()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containerId = new SamplePermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.setContainerId(containerId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, containerId);
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedContained()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containedId = new SamplePermId("200902091219327-1025");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getContainedIds().add(containedId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, containedId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentContained()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId containedId = new SamplePermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getContainedIds().add(containedId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, containedId);
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedParent()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId parentId = new SamplePermId("200902091219327-1025");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getParentIds().add(parentId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, parentId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentParent()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId parentId = new SamplePermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getParentIds().add(parentId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, parentId);
-    }
-
-    @Test
-    public void testUpdateSampleWithUnauthorizedChild()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId childId = new SamplePermId("200902091219327-1025");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getChildIds().add(childId);
-
-        assertUnauthorizedObjectAccessException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, childId);
-    }
-
-    @Test
-    public void testUpdateSampleWithNonexistentChild()
-    {
-        final String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
-
-        final ISampleId childId = new SamplePermId("IDONTEXIST");
-        final SampleUpdate update = new SampleUpdate();
-        update.setSampleId(new SamplePermId("200902091250077-1060"));
-        update.getChildIds().add(childId);
-
-        assertObjectNotFoundException(new IDelegatedAction()
-            {
-                @Override
-                public void execute()
-                {
-                    v3api.updateSamples(sessionToken, Arrays.asList(update));
-                }
-            }, childId);
     }
 
 }

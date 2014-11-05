@@ -16,6 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,6 +73,9 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
     @Autowired
     private IAddTagToEntityExecutor addTagToEntityExecutor;
 
+    @Autowired
+    private IVerifyExperimentExecutor verifyExperimentExecutor;
+
     @SuppressWarnings("unused")
     private CreateExperimentExecutor()
     {
@@ -79,7 +83,8 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
 
     public CreateExperimentExecutor(IDAOFactory daoFactory, IGetProjectByIdExecutor getProjectByIdExecutor,
             IGetEntityTypeByIdExecutor getEntityTypeByIdExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
-            ICreateAttachmentExecutor createAttachmentExecutor, IAddTagToEntityExecutor addTagToEntityExecutor)
+            ICreateAttachmentExecutor createAttachmentExecutor, IAddTagToEntityExecutor addTagToEntityExecutor,
+            IVerifyExperimentExecutor verifyExperimentExecutor)
     {
         this.daoFactory = daoFactory;
         this.getProjectByIdExecutor = getProjectByIdExecutor;
@@ -87,6 +92,7 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
         this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
         this.createAttachmentExecutor = createAttachmentExecutor;
         this.addTagToEntityExecutor = addTagToEntityExecutor;
+        this.verifyExperimentExecutor = verifyExperimentExecutor;
     }
 
     @Override
@@ -104,6 +110,7 @@ public class CreateExperimentExecutor implements ICreateExperimentExecutor
                 daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, context.getSession().tryGetPerson());
                 createAttachmentExecutor.create(context, experiment, creation.getAttachments());
                 addTagToEntityExecutor.add(context, experiment, creation.getTagIds());
+                verifyExperimentExecutor.verify(context, Collections.singletonList(experiment));
                 result.add(new ExperimentPermId(experiment.getPermId()));
 
                 context.popContextDescription();

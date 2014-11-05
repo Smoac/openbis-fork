@@ -24,6 +24,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IGetProjectByI
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.generic.server.authorization.validator.ProjectByIdentiferValidator;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
@@ -58,6 +59,10 @@ public class UpdateExperimentProjectExecutor implements IUpdateExperimentProject
     {
         if (update != null && update.isModified())
         {
+            if (update.getValue() == null)
+            {
+                throw new UserFailureException("Project id cannot be null");
+            }
             ProjectPE project = getProjectByIdExecutor.get(context, update.getValue());
             if (false == project.equals(experiment.getProject()))
             {

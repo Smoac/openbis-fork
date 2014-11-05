@@ -55,6 +55,7 @@ public class AbstractDeletionTest extends AbstractTest
         creation.setCode("EXPERIMENT_TO_DELETE");
         creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
         creation.setProjectId(new ProjectIdentifier("/CISD/DEFAULT"));
+        creation.setProperty("DESCRIPTION", "a description");
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Collections.singletonList(creation));
         Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, new ExperimentFetchOptions());
