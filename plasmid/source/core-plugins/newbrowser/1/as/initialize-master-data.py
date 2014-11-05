@@ -449,3 +449,31 @@ createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 	["NOTES", 				"Comments",				"Notes",				DataType.MULTILINE_VARCHAR,		None,			"Notes"],
 	["XMLCOMMENTS", 		"Comments",				"Comments List",		DataType.XML,					None,			"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("GENERAL_PROTOCOL", "", [
+	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name"],
+	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab"],
+	["PROTOCOL_TYPE", 			"General",			"Protocol type",			DataType.CONTROLLEDVOCABULARY,	"PROTOCOL_TYPE",	"Category a protocol belongs"],
+	["MATERIALS", 				"Materials",		"Materials",				DataType.MULTILINE_VARCHAR,		None,				"Machines (and relative set up), special labware required for the protocol."],
+	["TIME_REQUIREMENT", 		"Method",			"Time requirement",			DataType.MULTILINE_VARCHAR,		None,				"Time required to complete a protocol"],
+	["PROCEDURE",				"Method", 			"Procedure",				DataType.MULTILINE_VARCHAR,		None,				"Procedure required by the protocol by points (1,2,3,...)"],
+	["PROTOCOL_EVALUATION", 	"Method",			"Protocol evaluation",		DataType.MULTILINE_VARCHAR,		None,				"Parameters and observations to meet the minimal efficiency of the protocol"],
+	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol"],
+	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations"],
+	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users"]
+]);
+
+createSampleTypeWithProperties("PCR_PROTOCOL", "", [
+	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name"],
+	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab"],
+	["TEMPLATE", 				"General",			"Template",					DataType.CONTROLLEDVOCABULARY,	"TEMPLATE",			"Type of template used in the PCR protocol"],
+	["REACTION_MIX", 			"Materials",		"Reaction mix",				DataType.MULTILINE_VARCHAR,		None,				"Reaction mix recipe for the PCR"],
+	["THERMOCYCLER_PROTOCOL", 	"Method",			"Thermocycler protocol",	DataType.MULTILINE_VARCHAR,		None,				"Thermocycler protocol for PCR"],
+	["PROTOCOL_EVALUATION", 	"Method",			"Protocol evaluation",		DataType.MULTILINE_VARCHAR,		None,				"Parameters and observations to meet the minimal efficiency of the protocol"],
+	["SUGGESTIONS", 			"Comments",			"Suggestions",				DataType.MULTILINE_VARCHAR,		None,				"Suggestions for the protocol"],
+	["PROTOCOL_MODIFICATIONS", 	"Comments",			"Protocol modifications",	DataType.MULTILINE_VARCHAR,		None,				"Alternative procedures used to make protocol variations"],
+	["PUBLICATION", 			"Comments",			"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users"]
+]);
+
