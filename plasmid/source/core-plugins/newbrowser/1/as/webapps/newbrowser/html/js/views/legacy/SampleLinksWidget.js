@@ -40,21 +40,21 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	this._lastUsedId = null;
 	this._lastIndex = 0;
 	
-	this._enableAnnotations = function() {
-		var enableAnnotations = false;
-		for(var i = 0; i < this.sampleTypeHints.length; i++) {
-			var sampleTypeHint = this.sampleTypeHints[i];
-			if(sampleTypeHint["ANNOTATION_PROPERTIES"].length > 0) {
-				enableAnnotations = true;
-			}
-		}
-		return enableAnnotations;
-	}
+//	this._enableAnnotations = function() {
+//		var enableAnnotations = false;
+//		for(var i = 0; i < this.sampleTypeHints.length; i++) {
+//			var sampleTypeHint = this.sampleTypeHints[i];
+//			if(sampleTypeHint["ANNOTATION_PROPERTIES"].length > 0) {
+//				enableAnnotations = true;
+//			}
+//		}
+//		return true;
+//	}
 	
 	this._writeState = function(sample, propertyTypeCode, propertyTypeValue) {
-		if(!this._enableAnnotations()) {
-			return;
-		}
+//		if(!this._enableAnnotations()) {
+//			return;
+//		}
 		this._readState();
 		
 		var sampleTypeAnnotations = this.stateObj[sample.permId];
@@ -103,9 +103,9 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	}
 	
 	this._readState = function() {
-		if(!this._enableAnnotations()) {
-			return;
-		}
+//		if(!this._enableAnnotations()) {
+//			return;
+//		}
 		var stateField = $("#ANNOTATIONS_STATE");
 		if(stateField.length === 0) {
 			Util.showError("You need a property with code ANNOTATIONS_STATE on this entity to store the state of the annotations.");

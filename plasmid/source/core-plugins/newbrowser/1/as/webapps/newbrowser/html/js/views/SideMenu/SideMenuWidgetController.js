@@ -210,8 +210,8 @@ function SideMenuWidgetController(mainController) {
                     if (subExperiments.result) {
                         for (var i = 0; i < subExperiments.result.length; i++) {
                             var subExperiment = subExperiments.result[i];
+                            var experimentNode = _this._getExperimentNodeForIdentifier(subExperiment.experimentIdentifierOrNull);
                             if (subExperiment.experimentIdentifierOrNull) {
-                                var experimentNode = _this._getExperimentNodeForIdentifier(subExperiment.experimentIdentifierOrNull);
                                 var displayName = null;
                                 if (profile.hideCodes) {
                                     displayName = subExperiment.properties[profile.propertyReplacingCode];
@@ -222,10 +222,10 @@ function SideMenuWidgetController(mainController) {
                                 var menuItemSubExperiment = new SideMenuWidgetComponent(true, false, displayName, subExperiment.identifier, experimentNode, null, "showViewSamplePageFromPermId", subExperiment.permId, "(Sub Exp.)");
                                 experimentNode.newMenuIfSelected.children.push(menuItemSubExperiment);
                             }
+                            experimentNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
                         }
-                        experimentNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Sub Experiments
                     }
-
+                    
                     //Fill Inventory
                     _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
                             new SideMenuWidgetComponent(false, true, "Inventory", "Inventory", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
