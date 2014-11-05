@@ -477,3 +477,21 @@ createSampleTypeWithProperties("PCR_PROTOCOL", "", [
 	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users"]
 ]);
 
+createSampleTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "", [
+	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name"],
+	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab"],
+	["STORAGE", 				"General", 			"Storage",					DataType.CONTROLLEDVOCABULARY,	"STORAGE",			"Storage conditions of the product"],
+	["MEMBRANE", 				"Materials", 		"Membrane",					DataType.CONTROLLEDVOCABULARY,	"MEMBRANE",			"Membrane used for western blotting"],
+	["PUBLICATION", 			"Comments", 		"Publication",				DataType.MULTILINE_VARCHAR,		None,				"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 					"Comments", 		"Notes",					DataType.MULTILINE_VARCHAR,		None,				"Notes"],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users"]
+]);
+
+createSampleTypeWithProperties("OLIGO", "", [
+	["TARGET", 					"General",			"Target",					DataType.MULTILINE_VARCHAR,		None,				"Target of the oligonucleotide"],
+	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide"],
+	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide"],
+	["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide"],
+	["SEQUENC", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide"],
+	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users"]
+]);
