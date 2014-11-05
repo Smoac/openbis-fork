@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ServiceVersionHolder;
 
@@ -40,6 +41,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     private String dataSetShareId;
 
     private String dataSetLocation;
+    
+    private DataSetArchivingStatus status;
 
     private Date registrationTimestamp;
     
@@ -126,6 +129,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setDataSetLocation(String dataSetLocation)
     {
         this.dataSetLocation = dataSetLocation;
+    }
+
+    public DataSetArchivingStatus getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(DataSetArchivingStatus status)
+    {
+        this.status = status;
     }
 
     public Date getRegistrationTimestamp()

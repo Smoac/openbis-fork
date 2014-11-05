@@ -16,6 +16,9 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.ARCHIVED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.AVAILABLE;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -137,7 +140,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     @Test
     public void testFreeSpaceForAShareWhichIsNotAnUnarchivingScratchShare()
     {
-        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_GB);
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_GB, AVAILABLE);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
 
         try
@@ -157,7 +160,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     @Test
     public void testFreeSpaceNothingToDo()
     {
-        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_GB);
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_GB, AVAILABLE);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
         share.setUnarchivingScratchShare(true);
         RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12 * FileUtils.ONE_GB);
@@ -173,11 +176,11 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     @Test
     public void testFreeSpaceRemovingOneDataSet()
     {
-        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB);
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
         share.setUnarchivingScratchShare(true);
         share.addDataSet(ds5);
@@ -210,13 +213,15 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     @Test
     public void testFreeSpaceForThreeDataSetsOneAlreadyInShare()
     {
-        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB);
+        SimpleDataSetInformationDTO ds0 = dataSet(0, 19 * FileUtils.ONE_GB, ARCHIVED);
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
         share.setUnarchivingScratchShare(true);
+        share.addDataSet(ds0);
         share.addDataSet(ds5);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
@@ -247,11 +252,11 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     @Test
     public void testFreeSpaceRemovingDataSetsButStillNotEnoughFreeSpace()
     {
-        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB);
-        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB);
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
         Share share = new Share(shareFolder, 0, freeSpaceProvider);
         share.setUnarchivingScratchShare(true);
         share.addDataSet(ds3);
@@ -841,12 +846,14 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         return result;
     }
 
-    private SimpleDataSetInformationDTO dataSet(int id, long size)
+    private SimpleDataSetInformationDTO dataSet(int id, long size, DataSetArchivingStatus status)
     {
         File dsFile = new File(shareFolder, "abc/ds-" + id);
         dsFile.mkdirs();
         FileUtilities.writeToFile(new File(dsFile, "read.me"), id + " nice works!");
-        return dataSet(dsFile, DATA_STORE_CODE, size);
+        SimpleDataSetInformationDTO dataSet = dataSet(dsFile, DATA_STORE_CODE, size);
+        dataSet.setStatus(status);
+        return dataSet;
     }
 
     private SimpleDataSetInformationDTO dataSet(File dataSetFile, String dataStoreCode, Long size)

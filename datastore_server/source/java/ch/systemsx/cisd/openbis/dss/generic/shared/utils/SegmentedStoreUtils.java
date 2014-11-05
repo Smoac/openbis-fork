@@ -269,7 +269,7 @@ public class SegmentedStoreUtils
         }
         List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>(dataSets);
         List<SimpleDataSetInformationDTO> filteredDataSetsInShare =
-                new ArrayList<SimpleDataSetInformationDTO>(unarchivingScratchShare.getDataSetsOrderedBySize());
+                getAvailableDataSetsInUnarchivingScratchShare(unarchivingScratchShare);
 
         removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
         long requestedSpace = calculateTotalSizeOfDataSetsToKeep(filteredDataSets);
@@ -297,6 +297,20 @@ public class SegmentedStoreUtils
                 + unarchivingScratchShare.getShareId() + "': " + FileUtilities.byteCountToDisplaySize(actualFreeSpace)
                 + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: "
                 + FileUtilities.byteCountToDisplaySize(requestedSpace));
+    }
+
+    private static List<SimpleDataSetInformationDTO> getAvailableDataSetsInUnarchivingScratchShare(Share unarchivingScratchShare)
+    {
+        List<SimpleDataSetInformationDTO> availableDataSets = new ArrayList<SimpleDataSetInformationDTO>();
+        List<SimpleDataSetInformationDTO> dataSets = unarchivingScratchShare.getDataSetsOrderedBySize();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            if (dataSet.getStatus().isAvailable())
+            {
+                availableDataSets.add(dataSet);
+            }
+        }
+        return availableDataSets;
     }
 
     /**
