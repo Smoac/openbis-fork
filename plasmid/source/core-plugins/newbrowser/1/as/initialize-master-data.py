@@ -526,3 +526,34 @@ createSampleTypeWithProperties("PLASMID", "", [
 	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes"],
 	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("BACTERIA", "", [
+	["BACTERIA_STRAIN_NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name"],
+	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
+	["OWNER_NUMBER", 					"General",				"Owner number",						DataType.MULTILINE_VARCHAR,		None,								"Owner number"],
+	["BACTERIA_GENOTYPE", 				"Genotype",				"Bacteria genotype",				DataType.MULTILINE_VARCHAR,		None,								"Bacterial genotype"],
+	["MARKERS", 						"Genotype",				"Markers",							DataType.MULTILINE_VARCHAR,		None,								"Markers available in the strain for further genetic modifications"],
+	["ORIGIN", 							"Origin",				"Origin",							DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced"],
+	["STRAIN_CHECK", 					"Origin",				"Strain Check",						DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain"],
+	["SOURCE", 							"Origin",				"Source",							DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab"],
+	["PUBLICATION", 					"Comments",				"Publication",						DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 							"Comments", 			"Notes",							DataType.MULTILINE_VARCHAR,		None,								"Notes"],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",					DataType.XML,					None,								"Several comments can be added by different users"]
+]);
+
+createSampleTypeWithProperties("YEAST", "", [
+	["YEAST_STRAIN_NAME", 				"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name"],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
+	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number"],
+	["GENETIC_BACKGROUND", 				"Genotype",				"Genetic Background",					DataType.CONTROLLEDVOCABULARY,	"GENETIC_BACKGROUND",				"Genetic background of the yeast strain"],
+	["MATING_TYPE", 					"Genotype",				"Mating Type",							DataType.CONTROLLEDVOCABULARY,	"MATING_TYPE",						"Mating type or ploidy of the yeast strain"],
+	["BACKGROUND-SPECIFIC_MARKERS", 	"Genotype",				"Background-specific markers",			DataType.CONTROLLEDVOCABULARY,	"BACKGROUND_SPECIFIC_MARKERS",		"Background-specific markers available in the strain for further genetic modifications"],
+	["COMMON_MARKERS", 					"Genotype",				"Common markers",						DataType.CONTROLLEDVOCABULARY,	"COMMON_MARKERS",					"Common markers available in the strain for further genetic modifications"],
+	["ENDOGENOUS_PLASMID", 				"Genotype",				"Endogenous 2micron plasmid in yeast",	DataType.CONTROLLEDVOCABULARY,	"ENDOGENOUS_PLASMID",				"Presence of an endogenous cir 2micron plasmid"],
+	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced"],
+	["STRAIN_CHECK", 					"Origin",				"Strain Check",							DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain"],
+	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab"],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
+]);
