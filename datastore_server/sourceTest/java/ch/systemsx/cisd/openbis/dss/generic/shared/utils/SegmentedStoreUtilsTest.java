@@ -169,7 +169,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 shareIdManager, log);
 
         assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
-        assertEquals("INFO: Free space on unarchiving scratch share '1': 13.00 GB, "
+        assertEquals("INFO: Free space on unarchiving scratch share '1': 12.00 GB, "
                 + "requested space for unarchiving 1 data sets: 11.00 GB\n", log.toString());
     }
 
@@ -206,7 +206,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 + "INFO: Data set ds-1 at " + shareFolder + "/abc/ds-1 has been successfully deleted.\n"
                 + "INFO: The following data sets have been successfully removed from share '1' "
                 + "and their archiving status has been successfully set back to ARCHIVED: [ds-1]\n"
-                + "INFO: Free space on unarchiving scratch share '1': 23.00 GB, requested space for "
+                + "INFO: Free space on unarchiving scratch share '1': 22.00 GB, requested space for "
                 + "unarchiving 2 data sets: 21.00 GB\n", log.toString());
     }
 
@@ -245,7 +245,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 + "INFO: Data set ds-3 at " + shareFolder + "/abc/ds-3 has been successfully deleted.\n"
                 + "INFO: The following data sets have been successfully removed from share '1' "
                 + "and their archiving status has been successfully set back to ARCHIVED: [ds-3]\n"
-                + "INFO: Free space on unarchiving scratch share '1': 25.00 GB, requested space for "
+                + "INFO: Free space on unarchiving scratch share '1': 24.00 GB, requested space for "
                 + "unarchiving 2 data sets: 21.00 GB\n", log.toString());
     }
 
@@ -272,7 +272,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         } catch (EnvironmentFailureException ex)
         {
             assertEquals("Even after removing all removable data sets from share '1' there would be "
-                    + "still only 25.00 GB free space which is not enough as 25.00 GB is requested.", ex.getMessage());
+                    + "still only 24.00 GB free space which is not enough as 25.00 GB is requested.", ex.getMessage());
         }
 
         assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());

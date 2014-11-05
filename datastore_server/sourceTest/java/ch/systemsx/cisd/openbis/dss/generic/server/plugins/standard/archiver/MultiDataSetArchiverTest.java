@@ -51,6 +51,7 @@ import ch.rinn.restrictions.Friend;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.HostAwareFile;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -834,8 +835,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         try
         {
             archiver.getDataSetCodesForUnarchiving(Arrays.asList(ds1.getDataSetCode(), ds2.getDataSetCode()));
-            fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex)
+            fail("UserFailureException expected");
+        } catch (UserFailureException ex)
         {
             assertEquals("Datasets selected for unarchiving do not all belong to one container, "
                     + "but to 2 different containers: {0=[ds1], 1=[ds2]}", ex.getMessage());

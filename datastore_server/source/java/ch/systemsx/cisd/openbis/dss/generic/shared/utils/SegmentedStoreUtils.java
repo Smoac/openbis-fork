@@ -293,7 +293,8 @@ public class SegmentedStoreUtils
             actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
         }
         logger.log(LogLevel.INFO, "Free space on unarchiving scratch share '"
-                + unarchivingScratchShare.getShareId() + "': " + FileUtilities.byteCountToDisplaySize(actualFreeSpace)
+                + unarchivingScratchShare.getShareId() + "': " 
+                + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(actualFreeSpace))
                 + ", requested space for unarchiving " + filteredDataSets.size() + " data sets: "
                 + FileUtilities.byteCountToDisplaySize(requestedSpace));
     }
@@ -376,7 +377,8 @@ public class SegmentedStoreUtils
         if (isNotEnoughFreeSpace(requestedSpace, freeSpace))
         {
             throw new EnvironmentFailureException("Even after removing all removable data sets from share '"
-                    + share.getShareId() + "' there would be still only " + FileUtilities.byteCountToDisplaySize(freeSpace)
+                    + share.getShareId() + "' there would be still only " 
+                    + FileUtilities.byteCountToDisplaySize(calculateNominalFreeSpace(freeSpace))
                     + " free space which is not enough as " + FileUtilities.byteCountToDisplaySize(requestedSpace) 
                     + " is requested.");
         }
@@ -385,7 +387,12 @@ public class SegmentedStoreUtils
 
     private static boolean isNotEnoughFreeSpace(long requestedSpace, long freeSpace)
     {
-        return requestedSpace + MINIMUM_FREE_SCRATCH_SPACE >= freeSpace;
+        return requestedSpace >= calculateNominalFreeSpace(freeSpace);
+    }
+
+    private static long calculateNominalFreeSpace(long freeSpace)
+    {
+        return freeSpace - MINIMUM_FREE_SCRATCH_SPACE;
     }
 
     static List<Share> getSharesWithDataSets(File storeRoot, String dataStoreCode,

@@ -31,6 +31,7 @@ import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
+import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
@@ -430,7 +431,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         {
             if (physicalDataSet.isAvailable())
             {
-                throw new IllegalArgumentException("Dataset '" + physicalDataSet.getCode() + "'specified for unarchiving is available");
+                throw new UserFailureException("Dataset '" + physicalDataSet.getCode() + "'specified for unarchiving is available");
             }
         }
     }
@@ -491,7 +492,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             MultiDataSetArchiverDataSetDTO dataSet = getReadonlyQuery().getDataSetForCode(code);
             if (dataSet == null)
             {
-                throw new IllegalArgumentException("Dataset " + code
+                throw new UserFailureException("Dataset " + code
                         + " was selected for unarchiving, but is not present in the archive");
             }
             List<String> list = containers.get(dataSet.getContainerId());
@@ -505,7 +506,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         if (containers.size() > 1)
         {
-            throw new IllegalArgumentException("Datasets selected for unarchiving do not all belong to one container, "
+            throw new UserFailureException("Datasets selected for unarchiving do not all belong to one container, "
                     + "but to " + containers.size() + " different containers: " + containers);
         }
         return containerId;
