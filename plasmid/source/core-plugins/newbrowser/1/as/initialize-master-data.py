@@ -563,7 +563,7 @@ createSampleTypeWithProperties("CELL_LINE", "", [
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
 	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number"],
 	["SPECIES", 						"Genotype",				"Species",								DataType.CONTROLLEDVOCABULARY,	"SPECIES",							"Species to which the cell line belongs"],
-	["CELL_TYPE", 						"Genotype",				"Cell type",							DataType.CONTROLLEDVOCABULARY,	"CELL_TYPE",							"Cell type of the cell line"],
+	["CELL_TYPE", 						"Genotype",				"Cell type",							DataType.CONTROLLEDVOCABULARY,	"CELL_TYPE",						"Cell type of the cell line"],
 	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced"],
 	["CLONE_NO", 						"Origin",				"Clone #",								DataType.INTEGER,				None,								"Clone number"],
 	["CHECK", 							"Origin",				"Check",								DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the cell line"],
@@ -576,6 +576,22 @@ createSampleTypeWithProperties("CELL_LINE", "", [
 	["CELL_CO2", 						"Cultivation",			"% CO2",								DataType.INTEGER,				None,								"Percentage of CO2 needed for the cultivation of the cell line"],
 	["SELECTION_MARKER", 				"Cultivation",			"Selection marker",						DataType.VARCHAR,				None,								"Special medium components or selection needed for the cell line"],
 	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO",							"Mycoplasm tested"],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
+]);
+
+createSampleTypeWithProperties("FLY", "", [
+	["FLY_STRAIN_NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name"],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
+	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number"],
+	["FLY_GENOTYPE", 					"Genotype",				"Genotype",								DataType.VARCHAR,				None,								"Genotype of the fly"],
+	["ASSOCIATED_GENE", 				"Genotype",				"Associated gene",						DataType.VARCHAR,				None,								"The transgene may contain regulatory or coding sequences from an endogenous gene"],
+	["MARKERS", 						"Genotype",				"Markers",								DataType.VARCHAR,				None,								"Markers available in the strain for further genetic modifications"],
+	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced"],
+	["STRAIN_CHECK", 					"Origin",				"Strain Check",							DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the strain"],
+	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab"],
+	["MATING_PARTNERS", 				"Comments",				"Mating partners",						DataType.MULTILINE_VARCHAR,		None,								"Features needed for the mating partners"],
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
 	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
