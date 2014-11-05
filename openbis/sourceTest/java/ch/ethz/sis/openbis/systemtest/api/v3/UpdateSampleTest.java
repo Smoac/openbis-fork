@@ -39,6 +39,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
@@ -263,6 +264,25 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithSpaceNullForSpaceSampleWithDataSets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        update.setSpaceId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Cannot detach the sample '/CP-TEST-1' from the space because there are already datasets attached to the sample");
+    }
+
+    @Test
     public void testUpdateWithSpaceNotNullForSharedSampleAsAdminUser()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -406,7 +426,7 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateWithExperimentNull()
+    public void testUpdateWithExperimentNullForSampleWithoutDataSets()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -434,6 +454,25 @@ public class UpdateSampleTest extends AbstractSampleTest
 
         Sample sample = samples.get(0);
         Assert.assertNull(sample.getExperiment());
+    }
+
+    @Test
+    public void testUpdateWithExperimentNullForSampleWithDataSets()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/CISD/CP-TEST-1"));
+        update.setExperimentId(null);
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Cannot detach the sample '/CISD/CP-TEST-1' from the experiment because there are already datasets attached to the sample");
     }
 
     @Test
@@ -600,6 +639,44 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithContainerCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200811050919915-8"));
+        update.setContainerId(new SamplePermId("200811050919915-9"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "'/CISD/A01:CL1' cannot be it's own container");
+    }
+
+    @Test
+    public void testUpdateWithContainerViolatingBusinessRules()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/MP"));
+        update.setContainerId(new SampleIdentifier("/CISD/3V-125"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "The database instance sample '/3V-125:MP' can not be contained in the space sample '/CISD/3V-125");
+    }
+
+    @Test
     public void testUpdateWithContainedSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -713,7 +790,45 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateWithParentsSetAddRemove()
+    public void testUpdateWithContainedCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200811050919915-9"));
+        update.getContainedIds().add(new SamplePermId("200811050919915-8"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "'/CISD/CL1:A01' cannot be it's own container");
+    }
+
+    @Test
+    public void testUpdateWithContainedViolatingBusinessRules()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/CISD/3V-125"));
+        update.getContainedIds().add(new SampleIdentifier("/MP"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Sample '/CISD/3V-125' can not be a space sample because of a contained database instance sample '/3V-125:MP");
+    }
+
+    @Test
+    public void testUpdateWithParentSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -825,7 +940,45 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testUpdateWithChildrenSetAddRemove()
+    public void testUpdateWithParentCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200811050945092-976"));
+        update.getParentIds().add(new SamplePermId("200811050946559-982"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Circular parent dependency found for sample: /CISD/3VCP8");
+    }
+
+    @Test
+    public void testUpdateWithParentViolatingBusinessRules()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/MP"));
+        update.getParentIds().add(new SampleIdentifier("/CISD/3V-125"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "The database instance sample '/MP' can not be child of the space sample '/CISD/3V-125'");
+    }
+
+    @Test
+    public void testUpdateWithChildSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
@@ -934,6 +1087,44 @@ public class UpdateSampleTest extends AbstractSampleTest
                     v3api.updateSamples(sessionToken, Arrays.asList(update));
                 }
             }, childId);
+    }
+
+    @Test
+    public void testUpdateWithChildCircularDependency()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SamplePermId("200811050946559-982"));
+        update.getChildIds().add(new SamplePermId("200811050945092-976"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Circular parent dependency found for sample: /CISD/3VCP8");
+    }
+
+    @Test
+    public void testUpdateWithChildViolatingBusinessRules()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        final SampleUpdate update = new SampleUpdate();
+        update.setSampleId(new SampleIdentifier("/CISD/3V-125"));
+        update.getChildIds().add(new SampleIdentifier("/MP"));
+
+        assertUserFailureException(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    v3api.updateSamples(sessionToken, Arrays.asList(update));
+                }
+            }, "Sample '/CISD/3V-125' can not be a space sample because of a child database instance sample '/MP'");
     }
 
     @Test

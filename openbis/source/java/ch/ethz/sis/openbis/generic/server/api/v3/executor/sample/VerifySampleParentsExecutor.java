@@ -65,7 +65,7 @@ public class VerifySampleParentsExecutor implements IVerifySampleParentsExecutor
     {
         Map<Long, Collection<Long>> graph = getGraph(context, samples);
 
-        checkCycles(samples, graph);
+        checkCycles(graph);
 
         for (SamplePE sample : samples)
         {
@@ -113,20 +113,15 @@ public class VerifySampleParentsExecutor implements IVerifySampleParentsExecutor
         return parentIdsMap;
     }
 
-    private void checkCycles(Collection<SamplePE> samples, Map<Long, Collection<Long>> graph)
+    private void checkCycles(Map<Long, Collection<Long>> graph)
     {
         try
         {
             GroupingDAG.groupByDepencies(graph);
         } catch (CycleFoundException e)
         {
-            Map<Long, SamplePE> sampleMap = new HashMap<Long, SamplePE>();
-            for (SamplePE sample : samples)
-            {
-                sampleMap.put(sample.getId(), sample);
-            }
-
-            throw new UserFailureException("Circular parent dependency found for sample: " + (sampleMap.get(e.getCycleRoot()).getIdentifier()), e);
+            SamplePE sample = daoFactory.getSampleDAO().getByTechId(new TechId((Long) e.getCycleRoot()));
+            throw new UserFailureException("Circular parent dependency found for sample: " + (sample.getIdentifier()), e);
         }
     }
 }

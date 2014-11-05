@@ -50,6 +50,7 @@ public class VerifySampleContainerExecutor implements IVerifySampleContainerExec
             }
 
             SampleGenericBusinessRules.assertValidContainer(sample);
+            SampleGenericBusinessRules.assertValidComponents(sample);
         }
     }
 
