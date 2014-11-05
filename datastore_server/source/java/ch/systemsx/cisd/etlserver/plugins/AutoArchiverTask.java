@@ -107,7 +107,6 @@ public class AutoArchiverTask implements IMaintenanceTask
                 PropertyParametersUtil.extractSingleSectionProperties(properties,
                         DISCOVERY_SECTION_NAME, false);
         archiveCandidateDiscoverer = createArchiveDatasetDiscoverer(discoverySectionProperties);
-        archiveCandidateDiscoverer.initialize(properties);
 
         removeFromDataStore =
                 PropertyUtils.getBoolean(properties, REMOVE_DATASETS_FROM_STORE, false);
