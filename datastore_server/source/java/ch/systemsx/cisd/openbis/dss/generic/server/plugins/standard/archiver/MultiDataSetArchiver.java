@@ -52,7 +52,6 @@ import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.dat
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiverTaskContext;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IUnarchivingPreparation;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
@@ -364,12 +363,6 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         }
         Share scratchShare = shares.get(0);
         return scratchShare;
-    }
-
-    @Override
-    protected IShareFinder getShareFinder()
-    {
-        return new MultiDataSetArchiverShareFinder();
     }
 
     public static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation
