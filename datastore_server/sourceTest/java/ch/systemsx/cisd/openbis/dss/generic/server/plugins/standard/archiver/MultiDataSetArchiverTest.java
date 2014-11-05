@@ -36,9 +36,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.springframework.beans.factory.BeanFactory;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
@@ -50,7 +52,10 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.tests.AbstractFileSystemTestCase;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
+import ch.systemsx.cisd.common.filesystem.HostAwareFile;
+import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.BufferedAppender;
+import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.DefaultFileBasedHierarchicalContentFactory;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -71,6 +76,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProcessingStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SimpleFileContentProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
@@ -81,6 +87,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataStoreBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
+import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 
 /**
@@ -291,15 +298,19 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
         private IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO;
 
+        private IFreeSpaceProvider freeSpaceProvider;
+
         public MockMultiDataSetArchiver(Properties properties, File storeRoot,
                 IEncapsulatedOpenBISService openBISService, IShareIdManager shareIdManager,
                 IDataSetStatusUpdater statusUpdater, IMultiDataSetArchiverDBTransaction transaction,
-                IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO)
+                IMultiDataSetFileOperationsManager fileManager, IMultiDataSetArchiverReadonlyQueryDAO readonlyDAO,
+                IFreeSpaceProvider freeSpaceProvider)
         {
             super(properties, storeRoot);
             this.transaction = transaction;
             this.fileManager = fileManager;
             this.readonlyDAO = readonlyDAO;
+            this.freeSpaceProvider = freeSpaceProvider;
             setService(openBISService);
             setShareIdManager(shareIdManager);
             setStatusUpdater(statusUpdater);
@@ -321,6 +332,12 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         IMultiDataSetArchiverReadonlyQueryDAO getReadonlyQuery()
         {
             return readonlyDAO;
+        }
+
+        @Override
+        protected IFreeSpaceProvider createFreeSpaceProvider()
+        {
+            return freeSpaceProvider;
         }
     }
 
@@ -398,6 +415,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
 
     private IConfigProvider configProvider;
 
+    private IFreeSpaceProvider freeSpaceProvider;
+
     @BeforeMethod
     public void setUpTestEnvironment()
     {
@@ -418,6 +437,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         ServiceProviderTestWrapper.addMock(context, IHierarchicalContentProvider.class,
                 hierarchicalContentProvider);
         fileOperations = context.mock(IMultiDataSetFileOperationsManager.class);
+        freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
         dataSetDeleter = new MockDataSetDeleter(share);
         statusUpdater = new RecordingStatusUpdater();
         staging = new File(workingDirectory, "staging");
@@ -743,12 +763,18 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         assertEquals(false, new File(share, ds1.getDataSetCode()).exists());
         assertEquals(false, new File(share, ds2.getDataSetCode()).exists());
         assertEquals("[ds1, ds2]: ARCHIVED true\n", statusUpdater.toString());
+        ds1.setDataSetSize(10 * FileUtils.ONE_GB);
+        ds2.setDataSetSize(20 * FileUtils.ONE_GB);
+        prepareFreeSpace(35 * FileUtils.ONE_GB);
         prepareListDataSetsByCode(DataSetArchivingStatus.ARCHIVED, ds1, ds2);
+        prepareListPhysicalDataSets();
 
         status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
-                + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n", getFilteredLogContent());
+                + "has been requested: [Dataset 'ds1', Dataset 'ds2']\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Free space on unarchiving scratch share '1': "
+                + "36.00 GB, requested space for unarchiving 2 data sets: 30.00 GB\n", getFilteredLogContent());
         assertEquals("[ds1, ds2]: ARCHIVED true\n[ds1, ds2]: AVAILABLE true\n", statusUpdater.toString());
         assertContent("ds1:\n  data:\n    >0123456789\n", new File(share, ds1.getDataSetCode()));
         assertContent("ds2:\n  data:\n    >01234567890123456789\n", new File(share, ds2.getDataSetCode()));
@@ -817,6 +843,52 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         context.assertIsSatisfied();
     }
     
+    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long... freeSpaceValues)
+    {
+        final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
+        final Sequence sequence = context.sequence("free space");
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        for (long freeSpace : freeSpaceValues)
+                        {
+                            one(freeSpaceProvider).freeSpaceKb(with(recorder));
+                            will(returnValue((freeSpace + SegmentedStoreUtils.MINIMUM_FREE_SCRATCH_SPACE) / 1024));
+                            inSequence(sequence);
+                        }
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        return recorder;
+    }
+
+    private void prepareListPhysicalDataSets(final DatasetDescription... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<SimpleDataSetInformationDTO> dataSetInfos = new ArrayList<SimpleDataSetInformationDTO>();
+                    for (DatasetDescription dataSet : dataSets)
+                    {
+                        SimpleDataSetInformationDTO dataSetInfo = new SimpleDataSetInformationDTO();
+                        dataSetInfo.setDataStoreCode(DSS_CODE);
+                        dataSetInfo.setDataSetCode(dataSet.getDataSetCode());
+                        dataSetInfo.setDataSetShareId(share.getName());
+                        dataSetInfo.setStatus(DataSetArchivingStatus.AVAILABLE);
+                        dataSetInfo.setDataSetSize(dataSet.getDataSetSize());
+                        dataSetInfos.add(dataSetInfo);
+                    }
+                    one(openBISService).listPhysicalDataSets();
+                    will(returnValue(dataSetInfos));
+                }
+            });
+    }
+
     private void prepareListDataSetsByCode(final DataSetArchivingStatus archivingStatus, final DatasetDescription... dataSets)
     {
         context.checking(new Expectations()
@@ -961,7 +1033,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     private MultiDataSetArchiver createArchiver(IMultiDataSetFileOperationsManager fileManagerOrNull)
     {
         return new MockMultiDataSetArchiver(properties, store, openBISService, shareIdManager, statusUpdater,
-                transaction, fileManagerOrNull, transaction);
+                transaction, fileManagerOrNull, transaction, freeSpaceProvider);
     }
 
     private DatasetDescription dataSet(final String code, String content)

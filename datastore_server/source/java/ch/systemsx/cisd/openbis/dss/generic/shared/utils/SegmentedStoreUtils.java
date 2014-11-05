@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
-import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
@@ -81,7 +80,7 @@ public class SegmentedStoreUtils
 
     private static final Pattern SHARE_ID_PATTERN = Pattern.compile("[0-9]+");
 
-    @Private static final Long MINIMUM_FREE_SCRATCH_SPACE = FileUtils.ONE_GB;
+    public static final Long MINIMUM_FREE_SCRATCH_SPACE = FileUtils.ONE_GB;
 
     private static final Comparator<Share> SHARE_COMPARATOR = new Comparator<Share>()
         {

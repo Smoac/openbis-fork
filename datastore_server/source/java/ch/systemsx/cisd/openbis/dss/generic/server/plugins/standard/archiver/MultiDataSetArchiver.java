@@ -34,7 +34,6 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.BooleanStatus;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.IFreeSpaceProvider;
-import ch.systemsx.cisd.common.filesystem.SimpleFreeSpaceProvider;
 import ch.systemsx.cisd.common.logging.Log4jSimpleLogger;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
@@ -333,7 +332,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     }
 
     @Override
-    public java.util.List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
+    public List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
     {
         assertAllDataSetsInTheSameContainer(dataSetCodes);
         return getCodesOfAllDataSetsInContainer(dataSetCodes);
@@ -353,7 +352,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     {
         String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
         Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
-        IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
+        IFreeSpaceProvider freeSpaceProvider = createFreeSpaceProvider();
         List<Share> shares =
                 SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ARCHIVING_SCRATCH, incomingShares,
                         freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
@@ -364,8 +363,8 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         Share scratchShare = shares.get(0);
         return scratchShare;
     }
-
-    public static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation
+    
+    private static class MultiDataSetUnarchivingPreparations implements IUnarchivingPreparation
     {
         private final Share scratchShare;
 
@@ -409,11 +408,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     @Override
     protected DatasetProcessingStatuses doUnarchive(List<DatasetDescription> parameterDataSets, ArchiverTaskContext context)
     {
-        context.getUnarchivingPreparation().prepareForUnarchiving(parameterDataSets);
-
         List<String> dataSetCodes = translateToDataSetCodes(parameterDataSets);
         long containerId = assertAllDataSetsInTheSameContainer(dataSetCodes);
         assertNoAvailableDatasets(dataSetCodes);
+        
+        context.getUnarchivingPreparation().prepareForUnarchiving(parameterDataSets);
 
         MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
 

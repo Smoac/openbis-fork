@@ -367,14 +367,18 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
         Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
-        IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
+        IFreeSpaceProvider freeSpaceProvider = createFreeSpaceProvider();
         List<Share> shares =
                 SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ALL, incomingShares,
                         freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
         return new UnarchivingPreparation(getShareFinder(),
                 getShareIdManager(), getService(), shares);
     }
-
+    
+    protected IFreeSpaceProvider createFreeSpaceProvider()
+    {
+        return new SimpleFreeSpaceProvider();
+    }
     /**
      * a 'safe' method that never throws any exceptions.
      */
@@ -767,4 +771,5 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     {
         return dataSetCodes;
     }
+
 }
