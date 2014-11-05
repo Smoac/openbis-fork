@@ -557,3 +557,26 @@ createSampleTypeWithProperties("YEAST", "", [
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
 	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
 ]);
+
+createSampleTypeWithProperties("CELL_LINE", "", [
+	["CELL_LINE_NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line"],
+	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample"],
+	["OWNER_NUMBER", 					"General",				"Owner number",							DataType.MULTILINE_VARCHAR,		None,								"Owner number"],
+	["SPECIES", 						"Genotype",				"Species",								DataType.CONTROLLEDVOCABULARY,	"SPECIES",							"Species to which the cell line belongs"],
+	["CELL_TYPE", 						"Genotype",				"Cell type",							DataType.CONTROLLEDVOCABULARY,	"CELL_TYPE",							"Cell type of the cell line"],
+	["ORIGIN", 							"Origin",				"Origin",								DataType.CONTROLLEDVOCABULARY,	"ORIGIN",							"How the strain/cell line was produced"],
+	["CLONE_NO", 						"Origin",				"Clone #",								DataType.INTEGER,				None,								"Clone number"],
+	["CHECK", 							"Origin",				"Check",								DataType.CONTROLLEDVOCABULARY,	"CHECK",							"Check done to verify the modifications introduced in the cell line"],
+	["CREATION_DATE", 					"Origin",				"Creation date",						DataType.TIMESTAMP,				None,								"Creation date of the cell line"],
+	["MODIFICATION_DATE", 				"Origin",				"Modification date",					DataType.TIMESTAMP,				None,								"Modification date of the cell line"],
+	["FREEZING_DATE", 					"Origin",				"Freezing date",						DataType.TIMESTAMP,				None,								"Freezing date (if more than one, add the latest)"],
+	["SOURCE", 							"Origin",				"Source",								DataType.VARCHAR,				None,								"Source from where the construct/strain/cell line obtained or purchased, if it was not produced in the lab"],
+	["MEDIUM", 							"Cultivation",			"Medium",								DataType.CONTROLLEDVOCABULARY,	"CELL_MEDIUM",						"Medium used to cultivate or manipulate the cell line"],
+	["GROWTH_TEMP", 					"Cultivation",			"Growth temp. ( &deg;C)",				DataType.INTEGER,				None,								"Growth temperature of the cell line"],
+	["CELL_CO2", 						"Cultivation",			"% CO2",								DataType.INTEGER,				None,								"Percentage of CO2 needed for the cultivation of the cell line"],
+	["SELECTION_MARKER", 				"Cultivation",			"Selection marker",						DataType.VARCHAR,				None,								"Special medium components or selection needed for the cell line"],
+	["MYCOPLASM", 						"Cultivation",			"Mycoplasm tested",						DataType.CONTROLLEDVOCABULARY,	"YES_NO",							"Mycoplasm tested"],
+	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer"],
+	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes"],
+	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users"]
+]);
