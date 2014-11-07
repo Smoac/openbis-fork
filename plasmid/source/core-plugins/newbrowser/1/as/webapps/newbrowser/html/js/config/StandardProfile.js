@@ -7,48 +7,36 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
-//		this.inventorySpaces = ["INVENTORY"];
-		
-//		this.storagesConfiguration = {
-//				"isEnabled" : true,
-//				/*
-//				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-//				*/
-//				"STORAGE_PROPERTIES": [{
-//					"STORAGE_PROPERTY_GROUP" : "Storage Utility", //Where the storage will be painted.
-//					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Utility", //Storage Group Name
-//					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-//					"ROW_PROPERTY" : "ROW", //Should be an integer.
-//					"COLUMN_PROPERTY" : "COLUMN",  //Should be an integer.
-//					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
-//					"USER_PROPERTY" : "USER_PROPERTY" //Should be text.
-//				}],
-//				/*
-//				 * Storages map, can hold configurations for several storages.
-//				*/
-//				"STORAGE_CONFIGS": {
-//					"MINUS80_1" : { //Freezer name given by the NAME_PROPERTY
-//									"ROW_NUM" : 9, //Number of rows
-//									"COLUMN_NUM" : 9, //Number of columns
-//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-//								},
-//					"MINUS80_2" : { //Freezer name given by the NAME_PROPERTY
-//									"ROW_NUM" : 9, //Number of rows
-//									"COLUMN_NUM" : 9, //Number of columns
-//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-//								},	
-//					"MINUS820_1" : { //Freezer name given by the NAME_PROPERTY
-//									"ROW_NUM" : 9, //Number of rows
-//									"COLUMN_NUM" : 9, //Number of columns
-//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-//								},																
-//					"BENCH" : { //Freezer name given by the NAME_PROPERTY
-//									"ROW_NUM" : 1, //Number of rows
-//									"COLUMN_NUM" : 1, //Number of columns
-//									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-//								}
-//				}
-//			};
+		this.storagesConfiguration = {
+				"isEnabled" : true,
+				/*
+				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
+				*/
+				"STORAGE_PROPERTIES": [{
+					"STORAGE_PROPERTY_GROUP" : "Physical Storage", //Where the storage will be painted.
+					"STORAGE_GROUP_DISPLAY_NAME" : "Physical Storage", //Storage Group Name
+					"NAME_PROPERTY" : 	"STORAGE_NAMES", //Should be a Vocabulary.
+					"ROW_PROPERTY" : 	"STORAGE_ROW", //Should be an integer.
+					"COLUMN_PROPERTY" : "STORAGE_COLUMN",  //Should be an integer.
+					"BOX_PROPERTY" : 	"STORAGE_BOX_NAME", //Should be text.
+					"USER_PROPERTY" : 	"STORAGE_USER" //Should be text.
+				}],
+				/*
+				 * Storages map, can hold configurations for several storages.
+				*/
+				"STORAGE_CONFIGS": {
+					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+						"ROW_NUM" : 1, //Number of rows
+						"COLUMN_NUM" : 1, //Number of columns
+						"BOX_NUM" : 999999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+					},
+					"DEFAULT_STORAGE" : { //Freezer name given by the NAME_PROPERTY
+						"ROW_NUM" : 1, //Number of rows
+						"COLUMN_NUM" : 1, //Number of columns
+						"BOX_NUM" : 999999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+					}
+				}
+			};
 	
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {
@@ -358,24 +346,15 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 													}																																			
 												],
 				}
-
+		
 		} 
-
 		
-		//The properties you want to appear on the tables, if you don«t specify the list, all of them will appear by default.
-		this.typePropertiesForTable = {};
-		
-		//The colors for the notes, if you don«t specify the color, light yellow will be used by default.
-		this.colorForInspectors = {};
-
-
 		this.sampleFormContentExtra = function(sampleTypeCode, sample, containerId) {
 			if(sampleTypeCode === "EXPERIMENTAL_STEP") {
 				var isEnabled = mainController.currentView._sampleFormModel.mode !== FormMode.VIEW;
 				var freeFormTableController = new FreeFormTableController(sample, isEnabled);
 				freeFormTableController.init($("#" + containerId));
 			}
-
 		}
 }
 });
