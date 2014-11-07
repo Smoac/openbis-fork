@@ -28,16 +28,15 @@ import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.properties.PropertyParametersUtil;
-import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties;
 import ch.systemsx.cisd.common.reflection.ClassUtils;
-import ch.systemsx.cisd.etlserver.IArchiveCandidateDiscoverer;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
  * {@link IMaintenanceTask} performing automatic archiving of data sets.
@@ -53,8 +52,6 @@ public class AutoArchiverTask implements IMaintenanceTask
 
     private static final String POLICY_SECTION_NAME = "policy";
 
-    private static final String DISCOVERY_SECTION_NAME = "archive-candidate-discoverer";
-
     private static final String CLASS_PROPERTY_NAME = "class";
 
     private static final String DATA_SET_TYPE_PROPERTY_NAME = "data-set-type";
@@ -69,18 +66,15 @@ public class AutoArchiverTask implements IMaintenanceTask
 
     private IAutoArchiverPolicy policy;
 
-    private IArchiveCandidateDiscoverer archiveCandidateDiscoverer;
-
     private ArchiverDataSetCriteria criteria;
 
     private boolean removeFromDataStore;
-
 
     @Override
     public void execute()
     {
         operationLog.info("start");
-        List<AbstractExternalData> dataSets = policy.filter(archiveCandidateDiscoverer.findDatasetsForArchiving(openBISService, criteria));
+        List<AbstractExternalData> dataSets = policy.filter(openBISService.listAvailableDataSets(criteria));
         if (dataSets.isEmpty())
         {
             operationLog.info("nothing to archive");
@@ -103,12 +97,6 @@ public class AutoArchiverTask implements IMaintenanceTask
                         POLICY_SECTION_NAME, false);
         policy = createPolicyInstance(policySectionProperties);
 
-        SectionProperties discoverySectionProperties =
-                PropertyParametersUtil.extractSingleSectionProperties(properties,
-                        DISCOVERY_SECTION_NAME, false);
-        archiveCandidateDiscoverer = createArchiveDatasetDiscoverer(discoverySectionProperties);
-        archiveCandidateDiscoverer.initialize(properties);
-
         removeFromDataStore =
                 PropertyUtils.getBoolean(properties, REMOVE_DATASETS_FROM_STORE, false);
 
@@ -123,17 +111,6 @@ public class AutoArchiverTask implements IMaintenanceTask
         return new ArchiverDataSetCriteria(olderThan, dataSetTypeCodeOrNull, false);
     }
 
-    private IArchiveCandidateDiscoverer createArchiveDatasetDiscoverer(SectionProperties discoverySectionProperties)
-    {
-        String className = discoverySectionProperties.getProperties().getProperty(CLASS_PROPERTY_NAME);
-        if (className == null)
-        {
-            return new AgeArchiveCandidateDiscoverer();
-        }
-
-        return createInstance(discoverySectionProperties, className, IArchiveCandidateDiscoverer.class);
-    }
-
     private IAutoArchiverPolicy createPolicyInstance(SectionProperties policySectionProperties)
     {
         String className = policySectionProperties.getProperties().getProperty(CLASS_PROPERTY_NAME);
@@ -141,23 +118,16 @@ public class AutoArchiverTask implements IMaintenanceTask
         {
             return DummyAutoArchiverPolicy.INSTANCE;
         }
-
-        return createInstance(policySectionProperties, className, IAutoArchiverPolicy.class);
-    }
-
-    private static <T> T createInstance(SectionProperties constructorArguments, String className,
-            Class<T> interfaceToCreate)
-    {
         try
         {
-            return ClassUtils.create(interfaceToCreate, className, constructorArguments
+            return ClassUtils.create(IAutoArchiverPolicy.class, className, policySectionProperties
                     .getProperties());
         } catch (ConfigurationFailureException ex)
         {
             throw ex; // rethrow the exception without changing the message
         } catch (Exception ex)
         {
-            throw new ConfigurationFailureException("Cannot find the class '" + className
+            throw new ConfigurationFailureException("Cannot find the policy class '" + className
                     + "'", CheckedExceptionTunnel.unwrapIfNecessary(ex));
         }
     }
