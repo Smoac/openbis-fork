@@ -1,5 +1,6 @@
 package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,23 +9,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Properties;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
-import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IArchiveCandidateDiscoverer;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.CompareMode;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseTimeAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 
 /**
@@ -41,15 +42,13 @@ public class ByExperimentArchiveCandidateDiscoverer implements IArchiveCandidate
 
     private static final String MAXIMAL_ARCHIVE_SIZE = "maximal-archive-size";
 
-    private static final long DEFAULT_MINIMAL_ARCHIVE_SIZE = 0;
+    private static final int DEFAULT_MINIMAL_ARCHIVE_SIZE = 0;
 
-    private static final long DEFAULT_MAXIMAL_ARCHIVE_SIZE = Long.MAX_VALUE;
+    private static final int DEFAULT_MAXIMAL_ARCHIVE_SIZE = Integer.MAX_VALUE;
 
-    private long minArchiveSize;
+    private int minArchiveSize;
 
-    private long maxArchiveSize;
-
-    private IDataSetPathInfoProvider pathInfoProvider;
+    private int maxArchiveSize;
 
     private static class DatasetArchInfo implements Comparable<DatasetArchInfo>
     {
@@ -66,148 +65,65 @@ public class ByExperimentArchiveCandidateDiscoverer implements IArchiveCandidate
         }
     }
 
-    public ByExperimentArchiveCandidateDiscoverer(ExtendedProperties properties)
-    {
-        minArchiveSize =
-                PropertyUtils.getLong(properties, MINIMAL_ARCHIVE_SIZE, DEFAULT_MINIMAL_ARCHIVE_SIZE);
-
-        maxArchiveSize =
-                PropertyUtils.getLong(properties, MAXIMAL_ARCHIVE_SIZE, DEFAULT_MAXIMAL_ARCHIVE_SIZE);
-    }
-
     @Override
     public List<AbstractExternalData> findDatasetsForArchiving(IEncapsulatedOpenBISService openbis, ArchiverDataSetCriteria criteria)
     {
-        List<AbstractExternalData> dataSets = openbis.listAvailableDataSets(criteria);
+        SearchCriteria sc = new SearchCriteria();
+        sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, criteria.tryGetDataSetTypeCode()));
 
-        DatasetArchInfo[] sortedCandidates = organizeCandidates(dataSets);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String dateBefore = dateFormat.format(DateUtils.addDays(new Date(), -criteria.getOlderThan()));
+        sc.addMatchClause(MatchClause.createTimeAttributeMatch(MatchClauseTimeAttribute.MODIFICATION_DATE, CompareMode.LESS_THAN_OR_EQUAL,
+                dateBefore, "0"));
 
-        if (sortedCandidates.length == 0)
-        {
-            return new ArrayList<AbstractExternalData>(0);
-        }
+        // TODO: not yet archived
+        // sc.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute., desiredValue));
 
-        SortedMap<Project, DatasetArchInfo> byProject = groupByProject(sortedCandidates);
+        List<AbstractExternalData> dataSets = openbis.searchForDataSets(sc);
 
-        boolean hadGoodCandidates = false;
-        for (Project p : byProject.keySet())
-        {
-            DatasetArchInfo projectSets = byProject.get(p);
-            if (projectSets.totalSize > minArchiveSize)
-            {
-                hadGoodCandidates = true;
-                if (projectSets.totalSize < maxArchiveSize)
-                {
-                    return reportFind(projectSets.datasets);
-                }
-
-                List<AbstractExternalData> projectSubset = selectSuitableSubsetBySample(projectSets.datasets);
-                if (projectSubset.size() > 0)
-                {
-                    return reportFind(projectSubset);
-                }
-            }
-        }
-
-        if (hadGoodCandidates)
-        {
-            operationLog.info("Found datasets matching By Experiment archivation policy, but no subset fit within "
-                    + "MINIMAL_ARCHIVE_SIZE and MAXIMAL_ARCHIVE_SIZE criteria.");
-        }
-
-        return new ArrayList<AbstractExternalData>();
-    }
-
-    private List<AbstractExternalData> reportFind(List<AbstractExternalData> datasets)
-    {
-        for (AbstractExternalData ds : datasets)
-        {
-            operationLog.info("Will archive " + ds.getCode() + " with experiment " + ds.getExperiment().getCode());
-        }
-        return datasets;
-    }
-
-    private SortedMap<Project, DatasetArchInfo> groupByProject(DatasetArchInfo[] sortedCandidates)
-    {
-        SortedMap<Project, DatasetArchInfo> result = new TreeMap<Project, DatasetArchInfo>();
-        for (DatasetArchInfo info : sortedCandidates)
-        {
-            Project project = info.datasets.get(0).getExperiment().getProject();
-            DatasetArchInfo current = result.get(project);
-            if (current == null)
-            {
-                current = new DatasetArchInfo();
-            }
-
-            current.datasets.addAll(info.datasets);
-            current.totalSize += info.totalSize;
-            result.put(project, current);
-        }
-        return result;
-    }
-
-    private DatasetArchInfo[] organizeCandidates(List<AbstractExternalData> dataSets)
-    {
-        Map<Experiment, DatasetArchInfo> candidates = new HashMap<Experiment, DatasetArchInfo>();
+        Map<Project, DatasetArchInfo> candidates = new HashMap<Project, DatasetArchInfo>();
         
         for (AbstractExternalData ds : dataSets)
         {
-            Experiment experiment = ds.getExperiment();
-            DatasetArchInfo candidate = candidates.get(experiment);
+            Project project = ds.getExperiment().getProject();
+            DatasetArchInfo candidate = candidates.get(project);
             if (candidate == null)
             {
                 candidate = new DatasetArchInfo();
             }
 
             candidate.datasets.add(ds);
-
-            Long size = ds.getSize();
-            if (size == null)
+            candidate.totalSize += ds.getSize();
+            if (candidate.minDate.compareTo(ds.getModificationDate()) > 0)
             {
-                ISingleDataSetPathInfoProvider dsInfoProvider = getDatasetPathInfoProvider().tryGetSingleDataSetPathInfoProvider(ds.getCode());
-                if (dsInfoProvider != null)
-                {
-                    size = dsInfoProvider.getRootPathInfo().getSizeInBytes();
-                    ds.setSize(size);
-                }
+                candidate.minDate = ds.getModificationDate();
             }
 
-            if (size != null)
-            {
-                candidate.totalSize += size;
-                if (candidate.minDate.compareTo(ds.getModificationDate()) > 0)
-                {
-                    candidate.minDate = ds.getModificationDate();
-                }
-
-                candidates.put(experiment, candidate);
-            } else
-            {
-                operationLog.warn("Failed determining data set size of " + ds.getCode() + ", cannot include it in archval candidates set.");
-            }
+            candidates.put(project, candidate);
         }
-
-        if (candidates.size() == 0)
-        {
-            return new DatasetArchInfo[0];
-        }
-
 
         DatasetArchInfo[] sortedCandidates = candidates.values().toArray(new DatasetArchInfo[candidates.size()]);
         Arrays.sort(sortedCandidates);
-        return sortedCandidates;
-    }
 
-    private IDataSetPathInfoProvider getDatasetPathInfoProvider()
-    {
-        if (pathInfoProvider == null)
+        for (DatasetArchInfo ai : sortedCandidates)
         {
-            pathInfoProvider = ServiceProvider.getDataSetPathInfoProvider();
+            if (ai.totalSize > minArchiveSize)
+            {
+                if (ai.totalSize < maxArchiveSize)
+                {
+                    return ai.datasets;
+                }
+
+                return selectSuitableSubset(ai.datasets);
+            }
         }
-        return pathInfoProvider;
+
+        operationLog.info("No dataset collection matches By Experiment archivation policy.");
+
+        return new ArrayList<AbstractExternalData>();
     }
 
-    private List<AbstractExternalData> selectSuitableSubsetBySample(List<AbstractExternalData> datasets)
+    private List<AbstractExternalData> selectSuitableSubset(List<AbstractExternalData> datasets)
     {
         ArrayList<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
 
@@ -228,7 +144,7 @@ public class ByExperimentArchiveCandidateDiscoverer implements IArchiveCandidate
         long curSize = 0;
         for (AbstractExternalData ds : datasets)
         {
-            if (curSize + ds.getSize() > maxArchiveSize && curSize > minArchiveSize)
+            if (curSize + ds.getSize() > maxArchiveSize)
             {
                 return result;
             }
@@ -236,11 +152,21 @@ public class ByExperimentArchiveCandidateDiscoverer implements IArchiveCandidate
             curSize += ds.getSize();
         }
 
-        if (curSize < minArchiveSize)
-        {
-            return new ArrayList<AbstractExternalData>();
-        }
+        operationLog.warn("Found datasets matching By Experiment archivation policy "
+                + "but wasn't able to pick a subset for MAXIMAL_ARCHIVE_SIZE criteria.");
 
         return result;
     }
+
+    @Override
+    public void initialize(Properties properties)
+    {
+        minArchiveSize =
+                PropertyUtils.getInt(properties, MINIMAL_ARCHIVE_SIZE, DEFAULT_MINIMAL_ARCHIVE_SIZE);
+
+        maxArchiveSize =
+                PropertyUtils.getInt(properties, MAXIMAL_ARCHIVE_SIZE, DEFAULT_MAXIMAL_ARCHIVE_SIZE);
+
+    }
+
 }
