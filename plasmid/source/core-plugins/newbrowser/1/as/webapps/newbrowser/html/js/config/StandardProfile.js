@@ -7,48 +7,48 @@ $.extend(StandardProfile.prototype, DefaultProfile.prototype, {
 	init: function(serverFacade){
 		DefaultProfile.prototype.init.call(this, serverFacade);
 		
-		this.inventorySpaces = ["INVENTORY"];
+//		this.inventorySpaces = ["INVENTORY"];
 		
-		this.storagesConfiguration = {
-				"isEnabled" : true,
-				/*
-				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
-				*/
-				"STORAGE_PROPERTIES": [{
-					"STORAGE_PROPERTY_GROUP" : "Storage Utility", //Where the storage will be painted.
-					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Utility", //Storage Group Name
-					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
-					"ROW_PROPERTY" : "ROW", //Should be an integer.
-					"COLUMN_PROPERTY" : "COLUMN",  //Should be an integer.
-					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
-					"USER_PROPERTY" : "USER_PROPERTY" //Should be text.
-				}],
-				/*
-				 * Storages map, can hold configurations for several storages.
-				*/
-				"STORAGE_CONFIGS": {
-					"MINUS80_1" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 9, //Number of rows
-									"COLUMN_NUM" : 9, //Number of columns
-									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								},
-					"MINUS80_2" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 9, //Number of rows
-									"COLUMN_NUM" : 9, //Number of columns
-									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								},	
-					"MINUS820_1" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 9, //Number of rows
-									"COLUMN_NUM" : 9, //Number of columns
-									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								},																
-					"BENCH" : { //Freezer name given by the NAME_PROPERTY
-									"ROW_NUM" : 1, //Number of rows
-									"COLUMN_NUM" : 1, //Number of columns
-									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
-								}
-				}
-			};
+//		this.storagesConfiguration = {
+//				"isEnabled" : true,
+//				/*
+//				 * Should be the same across all storages, if not correct behaviour is not guaranteed.
+//				*/
+//				"STORAGE_PROPERTIES": [{
+//					"STORAGE_PROPERTY_GROUP" : "Storage Utility", //Where the storage will be painted.
+//					"STORAGE_GROUP_DISPLAY_NAME" : "Storage Utility", //Storage Group Name
+//					"NAME_PROPERTY" : "FREEZER_NAME", //Should be a Vocabulary.
+//					"ROW_PROPERTY" : "ROW", //Should be an integer.
+//					"COLUMN_PROPERTY" : "COLUMN",  //Should be an integer.
+//					"BOX_PROPERTY" : "BOX_NUMBER", //Should be text.
+//					"USER_PROPERTY" : "USER_PROPERTY" //Should be text.
+//				}],
+//				/*
+//				 * Storages map, can hold configurations for several storages.
+//				*/
+//				"STORAGE_CONFIGS": {
+//					"MINUS80_1" : { //Freezer name given by the NAME_PROPERTY
+//									"ROW_NUM" : 9, //Number of rows
+//									"COLUMN_NUM" : 9, //Number of columns
+//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+//								},
+//					"MINUS80_2" : { //Freezer name given by the NAME_PROPERTY
+//									"ROW_NUM" : 9, //Number of rows
+//									"COLUMN_NUM" : 9, //Number of columns
+//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+//								},	
+//					"MINUS820_1" : { //Freezer name given by the NAME_PROPERTY
+//									"ROW_NUM" : 9, //Number of rows
+//									"COLUMN_NUM" : 9, //Number of columns
+//									"BOX_NUM" : 3 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+//								},																
+//					"BENCH" : { //Freezer name given by the NAME_PROPERTY
+//									"ROW_NUM" : 1, //Number of rows
+//									"COLUMN_NUM" : 1, //Number of columns
+//									"BOX_NUM" : 99999 //Boxes on each rack, used for validation, to avoid validation increase the number to 9999 for example
+//								}
+//				}
+//			};
 	
 		/* New Sample definition tests*/
 		this.sampleTypeDefinitionsExtension = {

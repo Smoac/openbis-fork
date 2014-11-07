@@ -69,15 +69,19 @@ def addProperty(entity, propertyCode, section, propertyLabel, dataType, vocabula
 	if propertyCode in propertiesCache:
 		property = propertiesCache[propertyCode];
 	else:
-		property = tr.getOrCreateNewPropertyType(propertyCode, dataType);
-		property.setDescription(propertyDescription);
-		property.setLabel(propertyLabel);
-		propertiesCache[propertyCode] = property;
-		if dataType == DataType.CONTROLLEDVOCABULARY:
-			property.setVocabulary(vocabulariesCache[vocabularyCode]);
+		property = createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode);
 	
 	propertyAssignment = tr.assignPropertyType(entity, property);
 	propertyAssignment.setSection(section);
+
+def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, vocabularyCode):
+	property = tr.getOrCreateNewPropertyType(propertyCode, dataType);
+	property.setDescription(propertyDescription);
+	property.setLabel(propertyLabel);
+	propertiesCache[propertyCode] = property;
+	if dataType == DataType.CONTROLLEDVOCABULARY:
+		property.setVocabulary(vocabulariesCache[vocabularyCode]);
+	return property;
 
 ##
 ## Vocabulary Types
@@ -345,6 +349,22 @@ createVocabularyWithTerms("MACHINE", [
 										["SRX_101A", "Konica Minolta SRX-101A"],
 										["LIGHT_CYCLER", "LightCycler 480"]
 									]);
+
+createVocabularyWithTerms("PLASMID_RELATIONSHIP", [
+										["DELETION", "Deletion"],
+										["INTEGRATION", "Integration"],
+										["MODIFICATION", "Modification"],
+										["OTHER", "Other"]
+									]);
+
+##
+## Property Types for annotations
+##
+
+createProperty("COMMENTS", DataType.VARCHAR, "Comments", "", None);
+createProperty("QUANTITY", DataType.VARCHAR, "Quantity", "", None);
+createProperty("PLASMID_ANNOTATION", DataType.VARCHAR, "Plasmid annotation", "", None);
+createProperty("PLASMID_RELATIONSHIP", DataType.CONTROLLEDVOCABULARY, "Plasmid relationship", "", "PLASMID_RELATIONSHIP");
 
 ##
 ## DataSet Types

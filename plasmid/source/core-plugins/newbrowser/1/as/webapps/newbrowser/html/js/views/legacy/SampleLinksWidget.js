@@ -399,9 +399,6 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 	}
 	
 	this._getPlus = function() {
-		if(this.isDisabled) {
-			return "";
-		}
 		var id = this.containerId + "-plus-button";
 		var tableId = id + "-table";
 		var $component = $("<div>", { "id" : id, "class" : "form-group", "style" : 'padding: 10px 0px 0px 10px'} );
