@@ -49,6 +49,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IncomingShareIdProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
@@ -199,7 +200,7 @@ public class EagerShufflingTask extends AbstractPostRegistrationTaskForPhysicalD
         public ICleanupTask createCleanupTask()
         {
             List<Share> shares =
-                    SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, true,
+                    SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                             incomingShares, freeSpaceProvider, service, logger);
             dataSet = findDataSet(shares, dataSetCode);
             shareWithMostFreeOrNull = finder.tryToFindShare(dataSet, shares);

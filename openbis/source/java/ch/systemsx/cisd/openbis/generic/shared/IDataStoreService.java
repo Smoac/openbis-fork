@@ -128,6 +128,13 @@ public interface IDataStoreService
             List<DatasetDescription> datasets, String userId, String userEmailOrNull);
 
     /**
+     * Asks arcvhiver to provide an extended list of data sets to unarchive.
+     * 
+     * @param userId id of user who initiated unarchiving.
+     */
+    public List<String> getDataSetCodesForUnarchiving(String sessionToken, String userSessionToken, List<String> datasets, String userId);
+
+    /**
      * Gets the link from a service that supports the IReportingPluginTask#createLink method.
      * 
      * @param sessionToken The sessionToken

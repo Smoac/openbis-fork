@@ -36,24 +36,20 @@ import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchical
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
+import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.AbstractDataSetFileOperationsManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ArchiveFolders;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IdentifierAttributeMappingManager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ContainerDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
-import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifierFactory;
 
 /**
  * @author Franz-Josef Elmer
  */
-public class DistributedPackagingDataSetFileOperationsManager implements IDataSetFileOperationsManager
+public class DistributedPackagingDataSetFileOperationsManager extends AbstractDataSetFileOperationsManager implements IDataSetFileOperationsManager
 {
     static final String MAPPING_FILE_KEY = "mapping-file";
 
@@ -94,13 +90,9 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private final boolean createArchives;
 
-    private transient IEncapsulatedOpenBISService service;
-
-    private transient IDataSetDirectoryProvider directoryProvider;
-
     private transient IdentifierAttributeMappingManager archiveFolderMapping;
 
-    private IPackageManager packageManager;
+    protected IPackageManager packageManager;
 
     public DistributedPackagingDataSetFileOperationsManager(Properties properties, IPackageManager packageManager)
     {
@@ -332,41 +324,6 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
         return new FilteredHierarchicalContent(packageManager.asHierarchialContent(getArchiveFile(dataset)), FILTER);
     }
 
-    private AbstractExternalData getDataSetWithAllMetaData(DatasetDescription datasetDescription)
-    {
-        AbstractExternalData dataSet = getService().tryGetDataSet(datasetDescription.getDataSetCode());
-        String experimentIdentifier = datasetDescription.getExperimentIdentifier();
-        dataSet.setExperiment(getService().tryGetExperiment(ExperimentIdentifierFactory.parse(experimentIdentifier)));
-        String sampleIdentifier = datasetDescription.getSampleIdentifier();
-        if (sampleIdentifier != null)
-        {
-            dataSet.setSample(getService().tryGetSampleWithExperiment(SampleIdentifierFactory.parse(sampleIdentifier)));
-        }
-        ContainerDataSet containerDataSet = dataSet.tryGetAsContainerDataSet();
-        if (containerDataSet != null)
-        {
-            // Inject container properties
-            if (containerDataSet.getProperties() == null)
-            {
-                containerDataSet.setDataSetProperties(getService().tryGetDataSet(
-                        containerDataSet.getCode()).getProperties());
-            }
-            // Inject full container experiment with properties
-            String containerExperimentIdentifier = containerDataSet.getExperiment().getIdentifier();
-            containerDataSet.setExperiment(getService().tryGetExperiment(
-                    ExperimentIdentifierFactory.parse(containerExperimentIdentifier)));
-            // Inject full container sample with properties
-            Sample sample = containerDataSet.getSample();
-            if (sample != null)
-            {
-                String containerSampleIdentifier = sample.getIdentifier();
-                containerDataSet.setSample(getService().tryGetSampleWithExperiment(
-                        SampleIdentifierFactory.parse(containerSampleIdentifier)));
-            }
-        }
-        return dataSet;
-    }
-
     private File getArchiveFile(DatasetDescription datasetDescription)
     {
         File folder = getArchiveFolderMapping().getArchiveFolder(datasetDescription, null);
@@ -393,7 +350,7 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
 
     private String createPackageFileName(IDatasetLocation datasetLocation)
     {
-        return packageManager.getName(datasetLocation);
+        return packageManager.getName(datasetLocation.getDataSetCode());
     }
 
     private File getArchiveFolder(File baseFolder, IDatasetLocation datasetLocation, boolean forWriting)
@@ -408,24 +365,6 @@ public class DistributedPackagingDataSetFileOperationsManager implements IDataSe
             }
         }
         return folder;
-    }
-
-    private IEncapsulatedOpenBISService getService()
-    {
-        if (service == null)
-        {
-            service = ServiceProvider.getOpenBISService();
-        }
-        return service;
-    }
-
-    private IDataSetDirectoryProvider getDirectoryProvider()
-    {
-        if (directoryProvider == null)
-        {
-            directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
-        }
-        return directoryProvider;
     }
 
     private IdentifierAttributeMappingManager getArchiveFolderMapping()

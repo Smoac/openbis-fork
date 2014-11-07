@@ -32,6 +32,8 @@ public abstract class ArchiveFolders
 
     public abstract File getFolder(DatasetDescription dataSetDescription);
 
+    public abstract File getFolder(long fileSize);
+
     public abstract Collection<File> getAllFolders();
 
     public static ArchiveFolders create(File[] folders, boolean createFolders, Long smallDataSetsSizeLimit)
@@ -125,6 +127,12 @@ public abstract class ArchiveFolders
         }
 
         @Override
+        public File getFolder(long fileSize)
+        {
+            return dataSetsFolder;
+        }
+
+        @Override
         public Collection<File> getAllFolders()
         {
             return Arrays.asList(dataSetsFolder);
@@ -171,7 +179,13 @@ public abstract class ArchiveFolders
                 dataSetDescription.setDataSetSize(size);
             }
 
-            if (dataSetDescription.getDataSetSize() > smallDataSetsSizeLimit)
+            return getFolder(dataSetDescription.getDataSetSize());
+        }
+
+        @Override
+        public File getFolder(long fileSize)
+        {
+            if (fileSize > smallDataSetsSizeLimit)
             {
                 return bigDataSetsFolder;
             } else

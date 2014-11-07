@@ -21,6 +21,7 @@ import java.io.Serializable;
 
 import ch.systemsx.cisd.common.collection.ExtendedLinkedBlockingQueue;
 import ch.systemsx.cisd.common.collection.IExtendedBlockingQueue;
+import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 
 /**
  * A factory class for {@link IExtendedBlockingQueue}s.
@@ -57,7 +58,13 @@ public class PersistentExtendedBlockingQueueFactory
     public static <E extends Serializable> PersistentExtendedBlockingQueueDecorator<E> createSmartPersist(
             File queueFile)
     {
-        return createSmartQueue(queueFile, false);
+        try
+        {
+            return createSmartQueue(queueFile, false);
+        } catch (Exception rex)
+        {
+            throw new EnvironmentFailureException("Could not create/restore queue file " + queueFile.getAbsolutePath(), rex);
+        }
     }
 
 }

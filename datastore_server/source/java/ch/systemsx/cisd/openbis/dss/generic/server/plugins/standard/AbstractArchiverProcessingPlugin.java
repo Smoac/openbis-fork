@@ -22,6 +22,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,6 +59,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.StandardShareFinder;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetCodesWithStatus;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.Share;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatasetLocation;
@@ -105,7 +107,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
     /**
      * Total size in bytes of data sets processed in a single batch of archiver.
      */
-    private final int maximumBatchSizeInBytes;
+    private final long maximumBatchSizeInBytes;
 
     public AbstractArchiverProcessingPlugin(Properties properties, File storeRoot,
             IStatusChecker archivePrerequisiteOrNull, IStatusChecker unarchivePrerequisiteOrNull)
@@ -114,7 +116,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         this.archivePrerequisiteOrNull = archivePrerequisiteOrNull;
         this.unarchivePrerequisiteOrNull = unarchivePrerequisiteOrNull;
         this.synchronizeArchive = PropertyUtils.getBoolean(properties, SYNCHRONIZE_ARCHIVE, true);
-        this.maximumBatchSizeInBytes = PropertyUtils.getInt(properties, BATCH_SIZE_IN_BYTES, 1024 * 1024 * 1024);
+        this.maximumBatchSizeInBytes = PropertyUtils.getLong(properties, BATCH_SIZE_IN_BYTES, 1024L * 1024 * 1024);
         this.tempFolder = PropertyUtils.getDirectory(properties, TEMP_FOLDER, null);
     }
 
@@ -168,7 +170,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             return createStatuses(errorStatus, datasets, Operation.ARCHIVE).getProcessingStatus();
         }
 
-        for (List<DatasetDescription> datasetGroup : splitIntoGroups(datasets, maximumBatchSizeInBytes))
+        for (List<DatasetDescription> datasetGroup : splitIntoGroups(datasets))
         {
             DatasetProcessingStatuses statuses = archiveSingleBatch(context, removeFromDataStore, finalstatuses, datasetGroup);
             finalstatuses.addResults(statuses);
@@ -177,7 +179,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return finalstatuses.getProcessingStatus();
     }
 
-    private List<List<DatasetDescription>> splitIntoGroups(List<DatasetDescription> datasets, long minGroupSize)
+    protected List<List<DatasetDescription>> splitIntoGroups(List<DatasetDescription> datasets)
     {
         List<List<DatasetDescription>> results = new LinkedList<List<DatasetDescription>>();
 
@@ -186,13 +188,21 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         long runningSum = 0;
         for (DatasetDescription dataset : datasets)
         {
-            currentResult.add(dataset);
-            runningSum += dataset.getDataSetSize();
-            if (runningSum > minGroupSize)
+            if (dataset.getDataSetSize() > maximumBatchSizeInBytes)
             {
-                results.add(currentResult);
-                runningSum = 0;
-                currentResult = new LinkedList<DatasetDescription>();
+                results.add(Collections.singletonList(dataset));
+            }
+            else
+            {
+                currentResult.add(dataset);
+                runningSum += dataset.getDataSetSize();
+
+                if (runningSum > maximumBatchSizeInBytes)
+                {
+                    results.add(currentResult);
+                    runningSum = 0;
+                    currentResult = new LinkedList<DatasetDescription>();
+                }
             }
         }
         if (false == currentResult.isEmpty())
@@ -351,16 +361,25 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
 
     private void setUpUnarchivingPreparation(ArchiverTaskContext context)
     {
-        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
-        Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
-        IFreeSpaceProvider freeSpaceProvider = new SimpleFreeSpaceProvider();
-        List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, true, incomingShares,
-                        freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
-        context.setUnarchivingPreparation(new UnarchivingPreparation(getShareFinder(),
-                getShareIdManager(), getService(), shares));
+        context.setUnarchivingPreparation(getUnarchivingPreparation());
     }
 
+    protected IUnarchivingPreparation getUnarchivingPreparation()
+    {
+        String dataStoreCode = ServiceProvider.getConfigProvider().getDataStoreCode();
+        Set<String> incomingShares = IncomingShareIdProvider.getIdsOfIncomingShares();
+        IFreeSpaceProvider freeSpaceProvider = createFreeSpaceProvider();
+        List<Share> shares =
+                SegmentedStoreUtils.getSharesWithDataSets(storeRoot, dataStoreCode, FilterOptions.ALL, incomingShares,
+                        freeSpaceProvider, getService(), new Log4jSimpleLogger(operationLog));
+        return new UnarchivingPreparation(getShareFinder(),
+                getShareIdManager(), getService(), shares);
+    }
+    
+    protected IFreeSpaceProvider createFreeSpaceProvider()
+    {
+        return new SimpleFreeSpaceProvider();
+    }
     /**
      * a 'safe' method that never throws any exceptions.
      */
@@ -628,7 +647,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
     }
 
-    private IShareIdManager getShareIdManager()
+    protected IShareIdManager getShareIdManager()
     {
         if (shareIdManager == null)
         {
@@ -645,7 +664,7 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         return tempFolder;
     }
 
-    private IShareFinder getShareFinder()
+    protected IShareFinder getShareFinder()
     {
         Properties props =
                 PropertyParametersUtil.extractSingleSectionProperties(properties, SHARE_FINDER_KEY,
@@ -709,7 +728,15 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
         }
 
         @Override
-        public void prepareForUnarchiving(DatasetDescription dataSet)
+        public void prepareForUnarchiving(List<DatasetDescription> dataSets)
+        {
+            for (DatasetDescription datasetDescription : dataSets)
+            {
+                findAndUpdateShareForDataset(datasetDescription);
+            }
+        }
+
+        protected void findAndUpdateShareForDataset(DatasetDescription dataSet)
         {
             SimpleDataSetInformationDTO translatedDataSet = SimpleDataSetHelper.translate(dataSet);
             String dataSetCode = dataSet.getDataSetCode();
@@ -733,6 +760,17 @@ public abstract class AbstractArchiverProcessingPlugin extends AbstractDatastore
             }
         }
 
+    }
+
+    public long getMaximumBatchSizeInBytes()
+    {
+        return maximumBatchSizeInBytes;
+    }
+
+    @Override
+    public List<String> getDataSetCodesForUnarchiving(List<String> dataSetCodes)
+    {
+        return dataSetCodes;
     }
 
 }

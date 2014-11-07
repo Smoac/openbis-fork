@@ -16,16 +16,21 @@
 
 package ch.systemsx.cisd.openbis.dss.generic.shared.utils;
 
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.ARCHIVED;
+import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus.AVAILABLE;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
+import org.jmock.Sequence;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -45,15 +50,19 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ProxyShareIdManager;
+import ch.systemsx.cisd.openbis.dss.generic.shared.utils.SegmentedStoreUtils.FilterOptions;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatasetDescription;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SimpleDataSetInformationDTO;
 
 /**
  * @author Franz-Josef Elmer
  */
 @Friend(toClasses = SegmentedStoreUtils.class)
+@Test
 public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 {
     private static final String MOVED = "Moved";
@@ -84,6 +93,10 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
     private File store;
 
+    private int modificationTimestamp;
+
+    private File shareFolder;
+
     @BeforeMethod
     public void beforeMethod()
     {
@@ -106,6 +119,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         log = new MockLogger();
         store = new File(workingDirectory, "store");
         store.mkdirs();
+        shareFolder = new File(store, "1");
         new File(store, "blabla").mkdirs();
         new File(store, "error").mkdirs();
     }
@@ -121,6 +135,148 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             // assert expectations were met, including the name of the failed method
             throw new Error(method.getName() + "() : ", t);
         }
+    }
+
+    @Test
+    public void testFreeSpaceForAShareWhichIsNotAnUnarchivingScratchShare()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_GB, AVAILABLE);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+
+        try
+        {
+            SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1), dataSetDirectoryProvider,
+                    shareIdManager, log);
+            fail("EnvironmentFailureException expected.");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Share '1' isn't an unarchving scratch share. Such a share has the property "
+                    + "unarchiving-scratch-share of the file share.properties set to 'true'.", ex.getMessage());
+        }
+
+        assertEquals("", log.toString());
+    }
+
+    @Test
+    public void testFreeSpaceNothingToDo()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 11 * FileUtils.ONE_GB, AVAILABLE);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12 * FileUtils.ONE_GB);
+
+        SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1), dataSetDirectoryProvider,
+                shareIdManager, log);
+
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
+        assertEquals("INFO: Free space on unarchiving scratch share '1': 12.00 GB, "
+                + "requested space for unarchiving 1 data sets: 11.00 GB\n", log.toString());
+    }
+
+    @Test
+    public void testFreeSpaceRemovingOneDataSet()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
+        share.addDataSet(ds5);
+        share.addDataSet(ds3);
+        share.addDataSet(ds1);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher 
+                = prepareFreeSpace(12 * FileUtils.ONE_GB, 22 * FileUtils.ONE_GB);
+        prepareSetArchingStatus(ds1);
+        File file = prepareDeleteFromShare(ds1);
+        assertEquals(true, file.exists());
+
+        SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds2, ds4), dataSetDirectoryProvider,
+                shareIdManager, log);
+
+        assertEquals(false, file.exists());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(0).getPath());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(1).getPath());
+        assertEquals(2, recordingFileMatcher.getRecordedObjects().size());
+        assertEquals("INFO: Remove the following data sets from share '1' and set their archiving status "
+                + "back to ARCHIVED: [ds-1]\n"
+                + "INFO: Await for data set ds-1 to be unlocked.\n"
+                + "INFO: Start deleting data set ds-1 at " + shareFolder + "/abc/ds-1\n"
+                + "INFO: Data set ds-1 at " + shareFolder + "/abc/ds-1 has been successfully deleted.\n"
+                + "INFO: The following data sets have been successfully removed from share '1' "
+                + "and their archiving status has been successfully set back to ARCHIVED: [ds-1]\n"
+                + "INFO: Free space on unarchiving scratch share '1': 22.00 GB, requested space for "
+                + "unarchiving 2 data sets: 21.00 GB\n", log.toString());
+    }
+
+    @Test
+    public void testFreeSpaceForThreeDataSetsOneAlreadyInShare()
+    {
+        SimpleDataSetInformationDTO ds0 = dataSet(0, 19 * FileUtils.ONE_GB, ARCHIVED);
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
+        share.addDataSet(ds0);
+        share.addDataSet(ds5);
+        share.addDataSet(ds3);
+        share.addDataSet(ds1);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher 
+                = prepareFreeSpace(12 * FileUtils.ONE_GB, 24 * FileUtils.ONE_GB);
+        prepareSetArchingStatus(ds3);
+        File file = prepareDeleteFromShare(ds3);
+        assertEquals(true, file.exists());
+
+        SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds1, ds2, ds4), dataSetDirectoryProvider,
+                shareIdManager, log);
+
+        assertEquals(false, file.exists());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(0).getPath());
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.getRecordedObjects().get(1).getPath());
+        assertEquals(2, recordingFileMatcher.getRecordedObjects().size());
+        assertEquals("INFO: Remove the following data sets from share '1' and set their archiving status "
+                + "back to ARCHIVED: [ds-3]\n"
+                + "INFO: Await for data set ds-3 to be unlocked.\n"
+                + "INFO: Start deleting data set ds-3 at " + shareFolder + "/abc/ds-3\n"
+                + "INFO: Data set ds-3 at " + shareFolder + "/abc/ds-3 has been successfully deleted.\n"
+                + "INFO: The following data sets have been successfully removed from share '1' "
+                + "and their archiving status has been successfully set back to ARCHIVED: [ds-3]\n"
+                + "INFO: Free space on unarchiving scratch share '1': 24.00 GB, requested space for "
+                + "unarchiving 2 data sets: 21.00 GB\n", log.toString());
+    }
+
+    @Test
+    public void testFreeSpaceRemovingDataSetsButStillNotEnoughFreeSpace()
+    {
+        SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
+        Share share = new Share(shareFolder, 0, freeSpaceProvider);
+        share.setUnarchivingScratchShare(true);
+        share.addDataSet(ds3);
+        share.addDataSet(ds2);
+        share.addDataSet(ds1);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(2 * FileUtils.ONE_GB);
+
+        try
+        {
+            SegmentedStoreUtils.freeSpace(share, service, asDatasetDescriptions(ds4, ds5, ds1), dataSetDirectoryProvider,
+                    shareIdManager, log);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Even after removing all removable data sets from share '1' there would be "
+                    + "still only 24.00 GB free space which is not enough as 25.00 GB is requested.", ex.getMessage());
+        }
+
+        assertEquals(shareFolder.getPath(), recordingFileMatcher.recordedObject().getPath());
+        assertEquals("", log.toString());
     }
 
     @Test
@@ -171,7 +327,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
             });
 
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                         freeSpaceProvider, service, log, timeProvider);
         Share share1 = shares.get(0);
         long freeSpace = share1.calculateFreeSpace();
@@ -403,6 +559,79 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
     }
 
     @Test
+    public void testMoveDataSetToAnotherShareWhichIsAnUnarchivingScratchShare()
+    {
+        File share1 = new File(workingDirectory, "store/1");
+        File share1uuid01 = new File(share1, "uuid/01");
+        File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
+        File original = new File(dataSetDirInStore, "original");
+        original.mkdirs();
+        final File helloFile = new File(original, "hello.txt");
+        FileUtilities.writeToFile(helloFile, "hello world");
+        File share2 = new File(workingDirectory, "store/2");
+        share2.mkdirs();
+        FileUtilities.writeToFile(new File(share2, ShareFactory.SHARE_PROPS_FILE),
+                ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + "=true");
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet("ds-1");
+                    will(returnValue(new PhysicalDataSet()));
+
+                    one(shareIdManager).lock("ds-1");
+                    one(shareIdManager).releaseLock("ds-1");
+                }
+            });
+
+        try
+        {
+            SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
+                    shareIdManager, checksumProvider, log);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Share '2' is a scratch share for unarchiving purposes. "
+                    + "No data sets can be moved from/to such a share.", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testMoveDataSetFromAnUnarchivingScratchShareToAnotherShare()
+    {
+        File share1 = new File(workingDirectory, "store/1");
+        File share1uuid01 = new File(share1, "uuid/01");
+        File dataSetDirInStore = new File(share1uuid01, "02/03/ds-1");
+        File original = new File(dataSetDirInStore, "original");
+        original.mkdirs();
+        FileUtilities.writeToFile(new File(share1, ShareFactory.SHARE_PROPS_FILE),
+                ShareFactory.UNARCHIVING_SCRATCH_SHARE_PROP + "=true");
+        final File helloFile = new File(original, "hello.txt");
+        FileUtilities.writeToFile(helloFile, "hello world");
+        File share2 = new File(workingDirectory, "store/2");
+        context.checking(new Expectations()
+            {
+                {
+                    one(service).tryGetDataSet("ds-1");
+                    will(returnValue(new PhysicalDataSet()));
+
+                    one(shareIdManager).lock("ds-1");
+                    one(shareIdManager).releaseLock("ds-1");
+                }
+            });
+
+        try
+        {
+            SegmentedStoreUtils.moveDataSetToAnotherShare(dataSetDirInStore, share2, service,
+                    shareIdManager, checksumProvider, log);
+            fail("EnvironmentFailureException expected");
+        } catch (EnvironmentFailureException ex)
+        {
+            assertEquals("Share '1' is a scratch share for unarchiving purposes. "
+                    + "No data sets can be moved from/to such a share.", ex.getMessage());
+        }
+    }
+
+    @Test
     public void testCleanupOld()
     {
         File ds1In1 = dataSetFile("1", false);
@@ -482,13 +711,13 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share1.mkdirs();
         FileUtilities.writeToFile(new File(share1, "share.properties"),
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
-        
+
         String share = SegmentedStoreUtils.findIncomingShare(incomingFolder, store, log);
-        
+
         assertEquals("1", share);
         assertEquals("", log.toString());
     }
-    
+
     @Test
     public void testGetSharesFilterOutIgnoredForShuffling()
     {
@@ -498,15 +727,15 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
         File share2 = new File(store, "2");
         share2.mkdirs();
-        
+
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, true,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, FilterOptions.AVAILABLE_FOR_SHUFFLING,
                         freeSpaceProvider, service, log, timeProvider);
-        
+
         assertEquals("2", shares.get(0).getShareId());
         assertEquals(1, shares.size());
     }
-    
+
     @Test
     public void testGetAllShares()
     {
@@ -516,11 +745,11 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
                 ShareFactory.IGNORED_FOR_SHUFFLING_PROP + " = true");
         File share2 = new File(store, "2");
         share2.mkdirs();
-        
+
         List<Share> shares =
-                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, false,
+                SegmentedStoreUtils.getSharesWithDataSets(store, DATA_STORE_CODE, FilterOptions.ALL,
                         freeSpaceProvider, service, log, timeProvider);
-        
+
         assertEquals("1", shares.get(0).getShareId());
         assertEquals("2", shares.get(1).getShareId());
         assertEquals(2, shares.size());
@@ -551,6 +780,82 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         assertEquals(Arrays.asList(names).toString(), actualNames.toString());
     }
 
+    private File prepareDeleteFromShare(final SimpleDataSetInformationDTO dataSet)
+    {
+        final File file = new File(shareFolder, dataSet.getDataSetLocation());
+        context.checking(new Expectations()
+            {
+                {
+                    one(shareIdManager).await(dataSet.getDataSetCode());
+                    one(dataSetDirectoryProvider).getDataSetDirectory(dataSet);
+                    will(returnValue(file));
+                }
+            });
+        return file;
+    }
+
+    private void prepareSetArchingStatus(final SimpleDataSetInformationDTO... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<String> dataSetCodes = new ArrayList<String>();
+                    for (SimpleDataSetInformationDTO dataSet : dataSets)
+                    {
+                        dataSetCodes.add(dataSet.getDataSetCode());
+                    }
+                    one(service).updateDataSetStatuses(dataSetCodes, DataSetArchivingStatus.ARCHIVED, true);
+                }
+            });
+    }
+
+    private RecordingMatcher<HostAwareFile> prepareFreeSpace(final long... freeSpaceValues)
+    {
+        final RecordingMatcher<HostAwareFile> recorder = new RecordingMatcher<HostAwareFile>();
+        final Sequence sequence = context.sequence("free space");
+        context.checking(new Expectations()
+            {
+                {
+                    try
+                    {
+                        for (long freeSpace : freeSpaceValues)
+                        {
+                            one(freeSpaceProvider).freeSpaceKb(with(recorder));
+                            will(returnValue((freeSpace + SegmentedStoreUtils.MINIMUM_FREE_SCRATCH_SPACE) / 1024));
+                            inSequence(sequence);
+                        }
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            });
+        return recorder;
+    }
+
+    private List<DatasetDescription> asDatasetDescriptions(SimpleDataSetInformationDTO... dataSets)
+    {
+        List<DatasetDescription> result = new ArrayList<DatasetDescription>();
+        for (SimpleDataSetInformationDTO dataSet : dataSets)
+        {
+            DatasetDescription datasetDescription = new DatasetDescription();
+            datasetDescription.setDataSetCode(dataSet.getDataSetCode());
+            datasetDescription.setDataSetSize(dataSet.getDataSetSize());
+            result.add(datasetDescription);
+        }
+        return result;
+    }
+
+    private SimpleDataSetInformationDTO dataSet(int id, long size, DataSetArchivingStatus status)
+    {
+        File dsFile = new File(shareFolder, "abc/ds-" + id);
+        dsFile.mkdirs();
+        FileUtilities.writeToFile(new File(dsFile, "read.me"), id + " nice works!");
+        SimpleDataSetInformationDTO dataSet = dataSet(dsFile, DATA_STORE_CODE, size);
+        dataSet.setStatus(status);
+        return dataSet;
+    }
+
     private SimpleDataSetInformationDTO dataSet(File dataSetFile, String dataStoreCode, Long size)
     {
         SimpleDataSetInformationDTO dataSet = new SimpleDataSetInformationDTO();
@@ -561,6 +866,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         dataSet.setDataSetShareId(path.substring(0, indexOfFirstSeparator));
         dataSet.setDataSetLocation(path.substring(indexOfFirstSeparator + 1));
         dataSet.setDataSetSize(size);
+        dataSet.setModificationTimestamp(new Date(modificationTimestamp += 10000));
         return dataSet;
     }
 

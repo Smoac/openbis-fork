@@ -27,28 +27,18 @@ import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.filesystem.tar.Untar;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.TarBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.TarDataSetPackager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 /**
  * @author pkupczyk
  */
-public class TarPackageManager implements IPackageManager
+public class TarPackageManager extends AbstractPackageManager
 {
-
-    private transient IHierarchicalContentProvider contentProvider;
-
-    private transient IDataSetDirectoryProvider directoryProvider;
 
     private final File tempFolder;
 
@@ -58,31 +48,17 @@ public class TarPackageManager implements IPackageManager
     }
 
     @Override
-    public String getName(IDatasetLocation dataSetLocation)
+    public String getName(String dataSetCode)
     {
-        return dataSetLocation.getDataSetCode() + ".tar";
+        return dataSetCode + ".tar";
     }
 
     @Override
-    public void create(File packageFile, AbstractExternalData dataSet)
+    protected AbstractDataSetPackager createPackager(File packageFile, DataSetExistenceChecker existenceChecker)
     {
-        TarDataSetPackager packager = null;
-
-        try
-        {
-            DataSetExistenceChecker existenceChecker =
-                    new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
-            packager = new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker);
-            packager.addDataSetTo("", dataSet);
-        } finally
-        {
-            if (packager != null)
-            {
-                packager.close();
-            }
-        }
+        return new TarDataSetPackager(packageFile, getContentProvider(), existenceChecker);
     }
-
+    
     @Override
     public List<VerificationError> verify(File packageFile)
     {
@@ -127,24 +103,6 @@ public class TarPackageManager implements IPackageManager
     public IHierarchicalContent asHierarchialContent(File packageFile)
     {
         return new TarBasedHierarchicalContent(packageFile, tempFolder);
-    }
-
-    private IHierarchicalContentProvider getContentProvider()
-    {
-        if (contentProvider == null)
-        {
-            contentProvider = ServiceProvider.getHierarchicalContentProvider();
-        }
-        return contentProvider;
-    }
-
-    private IDataSetDirectoryProvider getDirectoryProvider()
-    {
-        if (directoryProvider == null)
-        {
-            directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
-        }
-        return directoryProvider;
     }
 
 }

@@ -32,19 +32,13 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.Status;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
-import ch.systemsx.cisd.common.time.TimingParameters;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.ZipBasedHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.batch.VerificationError;
 import ch.systemsx.cisd.openbis.dss.archiveverifier.verifier.ZipFileIntegrityVerifier;
 import ch.systemsx.cisd.openbis.dss.generic.server.AbstractDataSetPackager;
 import ch.systemsx.cisd.openbis.dss.generic.server.ZipDataSetPackager;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetDirectoryProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
-import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.DataSetExistenceChecker;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IDatasetLocation;
 
 import de.schlichtherle.io.rof.SimpleReadOnlyFile;
 import de.schlichtherle.util.zip.BasicZipFile;
@@ -53,16 +47,12 @@ import de.schlichtherle.util.zip.ZipEntry;
 /**
  * @author pkupczyk
  */
-public class ZipPackageManager implements IPackageManager
+public class ZipPackageManager extends AbstractPackageManager
 {
 
     static final String COMPRESS_KEY = "compressing";
 
     private boolean compress;
-
-    private transient IHierarchicalContentProvider contentProvider;
-
-    private transient IDataSetDirectoryProvider directoryProvider;
 
     public ZipPackageManager(Properties properties)
     {
@@ -70,29 +60,15 @@ public class ZipPackageManager implements IPackageManager
     }
 
     @Override
-    public String getName(IDatasetLocation dataSetLocation)
+    public String getName(String dataSetCode)
     {
-        return dataSetLocation.getDataSetCode() + ".zip";
+        return dataSetCode + ".zip";
     }
 
     @Override
-    public void create(File packageFile, AbstractExternalData dataSet)
+    protected AbstractDataSetPackager createPackager(File packageFile, DataSetExistenceChecker existenceChecker)
     {
-        ZipDataSetPackager packager = null;
-
-        try
-        {
-            DataSetExistenceChecker existenceChecker =
-                    new DataSetExistenceChecker(getDirectoryProvider(), TimingParameters.create(new Properties()));
-            packager = new ZipDataSetPackager(packageFile, compress, getContentProvider(), existenceChecker);
-            packager.addDataSetTo("", dataSet);
-        } finally
-        {
-            if (packager != null)
-            {
-                packager.close();
-            }
-        }
+        return new ZipDataSetPackager(packageFile, compress, getContentProvider(), existenceChecker);
     }
 
     @Override
@@ -166,24 +142,6 @@ public class ZipPackageManager implements IPackageManager
     public IHierarchicalContent asHierarchialContent(File packageFile)
     {
         return new ZipBasedHierarchicalContent(packageFile);
-    }
-
-    private IHierarchicalContentProvider getContentProvider()
-    {
-        if (contentProvider == null)
-        {
-            contentProvider = ServiceProvider.getHierarchicalContentProvider();
-        }
-        return contentProvider;
-    }
-
-    private IDataSetDirectoryProvider getDirectoryProvider()
-    {
-        if (directoryProvider == null)
-        {
-            directoryProvider = ServiceProvider.getDataStoreService().getDataSetDirectoryProvider();
-        }
-        return directoryProvider;
     }
 
 }

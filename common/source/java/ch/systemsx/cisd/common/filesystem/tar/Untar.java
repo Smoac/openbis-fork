@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -40,8 +41,6 @@ public class Untar implements Closeable
 {
 
     private final static int DEFAULT_BUFFER_SIZE = 128 * 1024;
-
-    private final List<TarArchiveEntry> dirEntries = new ArrayList<TarArchiveEntry>();
 
     private final TarArchiveInputStream in;
 
@@ -69,46 +68,13 @@ public class Untar implements Closeable
      */
     public void extract(final File rootDirectory) throws IOException
     {
+        final List<TarArchiveEntry> dirEntries = new ArrayList<TarArchiveEntry>();
+
         TarArchiveEntry entry;
         while ((entry = in.getNextTarEntry()) != null)
         {
             final File entryFile = new File(rootDirectory, entry.getName());
-            if (entry.isDirectory())
-            {
-                dirEntries.add(entry);
-                entryFile.mkdirs();
-            } else if (entry.isLink())
-            {
-                if (Unix.isOperational())
-                {
-                    Unix.createHardLink(entry.getLinkName(),
-                            entryFile.getPath());
-                }
-            } else if (entry.isSymbolicLink())
-            {
-                if (Unix.isOperational())
-                {
-                    Unix.createSymbolicLink(entry.getLinkName(),
-                            entryFile.getPath());
-                }
-            } else if (entry.isFile())
-            {
-                // We need to work around that isFile() is giving all
-                // kinds of false positives on what is a file.
-                if (entry.isBlockDevice() || entry.isCharacterDevice()
-                        || entry.isFIFO() || entry.isGNULongLinkEntry()
-                        || entry.isGNULongNameEntry() || entry.isGNUSparse()
-                        || entry.isPaxHeader() || entry.isGlobalPaxHeader())
-                {
-                    continue;
-                }
-                if (entryFile.getParentFile().exists() == false)
-                {
-                    entryFile.getParentFile().mkdirs();
-                }
-                extractFileContent(entryFile);
-                setFileMetadata(entryFile, entry);
-            }
+            extractEntry(entry, entryFile, dirEntries);
         }
         // Set directory metadata in reverse order, i.e. descendants first
         final ListIterator<TarArchiveEntry> it = dirEntries
@@ -117,6 +83,87 @@ public class Untar implements Closeable
         {
             entry = it.previous();
             setFileMetadata(new File(rootDirectory, entry.getName()), entry);
+        }
+    }
+
+    /**
+     * Extracts the tar file. Each top level directory is extracted to a different location specified by the {@code locations} argument. Only part of
+     * the file is extracted. Top level directories not present in {@code locations} will be omitted.
+     * 
+     * @param locations maps top level directory names to directories where those should be extracted
+     */
+    public void extract(final Map<String, File> locations) throws IOException
+    {
+        final List<TarArchiveEntry> dirEntries = new ArrayList<TarArchiveEntry>();
+
+        TarArchiveEntry entry;
+        while ((entry = in.getNextTarEntry()) != null)
+        {
+            final File entryFile = getEntryInLocation(entry, locations);
+            if (entryFile == null)
+            {
+                continue;
+            }
+            extractEntry(entry, entryFile, dirEntries);
+        }
+        // Set directory metadata in reverse order, i.e. descendants first
+        final ListIterator<TarArchiveEntry> it = dirEntries
+                .listIterator(dirEntries.size());
+        while (it.hasPrevious())
+        {
+            entry = it.previous();
+            File entryFile = getEntryInLocation(entry, locations);
+            setFileMetadata(entryFile, entry);
+        }
+    }
+
+    public File getEntryInLocation(TarArchiveEntry entry, final Map<String, File> locations)
+    {
+        String[] parts = entry.getName().split("/", 2);
+        String head = parts[0];
+        String tail = parts[1];
+
+        return new File(locations.get(head), tail);
+    }
+
+    private void extractEntry(TarArchiveEntry entry, final File entryFile, final List<TarArchiveEntry> dirEntries) throws FileNotFoundException,
+            IOException
+    {
+        if (entry.isDirectory())
+        {
+            dirEntries.add(entry);
+            entryFile.mkdirs();
+        } else if (entry.isLink())
+        {
+            if (Unix.isOperational())
+            {
+                Unix.createHardLink(entry.getLinkName(),
+                        entryFile.getPath());
+            }
+        } else if (entry.isSymbolicLink())
+        {
+            if (Unix.isOperational())
+            {
+                Unix.createSymbolicLink(entry.getLinkName(),
+                        entryFile.getPath());
+            }
+        } else if (entry.isFile())
+        {
+            // We need to work around that isFile() is giving all
+            // kinds of false positives on what is a file.
+            if (entry.isBlockDevice() || entry.isCharacterDevice()
+                    || entry.isFIFO() || entry.isGNULongLinkEntry()
+                    || entry.isGNULongNameEntry() || entry.isGNUSparse()
+                    || entry.isPaxHeader() || entry.isGlobalPaxHeader())
+            {
+                return;
+            }
+            if (entryFile.getParentFile().exists() == false)
+            {
+                entryFile.getParentFile().mkdirs();
+            }
+            extractFileContent(entryFile);
+            setFileMetadata(entryFile, entry);
         }
     }
 

@@ -89,6 +89,8 @@ public final class Share
 
     private boolean withdrawShare;
     
+    private boolean unarchivingScratchShare;
+    
     private boolean ignoredForShuffling;
 
     private Set<String> experimentIdentifiers;
@@ -227,6 +229,16 @@ public final class Share
     public void setWithdrawShare(boolean withdrawShare)
     {
         this.withdrawShare = withdrawShare;
+    }
+
+    public boolean isUnarchivingScratchShare()
+    {
+        return unarchivingScratchShare;
+    }
+
+    public void setUnarchivingScratchShare(boolean unarchivingScratchShare)
+    {
+        this.unarchivingScratchShare = unarchivingScratchShare;
     }
 
     public boolean isIgnoredForShuffling()

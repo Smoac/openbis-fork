@@ -363,6 +363,13 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
+    public List<String> getDataSetCodesForUnarchiving(String sessionToken, String userSessionToken, List<String> datasets, String userId)
+    {
+        sessionTokenManager.assertValidSessionToken(sessionToken);
+        return getArchiverPlugin().getDataSetCodesForUnarchiving(datasets);
+    }
+
+    @Override
     public void archiveDatasets(String sessionToken, String userSessionToken,
             List<DatasetDescription> datasets, String userId, String userEmailOrNull,
             boolean removeFromDataStore)
@@ -536,8 +543,7 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
         sessionTokenManager.assertValidSessionToken(sessionToken);
         
         PluginTaskProvider<ISearchDomainService> provider = pluginTaskInfoProvider.getSearchDomainServiceProvider();
-        DatastoreServiceDescription serviceDescription 
-                = findSearchDomainService(provider, preferredSequenceDatabaseOrNull);
+        DatastoreServiceDescription serviceDescription = findSearchDomainService(provider, preferredSequenceDatabaseOrNull);
         if (serviceDescription != null)
         {
             ISearchDomainService service = provider.getPluginInstance(serviceDescription.getKey());
