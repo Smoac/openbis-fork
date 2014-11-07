@@ -21,7 +21,7 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IDatabaseVersionHolder;
 /**
  * @author Jakub Straszewski
  */
-public class MultiDatasetArchiverDBVersionHolder implements IDatabaseVersionHolder
+public class MultiDataSetArchiverDBVersionHolder implements IDatabaseVersionHolder
 {
     @Override
     public String getDatabaseVersion()
