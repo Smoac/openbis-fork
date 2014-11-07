@@ -914,7 +914,7 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
                     dataSetCodes, tryGetLoggedUserId());
             result.addAll(enhancedCodes);
 
-            if (new HashSet<String>(enhancedCodes).containsAll(dataSetCodes))
+            if (false == new HashSet<String>(dataSetCodes).containsAll(enhancedCodes))
             {
                 enhancementsFound = true;
             }
