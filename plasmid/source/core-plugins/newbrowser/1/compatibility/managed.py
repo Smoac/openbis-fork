@@ -3,13 +3,16 @@ from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 # Configuration
 # This needs to be edited for each sample type to match the Profile.js ANNOTATION_PROPERTIES map.
 configuration = {}
-configuration["PROTEIN"] = { "PHOSPHO" : True, "ISOTYPE" : False }
+#configuration["CHEMICAL"] = { "QUANTITY" : False, "COMMENTS" : False }
 
 #Global Variables
 server = CommonServiceProvider.getCommonServer()
 contextOrNull = server.tryToAuthenticateAsSystem()
 propertyTypes = server.listPropertyTypes(contextOrNull.getSessionToken(), False)
-    
+
+##
+## Help Methods
+##
 def getPropertyType(propertyTypeCode):
     print "Searching property type: " + propertyTypeCode
     for propertyType in propertyTypes:
@@ -39,6 +42,12 @@ def getWidgetForAdd(sampleTypeCode):
         widgets.append(widget)
     return widgets;
 
+def isValid(dataType, value):
+    print "isValid"
+    return True
+##
+## Help Methods
+##
 def configureUI():
     print "All property types: " + str(propertyTypes)
     # Add Headers
@@ -70,10 +79,6 @@ def configureUI():
     deleteAction = uiDescription.addTableAction("Delete")\
                                 .setDescription('Are you sure you want to delete selected annotation?')
     deleteAction.setRowSelectionRequired() # Delete is enabled when at least 1 row is selected.
-
-def isValid(dataType, value):
-    print "isValid"
-    return True
 
 def updateFromUI(action):
     converter = propertyConverter()
