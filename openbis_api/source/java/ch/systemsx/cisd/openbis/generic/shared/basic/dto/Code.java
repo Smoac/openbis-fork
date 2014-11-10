@@ -115,6 +115,19 @@ public class Code<T extends Code<T>> implements Serializable, ICodeHolder, Compa
         return codes;
     }
 
+    public final static List<String> extractCodes(ICodeHolder[] codeProviders)
+    {
+        List<String> codes = new ArrayList<String>();
+        if (codeProviders != null)
+        {
+            for (ICodeHolder codeProvider : codeProviders)
+            {
+                codes.add(codeProvider.getCode());
+            }
+        }
+        return codes;
+    }
+
     public final static String[] extractCodesToArray(Collection<? extends ICodeHolder> codeProviders)
     {
         int size = (codeProviders == null) ? 0 : codeProviders.size();
