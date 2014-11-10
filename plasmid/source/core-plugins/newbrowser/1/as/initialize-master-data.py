@@ -110,7 +110,7 @@ if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
 	annotationsScriptName = "ANNOTATIONS";
 	annotationsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "managed.py", 'r').read();
 	annotationsScript = tr.getOrCreateNewScript(annotationsScriptName);
-	annotationsScript.setName("Annotations");
+	annotationsScript.setName(annotationsScriptName);
 	annotationsScript.setDescription("Annotations Handler");
 	annotationsScript.setScript(annotationsScriptAsString);
 	annotationsScript.setScriptType("MANAGED_PROPERTY");
@@ -119,7 +119,7 @@ if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
 	commentsScriptName = "COMMENTS";
 	commentsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py", 'r').read();
 	commentsScript = tr.getOrCreateNewScript(commentsScriptName);
-	commentsScript.setName("Comments");
+	commentsScript.setName(commentsScriptName);
 	commentsScript.setDescription("Comments Handler");
 	commentsScript.setScript(commentsScriptAsString);
 	commentsScript.setScriptType("MANAGED_PROPERTY");
