@@ -73,8 +73,11 @@ class TestCase(systemtest.testcase.TestCase):
     def extractFromArchive(self, openbisController, tar_file, path_in_tar):
         temp_dir = "%s/data/tmp" % (openbisController.installPath)
         util.printAndFlush("Extract %s from archive %s" % (path_in_tar, tar_file))
-        with tarfile.open(tar_file) as tf:
+        try:
+            tf = tarfile.open(tar_file)
             tf.extract(path_in_tar, temp_dir)
+        finally:
+            tf.close()
         return "%s/%s" % (temp_dir, path_in_tar)
         
     def calculateMD5(self, file_path):
