@@ -3,7 +3,80 @@ from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 # Configuration
 # This needs to be edited for each sample type to match the Profile.js ANNOTATION_PROPERTIES map.
 configuration = {}
-#configuration["CHEMICAL"] = { "QUANTITY" : False, "COMMENTS" : False }
+configuration["MEDIA"] = {
+                          "CHEMICAL" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "SOLUTION_BUFFER" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "MEDIA" : {"QUANTITY" : False, "COMMENTS" : False }
+                         };
+
+configuration["SOLUTION_BUFFER"] = {
+                          "CHEMICAL" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "SOLUTION_BUFFER" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "MEDIA" : {"QUANTITY" : False, "COMMENTS" : False }
+                         };
+
+configuration["GENERAL_PROTOCOL"] = {
+                          "CHEMICAL" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "SOLUTION_BUFFER" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "MEDIA" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "ENZYME" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "GENERAL_PROTOCOL" : {"COMMENTS" : False }
+                         };
+
+configuration["PCR_PROTOCOL"] = {
+                          "CHEMICAL" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "SOLUTION_BUFFER" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "ENZYME" : {"QUANTITY" : False, "COMMENTS" : False }
+                         };
+
+configuration["WESTERN_BLOTTING_PROTOCOL"] = {
+                          "CHEMICAL" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "SOLUTION_BUFFER" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "ANTIBODY" : {"QUANTITY" : False, "COMMENTS" : False }
+                         };
+
+configuration["PLASMID"] = {
+                          "PLASMID" : {"COMMENTS" : False }
+                         };
+
+configuration["BACTERIA"] = {
+                          "BACTERIA" : {"COMMENTS" : False },
+                          "PLASMID" : {"PLASMID_RELATIONSHIP" : False, "PLASMID_ANNOTATION" : False, "COMMENTS" : False }
+                         };
+
+configuration["YEAST"] = {
+                          "YEAST" : {"COMMENTS" : False },
+                          "PLASMID" : {"PLASMID_RELATIONSHIP" : False, "PLASMID_ANNOTATION" : False, "COMMENTS" : False }
+                         };
+
+configuration["CELL_LINE"] = {
+                          "CELL_LINE" : {"COMMENTS" : False },
+                          "PLASMID" : {"PLASMID_RELATIONSHIP" : False, "PLASMID_ANNOTATION" : False, "COMMENTS" : False },
+                          "FLY" : {"COMMENTS" : False }
+                         };
+
+configuration["FLY"] = {
+                          "FLY" : {"COMMENTS" : False },
+                          "PLASMID" : {"PLASMID_RELATIONSHIP" : False, "PLASMID_ANNOTATION" : False, "COMMENTS" : False }
+                         };
+
+configuration["EXPERIMENTAL_STEP"] = {
+                          "ANTIBODY" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "BACTERIA" : {"COMMENTS" : False },
+                          "CELL_LINE" : {"COMMENTS" : False },
+                          "CHEMICAL" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "ENZYME" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "FLY" : {"COMMENTS" : False },
+                          "MEDIA" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "OLIGO" : {"COMMENTS" : False },
+                          "PLASMID" : {"COMMENTS" : False },
+                          "RNA" : {"COMMENTS" : False },
+                          "SOLUTION_BUFFER" : {"QUANTITY" : False, "COMMENTS" : False },
+                          "YEAST" : {"COMMENTS" : False },
+                          "GENERAL_PROTOCOL" : {"COMMENTS" : False },
+                          "PCR_PROTOCOL" : {"COMMENTS" : False },
+                          "WESTERN_BLOTTING_PROTOCOL" : {"COMMENTS" : False }
+                         };
 
 #Global Variables
 server = CommonServiceProvider.getCommonServer()
@@ -13,6 +86,20 @@ propertyTypes = server.listPropertyTypes(contextOrNull.getSessionToken(), False)
 ##
 ## Help Methods
 ##
+def getAllAnnotableSampleTypes():
+    allTypes = {};
+    for sampleTypeWithAnnotations in configuration:
+        for sampleTypeWithAnnotationsForType in configuration[sampleTypeWithAnnotations]:
+                allTypes[sampleTypeWithAnnotationsForType] = True;
+    return allTypes;
+
+def getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCodeToFind):
+    for sampleTypeWithAnnotations in configuration:
+        for sampleTypeWithAnnotationsForType in configuration[sampleTypeWithAnnotations]:
+                if sampleTypeWithAnnotationsForType == sampleTypeCodeToFind:
+                        return configuration[sampleTypeWithAnnotations][sampleTypeWithAnnotationsForType];
+    return None;
+    
 def getPropertyType(propertyTypeCode):
     print "Searching property type: " + propertyTypeCode
     for propertyType in propertyTypes:
@@ -28,15 +115,20 @@ def createAnnotationsFor(permId, annotations):
 
 def getWidgetForAdd(sampleTypeCode):
     widgets = []
-    widget = inputWidgetFactory().createTextInputField("permId")\
+    widgetPermId = inputWidgetFactory().createTextInputField("permId")\
                             .setMandatory(True)\
                             .setValue("")\
                             .setDescription("")
-    widgets.append(widget)
-    for propertyTypeCode in configuration[sampleTypeCode].keys():
+    widgets.append(widgetPermId)
+    widgetCode = inputWidgetFactory().createTextInputField("code")\
+                            .setMandatory(True)\
+                            .setValue("")\
+                            .setDescription("")
+    widgets.append(widgetCode)
+    for propertyTypeCode in getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode):
         propertyType = getPropertyType(propertyTypeCode)
         widget = inputWidgetFactory().createTextInputField(propertyType.label)\
-                        .setMandatory(configuration[sampleTypeCode][propertyTypeCode])\
+                        .setMandatory(getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode)[propertyTypeCode])\
                         .setValue("")\
                         .setDescription(propertyType.description)
         widgets.append(widget)
@@ -49,13 +141,16 @@ def isValid(dataType, value):
 ## Help Methods
 ##
 def configureUI():
-    print "All property types: " + str(propertyTypes)
     # Add Headers
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader("permId")
-    for sampleTypeCode in configuration.keys():
-        for propertyTypeCode in configuration[sampleTypeCode].keys():
-            tableBuilder.addHeader(propertyTypeCode)
+    tableBuilder.addHeader("code")
+    usedTableHeaders = {"permId" : True, "code" : True}
+    for sampleTypeCode in getAllAnnotableSampleTypes():
+        for propertyTypeCode in getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode):
+            if propertyTypeCode not in usedTableHeaders:
+                tableBuilder.addHeader(propertyTypeCode)
+                usedTableHeaders[propertyTypeCode] = True
 
     property.setOwnTab(True)
     uiDescription = property.getUiDescription()
@@ -69,7 +164,7 @@ def configureUI():
             row.setCell(annotation, sample.getAttribute(annotation))
             
     # Add Create buttons
-    for sampleTypeCode in configuration.keys():
+    for sampleTypeCode in getAllAnnotableSampleTypes():
         title = "Add " + sampleTypeCode;
         addAction = uiDescription.addTableAction(title).setDescription(title)
         widgets = getWidgetForAdd(sampleTypeCode)
@@ -88,7 +183,7 @@ def updateFromUI(action):
         sampleTypeCode = action.name[4:]
         permId = action.getInputValue("permId")
         annotations = {}
-        for propertyTypeCode in configuration[sampleTypeCode]:
+        for propertyTypeCode in getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode):
             propertyType = getPropertyType(propertyTypeCode)
             propertyTypeValue = action.getInputValue(propertyType.label)
             if not isValid(propertyType.dataType, propertyTypeValue):
