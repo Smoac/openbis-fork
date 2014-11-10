@@ -704,6 +704,9 @@ public final class DataSetTableTest extends AbstractBOTest
                 {
                     prepareFindFullDatasets(allDataSets, false, true);
 
+                    preparePrepareForUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2, d2NonArchived1, d2NonArchived2, d2NonAvailable3);
+                    preparePrepareForUnarchiving(dataStoreService3, dss3, d3Archived, d3NonArchived);
+
                     prepareUpdateDatasetStatuses(new ExternalDataPE[]
                         { d2Archived1, d2Archived2, d3Archived }, UNARCHIVE_PENDING);
 
@@ -713,9 +716,76 @@ public final class DataSetTableTest extends AbstractBOTest
             });
 
         DataSetTable dataSetTable = createDataSetTable();
-        dataSetTable.loadByDataSetCodes(Code.extractCodes(Arrays.asList(allDataSets)), false, true);
+        dataSetTable.loadByDataSetCodes(Code.extractCodes(allDataSets), false, true);
         int unarchived = dataSetTable.unarchiveDatasets();
         assertEquals(3, unarchived);
+    }
+
+    @Test
+    public void testUnarchiveDataSetsWithEnhancedDataSets()
+    {
+        final ExternalDataPE d2Archived1 = createDataSet("d2a1", dss2, ARCHIVED);
+        final ExternalDataPE d2Archived2 = createDataSet("d2a2", dss2, ARCHIVED);
+        final ExternalDataPE[] argumentDataSets =
+        { d2Archived1 };
+        final ExternalDataPE[] allDataSets =
+        { d2Archived1, d2Archived2 };
+
+        context.checking(new Expectations()
+            {
+                {
+                    prepareFindFullDatasets(argumentDataSets, false, true);
+
+                    preparePrepareForUnarchivingWithEnhancedDataSets(dataStoreService2, dss2, d2Archived1, d2Archived2);
+
+                    prepareFindFullDatasets(allDataSets, false, true);
+
+                    prepareUpdateDatasetStatuses(new ExternalDataPE[]
+                    { d2Archived1, d2Archived2 }, UNARCHIVE_PENDING);
+
+                    prepareUnarchiving(dataStoreService2, dss2, d2Archived1, d2Archived2);
+                }
+            });
+
+        DataSetTable dataSetTable = createDataSetTable();
+        dataSetTable.loadByDataSetCodes(Code.extractCodes(argumentDataSets), false, true);
+        int unarchived = dataSetTable.unarchiveDatasets();
+        assertEquals(2, unarchived);
+    }
+
+    void preparePrepareForUnarchiving(final IDataStoreService service, final DataStorePE store, final ExternalDataPE... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<String> codes = Code.extractCodes(dataSets);
+                    String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
+                    one(service).getDataSetCodesForUnarchiving(with(equal(store.getSessionToken())),
+                            with(equal(userSessionToken)),
+                            with(equal(codes)),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())));
+                    will(returnValue(codes));
+                }
+            });
+    }
+
+    /**
+     * Gets only the first external data, but returns for unarchiving all of them.
+     */
+    void preparePrepareForUnarchivingWithEnhancedDataSets(final IDataStoreService service, final DataStorePE store, final ExternalDataPE... dataSets)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    List<String> codes = Code.extractCodes(dataSets);
+                    String userSessionToken = ManagerTestTool.EXAMPLE_SESSION.getSessionToken();
+                    one(service).getDataSetCodesForUnarchiving(with(equal(store.getSessionToken())),
+                            with(equal(userSessionToken)),
+                            with(equal(Collections.singletonList(codes.get(0)))),
+                            with(equal(ManagerTestTool.EXAMPLE_PERSON.getUserId())));
+                    will(returnValue(codes));
+                }
+            });
     }
 
     @Test
