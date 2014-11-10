@@ -53,7 +53,7 @@ public class PersonManagementTest extends BaseTest
     @BeforeMethod
     public void setUpLogger()
     {
-        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "AUTH.CommonServer");
+        logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, ".*AUTH.CommonServer");
     }
 
     @AfterMethod
