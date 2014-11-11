@@ -30,6 +30,12 @@ function ServerFacade(openbisServer) {
 	//
 	// Login Related Functions
 	//
+	this.getUserId = function() {
+		var sessionId = this.openbisServer.getSession();
+		var userId = sessionId.substring(0, sessionId.indexOf("-"));
+		return userId;
+	}
+	
 	this.login = function(username, pass, callbackFunction) {
 		this.openbisServer.login(username, pass, callbackFunction);
 	}

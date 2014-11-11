@@ -37,4 +37,16 @@ function CommentsController(sample, mode) {
 		var xmlDocAsString = (new XMLSerializer()).serializeToString(xmlDoc);
 		this._commentsModel.setComments(xmlDocAsString)
 	}
+	
+	this.addNewComment = function(newComment) {
+		//New Data
+		var timestamp = new Date().getTime() / 1000;
+		var userId = mainController.serverFacade.getUserId();
+		
+		//Update Model
+		
+		
+		//Update UI
+		this._commentsView.addCommentWidget(timestamp, userId, newComment);
+	}
 }

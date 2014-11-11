@@ -35,24 +35,23 @@ function CommentsView(commentsController, commentsModel) {
 	
 	this.addCommentWidgetFromXML = function(commentXMLNode) {
 		var dateValue = commentXMLNode.attributes["date"].value;
-		var date = new Date(parseInt(dateValue) * 1000);
 		var userId = commentXMLNode.attributes["person"].value;
 		var value = "";
 		if(commentXMLNode.firstChild !== null) {
 			value = commentXMLNode.firstChild.nodeValue;
 		}
 		
-		this.addCommentWidget(date, userId, value);
+		this.addCommentWidget(dateValue, userId, value);
 	}
 	
-	this.addCommentWidget = function(date, userId, value) {
+	this.addCommentWidget = function(dateValue, userId, value) {
 		var _this = this;
 		var $buttonDelete = null;
 		if(this._commentsModel.mode !== FormMode.VIEW) {
 			$buttonDelete = $("<a>", {"class" : "btn btn-default"});
 			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
 		}
-		
+		var date = new Date(parseInt(dateValue) * 1000);
 		var commentWidget = FormUtil.getFieldForLabelWithText(date + " " + userId, value, null, $buttonDelete);
 		
 		if(this._commentsModel.mode !== FormMode.VIEW) {
@@ -86,7 +85,12 @@ function CommentsView(commentsController, commentsModel) {
 		this.commentsContainer.append($textBoxGroup);
 		this.commentsContainer.append($saveButtonGroup);
 		
+		var _this = this;
 		$saveButton.click(function() {
+			//Save Value
+			value = $textBox.val();
+			_this._commentsController.addNewComment(value);
+			//Remove New Comment Box
 			$textBoxGroup.remove();
 			$saveButtonGroup.remove();
 		});
