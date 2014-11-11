@@ -40,11 +40,21 @@ function CommentsController(sample, mode) {
 	
 	this.addNewComment = function(newComment) {
 		//New Data
-		var timestamp = new Date().getTime() / 1000;
+		var timestamp = Math.round(new Date().getTime() / 1000);
 		var userId = mainController.serverFacade.getUserId();
 		
 		//Update Model
+		var commentsXML = this._commentsModel.getComments();
+		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
+		var newCommentNode = xmlDoc.createElement("commentEntry");
+		newCommentNode.setAttribute("date", timestamp);
+		newCommentNode.setAttribute("person", userId);
+		newCommentNode.appendChild(xmlDoc.createTextNode(newComment));
+		var root = xmlDoc.getElementsByTagName("root")[0];
+		root.appendChild(newCommentNode);
 		
+		var xmlDocAsString = (new XMLSerializer()).serializeToString(xmlDoc);
+		this._commentsModel.setComments(xmlDocAsString)
 		
 		//Update UI
 		this._commentsView.addCommentWidget(timestamp, userId, newComment);
