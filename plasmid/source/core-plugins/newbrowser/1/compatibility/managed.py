@@ -86,22 +86,23 @@ propertyTypes = server.listPropertyTypes(contextOrNull.getSessionToken(), False)
 ##
 ## Help Methods
 ##
-def getAllAnnotableSampleTypes():
+def getAllAnnotableSampleTypesForType(fromAnnotableType):
     allTypes = {};
     for sampleTypeWithAnnotations in configuration:
-        for sampleTypeWithAnnotationsForType in configuration[sampleTypeWithAnnotations]:
-                allTypes[sampleTypeWithAnnotationsForType] = True;
+        if (fromAnnotableType == None) or (fromAnnotableType == sampleTypeWithAnnotations):
+            for sampleTypeWithAnnotationsForType in configuration[sampleTypeWithAnnotations]:
+                    allTypes[sampleTypeWithAnnotationsForType] = True;
     return allTypes;
 
-def getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCodeToFind):
+def getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCodeToFind, fromAnnotableType):
     for sampleTypeWithAnnotations in configuration:
-        for sampleTypeWithAnnotationsForType in configuration[sampleTypeWithAnnotations]:
-                if sampleTypeWithAnnotationsForType == sampleTypeCodeToFind:
-                        return configuration[sampleTypeWithAnnotations][sampleTypeWithAnnotationsForType];
+        if (fromAnnotableType == None) or (fromAnnotableType == sampleTypeWithAnnotations):
+            for sampleTypeWithAnnotationsForType in configuration[sampleTypeWithAnnotations]:
+                    if sampleTypeWithAnnotationsForType == sampleTypeCodeToFind:
+                            return configuration[sampleTypeWithAnnotations][sampleTypeWithAnnotationsForType];
     return None;
     
 def getPropertyType(propertyTypeCode):
-    print "Searching property type: " + propertyTypeCode
     for propertyType in propertyTypes:
         if propertyType.code == propertyTypeCode:
             return propertyType
@@ -113,7 +114,7 @@ def createAnnotationsFor(permId, annotations):
         newAnnotation.addAttribute(annotation, annotations[annotation])
     return newAnnotation
 
-def getWidgetForAdd(sampleTypeCode):
+def getWidgetForAdd(sampleTypeCode, annotableType):
     widgets = []
     widgetPermId = inputWidgetFactory().createTextInputField("permId")\
                             .setMandatory(True)\
@@ -125,10 +126,10 @@ def getWidgetForAdd(sampleTypeCode):
                             .setValue("")\
                             .setDescription("")
     widgets.append(widgetCode)
-    for propertyTypeCode in getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode):
+    for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
         propertyType = getPropertyType(propertyTypeCode)
         widget = inputWidgetFactory().createTextInputField(propertyType.label)\
-                        .setMandatory(getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode)[propertyTypeCode])\
+                        .setMandatory(getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType)[propertyTypeCode])\
                         .setValue("")\
                         .setDescription(propertyType.description)
         widgets.append(widget)
@@ -141,13 +142,14 @@ def isValid(dataType, value):
 ## Help Methods
 ##
 def configureUI():
+    annotableType = None
     # Add Headers
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader("permId")
     tableBuilder.addHeader("code")
     usedTableHeaders = {"permId" : True, "code" : True}
-    for sampleTypeCode in getAllAnnotableSampleTypes():
-        for propertyTypeCode in getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode):
+    for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
+        for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             if propertyTypeCode not in usedTableHeaders:
                 tableBuilder.addHeader(propertyTypeCode)
                 usedTableHeaders[propertyTypeCode] = True
@@ -164,10 +166,10 @@ def configureUI():
             row.setCell(annotation, sample.getAttribute(annotation))
             
     # Add Create buttons
-    for sampleTypeCode in getAllAnnotableSampleTypes():
+    for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         title = "Add " + sampleTypeCode;
         addAction = uiDescription.addTableAction(title).setDescription(title)
-        widgets = getWidgetForAdd(sampleTypeCode)
+        widgets = getWidgetForAdd(sampleTypeCode, annotableType)
         addAction.addInputWidgets(widgets)
     
     # Add Delete button
@@ -176,6 +178,7 @@ def configureUI():
     deleteAction.setRowSelectionRequired() # Delete is enabled when at least 1 row is selected.
 
 def updateFromUI(action):
+    annotableType = None
     converter = propertyConverter()
     elements = list(converter.convertToElements(property))
     
@@ -183,7 +186,7 @@ def updateFromUI(action):
         sampleTypeCode = action.name[4:]
         permId = action.getInputValue("permId")
         annotations = {}
-        for propertyTypeCode in getPropertyTypesForSampleTypeIgnoringCurrentType(sampleTypeCode):
+        for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             propertyType = getPropertyType(propertyTypeCode)
             propertyTypeValue = action.getInputValue(propertyType.label)
             if not isValid(propertyType.dataType, propertyTypeValue):
