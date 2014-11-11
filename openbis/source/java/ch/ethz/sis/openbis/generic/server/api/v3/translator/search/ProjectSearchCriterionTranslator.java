@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ProjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SpaceSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -60,6 +61,9 @@ public class ProjectSearchCriterionTranslator extends AbstractFieldFromComposite
         if (subCriterion instanceof CodeSearchCriterion)
         {
             return DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.PROJECT);
+        } else if (subCriterion instanceof PermIdSearchCriterion)
+        {
+            return DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.PROJECT_PERM_ID);
         } else if (subCriterion instanceof SpaceSearchCriterion)
         {
             return DetailedSearchField.createAttributeField(ExperimentAttributeSearchFieldKind.PROJECT_SPACE);

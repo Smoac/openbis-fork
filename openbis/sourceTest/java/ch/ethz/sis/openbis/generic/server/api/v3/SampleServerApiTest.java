@@ -33,7 +33,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.RecordingMatcherRepository;
@@ -62,9 +62,9 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
 
     private static final String UNKNOWN_ENTITY_TYPE = "UNKNOWN_ENTITY_TYPE";
 
-    private static final TagNameId TAG_NAME_ID = new TagNameId("TAG_NAME_ID");
+    private static final TagCodeId TAG_CODE_ID = new TagCodeId("TAG_NAME_ID");
 
-    private static final TagNameId UNKNOWN_TAG_NAME_ID = new TagNameId("UNKNOWN_TAG_NAME_ID");
+    private static final TagCodeId UNKNOWN_TAG_CODE_ID = new TagCodeId("UNKNOWN_TAG_NAME_ID");
 
     private static final ExperimentPermId UNKNOWN_EXPERIMENT_ID = new ExperimentPermId("UNKNOWN_EXPERIMENT_ID");
 
@@ -306,8 +306,8 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
 
         prepareFindPropertyTypeByCode(PROPERTY_TYPE_CODE, propertyType1);
 
-        prepareFindTag(session.getUserName(), TAG_NAME_ID.getName(), tag);
-        prepareFindTag(session.getUserName(), UNKNOWN_TAG_NAME_ID.getName(), null);
+        prepareFindTag(session.getUserName(), TAG_CODE_ID.getCode(), tag);
+        prepareFindTag(session.getUserName(), UNKNOWN_TAG_CODE_ID.getCode(), null);
 
         prepareFindExperiment(UNKNOWN_EXPERIMENT_ID.getPermId(), null);
         prepareFindExperiment(EXPERIMENT_ID.getPermId(), experiment);

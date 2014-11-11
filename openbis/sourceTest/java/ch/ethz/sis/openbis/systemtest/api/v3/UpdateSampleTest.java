@@ -44,7 +44,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -1135,9 +1135,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         SampleCreation creation1 = masterPlateCreation("CISD", "SAMPLE_1_WITH_TAGS");
         SampleCreation creation2 = masterPlateCreation("CISD", "SAMPLE_2_WITH_TAGS");
 
-        ITagId tag1Id = new TagNameId("TEST_TAG_1");
-        ITagId tag2Id = new TagNameId("TEST_TAG_2");
-        ITagId tag3Id = new TagNameId("TEST_TAG_3");
+        ITagId tag1Id = new TagCodeId("TEST_TAG_1");
+        ITagId tag2Id = new TagCodeId("TEST_TAG_2");
+        ITagId tag3Id = new TagCodeId("TEST_TAG_3");
 
         creation1.setTagIds(Arrays.asList(tag3Id));
         creation2.setTagIds(Arrays.asList(tag1Id, tag2Id));

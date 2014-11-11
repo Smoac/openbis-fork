@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,21 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("EntityTypeSearchCriterion")
-public class EntityTypeSearchCriterion extends AbstractObjectSearchCriterion<IEntityTypeId>
+@JsonObject("AbstractObjectSearchCriterion")
+public class AbstractObjectSearchCriterion<ID extends IObjectId> extends AbstractCompositeSearchCriterion
 {
 
     private static final long serialVersionUID = 1L;
 
-    EntityTypeSearchCriterion()
+    public IdSearchCriterion<ID> withId()
     {
+        return with(new IdSearchCriterion<ID>());
     }
 
-    public CodeSearchCriterion withCode()
-    {
-        return with(new CodeSearchCriterion());
-    }
-
-    public PermIdSearchCriterion withPermId()
-    {
-        return with(new PermIdSearchCriterion());
-    }
-
-    @Override
-    protected SearchCriterionToStringBuilder createBuilder()
-    {
-        SearchCriterionToStringBuilder builder = super.createBuilder();
-        builder.setName("TYPE");
-        return builder;
-    }
 }

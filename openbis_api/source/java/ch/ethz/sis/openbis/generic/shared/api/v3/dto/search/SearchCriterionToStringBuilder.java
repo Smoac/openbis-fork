@@ -31,7 +31,7 @@ public class SearchCriterionToStringBuilder
 
     private SearchOperator operator;
 
-    private Collection<AbstractSearchCriterion> criteria;
+    private Collection<ISearchCriterion> criteria;
 
     public SearchCriterionToStringBuilder setName(String name)
     {
@@ -45,7 +45,7 @@ public class SearchCriterionToStringBuilder
         return this;
     }
 
-    public SearchCriterionToStringBuilder setCriteria(Collection<AbstractSearchCriterion> criteria)
+    public SearchCriterionToStringBuilder setCriteria(Collection<ISearchCriterion> criteria)
     {
         this.criteria = criteria;
         return this;
@@ -71,7 +71,7 @@ public class SearchCriterionToStringBuilder
             sb.append(indentation + "with operator '" + operator + "'\n");
         }
 
-        for (AbstractSearchCriterion criterion : criteria)
+        for (ISearchCriterion criterion : criteria)
         {
             if (criterion instanceof AbstractCompositeSearchCriterion)
             {

@@ -16,43 +16,54 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("ExperimentSearchCriterion")
-public class ExperimentSearchCriterion extends AbstractEntitySearchCriterion<IExperimentId>
+@JsonObject("IdSearchCriterion")
+public class IdSearchCriterion<T extends IObjectId> extends AbstractSearchCriterion
 {
 
     private static final long serialVersionUID = 1L;
 
-    public ExperimentSearchCriterion()
+    private T id;
+
+    @SuppressWarnings("hiding")
+    public void thatEquals(T id)
     {
+        this.id = id;
     }
 
-    public ProjectSearchCriterion withProject()
+    public T getId()
     {
-        return with(new ProjectSearchCriterion());
-    }
-
-    public ExperimentSearchCriterion withOrOperator()
-    {
-        return (ExperimentSearchCriterion) withOperator(SearchOperator.OR);
-    }
-
-    public ExperimentSearchCriterion withAndOperator()
-    {
-        return (ExperimentSearchCriterion) withOperator(SearchOperator.AND);
+        return id;
     }
 
     @Override
-    protected SearchCriterionToStringBuilder createBuilder()
+    public int hashCode()
     {
-        SearchCriterionToStringBuilder builder = super.createBuilder();
-        builder.setName("EXPERIMENT");
-        return builder;
+        return ((id == null) ? 0 : id.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (obj == null)
+        {
+            return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        IdSearchCriterion<?> other = (IdSearchCriterion<?>) obj;
+        return id == null ? id == other.id : id.equals(other.id);
     }
 
 }

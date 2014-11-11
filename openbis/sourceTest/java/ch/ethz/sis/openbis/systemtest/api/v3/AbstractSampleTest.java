@@ -51,14 +51,14 @@ public class AbstractSampleTest extends AbstractTest
         assertCollectionContainsOnly(actualSet, expectedIdentifiers);
     }
 
-    protected static void assertTags(Collection<Tag> tags, String... expectedTagNames)
+    protected static void assertTags(Collection<Tag> tags, String... expectedTagCodes)
     {
-        Set<String> tagNames = new HashSet<String>();
+        Set<String> tagCodes = new HashSet<String>();
         for (Tag tag : tags)
         {
-            tagNames.add(tag.getName());
+            tagCodes.add(tag.getCode());
         }
-        assertCollectionContainsOnly(tagNames, expectedTagNames);
+        assertCollectionContainsOnly(tagCodes, expectedTagCodes);
     }
 
 }

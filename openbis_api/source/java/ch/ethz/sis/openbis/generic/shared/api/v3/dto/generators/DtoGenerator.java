@@ -16,6 +16,7 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@SuppressWarnings("hiding")
 public class DtoGenerator
 {
     private static final String PACKAGE_PREFIX = "ch.ethz.sis.openbis.generic.shared.api.v3.dto";

@@ -49,7 +49,7 @@ public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag,
         Tag result = new Tag();
 
         result.setPermId(new TagPermId(tag.getIdentifier()));
-        result.setName(tag.getName());
+        result.setCode(tag.getName());
         result.setDescription(tag.getDescription());
         result.setPrivate(tag.isPrivate());
         result.setRegistrationDate(tag.getCreationDate());

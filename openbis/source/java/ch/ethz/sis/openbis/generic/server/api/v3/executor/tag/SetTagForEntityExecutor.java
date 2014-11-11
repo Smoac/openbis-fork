@@ -37,7 +37,7 @@ public class SetTagForEntityExecutor implements ISetTagForEntityExecutor
 {
 
     @Autowired
-    private IGetTagMapExecutor getTagMapExecutor;
+    private IMapTagByIdExecutor mapTagByIdExecutor;
 
     @Autowired
     private ICreateTagExecutor createTagExecutor;
@@ -47,16 +47,16 @@ public class SetTagForEntityExecutor implements ISetTagForEntityExecutor
     {
     }
 
-    public SetTagForEntityExecutor(IGetTagMapExecutor getTagMapExecutor, ICreateTagExecutor createTagExecutor)
+    public SetTagForEntityExecutor(IMapTagByIdExecutor mapTagByIdExecutor, ICreateTagExecutor createTagExecutor)
     {
-        this.getTagMapExecutor = getTagMapExecutor;
+        this.mapTagByIdExecutor = mapTagByIdExecutor;
         this.createTagExecutor = createTagExecutor;
     }
 
     @Override
     public void setTags(IOperationContext context, IEntityWithMetaprojects entity, Collection<? extends ITagId> tagIds)
     {
-        Map<ITagId, MetaprojectPE> tagMap = getTagMapExecutor.getTagMap(context, tagIds);
+        Map<ITagId, MetaprojectPE> tagMap = mapTagByIdExecutor.map(context, tagIds);
         Set<MetaprojectPE> tags = new HashSet<MetaprojectPE>(tagMap.values());
 
         for (MetaprojectPE existingTag : entity.getMetaprojects())

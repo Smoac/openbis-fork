@@ -24,6 +24,16 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 
 /**
@@ -31,6 +41,32 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterio
  */
 public class SearchSampleTest extends AbstractSampleTest
 {
+
+    @Test
+    public void testSearchWithIdSetToIdentifier()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withId().thatEquals(new SamplePermId("200902091219327-1025"));
+        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithMultipleIds()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withOrOperator();
+        criterion.withId().thatEquals(new SampleIdentifier("/CISD/CP-TEST-1"));
+        criterion.withId().thatEquals(new SamplePermId("200902091250077-1026"));
+        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
+    }
 
     @Test
     public void testSearchWithPermId()
@@ -49,6 +85,46 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithSpaceWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
+        testSearch(TEST_USER, criterion, 8);
+    }
+
+    @Test
+    public void testSearchWithSpaceWithCode()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withSpace().withCode().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criterion, 8);
+    }
+
+    @Test
+    public void testSearchWithSpaceWithPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withSpace().withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criterion, 8);
+
+        criterion = new SampleSearchCriterion();
+        criterion.withSpace().withPermId().thatEquals("/TEST-SPACE");
+        testSearch(TEST_USER, criterion, 8);
+    }
+
+    @Test
+    public void testSearchWithSpaceUnauthorized()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_USER, criterion, 1);
+
+        criterion = new SampleSearchCriterion();
+        criterion.withPermId().thatEquals("200902091219327-1025");
+        testSearch(TEST_SPACE_USER, criterion, 0);
+    }
+
+    @Test
     public void testSearchWithCodeInContainer()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
@@ -57,11 +133,43 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithTypeIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withType().withId().thatEquals(new EntityTypePermId("REINFECT_PLATE"));
+        testSearch(TEST_USER, criterion, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+    }
+
+    @Test
     public void testSearchWithTypeWithCode()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withType().withCode().thatEquals("REINFECT_PLATE");
         testSearch(TEST_USER, criterion, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithTypeWithPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withType().withPermId().thatEquals("REINFECT_PLATE");
+        testSearch(TEST_USER, criterion, "/CISD/RP1-A2X", "/CISD/RP1-B1X", "/CISD/RP2-A1X");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithIdSetToIdentifier()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP10"));
+        testSearch(TEST_USER, criterion, "/CISD/3VCP5");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withId().thatEquals(new ExperimentPermId("200811050952663-1029"));
+        testSearch(TEST_USER, criterion, "/CISD/3VCP5");
     }
 
     @Test
@@ -81,11 +189,107 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithExperimentWithTypeIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
+        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+    }
+
+    @Test
     public void testSearchWithExperimentWithTypeWithCode()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withExperiment().withType().withCode().thatEquals("COMPOUND_HCS");
         testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithTypeWithPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withType().withPermId().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2", "/CISD/DYNA-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithIdSetToIdentifier()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/CP-TEST-4");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/CP-TEST-4");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithCode()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withCode().thatEquals("NOE");
+        testSearch(TEST_USER, criterion, "/CISD/CP-TEST-2", "/TEST-SPACE/CP-TEST-4");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/CP-TEST-4");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithSpaceWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
+        testSearch(TEST_USER, criterion, 8);
+
+        criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withSpace().withId().thatEquals(new SpacePermId("/TEST-SPACE"));
+        testSearch(TEST_USER, criterion, 8);
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithSpaceWithCode()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withSpace().withCode().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criterion, 8);
+    }
+
+    @Test
+    public void testSearchWithExperimentWithProjectWithSpaceWithPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withSpace().withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criterion, 8);
+
+        criterion = new SampleSearchCriterion();
+        criterion.withExperiment().withProject().withSpace().withPermId().thatEquals("/TEST-SPACE");
+        testSearch(TEST_USER, criterion, 8);
+    }
+
+    @Test
+    public void testSearchWithParentWithIdSetToIdentifier()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withParents().withId().thatEquals(new SampleIdentifier("/CISD/MP002-1"));
+        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/3V-126");
+    }
+
+    @Test
+    public void testSearchWithParentWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withParents().withId().thatEquals(new SamplePermId("200811050917877-331"));
+        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/3V-126");
     }
 
     @Test
@@ -105,6 +309,22 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithChildrenWithIdSetToIdentifier()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withChildren().withId().thatEquals(new SampleIdentifier("/CISD/3VCP6"));
+        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+    }
+
+    @Test
+    public void testSearchWithChildrenWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withChildren().withId().thatEquals(new SamplePermId("200811050946559-980"));
+        testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+    }
+
+    @Test
     public void testSearchWithChildrenWithPermId()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
@@ -118,6 +338,22 @@ public class SearchSampleTest extends AbstractSampleTest
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withChildren().withCode().thatEquals("3VCP6");
         testSearch(TEST_USER, criterion, "/CISD/3V-125", "/CISD/CL-3V:A02");
+    }
+
+    @Test
+    public void testSearchWithContainerWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withContainer().withId().thatEquals(new SamplePermId("200811050924274-994"));
+        testSearch(TEST_USER, criterion, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
+    }
+
+    @Test
+    public void testSearchWithContainerWithIdSetToIdentifier()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withContainer().withId().thatEquals(new SampleIdentifier("/CISD/B1B3"));
+        testSearch(TEST_USER, criterion, "/CISD/B1B3:B01", "/CISD/B1B3:B03");
     }
 
     @Test
@@ -137,11 +373,43 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testSearchWithTagWithIdSetToPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+    }
+
+    @Test
+    public void testSearchWithTagWithIdSetToId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withTag().withId().thatEquals(new TagCodeId("TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+    }
+
+    @Test
     public void testSearchWithTagWithCode()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withTag().withCode().thatEquals("TEST_METAPROJECTS");
         testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+    }
+
+    @Test
+    public void testSearchWithTagWithPermId()
+    {
+        SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
+    }
+
+    @Test
+    public void testSearchWithTagWithPermIdUnauthorized()
+    {
+        final SampleSearchCriterion criterion = new SampleSearchCriterion();
+        criterion.withTag().withCode().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_SPACE_USER, criterion, 0);
     }
 
     @Test
@@ -202,18 +470,6 @@ public class SearchSampleTest extends AbstractSampleTest
         criterion.withPermId().thatEquals("200902091219327-1025");
         criterion.withPermId().thatEquals("200902091250077-1026");
         testSearch(TEST_USER, criterion, "/CISD/CP-TEST-1", "/CISD/CP-TEST-2");
-    }
-
-    @Test
-    public void testSearchWithUnauthorizedSpace()
-    {
-        SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        testSearch(TEST_USER, criterion, 1);
-
-        criterion = new SampleSearchCriterion();
-        criterion.withPermId().thatEquals("200902091219327-1025");
-        testSearch(TEST_SPACE_USER, criterion, 0);
     }
 
     private void testSearch(String user, SampleSearchCriterion criterion, String... expectedIdentifiers)

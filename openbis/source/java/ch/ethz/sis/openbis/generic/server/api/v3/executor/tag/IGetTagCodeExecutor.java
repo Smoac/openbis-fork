@@ -22,9 +22,9 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 /**
  * @author pkupczyk
  */
-public interface IGetTagNameExecutor
+public interface IGetTagCodeExecutor
 {
 
-    public String getTagName(IOperationContext context, ITagId tagId);
+    public String getTagCode(IOperationContext context, ITagId tagId);
 
 }

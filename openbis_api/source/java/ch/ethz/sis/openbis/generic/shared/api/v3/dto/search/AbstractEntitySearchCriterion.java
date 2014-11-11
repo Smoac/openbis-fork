@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("AbstractEntitySearchCriterion")
-public class AbstractEntitySearchCriterion extends AbstractCompositeSearchCriterion
+public class AbstractEntitySearchCriterion<ID extends IObjectId> extends AbstractObjectSearchCriterion<ID>
 {
 
     private static final long serialVersionUID = 1L;

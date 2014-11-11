@@ -248,7 +248,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
 
         Tag tag = experiment.getTags().iterator().next();
 
-        assertEquals(tag.getName(), "TEST_METAPROJECTS");
+        assertEquals(tag.getCode(), "TEST_METAPROJECTS");
         assertEquals(tag.getPermId().getPermId(), "/test/TEST_METAPROJECTS");
         assertTrue(tag.getRegistrationDate().getTime() < now.getTime());
     }
@@ -282,7 +282,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
 
         Tag tag = experiment.getTags().iterator().next();
 
-        assertEquals(tag.getName(), "NEW_TAG_THAT_SHOULD_BE_CREATED");
+        assertEquals(tag.getCode(), "NEW_TAG_THAT_SHOULD_BE_CREATED");
         assertEquals(tag.getPermId().getPermId(), "/test/NEW_TAG_THAT_SHOULD_BE_CREATED");
         // there can be a 1 second rounding when converting database date to java date
         assertTrue(tag.getRegistrationDate().getTime() + 1000 >= now.getTime());

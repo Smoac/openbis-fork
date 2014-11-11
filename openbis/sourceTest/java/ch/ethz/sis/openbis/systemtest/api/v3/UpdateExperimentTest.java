@@ -45,7 +45,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -344,11 +344,11 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
-        update.getTagIds().add(new TagNameId("TEST_TAG_2"));
+        update.getTagIds().add(new TagCodeId("TEST_TAG_2"));
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
@@ -398,7 +398,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -414,7 +414,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -430,7 +430,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -468,7 +468,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -484,11 +484,11 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
-        update.getTagIds().set(new TagNameId("THIS_TAG_DOES_NOT_EXIST"));
+        update.getTagIds().set(new TagCodeId("THIS_TAG_DOES_NOT_EXIST"));
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
@@ -500,7 +500,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagNameId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
 
         final ITagId tagId = new TagPermId("/test_space/TEST_METAPROJECTS");
         final ExperimentUpdate update = new ExperimentUpdate();

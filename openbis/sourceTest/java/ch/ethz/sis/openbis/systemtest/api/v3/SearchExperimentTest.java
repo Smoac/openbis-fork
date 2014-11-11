@@ -24,6 +24,12 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 
 /**
@@ -31,6 +37,22 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCrit
  */
 public class SearchExperimentTest extends AbstractExperimentTest
 {
+
+    @Test
+    public void testSearchWithIdSetToIdentifier()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withId().thatEquals(new ExperimentIdentifier("/CISD/NEMO/EXP1"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1");
+    }
+
+    @Test
+    public void testSearchWithIdSetToPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withId().thatEquals(new ExperimentPermId("200811050951882-1028"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1");
+    }
 
     @Test
     public void testSearchWithPermId()
@@ -49,6 +71,14 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithTypeWithIdSetToPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withType().withId().thatEquals(new EntityTypePermId("COMPOUND_HCS"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+    }
+
+    @Test
     public void testSearchWithTypeWithCode()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
@@ -57,11 +87,44 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithProjectWithIdSetToIdentifier()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withId().thatEquals(new ProjectIdentifier("/TEST-SPACE/NOE"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
+    @Test
+    public void testSearchWithProjectWithIdSetToPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withId().thatEquals(new ProjectPermId("20120814110011738-106"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
+    @Test
+    public void testSearchWithProjectWithPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withPermId().thatEquals("20120814110011738-106");
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
+    @Test
     public void testSearchWithProjectWithCode()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withProject().withCode().thatEquals("NOE");
         testSearch(TEST_USER, criterion, "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
+    @Test
+    public void testSearchWithProjectWithSpaceWithIdSetToPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
 
     @Test
@@ -199,7 +262,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testSearchWithUnauthorizedSpace()
+    public void testSearchWithSpaceUnauthorized()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withPermId().thatEquals("200811050951882-1028");

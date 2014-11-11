@@ -21,61 +21,61 @@ import java.io.Serializable;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Tag name. 
+ * Tag code.
  * 
  * @author Franz-Josef Elmer
  * @author Jakub Straszewski
  */
-@JsonObject("TagNameId")
-public class TagNameId implements ITagId, Serializable
+@JsonObject("TagCodeId")
+public class TagCodeId implements ITagId, Serializable
 {
 
     private static final long serialVersionUID = 1L;
-    private String name;
+
+    private String code;
 
     /**
-     * @param name Tag name, e.g. "MY_TAG".
+     * @param code Tag code, e.g. "MY_TAG".
      */
-    public TagNameId(String name)
+    public TagCodeId(String code)
     {
-        setName(name);
-        
+        setCode(code);
     }
 
     //
     // JSON-RPC
     //
 
-    public String getName()
+    public String getCode()
     {
-        return name;
+        return code;
     }
 
     @SuppressWarnings("unused")
-    private TagNameId()
+    private TagCodeId()
     {
         super();
     }
-    
-    private void setName(String name)
+
+    private void setCode(String code)
     {
-        if (name == null)
+        if (code == null)
         {
-            throw new IllegalArgumentException("Name cannot be null");
+            throw new IllegalArgumentException("Code cannot be null");
         }
-        this.name = name;
+        this.code = code;
     }
 
     @Override
     public String toString()
     {
-        return getName();
+        return getCode();
     }
 
     @Override
     public int hashCode()
     {
-        return ((name == null) ? 0 : name.hashCode());
+        return ((code == null) ? 0 : code.hashCode());
     }
 
     @Override
@@ -93,8 +93,8 @@ public class TagNameId implements ITagId, Serializable
         {
             return false;
         }
-        TagNameId other = (TagNameId) obj;
-        return name == null ? name == other.name : name.equals(other.name);
+        TagCodeId other = (TagCodeId) obj;
+        return code == null ? code == other.code : code.equals(other.code);
     }
 
 }

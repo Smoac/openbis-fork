@@ -83,7 +83,7 @@ public class ObjectTechId implements IObjectId
     @Override
     public int hashCode()
     {
-        return ((techId == null) ? 0 : techId.hashCode());
+        return ((getTechId() == null) ? 0 : getTechId().hashCode());
     }
 
     @Override
@@ -102,13 +102,13 @@ public class ObjectTechId implements IObjectId
             return false;
         }
         ObjectTechId other = (ObjectTechId) obj;
-        if (techId == null)
+        if (getTechId() == null)
         {
-            if (other.techId != null)
+            if (other.getTechId() != null)
             {
                 return false;
             }
-        } else if (!techId.equals(other.techId))
+        } else if (!getTechId().equals(other.getTechId()))
         {
             return false;
         }

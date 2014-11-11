@@ -27,10 +27,10 @@ import org.jmock.Expectations;
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.GetTagMapExecutor;
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IGetTagNameExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.MapTagByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IGetTagCodeExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -39,17 +39,17 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * @author pkupczyk
  */
-public class GetTagMapExecutorTest extends AbstractExecutorTest
+public class MapTagByIdExecutorTest extends AbstractExecutorTest
 {
 
     private IMetaprojectDAO metaprojectDao;
 
-    private IGetTagNameExecutor getTagNameExecutor;
+    private IGetTagCodeExecutor getTagCodeExecutor;
 
     @Override
     protected void init()
     {
-        getTagNameExecutor = context.mock(IGetTagNameExecutor.class);
+        getTagCodeExecutor = context.mock(IGetTagCodeExecutor.class);
         metaprojectDao = context.mock(IMetaprojectDAO.class);
     }
 
@@ -72,7 +72,7 @@ public class GetTagMapExecutorTest extends AbstractExecutorTest
     {
         final Session session = createSession();
 
-        final ITagId tagId1 = new TagNameId("TEST_TAG_1");
+        final ITagId tagId1 = new TagCodeId("TEST_TAG_1");
         final ITagId tagId2 = new TagPermId("/TEST_USER/TEST_TAG_2");
         final ITagId tagId3 = new TagPermId("/OTHER_USER/TEST_TAG_3");
 
@@ -97,13 +97,13 @@ public class GetTagMapExecutorTest extends AbstractExecutorTest
                     allowing(daoFactory).getMetaprojectDAO();
                     will(returnValue(metaprojectDao));
 
-                    one(getTagNameExecutor).getTagName(operationContext, tagId1);
+                    one(getTagCodeExecutor).getTagCode(operationContext, tagId1);
                     will(returnValue("TEST_TAG_1"));
 
-                    one(getTagNameExecutor).getTagName(operationContext, tagId2);
+                    one(getTagCodeExecutor).getTagCode(operationContext, tagId2);
                     will(returnValue("TEST_TAG_2"));
 
-                    one(getTagNameExecutor).getTagName(operationContext, tagId3);
+                    one(getTagCodeExecutor).getTagCode(operationContext, tagId3);
                     will(returnValue("TEST_TAG_3"));
 
                     one(metaprojectDao).tryFindByOwnerAndName("TEST_PERSON", "TEST_TAG_1");
@@ -126,8 +126,8 @@ public class GetTagMapExecutorTest extends AbstractExecutorTest
 
     private Map<ITagId, MetaprojectPE> execute(Collection<? extends ITagId> tagIds)
     {
-        GetTagMapExecutor executor = new GetTagMapExecutor(daoFactory, getTagNameExecutor);
-        return executor.getTagMap(operationContext, tagIds);
+        MapTagByIdExecutor executor = new MapTagByIdExecutor(daoFactory, getTagCodeExecutor);
+        return executor.map(operationContext, tagIds);
     }
 
 }

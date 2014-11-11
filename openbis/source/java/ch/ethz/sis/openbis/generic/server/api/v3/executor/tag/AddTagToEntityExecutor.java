@@ -35,7 +35,7 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
 {
 
     @Autowired
-    private IGetTagMapExecutor getTagMapExecutor;
+    private IMapTagByIdExecutor mapTagByIdExecutor;
 
     @Autowired
     private ICreateTagExecutor createTagExecutor;
@@ -45,9 +45,9 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
     {
     }
 
-    public AddTagToEntityExecutor(IGetTagMapExecutor getTagMapExecutor, ICreateTagExecutor createTagExecutor)
+    public AddTagToEntityExecutor(IMapTagByIdExecutor mapTagByIdExecutor, ICreateTagExecutor createTagExecutor)
     {
-        this.getTagMapExecutor = getTagMapExecutor;
+        this.mapTagByIdExecutor = mapTagByIdExecutor;
         this.createTagExecutor = createTagExecutor;
     }
 
@@ -59,7 +59,7 @@ public class AddTagToEntityExecutor implements IAddTagToEntityExecutor
             return;
         }
 
-        Map<ITagId, MetaprojectPE> tagMap = getTagMapExecutor.getTagMap(context, tagIds);
+        Map<ITagId, MetaprojectPE> tagMap = mapTagByIdExecutor.map(context, tagIds);
 
         for (ITagId tagId : tagIds)
         {

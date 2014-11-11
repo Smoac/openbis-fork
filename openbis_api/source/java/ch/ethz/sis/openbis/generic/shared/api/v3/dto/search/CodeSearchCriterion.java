@@ -27,7 +27,7 @@ public class CodeSearchCriterion extends StringFieldSearchCriterion
 
     private static final long serialVersionUID = 1L;
 
-    protected CodeSearchCriterion()
+    public CodeSearchCriterion()
     {
         super("code", SearchFieldType.ATTRIBUTE);
     }

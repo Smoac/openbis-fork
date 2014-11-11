@@ -35,22 +35,22 @@ public class RemoveTagFromEntityExecutor implements IRemoveTagFromEntityExecutor
 {
 
     @Autowired
-    private IGetTagMapExecutor getTagMapExecutor;
+    private IMapTagByIdExecutor mapTagByIdExecutor;
 
     @SuppressWarnings("unused")
     private RemoveTagFromEntityExecutor()
     {
     }
 
-    public RemoveTagFromEntityExecutor(IGetTagMapExecutor getTagMapExecutor)
+    public RemoveTagFromEntityExecutor(IMapTagByIdExecutor mapTagByIdExecutor)
     {
-        this.getTagMapExecutor = getTagMapExecutor;
+        this.mapTagByIdExecutor = mapTagByIdExecutor;
     }
 
     @Override
     public void removeTag(IOperationContext context, IEntityWithMetaprojects entity, Collection<? extends ITagId> tagIds)
     {
-        Map<ITagId, MetaprojectPE> tagMap = getTagMapExecutor.getTagMap(context, tagIds);
+        Map<ITagId, MetaprojectPE> tagMap = mapTagByIdExecutor.map(context, tagIds);
 
         for (MetaprojectPE tag : tagMap.values())
         {

@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("TagSearchCriterion")
-public class TagSearchCriterion extends AbstractCompositeSearchCriterion
+public class TagSearchCriterion extends AbstractObjectSearchCriterion<ITagId>
 {
 
     private static final long serialVersionUID = 1L;
@@ -34,6 +35,11 @@ public class TagSearchCriterion extends AbstractCompositeSearchCriterion
     public CodeSearchCriterion withCode()
     {
         return with(new CodeSearchCriterion());
+    }
+
+    public PermIdSearchCriterion withPermId()
+    {
+        return with(new PermIdSearchCriterion());
     }
 
     @Override

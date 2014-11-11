@@ -32,28 +32,28 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
  * @author pkupczyk
  */
 @Component
-public class GetTagMapExecutor implements IGetTagMapExecutor
+public class MapTagByIdExecutor implements IMapTagByIdExecutor
 {
 
     @Autowired
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IGetTagNameExecutor getTagNameExecutor;
+    private IGetTagCodeExecutor getTagCodeExecutor;
 
     @SuppressWarnings("unused")
-    private GetTagMapExecutor()
+    private MapTagByIdExecutor()
     {
     }
 
-    public GetTagMapExecutor(IDAOFactory daoFactory, IGetTagNameExecutor getTagNameExecutor)
+    public MapTagByIdExecutor(IDAOFactory daoFactory, IGetTagCodeExecutor getTagCodeExecutor)
     {
         this.daoFactory = daoFactory;
-        this.getTagNameExecutor = getTagNameExecutor;
+        this.getTagCodeExecutor = getTagCodeExecutor;
     }
 
     @Override
-    public Map<ITagId, MetaprojectPE> getTagMap(IOperationContext context, Collection<? extends ITagId> tagIds)
+    public Map<ITagId, MetaprojectPE> map(IOperationContext context, Collection<? extends ITagId> tagIds)
     {
         Map<ITagId, MetaprojectPE> map = new HashMap<ITagId, MetaprojectPE>();
 
@@ -61,10 +61,10 @@ public class GetTagMapExecutor implements IGetTagMapExecutor
         {
             for (ITagId tagId : tagIds)
             {
-                String name = getTagNameExecutor.getTagName(context, tagId);
+                String code = getTagCodeExecutor.getTagCode(context, tagId);
                 MetaprojectPE tag =
                         daoFactory.getMetaprojectDAO()
-                                .tryFindByOwnerAndName(context.getSession().tryGetPerson().getUserId(), name);
+                                .tryFindByOwnerAndName(context.getSession().tryGetPerson().getUserId(), code);
                 if (tag != null)
                 {
                     map.put(tagId, tag);

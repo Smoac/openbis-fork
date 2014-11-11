@@ -69,7 +69,7 @@ public abstract class ObjectPermId implements IObjectId
     @Override
     public int hashCode()
     {
-        return ((permId == null) ? 0 : permId.hashCode());
+        return ((getPermId() == null) ? 0 : getPermId().hashCode());
     }
 
     @Override
@@ -88,13 +88,13 @@ public abstract class ObjectPermId implements IObjectId
             return false;
         }
         ObjectPermId other = (ObjectPermId) obj;
-        if (permId == null)
+        if (getPermId() == null)
         {
-            if (other.permId != null)
+            if (other.getPermId() != null)
             {
                 return false;
             }
-        } else if (!permId.equals(other.permId))
+        } else if (!getPermId().equals(other.getPermId()))
         {
             return false;
         }

@@ -203,17 +203,17 @@ public class Generator extends AbstractGenerator
 
         return gen;
     }
-    
+
     private static DtoGenerator createTagGenerator()
     {
         DtoGenerator gen = new DtoGenerator("tag", "Tag", TagFetchOptions.class);
-        
+
         gen.addSimpleField(TagPermId.class, "permId");
-        gen.addSimpleField(String.class, "name");
+        gen.addSimpleField(String.class, "code");
         addDescription(gen);
         gen.addSimpleField(Boolean.class, "private", "isPrivate");
         addRegistrationDate(gen);
-        
+
         gen.addFetchedField(Person.class, "owner", "Owner", PersonFetchOptions.class);
 
         return gen;

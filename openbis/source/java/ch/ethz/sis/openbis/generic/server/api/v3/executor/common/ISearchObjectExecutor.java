@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.common;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.List;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("PermIdSearchCriterion")
-public class PermIdSearchCriterion extends StringFieldSearchCriterion
+public interface ISearchObjectExecutor<CRITERION extends AbstractObjectSearchCriterion<?>, OBJECT>
 {
 
-    private static final long serialVersionUID = 1L;
-
-    public PermIdSearchCriterion()
-    {
-        super("perm id", SearchFieldType.ATTRIBUTE);
-    }
+    public List<OBJECT> search(IOperationContext context, CRITERION criterion);
 
 }

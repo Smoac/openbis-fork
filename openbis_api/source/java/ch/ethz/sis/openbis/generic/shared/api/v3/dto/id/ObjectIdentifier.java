@@ -69,7 +69,7 @@ public abstract class ObjectIdentifier implements IObjectId
     @Override
     public int hashCode()
     {
-        return ((identifier == null) ? 0 : identifier.hashCode());
+        return ((getIdentifier() == null) ? 0 : getIdentifier().hashCode());
     }
 
     @Override
@@ -88,7 +88,7 @@ public abstract class ObjectIdentifier implements IObjectId
             return false;
         }
         ObjectIdentifier other = (ObjectIdentifier) obj;
-        return identifier == null ? identifier == other.identifier : identifier.equals(other.identifier);
+        return getIdentifier() == null ? getIdentifier() == other.getIdentifier() : getIdentifier().equals(other.getIdentifier());
     }
 
 }

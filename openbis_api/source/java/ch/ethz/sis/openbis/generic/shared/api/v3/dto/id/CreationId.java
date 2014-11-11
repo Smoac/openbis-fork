@@ -66,28 +66,35 @@ public class CreationId implements ISampleId, IDataSetId, IExperimentId, IProjec
     @Override
     public int hashCode()
     {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((creationId == null) ? 0 : creationId.hashCode());
-        return result;
+        return ((getCreationId() == null) ? 0 : getCreationId().hashCode());
     }
 
     @Override
     public boolean equals(Object obj)
     {
         if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        CreationId other = (CreationId) obj;
-        if (creationId == null)
         {
-            if (other.creationId != null)
-                return false;
-        } else if (!creationId.equals(other.creationId))
+            return true;
+        }
+        if (obj == null)
+        {
             return false;
+        }
+        if (getClass() != obj.getClass())
+        {
+            return false;
+        }
+        CreationId other = (CreationId) obj;
+        if (getCreationId() == null)
+        {
+            if (other.getCreationId() != null)
+            {
+                return false;
+            }
+        } else if (!getCreationId().equals(other.getCreationId()))
+        {
+            return false;
+        }
         return true;
     }
 

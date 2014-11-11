@@ -16,13 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
  * @author pkupczyk
  */
 @JsonObject("SpaceSearchCriterion")
-public class SpaceSearchCriterion extends AbstractCompositeSearchCriterion
+public class SpaceSearchCriterion extends AbstractObjectSearchCriterion<ISpaceId>
 {
 
     private static final long serialVersionUID = 1L;
@@ -34,6 +35,11 @@ public class SpaceSearchCriterion extends AbstractCompositeSearchCriterion
     public CodeSearchCriterion withCode()
     {
         return with(new CodeSearchCriterion());
+    }
+
+    public PermIdSearchCriterion withPermId()
+    {
+        return with(new PermIdSearchCriterion());
     }
 
     @Override

@@ -16,19 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.tag;
 
-import java.util.Collection;
-import java.util.Map;
-
-import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.IMapObjectByIdExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
 
 /**
  * @author pkupczyk
  */
-public interface IGetTagMapExecutor
+public interface IMapTagByIdExecutor extends IMapObjectByIdExecutor<ITagId, MetaprojectPE>
 {
-
-    public Map<ITagId, MetaprojectPE> getTagMap(IOperationContext context, Collection<? extends ITagId> tagIds);
 
 }

@@ -40,12 +40,12 @@ public class Tag implements Serializable
     private TagPermId permId;
 
     @JsonProperty
-    private String name;
+    private String code;
 
     @JsonProperty
     private String description;
 
-    @JsonProperty(value="private")
+    @JsonProperty(value = "private")
     private Boolean isPrivate;
 
     @JsonProperty
@@ -77,14 +77,14 @@ public class Tag implements Serializable
     }
 
     @JsonIgnore
-    public String getName()
+    public String getCode()
     {
-        return name;
+        return code;
     }
 
-    public void setName(String name)
+    public void setCode(String code)
     {
-        this.name = name;
+        this.code = code;
     }
 
     @JsonIgnore

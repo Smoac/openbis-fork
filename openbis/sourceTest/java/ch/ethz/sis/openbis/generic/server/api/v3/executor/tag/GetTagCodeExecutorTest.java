@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -31,7 +31,7 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 /**
  * @author pkupczyk
  */
-public class GetTagNameExecutorTest extends AbstractExecutorTest
+public class GetTagCodeExecutorTest extends AbstractExecutorTest
 {
 
     @Test
@@ -48,8 +48,8 @@ public class GetTagNameExecutorTest extends AbstractExecutorTest
                 }
             });
 
-        String name = execute(new TagPermId("/" + session.tryGetPerson().getUserId() + "/TEST_PERM_ID"));
-        Assert.assertEquals("TEST_PERM_ID", name);
+        String code = execute(new TagPermId("/" + session.tryGetPerson().getUserId() + "/TEST_PERM_ID"));
+        Assert.assertEquals("TEST_PERM_ID", code);
     }
 
     @Test(expectedExceptions = { UnauthorizedObjectAccessException.class }, expectedExceptionsMessageRegExp = ".*/OTHER_USER/TEST_PERM_ID.*")
@@ -72,14 +72,14 @@ public class GetTagNameExecutorTest extends AbstractExecutorTest
     @Test
     public void testWithNameId()
     {
-        String name = execute(new TagNameId("TEST_NAME_ID"));
-        Assert.assertEquals("TEST_NAME_ID", name);
+        String code = execute(new TagCodeId("TEST_NAME_ID"));
+        Assert.assertEquals("TEST_NAME_ID", code);
     }
 
     private String execute(ITagId tagId)
     {
-        GetTagNameExecutor executor = new GetTagNameExecutor();
-        return executor.getTagName(operationContext, tagId);
+        GetTagCodeExecutor executor = new GetTagCodeExecutor();
+        return executor.getTagCode(operationContext, tagId);
     }
 
 }

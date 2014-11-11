@@ -37,24 +37,24 @@ public class CreateTagExecutor implements ICreateTagExecutor
     private IDAOFactory daoFactory;
 
     @Autowired
-    private IGetTagNameExecutor getTagNameExecutor;
+    private IGetTagCodeExecutor getTagCodeExecutor;
 
     @SuppressWarnings("unused")
     private CreateTagExecutor()
     {
     }
 
-    public CreateTagExecutor(IDAOFactory daoFactory, IGetTagNameExecutor getTagNameExecutor)
+    public CreateTagExecutor(IDAOFactory daoFactory, IGetTagCodeExecutor getTagCodeExecutor)
     {
         this.daoFactory = daoFactory;
-        this.getTagNameExecutor = getTagNameExecutor;
+        this.getTagCodeExecutor = getTagCodeExecutor;
     }
 
     @Override
     public MetaprojectPE createTag(IOperationContext context, ITagId tagId)
     {
         MetaprojectPE tag = new MetaprojectPE();
-        tag.setName(getTagNameExecutor.getTagName(context, tagId));
+        tag.setName(getTagCodeExecutor.getTagCode(context, tagId));
         tag.setOwner(context.getSession().tryGetPerson());
         tag.setCreationDate(new Date());
         daoFactory.getMetaprojectDAO().createOrUpdateMetaproject(tag, context.getSession().tryGetPerson());

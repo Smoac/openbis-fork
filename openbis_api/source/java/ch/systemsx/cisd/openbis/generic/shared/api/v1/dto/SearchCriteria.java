@@ -29,12 +29,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * A (mutable) object representing the specification of a search. A search is specified by
- * MatchClause objects and an operator for combining match clauses. Additionally sub criteria can be
- * added for entities connected with the main entity object.
+ * A (mutable) object representing the specification of a search. A search is specified by MatchClause objects and an operator for combining match
+ * clauses. Additionally sub criteria can be added for entities connected with the main entity object.
  * <p>
- * A MatchClause is made up of a property or attribute to compare against and a desired value for
- * that property or attribute.
+ * A MatchClause is made up of a property or attribute to compare against and a desired value for that property or attribute.
  * <p>
  * Example:<br>
  * <blockquote> Match all of the following clauses:
@@ -93,7 +91,7 @@ public class SearchCriteria implements Serializable
         // for sample or experiment
         SPACE,
         // for experiment
-        PROJECT,
+        PROJECT, PROJECT_PERM_ID,
         // for all types of entities
         METAPROJECT
     }
@@ -166,8 +164,7 @@ public class SearchCriteria implements Serializable
         }
 
         /**
-         * Factory method to create a MatchClause matching against registration or modification
-         * date.
+         * Factory method to create a MatchClause matching against registration or modification date.
          * 
          * @param attribute The attribute to compare against
          * @param mode The kind of comparison (<=, ==, >=)
@@ -201,8 +198,7 @@ public class SearchCriteria implements Serializable
         }
 
         /**
-         * Returns a String where those characters that Lucene expects to be escaped are escaped by
-         * a preceding <code>\</code>.
+         * Returns a String where those characters that Lucene expects to be escaped are escaped by a preceding <code>\</code>.
          * <p>
          * Copy of Lucene's <code>QueryParser.escape()</code> method.
          */
@@ -605,8 +601,7 @@ public class SearchCriteria implements Serializable
     }
 
     /**
-     * Gets the operator for combining MatchClause objects. Default value is {@link SearchOperator}
-     * .MATCH_ALL_CRITERIA.
+     * Gets the operator for combining MatchClause objects. Default value is {@link SearchOperator} .MATCH_ALL_CRITERIA.
      */
     public SearchOperator getOperator()
     {

@@ -55,7 +55,7 @@ public abstract class AbstractCompositeSearchCriterionTranslator extends Abstrac
 
         if (criterion instanceof AbstractEntitySearchCriterion)
         {
-            detailedSearchCriteria.setConnection(translateOperator(((AbstractEntitySearchCriterion) compositeCriterion).getOperator()));
+            detailedSearchCriteria.setConnection(translateOperator(((AbstractEntitySearchCriterion<?>) compositeCriterion).getOperator()));
         }
 
         List<DetailedSearchCriterion> detailedCriterionList = new ArrayList<DetailedSearchCriterion>();

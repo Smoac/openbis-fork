@@ -17,7 +17,6 @@
 package ch.ethz.sis.openbis.generic.server.api.v3;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -34,22 +33,19 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IRevertDeleti
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ICreateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IDeleteExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.ISearchExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IUpdateExperimentExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ICreateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IDeleteSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IMapSampleByIdExecutor;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.ISearchSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.DeletionTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.EntityAttributeProviderFactory;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.ISearchCriterionTranslator;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslationResult;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslatorFactory;
-import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchTranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.utils.ExceptionUtils;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
@@ -81,8 +77,6 @@ import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAll
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
 import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
-import ch.systemsx.cisd.openbis.generic.server.business.search.ExperimentSearchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.search.SampleSearchManager;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -114,6 +108,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     private IRelationshipService relationshipService;
 
     @Autowired
+    private ISearchExperimentExecutor searchExperimentExecutor;
+
+    @Autowired
     private IMapExperimentByIdExecutor mapExperimentByIdExecutor;
 
     @Autowired
@@ -124,6 +121,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private IDeleteExperimentExecutor deleteExperimentExecutor;
+
+    @Autowired
+    private ISearchSampleExecutor searchSampleExecutor;
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -326,23 +326,19 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             ExperimentFetchOptions fetchOptions)
     {
         Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
 
-        ISearchCriterionTranslator translator =
-                new SearchCriterionTranslatorFactory(getDAOFactory(), new EntityAttributeProviderFactory()).getTranslator(searchCriterion);
-        SearchCriterionTranslationResult translationResult = translator.translate(new SearchTranslationContext(session), searchCriterion);
+        try
+        {
+            List<ExperimentPE> experiments = searchExperimentExecutor.search(context, searchCriterion);
 
-        ExperimentSearchManager searchManager =
-                new ExperimentSearchManager(getDAOFactory().getHibernateSearchDAO(),
-                        getBusinessObjectFactory().createExperimentTable(session));
-
-        Collection<Long> experimentIds =
-                searchManager.searchForExperimentIDs(session.getUserName(), translationResult.getCriteria());
-
-        List<ExperimentPE> experiments = getDAOFactory().getExperimentDAO().listByIDs(experimentIds);
-
-        Map<ExperimentPE, Experiment> translatedMap =
-                new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments);
-        return new ArrayList<Experiment>(translatedMap.values());
+            Map<ExperimentPE, Experiment> translatedMap =
+                    new ExperimentTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(experiments);
+            return new ArrayList<Experiment>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     @Override
@@ -351,23 +347,19 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
     {
         Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
 
-        ISearchCriterionTranslator translator =
-                new SearchCriterionTranslatorFactory(getDAOFactory(), new EntityAttributeProviderFactory()).getTranslator(searchCriterion);
-        SearchCriterionTranslationResult translationResult = translator.translate(new SearchTranslationContext(session), searchCriterion);
+        try
+        {
+            List<SamplePE> samples = searchSampleExecutor.search(context, searchCriterion);
 
-        SampleSearchManager searchManager =
-                new SampleSearchManager(getDAOFactory().getHibernateSearchDAO(),
-                        getBusinessObjectFactory().createSampleLister(session));
-
-        Collection<Long> sampleIds =
-                searchManager.searchForSampleIDs(session.getUserName(), translationResult.getCriteria());
-
-        List<SamplePE> samples = getDAOFactory().getSampleDAO().listByIDs(sampleIds);
-
-        Map<SamplePE, Sample> translatedMap =
-                new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples);
-        return new ArrayList<Sample>(translatedMap.values());
+            Map<SamplePE, Sample> translatedMap =
+                    new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples);
+            return new ArrayList<Sample>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
     }
 
     @Override
@@ -486,11 +478,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     public IApplicationServerApi createLogger(IInvocationLoggerContext context)
     {
         return new ApplicationServerApiLogger(sessionManager, context);
-    }
-
-    private ICommonBusinessObjectFactory getBusinessObjectFactory()
-    {
-        return businessObjectFactory;
     }
 
     @Override

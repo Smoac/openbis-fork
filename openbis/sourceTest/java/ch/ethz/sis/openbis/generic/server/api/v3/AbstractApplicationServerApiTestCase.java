@@ -259,12 +259,12 @@ public abstract class AbstractApplicationServerApiTestCase extends AbstractServe
             });
     }
 
-    protected void prepareFindTag(final String userId, final String tagName, final MetaprojectPE tag)
+    protected void prepareFindTag(final String userId, final String tagCode, final MetaprojectPE tag)
     {
         context.checking(new Expectations()
             {
                 {
-                    allowing(metaprojectDAO).tryFindByOwnerAndName(userId, tagName);
+                    allowing(metaprojectDAO).tryFindByOwnerAndName(userId, tagCode);
                     will(returnValue(tag));
                 }
             });

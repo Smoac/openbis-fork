@@ -17,6 +17,7 @@
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
 import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.CODE;
+import static ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants.PERM_ID;
 
 import ch.systemsx.cisd.common.exceptions.InternalErr;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
@@ -154,6 +155,8 @@ class IndexFieldNameHelper
                 return SearchFieldConstants.PERM_ID;
             case PROJECT:
                 return SearchFieldConstants.PREFIX_PROJECT + CODE;
+            case PROJECT_PERM_ID:
+                return SearchFieldConstants.PREFIX_PROJECT + PERM_ID;
             case PROJECT_SPACE:
                 return SearchFieldConstants.PREFIX_PROJECT + SearchFieldConstants.PREFIX_SPACE
                         + CODE;

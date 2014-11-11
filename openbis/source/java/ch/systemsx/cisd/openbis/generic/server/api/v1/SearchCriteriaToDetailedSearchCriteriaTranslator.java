@@ -50,8 +50,8 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DtoConverters;
 /**
  * Converts {@link SearchCriteria} objects to {@link DetailedSearchCriteria} objects.
  * <p>
- * Clients of this class need to provide a translator from {@link MatchClauseAttribute} to
- * {@link IAttributeSearchFieldKind} appropriate to the entity they are searching for.
+ * Clients of this class need to provide a translator from {@link MatchClauseAttribute} to {@link IAttributeSearchFieldKind} appropriate to the entity
+ * they are searching for.
  * 
  * @author Chandrasekhar Ramakrishnan
  */
@@ -136,8 +136,7 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
     private final DetailedSearchCriteria newDetailedSearchCriteria;
 
     /**
-     * Interface for a translator from {@link MatchClauseAttribute} to
-     * {@link IAttributeSearchFieldKind}.
+     * Interface for a translator from {@link MatchClauseAttribute} to {@link IAttributeSearchFieldKind}.
      * 
      * @author Chandrasekhar Ramakrishnan
      */
@@ -226,6 +225,9 @@ public class SearchCriteriaToDetailedSearchCriteriaTranslator
                     break;
                 case PROJECT:
                     ans = ExperimentAttributeSearchFieldKind.PROJECT;
+                    break;
+                case PROJECT_PERM_ID:
+                    ans = ExperimentAttributeSearchFieldKind.PROJECT_PERM_ID;
                     break;
                 case METAPROJECT:
                     ans = ExperimentAttributeSearchFieldKind.METAPROJECT;

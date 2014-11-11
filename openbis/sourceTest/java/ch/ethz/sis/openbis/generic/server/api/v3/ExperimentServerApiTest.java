@@ -32,7 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagNameId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -56,9 +56,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCase
 {
-    private static final TagNameId TAG_NAME_ID = new TagNameId("red");
+    private static final TagCodeId TAG_CODE_ID = new TagCodeId("red");
 
-    private static final TagNameId UNKNOWN_TAG_NAME_ID = new TagNameId("unknown");
+    private static final TagCodeId UNKNOWN_TAG_CODE_ID = new TagCodeId("unknown");
 
     private static final String UNKNOWN_PROJECT_CODE = "UNKNOWN";
 
@@ -97,11 +97,11 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         dataType.setCode(DataTypeCode.VARCHAR);
         propertyType1.setType(dataType);
         tag = new MetaprojectPE();
-        tag.setName(TAG_NAME_ID.getName());
+        tag.setName(TAG_CODE_ID.getCode());
         tag.setOwner(person);
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithUnspecifiedType()
     {
         prepareCreationEnvironment();
@@ -114,7 +114,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithUnknownType()
     {
         prepareCreationEnvironment();
@@ -128,7 +128,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithUnspecifiedProject()
     {
         prepareCreationEnvironment();
@@ -141,7 +141,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithUnknownProjectIdentifier()
     {
         prepareCreationEnvironment();
@@ -155,7 +155,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithUnknownProjectPermId()
     {
         prepareCreationEnvironment();
@@ -169,7 +169,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithTagIdOfWrongOwner()
     {
         prepareCreationEnvironment();
@@ -183,7 +183,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithAttachmentWithUnspecifiedFileName()
     {
         prepareCreationEnvironment();
@@ -196,7 +196,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithAttachmentWithUnspecifiedContent()
     {
         prepareCreationEnvironment();
@@ -212,7 +212,7 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithNoTagsAndAttachmentsSuccessfully()
     {
         RecordingMatcherRepository recorderRepository = prepareCreationEnvironment();
@@ -242,12 +242,12 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         context.assertIsSatisfied();
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testCreateExperimentWithTagAndAttachmentSuccessfully()
     {
         RecordingMatcherRepository recorderRepository = prepareCreationEnvironment();
         ExperimentCreation experiment = experiment("EXP1");
-        experiment.setTagIds(Arrays.<ITagId> asList(TAG_NAME_ID));
+        experiment.setTagIds(Arrays.<ITagId> asList(TAG_CODE_ID));
         AttachmentCreation attachment = new AttachmentCreation();
         attachment.setFileName("manual.pdf");
         attachment.setTitle("Manual");
@@ -327,8 +327,8 @@ public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCas
         prepareFindProject(SPACE_CODE, PROJECT_CODE, project);
         prepareFindProject(SPACE_CODE, UNKNOWN_PROJECT_CODE, null);
         prepareFindProject(UNKNOWN_PROJECT_PERM_ID.getPermId(), null);
-        prepareFindTag(session.getUserName(), TAG_NAME_ID.getName(), tag);
-        prepareFindTag(session.getUserName(), UNKNOWN_TAG_NAME_ID.getName(), null);
+        prepareFindTag(session.getUserName(), TAG_CODE_ID.getCode(), tag);
+        prepareFindTag(session.getUserName(), UNKNOWN_TAG_CODE_ID.getCode(), null);
         RecordingMatcherRepository repository = new RecordingMatcherRepository();
         prepareCreateAttachment(repository);
         final RecordingMatcher<ExperimentPE> experimentRecoder =

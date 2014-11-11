@@ -31,7 +31,7 @@ public class SpacePermId extends ObjectPermId implements ISpaceId
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param permId Space perm id, e.g. "MY_SPACE".
+     * @param permId Space perm id, e.g. "/MY_SPACE" or "MY_SPACE".
      */
     public SpacePermId(String permId)
     {
@@ -46,6 +46,21 @@ public class SpacePermId extends ObjectPermId implements ISpaceId
     private SpacePermId()
     {
         super();
+    }
+
+    @Override
+    public String getPermId()
+    {
+        String permId = super.getPermId();
+
+        // support both "/MY_SPACE" and "MY_SPACE"
+        if (permId.startsWith("/"))
+        {
+            return permId.substring(1);
+        } else
+        {
+            return permId;
+        }
     }
 
 }

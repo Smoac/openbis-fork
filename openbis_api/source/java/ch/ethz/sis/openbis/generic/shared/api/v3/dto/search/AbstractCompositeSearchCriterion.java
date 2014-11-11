@@ -31,14 +31,14 @@ public abstract class AbstractCompositeSearchCriterion extends AbstractSearchCri
 
     private static final long serialVersionUID = 1L;
 
-    protected Collection<AbstractSearchCriterion> criteria = new LinkedList<AbstractSearchCriterion>();
+    protected Collection<ISearchCriterion> criteria = new LinkedList<ISearchCriterion>();
 
     public Collection<ISearchCriterion> getCriteria()
     {
         return Collections.<ISearchCriterion> unmodifiableCollection(criteria);
     }
 
-    public void setCriteria(Collection<AbstractSearchCriterion> criteria)
+    public void setCriteria(Collection<ISearchCriterion> criteria)
     {
         this.criteria = criteria;
     }
