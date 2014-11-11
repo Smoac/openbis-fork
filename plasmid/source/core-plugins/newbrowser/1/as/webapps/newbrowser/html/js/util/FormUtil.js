@@ -251,7 +251,7 @@ var FormUtil = new function() {
 	//
 	// Get Field with container to obtain a correct layout
 	//
-	this.getFieldForComponentWithLabel = function($component, label) {
+	this.getFieldForComponentWithLabel = function($component, label, postComponent) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
@@ -260,11 +260,19 @@ var FormUtil = new function() {
 			requiredText = "&nbsp;(*)"
 		}
 		
-		var $controlLabel = $('<label>', { class : 'control-label ' + this.labelColumnClass }).html(label + requiredText + ":");
+		var labelText = "";
+		if(label) {
+			labelText = label + requiredText + ":";
+		}
+		
+		var $controlLabel = $('<label>', { class : 'control-label ' + this.labelColumnClass }).html(labelText);
 		var $controls = $('<div>', { class : 'controls ' + this.controlColumnClass });
 			
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
+		if(postComponent) {
+			$controlGroup.append(postComponent);
+		}
 		$fieldset.append($controlGroup);
 		
 		$controls.append($component);
@@ -273,18 +281,18 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
-	this.getFieldForLabelWithText = function(label, text, id, preLabel) {
+	this.getFieldForLabelWithText = function(label, text, id, postComponent) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass}).text(label + ":");
 		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
 		
-		if(preLabel) {
-			$controlGroup.append(preLabel);
-		}
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
+		if(postComponent) {
+			$controlGroup.append(postComponent);
+		}
 		$fieldset.append($controlGroup);
 		
 		var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});

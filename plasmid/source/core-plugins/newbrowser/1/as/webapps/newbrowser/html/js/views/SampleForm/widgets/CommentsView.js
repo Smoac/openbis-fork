@@ -28,15 +28,12 @@ function CommentsView(commentsController, commentsModel) {
 		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
 		var comments = xmlDoc.getElementsByTagName("commentEntry");
 		for(var i = 0; i < comments.length; i++) {
-			this.addCommentWidget(comments[i]);
+			this.addCommentWidgetFromXML(comments[i]);
 		}
 		this.addAddButton();
 	}
 	
-	this.addCommentWidget = function(commentXMLNode) {
-		var _this = this;
-		var commentWidget = null;
-		
+	this.addCommentWidgetFromXML = function(commentXMLNode) {
 		var dateValue = commentXMLNode.attributes["date"].value;
 		var date = new Date(parseInt(dateValue) * 1000);
 		var userId = commentXMLNode.attributes["person"].value;
@@ -45,13 +42,18 @@ function CommentsView(commentsController, commentsModel) {
 			value = commentXMLNode.firstChild.nodeValue;
 		}
 		
+		this.addCommentWidget(date, userId, value);
+	}
+	
+	this.addCommentWidget = function(date, userId, value) {
+		var _this = this;
 		var $buttonDelete = null;
 		if(this._commentsModel.mode !== FormMode.VIEW) {
 			$buttonDelete = $("<a>", {"class" : "btn btn-default"});
 			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
 		}
 		
-		commentWidget = FormUtil.getFieldForLabelWithText(date + " " + userId, value, null, $buttonDelete);
+		var commentWidget = FormUtil.getFieldForLabelWithText(date + " " + userId, value, null, $buttonDelete);
 		
 		if(this._commentsModel.mode !== FormMode.VIEW) {
 			$buttonDelete.click(function() {
@@ -64,6 +66,29 @@ function CommentsView(commentsController, commentsModel) {
 	}
 	
 	this.addAddButton = function() {
+		if(this._commentsModel.mode !== FormMode.VIEW) {
+			var _this = this;
+			var $buttonPlusOne = $("<a>", {"class" : "btn btn-default"});
+			$buttonPlusOne.append($("<span>", { "class" : "glyphicon glyphicon-plus-sign"}));
+			$buttonPlusOne.click(function() {
+				_this.addNewComment();
+			});
+			this.commentsAddButton.append(FormUtil.getFieldForComponentWithLabel($buttonPlusOne, null));
+		}
+	}
+	
+	this.addNewComment = function() {
+		var $textBox = FormUtil._getTextBox(null, null, false);
+		var $textBoxGroup = FormUtil.getFieldForComponentWithLabel($textBox, null, null);
+		var $saveButton = FormUtil.getButtonWithText("Save");
+		var $saveButtonGroup = FormUtil.getFieldForComponentWithLabel($saveButton, null, null);
 		
+		this.commentsContainer.append($textBoxGroup);
+		this.commentsContainer.append($saveButtonGroup);
+		
+		$saveButton.click(function() {
+			$textBoxGroup.remove();
+			$saveButtonGroup.remove();
+		});
 	}
 }
