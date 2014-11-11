@@ -205,11 +205,12 @@ class TestCase(object):
         util.writeProperties(dssPropsFile, dssProps)
         
     
-    def createOpenbisController(self, instanceName = 'openbis', dropDatabases = True):
+    def createOpenbisController(self, instanceName = 'openbis', dropDatabases = True, databasesToDrop = []):
         """
         Creates an openBIS controller object assuming that an openBIS instance for the specified name is installed.
         """
-        return OpenbisController(self, self.name, self._getInstallPath(instanceName), instanceName, dropDatabases)
+        return OpenbisController(self, self.name, self._getInstallPath(instanceName), instanceName, 
+                                 dropDatabases, databasesToDrop)
     
     def installScreeningTestClient(self):
         """ Installs the screening test client and returns an instance of ScreeningTestClient. """
@@ -406,7 +407,7 @@ class OpenbisController(_Controller):
     """
     Class to control AS and DSS of an installed openBIS instance.
     """
-    def __init__(self, testCase, testName, installPath, instanceName, dropDatabases = True):
+    def __init__(self, testCase, testName, installPath, instanceName, dropDatabases = True, databasesToDrop = []):
         """
         Creates a new instance for specifies test case with specified test and instance name, installation path.
         """
@@ -436,6 +437,8 @@ class OpenbisController(_Controller):
             util.dropDatabase(PSQL_EXE, "pathinfo_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "imaging_%s" % self.databaseKind)
             util.dropDatabase(PSQL_EXE, "proteomics_%s" % self.databaseKind)
+        for databaseToDrop in databasesToDrop:
+            util.dropDatabase(PSQL_EXE, "%s_%s" % (databaseToDrop, self.databaseKind))
         self._applyCorePlugins()
         
     def setDummyAuthentication(self):
@@ -592,12 +595,20 @@ class OpenbisController(_Controller):
         """
         return "%s/%s/%s" % (TEST_DATA, self.testName, dataName)
     
+
     def drop(self, dataName, dropBoxName):
         """
-        Drops the specified data into the specified drop box. The data is either a folder or a ZIP file
+        Drops the specified test data into the specified drop box. The test data is either a folder or a ZIP file
         in TEST_DATA/<test name>. A ZIP file will be unpacked in the drop box. 
         """
         destination = "%s/data/%s" % (self.installPath, dropBoxName)
+        self.dropIntoDestination(dataName, destination)
+
+    def dropIntoDestination(self, dataName, destination):
+        """
+        Drops the specified test data into the destination. The test data is either a folder or a ZIP file
+        in TEST_DATA/<test name>. A ZIP file will be unpacked in the drop box. 
+        """
         testDataFolder = "%s/%s" % (TEST_DATA, self.testName)
         if dataName.endswith('.zip'):
             util.unzip("%s/%s" % (testDataFolder, dataName), destination)
@@ -606,9 +617,7 @@ class OpenbisController(_Controller):
 
     def waitUntilDataSetRegistrationFinished(self, numberOfDataSets = 1, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
         """ Waits until the specified number of data sets have been registrated. """
-        monitor = util.LogMonitor("%s.DSS" % self.instanceName, 
-                                  "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath, 
-                                  timeOutInMinutes)
+        monitor = self.createLogMonior(timeOutInMinutes)
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
         monitor.addNotificationCondition(util.RegexCondition('post-registration'))
         numberOfRegisteredDataSets = 0
@@ -626,11 +635,14 @@ class OpenbisController(_Controller):
         """
         Waits until specified condition has been detected in DSS log.
         """
-        logFilePath = "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath
-        monitor = util.LogMonitor("%s.DSS" % self.instanceName, logFilePath, timeOutInMinutes)
+        monitor = self.createLogMonior(timeOutInMinutes)
         monitor.addNotificationCondition(util.RegexCondition('Incoming Data Monitor'))
         monitor.addNotificationCondition(util.RegexCondition('post-registration'))
         monitor.waitUntilEvent(condition)
+        
+    def createLogMonior(self, timeOutInMinutes = DEFAULT_TIME_OUT_IN_MINUTES):
+        logFilePath = "%s/servers/datastore_server/log/datastore_server_log.txt" % self.installPath
+        return util.LogMonitor("%s.DSS" % self.instanceName, logFilePath, timeOutInMinutes)
         
     def assertFeatureVectorLabel(self, featureCode, expectedFeatureLabel):
         data = self.queryDatabase('imaging',  "select distinct label from feature_defs where code = '%s'" % featureCode);

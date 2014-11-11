@@ -2054,6 +2054,8 @@ COPY data_set_types (id, code, description, dbin_id, modification_timestamp, mai
 3	HCS_IMAGE_ANALYSIS_DATA	Data derived from analysis of HCS images	1	2009-11-27 16:02:26.451046+01	\N	\N
 2	HCS_IMAGE	HCS raw images acquired by microscopes	1	2009-11-27 16:02:26.451046+01	\N	\N
 4	HCS_ANALYSIS_PER_GENE	Image analysis data aggregated per gene.	1	2009-12-16 16:59:50.743029+01	\N	\N
+5	T1	Test type 1.	1	2009-12-16 16:59:50.743029+01	\N	\N
+6	T2	Test type 2.	1	2009-12-16 16:59:50.743029+01	\N	\N
 \.
 
 
@@ -2165,6 +2167,11 @@ COPY experiment_types (id, code, description, dbin_id, modification_timestamp) F
 
 COPY experiments (id, perm_id, code, exty_id, mate_id_study_object, pers_id_registerer, registration_timestamp, modification_timestamp, proj_id, inva_id, is_public) FROM stdin;
 1	20100623121102843-1	DEFAULT	1	\N	2	2010-06-23 12:11:02.735245+02	2010-06-24 11:37:59.657+02	1	\N	f
+2	20100623121102843-2	E111	1	\N	2	2010-06-23 12:11:02.735245+02	2010-06-24 11:37:59.657+02	2	\N	f
+3	20100623121102843-3	E112	1	\N	2	2010-06-23 12:11:02.735245+02	2010-06-24 11:37:59.657+02	2	\N	f
+4	20100623121102843-4	E121	1	\N	2	2010-06-23 12:11:02.735245+02	2010-06-24 11:37:59.657+02	3	\N	f
+5	20100623121102843-5	E122	1	\N	2	2010-06-23 12:11:02.735245+02	2010-06-24 11:37:59.657+02	3	\N	f
+6	20100623121102843-6	E222	1	\N	2	2010-06-23 12:11:02.735245+02	2010-06-24 11:37:59.657+02	5	\N	f
 \.
 
 
@@ -2218,6 +2225,8 @@ COPY grid_custom_columns (id, dbin_id, code, label, description, registration_ti
 
 COPY groups (id, code, dbin_id, description, registration_timestamp, pers_id_registerer) FROM stdin;
 1	DEFAULT	1	\N	2010-06-23 12:10:24.020009+02	2
+2	S1	1	\N	2010-06-23 12:10:24.020009+02	2
+3	S2	1	\N	2010-06-23 12:10:24.020009+02	2
 \.
 
 
@@ -2306,6 +2315,10 @@ COPY persons (id, first_name, last_name, user_id, email, dbin_id, grou_id, regis
 
 COPY projects (id, code, grou_id, pers_id_leader, description, pers_id_registerer, registration_timestamp, modification_timestamp) FROM stdin;
 1	DEFAULT	1	\N	\N	2	2010-06-23 12:10:36.760919+02	2010-06-23 12:11:02.883+02
+2	P1-1	2	\N	\N	2	2010-06-23 12:10:36.760919+02	2010-06-23 12:11:02.883+02
+3	P2-1	2	\N	\N	2	2010-06-23 12:10:36.760919+02	2010-06-23 12:11:02.883+02
+4	P1-2	3	\N	\N	2	2010-06-23 12:10:36.760919+02	2010-06-23 12:11:02.883+02
+5	P2-2	3	\N	\N	2	2010-06-23 12:10:36.760919+02	2010-06-23 12:11:02.883+02
 \.
 
 
@@ -2389,6 +2402,8 @@ COPY samples (id, perm_id, code, expe_id, samp_id_top, samp_id_generated_from, s
 4	20100624113752213-5	DEFAULT	1	\N	\N	3	2010-06-24 11:37:52.082004+02	2010-06-24 11:37:52.231+02	3	\N	\N	\N	1	\N
 5	20100624113756254-6	PLATE2	1	\N	\N	3	2010-06-24 11:37:56.157107+02	2010-06-24 11:37:56.261+02	3	\N	\N	\N	1	\N
 6	20100624113759640-7	PLATE3	1	\N	\N	3	2010-06-24 11:37:59.564732+02	2010-06-24 11:37:59.655+02	3	\N	\N	\N	1	\N
+7	20100624113759640-8	S1	6	\N	\N	3	2010-06-24 11:37:59.564732+02	2010-06-24 11:37:59.655+02	3	\N	\N	\N	1	\N
+8	20100624113759640-9	S2	6	\N	\N	3	2010-06-24 11:37:59.564732+02	2010-06-24 11:37:59.655+02	3	\N	\N	\N	1	\N
 \.
 
 
