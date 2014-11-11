@@ -381,7 +381,7 @@ public class SearchSampleTest extends AbstractSampleTest
     }
 
     @Test
-    public void testSearchWithTagWithIdSetToId()
+    public void testSearchWithTagWithIdSetToCodeId()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withTag().withId().thatEquals(new TagCodeId("TEST_METAPROJECTS"));

@@ -41,6 +41,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.ISearchCriter
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslationResult;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslatorFactory;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchTranslationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
@@ -56,7 +57,6 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.IdSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.PermIdSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.TagSearchCriterion;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
@@ -223,7 +223,8 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
 
     }
 
-    private class SpaceIdCriterionReplacer implements ICriterionReplacer
+    @SuppressWarnings("hiding")
+    private abstract class AbstractIdCriterionReplacer<ID extends IObjectId, OBJECT> implements ICriterionReplacer
     {
 
         @Override
@@ -231,359 +232,285 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
         {
             if (criterion instanceof IdSearchCriterion<?>)
             {
-                return ((IdSearchCriterion<?>) criterion).getId() instanceof ISpaceId;
+                IObjectId id = ((IdSearchCriterion<?>) criterion).getId();
+                return getIdClass().isAssignableFrom(id.getClass());
             } else
             {
                 return false;
             }
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
         {
-            Set<ISpaceId> spaceIds = new HashSet<ISpaceId>();
+            Set<ID> objectIds = new HashSet<ID>();
 
             for (ISearchCriterion criterion : criteria)
             {
                 IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                spaceIds.add((ISpaceId) idCriterion.getId());
+                objectIds.add((ID) idCriterion.getId());
             }
 
             Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<ISpaceId, SpacePE> spaceMap = mapSpaceByIdExecutor.map(context, spaceIds);
+            Map<ID, OBJECT> objectMap = getObjectMap(context, objectIds);
 
             for (ISearchCriterion criterion : criteria)
             {
                 IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                SpacePE space = spaceMap.get(idCriterion.getId());
-
-                if (space == null)
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals(space.getCode());
-                    criterionMap.put(criterion, replacement);
-                }
+                OBJECT object = objectMap.get(idCriterion.getId());
+                criterionMap.put(criterion, createReplacement(context, idCriterion, object));
             }
 
             return criterionMap;
         }
 
+        protected abstract Class<ID> getIdClass();
+
+        protected abstract Map<ID, OBJECT> getObjectMap(IOperationContext context, Collection<ID> objectIds);
+
+        protected abstract ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, OBJECT object);
+
     }
 
-    private class ProjectIdCriterionReplacer implements ICriterionReplacer
+    private class SpaceIdCriterionReplacer extends AbstractIdCriterionReplacer<ISpaceId, SpacePE>
     {
+
+        @Override
+        protected Class<ISpaceId> getIdClass()
+        {
+            return ISpaceId.class;
+        }
+
+        @Override
+        protected Map<ISpaceId, SpacePE> getObjectMap(IOperationContext context, Collection<ISpaceId> spaceIds)
+        {
+            return mapSpaceByIdExecutor.map(context, spaceIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, SpacePE space)
+        {
+            CodeSearchCriterion replacement = new CodeSearchCriterion();
+            if (space == null)
+            {
+                replacement.thatEquals("#");
+            } else
+            {
+                replacement.thatEquals(space.getCode());
+            }
+            return replacement;
+        }
+
+    }
+
+    private class ProjectIdCriterionReplacer extends AbstractIdCriterionReplacer<IProjectId, ProjectPE>
+    {
+
+        @Override
+        protected Class<IProjectId> getIdClass()
+        {
+            return IProjectId.class;
+        }
+
+        @Override
+        protected Map<IProjectId, ProjectPE> getObjectMap(IOperationContext context, Collection<IProjectId> projectIds)
+        {
+            return mapProjectByIdExecutor.map(context, projectIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, ProjectPE project)
+        {
+            PermIdSearchCriterion replacement = new PermIdSearchCriterion();
+            if (project == null)
+            {
+                replacement.thatEquals("#");
+            } else
+            {
+                replacement.thatEquals(project.getPermId());
+            }
+            return replacement;
+        }
+
+    }
+
+    private class ExperimentIdCriterionReplacer extends AbstractIdCriterionReplacer<IExperimentId, ExperimentPE>
+    {
+
+        @Override
+        protected Class<IExperimentId> getIdClass()
+        {
+            return IExperimentId.class;
+        }
+
+        @Override
+        protected Map<IExperimentId, ExperimentPE> getObjectMap(IOperationContext context, Collection<IExperimentId> experimentIds)
+        {
+            return mapExperimentByIdExecutor.map(context, experimentIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, ExperimentPE experiment)
+        {
+            PermIdSearchCriterion replacement = new PermIdSearchCriterion();
+            if (experiment == null)
+            {
+                replacement.thatEquals("#");
+            } else
+            {
+                replacement.thatEquals(experiment.getPermId());
+            }
+            return replacement;
+        }
+
+    }
+
+    private class SampleIdCriterionReplacer extends AbstractIdCriterionReplacer<ISampleId, SamplePE>
+    {
+
+        @Override
+        protected Class<ISampleId> getIdClass()
+        {
+            return ISampleId.class;
+        }
+
+        @Override
+        protected Map<ISampleId, SamplePE> getObjectMap(IOperationContext context, Collection<ISampleId> sampleIds)
+        {
+            return mapSampleByIdExecutor.map(context, sampleIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, SamplePE sample)
+        {
+            PermIdSearchCriterion replacement = new PermIdSearchCriterion();
+            if (sample == null)
+            {
+                replacement.thatEquals("#");
+            } else
+            {
+                replacement.thatEquals(sample.getPermId());
+            }
+            return replacement;
+        }
+
+    }
+
+    private class TagIdCriterionReplacer extends AbstractIdCriterionReplacer<ITagId, MetaprojectPE>
+    {
+
+        @Override
+        protected Class<ITagId> getIdClass()
+        {
+            return ITagId.class;
+        }
+
+        @Override
+        protected Map<ITagId, MetaprojectPE> getObjectMap(IOperationContext context, Collection<ITagId> tagIds)
+        {
+            return mapTagByIdExecutor.map(context, tagIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, MetaprojectPE tag)
+        {
+            CodeSearchCriterion replacement = new CodeSearchCriterion();
+            if (tag == null)
+            {
+                replacement.thatEquals("#");
+            } else
+            {
+                replacement.thatEquals(tag.getName());
+            }
+            return replacement;
+        }
+
+    }
+
+    private abstract class AbstractEntityTypeIdCriterionReplacer extends AbstractIdCriterionReplacer<IEntityTypeId, EntityTypePE>
+    {
+
+        @Override
+        protected Class<IEntityTypeId> getIdClass()
+        {
+            return IEntityTypeId.class;
+        }
 
         @Override
         public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
         {
-            if (criterion instanceof IdSearchCriterion<?>)
-            {
-                return ((IdSearchCriterion<?>) criterion).getId() instanceof IProjectId;
-            } else
+            if (false == super.canReplace(context, parentCriteria, criterion))
             {
                 return false;
             }
-        }
 
-        @Override
-        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
-        {
-            Set<IProjectId> projectIds = new HashSet<IProjectId>();
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                projectIds.add((IProjectId) idCriterion.getId());
-            }
-
-            Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<IProjectId, ProjectPE> projectMap = mapProjectByIdExecutor.map(context, projectIds);
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                ProjectPE project = projectMap.get(idCriterion.getId());
-
-                if (project == null)
-                {
-                    PermIdSearchCriterion replacement = new PermIdSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    PermIdSearchCriterion replacement = new PermIdSearchCriterion();
-                    replacement.thatEquals(project.getPermId());
-                    criterionMap.put(criterion, replacement);
-                }
-            }
-
-            return criterionMap;
-        }
-
-    }
-
-    private class ExperimentIdCriterionReplacer implements ICriterionReplacer
-    {
-
-        @Override
-        public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
-        {
-            if (criterion instanceof IdSearchCriterion<?>)
-            {
-                return ((IdSearchCriterion<?>) criterion).getId() instanceof IExperimentId;
-            } else
-            {
-                return false;
-            }
-        }
-
-        @Override
-        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
-        {
-            Set<IExperimentId> experimentIds = new HashSet<IExperimentId>();
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                experimentIds.add((IExperimentId) idCriterion.getId());
-            }
-
-            Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<IExperimentId, ExperimentPE> experimentMap = mapExperimentByIdExecutor.map(context, experimentIds);
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                ExperimentPE experiment = experimentMap.get(idCriterion.getId());
-
-                if (experiment == null)
-                {
-                    PermIdSearchCriterion replacement = new PermIdSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    PermIdSearchCriterion replacement = new PermIdSearchCriterion();
-                    replacement.thatEquals(experiment.getPermId());
-                    criterionMap.put(criterion, replacement);
-                }
-            }
-
-            return criterionMap;
-        }
-
-    }
-
-    private class SampleIdCriterionReplacer implements ICriterionReplacer
-    {
-
-        @Override
-        public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
-        {
-            if (criterion instanceof IdSearchCriterion<?>)
-            {
-                return ((IdSearchCriterion<?>) criterion).getId() instanceof ISampleId;
-            } else
-            {
-                return false;
-            }
-        }
-
-        @Override
-        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
-        {
-            Set<ISampleId> sampleIds = new HashSet<ISampleId>();
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                sampleIds.add((ISampleId) idCriterion.getId());
-            }
-
-            Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<ISampleId, SamplePE> sampleMap = mapSampleByIdExecutor.map(context, sampleIds);
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                SamplePE sample = sampleMap.get(idCriterion.getId());
-
-                if (sample == null)
-                {
-                    PermIdSearchCriterion replacement = new PermIdSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    PermIdSearchCriterion replacement = new PermIdSearchCriterion();
-                    replacement.thatEquals(sample.getPermId());
-                    criterionMap.put(criterion, replacement);
-                }
-            }
-
-            return criterionMap;
-        }
-
-    }
-
-    private class ExperimentTypeIdCriterionReplacer implements ICriterionReplacer
-    {
-
-        @Override
-        public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
-        {
             Stack<ISearchCriterion> parentCriteriaCopy = new Stack<ISearchCriterion>();
             parentCriteriaCopy.addAll(parentCriteria);
 
             ISearchCriterion parentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
             ISearchCriterion grandParentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
 
-            return criterion instanceof IdSearchCriterion<?> && parentCriterion instanceof EntityTypeSearchCriterion
-                    && grandParentCriterion instanceof ExperimentSearchCriterion;
+            return parentCriterion instanceof EntityTypeSearchCriterion && grandParentCriterion != null
+                    && getEntityCriterionClass().isAssignableFrom(grandParentCriterion.getClass());
         }
 
         @Override
-        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
+        protected Map<IEntityTypeId, EntityTypePE> getObjectMap(IOperationContext context, Collection<IEntityTypeId> typeIds)
         {
-            Set<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
+            return mapEntityTypeByIdExecutor.map(context, getEntityKind(), typeIds);
+        }
 
-            for (ISearchCriterion criterion : criteria)
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, EntityTypePE type)
+        {
+            CodeSearchCriterion replacement = new CodeSearchCriterion();
+            if (type == null)
             {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                typeIds.add((IEntityTypeId) idCriterion.getId());
-            }
-
-            Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<IEntityTypeId, EntityTypePE> typeMap = mapEntityTypeByIdExecutor.map(context, EntityKind.EXPERIMENT, typeIds);
-
-            for (ISearchCriterion criterion : criteria)
+                replacement.thatEquals("#");
+            } else
             {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                EntityTypePE type = typeMap.get(idCriterion.getId());
-
-                if (type == null)
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals(type.getCode());
-                    criterionMap.put(criterion, replacement);
-                }
+                replacement.thatEquals(type.getCode());
             }
+            return replacement;
+        }
 
-            return criterionMap;
+        protected abstract EntityKind getEntityKind();
+
+        protected abstract Class<?> getEntityCriterionClass();
+
+    }
+
+    private class ExperimentTypeIdCriterionReplacer extends AbstractEntityTypeIdCriterionReplacer
+    {
+
+        @Override
+        protected EntityKind getEntityKind()
+        {
+            return EntityKind.EXPERIMENT;
+        }
+
+        @Override
+        protected Class<?> getEntityCriterionClass()
+        {
+            return ExperimentSearchCriterion.class;
         }
 
     }
 
-    private class SampleTypeIdCriterionReplacer implements ICriterionReplacer
+    private class SampleTypeIdCriterionReplacer extends AbstractEntityTypeIdCriterionReplacer
     {
 
         @Override
-        public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
+        protected EntityKind getEntityKind()
         {
-            Stack<ISearchCriterion> parentCriteriaCopy = new Stack<ISearchCriterion>();
-            parentCriteriaCopy.addAll(parentCriteria);
-
-            ISearchCriterion parentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
-            ISearchCriterion grandParentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
-
-            return criterion instanceof IdSearchCriterion<?> && parentCriterion instanceof EntityTypeSearchCriterion
-                    && grandParentCriterion instanceof SampleSearchCriterion;
+            return EntityKind.SAMPLE;
         }
 
         @Override
-        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
+        protected Class<?> getEntityCriterionClass()
         {
-            Set<IEntityTypeId> typeIds = new HashSet<IEntityTypeId>();
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                typeIds.add((IEntityTypeId) idCriterion.getId());
-            }
-
-            Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<IEntityTypeId, EntityTypePE> typeMap = mapEntityTypeByIdExecutor.map(context, EntityKind.SAMPLE, typeIds);
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                EntityTypePE type = typeMap.get(idCriterion.getId());
-
-                if (type == null)
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals(type.getCode());
-                    criterionMap.put(criterion, replacement);
-                }
-            }
-
-            return criterionMap;
-        }
-
-    }
-
-    private class TagIdCriterionReplacer implements ICriterionReplacer
-    {
-
-        @Override
-        public boolean canReplace(IOperationContext context, Stack<ISearchCriterion> parentCriteria, ISearchCriterion criterion)
-        {
-            Stack<ISearchCriterion> parentCriteriaCopy = new Stack<ISearchCriterion>();
-            parentCriteriaCopy.addAll(parentCriteria);
-
-            ISearchCriterion parentCriterion = parentCriteriaCopy.isEmpty() ? null : parentCriteriaCopy.pop();
-
-            return criterion instanceof IdSearchCriterion<?> && parentCriterion instanceof TagSearchCriterion;
-        }
-
-        @Override
-        public Map<ISearchCriterion, ISearchCriterion> replace(IOperationContext context, Collection<ISearchCriterion> criteria)
-        {
-            Set<ITagId> tagIds = new HashSet<ITagId>();
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                tagIds.add((ITagId) idCriterion.getId());
-            }
-
-            Map<ISearchCriterion, ISearchCriterion> criterionMap = new HashMap<ISearchCriterion, ISearchCriterion>();
-            Map<ITagId, MetaprojectPE> tagMap = mapTagByIdExecutor.map(context, tagIds);
-
-            for (ISearchCriterion criterion : criteria)
-            {
-                IdSearchCriterion<?> idCriterion = (IdSearchCriterion<?>) criterion;
-                MetaprojectPE tag = tagMap.get(idCriterion.getId());
-
-                if (tag == null)
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals("#");
-                    criterionMap.put(criterion, replacement);
-                } else
-                {
-                    CodeSearchCriterion replacement = new CodeSearchCriterion();
-                    replacement.thatEquals(tag.getName());
-                    criterionMap.put(criterion, replacement);
-                }
-            }
-
-            return criterionMap;
+            return SampleSearchCriterion.class;
         }
 
     }

@@ -30,6 +30,8 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 
 /**
@@ -87,6 +89,14 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithTypeWithPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withType().withPermId().thatEquals("COMPOUND_HCS");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+    }
+
+    @Test
     public void testSearchWithProjectWithIdSetToIdentifier()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
@@ -121,10 +131,16 @@ public class SearchExperimentTest extends AbstractExperimentTest
     @Test
     public void testSearchWithProjectWithSpaceWithIdSetToPermId()
     {
+        String[] expected = new String[] { "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE" };
+
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withProject().withSpace().withId().thatEquals(new SpacePermId("TEST-SPACE"));
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
-                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+        testSearch(TEST_USER, criterion, expected);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withSpace().withId().thatEquals(new SpacePermId("/TEST-SPACE"));
+        testSearch(TEST_USER, criterion, expected);
     }
 
     @Test
@@ -134,6 +150,21 @@ public class SearchExperimentTest extends AbstractExperimentTest
         criterion.withProject().withSpace().withCode().thatEquals("TEST-SPACE");
         testSearch(TEST_USER, criterion, "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
                 "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
+    }
+
+    @Test
+    public void testSearchWithProjectWithSpaceWithPermId()
+    {
+        String[] expected = new String[] { "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST", "/TEST-SPACE/NOE/EXP-TEST-2",
+                "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE" };
+
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withSpace().withPermId().thatEquals("TEST-SPACE");
+        testSearch(TEST_USER, criterion, expected);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProject().withSpace().withPermId().thatEquals("/TEST-SPACE");
+        testSearch(TEST_USER, criterion, expected);
     }
 
     @Test
@@ -201,11 +232,43 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithTagWithIdSetToPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withTag().withId().thatEquals(new TagPermId("/test/TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+    }
+
+    @Test
+    public void testSearchWithTagWithIdSetToCodeId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withTag().withId().thatEquals(new TagCodeId("TEST_METAPROJECTS"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+    }
+
+    @Test
     public void testSearchWithTagWithCode()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withTag().withCode().thatEquals("TEST_METAPROJECTS");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+    }
+
+    @Test
+    public void testSearchWithTagWithPermId()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
+    }
+
+    @Test
+    public void testSearchWithTagWithPermIdUnauthorized()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withTag().withPermId().thatEquals("/test/TEST_METAPROJECTS");
+        testSearch(TEST_SPACE_USER, criterion, 0);
     }
 
     @Test
