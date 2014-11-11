@@ -31,9 +31,9 @@ public class ByExpermientPolicy implements IAutoArchiverPolicy
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ByExpermientPolicy.class);
 
-    private static final String MINIMAL_ARCHIVE_SIZE = "minimal-archive-size";
+    public static final String MINIMAL_ARCHIVE_SIZE = "minimal-archive-size";
 
-    private static final String MAXIMAL_ARCHIVE_SIZE = "maximal-archive-size";
+    public static final String MAXIMAL_ARCHIVE_SIZE = "maximal-archive-size";
 
     private static final long DEFAULT_MINIMAL_ARCHIVE_SIZE = 0;
 
@@ -70,16 +70,21 @@ public class ByExpermientPolicy implements IAutoArchiverPolicy
             long size = node.getCumulatedSize();
             if (size >= minArchiveSize)
             {
-                TreeNode kid = node;
-                if (size <= maxArchiveSize)
+                if (node instanceof DatasetListWithTotal)
                 {
-                    return reportFind(kid.collectSubTree());
-                }
-
-                if (kid instanceof Grouper)
+                    DatasetListWithTotal goodDatasetList = (DatasetListWithTotal) node;
+                    if (size <= maxArchiveSize)
+                    {
+                        return goodDatasetList;
+                    } else
+                    {
+                        sortBySamples(goodDatasetList);
+                        return splitDatasets(goodDatasetList);
+                    }
+                } else
                 {
                     @SuppressWarnings("unchecked")
-                    Grouper<TreeNode, TreeNode> subtree = (Grouper<TreeNode, TreeNode>) kid;
+                    Grouper<TreeNode, TreeNode> subtree = (Grouper<TreeNode, TreeNode>) node;
                     List<AbstractExternalData> found = walkAndFind(subtree);
                     if (found.size() > 0)
                     {
@@ -87,30 +92,11 @@ public class ByExpermientPolicy implements IAutoArchiverPolicy
                     }
 
                     // no individual subtree is bigger than min-size but this branch is so let's have a subset
-                    return splitDataset(kid.collectSubTree());
-
-                } else
-                {
-                    DatasetListWithTotal bigDataset = (DatasetListWithTotal) kid;
-                    sortBySamples(bigDataset);
-                    return splitDataset(bigDataset);
+                    return splitDatasets(node.collectSubTree());
                 }
             }
         }
         return new ArrayList<AbstractExternalData>();
-    }
-
-    private List<AbstractExternalData> reportFind(List<AbstractExternalData> list)
-    {
-        long total = 0;
-        for (AbstractExternalData ds : list)
-        {
-            total += ds.getSize();
-            operationLog.info("added ds " + ds.getCode() + " for exp " + ds.getExperiment().getCode() + " with size " + ds.getSize() + " and total "
-                    + total);
-        }
-
-        return list;
     }
 
     private void sortBySamples(DatasetListWithTotal datasets)
@@ -130,7 +116,7 @@ public class ByExpermientPolicy implements IAutoArchiverPolicy
             });
     }
 
-    private List<AbstractExternalData> splitDataset(List<AbstractExternalData> datasets)
+    private List<AbstractExternalData> splitDatasets(List<AbstractExternalData> datasets)
     {
         DatasetListWithTotal result = new DatasetListWithTotal();
 
@@ -144,7 +130,7 @@ public class ByExpermientPolicy implements IAutoArchiverPolicy
             result.add(ds);
         }
 
-        return reportFind(result);
+        return result;
     }
 
     private ProjectGroup groupDatasets(List<AbstractExternalData> dataSets)

@@ -47,6 +47,7 @@ public class ServiceProviderTestWrapper
         classNameToBeanName.put(IDataStoreServiceInternal.class, "data-store-service");
         classNameToBeanName
                 .put(IHierarchicalContentProvider.class, "hierarchical-content-provider");
+        classNameToBeanName.put(IDataSetPathInfoProvider.class, "data-set-path-infos-provider");
     }
 
     /**
