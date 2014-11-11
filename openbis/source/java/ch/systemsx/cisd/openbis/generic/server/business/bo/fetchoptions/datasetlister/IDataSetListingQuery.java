@@ -36,6 +36,7 @@ public interface IDataSetListingQuery extends BaseQuery
             "select dp.code as dp_code, dc.code as dc_code from data_set_relationships r inner join data dp on r.data_id_parent = dp.id inner join data dc on r.data_id_child = dc.id";
 
     @Select(sql = "select"
+            + " ds.*," // This line is here so that we can potentially read access_timestamp field, which might not be present in the database
             + " ds.id as ds_id, ds.code as ds_code, ds.registration_timestamp as ds_registration_timestamp,"
             + " ds.modification_timestamp as ds_modification_timestamp,"
             + " dt.code as dt_code, dt.data_set_kind as dt_data_set_kind,"

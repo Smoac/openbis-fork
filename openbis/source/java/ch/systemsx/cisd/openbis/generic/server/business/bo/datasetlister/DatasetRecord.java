@@ -29,6 +29,8 @@ public class DatasetRecord extends CodeRecord
 
     public Date modification_timestamp;
 
+    public Date access_timestamp;
+
     public int version;
 
     public Long pers_id_registerer;

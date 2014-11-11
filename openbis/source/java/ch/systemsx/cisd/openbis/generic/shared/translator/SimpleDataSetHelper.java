@@ -61,6 +61,7 @@ public class SimpleDataSetHelper
         result.setDataSetCode(data.getCode());
         result.setRegistrationTimestamp(data.getRegistrationDate());
         result.setModificationTimestamp(data.getModificationDate());
+        result.setAccessTimestamp(data.getAccessTimestamp());
         result.setSpeedHint(data.getSpeedHint());
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());

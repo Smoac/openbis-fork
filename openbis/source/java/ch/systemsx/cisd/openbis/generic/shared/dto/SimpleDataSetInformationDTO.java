@@ -48,6 +48,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     
     private Date modificationTimestamp;
 
+    private Date accessTimestamp;
+
     private Long dataSetSize;
 
     private String dataSetType;
@@ -159,6 +161,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setModificationTimestamp(Date modificationTimestamp)
     {
         this.modificationTimestamp = modificationTimestamp;
+    }
+
+    public Date getAccessTimestamp()
+    {
+        return accessTimestamp;
+    }
+
+    public void setAccessTimestamp(Date accessTimestamp)
+    {
+        this.accessTimestamp = accessTimestamp;
     }
 
     public int getSpeedHint()

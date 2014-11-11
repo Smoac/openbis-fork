@@ -32,6 +32,8 @@ public class DataSetRecord
 
     public Date ds_modification_timestamp;
 
+    public Date access_timestamp;
+
     public Long ctnr_id;
 
     public String ctnr_code;
