@@ -1185,7 +1185,13 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setRegistrator(getOrCreateActor(record.pers_id_registerer));
         dataSet.setModificationDate(record.modification_timestamp);
         dataSet.setModifier(getOrCreateActor(record.pers_id_modifier));
-        dataSet.setAccessTimestamp(record.access_timestamp);
+        if (dataDAO.isAccessTimestampEnabled())
+        {
+            dataSet.setAccessTimestamp(record.access_timestamp);
+        } else
+        {
+            dataSet.setAccessTimestamp(record.modification_timestamp);
+        }
 
         dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
 
