@@ -548,7 +548,7 @@ public class GeneralInformationChangingServiceTest extends SystemTestCase
     @Test
     public void testDeleteDataSetTrash()
     {
-        testDeletePermanent(new DataSetDeleteAction(), new DataSetListDeletedAction());
+        testDeleteTrash(new DataSetDeleteAction(), new DataSetListDeletedAction());
     }
 
     private class ProjectDeleteAction implements DeleteAction<Project>
