@@ -93,7 +93,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
     private File store;
 
-    private int modificationTimestamp;
+    private int accessTimestamp;
 
     private File shareFolder;
 
@@ -186,8 +186,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share.addDataSet(ds5);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
-        RecordingMatcher<HostAwareFile> recordingFileMatcher 
-                = prepareFreeSpace(12 * FileUtils.ONE_GB, 22 * FileUtils.ONE_GB);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12 * FileUtils.ONE_GB, 22 * FileUtils.ONE_GB);
         prepareSetArchingStatus(ds1);
         File file = prepareDeleteFromShare(ds1);
         assertEquals(true, file.exists());
@@ -225,8 +224,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share.addDataSet(ds5);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
-        RecordingMatcher<HostAwareFile> recordingFileMatcher 
-                = prepareFreeSpace(12 * FileUtils.ONE_GB, 24 * FileUtils.ONE_GB);
+        RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12 * FileUtils.ONE_GB, 24 * FileUtils.ONE_GB);
         prepareSetArchingStatus(ds3);
         File file = prepareDeleteFromShare(ds3);
         assertEquals(true, file.exists());
@@ -866,7 +864,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         dataSet.setDataSetShareId(path.substring(0, indexOfFirstSeparator));
         dataSet.setDataSetLocation(path.substring(indexOfFirstSeparator + 1));
         dataSet.setDataSetSize(size);
-        dataSet.setModificationTimestamp(new Date(modificationTimestamp += 10000));
+        dataSet.setAccessTimestamp(new Date(accessTimestamp += 10000));
         return dataSet;
     }
 
