@@ -419,6 +419,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
 
         getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), parameterDataSets);
 
+        for (String dataSetCode : dataSetCodes)
+        {
+            getService().notifyDatasetAccess(dataSetCode);
+        }
+
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
         result.addResult(parameterDataSets, Status.OK, Operation.UNARCHIVE);
         return result;

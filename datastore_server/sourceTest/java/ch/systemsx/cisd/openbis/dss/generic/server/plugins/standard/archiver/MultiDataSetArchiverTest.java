@@ -770,6 +770,8 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
         prepareListDataSetsByCode(DataSetArchivingStatus.ARCHIVED, ds1, ds2);
         prepareListPhysicalDataSets();
 
+        prepareNotifyDataSetAccess(ds1.getDataSetCode(), ds2.getDataSetCode());
+
         status = archiver.unarchive(Arrays.asList(ds1, ds2), archiverContext);
 
         assertEquals("INFO  OPERATION.AbstractDatastorePlugin - Unarchiving of the following datasets "
@@ -905,6 +907,19 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                     }
                     one(openBISService).listDataSetsByCode(codes);
                     will(returnValue(result));
+                }
+            });
+    }
+
+    private void prepareNotifyDataSetAccess(final String... dataSetCodes)
+    {
+        context.checking(new Expectations()
+            {
+                {
+                    for (String dataSetCode : dataSetCodes)
+                    {
+                        one(openBISService).notifyDatasetAccess(dataSetCode);
+                    }
                 }
             });
     }
