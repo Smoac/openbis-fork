@@ -32,6 +32,12 @@ function SampleFormController(mainController, mode, sample) {
 		return this._sampleFormModel.isFormLoaded;
 	}
 	
+
+	this._addCommentsWidget = function($container) {
+		var commentsController = new CommentsController(this._sampleFormModel.sample, this._sampleFormModel.mode);
+		commentsController.init($container);
+	}
+	
 	this.getLastStorageController = function() {
 		return this._storageControllers[this._storageControllers.length-1];
 	}
