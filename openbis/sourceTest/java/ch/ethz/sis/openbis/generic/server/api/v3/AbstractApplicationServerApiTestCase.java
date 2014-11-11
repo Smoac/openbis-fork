@@ -33,8 +33,6 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.RecordingMatcherRepository;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerTestCase;
@@ -72,10 +70,6 @@ public abstract class AbstractApplicationServerApiTestCase extends AbstractServe
 
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
 
-    private ICommonBusinessObjectFactory boFactory;
-
-    private IRelationshipService relationshipService;
-
     private SessionFactory sessionFactory;
 
     private org.hibernate.classic.Session currentHibernateSession;
@@ -92,8 +86,6 @@ public abstract class AbstractApplicationServerApiTestCase extends AbstractServe
     public void setUpMocks()
     {
         managedPropertyEvaluatorFactory = context.mock(IManagedPropertyEvaluatorFactory.class);
-        boFactory = context.mock(ICommonBusinessObjectFactory.class);
-        relationshipService = context.mock(IRelationshipService.class);
         sampleTypeSlaveServerPlugin = context.mock(ISampleTypeSlaveServerPlugin.class);
         dataSetTypeSlaveServerPlugin = context.mock(IDataSetTypeSlaveServerPlugin.class);
         sessionFactory = context.mock(SessionFactory.class);
@@ -102,7 +94,7 @@ public abstract class AbstractApplicationServerApiTestCase extends AbstractServe
         person.setUserId(session.getUserName());
         session.setPerson(person);
         server =
-                new ApplicationServerApi(managedPropertyEvaluatorFactory, boFactory, relationshipService,
+                new ApplicationServerApi(managedPropertyEvaluatorFactory,
                         sessionManager, daoFactory, propertiesBatchManager,
                         sampleTypeSlaveServerPlugin, dataSetTypeSlaveServerPlugin);
         context.checking(new Expectations()

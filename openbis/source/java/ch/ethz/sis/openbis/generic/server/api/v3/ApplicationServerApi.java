@@ -75,8 +75,6 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.Capability;
 import ch.systemsx.cisd.openbis.generic.server.authorization.annotation.RolesAllowed;
 import ch.systemsx.cisd.openbis.generic.server.business.IPropertiesBatchManager;
-import ch.systemsx.cisd.openbis.generic.server.business.IRelationshipService;
-import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.plugin.IDataSetTypeSlaveServerPlugin;
 import ch.systemsx.cisd.openbis.generic.server.plugin.ISampleTypeSlaveServerPlugin;
@@ -100,12 +98,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 {
     @Resource(name = ComponentNames.MANAGED_PROPERTY_EVALUATOR_FACTORY)
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
-
-    @Resource(name = ComponentNames.COMMON_BUSINESS_OBJECT_FACTORY)
-    private ICommonBusinessObjectFactory businessObjectFactory;
-
-    @Resource(name = ComponentNames.RELATIONSHIP_SERVICE)
-    private IRelationshipService relationshipService;
 
     @Autowired
     private ISearchExperimentExecutor searchExperimentExecutor;
@@ -152,7 +144,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
     }
 
     public ApplicationServerApi(IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory,
-            ICommonBusinessObjectFactory businessObjectFactory, IRelationshipService relationshipService,
             IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
             IPropertiesBatchManager propertiesBatchManager,
             ISampleTypeSlaveServerPlugin sampleTypeSlaveServerPlugin,
@@ -161,8 +152,6 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
         super(sessionManager, daoFactory, propertiesBatchManager, sampleTypeSlaveServerPlugin,
                 dataSetTypeSlaveServerPlugin);
         this.managedPropertyEvaluatorFactory = managedPropertyEvaluatorFactory;
-        this.businessObjectFactory = businessObjectFactory;
-        this.relationshipService = relationshipService;
     }
 
     @Override

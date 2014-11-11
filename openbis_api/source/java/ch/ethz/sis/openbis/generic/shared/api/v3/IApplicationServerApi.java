@@ -149,14 +149,4 @@ public interface IApplicationServerApi extends IRpcService
     // - IGeneralInformationChangingService.deletePermanently(List<Long>)
     public void confirmDeletions(String sessionToken, List<? extends IDeletionId> deletionIds);
 
-    // NOTES:
-    // - initially the new API methods should operate on concrete types (not interfaces) but in the future we want to operate on interfaces only
-    // - attachments should be fetched with entities they refer to (e.g. projects, experiments etc.) when appropriate fetch option is set
-    // - we should replace generic SearchCriteria with entity specific search criteria, e.g. ExperimentSearchCriteria, SampleSearchCriteria etc. that
-    // only have a subset of search parameters which make sense in the context of the given entity kind
-
-    // OPEN QUESTIONS:
-    // - shall we still use database instance in our return value filters or shall we validate access only using spaces?
-    // - how should we handle "onBehalfOf" methods? Maybe replace the first sessionToken parameter with something like IUserContext where we would
-    // have two implementations, UserContext(sessionToken), UserContextOnBehalfOf(sessionToken, userId)?
 }
