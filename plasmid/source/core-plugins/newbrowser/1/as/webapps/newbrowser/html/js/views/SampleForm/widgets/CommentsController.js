@@ -21,4 +21,20 @@ function CommentsController(sample, mode) {
 	this.init = function($container) {
 		this._commentsView.repaint($container);
 	}
+	
+	this.deleteComment = function(commentTimestampToDelete) {
+		var commentsXML = this._commentsModel.getComments();
+		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
+		var comments = xmlDoc.getElementsByTagName("commentEntry");
+		for(var i = 0; i < comments.length; i++) {
+			var commentNode = comments[i];
+			var commentTimes = commentNode.attributes["date"].value;
+			if(commentTimes === commentTimestampToDelete) {
+				commentNode.parentNode.removeChild(commentNode);
+			}
+		}
+		
+		var xmlDocAsString = (new XMLSerializer()).serializeToString(xmlDoc);
+		this._commentsModel.setComments(xmlDocAsString)
+	}
 }

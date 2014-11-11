@@ -34,19 +34,32 @@ function CommentsView(commentsController, commentsModel) {
 	}
 	
 	this.addCommentWidget = function(commentXMLNode) {
+		var _this = this;
 		var commentWidget = null;
-		if(this._commentsModel.mode === FormMode.VIEW) {
-			var date = new Date(parseInt(commentXMLNode.attributes["date"].value) * 1000);
-			var userId = commentXMLNode.attributes["person"].value;
-			var value = "";
-			if(commentXMLNode.firstChild !== null) {
-				value = commentXMLNode.firstChild.nodeValue;
-			}
-			
-			commentWidget = FormUtil.getFieldForLabelWithText(date + " " + userId, value, null);
-		} else {
-			
+		
+		var dateValue = commentXMLNode.attributes["date"].value;
+		var date = new Date(parseInt(dateValue) * 1000);
+		var userId = commentXMLNode.attributes["person"].value;
+		var value = "";
+		if(commentXMLNode.firstChild !== null) {
+			value = commentXMLNode.firstChild.nodeValue;
 		}
+		
+		var $buttonDelete = null;
+		if(this._commentsModel.mode !== FormMode.VIEW) {
+			$buttonDelete = $("<a>", {"class" : "btn btn-default"});
+			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
+		}
+		
+		commentWidget = FormUtil.getFieldForLabelWithText(date + " " + userId, value, null, $buttonDelete);
+		
+		if(this._commentsModel.mode !== FormMode.VIEW) {
+			$buttonDelete.click(function() {
+				_this._commentsController.deleteComment(dateValue);
+				commentWidget.remove();
+			});
+		}
+		
 		this.commentsContainer.append(commentWidget);
 	}
 	

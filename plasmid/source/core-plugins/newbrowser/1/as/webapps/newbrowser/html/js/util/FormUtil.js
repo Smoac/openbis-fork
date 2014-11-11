@@ -273,13 +273,16 @@ var FormUtil = new function() {
 		return $fieldset;
 	}
 	
-	this.getFieldForLabelWithText = function(label, text, id) {
+	this.getFieldForLabelWithText = function(label, text, id, preLabel) {
 		var $fieldset = $('<div>');
 		
 		var $controlGroup = $('<div>', {class : 'form-group'});
 		var $controlLabel = $('<label>', {class : 'control-label ' + this.labelColumnClass}).text(label + ":");
 		var $controls = $('<div>', {class : 'controls ' + this.controlColumnClass });
-			
+		
+		if(preLabel) {
+			$controlGroup.append(preLabel);
+		}
 		$controlGroup.append($controlLabel);
 		$controlGroup.append($controls);
 		$fieldset.append($controlGroup);
