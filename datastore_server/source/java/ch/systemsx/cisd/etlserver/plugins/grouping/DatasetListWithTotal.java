@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping;
+package ch.systemsx.cisd.etlserver.plugins.grouping;
 
 import java.util.ArrayList;
 import java.util.List;

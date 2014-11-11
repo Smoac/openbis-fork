@@ -1,10 +1,10 @@
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping;
+package ch.systemsx.cisd.etlserver.plugins.grouping;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.TreeNode;
+import ch.systemsx.cisd.etlserver.plugins.grouping.TreeNode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 public class Grouper<TKey, TVal extends TreeNode> extends HashMap<TKey, TVal> implements TreeNode

@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
+package ch.systemsx.cisd.etlserver.plugins;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
+import ch.systemsx.cisd.etlserver.plugins.ByExpermientPolicy;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProviderTestWrapper;

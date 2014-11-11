@@ -1,4 +1,4 @@
-package ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver;
+package ch.systemsx.cisd.etlserver.plugins;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,12 +12,12 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.DataSetTypeGroup;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.DatasetListWithTotal;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.ExperimentGroup;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.Grouper;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.ProjectGroup;
-import ch.systemsx.cisd.openbis.dss.generic.server.plugins.standard.archiver.grouping.TreeNode;
+import ch.systemsx.cisd.etlserver.plugins.grouping.DataSetTypeGroup;
+import ch.systemsx.cisd.etlserver.plugins.grouping.DatasetListWithTotal;
+import ch.systemsx.cisd.etlserver.plugins.grouping.ExperimentGroup;
+import ch.systemsx.cisd.etlserver.plugins.grouping.Grouper;
+import ch.systemsx.cisd.etlserver.plugins.grouping.ProjectGroup;
+import ch.systemsx.cisd.etlserver.plugins.grouping.TreeNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
