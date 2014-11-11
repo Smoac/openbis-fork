@@ -1,11 +1,10 @@
 package ch.systemsx.cisd.etlserver.plugins.grouping;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
-public class DatasetListWithTotal extends ArrayList<AbstractExternalData> implements TreeNode
+public class DatasetListWithTotal extends ArrayList<AbstractExternalData> implements Comparable<DatasetListWithTotal>
 {
     private static final long serialVersionUID = 7158139354538463051L;
 
@@ -18,21 +17,19 @@ public class DatasetListWithTotal extends ArrayList<AbstractExternalData> implem
         return super.add(e);
     }
 
-    @Override
     public long getCumulatedSize()
     {
         return dataSize;
     }
 
-    @Override
     public void addSize(long addon)
     {
         this.dataSize += addon;
     }
 
     @Override
-    public List<AbstractExternalData> collectSubTree()
+    public int compareTo(DatasetListWithTotal arg0)
     {
-        return this;
+        return Long.signum(dataSize - arg0.dataSize);
     }
 }

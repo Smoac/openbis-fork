@@ -8,7 +8,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria
 
 /**
  * Finds data sets that are possible candidates for archiving The implementing class must have a constructor accepting single parameter of type
- * {@link java.util.Properties}
+ * {@link ch.systemsx.cisd.common.properties.PropertyParametersUtil.SectionProperties}
  * 
  * @author Sascha Fedorenko
  */
