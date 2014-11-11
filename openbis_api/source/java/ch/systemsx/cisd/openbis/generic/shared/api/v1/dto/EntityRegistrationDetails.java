@@ -63,6 +63,8 @@ public class EntityRegistrationDetails implements Serializable
 
         private Date modificationDate;
 
+        private Date accessTimestamp;
+
         public String getFirstName()
         {
             return firstName;
@@ -162,6 +164,17 @@ public class EntityRegistrationDetails implements Serializable
         {
             this.modifierUserId = modifierUserId;
         }
+
+        public Date getAccessTimestamp()
+        {
+            return accessTimestamp;
+        }
+
+        public void setAccessTimestamp(Date accessTimestamp)
+        {
+            this.accessTimestamp = accessTimestamp;
+        }
+
     }
 
     private String userFirstName;
@@ -184,6 +197,8 @@ public class EntityRegistrationDetails implements Serializable
 
     private Date modificationDate;
 
+    private Date accessTimestamp;
+
     EntityRegistrationDetails()
     {
 
@@ -201,6 +216,7 @@ public class EntityRegistrationDetails implements Serializable
         this.modifierUserId = initializer.getModifierUserId();
         this.registrationDate = initializer.getRegistrationDate();
         this.modificationDate = initializer.getModificationDate();
+        this.accessTimestamp = initializer.getAccessTimestamp();
     }
 
     public String getUserFirstName()
@@ -251,6 +267,11 @@ public class EntityRegistrationDetails implements Serializable
     public String getModifierUserId()
     {
         return modifierUserId;
+    }
+
+    public Date getAccessTimestamp()
+    {
+        return accessTimestamp;
     }
 
     @Override
@@ -341,4 +362,10 @@ public class EntityRegistrationDetails implements Serializable
     {
         this.modifierUserId = modifierUserId;
     }
+
+    void setAccessTimestamp(Date accessTimestamp)
+    {
+        this.accessTimestamp = accessTimestamp;
+    }
+
 }
