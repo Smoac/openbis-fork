@@ -2,11 +2,11 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
@@ -101,17 +101,13 @@ public class ByExpermientPolicy implements IAutoArchiverPolicy
 
     private void sortBySamples(DatasetListWithTotal datasets)
     {
-        Collections.sort(datasets, new Comparator<AbstractExternalData>()
+        Collections.sort(datasets, new SimpleComparator<AbstractExternalData, String>()
             {
-
                 @Override
-                public int compare(AbstractExternalData arg0, AbstractExternalData arg1)
+                public String evaluate(AbstractExternalData data)
                 {
-                    String sid1 = arg0.getSampleIdentifier();
-                    sid1 = sid1 == null ? "" : sid1;
-                    String sid2 = arg1.getSampleIdentifier();
-                    sid2 = sid2 == null ? "" : sid2;
-                    return sid1.compareTo(sid2);
+                    String sid1 = data.getSampleIdentifier();
+                    return sid1 == null ? "" : sid1;
                 }
             });
     }
