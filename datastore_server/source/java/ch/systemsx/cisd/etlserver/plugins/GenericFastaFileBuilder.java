@@ -30,14 +30,13 @@ import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.fasta.FastaUtilities;
 import ch.systemsx.cisd.common.fasta.SequenceType;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
-import ch.systemsx.cisd.common.string.Template;
 
 /**
  * Helper class to create temporary FASTA files.
  *
  * @author Franz-Josef Elmer
  */
-class FastaFileBuilder
+class GenericFastaFileBuilder
 {
     private static final class FastaEntry
     {
@@ -70,61 +69,48 @@ class FastaFileBuilder
         }
     }
     
-    private enum EntryType { FASTA, FASTQ }
+    enum EntryType { FASTA, FASTQ }
     
-    private static final Template ID_EXTENSION_TEMPLATE = new Template("[Data set: ${data_set}, File: ${file}]");
-    
-    private final String dataSetCode;
     private final File tempFolder;
-    
+    private final String baseName;
     private final Map<SequenceType, PrintWriter> writers = new HashMap<SequenceType, PrintWriter>();
-    private String idExtension;
-    private FastaEntry currentFastaEntry;
 
+    private FastaEntry currentFastaEntry;
+    
     private EntryType currentEntryType;
 
-    FastaFileBuilder(File tempFolder, String dataSetCode)
+    GenericFastaFileBuilder(File tempFolder, String baseName)
     {
         this.tempFolder = tempFolder;
-        this.dataSetCode = dataSetCode;
+        this.baseName = baseName;
     }
     
-    void setFilePath(String filePath)
+    void appendToSequence(String line)
+    {
+        if (currentFastaEntry == null)
+        {
+            throw new IllegalStateException(createErrorMessageForUndefinedEntry(line));
+        }
+        if (currentFastaEntry.getSeqType() == null)
+        {
+            currentFastaEntry.setSeqType(FastaUtilities.determineSequenceType(line));
+            currentFastaEntry.appendSeq(line);
+        } else if (currentEntryType == EntryType.FASTA)
+        {
+            currentFastaEntry.appendSeq(line);
+        }
+    }
+
+    String createErrorMessageForUndefinedEntry(String line)
+    {
+        return "Unspecified entry";
+    }
+
+    void startEntry(EntryType entryType, String id)
     {
         writeFastaEntry();
-        Template template = ID_EXTENSION_TEMPLATE.createFreshCopy();
-        template.bind("data_set", dataSetCode);
-        template.bind("file", filePath);
-        idExtension = template.createText();
-    }
-    
-    void handle(String line)
-    {
-        EntryType entryType = tryToGetEntryType(line);
-        if (entryType != null)
-        {
-            writeFastaEntry();
-            if (idExtension == null)
-            {
-                throw new IllegalStateException("File path not set [Data Set: " + dataSetCode + "].");
-            }
-            currentFastaEntry = new FastaEntry(line.substring(1) + " " + idExtension);
-            currentEntryType = entryType;
-        } else
-        {
-            if (currentFastaEntry == null)
-            {
-                throw new IllegalStateException("Invalid line " + idExtension + ". Line with identifier expected: " + line);
-            }
-            if (currentFastaEntry.getSeqType() == null)
-            {
-                currentFastaEntry.setSeqType(FastaUtilities.determineSequenceType(line));
-                currentFastaEntry.appendSeq(line);
-            } else if (currentEntryType == EntryType.FASTA)
-            {
-                currentFastaEntry.appendSeq(line);
-            }
-        }
+        currentFastaEntry = new FastaEntry(id);
+        currentEntryType = entryType;
     }
     
     void finish()
@@ -133,6 +119,19 @@ class FastaFileBuilder
         for (PrintWriter printWriter : writers.values())
         {
             printWriter.close();
+        }
+    }
+    
+    void cleanUp()
+    {
+        SequenceType[] values = SequenceType.values();
+        for (SequenceType sequenceType : values)
+        {
+            File file = getTemporaryFastaFileOrNull(sequenceType);
+            if (file != null)
+            {
+                FileUtilities.delete(file);
+            }
         }
     }
     
@@ -151,20 +150,7 @@ class FastaFileBuilder
         return writers.containsKey(seqType) ? getFastaFile(seqType) : null;
     }
     
-    void cleanUp()
-    {
-        SequenceType[] values = SequenceType.values();
-        for (SequenceType sequenceType : values)
-        {
-            File file = getTemporaryFastaFileOrNull(sequenceType);
-            if (file != null)
-            {
-                FileUtilities.delete(file);
-            }
-        }
-    }
-    
-    private void writeFastaEntry()
+    void writeFastaEntry()
     {
         if (currentFastaEntry == null)
         {
@@ -205,12 +191,7 @@ class FastaFileBuilder
 
     private File getFastaFile(SequenceType seqType)
     {
-        return new File(tempFolder, dataSetCode + "-" + seqType.toString().toLowerCase() + ".fa");
-    }
-    
-    private EntryType tryToGetEntryType(String line)
-    {
-        return line.startsWith(">") ? EntryType.FASTA : (line.startsWith("@") ? EntryType.FASTQ : null);
+        return new File(tempFolder, baseName + "-" + seqType.toString().toLowerCase() + ".fa");
     }
     
 }

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -59,8 +60,15 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
@@ -75,6 +83,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     static final String BLAST_TEMP_FOLDER_PROPERTY = "blast-temp-folder";
     static final String LAST_SEEN_DATA_SET_FILE_PROPERTY = "last-seen-data-set-file";
     static final String FILE_TYPES_PROPERTY = "file-types";
+    static final String ENTITY_SEQUENCE_PROPERTIES_PROPERTY = "entity-sequence-properties";
     
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set-for-BLAST-database-creation";
     private static final String DEFAULT_FILE_TYPES = ".fasta .fa .fsa .fastq";
@@ -91,6 +100,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     private File tmpFolder;
     private String makeblastdb;
     private String makembindex;
+    private List<Loader> loaders;
 
     @Override
     public void setUp(String pluginName, Properties properties)
@@ -111,6 +121,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         fileTypes = Arrays.asList(properties.getProperty(FILE_TYPES_PROPERTY, DEFAULT_FILE_TYPES).split(" +"));
         operationLog.info("File types: " + fileTypes);
         lastSeenDataSetFile = getFile(properties, LAST_SEEN_DATA_SET_FILE_PROPERTY, DEFAULT_LAST_SEEN_DATA_SET_FILE);
+        loaders = createLoaders(properties);
         setUpBlastDatabasesFolder(properties);
         setUpBlastTempFolder(properties);
         String blastToolDirectory = BlastUtils.getBLASTToolDirectory(properties);
@@ -124,7 +135,32 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         makembindex = blastToolDirectory + "makembindex";
         
     }
-
+    
+    private List<Loader> createLoaders(Properties properties)
+    {
+        String property = properties.getProperty(ENTITY_SEQUENCE_PROPERTIES_PROPERTY);
+        if (property == null)
+        {
+            return Collections.emptyList();
+        }
+        List<Loader> result = new ArrayList<Loader>();
+        String[] definitions = property.split("[, ] *");
+        for (int i = 0; i < definitions.length; i++)
+        {
+            String definition = definitions[i];
+            try
+            {
+                result.add(new Loader(definition));
+            } catch (Exception ex)
+            {
+                throw new ConfigurationFailureException((i + 1) + " definition (" 
+                        + definition + ") in property '" + ENTITY_SEQUENCE_PROPERTIES_PROPERTY 
+                        + "' is invalid: " + ex.getMessage());
+            }
+        }
+        return result;
+    }
+    
     private void setUpBlastDatabasesFolder(Properties properties)
     {
         blastDatabasesFolder = BlastUtils.getBlastDatabaseFolder(properties, getConfigProvider().getStoreRoot());
@@ -186,6 +222,22 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         IEncapsulatedOpenBISService service = getOpenBISService();
         Map<SequenceType, VirtualDatabase> virtualDatabases = loadVirtualDatabases(service);
         
+        createBlastDatabasesForDataSets(service, virtualDatabases);
+        createBlastDatabasesForEntities(service, virtualDatabases);
+    }
+
+    private void createBlastDatabasesForEntities(IEncapsulatedOpenBISService service, 
+            Map<SequenceType, VirtualDatabase> virtualDatabases)
+    {
+        for (Loader loader : loaders)
+        {
+            List<Sequence> sequences = loader.load(service);
+        }
+    }
+    
+    private void createBlastDatabasesForDataSets(IEncapsulatedOpenBISService service, 
+            Map<SequenceType, VirtualDatabase> virtualDatabases)
+    {
         IHierarchicalContentProvider contentProvider = getContentProvider();
         List<AbstractExternalData> dataSets = getDataSets(service);
         if (dataSets.isEmpty() == false)
@@ -251,7 +303,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             IHierarchicalContentProvider contentProvider)
     {
         String dataSetCode = dataSet.getCode();
-        FastaFileBuilder builder = new FastaFileBuilder(tmpFolder, dataSetCode);
+        FastaFileBuilderForDataSetFiles builder = new FastaFileBuilderForDataSetFiles(tmpFolder, dataSetCode);
         IHierarchicalContent content = contentProvider.asContent(dataSet);
         IHierarchicalContentNode rootNode = content.getRootNode();
         handle(rootNode, builder);
@@ -306,7 +358,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         return processResult.isOK();
     }
     
-    private void handle(IHierarchicalContentNode node, FastaFileBuilder builder)
+    private void handle(IHierarchicalContentNode node, FastaFileBuilderForDataSetFiles builder)
     {
         if (node.isDirectory())
         {
@@ -328,7 +380,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
     }
 
-    private void appendTo(FastaFileBuilder builder, IHierarchicalContentNode node)
+    private void appendTo(FastaFileBuilderForDataSetFiles builder, IHierarchicalContentNode node)
     {
         InputStream inputStream = node.getInputStream();
         BufferedReader bufferedReader = null;
@@ -412,6 +464,120 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     IHierarchicalContentProvider getContentProvider()
     {
         return ServiceProvider.getHierarchicalContentProvider();
+    }
+    
+    private static final class Loader
+    {
+        private final String entityKind;
+        private final EntityLoader entityLoader;
+        private final String entityType;
+        private final String propertyType;
+
+        Loader(String definition)
+        {
+            String[] items = definition.split(":");
+            if (items.length != 3)
+            {
+                throw new IllegalArgumentException("Definition not on form <entity kind>:<entity type>:<property type>");
+            }
+            entityKind = items[0];
+            entityLoader = EntityLoader.valueOf(entityKind);
+            this.entityType = items[1];
+            this.propertyType = items[2];
+        }
+        
+        List<Sequence> load(IEncapsulatedOpenBISService service)
+        {
+            List<Sequence> list = new ArrayList<Sequence>();
+            for (IEntityInformationHolderWithProperties entity : entityLoader.listEntities(service, entityType))
+            {
+                List<IEntityProperty> properties = entity.getProperties();
+                for (IEntityProperty property : properties)
+                {
+                    if (property.getPropertyType().getCode().equals(propertyType))
+                    {
+                        String sequence = property.tryGetAsString();
+                        if (sequence != null)
+                        {
+                            list.add(new Sequence(entity, propertyType, sequence));
+                        }
+                        break;
+                    }
+                }
+            }
+            return list;
+        }
+    }
+    
+    private static final class Sequence
+    {
+        private final EntityKind entityKind;
+        private final String permId;
+        private final Date modificationDate;
+        private final String propertyType;
+        private final String sequence;
+
+        Sequence(IEntityInformationHolderWithProperties entity, String propertyType, String sequence)
+        {
+            this.propertyType = propertyType;
+            this.sequence = sequence;
+            entityKind = entity.getEntityKind();
+            permId = entity.getPermId();
+            if (entity instanceof CodeWithRegistrationAndModificationDate)
+            {
+                modificationDate = ((CodeWithRegistrationAndModificationDate) entity).getModificationDate();
+            } else
+            {
+                modificationDate = null;
+            }
+        }
+
+        EntityKind getEntityKind()
+        {
+            return entityKind;
+        }
+
+        String getPermId()
+        {
+            return permId;
+        }
+
+        Date getModificationDate()
+        {
+            return modificationDate;
+        }
+
+        String getPropertyType()
+        {
+            return propertyType;
+        }
+
+        String getSequence()
+        {
+            return sequence;
+        }
+        
+    }
+   
+    private static enum EntityLoader
+    {
+        SAMPLE()
+        {
+            @Override
+            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service,
+                    String entityTypeCode)
+            {
+                ListSampleCriteria criteria = new ListSampleCriteria();
+                SampleType sampleType = new SampleType();
+                sampleType.setCode(entityTypeCode);
+                criteria.setSampleType(sampleType);
+                return service.listSamples(criteria);
+            }
+        };
+
+        abstract List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
+                String entityTypeCode);
+
     }
 
     private static class VirtualDatabase
