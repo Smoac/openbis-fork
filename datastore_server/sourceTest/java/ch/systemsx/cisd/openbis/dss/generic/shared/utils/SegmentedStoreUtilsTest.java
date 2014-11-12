@@ -215,6 +215,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         SimpleDataSetInformationDTO ds0 = dataSet(0, 19 * FileUtils.ONE_GB, ARCHIVED);
         SimpleDataSetInformationDTO ds1 = dataSet(1, 10 * FileUtils.ONE_GB, AVAILABLE);
         SimpleDataSetInformationDTO ds2 = dataSet(2, 10 * FileUtils.ONE_GB, AVAILABLE);
+        SimpleDataSetInformationDTO ds35 = dataSet(35, 12 * FileUtils.ONE_GB, AVAILABLE, false);
         SimpleDataSetInformationDTO ds3 = dataSet(3, 12 * FileUtils.ONE_GB, AVAILABLE);
         SimpleDataSetInformationDTO ds4 = dataSet(4, 11 * FileUtils.ONE_GB, AVAILABLE);
         SimpleDataSetInformationDTO ds5 = dataSet(5, 14 * FileUtils.ONE_GB, AVAILABLE);
@@ -222,6 +223,7 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
         share.setUnarchivingScratchShare(true);
         share.addDataSet(ds0);
         share.addDataSet(ds5);
+        share.addDataSet(ds35);
         share.addDataSet(ds3);
         share.addDataSet(ds1);
         RecordingMatcher<HostAwareFile> recordingFileMatcher = prepareFreeSpace(12 * FileUtils.ONE_GB, 24 * FileUtils.ONE_GB);
@@ -846,11 +848,17 @@ public class SegmentedStoreUtilsTest extends AbstractFileSystemTestCase
 
     private SimpleDataSetInformationDTO dataSet(int id, long size, DataSetArchivingStatus status)
     {
+        return dataSet(id, size, status, true);
+    }
+
+    private SimpleDataSetInformationDTO dataSet(int id, long size, DataSetArchivingStatus status, boolean presentInArchive)
+    {
         File dsFile = new File(shareFolder, "abc/ds-" + id);
         dsFile.mkdirs();
         FileUtilities.writeToFile(new File(dsFile, "read.me"), id + " nice works!");
         SimpleDataSetInformationDTO dataSet = dataSet(dsFile, DATA_STORE_CODE, size);
         dataSet.setStatus(status);
+        dataSet.setPresentInArchive(presentInArchive);
         return dataSet;
     }
 
