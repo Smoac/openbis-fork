@@ -5,6 +5,7 @@ import systemtest.testcase
 import systemtest.util as util
 
 import hashlib
+import inspect
 import os
 import os.path
 import tarfile
@@ -15,8 +16,20 @@ DATASET_MAPPING_DB = 'multi_dataset_archive'
 class TestCase(systemtest.testcase.TestCase):
 
     def execute(self):
+        openbisController = self.setUpAndStartOpenbis()
+        self.registerOneDataSetAndWaitOnNothingArchived(openbisController)
+        self.registerSecondDataSetAndWaitForArchiving(openbisController)
+        self.registerThreeDataSetsAndCheckArchivingWithExperimentPolicyOnProjectLevel(openbisController)
+        self.unarchiveOneDataSetFromAContainerWithTwoDataSets(openbisController)
+
+    def executeInDevMode(self):
+#        openbisController = self.createOpenbisController()
+        openbisController = self.createOpenbisController(dropDatabases=False)
+
+    def setUpAndStartOpenbis(self):
+        util.printWhoAmI()
         self.installOpenbis()
-        openbisController = self.createOpenbisController(databasesToDrop = ['openbis', 'pathinfo', DATASET_MAPPING_DB])
+        openbisController = self.createOpenbisController(databasesToDrop=['openbis', 'pathinfo', DATASET_MAPPING_DB])
         os.makedirs("%s/data/archive/tmp" % openbisController.installPath)
         os.makedirs("%s/data/archive/stage" % openbisController.installPath)
         os.makedirs("%s/data/archive/final" % openbisController.installPath)
@@ -25,59 +38,54 @@ class TestCase(systemtest.testcase.TestCase):
                              {'unarchiving-scratch-share':'true'})
         openbisController.createTestDatabase("openbis")
         openbisController.allUp()
-        
+        return openbisController
+    
+    def registerOneDataSetAndWaitOnNothingArchived(self, openbisController):
+        util.printWhoAmI()
         self.dropExampleAndWait(openbisController, 'T1', '/S1/P1-1/E111')
         self.waitForAutoArchiverToDoNothing(openbisController)
         data_set_codes = self.getDataSetCodes(openbisController)
-        for data_set_code in data_set_codes:
-            self.checkStatusAndDatabase(openbisController, data_set_code, 'AVAILABLE', 'f', '1')
+        self.checkStatusAndDatabase(openbisController, data_set_codes, 'AVAILABLE', 'f', '1')
         self.triggerArchiving(openbisController, data_set_codes)
         self.waitForAutoArchiverToDoNothing(openbisController)
-        
+
+    def registerSecondDataSetAndWaitForArchiving(self, openbisController):
+        util.printWhoAmI()
         self.dropExampleAndWait(openbisController, 'T1', '/S1/P1-1/E111')
         self.waitForAutoArchiverToDoNothing(openbisController)
         self.triggerArchiving(openbisController, self.getDataSetCodes(openbisController))
         self.waitForArchiving(openbisController)
-        
         data_set_codes = self.getDataSetCodes(openbisController)
-        for data_set_code in data_set_codes:
-            self.checkStatusAndDatabase(openbisController, data_set_code, 'ARCHIVED', 't', '1')
+        self.checkStatusAndDatabase(openbisController, data_set_codes, 'ARCHIVED', 't', '1')
         self.assertDataSetsAreArchivedInSameContainer(openbisController, data_set_codes)
-        
 
-#        self.archive(openbisController, data_set_codes)
-    
-#         data_set_codes = self.getDataSetCodes(openbisController)
-#         for data_set_code in data_set_codes:
-#             self.checkStatusAndDatabase(openbisController, data_set_code, 'ARCHIVED', 't', '1')
-        
-    def executeInDevMode(self):
-#        openbisController = self.createOpenbisController()
-        openbisController = self.createOpenbisController(dropDatabases=False)
+    def registerThreeDataSetsAndCheckArchivingWithExperimentPolicyOnProjectLevel(self, openbisController):
+        util.printWhoAmI()
         self.dropExample(openbisController, 'T2', '/S1/P1-1/E112')
         self.dropExample(openbisController, 'T1', '/S1/P2-1/E122')
         self.dropExample(openbisController, 'T2', '/S1/P2-1/E121')
-        openbisController.waitUntilDataSetRegistrationFinished(numberOfDataSets = 3)
+        openbisController.waitUntilDataSetRegistrationFinished(numberOfDataSets=3)
         self.waitForAutoArchiverToDoNothing(openbisController)
         self.triggerArchiving(openbisController, self.getDataSetCodes(openbisController))
         self.waitForArchiving(openbisController)
-        
+        data_set_codes = self.getDataSetCodesByExperiments(openbisController, ['E112'])
+        self.checkStatusAndDatabase(openbisController, data_set_codes, 'AVAILABLE', 'f', '1')
+        data_set_codes = self.getDataSetCodesByExperiments(openbisController, ['E121', 'E122'])
+        self.checkStatusAndDatabase(openbisController, data_set_codes, 'ARCHIVED', 't', '1')
+        self.assertDataSetsAreArchivedInSameContainer(openbisController, data_set_codes)
 
-        
-        
-        data_set_codes = self.getDataSetCodes(openbisController)
-        
-#        self.unarchive(openbisController, data_set_codes[1:])
-         
-        for data_set_code in data_set_codes:
-            self.checkStatusAndDatabase(openbisController, data_set_code, 'AVAILABLE', 't', '9')
-            
+    def unarchiveOneDataSetFromAContainerWithTwoDataSets(self, openbisController):
+        util.printWhoAmI()
+        data_set_codes = self.getDataSetCodesByExperiments(openbisController, ['E121', 'E122'])
+        self.unarchive(openbisController, data_set_codes[1:])
+        self.checkStatusAndDatabase(openbisController, data_set_codes, 'AVAILABLE', 't', '9')
+
+
     def triggerArchiving(self, openbisController, data_set_codes):
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 2 * 24 * 60 * 60))
         util.printAndFlush("Set access_timestamp for data sets %s to '%s'" % (data_set_codes, timestamp))
         openbisController.queryDatabase("openbis", ("update data set access_timestamp = '%s' " +
                                         "where code in ('%s')") % (timestamp, "', '".join(data_set_codes)))
-            
 
     def dropExampleAndWait(self, openbisController, dataSetType, identifier):
         self.dropExample(openbisController, dataSetType, identifier)
@@ -116,40 +124,42 @@ class TestCase(systemtest.testcase.TestCase):
                                  "where code in ('%s')" % "', '".join(data_set_codes)))
         self.assertEquals("Number of containers for data sets " % data_set_codes, '1', str(len(resultSet)))
         
-    def checkStatusAndDatabase(self, openbisController, data_set_code, expected_status, 
+    def checkStatusAndDatabase(self, openbisController, data_set_codes, expected_status, 
                                expected_in_archive_flag, expected_share_id):
         example_file = 'data-example/R_inferno.pdf'
         example_file_path = openbisController.dataFile(example_file)
         expected_file_size = str(os.path.getsize(example_file_path))
         expected_md5 = self.calculateMD5(example_file_path)
-        location = self.checkStatusAndGetLocation(openbisController, data_set_code, expected_status, 
-                                                  expected_in_archive_flag, expected_share_id)
-        path_in_store = "%s/data/store/%s/%s" % (openbisController.installPath, expected_share_id, location)
-        if expected_status == 'AVAILABLE':
-            if os.path.exists(path_in_store):
-                util.printAndFlush("Data set %s is in store as expected." % data_set_code)
-                self.assertEquals("MD5 of %s in %s" % (example_file, path_in_store), 
-                                  expected_md5, self.calculateMD5("%s/original/data/%s" % (path_in_store, example_file)))
+        for data_set_code in data_set_codes:
+            location = self.checkStatusAndGetLocation(openbisController, data_set_code, expected_status, 
+                                                      expected_in_archive_flag, expected_share_id)
+            path_in_store = "%s/data/store/%s/%s" % (openbisController.installPath, expected_share_id, location)
+            if expected_status == 'AVAILABLE':
+                if os.path.exists(path_in_store):
+                    util.printAndFlush("Data set %s is in store as expected." % data_set_code)
+                    self.assertEquals("MD5 of %s in %s" % (example_file, path_in_store), 
+                                      expected_md5, 
+                                      self.calculateMD5("%s/original/data/%s" % (path_in_store, example_file)))
+                else:
+                    self.fail("Data set %s is not in store: %s" % (data_set_code, path_in_store))
             else:
-                self.fail("Data set %s is not in store: %s" % (data_set_code, path_in_store))
-        else:
-            if os.path.exists(path_in_store):
-                self.fail("Data set %s still in store: %s" % (data_set_code, path_in_store))
-            else:
-                util.printAndFlush("Data set %s not in store as expected." % data_set_code)
-        if expected_in_archive_flag == 't':
-            resultSet = openbisController.queryDatabase(DATASET_MAPPING_DB, 
-                                ("select path,size_in_bytes " + 
-                                 "from data_sets ds join containers c on ds.ctnr_id = c.id " +
-                                 "where code = '%s'" % data_set_code))
-            self.assertEquals("Number of data sets with code %s found in data set mapping database" % data_set_code, 
-                              "1", str(len(resultSet)))
-            self.assertEquals("File size", expected_file_size, resultSet[0][1])
-            tar_file = "%s/data/archive/final/%s" % (openbisController.installPath, resultSet[0][0])
-            path_in_tar = "%s/original/data/%s" % (data_set_code, example_file)
-            extracted_file = self.extractFromArchive(openbisController, tar_file, path_in_tar)
-            self.assertEquals("MD5 of %s in %s" % (example_file, tar_file), 
-                              expected_md5, self.calculateMD5(extracted_file))
+                if os.path.exists(path_in_store):
+                    self.fail("Data set %s still in store: %s" % (data_set_code, path_in_store))
+                else:
+                    util.printAndFlush("Data set %s not in store as expected." % data_set_code)
+            if expected_in_archive_flag == 't':
+                resultSet = openbisController.queryDatabase(DATASET_MAPPING_DB, 
+                                    ("select path,size_in_bytes " + 
+                                     "from data_sets ds join containers c on ds.ctnr_id = c.id " +
+                                     "where code = '%s'" % data_set_code))
+                self.assertEquals("Number of data sets with code %s found in data set mapping database" % data_set_code, 
+                                  "1", str(len(resultSet)))
+                self.assertEquals("File size", expected_file_size, resultSet[0][1])
+                tar_file = "%s/data/archive/final/%s" % (openbisController.installPath, resultSet[0][0])
+                path_in_tar = "%s/original/data/%s" % (data_set_code, example_file)
+                extracted_file = self.extractFromArchive(openbisController, tar_file, path_in_tar)
+                self.assertEquals("MD5 of %s in %s" % (example_file, tar_file), 
+                                  expected_md5, self.calculateMD5(extracted_file))
         
     def checkStatusAndGetLocation(self, openbisController, data_set_code, expected_status, 
                                   expected_in_archive_flag, expected_share_id):
@@ -198,6 +208,11 @@ class TestCase(systemtest.testcase.TestCase):
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.AutoArchiverTask'))
         monitor.addNotificationCondition(util.RegexCondition('OPERATION.MultiDataSet'))
         monitor.waitUntilEvent(util.RegexCondition('changed status to'))
+        
+    def getDataSetCodesByExperiments(self, openbisController, experiment_codes):
+        codes = set(experiment_codes)
+        return [data_set.code for data_set in openbisController.getDataSets() 
+                if data_set.type.startswith('T') and data_set.experimentCode in codes]
         
     def getDataSetCodes(self, openbisController):
         return [data_set.code for data_set in openbisController.getDataSets() if data_set.type.startswith('T')]

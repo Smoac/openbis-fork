@@ -1,4 +1,5 @@
 import filecmp
+import inspect
 import os
 import os.path
 import re
@@ -8,6 +9,25 @@ import shutil
 import subprocess
 
 USER=os.environ['USER']
+DEFAULT_WHO_AM_I_TEMPLATE="""
+
+/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\
+\\/\\/\/ %s
+/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\
+
+"""
+
+def printWhoAmI(levels = 1, template = DEFAULT_WHO_AM_I_TEMPLATE):
+    """
+    Prints the names of the functions in the caller chain of this function up to the specified number of levels.
+    """
+    stack = inspect.stack()
+    chain = ''
+    for i in range(1, min(levels + 1, len(stack))):
+        stack_entry = stack[i]
+        location = "%s:%s" % (stack_entry[3], stack_entry[2])
+        chain = "%s > %s" % (location, chain) if chain != '' else location
+    printAndFlush(template % chain)
 
 def printAndFlush(data):
     """ 

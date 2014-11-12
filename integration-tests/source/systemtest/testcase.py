@@ -140,6 +140,7 @@ class TestCase(object):
         Prints specified error message and mark test case as failed.
         """
         self.numberOfFailures += 1
+        util.printWhoAmI(levels = 10, template = "ERROR found (caller chain: %s)")
         util.printAndFlush("ERROR causing test failure: %s" % errorMessage)
         
     def installScriptBasedServer(self, templateName, instanceName, 
@@ -522,7 +523,7 @@ class OpenbisController(_Controller):
             child = dataSetsById[child_id]
             parent.children.append(child)
             child.parents.append(parent)
-        util.printAndFlush("All data sets:\nid,dataStore,code,type,location,experiment,parents,children\n")
+        util.printAndFlush("All data sets:\nid,dataStore,code,type,location,status,presentInArchive,parents,children,experiment,producer,productionTimeStamp")
         for dataSet in dataSets:
             util.printAndFlush(dataSet)
         return dataSets 
