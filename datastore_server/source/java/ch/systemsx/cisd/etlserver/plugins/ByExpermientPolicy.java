@@ -16,29 +16,32 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.etlserver.IAutoArchiverPolicy;
 import ch.systemsx.cisd.etlserver.plugins.grouping.DatasetListWithTotal;
-import ch.systemsx.cisd.etlserver.plugins.grouping.GroupByExperimentAndTypeCriteria;
-import ch.systemsx.cisd.etlserver.plugins.grouping.GroupByProjectCriteria;
-import ch.systemsx.cisd.etlserver.plugins.grouping.GroupCriteria;
+import ch.systemsx.cisd.etlserver.plugins.grouping.ExperimentAndDataSetTypeGroupKeyProvider;
+import ch.systemsx.cisd.etlserver.plugins.grouping.ExperimentGroupKeyProvider;
+import ch.systemsx.cisd.etlserver.plugins.grouping.IGroupKeyProvider;
+import ch.systemsx.cisd.etlserver.plugins.grouping.ProjectGroupKeyProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchiverPolicy
 {
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ByExpermientPolicy.class);
+    
+    private final List<IGroupKeyProvider> criterias;
 
     public ByExpermientPolicy(ExtendedProperties properties)
     {
         super(properties);
+        criterias = new ArrayList<IGroupKeyProvider>();
+        criterias.add(new ExperimentAndDataSetTypeGroupKeyProvider());
+        criterias.add(new ExperimentGroupKeyProvider());
+        criterias.add(new ProjectGroupKeyProvider());
     }
 
     @Override
     public List<AbstractExternalData> filter(List<AbstractExternalData> dataSets)
     {
-        List<GroupCriteria> criterias = new ArrayList<GroupCriteria>();
-        criterias.add(new GroupByExperimentAndTypeCriteria());
-        criterias.add(new GroupByProjectCriteria());
-
-        for (GroupCriteria criteria : criterias)
+        for (IGroupKeyProvider criteria : criterias)
         {
             Collection<DatasetListWithTotal> result = applyCriteria(dataSets, criteria);
             if (result.size() > 0)
@@ -62,13 +65,13 @@ public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchi
         return Collections.emptyList();
     }
 
-    private Collection<DatasetListWithTotal> applyCriteria(List<AbstractExternalData> dataSets, GroupCriteria criteria)
+    private Collection<DatasetListWithTotal> applyCriteria(List<AbstractExternalData> dataSets, IGroupKeyProvider criteria)
     {
         Map<String, DatasetListWithTotal> result = new HashMap<String, DatasetListWithTotal>();
 
         for (AbstractExternalData ds : dataSets)
         {
-            String key = criteria.group(ds);
+            String key = criteria.getGroupKey(ds);
 
             DatasetListWithTotal list = result.get(key);
 

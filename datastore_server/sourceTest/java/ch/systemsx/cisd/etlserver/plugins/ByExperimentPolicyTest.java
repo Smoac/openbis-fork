@@ -1,6 +1,7 @@
 package ch.systemsx.cisd.etlserver.plugins;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,9 +75,9 @@ public class ByExperimentPolicyTest extends AssertJUnit
     public void testNothingFoundForNoInputAndNoConfig()
     {
         ExtendedProperties properties = new ExtendedProperties();
-        ByExpermientPolicy sut = new ByExpermientPolicy(properties);
+        ByExpermientPolicy policy = new ByExpermientPolicy(properties);
 
-        List<AbstractExternalData> filtered = sut.filter(new ArrayList<AbstractExternalData>());
+        List<AbstractExternalData> filtered = policy.filter(new ArrayList<AbstractExternalData>());
 
         assertEquals(0, filtered.size());
 
@@ -97,7 +98,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
             if (project == null)
             {
                 project = new Project();
-                project.setCode(projectCode);
+                project.setIdentifier(projectCode);
 
                 projects.put(projectCode, project);
             }
@@ -106,7 +107,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
             if (exp == null)
             {
                 exp = new Experiment();
-                exp.setCode(experimentCode);
+                exp.setIdentifier(project.getIdentifier() + "/" + experimentCode);
                 exp.setProject(project);
                 experiments.put(experimentCode, exp);
             }
@@ -134,14 +135,12 @@ public class ByExperimentPolicyTest extends AssertJUnit
     public void testDatasetSizeIsPatched()
     {
         ExtendedProperties properties = new ExtendedProperties();
-        ByExpermientPolicy sut = new ByExpermientPolicy(properties);
-
-        ExecutionContext ctx = new ExecutionContext();
+        ByExpermientPolicy policy = new ByExpermientPolicy(properties);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("p1", "234", "t1", "dsNoSize", null));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
         assertEquals(1, filtered.size());
         assertEquals(42, filtered.get(0).getSize().longValue());
@@ -156,16 +155,16 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "14");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "100");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds1", 2L));
         dataSets.add(ctx.createDataset("p1", "e2", "dt2", "ds2", 8L));
         dataSets.add(ctx.createDataset("p1", "e3", "dt3", "ds3", 13L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(3, filtered.size());
+        assertEquals("[ds1, ds2, ds3]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -177,16 +176,16 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "6");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "10");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds1", 7L));
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds2", 8L));
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds3", 9L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(1, filtered.size());
+        assertEquals("[ds1]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -198,7 +197,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "500");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "1000");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds1", 7L));
@@ -206,9 +205,9 @@ public class ByExperimentPolicyTest extends AssertJUnit
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds3", 9L));
         dataSets.add(ctx.createDataset("p1", "e2", "dt1", "ds4", 9L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(0, filtered.size());
+        assertEquals("[]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -220,7 +219,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "10");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "1000");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds1", 7L));
@@ -228,9 +227,9 @@ public class ByExperimentPolicyTest extends AssertJUnit
         dataSets.add(ctx.createDataset("p1", "e1", "dt2", "ds3", 9L));
         dataSets.add(ctx.createDataset("p1", "e2", "dt1", "ds4", 9L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(2, filtered.size());
+        assertEquals("[ds1, ds2]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -242,7 +241,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "6");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "1000");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
 
@@ -251,13 +250,13 @@ public class ByExperimentPolicyTest extends AssertJUnit
         dataSets.add(ctx.createDataset("p1", "e1", "dt2", "ds3", 19L));
         dataSets.add(ctx.createDataset("p1", "e2", "dt1", "ds4", 19L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(2, filtered.size());
+        assertEquals("[ds1, ds2]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
-
+    
     @Test
     public void testSameExperimentIsGroupedSmalls()
     {
@@ -265,7 +264,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "10");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "1000");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
         dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds1", 7L));
@@ -274,9 +273,9 @@ public class ByExperimentPolicyTest extends AssertJUnit
         dataSets.add(ctx.createDataset("p1", "e2", "dt4", "ds4", 9L));
         dataSets.add(ctx.createDataset("p2", "e3", "dt1", "ds5", 9L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(4, filtered.size());
+        assertEquals("[ds1, ds2, ds3]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -288,7 +287,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "10");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "1000");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
 
@@ -298,9 +297,9 @@ public class ByExperimentPolicyTest extends AssertJUnit
         dataSets.add(ctx.createDataset("p1", "e2", "dt4", "ds4", 19L));
         dataSets.add(ctx.createDataset("p2", "e3", "dt1", "ds5", 19L));
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
-        assertEquals(1, filtered.size());
+        assertEquals("[ds3]", extractCodes(filtered).toString());
 
         context.assertIsSatisfied();
     }
@@ -312,7 +311,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "20");
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "45");
 
-        ByExpermientPolicy sut = new ByExpermientPolicy(props);
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
 
         ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
 
@@ -343,7 +342,7 @@ public class ByExperimentPolicyTest extends AssertJUnit
         dataSets.add(ds = ctx.createDataset("p1", "e1", "dt1", "ds5", 10L));
         ds.setSample(s1);
 
-        List<AbstractExternalData> filtered = sut.filter(dataSets);
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
 
         assertEquals(4, filtered.size());
         for (AbstractExternalData dsTest : filtered)
@@ -353,4 +352,16 @@ public class ByExperimentPolicyTest extends AssertJUnit
 
         context.assertIsSatisfied();
     }
+    
+    private List<String> extractCodes(List<AbstractExternalData> dataSets)
+    {
+        List<String> codes = new ArrayList<String>();
+        for (AbstractExternalData dataSet : dataSets)
+        {
+            codes.add(dataSet.getCode());
+        }
+        Collections.sort(codes);
+        return codes;
+    }
+
 }

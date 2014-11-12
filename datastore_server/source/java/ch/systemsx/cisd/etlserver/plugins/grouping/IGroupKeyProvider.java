@@ -2,7 +2,7 @@ package ch.systemsx.cisd.etlserver.plugins.grouping;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
-public interface GroupCriteria
+public interface IGroupKeyProvider
 {
-    String group(AbstractExternalData dataset);
+    String getGroupKey(AbstractExternalData dataset);
 }
