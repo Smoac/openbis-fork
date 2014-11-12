@@ -29,7 +29,7 @@ function CommentsController(sample, mode) {
 		for(var i = 0; i < comments.length; i++) {
 			var commentNode = comments[i];
 			var commentTimes = commentNode.attributes["date"].value;
-			if(commentTimes === commentTimestampToDelete) {
+			if(commentTimes === ""+commentTimestampToDelete) {
 				commentNode.parentNode.removeChild(commentNode);
 			}
 		}
