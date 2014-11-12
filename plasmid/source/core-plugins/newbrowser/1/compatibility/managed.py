@@ -1,6 +1,9 @@
 from ch.systemsx.cisd.openbis.generic.server import CommonServiceProvider
 
-# Configuration
+##
+## Configuration
+##
+
 # This needs to be edited for each sample type to match the Profile.js ANNOTATION_PROPERTIES map.
 configuration = {}
 configuration["MEDIA"] = {
@@ -139,7 +142,7 @@ def isValid(dataType, value):
     print "isValid"
     return True
 ##
-## Help Methods
+## Main Methods
 ##
 def configureUI():
     annotableType = None
@@ -202,3 +205,41 @@ def updateFromUI(action):
             elements.pop(rowId) 
     
     property.value = converter.convertToString(elements)
+
+##
+## Batch Import Methods
+##
+def batchColumnNames():
+    annotableType = None
+    allTypes = []
+    for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
+        allTypes.append(sampleTypeCode)
+    return allTypes
+
+def updateFromBatchInput(bindings):
+    annotableType = None
+    elements = []
+    for annotableSampleType in getAllAnnotableSampleTypesForType(annotableType):
+        annotatedSamples = bindings.get(annotableSampleType)
+        if annotatedSamples != None and annotatedSamples != "":
+            for sampleLine in annotatedSamples.splitlines():
+                foundCode = False
+                foundPermId = False
+                propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
+                sampleLink = None
+                for sampleProperty in sampleLine.split(","):
+                    propertyName = sampleProperty.split(":")[0]
+                    propertyValue = sampleProperty.split(":")[1]
+                    if propertyName == "permId":
+                        foundPermId = True
+                        sampleLink = elementFactory().createSampleLink(propertyValue)
+                    elif propertyName == "code":
+                        foundCode = True
+                        sampleLink.addAttribute(propertyName, propertyValue)
+                    elif propertyTypes[propertyName] != None:
+                        sampleLink.addAttribute(propertyName, propertyValue)
+                    else:
+                        raise NameError('Found invalid property: ' + propertyName + " on type " + annotableSampleType)
+                if foundPermId and foundCode:
+                    elements.append(sampleLink)
+    property.value = propertyConverter().convertToString(elements)
