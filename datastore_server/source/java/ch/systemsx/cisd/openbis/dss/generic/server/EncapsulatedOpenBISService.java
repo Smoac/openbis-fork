@@ -83,6 +83,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -1026,6 +1027,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         AttachmentWithContent attachment =
                 service.getAttachment(session.getSessionToken(), attachmentHolderKind, attachmentHolderId, fileName, versionOrNull);
         return attachment != null ? new ByteArrayInputStream(attachment.getContent()) : null;
+    }
+
+    @Override
+    public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(final IMetaprojectId metaprojectId)
+    {
+        return service.listNotArchivedDatasetsWithMetaproject(session.getSessionToken(), metaprojectId);
     }
 
 }

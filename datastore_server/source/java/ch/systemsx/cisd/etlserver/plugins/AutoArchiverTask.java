@@ -127,7 +127,7 @@ public class AutoArchiverTask implements IMaintenanceTask
         String className = discoverySectionProperties.getProperties().getProperty(CLASS_PROPERTY_NAME);
         if (className == null)
         {
-            return new AgeArchiveCandidateDiscoverer(discoverySectionProperties);
+            return new AgeArchiveCandidateDiscoverer(discoverySectionProperties.getProperties());
         }
 
         return createInstance(discoverySectionProperties, className, IArchiveCandidateDiscoverer.class);
