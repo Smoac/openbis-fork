@@ -66,6 +66,7 @@ public class SimpleDataSetHelper
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());
         result.setStatus(data.getStatus());
+        result.setPresentInArchive(data.isPresentInArchive());
         result.setDataSetSize(data.getSize());
         result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace().getInstance()
                 .getCode());

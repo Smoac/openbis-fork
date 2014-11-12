@@ -44,6 +44,8 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     
     private DataSetArchivingStatus status;
 
+    private boolean isPresentInArchive;
+
     private Date registrationTimestamp;
     
     private Date modificationTimestamp;
@@ -141,6 +143,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setStatus(DataSetArchivingStatus status)
     {
         this.status = status;
+    }
+
+    public boolean isPresentInArchive()
+    {
+        return isPresentInArchive;
+    }
+
+    public void setPresentInArchive(boolean isPresentInArchive)
+    {
+        this.isPresentInArchive = isPresentInArchive;
     }
 
     public Date getRegistrationTimestamp()
