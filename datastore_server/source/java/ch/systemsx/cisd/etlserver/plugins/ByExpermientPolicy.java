@@ -27,23 +27,23 @@ public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchi
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, ByExpermientPolicy.class);
     
-    private final List<IGroupKeyProvider> criterias;
+    private final List<IGroupKeyProvider> providers;
 
     public ByExpermientPolicy(ExtendedProperties properties)
     {
         super(properties);
-        criterias = new ArrayList<IGroupKeyProvider>();
-        criterias.add(new ExperimentAndDataSetTypeGroupKeyProvider());
-        criterias.add(new ExperimentGroupKeyProvider());
-        criterias.add(new ProjectGroupKeyProvider());
+        providers = new ArrayList<IGroupKeyProvider>();
+        providers.add(new ExperimentAndDataSetTypeGroupKeyProvider());
+        providers.add(new ExperimentGroupKeyProvider());
+        providers.add(new ProjectGroupKeyProvider());
     }
 
     @Override
     public List<AbstractExternalData> filter(List<AbstractExternalData> dataSets)
     {
-        for (IGroupKeyProvider criteria : criterias)
+        for (IGroupKeyProvider provider : providers)
         {
-            Collection<DatasetListWithTotal> result = applyCriteria(dataSets, criteria);
+            Collection<DatasetListWithTotal> result = applyCriteria(dataSets, provider);
             if (result.size() > 0)
             {
                 TreeSet<DatasetListWithTotal> sorted = new TreeSet<DatasetListWithTotal>(result);
@@ -65,13 +65,13 @@ public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchi
         return Collections.emptyList();
     }
 
-    private Collection<DatasetListWithTotal> applyCriteria(List<AbstractExternalData> dataSets, IGroupKeyProvider criteria)
+    private Collection<DatasetListWithTotal> applyCriteria(List<AbstractExternalData> dataSets, IGroupKeyProvider provider)
     {
         Map<String, DatasetListWithTotal> result = new HashMap<String, DatasetListWithTotal>();
 
         for (AbstractExternalData ds : dataSets)
         {
-            String key = criteria.getGroupKey(ds);
+            String key = provider.getGroupKey(ds);
 
             DatasetListWithTotal list = result.get(key);
 
