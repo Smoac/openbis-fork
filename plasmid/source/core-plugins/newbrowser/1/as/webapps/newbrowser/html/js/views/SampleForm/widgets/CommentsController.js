@@ -45,6 +45,9 @@ function CommentsController(sample, mode) {
 		
 		//Update Model
 		var commentsXML = this._commentsModel.getComments();
+		if(commentsXML.indexOf("<root>") === -1) {
+			commentsXML = "<root></root>";
+		}
 		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
 		var newCommentNode = xmlDoc.createElement("commentEntry");
 		newCommentNode.setAttribute("date", timestamp);

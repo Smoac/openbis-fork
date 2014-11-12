@@ -237,6 +237,19 @@ var Util = new function() {
 	}
 	
 	//
+	// Date Formating
+	//
+	this.getFormatedDate = function(date) {
+		var day = date.getDate();
+		var month = date.getMonth();
+		var year = date.getFullYear();
+		var hour = date.getHours();
+		var minute = date.getMinutes();
+		
+		return day + "/" + month + "/" + year + " " + hour + ":" + minute;
+	}
+	
+	//
 	// Other
 	//
 	this.getMapAsString = function(map, length) {

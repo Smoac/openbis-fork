@@ -23,6 +23,7 @@ function CommentsView(commentsController, commentsModel) {
 	this.repaint = function($container) {
 		$container.empty();
 		$container.append(this.commentsContainer);
+		this.commentsContainer.append($("<legend>").text("Comments Log"));
 		$container.append(this.commentsAddButton);
 		var commentsXML = this._commentsModel.getComments();
 		var xmlDoc = new DOMParser().parseFromString(commentsXML, 'text/xml');
@@ -51,8 +52,13 @@ function CommentsView(commentsController, commentsModel) {
 			$buttonDelete = $("<a>", {"class" : "btn btn-default"});
 			$buttonDelete.append($("<span>", { "class" : "glyphicon glyphicon-minus-sign"}));
 		}
-		var date = new Date(parseInt(dateValue) * 1000);
-		var commentWidget = FormUtil.getFieldForLabelWithText(date + " " + userId, value, null, $buttonDelete);
+		var date = Util.getFormatedDate(new Date(parseInt(dateValue) * 1000));
+		var commentWidget = FormUtil.getFieldForLabelWithText(date + " (" + userId + ")", value, null, $buttonDelete, 
+				{ 
+					"background-color" : "lightblue",
+					"padding-left" : "18px",
+					"border-radius" : "4px"
+				});
 		
 		if(this._commentsModel.mode !== FormMode.VIEW) {
 			$buttonDelete.click(function() {
