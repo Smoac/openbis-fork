@@ -4349,7 +4349,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
             throw new UserFailureException("Fetch options cannot be null");
         }
 
-        Metaproject metaproject = getMetaproject(session, metaprojectId, user);
+        Metaproject metaproject = getMetaproject(session, metaprojectId, user, true);
 
         MetaprojectAssignmentsHelper helper =
                 new MetaprojectAssignmentsHelper(getDAOFactory(), managedPropertyEvaluatorFactory);
@@ -4491,7 +4491,20 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
         return getMetaproject(session, metaprojectId, session.tryGetPerson());
     }
 
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public Metaproject getMetaprojectInGodMode(String sessionToken, IMetaprojectId metaprojectId)
+    {
+        Session session = getSession(sessionToken);
+        return getMetaproject(session, metaprojectId, session.tryGetPerson(), false);
+    }
+
     private Metaproject getMetaproject(Session session, IMetaprojectId metaprojectId, PersonPE user)
+    {
+        return getMetaproject(session, metaprojectId, user, true);
+    }
+
+    private Metaproject getMetaproject(Session session, IMetaprojectId metaprojectId, PersonPE user, boolean checkAccess)
     {
         if (metaprojectId == null)
         {
@@ -4507,9 +4520,12 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
                     + " doesn't exist");
         }
 
-        AuthorizationServiceUtils authorizationUtils =
-                new AuthorizationServiceUtils(getDAOFactory(), user);
-        authorizationUtils.checkAccessMetaproject(metaprojectPE);
+        if (checkAccess)
+        {
+            AuthorizationServiceUtils authorizationUtils =
+                    new AuthorizationServiceUtils(getDAOFactory(), user);
+            authorizationUtils.checkAccessMetaproject(metaprojectPE);
+        }
         return MetaprojectTranslator.translate(metaprojectPE);
     }
 

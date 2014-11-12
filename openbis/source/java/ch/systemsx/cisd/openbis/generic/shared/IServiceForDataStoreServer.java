@@ -69,6 +69,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetShareId;
@@ -852,5 +853,11 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public AttachmentWithContent getAttachment(String sessionToken, AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId,
             String fileName,
             Integer versionOrNull);
+
+    /**
+     * Returns list of not archived data sets marked with a tag
+     */
+    @Transactional(readOnly = true)
+    public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
 }

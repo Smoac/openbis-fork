@@ -71,6 +71,13 @@ public interface IDatasetListingQuery extends BaseQuery, IPropertyListingQuery
             + " JOIN metaproject_assignments ma ON data.id=ma.data_id WHERE ma.mepr_id = ?{1}")
     public DataIterator<DatasetRecord> getDatasetsForMetaproject(long metaprojectId);
 
+    /**
+     * Returns the datasets for the given metaproject id and archival state.
+     */
+    @Select(sql = SELECT_ALL
+            + " JOIN metaproject_assignments ma ON data.id=ma.data_id WHERE ma.mepr_id = ?{1} AND external_data.present_in_archive = ?{2}")
+    public DataIterator<DatasetRecord> getDatasetsForMetaprojectAndArchivalState(long metaprojectId, boolean isArchived);
+
     @Select(sql = "with recursive connected_data as ( "
             + "select * from data as d left outer join external_data as ed on d.id = ed.data_id left outer join link_data as ld on d.id = ld.data_id "
             + "where expe_id = ?{1} "

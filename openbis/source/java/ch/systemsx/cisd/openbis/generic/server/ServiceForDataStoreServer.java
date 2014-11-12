@@ -177,6 +177,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.VocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AtomicEntityOperationResult;
@@ -294,6 +295,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     private IManagedPropertyEvaluatorFactory managedPropertyEvaluatorFactory;
     
     private long timeout = 5; // minutes 
+
 
     public ServiceForDataStoreServer(IAuthenticationService authenticationService,
             IOpenBisSessionManager sessionManager, IDAOFactory daoFactory,
@@ -3089,5 +3091,15 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
         try {
             this.timeout = Long.parseLong(timeout);
         } catch (Exception e) {}
+    }
+
+    @Override
+    @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
+    public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(String sessionToken, final IMetaprojectId metaprojectId)
+    {
+        final Session session = getSession(sessionToken);
+        final IDatasetLister datasetLister = createDatasetLister(session);
+        final Metaproject metaproject = CommonServiceProvider.getCommonServer().getMetaprojectInGodMode(sessionToken, metaprojectId);
+        return datasetLister.listByMetaprojectIdAndArchivalState(metaproject.getId(), false);
     }    
 }

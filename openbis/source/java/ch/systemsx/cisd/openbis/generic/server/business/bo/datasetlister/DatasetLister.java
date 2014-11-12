@@ -1456,4 +1456,12 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         return result;
     }
 
+    @Override
+    public List<AbstractExternalData> listByMetaprojectIdAndArchivalState(Long metaprojectId, boolean isArchived)
+    {
+        DataIterator<DatasetRecord> dataSets =
+                query.getDatasetsForMetaprojectAndArchivalState(metaprojectId, isArchived);
+        return enrichDatasets(dataSets);
+    }
+
 }
