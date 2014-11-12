@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -46,8 +45,7 @@ public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchi
             Collection<DatasetListWithTotal> result = applyCriteria(dataSets, provider);
             if (result.size() > 0)
             {
-                TreeSet<DatasetListWithTotal> sorted = new TreeSet<DatasetListWithTotal>(result);
-                DatasetListWithTotal best = sorted.last();
+                DatasetListWithTotal best = Collections.max(result);
                 long size = best.getCumulatedSize();
                 if (size > minArchiveSize)
                 {
