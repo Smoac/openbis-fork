@@ -227,7 +227,7 @@ def updateFromBatchInput(bindings):
                 foundPermId = False
                 propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
                 sampleLink = None
-                for sampleProperty in sampleLine.split(","):
+                for sampleProperty in sampleLine.split(";"):
                     propertyName = sampleProperty.split(":")[0]
                     propertyValue = sampleProperty.split(":")[1]
                     if propertyName == "permId":
