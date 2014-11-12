@@ -108,7 +108,6 @@ public class ByExperimentPolicyTest extends AssertJUnit
             {
                 exp = new Experiment();
                 exp.setIdentifier(project.getIdentifier() + "/" + experimentCode);
-                exp.setProject(project);
                 experiments.put(experimentCode, exp);
             }
 
@@ -169,6 +168,27 @@ public class ByExperimentPolicyTest extends AssertJUnit
         context.assertIsSatisfied();
     }
 
+    @Test
+    public void test()
+    {
+        ExtendedProperties props = new ExtendedProperties();
+        props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "15");
+        props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "25");
+        
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
+        
+        ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+        dataSets.add(ctx.createDataset("p1-1", "e112", "t2", "ds1", 10L));
+        dataSets.add(ctx.createDataset("p2-1", "e122", "t1", "ds2", 10L));
+        dataSets.add(ctx.createDataset("p2-1", "e121", "t2", "ds3", 10L));
+        
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
+        
+        assertEquals("[ds2, ds3]", extractCodes(filtered).toString());
+        
+        context.assertIsSatisfied();
+    }
+    
     @Test
     public void testSubsetIsReturnedIfDatasetsAreTooBig()
     {
