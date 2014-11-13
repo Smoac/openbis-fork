@@ -334,50 +334,6 @@ public class GeneralInformationChangingService extends
         server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
     }
     
-    static class DeletionInfo {
-        private final Long id;
-        private final int totalSamplesCount;
-        private final int totalDatasetsCount;
-        private final int totalExperimentsCount;
-        private final String reason;
-        
-        public DeletionInfo(Long id, int totalSamplesCount, int totalDatasetsCount, int totalExperimentsCount, String reason)
-        {
-            super();
-            this.id = id;
-            this.totalSamplesCount = totalSamplesCount;
-            this.totalDatasetsCount = totalDatasetsCount;
-            this.totalExperimentsCount = totalExperimentsCount;
-            this.reason = reason;
-        }
-        
-        public int getTotalSamplesCount()
-        {
-            return totalSamplesCount;
-        }
-        
-        public int getTotalDatasetsCount()
-        {
-            return totalDatasetsCount;
-        }
-        
-        public int getTotalExperimentsCount()
-        {
-            return totalExperimentsCount;
-        }
-        
-        public String getReason()
-        {
-            return reason;
-        }
-        
-        public Long getId()
-        {
-            return id;
-        }
-        
-    }
-    
     @Override
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> listOriginalDeletions(String sessionToken) {
         List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> infos = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion>();
