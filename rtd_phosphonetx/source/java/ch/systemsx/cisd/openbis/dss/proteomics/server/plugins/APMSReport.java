@@ -518,6 +518,7 @@ public class APMSReport extends AbstractTableModelReportingPlugin implements IPr
     private File getProteinFile(DatasetDescription datasetDescription,
             IDataSetDirectoryProvider directoryProvider)
     {
+        @SuppressWarnings("deprecation")
         File dataSetDir = getDataSubDir(directoryProvider, datasetDescription);
         if (dataSetDir.isDirectory() == false)
         {
