@@ -18,16 +18,24 @@ package ch.systemsx.cisd.openbis.generic.client.web.server;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.HttpSessionRequiredException;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import ch.rinn.restrictions.Private;
 import ch.systemsx.cisd.openbis.generic.client.web.client.ICommonClientService;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.GenericConstants;
+import ch.systemsx.cisd.openbis.generic.client.web.server.UploadServiceServlet.ISessionFilesSetter;
+import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
+import ch.systemsx.cisd.openbis.generic.server.SessionConstants;
+import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchOperationKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 
 /**
  * Serves the template files for entity batch registration.
@@ -38,13 +46,68 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 @RequestMapping(
     { "/template-download", "/openbis/template-download" })
 public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
-{
+{   
+    
     @Resource(name = ResourceNames.COMMON_SERVICE)
     private ICommonClientService service;
 
+    @Resource(name = ComponentNames.SESSION_MANAGER)
+    protected IOpenBisSessionManager sessionManager;
+    
+    @Private
+    FileTemplateServiceServlet()
+    {
+        setSynchronizeOnSession(true);
+        setRequireSession(false); // To allow upload a file for usage from an API given a session token we will manage an alternative session validation programatically.
+    }
+    
+    protected Session getSession(final String sessionToken)
+    {
+        assert sessionToken != null : "Unspecified session token";
+        return sessionManager.getSession(sessionToken);
+    }
+    
+    protected HttpSession getSession(final HttpServletRequest request) {
+        // We must have a session reaching this point. See the constructor where we set
+        HttpSession session = request.getSession(false);
+        String sessionToken = request.getParameter("sessionID");
+
+        // If no session is found, the user from an API have a chance to give the sessionID
+        if (session == null && sessionToken != null && !sessionToken.isEmpty())
+        {
+            Session sessionFromToken = getSession(sessionToken);
+            if (sessionFromToken != null)
+            {
+                session = request.getSession();
+                session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
+            }
+        }
+        
+        // Corner Case - Same session is been used with a different API Token, update the session token since is the same browser.
+        if (session != null && sessionToken != null && !sessionToken.isEmpty())
+        {
+            String tokenBeingUsed = (String) session.getAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY);
+            if (!sessionToken.equals(tokenBeingUsed))
+            {
+                Session sessionFromToken = getSession(sessionToken);
+                if (sessionFromToken != null)
+                {
+                    session.setAttribute(SessionConstants.OPENBIS_SESSION_TOKEN_ATTRIBUTE_KEY, sessionFromToken.getSessionToken());
+                }
+            }
+        }
+        return session;
+    }
+    
     @Override
     protected FileContent getFileContent(final HttpServletRequest request) throws Exception
     {
+        // Throw Exception if no session was found or created from API token
+        if (getSession(request) == null)
+        {
+            throw new HttpSessionRequiredException("Pre-existing session required but none found");
+        }
+        
         final String kind = request.getParameter(GenericConstants.ENTITY_KIND_KEY_PARAMETER);
         final String type = request.getParameter(GenericConstants.ENTITY_TYPE_KEY_PARAMETER);
         final String autoGenerate = request.getParameter(GenericConstants.AUTO_GENERATE);
