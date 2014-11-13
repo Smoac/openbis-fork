@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -44,17 +45,19 @@ public class SampleUpdate implements Serializable
 
     private FieldUpdateValue<ISpaceId> spaceId = new FieldUpdateValue<ISpaceId>();
 
-    private ListUpdateValue<ITagId> tagIds = new ListUpdateValue<ITagId>();
+    private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
 
     private Map<String, String> properties = new HashMap<String, String>();
 
     private FieldUpdateValue<ISampleId> containerId = new FieldUpdateValue<ISampleId>();
 
-    private ListUpdateValue<ISampleId> containedIds = new ListUpdateValue<ISampleId>();
+    private IdListUpdateValue<ISampleId> containedIds = new IdListUpdateValue<ISampleId>();
 
-    private ListUpdateValue<ISampleId> parentIds = new ListUpdateValue<ISampleId>();
+    private IdListUpdateValue<ISampleId> parentIds = new IdListUpdateValue<ISampleId>();
 
-    private ListUpdateValue<ISampleId> childIds = new ListUpdateValue<ISampleId>();
+    private IdListUpdateValue<ISampleId> childIds = new IdListUpdateValue<ISampleId>();
+
+    private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
 
     public ISampleId getSampleId()
     {
@@ -106,7 +109,7 @@ public class SampleUpdate implements Serializable
         return properties;
     }
 
-    public ListUpdateValue<ITagId> getTagIds()
+    public IdListUpdateValue<ITagId> getTagIds()
     {
         return tagIds;
     }
@@ -116,7 +119,7 @@ public class SampleUpdate implements Serializable
         tagIds.setActions(actions);
     }
 
-    public ListUpdateValue<ISampleId> getContainedIds()
+    public IdListUpdateValue<ISampleId> getContainedIds()
     {
         return containedIds;
     }
@@ -126,7 +129,7 @@ public class SampleUpdate implements Serializable
         containedIds.setActions(actions);
     }
 
-    public ListUpdateValue<ISampleId> getParentIds()
+    public IdListUpdateValue<ISampleId> getParentIds()
     {
         return parentIds;
     }
@@ -136,7 +139,7 @@ public class SampleUpdate implements Serializable
         parentIds.setActions(actions);
     }
 
-    public ListUpdateValue<ISampleId> getChildIds()
+    public IdListUpdateValue<ISampleId> getChildIds()
     {
         return childIds;
     }
@@ -144,6 +147,16 @@ public class SampleUpdate implements Serializable
     public void setChildActions(List<ListUpdateAction<ISampleId>> actions)
     {
         childIds.setActions(actions);
+    }
+
+    public AttachmentListUpdateValue getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachmentsActions(List<ListUpdateAction<Object>> actions)
+    {
+        attachments.setActions(actions);
     }
 
 }

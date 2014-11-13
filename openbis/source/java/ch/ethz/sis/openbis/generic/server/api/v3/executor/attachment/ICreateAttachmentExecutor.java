@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
-import java.util.List;
+import java.util.Collection;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
@@ -29,6 +29,6 @@ public interface ICreateAttachmentExecutor
 {
 
     public void create(IOperationContext context, AttachmentHolderPE attachmentHolder,
-            List<AttachmentCreation> attachments);
+            Collection<AttachmentCreation> attachments);
 
 }

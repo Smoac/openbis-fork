@@ -9,7 +9,6 @@ import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 
@@ -49,16 +48,6 @@ public class AbstractSampleTest extends AbstractTest
         }
 
         assertCollectionContainsOnly(actualSet, expectedIdentifiers);
-    }
-
-    protected static void assertTags(Collection<Tag> tags, String... expectedTagCodes)
-    {
-        Set<String> tagCodes = new HashSet<String>();
-        for (Tag tag : tags)
-        {
-            tagCodes.add(tag.getCode());
-        }
-        assertCollectionContainsOnly(tagCodes, expectedTagCodes);
     }
 
 }

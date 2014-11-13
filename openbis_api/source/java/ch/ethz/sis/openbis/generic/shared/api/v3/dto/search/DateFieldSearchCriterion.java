@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
@@ -28,9 +29,9 @@ public class DateFieldSearchCriterion extends AbstractFieldSearchCriterion<IDate
 
     private static final long serialVersionUID = 1L;
 
-    private ITimeZone timeZone = new ServerTimeZone();
+    private static final IDateFormat[] DATE_FORMATS = new IDateFormat[] { new ShortDateFormat(), new NormalDateFormat(), new LongDateFormat() };
 
-    private IDateFormat dateFormat = new NormalDateFormat();
+    private ITimeZone timeZone = new ServerTimeZone();
 
     DateFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
     {
@@ -79,35 +80,6 @@ public class DateFieldSearchCriterion extends AbstractFieldSearchCriterion<IDate
         return this;
     }
 
-    public DateFieldSearchCriterion withShortFormat()
-    {
-        this.dateFormat = new ShortDateFormat();
-        return this;
-    }
-
-    public DateFieldSearchCriterion withNormalFormat()
-    {
-        this.dateFormat = new NormalDateFormat();
-        return this;
-    }
-
-    public DateFieldSearchCriterion withLongFormat()
-    {
-        this.dateFormat = new LongDateFormat();
-        return this;
-    }
-
-    public void setDateFormat(IDateFormat dateFormat)
-    {
-        checkValueFormat(getFieldValue(), dateFormat);
-        this.dateFormat = dateFormat;
-    }
-
-    public IDateFormat getDateFormat()
-    {
-        return dateFormat;
-    }
-
     public void setTimeZone(ITimeZone timeZone)
     {
         this.timeZone = timeZone;
@@ -121,23 +93,30 @@ public class DateFieldSearchCriterion extends AbstractFieldSearchCriterion<IDate
     @Override
     public void setFieldValue(IDate value)
     {
-        checkValueFormat(value, getDateFormat());
+        checkValueFormat(value);
         super.setFieldValue(value);
     }
 
-    private static void checkValueFormat(IDate value, IDateFormat format)
+    private static void checkValueFormat(IDate value)
     {
         if (value instanceof AbstractDateValue)
         {
-            try
+            for (IDateFormat dateFormat : DATE_FORMATS)
             {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format.getFormat());
-                simpleDateFormat.setLenient(false);
-                simpleDateFormat.parse(((AbstractDateValue) value).getValue());
-            } catch (ParseException e)
-            {
-                throw new IllegalArgumentException("Date value: " + value + " does not match the format: " + format);
+                try
+                {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat.getFormat());
+                    simpleDateFormat.setLenient(false);
+                    simpleDateFormat.parse(((AbstractDateValue) value).getValue());
+                    return;
+                } catch (ParseException e)
+                {
+                    // do nothing
+                }
             }
+
+            throw new IllegalArgumentException("Date value: " + value + " does not match any of the supported formats: "
+                    + Arrays.toString(DATE_FORMATS));
         }
     }
 

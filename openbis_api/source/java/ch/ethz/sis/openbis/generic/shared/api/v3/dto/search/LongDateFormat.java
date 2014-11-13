@@ -30,5 +30,11 @@ public class LongDateFormat implements IDateFormat
     {
         return "y-M-d HH:mm:ss";
     }
+    
+    @Override
+    public String toString()
+    {
+        return getFormat();
+    }
 
 }

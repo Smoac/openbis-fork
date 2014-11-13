@@ -26,7 +26,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
@@ -44,7 +44,7 @@ public class UpdateSampleContainedExecutor extends AbstractUpdateSampleRelatedSa
     private IRelationshipService relationshipService;
 
     @Override
-    protected ListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update)
+    protected IdListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update)
     {
         return update.getContainedIds();
     }

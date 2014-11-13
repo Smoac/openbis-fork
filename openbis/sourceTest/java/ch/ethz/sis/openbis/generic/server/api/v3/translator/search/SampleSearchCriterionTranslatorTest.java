@@ -50,8 +50,8 @@ public class SampleSearchCriterionTranslatorTest extends AbstractSearchCriterion
 
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withOrOperator();
-        criterion.withStringProperty("PROPERTY").thatEquals("testValue");
-        criterion.withStringProperty("PROPERTY_2").thatEquals("testValue_2");
+        criterion.withProperty("PROPERTY").thatEquals("testValue");
+        criterion.withProperty("PROPERTY_2").thatEquals("testValue_2");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -66,8 +66,8 @@ public class SampleSearchCriterionTranslatorTest extends AbstractSearchCriterion
 
         SampleSearchCriterion criterion = new SampleSearchCriterion();
         criterion.withAndOperator();
-        criterion.withStringProperty("PROPERTY").thatEquals("testValue");
-        criterion.withStringProperty("PROPERTY_2").thatEquals("testValue_2");
+        criterion.withProperty("PROPERTY").thatEquals("testValue");
+        criterion.withProperty("PROPERTY_2").thatEquals("testValue_2");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -203,7 +203,7 @@ public class SampleSearchCriterionTranslatorTest extends AbstractSearchCriterion
                 "0"));
 
         SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withRegistrationDate().withShortFormat().thatEquals("2014-04-07");
+        criterion.withRegistrationDate().thatEquals("2014-04-07");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -216,7 +216,7 @@ public class SampleSearchCriterionTranslatorTest extends AbstractSearchCriterion
                 "0"));
 
         SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withModificationDate().withShortFormat().thatEquals("2014-04-07");
+        criterion.withModificationDate().thatEquals("2014-04-07");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -228,7 +228,7 @@ public class SampleSearchCriterionTranslatorTest extends AbstractSearchCriterion
         criteria.addMatchClause(MatchClause.createPropertyMatch("PROPERTY", "testValue"));
 
         SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withStringProperty("PROPERTY").thatEquals("testValue");
+        criterion.withProperty("PROPERTY").thatEquals("testValue");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -275,7 +275,7 @@ public class SampleSearchCriterionTranslatorTest extends AbstractSearchCriterion
         SampleSearchCriterion sampleCriterion = new SampleSearchCriterion();
         sampleCriterion.withAndOperator();
         sampleCriterion.withType().withCode().thatEquals("sampleType");
-        sampleCriterion.withStringProperty("PROPERTY").thatEquals("sampleValue");
+        sampleCriterion.withProperty("PROPERTY").thatEquals("sampleValue");
 
         ExperimentSearchCriterion experimentCriterion = sampleCriterion.withExperiment();
         experimentCriterion.withCode().thatEquals("experimentCode");

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
@@ -40,9 +40,9 @@ public class GetTagCodeExecutor implements IGetTagCodeExecutor
     @Override
     public String getTagCode(IOperationContext context, ITagId tagId)
     {
-        if (tagId instanceof TagCodeId)
+        if (tagId instanceof TagCode)
         {
-            return ((TagCodeId) tagId).getCode();
+            return ((TagCode) tagId).getCode();
         }
         if (tagId instanceof TagPermId)
         {

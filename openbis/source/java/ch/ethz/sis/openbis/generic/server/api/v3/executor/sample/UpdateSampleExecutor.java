@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.IUpdateAttachmentForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
@@ -70,28 +71,13 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
 
     @Autowired
+    private IUpdateAttachmentForEntityExecutor updateAttachmentForEntityExecutor;
+
+    @Autowired
     private IVerifySampleExecutor verifySampleExecutor;
 
-    @SuppressWarnings("unused")
     private UpdateSampleExecutor()
     {
-    }
-
-    public UpdateSampleExecutor(IDAOFactory daoFactory, IMapSampleByIdExecutor mapSampleByIdExecutor,
-            IUpdateSampleSpaceExecutor updateSampleSpaceExecutor,
-            IUpdateSampleExperimentExecutor updateSampleExperimentExecutor, IUpdateSampleRelatedSamplesExecutor updateSampleRelatedSamplesExecutor,
-            IUpdateEntityPropertyExecutor updateEntityPropertyExecutor, IUpdateTagForEntityExecutor updateTagForEntityExecutor,
-            IVerifySampleExecutor verifySampleExecutor)
-    {
-        super();
-        this.daoFactory = daoFactory;
-        this.mapSampleByIdExecutor = mapSampleByIdExecutor;
-        this.updateSampleSpaceExecutor = updateSampleSpaceExecutor;
-        this.updateSampleExperimentExecutor = updateSampleExperimentExecutor;
-        this.updateSampleRelatedSamplesExecutor = updateSampleRelatedSamplesExecutor;
-        this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
-        this.updateTagForEntityExecutor = updateTagForEntityExecutor;
-        this.verifySampleExecutor = verifySampleExecutor;
     }
 
     @Override
@@ -153,6 +139,7 @@ public class UpdateSampleExecutor implements IUpdateSampleExecutor
         RelationshipUtils.updateModificationDateAndModifier(sample, context.getSession().tryGetPerson());
         daoFactory.getSampleDAO().createOrUpdateSample(sample, context.getSession().tryGetPerson());
         updateTagForEntityExecutor.update(context, sample, update.getTagIds());
+        updateAttachmentForEntityExecutor.update(context, sample, update.getAttachments());
 
         context.popContextDescription();
     }

@@ -32,7 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SampleIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 
@@ -384,7 +384,7 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithTagWithIdSetToCodeId()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withTag().withId().thatEquals(new TagCodeId("TEST_METAPROJECTS"));
+        criterion.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
         testSearch(TEST_USER, criterion, "/TEST-SPACE/EV-TEST");
     }
 
@@ -416,7 +416,7 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithRegistrationDateThatEquals()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withRegistrationDate().withShortFormat().thatEquals("2009-02-09");
+        criterion.withRegistrationDate().thatEquals("2009-02-09");
         testSearch(TEST_USER, criterion, 15);
     }
 
@@ -424,7 +424,7 @@ public class SearchSampleTest extends AbstractSampleTest
     public void testSearchWithModificationDateThatEquals()
     {
         SampleSearchCriterion criterion = new SampleSearchCriterion();
-        criterion.withModificationDate().withShortFormat().thatEquals("2009-08-18");
+        criterion.withModificationDate().thatEquals("2009-08-18");
         testSearch(TEST_USER, criterion, 14);
     }
 

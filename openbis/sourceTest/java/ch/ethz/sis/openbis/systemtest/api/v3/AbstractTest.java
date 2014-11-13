@@ -15,12 +15,18 @@
  */
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
+import static ch.systemsx.cisd.common.test.AssertionUtil.assertCollectionContainsOnly;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -32,9 +38,11 @@ import org.testng.annotations.BeforeMethod;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.ObjectNotFoundException;
@@ -479,6 +487,51 @@ public class AbstractTest extends SystemTestCase
             }
         }
         assertEquals(count, expectedSameObjectCount);
+    }
+
+    protected void assertTags(Collection<Tag> tags, String... expectedTagPermIds)
+    {
+        Set<String> actualPermIds = new HashSet<String>();
+        for (Tag tag : tags)
+        {
+            actualPermIds.add(tag.getPermId().getPermId());
+        }
+        assertCollectionContainsOnly(actualPermIds, expectedTagPermIds);
+    }
+
+    protected Map<String, Attachment> assertAttachments(Collection<Attachment> attachments, AttachmentCreation... expectedAttachments)
+    {
+        if (expectedAttachments == null || expectedAttachments.length == 0)
+        {
+            assertEquals(attachments.size(), 0);
+            return Collections.emptyMap();
+        } else
+        {
+            Map<String, AttachmentCreation> expectedMap = new HashMap<String, AttachmentCreation>();
+            for (AttachmentCreation expected : expectedAttachments)
+            {
+                expectedMap.put(expected.getFileName(), expected);
+            }
+
+            Map<String, Attachment> actualMap = new HashMap<String, Attachment>();
+            for (Attachment actual : attachments)
+            {
+                actualMap.put(actual.getFileName(), actual);
+            }
+
+            AssertionUtil.assertCollectionContainsOnly(actualMap.keySet(), expectedMap.keySet().toArray(new String[] {}));
+
+            for (Attachment actual : attachments)
+            {
+                AttachmentCreation expected = expectedMap.get(actual.getFileName());
+                assertEquals(actual.getFileName(), expected.getFileName());
+                assertEquals(actual.getTitle(), expected.getTitle());
+                assertEquals(actual.getDescription(), expected.getDescription());
+                assertEquals(actual.getContent(), expected.getContent());
+            }
+
+            return actualMap;
+        }
     }
 
 }

@@ -30,7 +30,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.MapTagByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IGetTagCodeExecutor;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IMetaprojectDAO;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -72,7 +72,7 @@ public class MapTagByIdExecutorTest extends AbstractExecutorTest
     {
         final Session session = createSession();
 
-        final ITagId tagId1 = new TagCodeId("TEST_TAG_1");
+        final ITagId tagId1 = new TagCode("TEST_TAG_1");
         final ITagId tagId2 = new TagPermId("/TEST_USER/TEST_TAG_2");
         final ITagId tagId3 = new TagPermId("/OTHER_USER/TEST_TAG_3");
 

@@ -71,19 +71,9 @@ public class AbstractEntitySearchCriterion<ID extends IObjectId> extends Abstrac
         return with(new TagSearchCriterion());
     }
 
-    public StringPropertySearchCriterion withStringProperty(String propertyName)
+    public StringPropertySearchCriterion withProperty(String propertyName)
     {
         return with(new StringPropertySearchCriterion(propertyName));
-    }
-
-    public NumberPropertySearchCriterion withNumberProperty(String propertyName)
-    {
-        return with(new NumberPropertySearchCriterion(propertyName));
-    }
-
-    public VocabularyPropertySearchCriterion withVocabularyProperty(String propertyName)
-    {
-        return with(new VocabularyPropertySearchCriterion(propertyName));
     }
 
     public DatePropertySearchCriterion withDateProperty(String propertyName)

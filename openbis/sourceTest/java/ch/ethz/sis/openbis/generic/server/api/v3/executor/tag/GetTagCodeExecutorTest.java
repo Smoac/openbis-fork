@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.AbstractExecutorTest;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.UnauthorizedObjectAccessException;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -72,7 +72,7 @@ public class GetTagCodeExecutorTest extends AbstractExecutorTest
     @Test
     public void testWithNameId()
     {
-        String code = execute(new TagCodeId("TEST_NAME_ID"));
+        String code = execute(new TagCode("TEST_NAME_ID"));
         Assert.assertEquals("TEST_NAME_ID", code);
     }
 

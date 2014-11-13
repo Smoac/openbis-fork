@@ -10,56 +10,57 @@ import java.util.List;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @JsonObject("ListUpdateValue")
-public class ListUpdateValue<T> implements Serializable
+public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
     @JsonObject("ListUpdateAction")
-    public static class ListUpdateAction<T1> implements Serializable
+    public static class ListUpdateAction<T> implements Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        private Collection<T1> ids;
+        private Collection<T> items;
 
-        public Collection<T1> getIds()
+        public Collection<T> getItems()
         {
-            return ids;
+            return items;
         }
 
-        public void setIds(Collection<T1> ids)
+        public void setItems(Collection<T> items)
         {
-            this.ids = ids;
+            this.items = items;
         }
+
     }
 
-    @JsonObject("AddAction")
-    public static class ListUpdateActionAdd<T1> extends ListUpdateAction<T1>
+    @JsonObject("ListUpdateActionAdd")
+    public static class ListUpdateActionAdd<ADD> extends ListUpdateAction<ADD>
     {
         private static final long serialVersionUID = 1L;
     }
 
-    @JsonObject("RemoveAction")
-    public static class ListUpdateActionRemove<T1> extends ListUpdateAction<T1>
+    @JsonObject("ListUpdateActionRemove")
+    public static class ListUpdateActionRemove<REMOVE> extends ListUpdateAction<REMOVE>
     {
         private static final long serialVersionUID = 1L;
     }
 
-    @JsonObject("SetAction")
-    public static class ListUpdateActionSet<T1> extends ListUpdateAction<T1>
+    @JsonObject("ListUpdateActionSet")
+    public static class ListUpdateActionSet<SET> extends ListUpdateAction<SET>
     {
         private static final long serialVersionUID = 1L;
     }
 
-    private List<ListUpdateAction<T>> listOfActions = new LinkedList<ListUpdateAction<T>>();
+    private List<ListUpdateAction<ACTION>> actions = new LinkedList<ListUpdateAction<ACTION>>();
 
-    public void setActions(List<ListUpdateAction<T>> actions)
+    public void setActions(List<ListUpdateAction<ACTION>> actions)
     {
-        listOfActions = new LinkedList<ListUpdateValue.ListUpdateAction<T>>(actions);
+        this.actions = new LinkedList<ListUpdateAction<ACTION>>(actions);
     }
 
-    public List<ListUpdateAction<T>> getActions()
+    public List<ListUpdateAction<ACTION>> getActions()
     {
-        return listOfActions;
+        return actions;
     }
 
     public boolean hasActions()
@@ -67,31 +68,34 @@ public class ListUpdateValue<T> implements Serializable
         return getActions() != null && getActions().size() > 0;
     }
 
-    public void remove(T... items)
+    @SuppressWarnings("unchecked")
+    public void remove(REMOVE... items)
     {
-        ListUpdateActionRemove<T> action = new ListUpdateActionRemove<T>();
-        action.setIds(Arrays.asList(items));
-        listOfActions.add(action);
+        ListUpdateActionRemove<REMOVE> action = new ListUpdateActionRemove<REMOVE>();
+        action.setItems(Arrays.asList(items));
+        actions.add((ListUpdateAction<ACTION>) action);
     }
 
-    public void add(T... items)
+    @SuppressWarnings("unchecked")
+    public void add(ADD... items)
     {
-        ListUpdateActionAdd<T> action = new ListUpdateActionAdd<T>();
-        action.setIds(Arrays.asList(items));
-        listOfActions.add(action);
+        ListUpdateActionAdd<ADD> action = new ListUpdateActionAdd<ADD>();
+        action.setItems(Arrays.asList(items));
+        actions.add((ListUpdateAction<ACTION>) action);
     }
 
-    public void set(T... items)
+    @SuppressWarnings("unchecked")
+    public void set(SET... items)
     {
-        ListUpdateActionSet<T> action = new ListUpdateActionSet<T>();
+        ListUpdateActionSet<SET> action = new ListUpdateActionSet<SET>();
         if (items == null)
         {
-            action.setIds(Collections.<T> emptyList());
+            action.setItems(Collections.<SET> emptyList());
         } else
         {
-            action.setIds(Arrays.asList(items));
+            action.setItems(Arrays.asList(items));
         }
-        listOfActions.add(action);
+        actions.add((ListUpdateAction<ACTION>) action);
     }
 
 }

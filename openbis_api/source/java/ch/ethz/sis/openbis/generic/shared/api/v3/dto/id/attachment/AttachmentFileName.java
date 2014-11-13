@@ -14,68 +14,67 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment;
 
 import java.io.Serializable;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * Tag code.
+ * Attachment file name.
  * 
- * @author Franz-Josef Elmer
- * @author Jakub Straszewski
+ * @author pkupczyk
  */
-@JsonObject("TagCodeId")
-public class TagCodeId implements ITagId, Serializable
+@JsonObject("AttachmentFileName")
+public class AttachmentFileName implements IAttachmentId, Serializable
 {
 
     private static final long serialVersionUID = 1L;
 
-    private String code;
+    private String fileName;
 
     /**
-     * @param code Tag code, e.g. "MY_TAG".
+     * @param fileName Attachment file name, e.g. "my_file.txt".
      */
-    public TagCodeId(String code)
+    public AttachmentFileName(String fileName)
     {
-        setCode(code);
+        setFileName(fileName);
     }
 
     //
     // JSON-RPC
     //
 
-    public String getCode()
+    public String getFileName()
     {
-        return code;
+        return fileName;
     }
 
     @SuppressWarnings("unused")
-    private TagCodeId()
+    private AttachmentFileName()
     {
         super();
     }
 
-    private void setCode(String code)
+    private void setFileName(String fileName)
     {
-        if (code == null)
+        if (fileName == null)
         {
-            throw new IllegalArgumentException("Code cannot be null");
+            throw new IllegalArgumentException("File name cannot be null");
         }
-        this.code = code;
+        this.fileName = fileName;
     }
 
     @Override
     public String toString()
     {
-        return getCode();
+        return getFileName();
     }
 
     @Override
     public int hashCode()
     {
-        return ((code == null) ? 0 : code.hashCode());
+        return ((getFileName() == null) ? 0 : getFileName().hashCode());
     }
 
     @Override
@@ -93,8 +92,8 @@ public class TagCodeId implements ITagId, Serializable
         {
             return false;
         }
-        TagCodeId other = (TagCodeId) obj;
-        return code == null ? code == other.code : code.equals(other.code);
+        AttachmentFileName other = (AttachmentFileName) obj;
+        return getFileName() == null ? getFileName() == other.getFileName() : getFileName().equals(other.getFileName());
     }
 
 }

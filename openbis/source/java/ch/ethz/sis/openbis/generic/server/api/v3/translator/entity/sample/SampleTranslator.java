@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -72,12 +71,6 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
     @Override
     protected Relations getObjectsRelations(final Collection<SamplePE> samples)
     {
-        Collection<Long> sampleIds = new LinkedList<Long>();
-        for (SamplePE sample : samples)
-        {
-            sampleIds.add(sample.getId());
-        }
-
         Relations relations = new Relations();
 
         if (getFetchOptions().hasExperiment())
@@ -194,7 +187,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         }
     }
 
-    private class SampleExperimentRelation extends ToOneRelation<SamplePE, String, ExperimentPE, Experiment>
+    private class SampleExperimentRelation extends ToOneRelation<SamplePE, ExperimentPE, Experiment>
     {
 
         private Collection<SamplePE> samples;
@@ -225,7 +218,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
 
     }
 
-    private class SampleParentsRelation extends ToManyRelation<SamplePE, String, SamplePE, Sample>
+    private class SampleParentsRelation extends ToManyRelation<SamplePE, SamplePE, Sample>
     {
 
         private Collection<SamplePE> samples;

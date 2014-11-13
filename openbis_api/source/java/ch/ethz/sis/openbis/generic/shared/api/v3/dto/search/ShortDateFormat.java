@@ -31,4 +31,10 @@ public class ShortDateFormat implements IDateFormat
         return "y-M-d";
     }
 
+    @Override
+    public String toString()
+    {
+        return getFormat();
+    }
+
 }

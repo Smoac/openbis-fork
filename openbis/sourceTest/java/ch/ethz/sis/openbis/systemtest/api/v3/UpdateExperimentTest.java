@@ -20,22 +20,22 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.AttachmentFileName;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -45,7 +45,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -340,15 +340,158 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testUpdateWithAttachmentsAddNonexistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentPermId experimentId = createExperimentWithoutAttachments();
+
+        assertAttachments(experimentId);
+
+        AttachmentCreation attachmentCreation = new AttachmentCreation();
+        attachmentCreation.setFileName("test_file");
+        attachmentCreation.setTitle("test_title");
+        attachmentCreation.setDescription("test_description");
+        attachmentCreation.setContent(new String("test_content").getBytes());
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getAttachments().add(attachmentCreation);
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertAttachments(experimentId, attachmentCreation);
+    }
+
+    @Test
+    public void testUpdateWithAttachmentsAddExistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        AttachmentCreation attachmentCreation = new AttachmentCreation();
+        attachmentCreation.setFileName("test_file");
+        attachmentCreation.setTitle("test_title");
+        attachmentCreation.setDescription("test_description");
+        attachmentCreation.setContent(new String("test_content").getBytes());
+
+        ExperimentPermId experimentId = createExperimentWithAttachments(attachmentCreation);
+
+        Map<String, Attachment> attachmentMap = assertAttachments(experimentId, attachmentCreation);
+        Attachment attachment = attachmentMap.get(attachmentCreation.getFileName());
+
+        assertEquals(attachment.getVersion(), Integer.valueOf(1));
+
+        attachmentCreation.setTitle("test_title_2");
+        attachmentCreation.setDescription("test_description_2");
+        attachmentCreation.setContent(new String("test_content_2").getBytes());
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getAttachments().add(attachmentCreation);
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        attachmentMap = assertAttachments(experimentId, attachmentCreation);
+        attachment = attachmentMap.get(attachmentCreation.getFileName());
+
+        assertEquals(attachment.getVersion(), Integer.valueOf(2));
+    }
+
+    @Test
+    public void testUpdateWithAttachmentsRemoveNonexistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        AttachmentCreation attachmentCreation = new AttachmentCreation();
+        attachmentCreation.setFileName("test_file");
+        attachmentCreation.setTitle("test_title");
+        attachmentCreation.setDescription("test_description");
+        attachmentCreation.setContent(new String("test_content").getBytes());
+
+        ExperimentPermId experimentId = createExperimentWithAttachments(attachmentCreation);
+
+        assertAttachments(experimentId, attachmentCreation);
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getAttachments().remove(new AttachmentFileName("test_file_2"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertAttachments(experimentId, attachmentCreation);
+    }
+
+    @Test
+    public void testUpdateWithAttachmentsRemoveExistent()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        AttachmentCreation attachmentCreation = new AttachmentCreation();
+        attachmentCreation.setFileName("test_file");
+        attachmentCreation.setTitle("test_title");
+        attachmentCreation.setDescription("test_description");
+        attachmentCreation.setContent(new String("test_content").getBytes());
+
+        ExperimentPermId experimentId = createExperimentWithAttachments(attachmentCreation);
+
+        assertAttachments(experimentId, attachmentCreation);
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getAttachments().remove(new AttachmentFileName("test_file"));
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        assertAttachments(experimentId);
+    }
+
+    @Test
+    public void testUpdateWithAttachmentsSet()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        AttachmentCreation attachmentCreation1 = new AttachmentCreation();
+        attachmentCreation1.setFileName("test_file");
+        attachmentCreation1.setTitle("test_title");
+        attachmentCreation1.setDescription("test_description");
+        attachmentCreation1.setContent(new String("test_content").getBytes());
+
+        AttachmentCreation attachmentCreation2 = new AttachmentCreation();
+        attachmentCreation2.setFileName("test_file_2");
+        attachmentCreation2.setTitle("test_title_2");
+        attachmentCreation2.setDescription("test_description_2");
+        attachmentCreation2.setContent(new String("test_content_2").getBytes());
+
+        ExperimentPermId experimentId = createExperimentWithAttachments(attachmentCreation1, attachmentCreation2);
+
+        assertAttachments(experimentId, attachmentCreation1, attachmentCreation2);
+
+        attachmentCreation2.setTitle("test_title_3");
+        attachmentCreation2.setDescription("test_description_3");
+        attachmentCreation2.setContent(new String("test_content_3").getBytes());
+
+        ExperimentUpdate update = new ExperimentUpdate();
+        update.setExperimentId(experimentId);
+        update.getAttachments().set(attachmentCreation2);
+
+        v3api.updateExperiments(sessionToken, Arrays.asList(update));
+
+        Map<String, Attachment> attachmentMap = assertAttachments(experimentId, attachmentCreation2);
+        Attachment attachment = attachmentMap.get(attachmentCreation2.getFileName());
+
+        assertEquals(attachment.getVersion(), Integer.valueOf(2));
+    }
+
+    @Test
     public void testUpdateWithTagsAddExisting()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
-        update.getTagIds().add(new TagCodeId("TEST_TAG_2"));
+        update.getTagIds().add(new TagCode("TEST_TAG_2"));
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
@@ -398,7 +541,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -414,7 +557,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -430,7 +573,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"), new TagPermId("/test/TEST_TAG_2"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -468,7 +611,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
@@ -484,11 +627,11 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"));
 
         ExperimentUpdate update = new ExperimentUpdate();
         update.setExperimentId(experimentId);
-        update.getTagIds().set(new TagCodeId("THIS_TAG_DOES_NOT_EXIST"));
+        update.getTagIds().set(new TagCode("THIS_TAG_DOES_NOT_EXIST"));
 
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
@@ -500,7 +643,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
     {
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
-        ExperimentPermId experimentId = createExperimentWithTags(new TagCodeId("TEST_TAG_1"));
+        ExperimentPermId experimentId = createExperimentWithTags(new TagCode("TEST_TAG_1"));
 
         final ITagId tagId = new TagPermId("/test_space/TEST_METAPROJECTS");
         final ExperimentUpdate update = new ExperimentUpdate();
@@ -515,6 +658,35 @@ public class UpdateExperimentTest extends AbstractExperimentTest
                     v3api.updateExperiments(sessionToken, Arrays.asList(update));
                 }
             }, tagId);
+    }
+
+    private ExperimentPermId createExperimentWithoutAttachments()
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        return ids.get(0);
+    }
+
+    private ExperimentPermId createExperimentWithAttachments(AttachmentCreation... attachments)
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentCreation creation = new ExperimentCreation();
+        creation.setCode("TEST_EXPERIMENT");
+        creation.setTypeId(new EntityTypePermId("SIRNA_HCS"));
+        creation.setProjectId(new ProjectIdentifier("/CISD/NEMO"));
+        creation.setProperty("DESCRIPTION", "a description");
+        creation.setAttachments(Arrays.asList(attachments));
+
+        List<ExperimentPermId> ids = v3api.createExperiments(sessionToken, Arrays.asList(creation));
+        return ids.get(0);
     }
 
     private ExperimentPermId createExperimentWithoutTags()
@@ -556,11 +728,20 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         assertEquals(experiments.size(), 1);
 
-        Set<String> actualTagPermIds = new HashSet<String>();
-        for (Tag tag : experiments.get(experimentId).getTags())
-        {
-            actualTagPermIds.add(tag.getPermId().getPermId());
-        }
-        assertEquals(actualTagPermIds, new HashSet<String>(Arrays.asList(expectedTagPermIds)));
+        assertTags(experiments.get(experimentId).getTags(), expectedTagPermIds);
+    }
+
+    private Map<String, Attachment> assertAttachments(IExperimentId experimentId, AttachmentCreation... expectedAttachments)
+    {
+        final String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
+        fetchOptions.fetchAttachments().fetchContent();
+
+        Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
+
+        assertEquals(experiments.size(), 1);
+
+        return assertAttachments(experiments.get(experimentId).getAttachments(), expectedAttachments);
     }
 }

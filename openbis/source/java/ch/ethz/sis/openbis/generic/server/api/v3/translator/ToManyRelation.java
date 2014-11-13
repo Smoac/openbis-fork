@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * @author pkupczyk
  */
-public abstract class ToManyRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> implements Relation
+public abstract class ToManyRelation<OWNER, ORIGINAL, TRANSLATED> implements Relation
 {
 
     private Map<OWNER, Collection<TRANSLATED>> translatedMap;

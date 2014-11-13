@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2012 ETH Zuerich, CISD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
+package ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
+ * Holds information that uniquely identifies an attachment in openBIS.
+ * 
  * @author pkupczyk
  */
-@JsonObject("NormalDateFormat")
-public class NormalDateFormat implements IDateFormat
+@JsonObject("IAttachmentId")
+public interface IAttachmentId extends IObjectId
 {
-
-    @Override
-    public String getFormat()
-    {
-        return "y-M-d HH:mm";
-    }
-
-    @Override
-    public String toString()
-    {
-        return getFormat();
-    }
 
 }

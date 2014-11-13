@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 ETH Zuerich, CISD
+ * Copyright 2014 ETH Zuerich, Scientific IT Services
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,20 @@
  * limitations under the License.
  */
 
-package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
+package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
-import ch.systemsx.cisd.base.annotation.JsonObject;
+import java.util.Collection;
+
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.IAttachmentId;
+import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 
 /**
  * @author pkupczyk
  */
-@JsonObject("NormalDateFormat")
-public class NormalDateFormat implements IDateFormat
+public interface IDeleteAttachmentExecutor
 {
 
-    @Override
-    public String getFormat()
-    {
-        return "y-M-d HH:mm";
-    }
-
-    @Override
-    public String toString()
-    {
-        return getFormat();
-    }
+    public void delete(IOperationContext context, AttachmentHolderPE attachmentHolder, Collection<? extends IAttachmentId> attachments);
 
 }

@@ -17,7 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.tag;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 
@@ -27,6 +27,6 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 public interface IUpdateTagForEntityExecutor
 {
 
-    public void update(IOperationContext context, IEntityWithMetaprojects entity, ListUpdateValue<ITagId> updates);
+    public void update(IOperationContext context, IEntityWithMetaprojects entity, IdListUpdateValue<ITagId> updates);
 
 }

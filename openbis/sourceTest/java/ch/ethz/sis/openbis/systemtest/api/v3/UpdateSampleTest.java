@@ -30,11 +30,14 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.CreationId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.attachment.AttachmentFileName;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
@@ -44,7 +47,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.ISpaceId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.action.IDelegatedAction;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.AssertionUtil;
@@ -1128,6 +1131,66 @@ public class UpdateSampleTest extends AbstractSampleTest
     }
 
     @Test
+    public void testUpdateWithAttachmentsSetAddRemove()
+    {
+        String sessionToken = v3api.login(TEST_USER, PASSWORD);
+
+        AttachmentCreation attachmentCreation1 = new AttachmentCreation();
+        attachmentCreation1.setFileName("test_file_1");
+        attachmentCreation1.setContent(new String("test_content_1").getBytes());
+
+        AttachmentCreation attachmentCreation2 = new AttachmentCreation();
+        attachmentCreation2.setFileName("test_file_2");
+        attachmentCreation2.setContent(new String("test_content_2").getBytes());
+
+        AttachmentCreation attachmentCreation3 = new AttachmentCreation();
+        attachmentCreation3.setFileName("test_file_3");
+        attachmentCreation3.setContent(new String("test_content_3").getBytes());
+
+        SampleCreation creation1 = masterPlateCreation("CISD", "SAMPLE_1_WITH_ATTACHMENTS");
+        SampleCreation creation2 = masterPlateCreation("CISD", "SAMPLE_2_WITH_ATTACHMENTS");
+
+        creation1.setAttachments(Arrays.asList(attachmentCreation3));
+        creation2.setAttachments(Arrays.asList(attachmentCreation1, attachmentCreation2));
+
+        List<SamplePermId> sampleIds =
+                v3api.createSamples(sessionToken, Arrays.asList(creation1, creation2));
+
+        SamplePermId sampleId1 = sampleIds.get(0);
+        SamplePermId sampleId2 = sampleIds.get(1);
+
+        SampleUpdate update1 = new SampleUpdate();
+        update1.setSampleId(sampleId1);
+        // change from [test_file_3] to [test_file_1, test_file_3]
+        update1.getAttachments().set(attachmentCreation1, attachmentCreation3);
+
+        SampleUpdate update2 = new SampleUpdate();
+        update2.setSampleId(sampleId2);
+        // change from [test_file_1, test_file_2] to [test_file_2, test_file_3]
+        update2.getAttachments().remove(new AttachmentFileName(attachmentCreation1.getFileName()));
+        update2.getAttachments().add(attachmentCreation3);
+
+        v3api.updateSamples(sessionToken, Arrays.asList(update1, update2));
+
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        fetchOptions.fetchAttachments().fetchContent();
+
+        Map<ISampleId, Sample> samples = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
+
+        Map<String, Attachment> attachmentMap1 =
+                assertAttachments(samples.get(sampleId1).getAttachments(), attachmentCreation1, attachmentCreation3);
+
+        assertEquals(attachmentMap1.get(attachmentCreation1.getFileName()).getVersion(), Integer.valueOf(1));
+        assertEquals(attachmentMap1.get(attachmentCreation3.getFileName()).getVersion(), Integer.valueOf(2));
+
+        Map<String, Attachment> attachmentMap2 =
+                assertAttachments(samples.get(sampleId2).getAttachments(), attachmentCreation2, attachmentCreation3);
+
+        assertEquals(attachmentMap2.get(attachmentCreation2.getFileName()).getVersion(), Integer.valueOf(1));
+        assertEquals(attachmentMap2.get(attachmentCreation3.getFileName()).getVersion(), Integer.valueOf(1));
+    }
+
+    @Test
     public void testUpdateWithTagsWithSetAddRemove()
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
@@ -1135,9 +1198,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         SampleCreation creation1 = masterPlateCreation("CISD", "SAMPLE_1_WITH_TAGS");
         SampleCreation creation2 = masterPlateCreation("CISD", "SAMPLE_2_WITH_TAGS");
 
-        ITagId tag1Id = new TagCodeId("TEST_TAG_1");
-        ITagId tag2Id = new TagCodeId("TEST_TAG_2");
-        ITagId tag3Id = new TagCodeId("TEST_TAG_3");
+        ITagId tag1Id = new TagCode("TEST_TAG_1");
+        ITagId tag2Id = new TagCode("TEST_TAG_2");
+        ITagId tag3Id = new TagCode("TEST_TAG_3");
 
         creation1.setTagIds(Arrays.asList(tag3Id));
         creation2.setTagIds(Arrays.asList(tag1Id, tag2Id));
@@ -1172,10 +1235,10 @@ public class UpdateSampleTest extends AbstractSampleTest
         Sample sample2 = samples.get(1);
 
         assertIdentifier(sample1, "/CISD/SAMPLE_1_WITH_TAGS");
-        assertTags(sample1.getTags(), "TEST_TAG_1", "TEST_TAG_3");
+        assertTags(sample1.getTags(), "/test/TEST_TAG_1", "/test/TEST_TAG_3");
 
         assertIdentifier(sample2, "/CISD/SAMPLE_2_WITH_TAGS");
-        assertTags(sample2.getTags(), "TEST_TAG_2", "TEST_TAG_3");
+        assertTags(sample2.getTags(), "/test/TEST_TAG_2", "/test/TEST_TAG_3");
     }
 
 }

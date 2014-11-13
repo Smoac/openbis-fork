@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionRemove;
@@ -43,7 +43,7 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
     {
         for (SampleUpdate update : updateMap.keySet())
         {
-            ListUpdateValue<? extends ISampleId> listUpdate = getRelatedSamplesUpdate(context, update);
+            IdListUpdateValue<? extends ISampleId> listUpdate = getRelatedSamplesUpdate(context, update);
 
             if (listUpdate != null && listUpdate.hasActions())
             {
@@ -55,7 +55,7 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
 
                     if (action instanceof ListUpdateActionSet<?> || action instanceof ListUpdateActionAdd<?>)
                     {
-                        for (ISampleId relatedId : action.getIds())
+                        for (ISampleId relatedId : action.getItems())
                         {
                             SamplePE relatedSample = samplesMap.get(relatedId);
                             if (relatedSample == null)
@@ -77,7 +77,7 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
                         }
                     } else if (action instanceof ListUpdateActionRemove<?>)
                     {
-                        for (ISampleId relatedId : action.getIds())
+                        for (ISampleId relatedId : action.getItems())
                         {
                             SamplePE relatedSample = samplesMap.get(relatedId);
                             if (relatedSample != null)
@@ -97,7 +97,7 @@ public abstract class AbstractUpdateSampleRelatedSamplesExecutor
         }
     }
 
-    protected abstract ListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update);
+    protected abstract IdListUpdateValue<? extends ISampleId> getRelatedSamplesUpdate(IOperationContext context, SampleUpdate update);
 
     protected abstract void setRelatedSamples(IOperationContext context, SamplePE sample, Collection<SamplePE> relatedSamples);
 

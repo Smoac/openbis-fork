@@ -21,8 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.AttachmentListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.FieldUpdateValue;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
@@ -44,7 +45,9 @@ public class ExperimentUpdate implements Serializable
 
     private FieldUpdateValue<IProjectId> projectId = new FieldUpdateValue<IProjectId>();
 
-    private ListUpdateValue<ITagId> tagIds = new ListUpdateValue<ITagId>();
+    private IdListUpdateValue<ITagId> tagIds = new IdListUpdateValue<ITagId>();
+
+    private AttachmentListUpdateValue attachments = new AttachmentListUpdateValue();
 
     public IExperimentId getExperimentId()
     {
@@ -76,14 +79,19 @@ public class ExperimentUpdate implements Serializable
         return projectId;
     }
 
-    public ListUpdateValue<ITagId> getTagIds()
+    public IdListUpdateValue<ITagId> getTagIds()
     {
         return tagIds;
     }
 
-    public void setTagsActions(List<ListUpdateAction<ITagId>> actions)
+    public AttachmentListUpdateValue getAttachments()
     {
-        tagIds.setActions(actions);
+        return attachments;
+    }
+
+    public void setAttachmentsActions(List<ListUpdateAction<Object>> actions)
+    {
+        attachments.setActions(actions);
     }
 
 }

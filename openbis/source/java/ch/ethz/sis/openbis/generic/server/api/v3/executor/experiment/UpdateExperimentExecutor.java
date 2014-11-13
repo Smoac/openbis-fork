@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment.IUpdateAttachmentForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.property.IUpdateEntityPropertyExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.tag.IUpdateTagForEntityExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.helper.experiment.ExperimentContextDescription;
@@ -65,24 +66,13 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
     private IUpdateTagForEntityExecutor updateTagForEntityExecutor;
 
     @Autowired
+    private IUpdateAttachmentForEntityExecutor updateAttachmentForEntityExecutor;
+
+    @Autowired
     private IVerifyExperimentExecutor verifyExperimentExecutor;
 
-    @SuppressWarnings("unused")
     private UpdateExperimentExecutor()
     {
-    }
-
-    public UpdateExperimentExecutor(IDAOFactory daoFactory, IMapExperimentByIdExecutor mapExperimentByIdExecutor,
-            IUpdateExperimentProjectExecutor updateExperimentProjectExecutor,
-            IUpdateTagForEntityExecutor updateTagForEntityExecutor, IUpdateEntityPropertyExecutor updateEntityPropertyExecutor,
-            IVerifyExperimentExecutor verifyExperimentExecutor)
-    {
-        super();
-        this.mapExperimentByIdExecutor = mapExperimentByIdExecutor;
-        this.updateExperimentProjectExecutor = updateExperimentProjectExecutor;
-        this.updateTagForEntityExecutor = updateTagForEntityExecutor;
-        this.updateEntityPropertyExecutor = updateEntityPropertyExecutor;
-        this.verifyExperimentExecutor = verifyExperimentExecutor;
     }
 
     @Override
@@ -146,6 +136,7 @@ public class UpdateExperimentExecutor implements IUpdateExperimentExecutor
         RelationshipUtils.updateModificationDateAndModifier(experiment, context.getSession().tryGetPerson());
         daoFactory.getExperimentDAO().createOrUpdateExperiment(experiment, context.getSession().tryGetPerson());
         updateTagForEntityExecutor.update(context, experiment, update.getTagIds());
+        updateAttachmentForEntityExecutor.update(context, experiment, update.getAttachments());
 
         context.popContextDescription();
     }

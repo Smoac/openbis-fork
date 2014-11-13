@@ -30,7 +30,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 
@@ -168,11 +168,83 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testSearchWithStringProperty()
+    public void testSearchWithPropertyThatEquals()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withStringProperty("GENDER").thatEquals("FEMALE");
-        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+        criterion.withProperty("DESCRIPTION").thatEquals("desc1");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEquals("desc");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEquals("esc");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEquals("esc1");
+        testSearch(TEST_USER, criterion, 0);
+    }
+
+    @Test
+    public void testSearchWithPropertyThatStartsWith()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatStartsWith("desc1");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatStartsWith("desc");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatStartsWith("esc");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatStartsWith("esc1");
+        testSearch(TEST_USER, criterion, 0);
+    }
+
+    @Test
+    public void testSearchWithPropertyThatEndsWith()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEndsWith("desc1");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEndsWith("desc");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEndsWith("esc");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatEndsWith("esc1");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+    }
+
+    @Test
+    public void testSearchWithPropertyThatContains()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatContains("desc1");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatContains("desc");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatContains("esc");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("DESCRIPTION").thatContains("esc1");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
     }
 
     @Test
@@ -181,6 +253,10 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withAnyProperty().thatEquals("FEMALE");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withAnyProperty().thatEquals("FEMAL");
+        testSearch(TEST_USER, criterion, 0);
     }
 
     @Test
@@ -197,6 +273,10 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withAnyProperty().thatStartsWith("FEMAL");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withAnyProperty().thatStartsWith("EMAL");
+        testSearch(TEST_USER, criterion, 0);
     }
 
     @Test
@@ -205,6 +285,10 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withAnyProperty().thatEndsWith("EMALE");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withAnyProperty().thatEndsWith("EMAL");
+        testSearch(TEST_USER, criterion, 0);
     }
 
     @Test
@@ -213,6 +297,10 @@ public class SearchExperimentTest extends AbstractExperimentTest
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withAnyProperty().thatContains("EMAL");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withAnyProperty().thatContains("FMAL");
+        testSearch(TEST_USER, criterion, 0);
     }
 
     @Test
@@ -243,7 +331,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     public void testSearchWithTagWithIdSetToCodeId()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withTag().withId().thatEquals(new TagCodeId("TEST_METAPROJECTS"));
+        criterion.withTag().withId().thatEquals(new TagCode("TEST_METAPROJECTS"));
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP11", "/TEST-SPACE/TEST-PROJECT/EXP-SPACE-TEST");
     }
 
@@ -275,7 +363,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     public void testSearchWithRegistrationDateThatEquals()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().withShortFormat().thatEquals("2009-02-09");
+        criterion.withRegistrationDate().thatEquals("2009-02-09");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1", "/CISD/NEMO/EXP-TEST-2", "/CISD/NOE/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2",
                 "/TEST-SPACE/NOE/EXPERIMENT-TO-DELETE");
     }
@@ -284,7 +372,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     public void testSearchWithRegistrationDateThatIsLaterThan()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().withShortFormat().thatIsLaterThanOrEqualTo("2009-02-09");
+        criterion.withRegistrationDate().thatIsLaterThanOrEqualTo("2009-02-09");
         testSearch(TEST_USER, criterion, 5);
     }
 
@@ -292,7 +380,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     public void testSearchWithRegistrationDateThatIsEarlierThan()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().withShortFormat().thatIsEarlierThanOrEqualTo("2008-11-05");
+        criterion.withRegistrationDate().thatIsEarlierThanOrEqualTo("2008-11-05");
         testSearch(TEST_USER, criterion, 7);
     }
 
@@ -300,7 +388,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     public void testSearchWithModificationDateThatEquals()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withModificationDate().withShortFormat().thatEquals("2009-03-18");
+        criterion.withModificationDate().thatEquals("2009-03-18");
         testSearch(TEST_USER, criterion, 12);
     }
 

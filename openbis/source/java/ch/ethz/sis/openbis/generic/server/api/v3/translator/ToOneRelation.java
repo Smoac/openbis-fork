@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * @author pkupczyk
  */
-public abstract class ToOneRelation<OWNER, RELATED_ID, ORIGINAL, TRANSLATED> implements Relation
+public abstract class ToOneRelation<OWNER, ORIGINAL, TRANSLATED> implements Relation
 {
 
     private Map<OWNER, TRANSLATED> translatedMap;

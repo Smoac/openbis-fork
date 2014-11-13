@@ -25,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
@@ -108,13 +108,13 @@ public class UpdateSampleRelatedSamplesExecutor implements IUpdateSampleRelatedS
         return ids;
     }
 
-    private void addRelatedSamplesIds(Set<ISampleId> ids, ListUpdateValue<ISampleId> listUpdate)
+    private void addRelatedSamplesIds(Set<ISampleId> ids, IdListUpdateValue<ISampleId> listUpdate)
     {
         if (listUpdate != null && listUpdate.hasActions())
         {
             for (ListUpdateAction<ISampleId> action : listUpdate.getActions())
             {
-                ids.addAll(action.getIds());
+                ids.addAll(action.getItems());
             }
         }
     }

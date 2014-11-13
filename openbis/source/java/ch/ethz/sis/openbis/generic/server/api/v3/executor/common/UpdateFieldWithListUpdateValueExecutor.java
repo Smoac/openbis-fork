@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateAction;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionAdd;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.ListUpdateActionRemove;
@@ -33,12 +33,12 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue.List
 public abstract class UpdateFieldWithListUpdateValueExecutor<K, V>
 {
 
-    protected void update(IOperationContext context, Map<K, ListUpdateValue<V>> listUpdateMap)
+    protected void update(IOperationContext context, Map<K, IdListUpdateValue<V>> listUpdateMap)
     {
-        for (Entry<K, ListUpdateValue<V>> listUpdateEntry : listUpdateMap.entrySet())
+        for (Entry<K, IdListUpdateValue<V>> listUpdateEntry : listUpdateMap.entrySet())
         {
             K key = listUpdateEntry.getKey();
-            ListUpdateValue<V> listUpdate = listUpdateEntry.getValue();
+            IdListUpdateValue<V> listUpdate = listUpdateEntry.getValue();
 
             if (listUpdate != null && listUpdate.hasActions())
             {
@@ -46,13 +46,13 @@ public abstract class UpdateFieldWithListUpdateValueExecutor<K, V>
                 {
                     if (action instanceof ListUpdateActionSet)
                     {
-                        setValues(context, key, action.getIds());
+                        setValues(context, key, action.getItems());
                     } else if (action instanceof ListUpdateActionAdd)
                     {
-                        addValues(context, key, action.getIds());
+                        addValues(context, key, action.getItems());
                     } else if (action instanceof ListUpdateActionRemove)
                     {
-                        removeValues(context, key, action.getIds());
+                        removeValues(context, key, action.getItems());
                     }
                 }
             }

@@ -47,8 +47,8 @@ public class ExperimentSearchCriterionTranslatorTest extends AbstractSearchCrite
 
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withOrOperator();
-        criterion.withStringProperty("PROPERTY").thatEquals("testValue");
-        criterion.withStringProperty("PROPERTY_2").thatEquals("testValue_2");
+        criterion.withProperty("PROPERTY").thatEquals("testValue");
+        criterion.withProperty("PROPERTY_2").thatEquals("testValue_2");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -63,8 +63,8 @@ public class ExperimentSearchCriterionTranslatorTest extends AbstractSearchCrite
 
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withAndOperator();
-        criterion.withStringProperty("PROPERTY").thatEquals("testValue");
-        criterion.withStringProperty("PROPERTY_2").thatEquals("testValue_2");
+        criterion.withProperty("PROPERTY").thatEquals("testValue");
+        criterion.withProperty("PROPERTY_2").thatEquals("testValue_2");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -149,7 +149,7 @@ public class ExperimentSearchCriterionTranslatorTest extends AbstractSearchCrite
                 "0"));
 
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withRegistrationDate().withShortFormat().thatEquals("2014-04-07");
+        criterion.withRegistrationDate().thatEquals("2014-04-07");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -162,7 +162,7 @@ public class ExperimentSearchCriterionTranslatorTest extends AbstractSearchCrite
                 "0"));
 
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withModificationDate().withShortFormat().thatEquals("2014-04-07");
+        criterion.withModificationDate().thatEquals("2014-04-07");
 
         translateAndAssertEqual(criteria, criterion);
     }
@@ -174,7 +174,7 @@ public class ExperimentSearchCriterionTranslatorTest extends AbstractSearchCrite
         criteria.addMatchClause(MatchClause.createPropertyMatch("PROPERTY", "testValue"));
 
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withStringProperty("PROPERTY").thatEquals("testValue");
+        criterion.withProperty("PROPERTY").thatEquals("testValue");
 
         translateAndAssertEqual(criteria, criterion);
     }

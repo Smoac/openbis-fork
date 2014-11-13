@@ -33,7 +33,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.EntityTypePer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.space.SpacePermId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
 import ch.systemsx.cisd.common.test.RecordingMatcherRepository;
@@ -62,9 +62,9 @@ public class SampleServerApiTest extends AbstractApplicationServerApiTestCase
 
     private static final String UNKNOWN_ENTITY_TYPE = "UNKNOWN_ENTITY_TYPE";
 
-    private static final TagCodeId TAG_CODE_ID = new TagCodeId("TAG_NAME_ID");
+    private static final TagCode TAG_CODE_ID = new TagCode("TAG_NAME_ID");
 
-    private static final TagCodeId UNKNOWN_TAG_CODE_ID = new TagCodeId("UNKNOWN_TAG_NAME_ID");
+    private static final TagCode UNKNOWN_TAG_CODE_ID = new TagCode("UNKNOWN_TAG_NAME_ID");
 
     private static final ExperimentPermId UNKNOWN_EXPERIMENT_ID = new ExperimentPermId("UNKNOWN_EXPERIMENT_ID");
 

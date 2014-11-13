@@ -32,7 +32,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.ExperimentPer
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectIdentifier;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.ProjectPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCodeId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagCode;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.TagPermId;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.common.test.RecordingMatcher;
@@ -56,9 +56,9 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
  */
 public class ExperimentServerApiTest extends AbstractApplicationServerApiTestCase
 {
-    private static final TagCodeId TAG_CODE_ID = new TagCodeId("red");
+    private static final TagCode TAG_CODE_ID = new TagCode("red");
 
-    private static final TagCodeId UNKNOWN_TAG_CODE_ID = new TagCodeId("unknown");
+    private static final TagCode UNKNOWN_TAG_CODE_ID = new TagCode("unknown");
 
     private static final String UNKNOWN_PROJECT_CODE = "UNKNOWN";
 

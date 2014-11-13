@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.common.UpdateFieldWithListUpdateValueExecutor;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.ListUpdateValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.IdListUpdateValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.systemsx.cisd.openbis.generic.shared.dto.IEntityWithMetaprojects;
 
@@ -60,7 +60,7 @@ public class UpdateTagForEntityExecutor extends UpdateFieldWithListUpdateValueEx
 
     @Override
     public void update(IOperationContext context, IEntityWithMetaprojects entity,
-            ListUpdateValue<ITagId> updates)
+            IdListUpdateValue<ITagId> updates)
     {
         update(context, Collections.singletonMap(entity, updates));
     }

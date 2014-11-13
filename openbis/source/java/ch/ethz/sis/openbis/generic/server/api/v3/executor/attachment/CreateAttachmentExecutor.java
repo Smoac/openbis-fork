@@ -16,7 +16,7 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.executor.attachment;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -50,7 +50,7 @@ public class CreateAttachmentExecutor implements ICreateAttachmentExecutor
     }
 
     @Override
-    public void create(IOperationContext context, AttachmentHolderPE attachmentHolder, List<AttachmentCreation> attachments)
+    public void create(IOperationContext context, AttachmentHolderPE attachmentHolder, Collection<AttachmentCreation> attachments)
     {
         if (attachments != null)
         {
