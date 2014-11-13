@@ -48,6 +48,9 @@ for project in $PROJECTS; do
 	if [ "$BRANCH" == "trunk" ]
 	then
 		SVN_PATH="${project}/trunk"
+    elif [ "$BRANCH" == "stage" ]
+    then
+        SVN_PATH="openbis_all/branches/stage/15.xx.x/${project}"
 	elif [ "$BRANCH" == "sprint" ]
 	then
 		if [[ -z "$VERSION" ]]
