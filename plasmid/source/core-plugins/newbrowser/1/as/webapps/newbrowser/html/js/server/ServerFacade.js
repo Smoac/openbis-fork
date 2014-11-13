@@ -185,6 +185,10 @@ function ServerFacade(openbisServer) {
 	this.deleteProjects = function(projectIds, reason, callback) {
 		this.openbisServer.deleteProjects(projectIds, reason, callback);
 	}
+	
+	this.listOriginalDeletions = function(callback) {
+		this.openbisServer.listOriginalDeletions(callback);
+	}
 	//
 	// Data Set Related Functions
 	//

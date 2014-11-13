@@ -21,6 +21,7 @@ import java.util.Map;
 
 import ch.systemsx.cisd.common.api.IRpcService;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
@@ -260,5 +261,12 @@ public interface IGeneralInformationChangingService extends IRpcService
      * @since 1.6
      */
     public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds);
+
+    /**
+     * List original deleted entities
+     * 
+     * @since 1.7
+     */
+    public List<Deletion> listOriginalDeletions(String sessionToken);
 
 }

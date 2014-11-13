@@ -23,6 +23,7 @@ import ch.systemsx.cisd.authentication.ISessionManager;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
 import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignmentsIds;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
@@ -229,6 +230,13 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     public int getMinorVersion()
     {
         return 0;
+    }
+
+    @Override
+    public List<Deletion> listOriginalDeletions(String sessionToken)
+    {
+        logAccess(sessionToken, "listOriginalDeletions");
+        return null;
     }
 
 }

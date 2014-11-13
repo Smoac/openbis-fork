@@ -1407,6 +1407,19 @@ openbis.prototype.deletePermanentlyForced = function(deletionIds, action) {
 }
 
 /**
+ * @see listOriginalDeletions(String)
+ * @method
+ */
+openbis.prototype.listOriginalDeletions = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "listOriginalDeletions",
+				"params" : [ this.getSession() ] },
+		success: action
+	});
+}
+
+/**
  * ============================================================================
  * ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer methods
  * ============================================================================

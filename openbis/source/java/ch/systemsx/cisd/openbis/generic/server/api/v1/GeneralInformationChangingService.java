@@ -16,6 +16,7 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +61,7 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    public static final int MINOR_VERSION = 6;
+    public static final int MINOR_VERSION = 7;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
@@ -331,6 +332,66 @@ public class GeneralInformationChangingService extends
     public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds)
     {
         server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
+    }
+    
+    static class DeletionInfo {
+        private final Long id;
+        private final int totalSamplesCount;
+        private final int totalDatasetsCount;
+        private final int totalExperimentsCount;
+        private final String reason;
+        
+        public DeletionInfo(Long id, int totalSamplesCount, int totalDatasetsCount, int totalExperimentsCount, String reason)
+        {
+            super();
+            this.id = id;
+            this.totalSamplesCount = totalSamplesCount;
+            this.totalDatasetsCount = totalDatasetsCount;
+            this.totalExperimentsCount = totalExperimentsCount;
+            this.reason = reason;
+        }
+        
+        public int getTotalSamplesCount()
+        {
+            return totalSamplesCount;
+        }
+        
+        public int getTotalDatasetsCount()
+        {
+            return totalDatasetsCount;
+        }
+        
+        public int getTotalExperimentsCount()
+        {
+            return totalExperimentsCount;
+        }
+        
+        public String getReason()
+        {
+            return reason;
+        }
+        
+        public Long getId()
+        {
+            return id;
+        }
+        
+    }
+    
+    @Override
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> listOriginalDeletions(String sessionToken) {
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> infos = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion>();
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = server.listOriginalDeletions(sessionToken);
+        for(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion:deletions) {
+            ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion deletionV1 = new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion();
+            deletionV1.setId(deletion.getId());
+            deletionV1.setTotalSamplesCount(deletion.getTotalSamplesCount());
+            deletionV1.setTotalExperimentsCount(deletion.getTotalExperimentsCount());
+            deletionV1.setTotalDatasetsCount(deletion.getTotalDatasetsCount());
+            deletionV1.setReasonOrNull(deletion.getReason());
+            infos.add(deletionV1);
+        }
+        return infos;
     }
 
 }
