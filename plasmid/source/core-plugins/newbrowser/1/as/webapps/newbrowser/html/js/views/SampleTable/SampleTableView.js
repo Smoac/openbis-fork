@@ -131,7 +131,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.registerSamples = function(experimentIdentifier) {
 		var _this = this;
-		var typeAndFileController = new TypeAndFileController('Register Samples', function(type, file) {
+		var typeAndFileController = new TypeAndFileController('Register Samples', "REGISTRATION", function(type, file) {
 			Util.blockUI();
 			mainController.serverFacade.fileUpload(typeAndFileController.getFile(), function(result) {
 				//Code After the upload
@@ -189,7 +189,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	}
 	
 	this.updateSamples = function() {
-		var typeAndFileController = new TypeAndFileController('Update Samples', function(type, file) {
+		var typeAndFileController = new TypeAndFileController('Update Samples', "UPDATE", function(type, file) {
 			Util.blockUI();
 			var finalCallback = function(data) {
 				if(data.error) {

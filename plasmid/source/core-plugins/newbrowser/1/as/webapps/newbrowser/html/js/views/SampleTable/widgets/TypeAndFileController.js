@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-function TypeAndFileController(title, actionFunction) {
-	this._typeAndFileModel = new TypeAndFileModel(title, actionFunction);
+function TypeAndFileController(title, linkType, actionFunction) {
+	this._typeAndFileModel = new TypeAndFileModel(title, linkType, actionFunction);
 	this._typeAndFileView = new TypeAndFileView(this, this._typeAndFileModel);
 	
 	this.getFile = function() {

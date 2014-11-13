@@ -231,7 +231,20 @@ function ServerFacade(openbisServer) {
 		});
 	}
 	
+	this.getTemplateLink = function(entityType, operationKind) {
+		var GET = '/openbis/openbis/template-download?entityKind=SAMPLE';
+			GET += '&entityType=' + entityType;
+			GET += '&autoGenerate=false';
+			GET += '&with_experiments=true';
+			GET += '&with_space=true';
+			GET += '&batch_operation_kind=' + operationKind;
+			GET += '&timestamp=' + new Date().getTime();
+			GET += '&sessionID=' + this.openbisServer.getSession();
+		return GET;
+	}
+	
 	this.fileTemplateDownload = function(entityType, operationKind) {
+		
 		$.ajax({
 			type: 'POST',
 			url: '/openbis/openbis/template-download',
@@ -246,7 +259,7 @@ function ServerFacade(openbisServer) {
 				'sessionID' : this.openbisServer.getSession()
 			},
 			success: function(result) {
-				callbackFunction(result);
+				alert(result);
 			}
 		});
 	}

@@ -18,6 +18,7 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 	this._typeAndFileController = typeAndFileController;
 	this._typeAndFileModel = typeAndFileModel;
 	this.fileChooser = $('<input>', { 'type' : 'file', 'id' : 'fileToRegister' , 'required' : ''});
+	this.linkContainer = $("<div>");
 	
 	this.repaint = function() {
 		var _this = this;
@@ -32,9 +33,12 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		var $sampleTypeDropDown = FormUtil.getSampleTypeDropdown(null, true);
 		$sampleTypeDropDown.change(function(event) {
 			_this._typeAndFileModel.sampleTypeCode = $(this).val();
+			_this.updateLink($(this).val());
 		});
 		var $sampleTypeDropDownBoxGroup = FormUtil.getFieldForComponentWithLabel($sampleTypeDropDown, 'Sample Type');
 		$window.append($sampleTypeDropDownBoxGroup);
+		
+		$window.append(this.linkContainer);
 		
 		this.fileChooser.change(function(event) {
 			_this._typeAndFileModel.file = _this.fileChooser[0].files[0];
@@ -61,4 +65,20 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 		
 		Util.blockUI($window, css);
 	}
+	
+	this.updateLink = function(sampleTypeCode) {
+		if(sampleTypeCode === "") {
+			this.linkContainer.empty();
+		} else {
+			var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
+			var $link = $("<a>", { 
+				href : mainController.serverFacade.getTemplateLink(sampleTypeCode, this._typeAndFileModel.linkType),
+				target : "_blank"
+			}).text("Download");
+			$component.append($link);
+			var $linkGroup = FormUtil.getFieldForComponentWithLabel($component, 'Template');
+			this.linkContainer.append($linkGroup);
+		}
+	}
+	
 }

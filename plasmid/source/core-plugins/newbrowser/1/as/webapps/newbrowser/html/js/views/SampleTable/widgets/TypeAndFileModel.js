@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-function TypeAndFileModel(title, actionFunction) {
+function TypeAndFileModel(title, linkType, actionFunction) {
 	this.title = title;
+	this.linkType = linkType;
 	this.actionFunction = actionFunction;
 	this.sampleTypeCode = null;
 	this.file = null;
