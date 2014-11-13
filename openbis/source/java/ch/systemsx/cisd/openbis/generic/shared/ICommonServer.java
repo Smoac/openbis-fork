@@ -1546,7 +1546,7 @@ public interface ICommonServer extends IServer
      * Returns metaproject avoiding permission checks. Etl server only
      */
     @Transactional(readOnly = true)
-    public Metaproject getMetaprojectInGodMode(String sessionToken, IMetaprojectId metaprojectId);
+    public Metaproject getMetaprojectWithoutOwnershipChecks(String sessionToken, IMetaprojectId metaprojectId);
 
     /**
      * Adds specified entities to given metaproject.

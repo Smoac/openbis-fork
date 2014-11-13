@@ -4493,7 +4493,7 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
 
     @Override
     @RolesAllowed(RoleWithHierarchy.SPACE_ETL_SERVER)
-    public Metaproject getMetaprojectInGodMode(String sessionToken, IMetaprojectId metaprojectId)
+    public Metaproject getMetaprojectWithoutOwnershipChecks(String sessionToken, IMetaprojectId metaprojectId)
     {
         Session session = getSession(sessionToken);
         return getMetaproject(session, metaprojectId, session.tryGetPerson(), false);

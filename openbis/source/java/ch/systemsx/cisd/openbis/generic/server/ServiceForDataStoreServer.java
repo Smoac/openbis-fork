@@ -3099,7 +3099,7 @@ public class ServiceForDataStoreServer extends AbstractCommonServer<IServiceForD
     {
         final Session session = getSession(sessionToken);
         final IDatasetLister datasetLister = createDatasetLister(session);
-        final Metaproject metaproject = CommonServiceProvider.getCommonServer().getMetaprojectInGodMode(sessionToken, metaprojectId);
+        final Metaproject metaproject = CommonServiceProvider.getCommonServer().getMetaprojectWithoutOwnershipChecks(sessionToken, metaprojectId);
         return datasetLister.listByMetaprojectIdAndArchivalState(metaproject.getId(), false);
     }    
 }

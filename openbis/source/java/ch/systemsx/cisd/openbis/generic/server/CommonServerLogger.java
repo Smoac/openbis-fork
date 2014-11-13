@@ -1710,7 +1710,7 @@ final class CommonServerLogger extends AbstractServerLogger implements ICommonSe
     }
 
     @Override
-    public Metaproject getMetaprojectInGodMode(String sessionToken, IMetaprojectId metaprojectId)
+    public Metaproject getMetaprojectWithoutOwnershipChecks(String sessionToken, IMetaprojectId metaprojectId)
     {
         logAccess(sessionToken, "getMetaprojectInGodMode", "METAPROJECT_ID(%s)", metaprojectId);
         return null;
