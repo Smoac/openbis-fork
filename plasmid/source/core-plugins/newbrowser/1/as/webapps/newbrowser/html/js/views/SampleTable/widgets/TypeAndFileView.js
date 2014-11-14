@@ -67,9 +67,8 @@ function TypeAndFileView(typeAndFileController, typeAndFileModel) {
 	}
 	
 	this.updateLink = function(sampleTypeCode) {
-		if(sampleTypeCode === "") {
-			this.linkContainer.empty();
-		} else {
+		this.linkContainer.empty();
+		if(sampleTypeCode !== "") {
 			var $component = $("<p>", {'class' : 'form-control-static', 'style' : 'border:none; box-shadow:none; background:transparent;'});
 			var $link = $("<a>", { 
 				href : mainController.serverFacade.getTemplateLink(sampleTypeCode, this._typeAndFileModel.linkType),
