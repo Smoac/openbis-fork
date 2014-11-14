@@ -188,7 +188,7 @@ public class GeneralInformationServiceJsonApiTest extends RemoteApiTestCase
                 }
             });
         assertEquals("[DESCRIPTION=very important expertiment, GENDER=FEMALE, "
-                + "PURCHASE_DATE=2009-02-09 00:00:00 +0100]", list.toString());
+                + "PURCHASE_DATE=2009-02-09 10:00:00 +0100]", list.toString());
         assertEquals(1, experiments.size());
     }
 
