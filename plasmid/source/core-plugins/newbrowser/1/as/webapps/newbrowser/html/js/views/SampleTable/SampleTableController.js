@@ -47,6 +47,21 @@ function SampleTableController(parentController, title, experimentIdentifier) {
 				}
 			}
 			callback();
+			
+			//Show samples when only one type available by default
+			var numSampleTypes = 0;
+			var defaultSampleType = null;
+			for(sampleTypeCode in _this._sampleTableModel.sampleTypes) {
+				if(numSampleTypes === 0) {
+					defaultSampleType = sampleTypeCode;
+				}
+				numSampleTypes++;
+			}
+			
+			if(numSampleTypes === 1) {
+				_this._reloadTableWithSampleType(defaultSampleType);
+				_this._sampleTableView.getSampleTypeSelector().val(defaultSampleType);
+			}
 		});
 	}
 	

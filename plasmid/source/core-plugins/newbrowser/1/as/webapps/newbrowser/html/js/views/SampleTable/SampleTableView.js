@@ -17,6 +17,7 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	this._sampleTableController = sampleTableController;
 	this._sampleTableModel = sampleTableModel;
 	this._tableContainer = $("<div>");
+	this.sampleTypeSelector = null;
 	
 	this.repaint = function($container) {
 		$container.empty();
@@ -41,6 +42,13 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 	
 	this.getTableContainer = function() {
 		return this._tableContainer;
+	}
+	
+	//
+	// Components
+	//
+	this.getSampleTypeSelector = function() {
+		return this.sampleTypeSelector;
 	}
 	
 	//
@@ -82,11 +90,12 @@ function SampleTableView(sampleTableController, sampleTableModel) {
 		for(sampleTypeCode in this._sampleTableModel.sampleTypes) {
 			$sampleTypesSelector.append($('<option>', { 'value' : sampleTypeCode }).text(sampleTypeCode));
 		}
+		
 		$sampleTypesSelector.change(function(event) {
 			var sampleTypeToShow = $(this).val();
 			_this._sampleTableController._reloadTableWithSampleType(sampleTypeToShow);
 		});
-		
+		this.sampleTypeSelector = $sampleTypesSelector;
 		return $("<span>").append($sampleTypesSelector);
 	}
 	
