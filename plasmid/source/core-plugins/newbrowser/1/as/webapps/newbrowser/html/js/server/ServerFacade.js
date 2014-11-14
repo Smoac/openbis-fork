@@ -189,6 +189,10 @@ function ServerFacade(openbisServer) {
 	this.listOriginalDeletions = function(callback) {
 		this.openbisServer.listOriginalDeletions(callback);
 	}
+	
+	this.listDeletions = function(withDeletedEntities, callback) {
+		this.openbisServer.listDeletions(withDeletedEntities, callback);
+	}
 	//
 	// Data Set Related Functions
 	//
