@@ -111,24 +111,22 @@ def getPropertyType(propertyTypeCode):
             return propertyType
     return None;
 
-def createAnnotationsFor(permId, annotations):
+def createAnnotationsFor(identifier, annotations):
+    permId = entityInformationProvider().getSamplePermId(identifier);
     newAnnotation = elementFactory().createSampleLink(permId)
+    
+    newAnnotation.addAttribute("identifier", identifier)
     for annotation in annotations:
         newAnnotation.addAttribute(annotation, annotations[annotation])
     return newAnnotation
 
 def getWidgetForAdd(sampleTypeCode, annotableType):
     widgets = []
-    widgetPermId = inputWidgetFactory().createTextInputField("permId")\
+    widgetIdentifier = inputWidgetFactory().createTextInputField("identifier")\
                             .setMandatory(True)\
                             .setValue("")\
                             .setDescription("")
-    widgets.append(widgetPermId)
-    widgetCode = inputWidgetFactory().createTextInputField("code")\
-                            .setMandatory(True)\
-                            .setValue("")\
-                            .setDescription("")
-    widgets.append(widgetCode)
+    widgets.append(widgetIdentifier)
     for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
         propertyType = getPropertyType(propertyTypeCode)
         widget = inputWidgetFactory().createTextInputField(propertyType.label)\
@@ -139,7 +137,6 @@ def getWidgetForAdd(sampleTypeCode, annotableType):
     return widgets;
 
 def isValid(dataType, value):
-    print "isValid"
     return True
 ##
 ## Main Methods
@@ -148,9 +145,8 @@ def configureUI():
     annotableType = None
     # Add Headers
     tableBuilder = createTableBuilder()
-    tableBuilder.addHeader("permId")
-    tableBuilder.addHeader("code")
-    usedTableHeaders = {"permId" : True, "code" : True}
+    tableBuilder.addHeader("identifier")
+    usedTableHeaders = {"identifier" : True }
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             if propertyTypeCode not in usedTableHeaders:
@@ -166,7 +162,8 @@ def configureUI():
     for sample in samples:
         row = tableBuilder.addRow()
         for annotation in sample.getAttributes():
-            row.setCell(annotation, sample.getAttribute(annotation))
+            if annotation != "permId":
+                row.setCell(annotation, sample.getAttribute(annotation))
             
     # Add Create buttons
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
@@ -187,7 +184,7 @@ def updateFromUI(action):
     
     if action.name.startswith("Add"):
         sampleTypeCode = action.name[4:]
-        permId = action.getInputValue("permId")
+        identifier = action.getInputValue("identifier")
         annotations = {}
         for propertyTypeCode in getPropertyTypesForSampleTypeFromAnnotableType(sampleTypeCode, annotableType):
             propertyType = getPropertyType(propertyTypeCode)
@@ -195,7 +192,7 @@ def updateFromUI(action):
             if not isValid(propertyType.dataType, propertyTypeValue):
                 raise ValidationException("Property " + str(propertyType.label) + " with invalid value " + str(propertyTypeValue))
             annotations[propertyTypeCode] = propertyTypeValue
-        newAnnotation = createAnnotationsFor(permId, annotations)
+        newAnnotation = createAnnotationsFor(identifier, annotations)
         elements.append(newAnnotation)
     
     if action.name.startswith("Delete"):
@@ -223,23 +220,21 @@ def updateFromBatchInput(bindings):
         annotatedSamples = bindings.get(annotableSampleType)
         if annotatedSamples != None and annotatedSamples != "":
             for sampleLine in annotatedSamples.splitlines():
-                foundCode = False
-                foundPermId = False
+                foundIdentifier = False
                 propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
                 sampleLink = None
                 for sampleProperty in sampleLine.split(";"):
                     propertyName = sampleProperty.split(":")[0]
                     propertyValue = sampleProperty.split(":")[1]
-                    if propertyName == "permId":
-                        foundPermId = True
-                        sampleLink = elementFactory().createSampleLink(propertyValue)
-                    elif propertyName == "code":
-                        foundCode = True
+                    if propertyName == "identifier":
+                        foundIdentifier = True
+                        permId = entityInformationProvider().getSamplePermId(propertyValue)
+                        sampleLink = elementFactory().createSampleLink(permId)
                         sampleLink.addAttribute(propertyName, propertyValue)
                     elif propertyTypes[propertyName] != None:
                         sampleLink.addAttribute(propertyName, propertyValue)
                     else:
                         raise NameError('Found invalid property: ' + propertyName + " on type " + annotableSampleType)
-                if foundPermId and foundCode:
+                if foundIdentifier:
                     elements.append(sampleLink)
     property.value = propertyConverter().convertToString(elements)
