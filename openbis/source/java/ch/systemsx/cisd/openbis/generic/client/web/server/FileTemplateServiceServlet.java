@@ -54,8 +54,7 @@ public class FileTemplateServiceServlet extends AbstractFileDownloadServlet
     @Resource(name = ComponentNames.SESSION_MANAGER)
     protected IOpenBisSessionManager sessionManager;
     
-    @Private
-    FileTemplateServiceServlet()
+    public FileTemplateServiceServlet()
     {
         setSynchronizeOnSession(true);
         setRequireSession(false); // To allow upload a file for usage from an API given a session token we will manage an alternative session validation programatically.
