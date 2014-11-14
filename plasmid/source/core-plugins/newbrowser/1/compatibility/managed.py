@@ -219,7 +219,7 @@ def updateFromBatchInput(bindings):
     for annotableSampleType in getAllAnnotableSampleTypesForType(annotableType):
         annotatedSamples = bindings.get(annotableSampleType)
         if annotatedSamples != None and annotatedSamples != "":
-            for sampleLine in annotatedSamples.split("\""):
+            for sampleLine in annotatedSamples.split("\\"):
                 foundIdentifier = False
                 propertyTypes = getPropertyTypesForSampleTypeFromAnnotableType(annotableSampleType, annotableType)
                 sampleLink = None
