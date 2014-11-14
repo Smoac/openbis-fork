@@ -1420,6 +1420,20 @@ openbis.prototype.listOriginalDeletions = function(action) {
 }
 
 /**
+ * @see listDeletions(String)
+ * @method
+ */
+openbis.prototype.listDeletions = function(withDeletedEntities, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "listDeletions",
+				"params" : [ this.getSession(),
+				             withDeletedEntities ] },
+		success: action
+	});
+}
+
+/**
  * ============================================================================
  * ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer methods
  * ============================================================================

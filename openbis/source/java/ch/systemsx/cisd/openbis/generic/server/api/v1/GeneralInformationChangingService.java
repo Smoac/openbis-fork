@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -336,18 +337,52 @@ public class GeneralInformationChangingService extends
     
     @Override
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> listOriginalDeletions(String sessionToken) {
-        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> infos = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion>();
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = server.listOriginalDeletions(sessionToken);
-        for(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletion:deletions) {
+        return translate(deletions);
+    }
+    
+    @Override
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> listDeletions(String sessionToken, boolean withDeletedEntities) {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletions = server.listDeletions(sessionToken, withDeletedEntities);
+        return translate(deletions);
+    }
+
+    private List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> translate(List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion> deletionDTOs) {
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion> infos = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion>();
+        for(ch.systemsx.cisd.openbis.generic.shared.basic.dto.Deletion deletionDTO:deletionDTOs) {
             ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion deletionV1 = new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion();
-            deletionV1.setId(deletion.getId());
-            deletionV1.setTotalSamplesCount(deletion.getTotalSamplesCount());
-            deletionV1.setTotalExperimentsCount(deletion.getTotalExperimentsCount());
-            deletionV1.setTotalDatasetsCount(deletion.getTotalDatasetsCount());
-            deletionV1.setReasonOrNull(deletion.getReason());
+            deletionV1.setId(deletionDTO.getId());
+            deletionV1.setTotalSamplesCount(deletionDTO.getTotalSamplesCount());
+            deletionV1.setTotalExperimentsCount(deletionDTO.getTotalExperimentsCount());
+            deletionV1.setTotalDatasetsCount(deletionDTO.getTotalDatasetsCount());
+            deletionV1.setReasonOrNull(deletionDTO.getReason());
+            for(IEntityInformationHolderWithIdentifier deleteIdentifier:deletionDTO.getDeletedEntities()) {
+                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletedEntity deletedEntity = new ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletedEntity();
+                ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind entityKind = null;
+                switch(deleteIdentifier.getEntityKind()) {
+                    case MATERIAL:
+                        entityKind = ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind.MATERIAL;
+                        break;
+                    case EXPERIMENT:
+                        entityKind = ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind.EXPERIMENT;
+                        break;
+                    case SAMPLE:
+                        entityKind = ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind.SAMPLE;
+                        break;
+                    case DATA_SET:
+                        entityKind = ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind.DATA_SET;
+                        break;
+                }
+                deletedEntity.setEntityKind(entityKind);
+                deletedEntity.setEntityType(deleteIdentifier.getEntityType().getCode());
+                deletedEntity.setId(deleteIdentifier.getId());
+                deletedEntity.setPermId(deleteIdentifier.getPermId());
+                deletedEntity.setIdentifier(deleteIdentifier.getIdentifier());
+                deletedEntity.setCode(deleteIdentifier.getCode());
+                deletionV1.getDeletedEntities().add(deletedEntity);
+            }
             infos.add(deletionV1);
         }
         return infos;
     }
-
 }
