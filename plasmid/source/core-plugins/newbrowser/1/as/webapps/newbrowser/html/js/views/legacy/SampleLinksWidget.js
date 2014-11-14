@@ -63,7 +63,7 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 			this.stateObj[sample.permId] = sampleTypeAnnotations;
 		}
 		
-		sampleTypeAnnotations["code"] =  sample.code; //Adds code to the annotations if not present
+		sampleTypeAnnotations["identifier"] =  sample.identifier; //Adds code to the annotations if not present
 		
 		if(propertyTypeValue === null) {
 			delete this.stateObj[sample.permId];
@@ -76,14 +76,14 @@ function SampleLinksWidget(containerId, profile, serverFacade, title, sampleType
 		for(var permId in this.stateObj) {
 			xmlDoc	+= "<Sample permId=\"" + permId + "\""; 
 			for(var propertyTypeCode in this.stateObj[permId]) {
-				if(propertyTypeCode == "code") {
+				if(propertyTypeCode == "identifier") {
 					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
 					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
 				}
 			}
 			
 			for(var propertyTypeCode in this.stateObj[permId]) {
-				if(propertyTypeCode != "code") {
+				if(propertyTypeCode != "identifier") {
 					var propertyTypeValue = this.stateObj[permId][propertyTypeCode];
 					xmlDoc	+= " " + propertyTypeCode + "=\"" + propertyTypeValue +"\"";
 				}
