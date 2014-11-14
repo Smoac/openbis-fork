@@ -16,6 +16,8 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.dto;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -33,17 +35,21 @@ import org.apache.lucene.document.Field;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.Resolution;
 import org.hibernate.search.annotations.Store;
 import org.hibernate.search.bridge.FieldBridge;
 import org.hibernate.search.bridge.LuceneOptions;
+import org.hibernate.search.bridge.builtin.DateBridge;
 
 import ch.systemsx.cisd.common.reflection.ClassUtils;
 import ch.systemsx.cisd.common.reflection.ModifiedShortPrefixToStringStyle;
 import ch.systemsx.cisd.openbis.generic.shared.IServer;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataTypeCode;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.SearchFieldConstants;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.util.EqualsHashUtils;
+import ch.systemsx.cisd.openbis.generic.shared.util.SimplePropertyValidator.SupportedDatePattern;
 
 /**
  * Persistence entity representing entity property.
@@ -77,8 +83,8 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private VocabularyTermPE vocabularyTerm;
 
     /**
-     * If the property is of MATERIAL, this field is not <code>null</code> and {@link #value} and
-     * {@link #vocabularyTerm} fields are set to <code>null</code>.
+     * If the property is of MATERIAL, this field is not <code>null</code> and {@link #value} and {@link #vocabularyTerm} fields are set to
+     * <code>null</code>.
      */
     private MaterialPE material;
 
@@ -97,20 +103,41 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     private Date modificationDate;
 
     /**
-     * This bridge allows to save in the search index not only the value of property, but also the
-     * corresponding property code.
+     * This bridge allows to save in the search index not only the value of property, but also the corresponding property code.
      */
     public static class EntityPropertySearchBridge implements FieldBridge
     {
+
+        private static SimpleDateFormat dateFormat;
+
+        static
+        {
+            dateFormat = new SimpleDateFormat(SupportedDatePattern.CANONICAL_DATE_PATTERN.getPattern());
+        }
 
         @Override
         public void set(String name, Object/* EntityPropertyPE */value,
                 Document/* Lucene document */document, LuceneOptions luceneOptions)
         {
             EntityPropertyPE entityProperty = (EntityPropertyPE) value;
+
             String fieldValue = entityProperty.tryGetUntypedValue();
             String fieldPrefix = name;
             String fieldFullName = fieldPrefix + getPropertyFieldName(entityProperty);
+
+            if (DataTypeCode.TIMESTAMP.equals(entityProperty.getEntityTypePropertyType().getPropertyType().getType().getCode()))
+            {
+                try
+                {
+                    Date date = dateFormat.parse(fieldValue);
+                    DateBridge dateBridge = new DateBridge(Resolution.SECOND);
+                    fieldValue = dateBridge.objectToString(date);
+                } catch (ParseException e)
+                {
+                    // leave the original value
+                }
+            }
+
             Field field =
                     new Field(fieldFullName, fieldValue, luceneOptions.getStore(),
                             luceneOptions.getIndex());
@@ -228,9 +255,7 @@ public abstract class EntityPropertyPE extends HibernateAbstractRegistrationHold
     /**
      * Sets the <var>entity</var> of this property.
      * <p>
-     * <i>Do not use directly, instead, call
-     * {@link IEntityPropertiesHolder#addProperty(EntityPropertyPE)} with <code>this</code>
-     * object!</i>
+     * <i>Do not use directly, instead, call {@link IEntityPropertiesHolder#addProperty(EntityPropertyPE)} with <code>this</code> object!</i>
      */
     void setEntity(final IEntityPropertiesHolder entity)
     {

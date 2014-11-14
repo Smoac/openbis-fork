@@ -248,6 +248,54 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithDatePropertyThatEquals()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-08");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-09");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-10");
+        testSearch(TEST_USER, criterion, 0);
+    }
+
+    @Test
+    public void testSearchWithDatePropertyThatIsEarlierThanOrEqualTo()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 08:59:59");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 09:00:00");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithDatePropertyThatIsLasterThanOrEqualTo()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09 23:00:01");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09 23:00:00");
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
     public void testSearchWithAnyPropertyThatEquals()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();

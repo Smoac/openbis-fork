@@ -16,15 +16,12 @@
 
 package ch.systemsx.cisd.openbis.generic.server.dataaccess.db.search.detailed;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.TimeZone;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -59,8 +56,6 @@ import ch.systemsx.cisd.openbis.generic.shared.search.IgnoreCaseAnalyzer;
  */
 public class DetailedQueryBuilder
 {
-    private static final String[] DATE_FORMATS =
-        { "y-M-d HH:mm:ss", "y-M-d HH:mm", "y-M-d" };
 
     private final static Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DetailedQueryBuilder.class);
@@ -139,30 +134,16 @@ public class DetailedQueryBuilder
                 resultQuery.add(luceneQuery, occureCondition);
             } else
             {
-                Date lower = parseDate(criterion.getValue());
-                int offset = getTimeZoneOffset(criterion, lower);
-
-                lower.setTime(lower.getTime() + offset);
-                Date upper = new Date(lower.getTime() + 24 * 3600 * 1000);
-
-                switch (criterion.getType())
+                if (false == StringUtils.isEmpty(criterion.getValue()))
                 {
-                    case EQUALS:
-                        break;
-                    case LESS_THAN_OR_EQUAL:
-                        lower = new Date(0);
-                        break;
-                    case MORE_THAN_OR_EQUAL:
-                        upper = new Date(Long.MAX_VALUE);
-                        break;
+                    DateRangeCalculator rangeCalculator = new DateRangeCalculator(criterion.getValue(), criterion.getTimeZone(), criterion.getType());
+                    String fieldName = fieldNames.get(0);
+                    DateBridge bridge = new DateBridge(Resolution.SECOND);
+                    TermRangeQuery q =
+                            new TermRangeQuery(fieldName, bridge.objectToString(rangeCalculator.getLowerDate()),
+                                    bridge.objectToString(rangeCalculator.getUpperDate()), true, true);
+                    resultQuery.add(q, occureCondition);
                 }
-
-                String fieldName = fieldNames.get(0);
-                DateBridge bridge = new DateBridge(Resolution.SECOND);
-                TermRangeQuery q =
-                        new TermRangeQuery(fieldName, bridge.objectToString(lower),
-                                bridge.objectToString(upper), true, true);
-                resultQuery.add(q, occureCondition);
             }
         }
         for (DetailedSearchAssociationCriteria association : associations)
@@ -174,52 +155,6 @@ public class DetailedQueryBuilder
             resultQuery.add(luceneQuery, occureCondition);
         }
         return resultQuery;
-    }
-
-    private int getTimeZoneOffset(DetailedSearchCriterion criterion, Date lower)
-    {
-        String tzs = criterion.getTimeZone();
-        if (tzs.equals(DetailedSearchCriterion.SERVER_TIMEZONE))
-        {
-            return -TimeZone.getDefault().getOffset(lower.getTime());
-        }
-
-        if (tzs.startsWith("+"))
-        {
-            tzs = tzs.substring(1);
-        } else if (tzs.equals("Z"))
-        {
-            tzs = "0";
-        }
-
-        int offset;
-        try
-        {
-            offset = (int) (-Double.parseDouble(tzs) * 3600000);
-        } catch (NumberFormatException e)
-        {
-            offset = 0;
-        }
-        return offset;
-    }
-
-    private Date parseDate(String dateAsString)
-    {
-        for (String format : DATE_FORMATS)
-        {
-            SimpleDateFormat sdf = new SimpleDateFormat(format);
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-            try
-            {
-                return sdf.parse(dateAsString);
-            } catch (ParseException ex)
-            {
-                // ignore, try next format
-            }
-        }
-        throw new UserFailureException("Couldn't parse date '" + dateAsString
-                + "'. It has to match one of the following formats: " + Arrays.asList(DATE_FORMATS));
     }
 
     private List<String> extractAssociationPatterns(DetailedSearchAssociationCriteria association)
