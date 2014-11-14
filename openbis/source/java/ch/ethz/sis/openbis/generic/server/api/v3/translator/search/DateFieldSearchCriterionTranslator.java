@@ -63,7 +63,7 @@ public class DateFieldSearchCriterionTranslator extends AbstractFieldSearchCrite
         DetailedSearchField detailedSearchField = getDetailedSearchField(context, dateCriterion);
         CompareType compareType = getCompareType(dateCriterion.getFieldValue());
         String value = getValue(dateCriterion.getFieldValue());
-        String timeZone = getTimeZone(dateCriterion.getTimeZone());
+        String timeZone = getTimeZone(dateCriterion.getFieldValue(), dateCriterion.getTimeZone());
 
         return new SearchCriterionTranslationResult(new DetailedSearchCriterion(detailedSearchField, compareType, value, timeZone));
     }
@@ -101,17 +101,23 @@ public class DateFieldSearchCriterionTranslator extends AbstractFieldSearchCrite
         }
     }
 
-    private String getTimeZone(ITimeZone timeZone)
+    private String getTimeZone(IDate value, ITimeZone timeZone)
     {
-        if (timeZone instanceof ServerTimeZone)
+        if (value instanceof AbstractDateValue)
         {
-            return DetailedSearchCriterion.SERVER_TIMEZONE;
-        } else if (timeZone instanceof TimeZone)
-        {
-            return String.valueOf(((TimeZone) timeZone).getHourOffset());
+            if (timeZone instanceof ServerTimeZone)
+            {
+                return DetailedSearchCriterion.SERVER_TIMEZONE;
+            } else if (timeZone instanceof TimeZone)
+            {
+                return String.valueOf(((TimeZone) timeZone).getHourOffset());
+            } else
+            {
+                throw new IllegalArgumentException("Unknown date field time zone: " + timeZone);
+            }
         } else
         {
-            throw new IllegalArgumentException("Unknown date field time zone: " + timeZone);
+            return String.valueOf(0);
         }
     }
 }

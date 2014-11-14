@@ -54,21 +54,21 @@ public class DateRangeCalculatorTest
     public void testEqualToDateWithoutTimeWithPositiveTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "+1", CompareType.EQUALS);
-        assertDates(calculator, "2014-11-14 00:00:00.000", "2014-11-15 00:00:00.000");
+        assertDates(calculator, "2014-11-13 23:00:00.000", "2014-11-14 23:00:00.000");
     }
 
     @Test
     public void testEqualToDateWithoutTimeWithNegativeTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "-1", CompareType.EQUALS);
-        assertDates(calculator, "2014-11-14 00:00:00.000", "2014-11-15 00:00:00.000");
+        assertDates(calculator, "2014-11-14 01:00:00.000", "2014-11-15 01:00:00.000");
     }
 
     @Test
     public void testEqualToDateWithoutTimeWithServerTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "server", CompareType.EQUALS);
-        assertDates(calculator, "2014-11-14 00:00:00.000", "2014-11-15 00:00:00.000");
+        assertDates(calculator, "2014-11-13 23:00:00.000", "2014-11-14 23:00:00.000");
     }
 
     @Test
@@ -122,21 +122,21 @@ public class DateRangeCalculatorTest
     public void testLessThanOrEqualToDateWithoutTimeWithPositiveTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "1", CompareType.LESS_THAN_OR_EQUAL);
-        assertDates(calculator, "1970-01-01 00:00:00.000", "2014-11-15 00:00:00.000");
+        assertDates(calculator, "1970-01-01 00:00:00.000", "2014-11-14 23:00:00.000");
     }
 
     @Test
     public void testLessThanOrEqualToDateWithoutTimeWithNegativeTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "-1", CompareType.LESS_THAN_OR_EQUAL);
-        assertDates(calculator, "1970-01-01 00:00:00.000", "2014-11-15 00:00:00.000");
+        assertDates(calculator, "1970-01-01 00:00:00.000", "2014-11-15 01:00:00.000");
     }
 
     @Test
     public void testLessThanOrEqualToDateWithoutTimeWithServerTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "server", CompareType.LESS_THAN_OR_EQUAL);
-        assertDates(calculator, "1970-01-01 00:00:00.000", "2014-11-15 00:00:00.000");
+        assertDates(calculator, "1970-01-01 00:00:00.000", "2014-11-14 23:00:00.000");
     }
 
     @Test
@@ -184,21 +184,21 @@ public class DateRangeCalculatorTest
     public void testMoreThanOrEqualToDateWithoutTimeWithPositiveTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "1", CompareType.MORE_THAN_OR_EQUAL);
-        assertDates(calculator, "2014-11-14 00:00:00.000", "292278994-08-17 07:12:55.807");
+        assertDates(calculator, "2014-11-13 23:00:00.000", "292278994-08-17 07:12:55.807");
     }
 
     @Test
     public void testMoreThanOrEqualToDateWithoutTimeWithNegativeTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "-1", CompareType.MORE_THAN_OR_EQUAL);
-        assertDates(calculator, "2014-11-14 00:00:00.000", "292278994-08-17 07:12:55.807");
+        assertDates(calculator, "2014-11-14 01:00:00.000", "292278994-08-17 07:12:55.807");
     }
 
     @Test
     public void testMoreThanOrEqualToDateWithoutTimeWithServerTimeZoneOffset()
     {
         DateRangeCalculator calculator = new DateRangeCalculator("2014-11-14", "server", CompareType.MORE_THAN_OR_EQUAL);
-        assertDates(calculator, "2014-11-14 00:00:00.000", "292278994-08-17 07:12:55.807");
+        assertDates(calculator, "2014-11-13 23:00:00.000", "292278994-08-17 07:12:55.807");
     }
 
     @Test

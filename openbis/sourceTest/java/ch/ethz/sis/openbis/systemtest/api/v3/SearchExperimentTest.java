@@ -18,7 +18,9 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.testng.annotations.Test;
 
@@ -248,7 +250,7 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
-    public void testSearchWithDatePropertyThatEquals()
+    public void testSearchWithDatePropertyThatEqualsWithString()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
         criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-08");
@@ -259,39 +261,108 @@ public class SearchExperimentTest extends AbstractExperimentTest
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
 
         criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatEquals("2009-02-10");
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(2).thatEquals("2009-02-10");
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithDatePropertyThatEqualsWithDate() throws Exception
+    {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-08 23:59"));
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-09 00:00"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-09 23:59"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatEquals(format.parse("2009-02-10 00:00"));
         testSearch(TEST_USER, criterion, 0);
     }
 
     @Test
-    public void testSearchWithDatePropertyThatIsEarlierThanOrEqualTo()
+    public void testSearchWithDatePropertyThatIsEarlierThanOrEqualToWithString()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 08:59:59");
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-08");
         testSearch(TEST_USER, criterion, 0);
 
         criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 09:00:00");
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(1).thatIsEarlierThanOrEqualTo("2009-02-09 09:00");
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09 09:00");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
 
         criterion = new ExperimentSearchCriterion();
         criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsEarlierThanOrEqualTo("2009-02-09");
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(2).thatIsEarlierThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
     }
 
     @Test
-    public void testSearchWithDatePropertyThatIsLasterThanOrEqualTo()
+    public void testSearchWithDatePropertyThatEarlierThanOrEqualToWithDate() throws Exception
     {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09 23:00:01");
+        criterion.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 08:59"));
         testSearch(TEST_USER, criterion, 0);
 
         criterion = new ExperimentSearchCriterion();
-        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09 23:00:00");
-        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2");
+        criterion.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 09:00"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatIsEarlierThanOrEqualTo(format.parse("2009-02-09 23:00"));
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithDatePropertyThatIsLaterThanOrEqualToWithString()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-10");
+        testSearch(TEST_USER, criterion, 0);
 
         criterion = new ExperimentSearchCriterion();
         criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-09");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").withTimeZone(0).thatIsLaterThanOrEqualTo("2009-02-08");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
+    }
+
+    @Test
+    public void testSearchWithDatePropertyThatIsLaterThanOrEqualToWithDate() throws Exception
+    {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        format.setTimeZone(TimeZone.getTimeZone("GMT+1:00"));
+
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-10 00:01"));
+        testSearch(TEST_USER, criterion, 0);
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-10 00:00"));
+        testSearch(TEST_USER, criterion, "/TEST-SPACE/NOE/EXP-TEST-2");
+
+        criterion = new ExperimentSearchCriterion();
+        criterion.withDateProperty("PURCHASE_DATE").thatIsLaterThanOrEqualTo(format.parse("2009-02-09 10:00"));
         testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-2", "/TEST-SPACE/NOE/EXP-TEST-2");
     }
 

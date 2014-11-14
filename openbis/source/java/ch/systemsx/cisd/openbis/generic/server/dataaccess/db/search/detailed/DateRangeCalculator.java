@@ -49,12 +49,12 @@ public class DateRangeCalculator
     public DateRangeCalculator(String date, String timeZone, CompareType compareType)
     {
         lower = parseDate(date);
+        makeDateGMT(lower, timeZone);
 
         if (CompareType.EQUALS.equals(compareType))
         {
             if (isDateWithTime(date))
             {
-                makeDateGMT(lower, timeZone);
                 lower = new Date(lower.getTime() - (lower.getTime() % DateUtils.MILLIS_PER_DAY));
             }
             upper = new Date(lower.getTime() + DateUtils.MILLIS_PER_DAY);
@@ -65,16 +65,11 @@ public class DateRangeCalculator
                 upper = new Date(lower.getTime() + DateUtils.MILLIS_PER_DAY);
             } else
             {
-                makeDateGMT(lower, timeZone);
                 upper = new Date(lower.getTime());
             }
             lower = new Date(0);
         } else if (CompareType.MORE_THAN_OR_EQUAL.equals(compareType))
         {
-            if (isDateWithTime(date))
-            {
-                makeDateGMT(lower, timeZone);
-            }
             upper = new Date(Long.MAX_VALUE);
         }
     }
