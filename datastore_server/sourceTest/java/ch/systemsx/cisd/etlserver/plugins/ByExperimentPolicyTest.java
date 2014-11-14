@@ -233,6 +233,28 @@ public class ByExperimentPolicyTest extends AssertJUnit
     }
 
     @Test
+    public void testTooBigDataSetsAreArchivedOnTheirOwn()
+    {
+        ExtendedProperties props = new ExtendedProperties();
+        props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, "500");
+        props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, "1000");
+
+        ByExpermientPolicy policy = new ByExpermientPolicy(props);
+
+        ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+        dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds1", 7000L));
+        dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds2", 8000L));
+        dataSets.add(ctx.createDataset("p1", "e1", "dt1", "ds3", 9000L));
+        dataSets.add(ctx.createDataset("p1", "e2", "dt1", "ds4", 9000L));
+
+        List<AbstractExternalData> filtered = policy.filter(dataSets);
+
+        assertEquals("[ds1]", extractCodes(filtered).toString());
+
+        context.assertIsSatisfied();
+    }
+
+    @Test
     public void testSameDatatypeIsGroupedSmalls()
     {
         ExtendedProperties props = new ExtendedProperties();

@@ -112,14 +112,22 @@ public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchi
     {
         DatasetListWithTotal result = new DatasetListWithTotal();
 
+        // if there is one huge data set. archive it first
         for (AbstractExternalData ds : datasets)
         {
-            if (result.getCumulatedSize() + ds.getSize() > maxArchiveSize)
+            if (ds.getSize() >= maxArchiveSize)
             {
-                continue; // optimistically try to fit as much as possible
+                result.add(ds);
+                return result;
             }
+        }
 
-            result.add(ds);
+        for (AbstractExternalData ds : datasets)
+        {
+            if (result.getCumulatedSize() + ds.getSize() <= maxArchiveSize)
+            {
+                result.add(ds);
+            }
         }
 
         return result;
