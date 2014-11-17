@@ -46,41 +46,81 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			label : 'Reason',
 			property : 'reason',
 			sortable : true
-		} , {
-			label : 'Total Experiments',
-			property : 'totalExperiments',
-			sortable : true
-		} , {
-			label : 'Total Samples',
-			property : 'totalSamples',
-			sortable : true
-		} , {
-			label : 'Total Datasets',
-			property : 'totalDatasets',
-			sortable : true
 		}];
 		
 		var getDataList = function(callback) {
 			var dataList = [];
 			for(var delIdx = 0; delIdx < _this._trashManagerModel.deletions.length; delIdx++) {
 				var deletion = _this._trashManagerModel.deletions[delIdx];
-				var entities = null;
-				for(var enIdx = 0; enIdx < deletion.deletedEntities.length; enIdx++) {
-					if(entities) {
-						entities += "<br>";
-					} else {
-						entities = "";
+				
+				//
+				// 1. Build a text representation of the deleted entities counting how many of them have been returned.
+				//
+				var entitiesExperimentsCount = 0;
+				var entitiesExperiments = "";
+				var entitiesSamplesCount = 0;
+				var entitiesSamples = "";
+				var entitiesDatasetsCount = 0;
+				var entitiesDatasets = "";
+				
+				var addEntityToList = function(type, list, entity) {
+					if(list === "") {
+						list =  type + ":";
 					}
-					entities += deletion.deletedEntities[enIdx].entityKind
-							+ " - " + deletion.deletedEntities[enIdx].identifier
-							+ " (" + deletion.deletedEntities[enIdx].entityType + ")";
+					list += "<br>";
+					list += deletion.deletedEntities[enIdx].identifier + " (" + deletion.deletedEntities[enIdx].entityType + ")";
+					return list;
 				}
+				
+				for(var enIdx = 0; enIdx < deletion.deletedEntities.length; enIdx++) {
+					var entity = deletion.deletedEntities[enIdx];
+					switch(deletion.deletedEntities[enIdx].entityKind) {
+						case "EXPERIMENT":
+							entitiesExperimentsCount++;
+							entitiesExperiments = addEntityToList("Experiments", entitiesExperiments, entity);
+							break;
+						case "SAMPLE":
+							entitiesSamplesCount++;
+							entitiesSamples = addEntityToList("Samples", entitiesSamples, entity);
+							break;
+						case "DATA_SET":
+							entitiesDatasetsCount++;
+							entitiesDatasets = addEntityToList("Datasets", entitiesDatasets, entity);
+							break;
+					}
+				}
+				
+				//
+				// 2. Add at the end of each entity a counter with the entities that are missing.
+				//
+				if(deletion.totalExperimentsCount > entitiesExperimentsCount) {
+					entitiesExperiments += "<br> (plus " + (deletion.totalExperimentsCount - entitiesExperimentsCount) + " more) ..."
+				}
+				
+				if(deletion.totalSamplesCount > entitiesSamplesCount) {
+					entitiesSamples += "<br> (plus " + (deletion.totalSamplesCount - entitiesSamplesCount) + " more) ..."
+				}
+				
+				if(deletion.totalDatasetsCount > entitiesDatasetsCount) {
+					entitiesDatasets += "<br> (plus " + (deletion.totalDatasetsCount - entitiesDatasetsCount) + " more) ..."
+				}
+				
+				//
+				// 3. Small Layout fixes.
+				//
+				if(entitiesExperiments !== "" && entitiesSamples !== "") {
+					entitiesSamples = "<br>" + entitiesSamples;
+				}
+				if(entitiesSamples !== "" && entitiesDatasets !== "") {
+					entitiesDatasets = "<br>" + entitiesDatasets;
+				}
+				
+				//
+				// 4. Push data into list
+				//
 				dataList.push({
-					entities : entities,
-					reason : deletion.reasonOrNull,
-					totalExperiments : deletion.totalExperimentsCount,
-					totalSamples : deletion.totalSamplesCount,
-					totalDatasets : deletion.totalDatasetsCount
+					entities : entitiesExperiments + entitiesSamples + entitiesDatasets,
+					reason : deletion.reasonOrNull
 				});
 			}
 			callback(dataList);
