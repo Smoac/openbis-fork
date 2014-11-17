@@ -90,8 +90,6 @@ function MainController(profile) {
 		$("#main").show();
 	
 		//Get Metadata from all sample types before showing the main menu
-		
-		
 		this.serverFacade.listSampleTypes (
 			function(result) {
 				//Load Sample Types
@@ -166,6 +164,11 @@ function MainController(profile) {
 		//
 		
 		switch (newViewChange) {
+			case "showTrashcanPage":
+				document.title = "Storage Manager";
+				this._showTrashcan();
+				window.scrollTo(0,0);
+				break;
 			case "showStorageManager":
 				document.title = "Storage Manager";
 				this._showStorageManager();
@@ -370,9 +373,6 @@ function MainController(profile) {
 	
 	this._showInspectors = function() {
 		//Show Inspectors
-		//var examineController = new ExamineController(this);
-		//examineController.init($("#mainContainer"));
-		//this.currentView = examineController;
 		this.inspector.repaint();
 	}
 	
@@ -401,7 +401,6 @@ function MainController(profile) {
 	}
 
 	this._showSampleHierarchyPage = function(permId) {
-		
 		//Show View
 		var localInstance = this;
 		this.serverFacade.searchWithUniqueId(permId, function(data) {
@@ -440,7 +439,12 @@ function MainController(profile) {
 		this.currentView = sampleFormController;
 		sampleFormController.init($("#mainContainer"));
 	}
-
+	
+	this._showTrashcan = function() {
+		var trashcanController = new TrashManagerController(this);
+		this.trashcanController = trashcanController;
+		trashcanController.init($("#mainContainer"));
+	}
 	
 	this._showViewSamplePage = function(sample, isELNSubExperiment) {
 		//Show Form

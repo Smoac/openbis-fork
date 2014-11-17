@@ -304,6 +304,9 @@ function SideMenuWidgetController(mainController) {
                                     new SideMenuWidgetComponent(true, false, "Storage Manager", "Storage Manager", _this._sideMenuWidgetModel.menuStructure, null, "showStorageManager", null, "")
                                     );
                         }
+                        _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
+                                new SideMenuWidgetComponent(true, false, "Trashcan", "Trashcan", _this._sideMenuWidgetModel.menuStructure, null, "showTrashcanPage", null, "")
+                                );
                         _this._sideMenuWidgetView.repaintFirst($container);
                     });
 
