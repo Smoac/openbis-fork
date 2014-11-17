@@ -165,7 +165,7 @@ function MainController(profile) {
 		
 		switch (newViewChange) {
 			case "showTrashcanPage":
-				document.title = "Storage Manager";
+				document.title = "Trashcan Manager";
 				this._showTrashcan();
 				window.scrollTo(0,0);
 				break;
