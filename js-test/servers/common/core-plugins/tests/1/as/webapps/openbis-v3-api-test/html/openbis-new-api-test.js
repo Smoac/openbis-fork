@@ -165,7 +165,7 @@ var createSampleFetchOptions = function() {
 	return {
 		"@type" : "SampleFetchOptions",
 
-		"sampleType" : {
+		"type" : {
 			"@type" : "SampleTypeFetchOptions"
 		},
 
@@ -205,21 +205,21 @@ var createSampleFetchOptions = function() {
 	}
 }
 
-test("listExperiments()", function() {
+test("mapExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.ajaxRequest({
 			url : testApiUrl,
 			data : {
-				"method" : "listExperiments",
+				"method" : "mapExperiments",
 				"params" : [ facade.sessionToken, [ {
 					"@type" : "ExperimentPermId",
 					"permId" : "20130412105232616-2"
 				} ], createExperimentFetchOptions() ]
 			},
 			success : function(experiments) {
-				assertObjectsCount(experiments, 1);
+				assertObjectsCount(Object.keys(experiments), 1);
 
-				var experiment = experiments[0];
+				var experiment = experiments["20130412105232616-2"];
 				equal(experiment.code, "EXP-1", "Experiment code");
 				equal(experiment.type.code, "HCS_PLATONIC", "Type code");
 				equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
@@ -230,23 +230,23 @@ test("listExperiments()", function() {
 	});
 });
 
-test("listSamples()", function() {
+test("mapSamples()", function() {
 	createFacadeAndLogin(function(facade) {
 		facade.ajaxRequest({
 			url : testApiUrl,
 			data : {
-				"method" : "listSamples",
+				"method" : "mapSamples",
 				"params" : [ facade.sessionToken, [ {
 					"@type" : "SamplePermId",
 					"permId" : "20130412140147735-20"
 				} ], createSampleFetchOptions() ]
 			},
 			success : function(samples) {
-				assertObjectsCount(samples, 1);
+				assertObjectsCount(Object.keys(samples), 1);
 
-				var sample = samples[0];
+				var sample = samples["20130412140147735-20"];
 				equal(sample.code, "PLATE-1", "Sample code");
-				equal(sample.sampleType.code, "PLATE", "Type code");
+				equal(sample.type.code, "PLATE", "Type code");
 				equal(sample.experiment.code, "EXP-1", "Experiment code");
 				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
 				equal(sample.space.code, "PLATONIC", "Space code");
@@ -309,7 +309,7 @@ test("searchSamples()", function() {
 
 				var sample = samples[0];
 				equal(sample.code, "PLATE-1", "Sample code");
-				equal(sample.sampleType.code, "PLATE", "Type code");
+				equal(sample.type.code, "PLATE", "Type code");
 				equal(sample.experiment.code, "EXP-1", "Experiment code");
 				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
 				equal(sample.space.code, "PLATONIC", "Space code");
@@ -343,8 +343,8 @@ test("createExperiments()", function() {
 					},
 
 					"tagIds" : [ {
-						"@type" : "TagNameId",
-						"name" : "CREATE_JSON_TAG"
+						"@type" : "TagCode",
+						"code" : "CREATE_JSON_TAG"
 					} ]
 
 				} ] ]
@@ -353,18 +353,18 @@ test("createExperiments()", function() {
 				facade.ajaxRequest({
 					url : testApiUrl,
 					data : {
-						"method" : "listExperiments",
+						"method" : "mapExperiments",
 						"params" : [ facade.sessionToken, [ experimentPermIds[0] ], createExperimentFetchOptions() ]
 					},
 					success : function(experiments) {
-						assertObjectsCount(experiments, 1);
+						assertObjectsCount(Object.keys(experiments), 1);
 
-						var experiment = experiments[0];
+						var experiment = experiments[experimentPermIds[0].permId];
 						equal(experiment.code, code, "Experiment code");
 						equal(experiment.type.code, "UNKNOWN", "Type code");
 						equal(experiment.project.code, "TEST-PROJECT", "Project code");
 						equal(experiment.project.space.code, "TEST", "Space code");
-						equal(experiment.tags[0].name, "CREATE_JSON_TAG", "Tag code");
+						equal(experiment.tags[0].code, "CREATE_JSON_TAG", "Tag code");
 						facade.close();
 					}
 				});
@@ -397,8 +397,8 @@ test("createSamples()", function() {
 					},
 
 					"tagIds" : [ {
-						"@type" : "TagNameId",
-						"name" : "CREATE_JSON_TAG"
+						"@type" : "TagCode",
+						"code" : "CREATE_JSON_TAG"
 					} ]
 
 				} ] ]
@@ -407,15 +407,15 @@ test("createSamples()", function() {
 				facade.ajaxRequest({
 					url : testApiUrl,
 					data : {
-						"method" : "listSamples",
+						"method" : "mapSamples",
 						"params" : [ facade.sessionToken, [ samplePermIds[0] ], createSampleFetchOptions() ]
 					},
 					success : function(samples) {
-						assertObjectsCount(samples, 1);
+						assertObjectsCount(Object.keys(samples), 1);
 
-						var sample = samples[0];
+						var sample = samples[samplePermIds[0].permId];
 						equal(sample.code, code, "Sample code");
-						equal(sample.sampleType.code, "UNKNOWN", "Type code");
+						equal(sample.type.code, "UNKNOWN", "Type code");
 						equal(sample.space.code, "TEST", "Space code");
 						facade.close();
 					}
@@ -472,13 +472,13 @@ test("updateExperiments()", function() {
 						facade.ajaxRequest({
 							url : testApiUrl,
 							data : {
-								"method" : "listExperiments",
+								"method" : "mapExperiments",
 								"params" : [ facade.sessionToken, [ experimentPermIds[0] ], createExperimentFetchOptions() ]
 							},
 							success : function(experiments) {
-								assertObjectsCount(experiments, 1);
+								assertObjectsCount(Object.keys(experiments), 1);
 
-								var experiment = experiments[0];
+								var experiment = experiments[experimentPermIds[0].permId];
 								equal(experiment.code, code, "Experiment code");
 								equal(experiment.type.code, "UNKNOWN", "Type code");
 								equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
@@ -540,15 +540,15 @@ test("updateSamples()", function() {
 						facade.ajaxRequest({
 							url : testApiUrl,
 							data : {
-								"method" : "listSamples",
+								"method" : "mapSamples",
 								"params" : [ facade.sessionToken, [ samplePermIds[0] ], createSampleFetchOptions() ]
 							},
 							success : function(samples) {
-								assertObjectsCount(samples, 1);
+								assertObjectsCount(Object.keys(samples), 1);
 
-								var sample = samples[0];
+								var sample = samples[samplePermIds[0].permId];
 								equal(sample.code, code, "Sample code");
-								equal(sample.sampleType.code, "UNKNOWN", "Type code");
+								equal(sample.type.code, "UNKNOWN", "Type code");
 								equal(sample.space.code, "TEST", "Space code");
 								facade.close();
 							}
@@ -559,4 +559,3 @@ test("updateSamples()", function() {
 		});
 	});
 });
-
