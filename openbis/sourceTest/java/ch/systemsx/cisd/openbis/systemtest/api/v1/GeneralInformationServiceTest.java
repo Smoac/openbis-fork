@@ -40,11 +40,14 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Attachment;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet.Connections;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetType;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Deletion;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DeletionType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityRegistrationDetails.EntityRegistrationDetailsInitializer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -108,6 +111,9 @@ public class GeneralInformationServiceTest extends SystemTestCase
 
     @Autowired
     private IGeneralInformationService generalInformationService;
+
+    @Autowired
+    private IGeneralInformationChangingService generalInformationChangingService;
 
     private String sessionToken;
 
@@ -2214,6 +2220,28 @@ public class GeneralInformationServiceTest extends SystemTestCase
         final Attachment a2 = attachments2.get(0);
         assertEquals(a, a2);
 
+    }
+
+    @Test
+    public void testListDeletions()
+    {
+        String adminUserSessionToken = generalInformationService.tryToAuthenticateForAllServices("test", "password");
+        String spaceUserSessionToken = generalInformationService.tryToAuthenticateForAllServices("test_role", "password");
+
+        List<Deletion> adminUserDeletionsBefore = generalInformationService.listDeletions(adminUserSessionToken, null);
+        List<Deletion> spaceUserDeletionsBefore = generalInformationService.listDeletions(spaceUserSessionToken, null);
+
+        generalInformationChangingService.deleteDataSets(adminUserSessionToken, Arrays.asList("20081105092159188-3"), "test access to deletion",
+                DeletionType.TRASH);
+
+        List<Deletion> adminUserDeletionsAfter = generalInformationService.listDeletions(adminUserSessionToken, null);
+        List<Deletion> spaceUserDeletionsAfter = generalInformationService.listDeletions(spaceUserSessionToken, null);
+
+        assertEquals(adminUserDeletionsBefore.size() + 1, adminUserDeletionsAfter.size());
+        assertEquals(spaceUserDeletionsBefore.size(), spaceUserDeletionsAfter.size());
+
+        generalInformationService.logout(adminUserSessionToken);
+        generalInformationService.logout(spaceUserSessionToken);
     }
 
     private void sortDataSets(List<DataSet> dataSets)
