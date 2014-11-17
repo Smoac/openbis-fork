@@ -77,8 +77,11 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		//
 		// Empty all button
 		//
-		this.deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
-		$containerColumn.append(this.deleteAllBtn);
+		var deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
+		deleteAllBtn.click(function() {
+			_this._trashManagerController.emptyTrash();
+		});
+		$containerColumn.append(deleteAllBtn);
 		//
 		$container.append($containerColumn);
 	}

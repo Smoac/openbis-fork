@@ -19,6 +19,20 @@ function TrashManagerController(mainController) {
 	this._trashManagerModel = new TrashManagerModel();
 	this._trashManagerView = new TrashManagerView(this, this._trashManagerModel);
 	
+	this.emptyTrash = function() {
+		var deleteIds = [];
+		
+		for(var delIdx = 0; delIdx < this._trashManagerModel.deletions.length; delIdx++) {
+			var deletion = this._trashManagerModel.deletions[delIdx];
+			deleteIds.push(deletion.id);
+		}
+		
+		mainController.serverFacade.deletePermanently(deleteIds, function(data) {
+			Util.showSuccess("TrashCan cleaned.");
+			mainController.changeView('showTrashcanPage', null);
+		});
+	}
+	
 	this.init = function($container) {
 		var _this = this;
 		mainController.serverFacade.listDeletions(function(data) {
