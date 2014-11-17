@@ -201,8 +201,8 @@ function SideMenuWidgetController(mainController) {
 
                         var menuItemExperiment = new SideMenuWidgetComponent(true, false, displayName, experiment.identifier, projectNode, newMenuIfSelectedExperiment, "showExperimentPageFromIdentifier", experiment.identifier, "(Experiment)");
                         projectNode.newMenuIfSelected.children.push(menuItemExperiment);
+                        projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
                     }
-                    projectNode.newMenuIfSelected.children.sort(naturalSortSideMenuWidgetComponent); //Sort Experiments
                 }
 
                 //Fill Sub Experiments
