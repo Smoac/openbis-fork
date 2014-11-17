@@ -186,12 +186,8 @@ function ServerFacade(openbisServer) {
 		this.openbisServer.deleteProjects(projectIds, reason, callback);
 	}
 	
-	this.listOriginalDeletions = function(callback) {
-		this.openbisServer.listOriginalDeletions(callback);
-	}
-	
-	this.listDeletions = function(withDeletedEntities, callback) {
-		this.openbisServer.listDeletions(withDeletedEntities, callback);
+	this.listDeletions = function(callback) {
+		this.openbisServer.listDeletions(["ALL_ENTITIES"], callback);
 	}
 	//
 	// Data Set Related Functions
