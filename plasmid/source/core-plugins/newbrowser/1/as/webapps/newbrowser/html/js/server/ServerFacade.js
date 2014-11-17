@@ -193,6 +193,11 @@ function ServerFacade(openbisServer) {
 	this.deletePermanently = function(deletionIds, callback) {
 		this.openbisServer.deletePermanently(deletionIds, callback);
 	}
+	
+	this.revertDeletions = function(deletionIds, callback) {
+		this.openbisServer.revertDeletions(deletionIds, callback);
+	}
+	
 	//
 	// Data Set Related Functions
 	//

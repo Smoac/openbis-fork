@@ -46,6 +46,49 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			label : 'Reason',
 			property : 'reason',
 			sortable : true
+		} , {
+			label : "Operations",
+			property : 'operations',
+			sortable : false,
+			render : function(data) {
+				//Dropdown Setup
+				var $dropDownMenu = $("<span>", { class : 'dropdown' });
+				var $caret = $("<a>", { 'href' : '#', 'data-toggle' : 'dropdown', class : 'dropdown-toggle btn btn-default'}).append("Operations ").append($("<b>", { class : 'caret' }));
+				var $list = $("<ul>", { class : 'dropdown-menu', 'role' : 'menu', 'aria-labelledby' :'sampleTableDropdown' });
+				$dropDownMenu.append($caret);
+				$dropDownMenu.append($list);
+				
+				var clickFunction = function($dropDown) {
+					return function(event) {
+						event.stopPropagation();
+						event.preventDefault();
+						$caret.dropdown('toggle');
+					};
+				}
+				$dropDownMenu.dropdown();
+				$dropDownMenu.click(clickFunction($dropDownMenu));
+				
+				//Options
+				var $recoverOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Revert Deletions'}).append("Revert Deletions"));
+				$recoverOption.click(function(e) {
+					_this._trashManagerController.revertDeletions([data.entity.id]);
+				});
+				$list.append($recoverOption);
+				
+				var $removeOption = $("<li>", { 'role' : 'presentation' }).append($("<a>", {'title' : 'Remove Permanently'}).append("Delete Permanently"));
+				$removeOption.click(function(e) {
+					_this._trashManagerController.deletePermanently([data.entity.id]);
+				});
+				$list.append($removeOption);
+				
+				return $dropDownMenu;
+			},
+			filter : function(data, filter) {
+				return false;
+			},
+			sort : function(data1, data2, asc) {
+				return 0;
+			}
 		}];
 		
 		var getDataList = function(callback) {
@@ -120,7 +163,8 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 				//
 				dataList.push({
 					entities : entitiesExperiments + entitiesSamples + entitiesDatasets,
-					reason : deletion.reasonOrNull
+					reason : deletion.reasonOrNull,
+					entity : deletion
 				});
 			}
 			callback(dataList);
