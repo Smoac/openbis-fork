@@ -85,6 +85,11 @@ class GenericFastaFileBuilder
         this.baseName = baseName;
     }
     
+    String getBaseName()
+    {
+        return baseName;
+    }
+    
     void appendToSequence(String line)
     {
         if (currentFastaEntry == null)
@@ -106,10 +111,11 @@ class GenericFastaFileBuilder
         return "Unspecified entry";
     }
 
-    void startEntry(EntryType entryType, String id)
+    void startEntry(EntryType entryType, String id, SequenceType sequenceTypeOrNull)
     {
         writeFastaEntry();
         currentFastaEntry = new FastaEntry(id);
+        currentFastaEntry.setSeqType(sequenceTypeOrNull);
         currentEntryType = entryType;
     }
     
@@ -191,7 +197,7 @@ class GenericFastaFileBuilder
 
     private File getFastaFile(SequenceType seqType)
     {
-        return new File(tempFolder, baseName + "-" + seqType.toString().toLowerCase() + ".fa");
+        return new File(tempFolder, BlastUtilities.createDatabaseName(baseName, seqType) + ".fa");
     }
     
 }

@@ -57,7 +57,7 @@ class FastaFileBuilderForDataSetFiles extends GenericFastaFileBuilder
             {
                 throw new IllegalStateException("File path not set [Data Set: " + dataSetCode + "].");
             }
-            startEntry(entryType, line.substring(1) + " " + idExtension);
+            startEntry(entryType, line.substring(1) + " " + idExtension, null);
         } else
         {
             appendToSequence(line);

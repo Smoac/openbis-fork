@@ -18,33 +18,37 @@ package ch.systemsx.cisd.etlserver.plugins;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
+import ch.systemsx.cisd.common.fasta.FastaUtilities;
 import ch.systemsx.cisd.common.fasta.SequenceType;
 import ch.systemsx.cisd.common.filesystem.FileUtilities;
 import ch.systemsx.cisd.common.logging.LogCategory;
@@ -53,6 +57,8 @@ import ch.systemsx.cisd.common.maintenance.IMaintenanceTask;
 import ch.systemsx.cisd.common.process.ProcessExecutionHelper;
 import ch.systemsx.cisd.common.process.ProcessResult;
 import ch.systemsx.cisd.common.properties.PropertyUtils;
+import ch.systemsx.cisd.common.string.Template;
+import ch.systemsx.cisd.etlserver.plugins.GenericFastaFileBuilder.EntryType;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContent;
 import ch.systemsx.cisd.openbis.common.io.hierarchical_content.api.IHierarchicalContentNode;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
@@ -64,8 +70,6 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWit
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityPropertiesHolder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
@@ -87,6 +91,12 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     
     private static final String DEFAULT_LAST_SEEN_DATA_SET_FILE = "last-seen-data-set-for-BLAST-database-creation";
     private static final String DEFAULT_FILE_TYPES = ".fasta .fa .fsa .fastq";
+    private static final String ID_DELIM = "+";
+    private static final String DB_NAME_DELIM = "+";
+    private static final Template ID_TEMPLATE = new Template("${entityKind}" + ID_DELIM + "${permId}"
+            + ID_DELIM + "${propertyType}" + ID_DELIM + "${timestamp}");
+    private static final String TIMESTAMP_TEMPLATE = "yyyyMMddHHmmss";
+
     private static final Logger operationLog =
             LogFactory.getLogger(LogCategory.OPERATION, BlastDatabaseCreationMaintenanceTask.class);
     private static final Logger machineLog =
@@ -105,23 +115,16 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     @Override
     public void setUp(String pluginName, Properties properties)
     {
-        List<String> dataSetTypeRegexs = PropertyUtils.getMandatoryList(properties, DATASET_TYPES_PROPERTY);
-        dataSetTypePatterns = new ArrayList<Pattern>();
-        for (String regex : dataSetTypeRegexs)
-        {
-            try
-            {
-                dataSetTypePatterns.add(Pattern.compile(regex));
-            } catch (PatternSyntaxException ex)
-            {
-                throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY 
-                        + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
-            }
-        }
+        dataSetTypePatterns = getDataSetTypePatterns(properties);
         fileTypes = Arrays.asList(properties.getProperty(FILE_TYPES_PROPERTY, DEFAULT_FILE_TYPES).split(" +"));
         operationLog.info("File types: " + fileTypes);
         lastSeenDataSetFile = getFile(properties, LAST_SEEN_DATA_SET_FILE_PROPERTY, DEFAULT_LAST_SEEN_DATA_SET_FILE);
         loaders = createLoaders(properties);
+        if (dataSetTypePatterns.isEmpty() && loaders.isEmpty())
+        {
+            throw new ConfigurationFailureException("At least one of the two properties have to be defined: "
+                    + DATASET_TYPES_PROPERTY + ", " + ENTITY_SEQUENCE_PROPERTIES_PROPERTY);
+        }
         setUpBlastDatabasesFolder(properties);
         setUpBlastTempFolder(properties);
         String blastToolDirectory = BlastUtils.getBLASTToolDirectory(properties);
@@ -134,6 +137,27 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         makembindex = blastToolDirectory + "makembindex";
         
+    }
+    
+    private List<Pattern> getDataSetTypePatterns(Properties properties)
+    {
+        List<Pattern> patterns = new ArrayList<Pattern>();
+        List<String> dataSetTypeRegexs = PropertyUtils.tryGetList(properties, DATASET_TYPES_PROPERTY);
+        if (dataSetTypeRegexs != null)
+        {
+            for (String regex : dataSetTypeRegexs)
+            {
+                try
+                {
+                    patterns.add(Pattern.compile(regex));
+                } catch (PatternSyntaxException ex)
+                {
+                    throw new ConfigurationFailureException("Property '" + DATASET_TYPES_PROPERTY 
+                            + "' has invalid regular expression '" + regex + "': " + ex.getMessage());
+                }
+            }
+        }
+        return patterns;
     }
     
     private List<Loader> createLoaders(Properties properties)
@@ -224,20 +248,72 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         
         createBlastDatabasesForDataSets(service, virtualDatabases);
         createBlastDatabasesForEntities(service, virtualDatabases);
+        Collection<VirtualDatabase> values = virtualDatabases.values();
+        for (VirtualDatabase virtualDatabase : values)
+        {
+            virtualDatabase.save();
+        }
     }
-
+    
     private void createBlastDatabasesForEntities(IEncapsulatedOpenBISService service, 
             Map<SequenceType, VirtualDatabase> virtualDatabases)
     {
+        DateFormat dateFormat = new SimpleDateFormat(TIMESTAMP_TEMPLATE);
         for (Loader loader : loaders)
         {
-            List<Sequence> sequences = loader.load(service);
+            Map<SequenceType, Sequences> map = loader.load(service);
+            for (Entry<SequenceType, Sequences> entry : map.entrySet())
+            {
+                SequenceType sequenceType = entry.getKey();
+                VirtualDatabase virtualDatabase = virtualDatabases.get(sequenceType);
+                Sequences sequences = entry.getValue();
+                String baseName = loader.getDefinition() + DB_NAME_DELIM 
+                        + dateFormat.format(sequences.getLatestModificationDate());
+                if (databaseExist(baseName, sequenceType))
+                {
+                    virtualDatabase.keepDatabase(baseName);
+                    continue;
+                }
+                GenericFastaFileBuilder builder = new GenericFastaFileBuilder(tmpFolder, baseName);
+                for (Sequence sequence : sequences.getSequences())
+                {
+                    Template template = ID_TEMPLATE.createFreshCopy();
+                    template.bind("entityKind", loader.getEntityKind());
+                    template.bind("permId", sequence.getPermId());
+                    template.bind("propertyType", sequence.getPropertyType());
+                    template.bind("timestamp", dateFormat.format(sequence.getModificationDate()));
+                    String id = template.createText();
+                    builder.startEntry(EntryType.FASTA, id, sequenceType);
+                    builder.appendToSequence(sequence.getSequence());
+                }
+                createBlastDatabases(builder, virtualDatabases);
+            }
         }
+    }
+    
+    private boolean databaseExist(String baseName, SequenceType sequenceType)
+    {
+        String[] fileNames = blastDatabasesFolder.list();
+        if (fileNames != null)
+        {
+            for (String fileName : fileNames)
+            {
+                if (fileName.startsWith(BlastUtilities.createDatabaseName(baseName, sequenceType)))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     private void createBlastDatabasesForDataSets(IEncapsulatedOpenBISService service, 
             Map<SequenceType, VirtualDatabase> virtualDatabases)
     {
+        if (dataSetTypePatterns.isEmpty())
+        {
+            return;
+        }
         IHierarchicalContentProvider contentProvider = getContentProvider();
         List<AbstractExternalData> dataSets = getDataSets(service);
         if (dataSets.isEmpty() == false)
@@ -261,31 +337,6 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
     }
 
-    private Map<SequenceType, VirtualDatabase> loadVirtualDatabases(IEncapsulatedOpenBISService service)
-    {
-        Map<SequenceType, VirtualDatabase> virtualDatabases = new TreeMap<SequenceType, VirtualDatabase>();
-        Set<String> dataSetCodes = new HashSet<String>();
-        for (SequenceType sequenceType : SequenceType.values())
-        {
-            VirtualDatabase virtualDatabase = new VirtualDatabase(blastDatabasesFolder, sequenceType);
-            dataSetCodes.addAll(virtualDatabase.getDataSetCodes());
-            virtualDatabases.put(sequenceType, virtualDatabase);
-        }
-        if (dataSetCodes.isEmpty() == false)
-        {
-            Set<String> deletedDataSetCodes = new HashSet<String>();
-            for (DeletedDataSet deletedDataSet : service.listDeletedDataSets(null, null))
-            {
-                deletedDataSetCodes.add(deletedDataSet.getCode());
-            }
-            for (VirtualDatabase virtualDatabase : virtualDatabases.values())
-            {
-                virtualDatabase.removeDeletedDataSets(deletedDataSetCodes);
-            }
-        }
-        return virtualDatabases;
-    }
-    
     private boolean dataSetTypeMatches(AbstractExternalData dataSet)
     {
         String dataSetType = dataSet.getDataSetType().getCode();
@@ -298,7 +349,25 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         }
         return false;
     }
-
+    
+    private Map<SequenceType, VirtualDatabase> loadVirtualDatabases(IEncapsulatedOpenBISService service)
+    {
+        Map<SequenceType, VirtualDatabase> virtualDatabases = new EnumMap<SequenceType, VirtualDatabase>(SequenceType.class);
+        for (SequenceType sequenceType : SequenceType.values())
+        {
+            VirtualDatabase virtualDatabase = new VirtualDatabase(blastDatabasesFolder, sequenceType);
+            virtualDatabases.put(sequenceType, virtualDatabase);
+        }
+        for (DeletedDataSet deletedDataSet : service.listDeletedDataSets(null, null))
+        {
+            for (VirtualDatabase virtualDatabase : virtualDatabases.values())
+            {
+                virtualDatabase.deleteDatabase(deletedDataSet.getCode());
+            }
+        }
+        return virtualDatabases;
+    }
+    
     private void createBlastDatabase(AbstractExternalData dataSet, Map<SequenceType, VirtualDatabase> virtualDatabases,
             IHierarchicalContentProvider contentProvider)
     {
@@ -307,7 +376,13 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         IHierarchicalContent content = contentProvider.asContent(dataSet);
         IHierarchicalContentNode rootNode = content.getRootNode();
         handle(rootNode, builder);
+        createBlastDatabases(builder, virtualDatabases);
+    }
+
+    private void createBlastDatabases(GenericFastaFileBuilder builder, Map<SequenceType, VirtualDatabase> virtualDatabases)
+    {
         builder.finish();
+        String baseName = builder.getBaseName();
         SequenceType[] values = SequenceType.values();
         for (SequenceType sequenceType : values)
         {
@@ -324,8 +399,8 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                     "-title", databaseName, "-out", databaseFile);
             if (success == false)
             {
-                operationLog.error("Creation of BLAST database failed for data set '" + dataSetCode 
-                        + "'. Temporary fasta file: " + fastaFile);
+                operationLog.error("Creation of BLAST database '" + databaseName 
+                        + "' failed. Temporary fasta file: " + fastaFile);
                 break;
             }
             File databaseSeqFile = new File(databaseFile + ".nsq");
@@ -334,8 +409,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                 process(makembindex, "-iformat", "blastdb", "-input", databaseFile, "-old_style_index", "false");
             }
             VirtualDatabase virtualDatabase = virtualDatabases.get(sequenceType);
-            virtualDatabase.addDataSet(dataSetCode);
-            virtualDatabase.save();
+            virtualDatabase.addDatabase(baseName);
         }
         builder.cleanUp();
     }
@@ -468,6 +542,7 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
     
     private static final class Loader
     {
+        private final String definition;
         private final String entityKind;
         private final EntityLoader entityLoader;
         private final String entityType;
@@ -475,10 +550,11 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
 
         Loader(String definition)
         {
-            String[] items = definition.split(":");
+            this.definition = definition;
+            String[] items = StringUtils.splitByWholeSeparator(definition, DB_NAME_DELIM);
             if (items.length != 3)
             {
-                throw new IllegalArgumentException("Definition not on form <entity kind>:<entity type>:<property type>");
+                throw new IllegalArgumentException("Definition not in form <entity kind>+<entity type>+<property type>");
             }
             entityKind = items[0];
             entityLoader = EntityLoader.valueOf(entityKind);
@@ -486,9 +562,19 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             this.propertyType = items[2];
         }
         
-        List<Sequence> load(IEncapsulatedOpenBISService service)
+        String getDefinition()
         {
-            List<Sequence> list = new ArrayList<Sequence>();
+            return definition;
+        }
+
+        String getEntityKind()
+        {
+            return entityKind;
+        }
+
+        Map<SequenceType, Sequences> load(IEncapsulatedOpenBISService service)
+        {
+            Map<SequenceType, Sequences> map = new EnumMap<SequenceType, Sequences>(SequenceType.class);
             for (IEntityInformationHolderWithProperties entity : entityLoader.listEntities(service, entityType))
             {
                 List<IEntityProperty> properties = entity.getProperties();
@@ -499,42 +585,84 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                         String sequence = property.tryGetAsString();
                         if (sequence != null)
                         {
-                            list.add(new Sequence(entity, propertyType, sequence));
+                            Sequence seq = new Sequence(entity, propertyType, sequence);
+                            Sequences sequences = map.get(seq.getSequenceType());
+                            if (sequences == null)
+                            {
+                                sequences = new Sequences();
+                                map.put(seq.getSequenceType(), sequences);
+                            }
+                            sequences.addSequence(seq);
                         }
                         break;
                     }
                 }
             }
-            return list;
+            return map;
+        }
+    }
+    
+    private static final class Sequences
+    {
+        private final List<Sequence> sequences = new ArrayList<Sequence>();
+        private Date latestModificationDate = new Date(0);
+        
+        void addSequence(Sequence sequence)
+        {
+            sequences.add(sequence);
+            if (latestModificationDate.compareTo(sequence.getModificationDate()) < 0)
+            {
+                latestModificationDate = sequence.getModificationDate();
+            }
+        }
+
+        List<Sequence> getSequences()
+        {
+            return sequences;
+        }
+
+        Date getLatestModificationDate()
+        {
+            return latestModificationDate;
         }
     }
     
     private static final class Sequence
     {
-        private final EntityKind entityKind;
         private final String permId;
         private final Date modificationDate;
         private final String propertyType;
         private final String sequence;
+        private final SequenceType sequenceType;
 
+        @SuppressWarnings("rawtypes")
         Sequence(IEntityInformationHolderWithProperties entity, String propertyType, String sequence)
         {
             this.propertyType = propertyType;
-            this.sequence = sequence;
-            entityKind = entity.getEntityKind();
+            this.sequence = removeWhiteSpaces(sequence);
             permId = entity.getPermId();
+            Date date = null;
             if (entity instanceof CodeWithRegistrationAndModificationDate)
             {
-                modificationDate = ((CodeWithRegistrationAndModificationDate) entity).getModificationDate();
-            } else
-            {
-                modificationDate = null;
+                date = ((CodeWithRegistrationAndModificationDate) entity).getModificationDate();
             }
+            modificationDate = date == null ? new Date() : date;
+            sequenceType = FastaUtilities.determineSequenceType(this.sequence);
         }
 
-        EntityKind getEntityKind()
+        private static String removeWhiteSpaces(String sequence)
         {
-            return entityKind;
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < sequence.length(); i++)
+            {
+                char c = sequence.charAt(i);
+                if (Character.isWhitespace(c) == false)
+                {
+                    builder.append(c);
+                }
+            }
+            String string = builder.toString();
+            return string;
         }
 
         String getPermId()
@@ -556,6 +684,11 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         {
             return sequence;
         }
+
+        SequenceType getSequenceType()
+        {
+            return sequenceType;
+        }
         
     }
    
@@ -568,9 +701,9 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                     String entityTypeCode)
             {
                 ListSampleCriteria criteria = new ListSampleCriteria();
-                SampleType sampleType = new SampleType();
-                sampleType.setCode(entityTypeCode);
+                SampleType sampleType = service.getSampleType(entityTypeCode);
                 criteria.setSampleType(sampleType);
+                criteria.setIncludeSpace(true);
                 return service.listSamples(criteria);
             }
         };
@@ -586,14 +719,15 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         private final String dbtype;
         private final String postfix;
         private final File databaseFile;
-        private final Set<String> dataSetCodes = new LinkedHashSet<String>();
+        private final Set<String> databasesToBeDeleted = new TreeSet<String>();
+        private final Set<String> databasesToBeAdded = new TreeSet<String>();
         private final String virtualDatabaseFileType;
 
         VirtualDatabase(File databaseFolder, SequenceType sequenceType)
         {
             this.databaseFolder = databaseFolder;
             dbtype = sequenceType.toString().toLowerCase();
-            postfix = "-" + dbtype;
+            postfix = BlastUtilities.createDatabaseName("", sequenceType);
             virtualDatabaseFileType = sequenceType == SequenceType.NUCL ? ".nal" : ".pal";
             databaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType);
             if (databaseFile.isFile())
@@ -608,69 +742,47 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
                         String token = tokenizer.nextToken();
                         if (token.endsWith(postfix))
                         {
-                            dataSetCodes.add(token.substring(0, token.length() - postfix.length()));
-                        }
-                    }
-                }
-            }
-        }
-        
-        Set<String> getDataSetCodes()
-        {
-            return dataSetCodes;
-        }
-        
-        void addDataSet(String dataSetCode)
-        {
-            dataSetCodes.add(dataSetCode);
-        }
-        
-        void removeDeletedDataSets(Collection<String> deletedDataSets)
-        {
-            boolean dataChanged = false;
-            for (String dataSetCode : deletedDataSets)
-            {
-                if (dataSetCodes.remove(dataSetCode))
-                {
-                    dataChanged = true;
-                    final String databaseName = dataSetCode + postfix;
-                    File[] files = databaseFolder.listFiles(new FilenameFilter()
-                    {
-                        @Override
-                        public boolean accept(File dir, String name)
-                        {
-                            return name.startsWith(databaseName);
-                        }
-                    });
-                    if (files != null)
-                    {
-                        boolean success = true;
-                        for (File file : files)
-                        {
-                            if (FileUtilities.delete(file) == false)
+                            String name = token.substring(0, token.length() - postfix.length());
+                            if (isEntityPropertyDatabase(name))
                             {
-                                operationLog.warn("File deletion failed: " + file);
-                                success = false;
+                                databasesToBeDeleted.add(name);
+                            } else
+                            {
+                                databasesToBeAdded.add(name);
                             }
                         }
-                        if (success)
-                        {
-                            operationLog.info("BLAST database " + databaseName + " successfully deleted.");
-                        }
                     }
                 }
             }
-            if (dataChanged)
-            {
-                save();
-            }
+        }
+        
+        void keepDatabase(String baseName)
+        {
+            databasesToBeAdded.add(baseName);
+            databasesToBeDeleted.remove(baseName);
+        }
+        
+        void deleteDatabase(String baseName)
+        {
+            databasesToBeDeleted.add(baseName);
+            databasesToBeAdded.remove(baseName);
+        }
+
+        void addDatabase(String name)
+        {
+            databasesToBeAdded.add(name);
+        }
+
+        private boolean isEntityPropertyDatabase(String name)
+        {
+            return name.contains(DB_NAME_DELIM);
         }
         
         void save()
         {
             File allDatabaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType);
             File newAllDatabaseFile = new File(databaseFolder, "all-" + dbtype + virtualDatabaseFileType + ".new");
-            if (dataSetCodes.isEmpty())
+            if (databasesToBeAdded.isEmpty())
             {
                 if (allDatabaseFile.exists())
                 {
@@ -687,12 +799,45 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
             {
                 StringBuilder builder = new StringBuilder();
                 builder.append("TITLE all-" + dbtype + "\nDBLIST");
-                for (String dataSetCode : dataSetCodes)
+                for (String database : databasesToBeAdded)
                 {
-                    builder.append(' ').append(dataSetCode).append(postfix);
+                    builder.append(' ').append(database).append(postfix);
                 }
                 FileUtilities.writeToFile(newAllDatabaseFile, builder.toString());
                 newAllDatabaseFile.renameTo(allDatabaseFile);
+            }
+            deleteDatabasesToBeDeleted();
+        }
+
+        private void deleteDatabasesToBeDeleted()
+        {
+            for (String database : databasesToBeDeleted)
+            {
+                final String databaseName = database + postfix;
+                File[] files = databaseFolder.listFiles(new FileFilter()
+                    {
+                        @Override
+                        public boolean accept(File file)
+                        {
+                            return file.getName().startsWith(databaseName);
+                        }
+                    });
+                if (files != null && files.length > 0)
+                {
+                    boolean success = true;
+                    for (File file : files)
+                    {
+                        if (FileUtilities.delete(file) == false)
+                        {
+                            operationLog.warn("File deletion failed: " + file);
+                            success = false;
+                        }
+                    }
+                    if (success)
+                    {
+                        operationLog.info("BLAST database " + databaseName + " successfully deleted.");
+                    }
+                }
             }
         }
     }
