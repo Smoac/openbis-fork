@@ -42,7 +42,7 @@ function TrashManagerController(mainController) {
 		}
 		
 		mainController.serverFacade.deletePermanently(deleteIds, function(data) {
-			Util.showSuccess("TrashCan cleaned.");
+			Util.showSuccess("Trashcan cleaned.");
 			mainController.changeView('showTrashcanPage', null);
 		});
 	}
