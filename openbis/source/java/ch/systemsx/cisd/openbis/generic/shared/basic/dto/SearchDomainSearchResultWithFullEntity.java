@@ -19,28 +19,29 @@ package ch.systemsx.cisd.openbis.generic.shared.basic.dto;
 import java.io.Serializable;
 
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 
 /**
  * Result of a search in a search domain.
  * 
  * @author Franz-Josef Elmer
  */
-public class SearchDomainSearchResultWithFullDataSet implements Serializable
+public class SearchDomainSearchResultWithFullEntity implements Serializable
 {
     private static final long serialVersionUID = ServiceVersionHolder.VERSION;
-
-    private AbstractExternalData dataSet;
+    
+    private IEntityInformationHolderWithPermId entity;
 
     private SearchDomainSearchResult searchResult;
 
-    public AbstractExternalData getDataSet()
+    public IEntityInformationHolderWithPermId getEntity()
     {
-        return dataSet;
+        return entity;
     }
 
-    public void setDataSet(AbstractExternalData dataSet)
+    public void setEntity(IEntityInformationHolderWithPermId entity)
     {
-        this.dataSet = dataSet;
+        this.entity = entity;
     }
 
     public SearchDomainSearchResult getSearchResult()

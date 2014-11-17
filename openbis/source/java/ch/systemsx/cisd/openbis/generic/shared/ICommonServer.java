@@ -105,7 +105,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleUpdateResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Script;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ScriptUpdateResult;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Vocabulary;
@@ -663,7 +663,7 @@ public interface ICommonServer extends IServer
      * Searches on a search domain.
      */
     @Transactional(readOnly = true)
-    public List<SearchDomainSearchResultWithFullDataSet> searchOnSearchDomain(String sessionToken, 
+    public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken, 
             String preferredSearchDomainOrNull, String searchString, Map<String, String> optionalParametersOrNull);
 
     /**

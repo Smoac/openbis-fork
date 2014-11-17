@@ -21,11 +21,11 @@ import static ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslat
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,14 +60,15 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.exception.DataSetDele
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDataDAO;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.event.DeleteDataSetEventBuilder;
-import ch.systemsx.cisd.openbis.generic.server.dataaccess.util.KeyExtractorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.Constants;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertySearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ISearchDomainResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.BasicConstant;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnCountException;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TableModelAppender.TableModelWithDifferentColumnIdsException;
@@ -80,7 +81,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetBatchUpdateDetai
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataStoreServiceKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -97,6 +98,8 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
 import ch.systemsx.cisd.openbis.generic.shared.dto.properties.EntityKind;
 import ch.systemsx.cisd.openbis.generic.shared.managed_property.IManagedPropertyEvaluatorFactory;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DataSetTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.ExperimentTranslator;
+import ch.systemsx.cisd.openbis.generic.shared.translator.SampleTranslator;
 import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 
 /**
@@ -112,6 +115,16 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             DataSetTable.class);
+
+    private static final IKeyExtractor<String, IEntityInformationHolderWithPermId> PERM_ID_EXTRACTOR =
+            new IKeyExtractor<String, IEntityInformationHolderWithPermId>()
+                {
+                    @Override
+                    public String getKey(IEntityInformationHolderWithPermId e)
+                    {
+                        return e.getPermId();
+                    }
+                };
 
     @Private
     static final String UPLOAD_COMMENT_TEXT = "Uploaded zip file contains the following data sets:";
@@ -281,13 +294,154 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
     }
 
     @Override
-    public List<SearchDomainSearchResultWithFullDataSet> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
+    public List<SearchDomainSearchResultWithFullEntity> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull)
     {
-        List<SearchDomainSearchResult> result = askAllDataStoreServers(preferredSequenceDatabaseOrNull,
+        List<SearchDomainSearchResult> searchResults = askAllDataStoreServers(preferredSequenceDatabaseOrNull,
                 sequenceSnippet, optionalParametersOrNull);
-        TableMap<String, AbstractExternalData> fullDataSetsByCode = listFullDataSets(result);
-        return filterSearchResultAndInjectFullDataSets(result, fullDataSetsByCode);
+        return enrichWithEntities(searchResults);
+    }
+    
+    private List<SearchDomainSearchResultWithFullEntity> enrichWithEntities(List<SearchDomainSearchResult> searchResults)
+    {
+        Map<EntityLoader, List<String>> map = separate(searchResults);
+        Map<EntityLoader, TableMap<String, IEntityInformationHolderWithPermId>> result = loadEntities(map);
+        List<SearchDomainSearchResultWithFullEntity> filteredResult = new ArrayList<SearchDomainSearchResultWithFullEntity>();
+        for (SearchDomainSearchResult searchResult : searchResults)
+        {
+            Selector selector = new Selector(searchResult.getResultLocation());
+            EntityLoader loader = selector.getLoader();
+            IEntityInformationHolderWithPermId entity = result.get(loader).getOrDie(selector.getPermId());
+            SearchDomainSearchResultWithFullEntity searchResultWithEntity = new SearchDomainSearchResultWithFullEntity();
+            searchResultWithEntity.setSearchResult(searchResult);
+            searchResultWithEntity.setEntity(entity);
+            filteredResult.add(searchResultWithEntity);
+        }
+        return filteredResult;
+    }
+
+    private Map<EntityLoader, List<String>> separate(List<SearchDomainSearchResult> searchResults)
+    {
+        Map<EntityLoader, List<String>> map = new EnumMap<DataSetTable.EntityLoader, List<String>>(EntityLoader.class);
+        for (SearchDomainSearchResult searchResult : searchResults)
+        {
+            ISearchDomainResultLocation resultLocation = searchResult.getResultLocation();
+            Selector selector = new Selector(resultLocation);
+            EntityLoader loader = selector.getLoader();
+            List<String> list = map.get(loader);
+            if (list == null)
+            {
+                list = new ArrayList<String>();
+                map.put(loader, list);
+            }
+            list.add(selector.getPermId());
+        }
+        return map;
+    }
+
+    private Map<EntityLoader, TableMap<String, IEntityInformationHolderWithPermId>> loadEntities(Map<EntityLoader, List<String>> map)
+    {
+        Map<EntityLoader, TableMap<String, IEntityInformationHolderWithPermId>> result =
+                new EnumMap<DataSetTable.EntityLoader, TableMap<String, IEntityInformationHolderWithPermId>>(EntityLoader.class);
+        Set<Entry<EntityLoader, List<String>>> entrySet = map.entrySet();
+        for (Entry<EntityLoader, List<String>> entry : entrySet)
+        {
+            EntityLoader loader = entry.getKey();
+            List<String> permIds = entry.getValue();
+            List<IEntityInformationHolderWithPermId> entities = loader.loadEntities(this, managedPropertyEvaluatorFactory, permIds);
+            result.put(loader, new TableMap<String, IEntityInformationHolderWithPermId>(entities, PERM_ID_EXTRACTOR));
+        }
+        return result;
+    }
+
+    private static enum EntityLoader
+    {
+        SAMPLE()
+        {
+            @Override
+            public List<? extends IEntityInformationHolderWithPermId> doLoadEntities(IDAOFactory daoFactory,
+                    IManagedPropertyEvaluatorFactory evaluatorFactory, List<String> permIds)
+            {
+                return SampleTranslator.translate(daoFactory.getSampleDAO().listByPermID(permIds),
+                        "", Collections.<Long, Set<Metaproject>>emptyMap(), evaluatorFactory);
+            }
+        },
+        DATA_SET()
+        {
+            @Override
+            public List<? extends IEntityInformationHolderWithPermId> doLoadEntities(IDAOFactory daoFactory,
+                    IManagedPropertyEvaluatorFactory evaluatorFactory, List<String> permIds)
+            {
+                return DataSetTranslator.translate(daoFactory.getDataDAO().listByCode(new HashSet<String>(permIds)),
+                        "", "", Collections.<Long, Set<Metaproject>>emptyMap(), evaluatorFactory);
+            }
+        },
+        EXPERIMENT()
+        {
+            @Override
+            public List<? extends IEntityInformationHolderWithPermId> doLoadEntities(IDAOFactory daoFactory,
+                    IManagedPropertyEvaluatorFactory evaluatorFactory, List<String> permIds)
+            {
+                return ExperimentTranslator.translate(daoFactory.getExperimentDAO().listByPermID(permIds),
+                        "", Collections.<Long, Set<Metaproject>>emptyMap(), evaluatorFactory);
+            }
+        },
+        MATERIAL()
+        {
+            @Override
+            public List<? extends IEntityInformationHolderWithPermId> doLoadEntities(IDAOFactory daoFactory,
+                    IManagedPropertyEvaluatorFactory evaluatorFactory, List<String> permIds)
+            {
+                throw new UnsupportedOperationException();
+            }
+        };
+
+        public List<IEntityInformationHolderWithPermId> loadEntities(IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory evaluatorFactory, List<String> permIds)
+        {
+            List<IEntityInformationHolderWithPermId> result = new ArrayList<IEntityInformationHolderWithPermId>();
+            for (IEntityInformationHolderWithPermId entity : doLoadEntities(daoFactory, evaluatorFactory, permIds))
+            {
+                result.add(entity);
+            }
+            return result;
+        }
+
+        public abstract List<? extends IEntityInformationHolderWithPermId> doLoadEntities(IDAOFactory daoFactory,
+                IManagedPropertyEvaluatorFactory evaluatorFactory, List<String> permIds);
+    }
+
+    private static final class Selector
+    {
+        private EntityLoader loader;
+
+        private String permId;
+
+        Selector(ISearchDomainResultLocation resultLocation)
+        {
+            permId = null;
+            loader = EntityLoader.DATA_SET;
+            if (resultLocation instanceof DataSetFileSearchResultLocation)
+            {
+                permId = ((DataSetFileSearchResultLocation) resultLocation).getDataSetCode();
+            } else if (resultLocation instanceof EntityPropertySearchResultLocation)
+            {
+                EntityPropertySearchResultLocation location = (EntityPropertySearchResultLocation) resultLocation;
+                permId = location.getPermId();
+                loader = EntityLoader.valueOf(location.getEntityKind().toString());
+            }
+        }
+
+        EntityLoader getLoader()
+        {
+            return loader;
+        }
+
+        String getPermId()
+        {
+            return permId;
+        }
+        
     }
     
     @Override
@@ -304,53 +458,6 @@ public final class DataSetTable extends AbstractDataSetBusinessObject implements
             }
         }
         return result;
-    }
-
-    private List<SearchDomainSearchResultWithFullDataSet> filterSearchResultAndInjectFullDataSets(List<SearchDomainSearchResult> result,
-            TableMap<String, AbstractExternalData> fullDataSetsByCode)
-    {
-        List<SearchDomainSearchResultWithFullDataSet> filteredResult = new ArrayList<SearchDomainSearchResultWithFullDataSet>();
-        for (SearchDomainSearchResult sequenceSearchResult : result)
-        {
-            ISearchDomainResultLocation resultLocation = sequenceSearchResult.getResultLocation();
-            if (resultLocation instanceof DataSetFileSearchResultLocation == false)
-            {
-                continue;
-            }
-            String dataSetCode = ((DataSetFileSearchResultLocation) resultLocation).getDataSetCode();
-            AbstractExternalData fullDataSet = fullDataSetsByCode.tryGet(dataSetCode);
-            if (fullDataSet != null)
-            {
-                SearchDomainSearchResultWithFullDataSet resultWithFullDataSet = new SearchDomainSearchResultWithFullDataSet();
-                resultWithFullDataSet.setDataSet(fullDataSet);
-                resultWithFullDataSet.setSearchResult(sequenceSearchResult);
-                filteredResult.add(resultWithFullDataSet);
-            }
-        }
-        return filteredResult;
-    }
-    
-    private TableMap<String, AbstractExternalData> listFullDataSets(List<SearchDomainSearchResult> result)
-    {
-        IKeyExtractor<String, AbstractExternalData> codeKeyExtractor = KeyExtractorFactory.<AbstractExternalData> createCodeKeyExtractor();
-        if (result.isEmpty())
-        {
-            return new TableMap<String, AbstractExternalData>(codeKeyExtractor);
-        }
-        Set<String> codes = new LinkedHashSet<String>();
-        for (SearchDomainSearchResult sequenceSearchResult : result)
-        {
-            ISearchDomainResultLocation resultLocation = sequenceSearchResult.getResultLocation();
-            if (resultLocation instanceof DataSetFileSearchResultLocation == false)
-            {
-                continue;
-            }
-            codes.add(((DataSetFileSearchResultLocation) resultLocation).getDataSetCode());
-        }
-        List<DataPE> fullDataSetPEs = getDataDAO().tryToFindFullDataSetsByCodes(codes, false, false);
-        List<AbstractExternalData> fullDataSets = DataSetTranslator.translate(fullDataSetPEs, "?", "?",
-                new HashMap<Long, Set<Metaproject>>(), managedPropertyEvaluatorFactory);
-        return new TableMap<String, AbstractExternalData>(fullDataSets, codeKeyExtractor);
     }
 
     private List<SearchDomainSearchResult> askAllDataStoreServers(String preferredSequenceDatabaseOrNull,

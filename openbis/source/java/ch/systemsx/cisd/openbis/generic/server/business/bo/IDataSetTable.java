@@ -22,7 +22,7 @@ import java.util.Map;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.LinkModel;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TableModel;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetBatchUpdatesDTO;
@@ -40,7 +40,7 @@ public interface IDataSetTable
     /**
      * Searchs for data sets with sequences.
      */
-    List<SearchDomainSearchResultWithFullDataSet> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
+    List<SearchDomainSearchResultWithFullEntity> searchForDataSetsWithSequences(String preferredSequenceDatabaseOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull);
     
     /**

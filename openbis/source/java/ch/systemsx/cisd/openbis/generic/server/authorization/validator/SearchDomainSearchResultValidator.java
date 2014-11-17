@@ -16,7 +16,11 @@
 
 package ch.systemsx.cisd.openbis.generic.server.authorization.validator;
 
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithPermId;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
 
 /**
@@ -24,14 +28,29 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.PersonPE;
  * 
  * @author Franz-Josef Elmer
  */
-public class SearchDomainSearchResultValidator extends AbstractValidator<SearchDomainSearchResultWithFullDataSet>
+public class SearchDomainSearchResultValidator extends AbstractValidator<SearchDomainSearchResultWithFullEntity>
 {
-    private final ExternalDataValidator validator = new ExternalDataValidator();
+    private final ExternalDataValidator dataSetValidator = new ExternalDataValidator();
+    private final SampleValidator sampleValidator = new SampleValidator();
+    private final ExperimentValidator experimentValidator = new ExperimentValidator();
 
     @Override
-    public boolean doValidation(PersonPE person, SearchDomainSearchResultWithFullDataSet value)
+    public boolean doValidation(PersonPE person, SearchDomainSearchResultWithFullEntity value)
     {
-        return validator.isValid(person, value.getDataSet());
+        IEntityInformationHolderWithPermId entity = value.getEntity();
+        if (entity instanceof Sample)
+        {
+            return sampleValidator.isValid(person, (Sample) entity);
+        }
+        if (entity instanceof Experiment)
+        {
+            return experimentValidator.isValid(person, (Experiment) entity);
+        }
+        if (entity instanceof AbstractExternalData)
+        {
+            return dataSetValidator.isValid(person, (AbstractExternalData) entity);
+        }
+        return false;
     }
 
 }

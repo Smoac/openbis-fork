@@ -117,7 +117,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AuthorizationGroupPE;
@@ -960,9 +960,9 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         checkSession(sessionToken);
 
         List<SearchDomainSearchResult> result = new ArrayList<SearchDomainSearchResult>();
-        List<SearchDomainSearchResultWithFullDataSet> list = commonServer.searchOnSearchDomain(sessionToken,
+        List<SearchDomainSearchResultWithFullEntity> list = commonServer.searchOnSearchDomain(sessionToken,
                 preferredSearchDomainOrNull, searchString, optionalParametersOrNull);
-        for (SearchDomainSearchResultWithFullDataSet sequenceSearchResult : list)
+        for (SearchDomainSearchResultWithFullEntity sequenceSearchResult : list)
         {
             result.add(sequenceSearchResult.getSearchResult());
         }

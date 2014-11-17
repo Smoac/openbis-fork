@@ -26,7 +26,7 @@ import static ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchiving
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -56,7 +56,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Code;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullDataSet;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetUploadContext;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
@@ -178,35 +178,37 @@ public final class DataSetTableTest extends AbstractBOTest
         prepareSearchSequenceDatabase(store1, dataStoreService1, "ds1", "ds2");
         prepareSearchSequenceDatabase(store2, dataStoreService2, "ds3", "ds3");
         final ExternalDataPE ds1 = createDataSet("ds1", store1);
+        final ExternalDataPE ds2 = createDataSet("ds2", store1);
         final ExternalDataPE ds3 = createDataSet("ds3", store2);
         context.checking(new Expectations()
             {
                 {
-                    one(dataDAO).tryToFindFullDataSetsByCodes(
-                            new LinkedHashSet<String>(Arrays.asList("ds1", "ds2", "ds3")), false, false);
-                    will(returnValue(Arrays.asList(new ExternalDataPE[] { ds1, ds3 })));
+                    one(dataDAO).listByCode(new HashSet<String>(Arrays.asList("ds1", "ds2", "ds3")));
+                    will(returnValue(Arrays.asList(new ExternalDataPE[] { ds1, ds2, ds3 })));
                 }
             });
 
-        List<SearchDomainSearchResultWithFullDataSet> results =
+        List<SearchDomainSearchResultWithFullEntity> results =
                 createDataSetTable().searchForDataSetsWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
         assertEquals("Search Domain: test-db, Result location: [Data set: ds1, path: ds1/path, "
                 + "identifier: [id-ds1], position: 42]",
                 results.get(0).getSearchResult().toString());
-        assertEquals(ds1.getCode(), results.get(0).getDataSet().getCode());
-        assertEquals("/G1/P1/exp1", results.get(0).getDataSet().getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Result location: [Data set: ds3, path: ds3/path, "
-                + "identifier: [id-ds3], position: 42]",
+        assertEquals(ds1.getCode(), ((AbstractExternalData) results.get(0).getEntity()).getCode());
+        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
+        assertEquals("Search Domain: test-db, Result location: [Data set: ds2, path: ds2/path, "
+                + "identifier: [id-ds2], position: 42]",
                 results.get(1).getSearchResult().toString());
-        assertEquals(ds3.getCode(), results.get(1).getDataSet().getCode());
-        assertEquals("/G1/P1/exp1", results.get(1).getDataSet().getExperiment().getIdentifier());
+        assertEquals(ds2.getCode(), ((AbstractExternalData) results.get(1).getEntity()).getCode());
+        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
         assertEquals("Search Domain: test-db, Result location: [Data set: ds3, path: ds3/path, "
                 + "identifier: [id-ds3], position: 42]",
                 results.get(2).getSearchResult().toString());
-        assertEquals(ds3.getCode(), results.get(2).getDataSet().getCode());
-        assertEquals("/G1/P1/exp1", results.get(2).getDataSet().getExperiment().getIdentifier());
-        assertEquals(3, results.size());
+        assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(2).getEntity()).getCode());
+        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(2).getEntity()).getExperiment().getIdentifier());
+        assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(3).getEntity()).getCode());
+        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(3).getEntity()).getExperiment().getIdentifier());
+        assertEquals(4, results.size());
         context.assertIsSatisfied();
     }
 

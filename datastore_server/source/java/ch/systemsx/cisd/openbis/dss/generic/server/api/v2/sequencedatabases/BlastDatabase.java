@@ -45,6 +45,8 @@ import ch.systemsx.cisd.etlserver.plugins.BlastDatabaseCreationMaintenanceTask;
 import ch.systemsx.cisd.openbis.dss.generic.shared.api.internal.v2.ISearchDomainService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertySearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 
 /**
@@ -101,6 +103,8 @@ public class BlastDatabase extends AbstractSearchDomainService
             LogFactory.getLogger(LogCategory.MACHINE, BlastDatabase.class);
     private static final String QUERY_FILE_NAME_TEMPLATE = "query-{0,date,yyyyMMDDHHmmssSSS}-{1}.fasta";
     private static final Pattern STITLE_PATTERN = Pattern.compile("(.*) \\[Data set: (.*), File: (.*)\\]$"); 
+    private static final Pattern ENTITY_PROPERTY_TITLE_PATTERN 
+            = Pattern.compile("^(MATERIAL|EXPERIMENT|SAMPLE|DATA_SET)\\+(.+)\\+([A-Z0-9_\\-.]+)\\+(\\d+)$");
     
     private static final String[] BLASTN_OPTIONS = {"task", "evalue", "word_size", "ungapped"};
     private static final String[] BLASTP_OPTIONS = {"task", "evalue", "word_size"};
@@ -167,6 +171,20 @@ public class BlastDatabase extends AbstractSearchDomainService
                     resultLocation.setPosition(parse(row[1]));
                     sequenceSearchResult.setResultLocation(resultLocation);
                     result.add(sequenceSearchResult);
+                } else
+                {
+                    matcher = ENTITY_PROPERTY_TITLE_PATTERN.matcher(row[0]);
+                    if (matcher.matches())
+                    {
+                        SearchDomainSearchResult sequenceSearchResult = new SearchDomainSearchResult();
+                        EntityPropertySearchResultLocation resultLocation = new EntityPropertySearchResultLocation();
+                        resultLocation.setEntityKind(EntityKind.valueOf(matcher.group(1)));
+                        resultLocation.setPermId(matcher.group(2));
+                        resultLocation.setPropertyType(matcher.group(3));
+                        resultLocation.setPosition(parse(row[1]));
+                        sequenceSearchResult.setResultLocation(resultLocation);
+                        result.add(sequenceSearchResult);
+                    }
                 }
             }
         } finally
