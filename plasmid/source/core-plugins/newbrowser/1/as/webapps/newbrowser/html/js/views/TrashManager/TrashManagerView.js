@@ -20,6 +20,17 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 	
 	this.repaint = function($container) {
 		$container.empty();
-		$container.append("Hello Trashcan!");
+		
+		var $containerColumn = $("<form>", { 
+			"class" : FormUtil.formColumClass + " form-horizontal", 
+			'role' : "form", 
+			"action" : "javascript:void(0);", 
+			"onsubmit" : ""
+		});
+		
+		var $trashIcon = $("<span>", { 'class' : 'glyphicon glyphicon-trash'});
+		$containerColumn.append($("<h2>").append($trashIcon).append(" Trashcan"));
+		
+		$container.append($containerColumn);
 	}
 }

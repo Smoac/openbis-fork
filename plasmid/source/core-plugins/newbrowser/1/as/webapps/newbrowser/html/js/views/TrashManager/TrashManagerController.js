@@ -23,7 +23,7 @@ function TrashManagerController(mainController) {
 		var _this = this;
 		mainController.serverFacade.listDeletions(function(data) {
 			if(data.result && data.result.length > 0) {
-				//Fill Model
+				_this._trashManagerModel.deletions = data.result;
 			}
 			_this._trashManagerView.repaint($container);
 		});
