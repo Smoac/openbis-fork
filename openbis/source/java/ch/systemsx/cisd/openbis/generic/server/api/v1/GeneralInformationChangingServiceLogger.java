@@ -231,18 +231,5 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     {
         return 0;
     }
-
-    @Override
-    public List<Deletion> listOriginalDeletions(String sessionToken)
-    {
-        logAccess(sessionToken, "listOriginalDeletions");
-        return null;
-    }
-
-    @Override
-    public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities)
-    {
-        logAccess(sessionToken, "listDeletions", "withDeletedEntities(%s)", withDeletedEntities);
-        return null;
-    }
+    
 }

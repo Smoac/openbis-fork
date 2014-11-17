@@ -262,18 +262,4 @@ public interface IGeneralInformationChangingService extends IRpcService
      */
     public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds);
 
-    /**
-     * List deleted entities
-     * 
-     * @since 1.7
-     */
-    public List<Deletion> listDeletions(String sessionToken, boolean withDeletedEntities);
-    
-    /**
-     * List original deleted entities
-     * 
-     * @since 1.7
-     */
-    public List<Deletion> listOriginalDeletions(String sessionToken);
-
 }

@@ -1407,33 +1407,6 @@ openbis.prototype.deletePermanentlyForced = function(deletionIds, action) {
 }
 
 /**
- * @see listOriginalDeletions(String)
- * @method
- */
-openbis.prototype.listOriginalDeletions = function(action) {
-	this._internal.ajaxRequest({
-		url: this._internal.generalInfoChangingServiceUrl,
-		data: { "method" : "listOriginalDeletions",
-				"params" : [ this.getSession() ] },
-		success: action
-	});
-}
-
-/**
- * @see listDeletions(String)
- * @method
- */
-openbis.prototype.listDeletions = function(withDeletedEntities, action) {
-	this._internal.ajaxRequest({
-		url: this._internal.generalInfoChangingServiceUrl,
-		data: { "method" : "listDeletions",
-				"params" : [ this.getSession(),
-				             withDeletedEntities ] },
-		success: action
-	});
-}
-
-/**
  * ============================================================================
  * ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer methods
  * ============================================================================
