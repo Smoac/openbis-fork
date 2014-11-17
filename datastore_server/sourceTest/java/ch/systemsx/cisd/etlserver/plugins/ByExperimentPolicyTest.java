@@ -27,6 +27,9 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
 
+/**
+ * @author Sascha Fedorenko
+ */
 public class ByExperimentPolicyTest extends AssertJUnit
 {
     private Mockery context;

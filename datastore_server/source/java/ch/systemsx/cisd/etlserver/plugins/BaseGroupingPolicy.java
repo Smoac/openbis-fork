@@ -7,6 +7,11 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.ISingleDataSetPathInfoProvide
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
+/**
+ * An base for archiving policies respecting desired target min-max size of the archive
+ * 
+ * @author Sascha Fedorenko
+ */
 public class BaseGroupingPolicy
 {
 

@@ -4,6 +4,11 @@ import java.util.ArrayList;
 
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
+/**
+ * Storage for grouped archival candidates
+ * 
+ * @author Sascha Fedorenko
+ */
 public class DatasetListWithTotal extends ArrayList<AbstractExternalData> implements Comparable<DatasetListWithTotal>
 {
     private static final long serialVersionUID = 7158139354538463051L;

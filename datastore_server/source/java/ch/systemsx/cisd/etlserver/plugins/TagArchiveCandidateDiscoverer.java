@@ -16,6 +16,11 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId;
 
+/**
+ * Search for archival candidates by tags
+ * 
+ * @author Sascha Fedorenko
+ */
 public class TagArchiveCandidateDiscoverer implements IArchiveCandidateDiscoverer
 {
     private static final Logger operationLog =

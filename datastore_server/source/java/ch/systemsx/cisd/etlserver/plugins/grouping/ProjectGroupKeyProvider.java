@@ -5,6 +5,11 @@ import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifi
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifierFactory;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 
+/**
+ * Group by project
+ * 
+ * @author Sascha Fedorenko
+ */
 public class ProjectGroupKeyProvider implements IGroupKeyProvider
 {
 

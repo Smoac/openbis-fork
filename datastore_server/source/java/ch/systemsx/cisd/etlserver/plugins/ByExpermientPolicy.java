@@ -21,6 +21,12 @@ import ch.systemsx.cisd.etlserver.plugins.grouping.IGroupKeyProvider;
 import ch.systemsx.cisd.etlserver.plugins.grouping.ProjectGroupKeyProvider;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
+/**
+ * An archiving policy that selects a subset from archiving candidates by grouping them on data set type, experiment and project and "packing" them
+ * into a min-max size batches
+ * 
+ * @author Sascha Fedorenko
+ */
 public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchiverPolicy
 {
     private static final Logger operationLog =
