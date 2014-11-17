@@ -46,6 +46,18 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 			label : 'Reason',
 			property : 'reason',
 			sortable : true
+		} , {
+			label : 'Total Experiments',
+			property : 'totalExperiments',
+			sortable : true
+		} , {
+			label : 'Total Samples',
+			property : 'totalSamples',
+			sortable : true
+		} , {
+			label : 'Total Datasets',
+			property : 'totalDatasets',
+			sortable : true
 		}];
 		
 		var getDataList = function(callback) {
@@ -59,11 +71,16 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 					} else {
 						entities = "";
 					}
-					entities += deletion.deletedEntities[enIdx].entityKind + " - " + deletion.deletedEntities[enIdx].identifier
+					entities += deletion.deletedEntities[enIdx].entityKind
+							+ " - " + deletion.deletedEntities[enIdx].identifier
+							+ " (" + deletion.deletedEntities[enIdx].entityType + ")";
 				}
 				dataList.push({
 					entities : entities,
-					reason : deletion.reasonOrNull
+					reason : deletion.reasonOrNull,
+					totalExperiments : deletion.totalExperimentsCount,
+					totalSamples : deletion.totalSamplesCount,
+					totalDatasets : deletion.totalDatasetsCount
 				});
 			}
 			callback(dataList);
