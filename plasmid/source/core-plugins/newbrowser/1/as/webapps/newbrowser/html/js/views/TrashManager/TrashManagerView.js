@@ -19,8 +19,12 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 	this._trashManagerModel = trashManagerModel;
 	
 	this.repaint = function($container) {
+		var _this = this;
 		$container.empty();
 		
+		//
+		// Form template and title
+		//
 		var $containerColumn = $("<form>", { 
 			"class" : FormUtil.formColumClass + " form-horizontal", 
 			'role' : "form", 
@@ -29,8 +33,52 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		});
 		
 		var $trashIcon = $("<span>", { 'class' : 'glyphicon glyphicon-trash'});
-		$containerColumn.append($("<h2>").append($trashIcon).append(" Trashcan"));
+		$containerColumn.append($("<h1>").append($trashIcon).append(" Trashcan"));
 		
+		//
+		// Table
+		//
+		var columns = [ {
+			label : 'Entities',
+			property : 'entities',
+			sortable : true
+		} , {
+			label : 'Reason',
+			property : 'reason',
+			sortable : true
+		}];
+		
+		var getDataList = function(callback) {
+			var dataList = [];
+			for(var delIdx = 0; delIdx < _this._trashManagerModel.deletions.length; delIdx++) {
+				var deletion = _this._trashManagerModel.deletions[delIdx];
+				var entities = null;
+				for(var enIdx = 0; enIdx < deletion.deletedEntities.length; enIdx++) {
+					if(entities) {
+						entities += "<br>";
+					} else {
+						entities = "";
+					}
+					entities += deletion.deletedEntities[enIdx].entityKind + " - " + deletion.deletedEntities[enIdx].identifier
+				}
+				dataList.push({
+					entities : entities,
+					reason : deletion.reasonOrNull
+				});
+			}
+			callback(dataList);
+		}
+		
+		var dataGridContainer = $("<div>");
+		var dataGrid = new DataGridController(null, columns, getDataList, null);
+		dataGrid.init(dataGridContainer);
+		$containerColumn.append(dataGridContainer);
+		//
+		// Empty all button
+		//
+		
+		
+		//
 		$container.append($containerColumn);
 	}
 }

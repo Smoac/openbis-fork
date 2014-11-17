@@ -246,27 +246,6 @@ function ServerFacade(openbisServer) {
 			GET += '&sessionID=' + this.openbisServer.getSession();
 		return GET;
 	}
-	
-	this.fileTemplateDownload = function(entityType, operationKind) {
-		
-		$.ajax({
-			type: 'POST',
-			url: '/openbis/openbis/template-download',
-			data: {
-				'entityKind' : 'SAMPLE',
-				'entityType' : 'UNKNOWN',
-				'autoGenerate' : false,
-				'with_experiments' : true,
-				'with_space' : true,
-				'batch_operation_kind' :'REGISTRATION',
-				'timestamp' :  new Date().getTime(),
-				'sessionID' : this.openbisServer.getSession()
-			},
-			success: function(result) {
-				alert(result);
-			}
-		});
-	}
 
 	//
 	// Data Set Import Related Functions

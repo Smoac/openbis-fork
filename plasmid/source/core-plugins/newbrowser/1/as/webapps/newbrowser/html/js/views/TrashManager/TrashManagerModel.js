@@ -15,5 +15,5 @@
  */
 
 function TrashManagerModel() {
-	this.deletions = null;
+	this.deletions = [];
 }
