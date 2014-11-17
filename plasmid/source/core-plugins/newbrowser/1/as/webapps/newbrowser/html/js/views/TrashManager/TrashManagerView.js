@@ -73,11 +73,12 @@ function TrashManagerView(trashManagerController, trashManagerModel) {
 		var dataGrid = new DataGridController(null, columns, getDataList, null);
 		dataGrid.init(dataGridContainer);
 		$containerColumn.append(dataGridContainer);
+		
 		//
 		// Empty all button
 		//
-		
-		
+		this.deleteAllBtn = $("<a>", { "class" : "btn btn-primary", "style" : "margin-top: 10px;"}).append("Empty Trash");
+		$containerColumn.append(this.deleteAllBtn);
 		//
 		$container.append($containerColumn);
 	}
