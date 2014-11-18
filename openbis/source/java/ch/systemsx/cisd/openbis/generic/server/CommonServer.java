@@ -115,6 +115,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISearchDomainSearcher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
@@ -1621,9 +1622,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         Session session = getSession(sessionToken);
 
-        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        return dataSetTable.searchForDataSetsWithSequences(preferredSearchDomainOrNull, searchString,
-                optionalParametersOrNull);
+        ISearchDomainSearcher searcher = businessObjectFactory.createSearchDomainSearcher(session);
+        return searcher.searchForEntitiesWithSequences(preferredSearchDomainOrNull, searchString, optionalParametersOrNull);
     }
 
     @Override
@@ -1632,8 +1632,8 @@ public final class CommonServer extends AbstractCommonServer<ICommonServerForInt
     {
         Session session = getSession(sessionToken);
 
-        IDataSetTable dataSetTable = businessObjectFactory.createDataSetTable(session);
-        return dataSetTable.listAvailableSearchDomains();
+        ISearchDomainSearcher searcher = businessObjectFactory.createSearchDomainSearcher(session);
+        return searcher.listAvailableSearchDomains();
     }
 
     @Override

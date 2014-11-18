@@ -46,6 +46,8 @@ public interface ICommonBusinessObjectFactory extends IAbstractBussinessObjectFa
     public IDataBO createDataBO(Session session);
 
     public IDataSetTable createDataSetTable(final Session session);
+    
+    public ISearchDomainSearcher createSearchDomainSearcher(Session session);
 
     public IDeletedDataSetTable createDeletedDataSetTable(final Session session);
 
