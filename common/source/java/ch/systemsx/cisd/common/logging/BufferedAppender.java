@@ -94,6 +94,21 @@ public final class BufferedAppender extends WriterAppender
         configureRootLogger();
         setThreshold(logLevel);
     }
+    
+    public void addRegexForLoggingEventsToBeDropped(String loggerNameRegex)
+    {
+        final Pattern pattern = Pattern.compile(loggerNameRegex);
+        this.addFilter(new Filter()
+            {
+                @Override
+                public int decide(LoggingEvent event)
+                {
+                    String loggerName = event.getLoggerName();
+                    return pattern.matcher(loggerName).matches() ? Filter.DENY : Filter.ACCEPT;
+                }
+            });
+
+    }
 
     private final void configureRootLogger()
     {

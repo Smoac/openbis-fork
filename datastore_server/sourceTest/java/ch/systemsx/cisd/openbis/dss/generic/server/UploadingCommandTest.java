@@ -231,6 +231,7 @@ public class UploadingCommandTest extends AssertJUnit
     public void setup()
     {
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
         context = new Mockery();
         factory = context.mock(ICIFEXRPCServiceFactory.class);
         cifex = context.mock(ICIFEXComponent.class);
