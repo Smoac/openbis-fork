@@ -30,9 +30,10 @@ import org.testng.annotations.Test;
 import ch.systemsx.cisd.openbis.generic.server.business.IDataStoreServiceFactory;
 import ch.systemsx.cisd.openbis.generic.server.business.ManagerTestTool;
 import ch.systemsx.cisd.openbis.generic.shared.IDataStoreService;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.AlignmentMatch;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSetFileSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityKind;
-import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertySearchResultLocation;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.EntityPropertyBlastSearchResultLocation;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomain;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchDomainSearchResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IPermIdHolder;
@@ -123,31 +124,35 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     @Test
     public void testSearchForEntitiesWithSequences()
     {
-        prepareSearchForEntityPropertiesWithSequences(store1, dataStoreService1, "DATA_SET:DS1:SEQ");
-        prepareSearchForEntityPropertiesWithSequences(store2, dataStoreService2, 
+        prepareSearchForEntityPropertiesWithSequences(store1, dataStoreService1, 0.5, "DATA_SET:DS1:SEQ");
+        prepareSearchForEntityPropertiesWithSequences(store2, dataStoreService2, 9.5,
                 "SAMPLE:S1:OLIGO", "SAMPLE:S2:OLIGO", "EXPERIMENT:E1:S");
         ExternalDataPE ds1 = createDataSet("DS1", store1);
         prepareListDataSetsByCode(ds1);
         SamplePE s1 = createSample("S1");
         SamplePE s2 = createSample("S2");
-        prepareListSamplesByPermId(s1, s2);
+        prepareListSamplesByPermId(s2, s1);
         ExperimentPE e1 = createExperiment("E1");
         prepareListExperimentsByPermId(e1);
 
         List<SearchDomainSearchResultWithFullEntity> results =
                 createSearcher().searchForEntitiesWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("DS1", results.get(0).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Result location: [Data_set perm id: DS1, property type: SEQ, position: 24]", 
+        assertEquals("E1", results.get(0).getEntity().getPermId());
+        assertEquals("Search Domain: test-db, Score: 11.5, Result location: "
+                + "[Experiment perm id: E1, property type: S, alignment in sequence: [42-45], alignment in query: [7-10]]", 
                 results.get(0).getSearchResult().toString());
-        assertEquals("S1", results.get(1).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Result location: [Sample perm id: S1, property type: OLIGO, position: 24]", 
+        assertEquals("S2", results.get(1).getEntity().getPermId());
+        assertEquals("Search Domain: test-db, Score: 10.5, Result location: "
+                + "[Sample perm id: S2, property type: OLIGO, alignment in sequence: [42-45], alignment in query: [7-10]]", 
                 results.get(1).getSearchResult().toString());
-        assertEquals("S2", results.get(2).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Result location: [Sample perm id: S2, property type: OLIGO, position: 24]", 
+        assertEquals("S1", results.get(2).getEntity().getPermId());
+        assertEquals("Search Domain: test-db, Score: 9.5, Result location: "
+                + "[Sample perm id: S1, property type: OLIGO, alignment in sequence: [42-45], alignment in query: [7-10]]", 
                 results.get(2).getSearchResult().toString());
-        assertEquals("E1", results.get(3).getEntity().getPermId());
-        assertEquals("Search Domain: test-db, Result location: [Experiment perm id: E1, property type: S, position: 24]", 
+        assertEquals("DS1", results.get(3).getEntity().getPermId());
+        assertEquals("Search Domain: test-db, Score: 0.5, Result location: "
+                + "[Data set perm id: DS1, property type: SEQ, alignment in sequence: [42-45], alignment in query: [7-10]]", 
                 results.get(3).getSearchResult().toString());
         assertEquals(4, results.size());
         context.assertIsSatisfied();
@@ -156,8 +161,8 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     @Test
     public void testSearchForDataSetsWithSequences()
     {
-        prepareSearchForDataSetsWithSequences(store1, dataStoreService1, "ds1", "ds2");
-        prepareSearchForDataSetsWithSequences(store2, dataStoreService2, "ds3", "ds3");
+        prepareSearchForDataSetsWithSequences(store1, dataStoreService1, 0.5, "ds1", "ds2");
+        prepareSearchForDataSetsWithSequences(store2, dataStoreService2, 13.5, "ds3", "ds3");
         final ExternalDataPE ds1 = createDataSet("ds1", store1);
         final ExternalDataPE ds2 = createDataSet("ds2", store1);
         final ExternalDataPE ds3 = createDataSet("ds3", store2);
@@ -166,22 +171,25 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         List<SearchDomainSearchResultWithFullEntity> results =
                 createSearcher().searchForEntitiesWithSequences(SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
-        assertEquals("Search Domain: test-db, Result location: [Data set: ds1, path: ds1/path, "
-                + "identifier: [id-ds1], position: 42]",
-                results.get(0).getSearchResult().toString());
-        assertEquals(ds1.getCode(), ((AbstractExternalData) results.get(0).getEntity()).getCode());
-        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Result location: [Data set: ds2, path: ds2/path, "
-                + "identifier: [id-ds2], position: 42]",
-                results.get(1).getSearchResult().toString());
-        assertEquals(ds2.getCode(), ((AbstractExternalData) results.get(1).getEntity()).getCode());
-        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
-        assertEquals("Search Domain: test-db, Result location: [Data set: ds3, path: ds3/path, "
+        assertEquals("Search Domain: test-db, Score: 14.5, Result location: [Data set: ds3, path: ds3/path, "
                 + "identifier: [id-ds3], position: 42]",
+                results.get(0).getSearchResult().toString());
+        assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(0).getEntity()).getCode());
+        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
+        assertEquals("Search Domain: test-db, Score: 13.5, Result location: [Data set: ds3, path: ds3/path, "
+                + "identifier: [id-ds3], position: 42]",
+                results.get(1).getSearchResult().toString());
+        assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(1).getEntity()).getCode());
+        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
+        assertEquals("Search Domain: test-db, Score: 1.5, Result location: [Data set: ds2, path: ds2/path, "
+                + "identifier: [id-ds2], position: 42]",
                 results.get(2).getSearchResult().toString());
-        assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(2).getEntity()).getCode());
+        assertEquals(ds2.getCode(), ((AbstractExternalData) results.get(2).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(2).getEntity()).getExperiment().getIdentifier());
-        assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(3).getEntity()).getCode());
+        assertEquals("Search Domain: test-db, Score: 0.5, Result location: [Data set: ds1, path: ds1/path, "
+                + "identifier: [id-ds1], position: 42]",
+                results.get(3).getSearchResult().toString());
+        assertEquals(ds1.getCode(), ((AbstractExternalData) results.get(3).getEntity()).getCode());
         assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(3).getEntity()).getExperiment().getIdentifier());
         assertEquals(4, results.size());
         context.assertIsSatisfied();
@@ -214,7 +222,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     }
 
     private void prepareSearchForDataSetsWithSequences(final DataStorePE dataStore, final IDataStoreService service,
-            final String... foundDataSets)
+            final double initialScore, final String... foundDataSets)
     {
         context.checking(new Expectations()
             {
@@ -222,12 +230,14 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                     one(service).searchForEntitiesWithSequences(dataStore.getSessionToken(),
                             SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
                     List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
+                    double score = initialScore;
                     for (String foundDataSet : foundDataSets)
                     {
                         SearchDomainSearchResult result = new SearchDomainSearchResult();
                         SearchDomain searchDomain = new SearchDomain();
                         searchDomain.setName("test-db");
                         result.setSearchDomain(searchDomain);
+                        result.setScore(score++);
                         DataSetFileSearchResultLocation resultLocation = new DataSetFileSearchResultLocation();
                         resultLocation.setDataSetCode(foundDataSet);
                         resultLocation.setPathInDataSet(foundDataSet + "/path");
@@ -242,7 +252,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     }
 
     private void prepareSearchForEntityPropertiesWithSequences(final DataStorePE dataStore,
-            final IDataStoreService service, final String... foundLocations)
+            final IDataStoreService service, final double initialScore, final String... foundLocations)
     {
         context.checking(new Expectations()
             {
@@ -250,18 +260,25 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                     one(service).searchForEntitiesWithSequences(dataStore.getSessionToken(),
                             SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
                     List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
+                    double score = initialScore;
                     for (String foundLocation : foundLocations)
                     {
                         SearchDomainSearchResult result = new SearchDomainSearchResult();
                         SearchDomain searchDomain = new SearchDomain();
                         searchDomain.setName("test-db");
                         result.setSearchDomain(searchDomain);
-                        EntityPropertySearchResultLocation resultLocation = new EntityPropertySearchResultLocation();
+                        result.setScore(score++);
+                        EntityPropertyBlastSearchResultLocation resultLocation = new EntityPropertyBlastSearchResultLocation();
                         String[] splittedLocation = foundLocation.split(":");
                         resultLocation.setEntityKind(EntityKind.valueOf(splittedLocation[0]));
                         resultLocation.setPermId(splittedLocation[1]);
                         resultLocation.setPropertyType(splittedLocation[2]);
-                        resultLocation.setPosition(24);
+                        AlignmentMatch alignmentMatch = new AlignmentMatch();
+                        alignmentMatch.setSequenceStart(42);
+                        alignmentMatch.setSequenceEnd(45);
+                        alignmentMatch.setQueryStart(7);
+                        alignmentMatch.setQueryEnd(10);
+                        resultLocation.setAlignmentMatch(alignmentMatch);
                         result.setResultLocation(resultLocation);
                         results.add(result);
                     }

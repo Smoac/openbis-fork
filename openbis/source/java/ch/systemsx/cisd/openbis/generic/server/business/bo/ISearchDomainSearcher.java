@@ -35,7 +35,7 @@ public interface ISearchDomainSearcher
     List<SearchDomain> listAvailableSearchDomains();
 
     /**
-     * Searches for entities with sequences.
+     * Searches for entities with sequences. The result is sorted by score in descending order.
      */
     List<SearchDomainSearchResultWithFullEntity> searchForEntitiesWithSequences(String preferredSearchDomainOrNull,
             String sequenceSnippet, Map<String, String> optionalParametersOrNull);

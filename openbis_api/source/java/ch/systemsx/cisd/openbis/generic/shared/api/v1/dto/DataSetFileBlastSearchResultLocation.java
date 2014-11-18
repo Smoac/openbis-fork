@@ -16,48 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import java.io.Serializable;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * A class specifying the search domain of a {@link SearchDomainSearchResult}.
+ * Extension of {@link DataSetFileBlastSearchResultLocation} for BLAST search. Matching sequence/query start
+ * and end are available.
  *
  * @author Franz-Josef Elmer
  */
-@JsonObject("SearchDomain")
-public class SearchDomain implements Serializable
+@JsonObject("DataSetFileBlastSearchResultLocation")
+public class DataSetFileBlastSearchResultLocation extends DataSetFileSearchResultLocation
 {
     private static final long serialVersionUID = 1L;
     
-    private String name;
+    private AlignmentMatch alignmentMatch;
     
-    private String label;
-
-    public String getName()
+    public AlignmentMatch getAlignmentMatch()
     {
-        return name;
+        return alignmentMatch;
     }
 
-    public void setName(String name)
+    public void setAlignmentMatch(AlignmentMatch alignmentMatch)
     {
-        this.name = name;
+        this.alignmentMatch = alignmentMatch;
+        setPosition(alignmentMatch.getSequenceStart());
     }
 
-    public String getLabel()
-    {
-        return label == null ? name : label;
-    }
-
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
-    
     @Override
     public String toString()
     {
-        return label == null ? name : label + " [" + name + "]";
+        return "Data set: " + getDataSetCode() + ", path: " + getPathInDataSet()
+                + ", identifier: [" + getIdentifier() + "], " + alignmentMatch;
     }
     
 }

@@ -115,6 +115,7 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
                         preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull));
             }
         }
+        Collections.sort(result, Collections.reverseOrder());
         return result;
     }
 

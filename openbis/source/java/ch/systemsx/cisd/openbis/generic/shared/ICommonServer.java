@@ -660,7 +660,7 @@ public interface ICommonServer extends IServer
             DetailedSearchCriteria criteria);
 
     /**
-     * Searches on a search domain.
+     * Searches on a search domain. The result is sorted by score in descending order.
      */
     @Transactional(readOnly = true)
     public List<SearchDomainSearchResultWithFullEntity> searchOnSearchDomain(String sessionToken, 

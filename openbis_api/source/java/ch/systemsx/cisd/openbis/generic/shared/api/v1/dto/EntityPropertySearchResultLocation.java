@@ -16,8 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import org.apache.commons.lang.StringUtils;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
@@ -81,8 +79,14 @@ public class EntityPropertySearchResultLocation implements ISearchDomainResultLo
     @Override
     public String toString()
     {
-        return StringUtils.capitalize(entityKind.toString().toLowerCase()) + " perm id: " + permId 
-                + ", property type: " + propertyType + ", position: " + position;
+        return renderEntityKind() + " perm id: " + permId + ", property type: " + propertyType 
+                + ", position: " + position;
+    }
+    
+    protected String renderEntityKind()
+    {
+        String str = entityKind.toString().toLowerCase().replace('_', ' ');
+        return Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
 }

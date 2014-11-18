@@ -26,13 +26,15 @@ import ch.systemsx.cisd.base.annotation.JsonObject;
  * @author Franz-Josef Elmer
  */
 @JsonObject("SearchDomainSearchResult")
-public class SearchDomainSearchResult implements Serializable
+public class SearchDomainSearchResult implements Serializable, Comparable<SearchDomainSearchResult>
 {
     private static final long serialVersionUID = 1L;
     
     private SearchDomain searchDomain;
     
     private ISearchDomainResultLocation resultLocation;
+    
+    private double score;
 
     public SearchDomain getSearchDomain()
     {
@@ -44,6 +46,16 @@ public class SearchDomainSearchResult implements Serializable
         this.searchDomain = searchDomain;
     }
     
+    public double getScore()
+    {
+        return score;
+    }
+
+    public void setScore(double score)
+    {
+        this.score = score;
+    }
+
     public ISearchDomainResultLocation getResultLocation()
     {
         return resultLocation;
@@ -55,9 +67,16 @@ public class SearchDomainSearchResult implements Serializable
     }
 
     @Override
+    public int compareTo(SearchDomainSearchResult searchResult)
+    {
+        return Double.compare(score, searchResult.getScore());
+    }
+
+    @Override
     public String toString()
     {
-        return "Search Domain: " + getSearchDomain() + ", Result location: [" + resultLocation + "]";
+        return "Search Domain: " + getSearchDomain() + ", Score: " + score 
+                + ", Result location: [" + resultLocation + "]";
     }
 
 }
