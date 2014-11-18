@@ -66,13 +66,14 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithProperties;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.CodeWithRegistrationAndModificationDate;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.IEntityProperty;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 
 /**
@@ -575,7 +576,9 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
         Map<SequenceType, Sequences> load(IEncapsulatedOpenBISService service)
         {
             Map<SequenceType, Sequences> map = new EnumMap<SequenceType, Sequences>(SequenceType.class);
-            for (IEntityInformationHolderWithProperties entity : entityLoader.listEntities(service, entityType))
+            SearchCriteria searchCriteria = new SearchCriteria();
+            searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, entityType));
+            for (IEntityInformationHolderWithProperties entity : entityLoader.listEntities(service, searchCriteria))
             {
                 List<IEntityProperty> properties = entity.getProperties();
                 for (IEntityProperty property : properties)
@@ -694,22 +697,38 @@ public class BlastDatabaseCreationMaintenanceTask implements IMaintenanceTask
    
     private static enum EntityLoader
     {
+        DATA_SET()
+        {
+            @Override
+            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
+                    SearchCriteria searchCriteria)
+            {
+                return service.searchForDataSets(searchCriteria);
+            }
+        },
+        EXPERIMENT()
+        {
+
+            @Override
+            List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
+                    SearchCriteria searchCriteria)
+            {
+                return service.searchForExperiments(searchCriteria);
+            }
+            
+        },
         SAMPLE()
         {
             @Override
             List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service,
-                    String entityTypeCode)
+                    SearchCriteria searchCriteria)
             {
-                ListSampleCriteria criteria = new ListSampleCriteria();
-                SampleType sampleType = service.getSampleType(entityTypeCode);
-                criteria.setSampleType(sampleType);
-                criteria.setIncludeSpace(true);
-                return service.listSamples(criteria);
+                return service.searchForSamples(searchCriteria);
             }
         };
 
         abstract List<? extends IEntityInformationHolderWithProperties> listEntities(IEncapsulatedOpenBISService service, 
-                String entityTypeCode);
+                SearchCriteria searchCriteria);
 
     }
 

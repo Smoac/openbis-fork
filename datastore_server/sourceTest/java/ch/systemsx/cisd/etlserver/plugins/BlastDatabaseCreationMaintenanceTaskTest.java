@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Level;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.AfterMethod;
@@ -47,15 +45,18 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IConfigProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IHierarchicalContentProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.utils.BlastUtils;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClause;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria.MatchClauseAttribute;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DeletedDataSet;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Experiment;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Sample;
-import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SampleType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.TrackingDataSetCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ContainerDataSetBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.DataSetBuilder;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.ExperimentBuilder;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.builders.SampleBuilder;
 
 import de.schlichtherle.io.File;
@@ -352,16 +353,26 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
     }
 
     @Test
-    public void testExecuteForSequencesInSampleProperties()
+    public void testExecuteForSequencesInEntityProperties()
     {
         Properties properties = new Properties();
-        properties.setProperty(ENTITY_SEQUENCE_PROPERTIES_PROPERTY, "SAMPLE+T+O");
+        properties.setProperty(ENTITY_SEQUENCE_PROPERTIES_PROPERTY, "SAMPLE+TS+PS, EXPERIMENT+TE+PE, DATA_SET+TD+PD");
         SampleBuilder s1 = new SampleBuilder("/A/S1").permID("1").property("A", "123");
-        SampleBuilder s2 = new SampleBuilder("/A/S2").permID("2").property("O", "GATTACA")
+        SampleBuilder s2 = new SampleBuilder("/A/S2").permID("2").property("PS", "GATTACA")
                 .modificationDate(new Date(123456789));
-        SampleBuilder s3 = new SampleBuilder("/A/S3").permID("3").property("O", "CAGATAA")
+        SampleBuilder s3 = new SampleBuilder("/A/S3").permID("3").property("PS", "CAGATAA")
                 .modificationDate(new Date(987654321));
-        prepareListSamples("T", s1, s2, s3);
+        prepareListSamples("TS", s1, s2, s3);
+        ExperimentBuilder e1 = new ExperimentBuilder().identifier("/S/P/E1").permID("10").property("B", "GATTACA");
+        ExperimentBuilder e2 = new ExperimentBuilder().identifier("/S/P/E2").permID("10").property("PE", "AFFE")
+                .modificationDate(new Date(234567891));
+        prepareListExperiments("TE", e1, e2);
+        DataSetBuilder ds1 = new DataSetBuilder().code("ds1").property("C", "GATTACA");
+        DataSetBuilder ds2 = new DataSetBuilder().code("ds2").property("PD", "APE")
+                .modificationDate(new Date(345678912));
+        DataSetBuilder ds3 = new DataSetBuilder().code("ds3").property("PD", "TACAGA")
+                .modificationDate(new Date(456789123));
+        prepareListDataSets("TD", ds1, ds2, ds3);
         prepareListsDeletedDataSets();
         maintenanceTask.setUp("", properties);
 
@@ -370,14 +381,31 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         assertEquals(INFO_PREFIX + "File types: [.fasta, .fa, .fsa, .fastq]\n"
                 + INFO_PREFIX + "BLAST databases folder: " + blastDatabaseFolder + "\n"
                 + INFO_PREFIX + "Temp folder '" + blastDatabaseFolder + "/tmp' created.", logRecorder.getLogContent());
-        assertEquals("makeblastdb -version\nmakeblastdb -in " 
-                + blastDatabaseFolder.getAbsolutePath() + "/tmp/SAMPLE+T+O+19700112112054-nucl.fa"
-                + " -dbtype nucl -title SAMPLE+T+O+19700112112054-nucl -out " 
-                + blastDatabaseFolder.getAbsolutePath() + "/SAMPLE+T+O+19700112112054-nucl\n",
+        assertEquals("makeblastdb -version\n"
+                + "makeblastdb -in "
+                + blastDatabaseFolder.getAbsolutePath() + "/tmp/SAMPLE+TS+PS+19700112112054-nucl.fa"
+                + " -dbtype nucl -title SAMPLE+TS+PS+19700112112054-nucl -out "
+                + blastDatabaseFolder.getAbsolutePath() + "/SAMPLE+TS+PS+19700112112054-nucl\n"
+                
+                + "makeblastdb -in "
+                + blastDatabaseFolder.getAbsolutePath() + "/tmp/EXPERIMENT+TE+PE+19700103180927-prot.fa"
+                + " -dbtype prot -title EXPERIMENT+TE+PE+19700103180927-prot -out "
+                + blastDatabaseFolder.getAbsolutePath() + "/EXPERIMENT+TE+PE+19700103180927-prot\n"
+                
+                + "makeblastdb -in "
+                + blastDatabaseFolder.getAbsolutePath() + "/tmp/DATA_SET+TD+PD+19700106075309-nucl.fa"
+                + " -dbtype nucl -title DATA_SET+TD+PD+19700106075309-nucl -out "
+                + blastDatabaseFolder.getAbsolutePath() + "/DATA_SET+TD+PD+19700106075309-nucl\n"
+                
+                + "makeblastdb -in "
+                + blastDatabaseFolder.getAbsolutePath() + "/tmp/DATA_SET+TD+PD+19700105010118-prot.fa"
+                + " -dbtype prot -title DATA_SET+TD+PD+19700105010118-prot -out "
+                + blastDatabaseFolder.getAbsolutePath() + "/DATA_SET+TD+PD+19700105010118-prot\n",
                 maintenanceTask.getCommands());
-        assertEquals("TITLE all-nucl\nDBLIST SAMPLE+T+O+19700112112054-nucl",
+        assertEquals("TITLE all-nucl\nDBLIST DATA_SET+TD+PD+19700106075309-nucl SAMPLE+TS+PS+19700112112054-nucl",
                 FileUtilities.loadToString(new File(blastDatabaseFolder, "all-nucl.nal")).trim());
-        assertEquals(false, new File(blastDatabaseFolder, "all-prot.nal").exists());
+        assertEquals("TITLE all-prot\nDBLIST DATA_SET+TD+PD+19700105010118-prot EXPERIMENT+TE+PE+19700103180927-prot",
+                FileUtilities.loadToString(new File(blastDatabaseFolder, "all-prot.pal")).trim());
         assertEquals("[]", Arrays.asList(new File(blastDatabaseFolder, "tmp").listFiles()).toString());
         context.assertIsSatisfied();
     }
@@ -580,30 +608,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
         context.checking(new Expectations()
             {
                 {
-                    one(service).getSampleType(sampleType);
-                    final SampleType sType = new SampleType();
-                    will(returnValue(sType));
-                    
-                    one(service).listSamples(with(new BaseMatcher<ListSampleCriteria>()
-                        {
-                            @Override
-                            public boolean matches(Object argument)
-                            {
-                                if (argument instanceof ListSampleCriteria)
-                                {
-                                    ListSampleCriteria criteria = (ListSampleCriteria) argument;
-                                    assertSame(sType, criteria.getSampleType());
-                                    return true;
-                                }
-                                return false;
-                            }
-
-                            @Override
-                            public void describeTo(Description description)
-                            {
-                                description.appendText(sampleType);
-                            }
-                        }));
+                    one(service).searchForSamples(createCriteria(sampleType));
                     List<Sample> result = new ArrayList<Sample>();
                     for (SampleBuilder sample : samples)
                     {
@@ -614,6 +619,38 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
             });
     }
 
+    private void prepareListExperiments(final String experimentType, final ExperimentBuilder... experiments)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(service).searchForExperiments(createCriteria(experimentType));
+                List<Experiment> result = new ArrayList<Experiment>();
+                for (ExperimentBuilder experiment : experiments)
+                {
+                    result.add(experiment.getExperiment());
+                }
+                will(returnValue(result));
+            }
+        });
+    }
+    
+    private void prepareListDataSets(final String dataSetType, final DataSetBuilder... dataSets)
+    {
+        context.checking(new Expectations()
+        {
+            {
+                one(service).searchForDataSets(createCriteria(dataSetType));
+                List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+                for (DataSetBuilder dataSet : dataSets)
+                {
+                    result.add(dataSet.getDataSet());
+                }
+                will(returnValue(result));
+            }
+        });
+    }
+    
     private RecordingMatcher<TrackingDataSetCriteria> prepareListNewerDataSet(final AbstractExternalData... dataSets)
     {
         final RecordingMatcher<TrackingDataSetCriteria> recordingMatcher = new RecordingMatcher<TrackingDataSetCriteria>();
@@ -625,6 +662,13 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
                 }
             });
         return recordingMatcher;
+    }
+
+    private SearchCriteria createCriteria(final String type)
+    {
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.addMatchClause(MatchClause.createAttributeMatch(MatchClauseAttribute.TYPE, type));
+        return searchCriteria;
     }
 
 }
