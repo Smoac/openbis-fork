@@ -111,7 +111,7 @@ public class SearchDomainSearcher extends AbstractBusinessObject implements ISea
             IDataStoreService service = tryGetDataStoreService(dataStore, dssFactory);
             if (service != null)
             {
-                result.addAll(service.searchForDataSetsWithSequences(dataStore.getSessionToken(),
+                result.addAll(service.searchForEntitiesWithSequences(dataStore.getSessionToken(),
                         preferredSearchDomainOrNull, sequenceSnippet, optionalParametersOrNull));
             }
         }

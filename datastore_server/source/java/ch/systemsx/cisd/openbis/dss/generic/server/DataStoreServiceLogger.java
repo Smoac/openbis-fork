@@ -205,12 +205,12 @@ class DataStoreServiceLogger implements IDataStoreService, IInitializable
     }
 
     @Override
-    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+    public List<SearchDomainSearchResult> searchForEntitiesWithSequences(String sessionToken,
+            String preferredSearchDomainOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull)
     {
-        log("searchForDataSetsWithSequences", "SEQUENCE_DATABASE(%s) SEQUENCE_SNIPPET(%s)",
-                preferredSequenceDatabaseOrNull, sequenceSnippet);
+        log("searchForEntitiesWithSequences", "SEARCH_DOMAIN(%s) SEQUENCE_SNIPPET(%s)",
+                preferredSearchDomainOrNull, sequenceSnippet);
         return null;
     }
 

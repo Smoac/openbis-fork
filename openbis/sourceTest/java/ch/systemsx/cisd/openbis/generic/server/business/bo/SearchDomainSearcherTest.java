@@ -219,7 +219,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(service).searchForDataSetsWithSequences(dataStore.getSessionToken(),
+                    one(service).searchForEntitiesWithSequences(dataStore.getSessionToken(),
                             SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
                     List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
                     for (String foundDataSet : foundDataSets)
@@ -247,7 +247,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         context.checking(new Expectations()
             {
                 {
-                    one(service).searchForDataSetsWithSequences(dataStore.getSessionToken(),
+                    one(service).searchForEntitiesWithSequences(dataStore.getSessionToken(),
                             SEQUENCE_DATABASE, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
                     List<SearchDomainSearchResult> results = new ArrayList<SearchDomainSearchResult>();
                     for (String foundLocation : foundLocations)

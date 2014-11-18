@@ -544,14 +544,14 @@ public class DataStoreService extends AbstractServiceWithLogger<IDataStoreServic
     }
 
     @Override
-    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+    public List<SearchDomainSearchResult> searchForEntitiesWithSequences(String sessionToken,
+            String preferredSearchDomainOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull)
     {
         sessionTokenManager.assertValidSessionToken(sessionToken);
         
         PluginTaskProvider<ISearchDomainService> provider = pluginTaskInfoProvider.getSearchDomainServiceProvider();
-        DatastoreServiceDescription serviceDescription = findSearchDomainService(provider, preferredSequenceDatabaseOrNull);
+        DatastoreServiceDescription serviceDescription = findSearchDomainService(provider, preferredSearchDomainOrNull);
         if (serviceDescription != null)
         {
             ISearchDomainService service = provider.getPluginInstance(serviceDescription.getKey());
