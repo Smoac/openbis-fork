@@ -10,11 +10,61 @@ apply from: '../gradle/javaproject.gradle'
 
 archivesBaseName = 'datastore_server_plugin-dsu'
 
+configurations.create('trackingClient')
+
 dependencies {
 	compile project(':common'),
-			project(':datastore_server')
-			
-	testCompile project(path: ':datastore_server', configuration: 'tests')	
+            project(':openbis-common'),
+            project(':openbis_api'),
+            project(':openbis'),
+            project(':datastore_server')
+
+    testCompile project(path: ':datastore_server', configuration: 'tests')
+    
+    trackingClient 'cisd:cisd-base:+',
+                   'javax:activation:+',
+                   'javax:mail:+',
+                   'apache:log4j:+',
+                   'springframework:spring:+',
+                   'marathon:marathon-spring-util:+',
+                   'apache:httpclient:+'
+}
+
+task trackingJar(type: Jar) {
+    archiveName "openbis-tracking-qgf-client.jar"
+
+    from zipTree(project(':common').jar.archivePath).plus(
+         zipTree(project(':openbis-common').jar.archivePath).plus( 
+         zipTree(project(':openbis_api').jar.archivePath).plus( 
+         zipTree(project(':datastore_server').jar.archivePath).plus( 
+         zipTree(project(':openbis').jar.archivePath))))).matching {
+            include '**/*.class'
+    }
+
+    manifest {
+        attributes 'Main-Class': 'ch.ethz.bsse.cisd.dsu.tracking.main.TrackingClient',
+                   "Class-Path": configurations.trackingClient.files.collect { it.getName() }.join(' ')
+    }
+}
+
+task trackingZip(type: Zip, dependsOn: [trackingJar]) {
+    baseName = "openbis-tracking-qgf-client"
+
+    from (trackingJar.archivePath) {
+        into "tracking/lib"
+    }
+
+    from (configurations.trackingClient.files) {
+        into "tracking/lib"
+    }
+    
+    from ('tracking/dist/etc') {
+        into "tracking/etc"
+    }
+
+    from ('tracking/dist/tracking.sh') {
+        into "tracking/"
+    }
 }
 
 task zip(type: Zip) {
@@ -31,3 +81,4 @@ task zip(type: Zip) {
 
 zip.dependsOn jar
 build.dependsOn zip
+build.dependsOn trackingZip
