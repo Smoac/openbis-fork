@@ -4,7 +4,7 @@
 # Runs on Unix / Linux systems.
 # -------------------------------------------------------------------------
 
-JAR_FILE=lib/openbis-tracking-dsu-client.jar
+JAR_FILE=lib/openbis-tracking-qgf-client.jar
 
 #
 # change to installation directory
@@ -16,6 +16,8 @@ fi
 WD=`dirname $bin`
 cd $WD
 SCRIPT=./`basename $0`
+
+[[ -d log ]] || mkdir log
 
 if [ "$JAVA_HOME" != "" ]; then
 	JAVA_BIN="$JAVA_HOME/bin/java"
