@@ -11,7 +11,7 @@ apply from: '../gradle/javaproject.gradle'
 archivesBaseName = 'datastore_server_plugin-dsu'
 
 configurations.create('trackingClient')
-
+configurations.create('trackingClientPartial')
 dependencies {
 	compile project(':common'),
             project(':openbis-common'),
@@ -29,6 +29,11 @@ dependencies {
                    'marathon:marathon-spring-util:+',
                    'apache:commons-httpclient:+',
                    'apache:commons-logging:+'
+
+    trackingClientPartial 'google:gwt-user:2.4'
+
+                   
+                   
 }
 
 task trackingJar(type: Jar) {
@@ -40,6 +45,11 @@ task trackingJar(type: Jar) {
          zipTree(project(':datastore_server').jar.archivePath).plus( 
          zipTree(project(':openbis').jar.archivePath))))).matching {
             include '**/*.class'
+    }
+
+    from zipTree(configurations.trackingClientPartial.files.iterator().next()).matching {
+        include '**/com/google/gwt/user/client/rpc/IsSerializable.class'
+        include '**/com/google/gwt/user/client/rpc/SerializableException.class'
     }
     
     from (sourceSets.main.output.classesDir) {
@@ -56,19 +66,19 @@ task trackingZip(type: Zip, dependsOn: [trackingJar]) {
     baseName = "openbis-tracking-qgf-client"
 
     from (trackingJar.archivePath) {
-        into "tracking/lib"
+        into "tracking-${project.version}/lib"
     }
 
     from (configurations.trackingClient.files) {
-        into "tracking/lib"
+        into "tracking-${project.version}/lib"
     }
     
     from ('tracking/dist/etc') {
-        into "tracking/etc"
+        into "tracking-${project.version}/etc"
     }
 
     from ('tracking/dist/tracking.sh') {
-        into "tracking/"
+        into "tracking-${project.version}/"
     }
 }
 
