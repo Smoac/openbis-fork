@@ -1,37 +1,46 @@
 var openbis = function() {
 
-	var _private = this;
+	var _private = {
 
-	this.ajaxRequest = function(settings) {
-		settings.type = "POST";
-		settings.processData = false;
-		settings.dataType = "json";
+		ajaxRequest : function(settings) {
+			settings.type = "POST";
+			settings.processData = false;
+			settings.dataType = "json";
 
-		var data = settings.data;
-		data["id"] = "1";
-		data["jsonrpc"] = "2.0";
-		settings.data = JSON.stringify(data);
+			var data = settings.data;
+			data["id"] = "1";
+			data["jsonrpc"] = "2.0";
+			settings.data = JSON.stringify(data);
 
-		var originalSuccess = settings.success || function() {
-		};
-		var originalError = settings.error || function() {
-		};
+			var originalSuccess = settings.success || function() {
+			};
+			var originalError = settings.error || function() {
+			};
 
-		settings.success = function(response) {
-			if (response.error) {
-				console.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(response.error));
-				originalError(response.error);
-			} else {
-				originalSuccess(response.result);
+			settings.success = function(response) {
+				if (response.error) {
+					_private.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(response.error));
+					originalError(response.error);
+				} else {
+					_private.log("Request succeeded - data: " + JSON.stringify(settings.data));
+					originalSuccess(response.result);
+				}
+			}
+
+			settings.error = function(xhr, status, error) {
+				_private.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(error));
+				originalError(error);
+			}
+
+			$.ajax(settings)
+		},
+
+		log : function(msg) {
+			if (console) {
+				console.log(msg);
 			}
 		}
 
-		settings.error = function(xhr, status, error) {
-			console.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(error));
-			originalError(error);
-		}
-
-		$.ajax(settings)
 	}
 
 	return function(openbisUrl) {

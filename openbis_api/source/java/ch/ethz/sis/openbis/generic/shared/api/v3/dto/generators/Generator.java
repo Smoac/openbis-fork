@@ -44,7 +44,7 @@ public class Generator extends AbstractGenerator
         addRegistrationDate(gen);
         addModificationDate(gen);
 
-        gen.addFetchedField(SampleType.class, "sampleType", "Sample type", SampleTypeFetchOptions.class);
+        gen.addFetchedField(SampleType.class, "type", "Sample type", SampleTypeFetchOptions.class);
         addSpace(gen);
         addExperiment(gen);
         addProperties(gen);
@@ -236,8 +236,8 @@ public class Generator extends AbstractGenerator
         for (DtoGenerator gen : list)
         {
             System.out.print("Generating api classes for " + gen + "...");
-            gen.generateDTO();
-            gen.generateFetchOptions();
+            gen.generateDTOJS();
+            gen.generateFetchOptionsJS();
             System.out.println("done");
         }
     }

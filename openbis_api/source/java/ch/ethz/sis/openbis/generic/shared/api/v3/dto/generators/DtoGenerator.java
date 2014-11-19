@@ -176,12 +176,29 @@ public class DtoGenerator
         generateDTO("source/java/ch/ethz/sis/openbis/generic/shared/api/v3/dto/entity/" + subPackage + "/" + className + ".java");
     }
 
+    public void generateDTOJS() throws FileNotFoundException
+    {
+        generateDTOJS("../js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className + ".js");
+    }
+
     private void generateDTO(String file) throws FileNotFoundException
     {
         PrintStream fos = new PrintStream(new FileOutputStream(file, false));
         try
         {
             generateDTO(fos);
+        } finally
+        {
+            fos.close();
+        }
+    }
+
+    private void generateDTOJS(String file) throws FileNotFoundException
+    {
+        PrintStream fos = new PrintStream(new FileOutputStream(file, false));
+        try
+        {
+            generateDTOJS(fos);
         } finally
         {
             fos.close();
@@ -207,10 +224,26 @@ public class DtoGenerator
         endBlock();
     }
 
+    public void generateDTOJS(PrintStream os)
+    {
+        setOutputStream(os);
+        printClassHeaderJS(className);
+        startBlock();
+        printTypeJS(className);
+        printAccessorsJS();
+        endBlock();
+    }
+
     public void generateFetchOptions() throws FileNotFoundException
     {
         generateFetchOptions("source/java/ch/ethz/sis/openbis/generic/shared/api/v3/dto/fetchoptions/" + subPackage + "/" + className
                 + "FetchOptions.java");
+    }
+
+    public void generateFetchOptionsJS() throws FileNotFoundException
+    {
+        generateFetchOptionsJS("../js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/" + className
+                + "FetchOptions.js");
     }
 
     private void generateFetchOptions(String file) throws FileNotFoundException
@@ -219,6 +252,18 @@ public class DtoGenerator
         try
         {
             generateFetchOptions(fos);
+        } finally
+        {
+            fos.close();
+        }
+    }
+
+    private void generateFetchOptionsJS(String file) throws FileNotFoundException
+    {
+        PrintStream fos = new PrintStream(new FileOutputStream(file, false));
+        try
+        {
+            generateFetchOptionsJS(fos);
         } finally
         {
             fos.close();
@@ -238,6 +283,16 @@ public class DtoGenerator
         printFetchOptionsFields();
         printFetchOptionsAccessors();
 
+        endBlock();
+    }
+
+    public void generateFetchOptionsJS(PrintStream os)
+    {
+        setOutputStream(os);
+        printClassHeaderJS(className + "FetchOptions");
+        startBlock();
+        printTypeJS(className + "FetchOptions");
+        printFetchOptionsAccessorsJS();
         endBlock();
     }
 
@@ -269,6 +324,14 @@ public class DtoGenerator
         }
     }
 
+    private void printAccessorsJS()
+    {
+        for (DTOField field : fields)
+        {
+            printAccessorsJS(field);
+        }
+    }
+
     private void printAccessors(DTOField field)
     {
         if (field.fetchOptions != null)
@@ -283,6 +346,20 @@ public class DtoGenerator
         printBasicSetter(field);
     }
 
+    private void printAccessorsJS(DTOField field)
+    {
+        if (field.fetchOptions != null)
+        {
+            printGetterWithFetchOptionsJS(field);
+        }
+        else
+        {
+            printBasicGetterJS(field);
+        }
+
+        printBasicSetterJS(field);
+    }
+
     private void printFetchOptionsAccessors()
     {
         for (DTOField field : fields)
@@ -294,11 +371,33 @@ public class DtoGenerator
         }
     }
 
+    private void printFetchOptionsAccessorsJS()
+    {
+        for (DTOField field : fields)
+        {
+            if (field.fetchOptions != null)
+            {
+                printFetchOptionsAccessorsJS(field);
+            }
+        }
+    }
+
     private void printBasicSetter(DTOField field)
     {
         print("public void set%s(%s %s)",
                 field.getCapitalizedName(),
                 field.definitionClassName,
+                field.getPersistentName());
+        startBlock();
+        print("this.%s = %s;", field.getPersistentName(), field.getPersistentName());
+        endBlock();
+        print("");
+    }
+
+    private void printBasicSetterJS(DTOField field)
+    {
+        print("this.set%s = function(%s)",
+                field.getCapitalizedName(),
                 field.getPersistentName());
         startBlock();
         print("this.%s = %s;", field.getPersistentName(), field.getPersistentName());
@@ -324,6 +423,22 @@ public class DtoGenerator
 
     }
 
+    private void printGetterWithFetchOptionsJS(DTOField field)
+    {
+        print("this.get%s = function()", field.getCapitalizedName());
+        startBlock();
+        print("if (this.getFetchOptions().has%s())", field.getCapitalizedName());
+        startBlock();
+        print("return %s;", field.getPersistentName());
+        endBlock();
+        print("else");
+        startBlock();
+        print("throw '%s has not been fetched.'", field.description);
+        endBlock();
+        endBlock();
+        print("");
+    }
+
     private void printBasicGetter(DTOField field)
     {
         print("@JsonIgnore");
@@ -334,6 +449,22 @@ public class DtoGenerator
         else
         {
             print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
+        }
+        startBlock();
+        print("return %s;", field.getPersistentName());
+        endBlock();
+        print("");
+    }
+
+    private void printBasicGetterJS(DTOField field)
+    {
+        if (field.definitionClassName.equals("Boolean"))
+        {
+            print("this.is%s = function()", field.getCapitalizedName());
+        }
+        else
+        {
+            print("this.get%s = function()", field.getCapitalizedName());
         }
         startBlock();
         print("return %s;", field.getPersistentName());
@@ -368,6 +499,25 @@ public class DtoGenerator
 
     }
 
+    private void printFetchOptionsAccessorsJS(DTOField field)
+    {
+        print("this.fetch%s = function()", field.getCapitalizedName());
+        startBlock();
+        print("if (!this.%s)", field.getPersistentName());
+        startBlock();
+        print("this.%s = new %s();", field.getPersistentName(), field.fetchOptions.getSimpleName());
+        endBlock();
+        print("return this.%s;", field.getPersistentName());
+        endBlock();
+        print("");
+
+        print("this.has%s = function()", field.getCapitalizedName());
+        startBlock();
+        print("return this.%s;", field.getPersistentName());
+        endBlock();
+        print("");
+    }
+
     private void printClassHeader(String className)
     {
         print("/**");
@@ -375,6 +525,16 @@ public class DtoGenerator
         print(" */");
         print("@JsonObject(\"%s\")", className);
         print("public class %s implements Serializable", className);
+    }
+
+    private void printClassHeaderJS(String className)
+    {
+        print("var %s = function()", className);
+    }
+
+    private void printTypeJS(String className)
+    {
+        print("this['@type'] = '%s';", className);
     }
 
     private void printFields()

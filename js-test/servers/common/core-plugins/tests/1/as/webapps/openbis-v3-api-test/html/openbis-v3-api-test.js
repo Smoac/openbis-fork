@@ -55,84 +55,28 @@ var createFacadeAndLogin = function(action) {
 }
 
 var createExperimentFetchOptions = function() {
-	return {
-		"@type" : "ExperimentFetchOptions",
-
-		"type" : {
-			"@type" : "ExperimentTypeFetchOptions"
-		},
-
-		"project" : {
-			"@type" : "ProjectFetchOptions",
-			"space" : {
-				"@type" : "SpaceFetchOptions"
-			}
-		},
-
-		"properties" : {
-			"@type" : "PropertyFetchOptions"
-		},
-
-		"tags" : {
-			"@type" : "TagFetchOptions"
-		},
-
-		"registrator" : {
-			"@type" : "PersonFetchOptions"
-		},
-
-		"modifier" : {
-			"@type" : "PersonFetchOptions"
-		},
-
-		"attachments" : {
-			"@type" : "AttachmentFetchOptions"
-		}
-	}
+	var fo = new ExperimentFetchOptions();
+	fo.fetchType();
+	fo.fetchProject().fetchSpace();
+	fo.fetchProperties();
+	fo.fetchTags();
+	fo.fetchRegistrator();
+	fo.fetchModifier();
+	fo.fetchAttachments();
+	return fo;
 }
 
 var createSampleFetchOptions = function() {
-	return {
-		"@type" : "SampleFetchOptions",
-
-		"type" : {
-			"@type" : "SampleTypeFetchOptions"
-		},
-
-		"experiment" : {
-			"@type" : "ExperimentFetchOptions",
-			"project" : {
-				"@type" : "ProjectFetchOptions",
-				"space" : {
-					"@type" : "SpaceFetchOptions"
-				}
-			}
-		},
-
-		"space" : {
-			"@type" : "SpaceFetchOptions"
-		},
-
-		"properties" : {
-			"@type" : "PropertyFetchOptions"
-		},
-
-		"tags" : {
-			"@type" : "TagFetchOptions"
-		},
-
-		"registrator" : {
-			"@type" : "PersonFetchOptions"
-		},
-
-		"modifier" : {
-			"@type" : "PersonFetchOptions"
-		},
-
-		"attachments" : {
-			"@type" : "AttachmentFetchOptions"
-		}
-	}
+	var fo = new SampleFetchOptions();
+	fo.fetchType();
+	fo.fetchExperiment().fetchProject().fetchSpace();
+	fo.fetchSpace();
+	fo.fetchProperties();
+	fo.fetchTags();
+	fo.fetchRegistrator();
+	fo.fetchModifier();
+	fo.fetchAttachments();
+	return fo;
 }
 
 test("mapExperiments()", function() {
