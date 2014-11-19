@@ -690,7 +690,7 @@ function MainController(profile) {
 									property : 'score',
 									sortable : true
 								}, {
-									label : 'Property or Path',
+									label : 'Found at (Property or Path)',
 									property : 'location',
 									sortable : true
 								}, {
@@ -719,11 +719,11 @@ function MainController(profile) {
 										if(resultLocation.entityKind) { //Is Sample
 											permId = resultLocation.permId;
 											kind = resultLocation.entityKind;
-											location = resultLocation.propertyType;
+											location = "Property: " + resultLocation.propertyType;
 										} else { //Is Data Set File
 											permId = resultLocation.dataSetCode;
 											kind = "DATA_SET";
-											location = resultLocation.pathInDataSet;
+											location = "Path: " + resultLocation.pathInDataSet;
 										}
 										score = result.score;
 										sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
