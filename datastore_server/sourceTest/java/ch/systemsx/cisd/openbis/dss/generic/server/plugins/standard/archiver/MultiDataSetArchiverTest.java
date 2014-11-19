@@ -540,7 +540,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds2.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds2.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds2.tar' to '" + archive.getAbsolutePath(),
+                + staging.getAbsolutePath() + "/ds2.tar' to '" + archive.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds2']\n"  
+                + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
@@ -587,7 +589,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath(),
+                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath()+ "\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"  
+                + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
@@ -680,7 +684,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds1 in ds1.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath(),
+                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath()+ "\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1']\n"  
+                + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 logRecorder.getLogContent());
         assertEquals("[]", status.getErrorStatuses().toString());
         assertEquals("[]", Arrays.asList(staging.list()).toString());
@@ -758,7 +764,9 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Archive dataset ds2 in ds1.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Data sets archived: ds1.tar\n"
                 + "INFO  OPERATION.MultiDataSetFileOperationsManager - Copy archive container from '"
-                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath(),
+                + staging.getAbsolutePath() + "/ds1.tar' to '" + archive.getAbsolutePath() + "\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Start sanity check on [Dataset 'ds1', Dataset 'ds2']\n"
+                + "INFO  OPERATION.AbstractDatastorePlugin - Sanity check finished.",
                 logRecorder.getLogContent());
         logRecorder.resetLogContent();
         assertEquals("[]", status.getErrorStatuses().toString());
