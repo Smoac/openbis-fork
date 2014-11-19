@@ -678,35 +678,78 @@ function MainController(profile) {
 								$("#search").removeClass("search-query-searching");
 								
 								var columns = [ {
-									label : 'Identifier',
-									property : 'identifier',
+									label : 'Entity Kind',
+									property : 'kind',
 									sortable : true
 								}, {
-									label : 'Path',
-									property : 'pathInDataSet',
+									label : 'Perm ID',
+									property : 'permId',
 									sortable : true
 								}, {
-									label : 'Position',
-									property : 'position',
+									label : 'Score',
+									property : 'score',
+									sortable : true
+								}, {
+									label : 'Property or Path',
+									property : 'location',
+									sortable : true
+								}, {
+									label : 'Sequence (Start - End)',
+									property : 'sequenceStartEnd',
+									sortable : true
+								}, {
+									label : 'Query (Start - End)',
+									property : 'queryStartEnd',
 									sortable : true
 								}];
 								
 								var getDataList = function(callback) {
 									var dataList = [];
 									for(var i = 0; i < data.result.length; i++) {
-										var resultLocation = data.result[i].resultLocation;
+										var result = data.result[i];
+										var resultLocation = result.resultLocation;
+										
+										var permId = null;
+										var kind = null;
+										var score = null;
+										var location = null;
+										var sequenceStartEnd = null;
+										var queryStartEnd = null;
+										
+										if(resultLocation.entityKind) { //Is Sample
+											permId = resultLocation.permId;
+											kind = resultLocation.entityKind;
+											location = resultLocation.propertyType;
+										} else { //Is Data Set File
+											permId = resultLocation.dataSetCode;
+											kind = "DATA_SET";
+											location = resultLocation.pathInDataSet;
+										}
+										score = result.score;
+										sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
+										queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
+										
 										dataList.push({
-											permId : resultLocation.dataSetCode,
-											identifier : resultLocation.identifier,
-											pathInDataSet : resultLocation.pathInDataSet,
-											position : resultLocation.position
+											kind : kind,
+											permId : permId,
+											score : score,
+											location : location,
+											sequenceStartEnd : sequenceStartEnd,
+											queryStartEnd : queryStartEnd
 										});
 									}
 									callback(dataList);
 								};
 								
 								var rowClick = function(e) {
-									mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
+									switch(e.data.kind) {
+										case "SAMPLE":
+											mainController.changeView('showViewSamplePageFromPermId', e.data.permId);
+											break;
+										case "DATA_SET":
+											mainController.changeView('showViewDataSetPageFromPermId', e.data.permId);
+											break;
+									}
 								}
 								
 								var dataGrid = new DataGridController(searchDomainLabel + " Search Results", columns, getDataList, rowClick);
