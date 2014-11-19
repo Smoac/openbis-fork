@@ -59,6 +59,14 @@ public enum Grouping implements IGroupKeyProvider
             return sample != null ? sample.getIdentifier() : "no_sample";
         }
     },
+    DataSet
+    {
+        @Override
+        public String getGroupKey(AbstractExternalData dataset)
+        {
+            return dataset.getCode();
+        }
+    },
     DataSetType
     {
         @Override

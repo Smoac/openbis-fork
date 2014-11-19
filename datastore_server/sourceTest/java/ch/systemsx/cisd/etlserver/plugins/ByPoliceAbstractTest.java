@@ -19,6 +19,7 @@ package ch.systemsx.cisd.etlserver.plugins;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jmock.Expectations;
@@ -219,7 +220,7 @@ public abstract class ByPoliceAbstractTest extends AssertJUnit
 
         if (shuffle)
         {
-            Collections.shuffle(dataSets);
+            Collections.shuffle(dataSets, new Random(445332075L));
         }
 
         List<AbstractExternalData> result = new ArrayList<AbstractExternalData>(policy.filter(dataSets));

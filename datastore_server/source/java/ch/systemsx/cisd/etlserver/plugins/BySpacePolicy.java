@@ -37,6 +37,7 @@ public class BySpacePolicy extends BaseGroupingPolicy implements IAutoArchiverPo
         providers.add(Grouping.Project);
         providers.add(Grouping.Experiment);
         providers.add(Grouping.Sample);
+        providers.add(Grouping.DataSet);
     }
 
     @Override

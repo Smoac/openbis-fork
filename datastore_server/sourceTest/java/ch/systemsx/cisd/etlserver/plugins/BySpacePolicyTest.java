@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.test.AssertionUtil;
+import ch.systemsx.cisd.etlserver.plugins.grouping.Grouping;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 
 /**
@@ -323,10 +324,60 @@ public class BySpacePolicyTest extends ByPoliceAbstractTest
         context.assertIsSatisfied();
     }
 
-    // test one big project, -||- of an experiments
+    @Test
+    public void testBigProjectWithBigExperimentAndNoSampleAndManySmallDataSets()
+    {
+        ArrayList<AbstractExternalData> dataSets = new ArrayList<AbstractExternalData>();
+        dataSets.add(ctx.createDataset("smallSpace1", "p1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("smallSpace1", "p1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("smallSpace1", "p1", "e3", "dt1", null, 10L));
 
-    // test one big experiment, -||- of a samples
+        dataSets.add(ctx.createDataset("smallSpace2", "p1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("smallSpace2", "p1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("smallSpace2", "p1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("smallSpace2", "p1", "e3", "dt1", null, 10L));
 
-    // test one big sample, with some small datasets
+        dataSets.add(ctx.createDataset("rightSpace", "smallProject1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("rightSpace", "smallProject1", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("rightSpace", "smallProject1", "e3", "dt1", null, 10L));
 
+        dataSets.add(ctx.createDataset("rightSpace", "smallProject2", "e3", "dt1", null, 10L));
+        dataSets.add(ctx.createDataset("rightSpace", "smallProject2", "e3", "dt1", null, 10L));
+
+        dataSets.add(ctx.createDataset("rightSpace", "bigProject3", "e1", "dt1", "x", 60L));
+        dataSets.add(ctx.createDataset("rightSpace", "bigProject3", "e1", "dt1", "y", 60L));
+        dataSets.add(ctx.createDataset("rightSpace", "bigProject3", "e1", "dt1", "z", 60L));
+
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE1", "dt1", null, 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE1", "dt1", null, 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE1", "dt1", null, 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE2", "dt1", null, 60L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE3", "dt1", null, 30L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "smallE3", "dt1", null, 30L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", "toSmallSample", null, 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "a", 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "b", 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "c", 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "e", 60L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "f", 20L));
+        dataSets.add(ctx.createDataset("rightSpace", "rightProject", "bigE", "dt1", null, "f2", 40L));
+
+        List<AbstractExternalData> filtered = filter(100, 139, dataSets);
+
+        assertAllDataSetsAreNotGenerated(filtered);
+        assertTotalDataSetsSize(120, filtered);
+        assertAllDataSetsInTheSameExperimentAndSample(filtered);
+        context.assertIsSatisfied();
+    }
+
+    private void assertAllDataSetsInTheSameExperimentAndSample(List<AbstractExternalData> filtered)
+    {
+        Set<String> keys = new HashSet<String>();
+        for (AbstractExternalData data : filtered)
+        {
+            keys.add(Grouping.Experiment.getGroupKey(data) + "#" + Grouping.Sample.getGroupKey(data));
+        }
+        System.out.println(keys);
+        AssertionUtil.assertSize(keys, 1);
+    }
 }
