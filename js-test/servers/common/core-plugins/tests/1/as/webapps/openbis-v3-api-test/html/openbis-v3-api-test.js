@@ -12,80 +12,10 @@ var testApiUrl = testUrl + "/openbis/openbis/rmi-application-server-v3.json";
 var testUserId = "openbis_test_js";
 var testUserPassword = "password";
 
-var openbis = function() {
-
-	this.ajaxRequest = function(settings) {
-		settings.type = "POST";
-		settings.processData = false;
-		settings.dataType = "json";
-
-		var data = settings.data;
-		data["id"] = "1";
-		data["jsonrpc"] = "2.0";
-		settings.data = JSON.stringify(data);
-
-		var originalSuccess = settings.success || function() {
-		};
-		var originalError = settings.error || function() {
-		};
-
-		settings.success = function(response) {
-			if (response.error) {
-				console.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(response.error));
-				originalError(response.error);
-			} else {
-				originalSuccess(response.result);
-			}
-		}
-
-		settings.error = function(xhr, status, error) {
-			console.log("Request failed - data: " + JSON.stringify(settings.data) + ", error: " + JSON.stringify(error));
-			originalError(error);
-		}
-
-		$.ajax(settings)
-	}
-
-	this.login = function(user, password, onSuccess, onError) {
-		var thisOpenbis = this;
-
-		this.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "login",
-				"params" : [ user, password ]
-			},
-			success : function(sessionToken) {
-				thisOpenbis.sessionToken = sessionToken;
-				onSuccess(sessionToken);
-			},
-			error : onError
-		});
-	}
-
-	this.logout = function(onSuccess, onError) {
-		var thisOpenbis = this;
-
-		this.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "logout",
-				"params" : [ thisOpenbis.sessionToken ]
-			},
-			success : function() {
-				thisOpenbis.sessionToken = null;
-				onSuccess();
-			},
-			error : onError
-		});
-	}
-
-}
-
 var createFacade = function(action) {
 	stop();
 
-	var facade = new openbis();
+	var facade = new openbis(testApiUrl);
 
 	facade.close = function() {
 		facade.logout(function() {
@@ -207,114 +137,106 @@ var createSampleFetchOptions = function() {
 
 test("mapExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "mapExperiments",
-				"params" : [ facade.sessionToken, [ {
-					"@type" : "ExperimentPermId",
-					"permId" : "20130412105232616-2"
-				} ], createExperimentFetchOptions() ]
-			},
-			success : function(experiments) {
-				assertObjectsCount(Object.keys(experiments), 1);
+		var experimentIds = [ {
+			"@type" : "ExperimentPermId",
+			"permId" : "20130412105232616-2"
+		} ];
+		var fetchOptions = createExperimentFetchOptions();
 
-				var experiment = experiments["20130412105232616-2"];
-				equal(experiment.code, "EXP-1", "Experiment code");
-				equal(experiment.type.code, "HCS_PLATONIC", "Type code");
-				equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
-				equal(experiment.project.space.code, "PLATONIC", "Space code");
-				facade.close();
-			}
+		facade.mapExperiments(experimentIds, fetchOptions, function(experiments) {
+			assertObjectsCount(Object.keys(experiments), 1);
+
+			var experiment = experiments["20130412105232616-2"];
+			equal(experiment.code, "EXP-1", "Experiment code");
+			equal(experiment.type.code, "HCS_PLATONIC", "Type code");
+			equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+			equal(experiment.project.space.code, "PLATONIC", "Space code");
+			facade.close();
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
 
 test("mapSamples()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "mapSamples",
-				"params" : [ facade.sessionToken, [ {
-					"@type" : "SamplePermId",
-					"permId" : "20130412140147735-20"
-				} ], createSampleFetchOptions() ]
-			},
-			success : function(samples) {
-				assertObjectsCount(Object.keys(samples), 1);
+		var sampleIds = [ {
+			"@type" : "SamplePermId",
+			"permId" : "20130412140147735-20"
+		} ];
+		var fetchOptions = createSampleFetchOptions();
 
-				var sample = samples["20130412140147735-20"];
-				equal(sample.code, "PLATE-1", "Sample code");
-				equal(sample.type.code, "PLATE", "Type code");
-				equal(sample.experiment.code, "EXP-1", "Experiment code");
-				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
-				equal(sample.space.code, "PLATONIC", "Space code");
-				facade.close();
-			}
+		facade.mapSamples(sampleIds, fetchOptions, function(samples) {
+			assertObjectsCount(Object.keys(samples), 1);
+
+			var sample = samples["20130412140147735-20"];
+			equal(sample.code, "PLATE-1", "Sample code");
+			equal(sample.type.code, "PLATE", "Type code");
+			equal(sample.experiment.code, "EXP-1", "Experiment code");
+			equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+			equal(sample.space.code, "PLATONIC", "Space code");
+			facade.close();
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
 
 test("searchExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "searchExperiments",
-				"params" : [ facade.sessionToken, {
-					"@type" : "ExperimentSearchCriterion",
-					"criteria" : [ {
-						"@type" : "CodeSearchCriterion",
-						"fieldValue" : {
-							"@type" : "StringEqualToValue",
-							"value" : "TEST-EXPERIMENT-2"
-						}
-					} ]
-				}, createExperimentFetchOptions() ]
-			},
-			success : function(experiments) {
-				assertObjectsCount(experiments, 1);
+		var criterion = {
+			"@type" : "ExperimentSearchCriterion",
+			"criteria" : [ {
+				"@type" : "CodeSearchCriterion",
+				"fieldValue" : {
+					"@type" : "StringEqualToValue",
+					"value" : "TEST-EXPERIMENT-2"
+				}
+			} ]
+		};
+		var fetchOptions = createExperimentFetchOptions();
 
-				var experiment = experiments[0];
-				equal(experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
-				equal(experiment.type.code, "UNKNOWN", "Type code");
-				equal(experiment.project.code, "TEST-PROJECT", "Project code");
-				equal(experiment.project.space.code, "TEST", "Space code");
-				facade.close();
-			}
+		facade.searchExperiments(criterion, fetchOptions, function(experiments) {
+			assertObjectsCount(experiments, 1);
+
+			var experiment = experiments[0];
+			equal(experiment.code, "TEST-EXPERIMENT-2", "Experiment code");
+			equal(experiment.type.code, "UNKNOWN", "Type code");
+			equal(experiment.project.code, "TEST-PROJECT", "Project code");
+			equal(experiment.project.space.code, "TEST", "Space code");
+			facade.close();
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
 
 test("searchSamples()", function() {
 	createFacadeAndLogin(function(facade) {
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "searchSamples",
-				"params" : [ facade.sessionToken, {
-					"@type" : "SampleSearchCriterion",
-					"criteria" : [ {
-						"@type" : "CodeSearchCriterion",
-						"fieldValue" : {
-							"@type" : "StringEqualToValue",
-							"value" : "PLATE-1"
-						}
-					} ]
-				}, createSampleFetchOptions() ]
-			},
-			success : function(samples) {
-				assertObjectsCount(samples, 1);
+		var criterion = {
+			"@type" : "SampleSearchCriterion",
+			"criteria" : [ {
+				"@type" : "CodeSearchCriterion",
+				"fieldValue" : {
+					"@type" : "StringEqualToValue",
+					"value" : "PLATE-1"
+				}
+			} ]
+		};
+		var fetchOptions = createSampleFetchOptions()
 
-				var sample = samples[0];
-				equal(sample.code, "PLATE-1", "Sample code");
-				equal(sample.type.code, "PLATE", "Type code");
-				equal(sample.experiment.code, "EXP-1", "Experiment code");
-				equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project code");
-				equal(sample.space.code, "PLATONIC", "Space code");
-				facade.close();
-			}
+		facade.searchSamples(criterion, fetchOptions, function(samples) {
+			assertObjectsCount(samples, 1);
+
+			var sample = samples[0];
+			equal(sample.code, "PLATE-1", "Sample code");
+			equal(sample.type.code, "PLATE", "Type code");
+			equal(sample.experiment.code, "EXP-1", "Experiment code");
+			equal(sample.experiment.project.code, "SCREENING-EXAMPLES", "Project  code");
+			equal(sample.space.code, "PLATONIC", "Space code");
+			facade.close();
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
@@ -322,53 +244,44 @@ test("searchSamples()", function() {
 test("createExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
 		var code = "CREATE_JSON_EXPERIMENT_" + (new Date().getTime());
+		var creations = [ {
+			"@type" : "ExperimentCreation",
 
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "createExperiments",
-				"params" : [ facade.sessionToken, [ {
-					"@type" : "ExperimentCreation",
-
-					"typeId" : {
-						"@type" : "EntityTypePermId",
-						"permId" : "UNKNOWN"
-					},
-
-					"code" : code,
-
-					"projectId" : {
-						"@type" : "ProjectIdentifier",
-						"identifier" : "/TEST/TEST-PROJECT"
-					},
-
-					"tagIds" : [ {
-						"@type" : "TagCode",
-						"code" : "CREATE_JSON_TAG"
-					} ]
-
-				} ] ]
+			"typeId" : {
+				"@type" : "EntityTypePermId",
+				"permId" : "UNKNOWN"
 			},
-			success : function(experimentPermIds) {
-				facade.ajaxRequest({
-					url : testApiUrl,
-					data : {
-						"method" : "mapExperiments",
-						"params" : [ facade.sessionToken, [ experimentPermIds[0] ], createExperimentFetchOptions() ]
-					},
-					success : function(experiments) {
-						assertObjectsCount(Object.keys(experiments), 1);
 
-						var experiment = experiments[experimentPermIds[0].permId];
-						equal(experiment.code, code, "Experiment code");
-						equal(experiment.type.code, "UNKNOWN", "Type code");
-						equal(experiment.project.code, "TEST-PROJECT", "Project code");
-						equal(experiment.project.space.code, "TEST", "Space code");
-						equal(experiment.tags[0].code, "CREATE_JSON_TAG", "Tag code");
-						facade.close();
-					}
-				});
-			}
+			"code" : code,
+
+			"projectId" : {
+				"@type" : "ProjectIdentifier",
+				"identifier" : "/TEST/TEST-PROJECT"
+			},
+
+			"tagIds" : [ {
+				"@type" : "TagCode",
+				"code" : "CREATE_JSON_TAG"
+			} ]
+		} ];
+		var fetchOptions = createExperimentFetchOptions();
+
+		facade.createExperiments(creations, function(permIds) {
+			facade.mapExperiments(permIds, fetchOptions, function(experiments) {
+				assertObjectsCount(Object.keys(experiments), 1);
+
+				var experiment = experiments[permIds[0].permId];
+				equal(experiment.code, code, "Experiment code");
+				equal(experiment.type.code, "UNKNOWN", "Type code");
+				equal(experiment.project.code, "TEST-PROJECT", "Project code");
+				equal(experiment.project.space.code, "TEST", "Space code");
+				equal(experiment.tags[0].code, "CREATE_JSON_TAG", "Tag code");
+				facade.close();
+			}, function(error) {
+				ok(false, error);
+			});
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
@@ -376,51 +289,42 @@ test("createExperiments()", function() {
 test("createSamples()", function() {
 	createFacadeAndLogin(function(facade) {
 		var code = "CREATE_JSON_SAMPLE_" + (new Date().getTime());
+		var creations = [ {
+			"@type" : "SampleCreation",
 
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "createSamples",
-				"params" : [ facade.sessionToken, [ {
-					"@type" : "SampleCreation",
-
-					"typeId" : {
-						"@type" : "EntityTypePermId",
-						"permId" : "UNKNOWN"
-					},
-
-					"code" : code,
-
-					"spaceId" : {
-						"@type" : "SpacePermId",
-						"permId" : "TEST"
-					},
-
-					"tagIds" : [ {
-						"@type" : "TagCode",
-						"code" : "CREATE_JSON_TAG"
-					} ]
-
-				} ] ]
+			"typeId" : {
+				"@type" : "EntityTypePermId",
+				"permId" : "UNKNOWN"
 			},
-			success : function(samplePermIds) {
-				facade.ajaxRequest({
-					url : testApiUrl,
-					data : {
-						"method" : "mapSamples",
-						"params" : [ facade.sessionToken, [ samplePermIds[0] ], createSampleFetchOptions() ]
-					},
-					success : function(samples) {
-						assertObjectsCount(Object.keys(samples), 1);
 
-						var sample = samples[samplePermIds[0].permId];
-						equal(sample.code, code, "Sample code");
-						equal(sample.type.code, "UNKNOWN", "Type code");
-						equal(sample.space.code, "TEST", "Space code");
-						facade.close();
-					}
-				});
-			}
+			"code" : code,
+
+			"spaceId" : {
+				"@type" : "SpacePermId",
+				"permId" : "TEST"
+			},
+
+			"tagIds" : [ {
+				"@type" : "TagCode",
+				"code" : "CREATE_JSON_TAG"
+			} ]
+		} ];
+		var fetchOptions = createSampleFetchOptions();
+
+		facade.createSamples(creations, function(permIds) {
+			facade.mapSamples(permIds, fetchOptions, function(samples) {
+				assertObjectsCount(Object.keys(samples), 1);
+
+				var sample = samples[permIds[0].permId];
+				equal(sample.code, code, "Sample code");
+				equal(sample.type.code, "UNKNOWN", "Type code");
+				equal(sample.space.code, "TEST", "Space code");
+				facade.close();
+			}, function(error) {
+				ok(false, error);
+			});
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
@@ -428,67 +332,54 @@ test("createSamples()", function() {
 test("updateExperiments()", function() {
 	createFacadeAndLogin(function(facade) {
 		var code = "UPDATE_JSON_EXPERIMENT_" + (new Date().getTime());
+		var creations = [ {
+			"@type" : "ExperimentCreation",
 
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "createExperiments",
-				"params" : [ facade.sessionToken, [ {
-					"@type" : "ExperimentCreation",
-
-					"typeId" : {
-						"@type" : "EntityTypePermId",
-						"permId" : "UNKNOWN"
-					},
-
-					"code" : code,
-
-					"projectId" : {
-						"@type" : "ProjectIdentifier",
-						"identifier" : "/TEST/TEST-PROJECT"
-					}
-
-				} ] ]
+			"typeId" : {
+				"@type" : "EntityTypePermId",
+				"permId" : "UNKNOWN"
 			},
-			success : function(experimentPermIds) {
-				facade.ajaxRequest({
-					url : testApiUrl,
-					data : {
-						"method" : "updateExperiments",
-						"params" : [ facade.sessionToken, [ {
-							"@type" : "ExperimentUpdate",
 
-							"experimentId" : experimentPermIds[0],
+			"code" : code,
 
-							"projectId" : {
-								"@type" : "ProjectIdentifier",
-								"identifier" : "/PLATONIC/SCREENING-EXAMPLES"
-							}
-
-						} ] ]
-					},
-					success : function() {
-
-						facade.ajaxRequest({
-							url : testApiUrl,
-							data : {
-								"method" : "mapExperiments",
-								"params" : [ facade.sessionToken, [ experimentPermIds[0] ], createExperimentFetchOptions() ]
-							},
-							success : function(experiments) {
-								assertObjectsCount(Object.keys(experiments), 1);
-
-								var experiment = experiments[experimentPermIds[0].permId];
-								equal(experiment.code, code, "Experiment code");
-								equal(experiment.type.code, "UNKNOWN", "Type code");
-								equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
-								equal(experiment.project.space.code, "PLATONIC", "Space code");
-								facade.close();
-							}
-						});
-					}
-				});
+			"projectId" : {
+				"@type" : "ProjectIdentifier",
+				"identifier" : "/TEST/TEST-PROJECT"
 			}
+		} ];
+
+		facade.createExperiments(creations, function(permIds) {
+			var updates = [ {
+				"@type" : "ExperimentUpdate",
+
+				"experimentId" : permIds[0],
+
+				"projectId" : {
+					"@type" : "ProjectIdentifier",
+					"identifier" : "/PLATONIC/SCREENING-EXAMPLES"
+				}
+			} ];
+
+			facade.updateExperiments(updates, function() {
+				var fetchOptions = createExperimentFetchOptions();
+
+				facade.mapExperiments(permIds, fetchOptions, function(experiments) {
+					assertObjectsCount(Object.keys(experiments), 1);
+
+					var experiment = experiments[permIds[0].permId];
+					equal(experiment.code, code, "Experiment code");
+					equal(experiment.type.code, "UNKNOWN", "Type code");
+					equal(experiment.project.code, "SCREENING-EXAMPLES", "Project code");
+					equal(experiment.project.space.code, "PLATONIC", "Space code");
+					facade.close();
+				}, function(error) {
+					ok(false, error);
+				});
+			}, function(error) {
+				ok(false, error);
+			});
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
@@ -496,66 +387,53 @@ test("updateExperiments()", function() {
 test("updateSamples()", function() {
 	createFacadeAndLogin(function(facade) {
 		var code = "UPDATE_JSON_SAMPLE_" + (new Date().getTime());
+		var creations = [ {
+			"@type" : "SampleCreation",
 
-		facade.ajaxRequest({
-			url : testApiUrl,
-			data : {
-				"method" : "createSamples",
-				"params" : [ facade.sessionToken, [ {
-					"@type" : "SampleCreation",
-
-					"typeId" : {
-						"@type" : "EntityTypePermId",
-						"permId" : "UNKNOWN"
-					},
-
-					"code" : code,
-
-					"spaceId" : {
-						"@type" : "SpacePermId",
-						"permId" : "PLATONIC"
-					}
-
-				} ] ]
+			"typeId" : {
+				"@type" : "EntityTypePermId",
+				"permId" : "UNKNOWN"
 			},
-			success : function(samplePermIds) {
-				facade.ajaxRequest({
-					url : testApiUrl,
-					data : {
-						"method" : "updateSamples",
-						"params" : [ facade.sessionToken, [ {
-							"@type" : "SampleUpdate",
 
-							"sampleId" : samplePermIds[0],
+			"code" : code,
 
-							"spaceId" : {
-								"@type" : "SpacePermId",
-								"permId" : "TEST"
-							}
-
-						} ] ]
-					},
-					success : function() {
-
-						facade.ajaxRequest({
-							url : testApiUrl,
-							data : {
-								"method" : "mapSamples",
-								"params" : [ facade.sessionToken, [ samplePermIds[0] ], createSampleFetchOptions() ]
-							},
-							success : function(samples) {
-								assertObjectsCount(Object.keys(samples), 1);
-
-								var sample = samples[samplePermIds[0].permId];
-								equal(sample.code, code, "Sample code");
-								equal(sample.type.code, "UNKNOWN", "Type code");
-								equal(sample.space.code, "TEST", "Space code");
-								facade.close();
-							}
-						});
-					}
-				});
+			"spaceId" : {
+				"@type" : "SpacePermId",
+				"permId" : "PLATONIC"
 			}
+		} ];
+
+		facade.createSamples(creations, function(permIds) {
+			var updates = [ {
+				"@type" : "SampleUpdate",
+
+				"sampleId" : permIds[0],
+
+				"spaceId" : {
+					"@type" : "SpacePermId",
+					"permId" : "TEST"
+				}
+			} ];
+
+			facade.updateSamples(updates, function() {
+				var fetchOptions = createSampleFetchOptions();
+
+				facade.mapSamples(permIds, fetchOptions, function(samples) {
+					assertObjectsCount(Object.keys(samples), 1);
+
+					var sample = samples[permIds[0].permId];
+					equal(sample.code, code, "Sample code");
+					equal(sample.type.code, "UNKNOWN", "Type code");
+					equal(sample.space.code, "TEST", "Space code");
+					facade.close();
+				}, function(error) {
+					ok(false, error);
+				});
+			}, function(error) {
+				ok(false, error);
+			});
+		}, function(error) {
+			ok(false, error);
 		});
 	});
 });
