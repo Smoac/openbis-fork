@@ -27,7 +27,8 @@ dependencies {
                    'apache:log4j:+',
                    'springframework:spring:+',
                    'marathon:marathon-spring-util:+',
-                   'apache:httpclient:+'
+                   'apache:commons-httpclient:+',
+                   'apache:commons-logging:+'
 }
 
 task trackingJar(type: Jar) {
