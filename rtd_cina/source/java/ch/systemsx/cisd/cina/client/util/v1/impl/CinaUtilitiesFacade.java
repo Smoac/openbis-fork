@@ -22,17 +22,16 @@ import java.util.List;
 import org.springframework.remoting.RemoteConnectFailureException;
 
 import ch.systemsx.cisd.cina.client.util.v1.ICinaUtilities;
-import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.common.exceptions.AuthorizationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
+import ch.systemsx.cisd.openbis.common.api.client.ServiceFinder;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssComponent;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.impl.DssServiceRpcFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
-import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.DataSet;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Experiment;
@@ -102,7 +101,7 @@ public class CinaUtilitiesFacade implements ICinaUtilities
 
     private static IServiceForDataStoreServer createOpenBisService(String openBISURL, long timeoutInMillis)
     {
-        return new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL)
+        return new OpenBisServiceFactory(openBISURL)
                 .createService(timeoutInMillis);
     }
 
