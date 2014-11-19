@@ -39,7 +39,13 @@
 	      <constructor-arg value="${server-url}"/>
 	      <constructor-arg value="${server-timeout-in-minutes}"/>
 	  </bean>
-  
+
+      <bean id="v3-application-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
+          factory-method="createOpenBisV3Service">
+          <constructor-arg value="${server-url}"/>
+          <constructor-arg value="${server-timeout-in-minutes}"/>
+      </bean>
+
 	  <bean id="general-information-service" class="ch.systemsx.cisd.openbis.dss.generic.server.EncapsulatedOpenBISService"
 	      factory-method="createGeneralInformationService">
 	      <constructor-arg value="${server-url}"/>

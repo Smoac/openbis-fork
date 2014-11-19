@@ -24,6 +24,7 @@ import org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter;
 
 import com.marathon.util.spring.StreamSupportingHttpInvokerServiceExporter;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.logging.LogCategory;
 import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.openbis.dss.generic.shared.content.IContentCache;
@@ -44,6 +45,8 @@ public class ServiceProvider
     public static final String CONFIG_PROVIDER_BEAN = "config-provider";
 
     public static final String OPEN_BIS_SERVICE_BEAN = "openBIS-service";
+
+    public static final String V3_APPLICATION_SERVICE_BEAN = "v3-application-service";
 
     private static final Logger operationLog = LogFactory.getLogger(LogCategory.OPERATION,
             ServiceProvider.class);
@@ -112,6 +115,11 @@ public class ServiceProvider
     public static IEncapsulatedOpenBISService getOpenBISService()
     {
         return ((IEncapsulatedOpenBISService) getApplicationContext().getBean(OPEN_BIS_SERVICE_BEAN));
+    }
+
+    public static IApplicationServerApi getV3ApplicationService()
+    {
+        return ((IApplicationServerApi) getApplicationContext().getBean(V3_APPLICATION_SERVICE_BEAN));
     }
 
     public static IGeneralInformationService getGeneralInformationService()

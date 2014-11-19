@@ -27,6 +27,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.FactoryBean;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.common.api.retry.RetryCaller;
 import ch.systemsx.cisd.common.api.retry.config.RetryConfiguration;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -40,9 +41,10 @@ import ch.systemsx.cisd.openbis.dss.generic.shared.IShareIdManager;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ManagedAuthentication;
 import ch.systemsx.cisd.openbis.dss.generic.shared.ServiceProvider;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
+import ch.systemsx.cisd.openbis.generic.shared.AbstractOpenBisServiceFactory;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceFactory;
-import ch.systemsx.cisd.openbis.generic.shared.ResourceNames;
+import ch.systemsx.cisd.openbis.generic.shared.OpenBisServiceV3Factory;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationService;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
@@ -125,14 +127,13 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
 
     private IServiceConversationClientManagerLocal conversationClient;
 
-    private static class RetryingOpenBisCreator extends
-            RetryCaller<IServiceForDataStoreServer, RuntimeException>
+    private static class RetryingOpenBisCreator<T> extends RetryCaller<T, RuntimeException>
     {
-        private final String openBISURL;
+        protected String timeout;
 
-        private String timeout;
+        private final AbstractOpenBisServiceFactory<T> openBisServiceFactory;
 
-        RetryingOpenBisCreator(String openBISURL, String timeout)
+        RetryingOpenBisCreator(String openBISURL, String timeout, AbstractOpenBisServiceFactory<T> openBisServiceFactory)
         {
             super(new RetryConfiguration()
                 {
@@ -154,8 +155,8 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
                         return 5;
                     }
                 }, new Log4jSimpleLogger(operationLog));
-            this.openBISURL = openBISURL;
             this.timeout = timeout;
+            this.openBisServiceFactory = openBisServiceFactory;
         }
 
         @Override
@@ -165,27 +166,40 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
         }
 
         @Override
-        protected IServiceForDataStoreServer call() throws RuntimeException
+        protected T call() throws RuntimeException
         {
-            OpenBisServiceFactory factory =
-                    new OpenBisServiceFactory(openBISURL, ResourceNames.ETL_SERVICE_URL);
-            IServiceForDataStoreServer service = null;
+            T service = null;
 
             if (timeout.startsWith("$"))
             {
-                service = factory.createService();
+                service = openBisServiceFactory.createService();
             } else
             {
-                service = factory.createService(normalizeTimeout(timeout));
+                service = openBisServiceFactory.createService(normalizeTimeout(timeout));
             }
 
             return service;
         }
     }
 
+    private static RetryingOpenBisCreator<IServiceForDataStoreServer> getGenericRetryingOpenBisCreator(String openBISURL, String timeout)
+    {
+        return new RetryingOpenBisCreator<IServiceForDataStoreServer>(openBISURL, timeout, new OpenBisServiceFactory(openBISURL));
+    }
+
+    private static RetryingOpenBisCreator<IApplicationServerApi> getGenericRetryingOpenBisV3Creator(String openBISURL, String timeout)
+    {
+        return new RetryingOpenBisCreator<IApplicationServerApi>(openBISURL, timeout, new OpenBisServiceV3Factory(openBISURL));
+    }
+
     public static IServiceForDataStoreServer createOpenBisService(String openBISURL, String timeout)
     {
-        return new RetryingOpenBisCreator(openBISURL, timeout).callWithRetry();
+        return getGenericRetryingOpenBisCreator(openBISURL, timeout).callWithRetry();
+    }
+
+    public static IApplicationServerApi createOpenBisV3Service(String openBISURL, String timeout)
+    {
+        return getGenericRetryingOpenBisV3Creator(openBISURL, timeout).callWithRetry();
     }
 
     /**
