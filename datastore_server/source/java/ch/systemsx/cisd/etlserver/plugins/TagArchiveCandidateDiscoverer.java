@@ -61,6 +61,7 @@ public class TagArchiveCandidateDiscoverer implements IArchiveCandidateDiscovere
         }
 
         List<AbstractExternalData> result = new ArrayList<AbstractExternalData>();
+        String dataSetTypeCode = criteria.tryGetDataSetTypeCode();
         for (MetaprojectIdentifier identifier : identifiers)
         {
             String name = identifier.getMetaprojectName();
@@ -68,7 +69,15 @@ public class TagArchiveCandidateDiscoverer implements IArchiveCandidateDiscovere
             Metaproject metaproject = openbis.tryGetMetaproject(name, user);
             if (metaproject != null)
             {
-                result.addAll(openbis.listNotArchivedDatasetsWithMetaproject(new MetaprojectIdentifierId(identifier)));
+                MetaprojectIdentifierId metaprojectId = new MetaprojectIdentifierId(identifier);
+                List<AbstractExternalData> list = openbis.listNotArchivedDatasetsWithMetaproject(metaprojectId);
+                for (AbstractExternalData dataSet : list)
+                {
+                    if (dataSetTypeCode == null || dataSet.getDataSetType().getCode().equals(dataSetTypeCode))
+                    {
+                        result.add(dataSet);
+                    }
+                }
             }
         }
         return result;
