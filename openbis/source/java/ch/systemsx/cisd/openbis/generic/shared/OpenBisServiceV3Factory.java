@@ -16,16 +16,17 @@
 
 package ch.systemsx.cisd.openbis.generic.shared;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.systemsx.cisd.openbis.common.api.client.IServicePinger;
 
 /**
- * A factory for creating proxies to the openBIS application server.
+ * A factory for creating proxies to the V3 openBIS application server.
  * <p>
  * The OpenBisServiceFactory will create a proxy by trying several possible locations for the service.
  * 
- * @author Chandrasekhar Ramakrishnan
+ * @author Jakub Straszewski
  */
-public class OpenBisServiceFactory extends AbstractOpenBisServiceFactory<IServiceForDataStoreServer>
+public class OpenBisServiceV3Factory extends AbstractOpenBisServiceFactory<IApplicationServerApi>
 {
 
     /**
@@ -34,26 +35,26 @@ public class OpenBisServiceFactory extends AbstractOpenBisServiceFactory<IServic
      * <p>
      * Examples:
      * <ul>
-     * <li>OpenBisServiceFactory("http://localhost:8888/")</li>
-     * <li>OpenBisServiceFactory("https://openbis.ethz.ch:8443/")</li>
+     * <li>OpenBisServiceV3Factory("http://localhost:8888/")</li>
+     * <li>OpenBisServiceV3Factory("https://openbis.ethz.ch:8443/")</li>
      * </ul>
      * 
      * @param serverUrl The Url where the openBIS server is assumed to be.
      */
-    public OpenBisServiceFactory(String serverUrl)
+    public OpenBisServiceV3Factory(String serverUrl)
     {
-        super(serverUrl, ResourceNames.ETL_SERVICE_URL, IServiceForDataStoreServer.class);
+        super(serverUrl, IApplicationServerApi.SERVICE_URL, IApplicationServerApi.class);
     }
 
     @Override
-    protected IServicePinger<IServiceForDataStoreServer> createServicePinger()
+    protected IServicePinger<IApplicationServerApi> createServicePinger()
     {
-        return new IServicePinger<IServiceForDataStoreServer>()
+        return new IServicePinger<IApplicationServerApi>()
             {
                 @Override
-                public void ping(IServiceForDataStoreServer service)
+                public void ping(IApplicationServerApi service)
                 {
-                    service.getVersion();
+                    service.getMajorVersion();
                 }
             };
     }
