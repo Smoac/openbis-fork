@@ -40,6 +40,10 @@ task trackingJar(type: Jar) {
          zipTree(project(':openbis').jar.archivePath))))).matching {
             include '**/*.class'
     }
+    
+    from (sourceSets.main.output.classesDir) {
+        include '**/*'
+    }    
 
     manifest {
         attributes 'Main-Class': 'ch.ethz.bsse.cisd.dsu.tracking.main.TrackingClient',
