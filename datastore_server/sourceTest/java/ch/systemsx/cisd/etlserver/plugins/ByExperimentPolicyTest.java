@@ -24,7 +24,7 @@ public class ByExperimentPolicyTest extends ByPoliceAbstractTest
         props.setProperty(BaseGroupingPolicy.MINIMAL_ARCHIVE_SIZE, Integer.toString(min));
         props.setProperty(BaseGroupingPolicy.MAXIMAL_ARCHIVE_SIZE, Integer.toString(max));
 
-        return new ByExpermientPolicy(props);
+        return new ByExperimentPolicy(props);
     }
 
     @Test

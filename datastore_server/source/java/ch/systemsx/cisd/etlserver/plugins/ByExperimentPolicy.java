@@ -23,14 +23,14 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
  * 
  * @author Sascha Fedorenko
  */
-public class ByExpermientPolicy extends BaseGroupingPolicy implements IAutoArchiverPolicy
+public class ByExperimentPolicy extends BaseGroupingPolicy implements IAutoArchiverPolicy
 {
     private static final Logger operationLog =
-            LogFactory.getLogger(LogCategory.OPERATION, ByExpermientPolicy.class);
+            LogFactory.getLogger(LogCategory.OPERATION, ByExperimentPolicy.class);
 
     private final List<IGroupKeyProvider> providers;
 
-    public ByExpermientPolicy(ExtendedProperties properties)
+    public ByExperimentPolicy(ExtendedProperties properties)
     {
         super(properties);
         providers = new ArrayList<IGroupKeyProvider>();
