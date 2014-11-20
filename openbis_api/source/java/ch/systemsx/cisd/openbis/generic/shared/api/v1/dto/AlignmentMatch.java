@@ -38,6 +38,10 @@ public class AlignmentMatch implements Serializable
     
     private int queryEnd;
     
+    private int numberOfMismatches;
+    
+    private int totalNumberOfGaps;
+    
     public int getSequenceStart()
     {
         return sequenceStart;
@@ -78,11 +82,32 @@ public class AlignmentMatch implements Serializable
         this.queryEnd = queryEnd;
     }
 
+    public int getNumberOfMismatches()
+    {
+        return numberOfMismatches;
+    }
+
+    public void setNumberOfMismatches(int numberOfMismatches)
+    {
+        this.numberOfMismatches = numberOfMismatches;
+    }
+
+    public int getTotalNumberOfGaps()
+    {
+        return totalNumberOfGaps;
+    }
+
+    public void setTotalNumberOfGaps(int totalNumberOfGaps)
+    {
+        this.totalNumberOfGaps = totalNumberOfGaps;
+    }
+
     @Override
     public String toString()
     {
         return "alignment in sequence: [" + getSequenceStart() + "-" + getSequenceEnd() + "], "
-                + "alignment in query: [" + getQueryStart() + "-" + getQueryEnd() + "]";
+                + "alignment in query: [" + getQueryStart() + "-" + getQueryEnd() + "], number of mismatches: "
+                + getNumberOfMismatches() + ", total number of gaps: " + getTotalNumberOfGaps();
     }
 
 }

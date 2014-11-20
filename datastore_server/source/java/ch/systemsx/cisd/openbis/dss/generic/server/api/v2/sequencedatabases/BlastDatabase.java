@@ -168,6 +168,8 @@ public class BlastDatabase extends AbstractSearchDomainService
                 alignmentMatch.setSequenceEnd(row.send);
                 alignmentMatch.setQueryStart(row.qstart);
                 alignmentMatch.setQueryEnd(row.qend);
+                alignmentMatch.setNumberOfMismatches(row.numberOfMismatchs);
+                alignmentMatch.setTotalNumberOfGaps(row.totalNumberOfGaps);
                 Matcher matcher = STITLE_PATTERN.matcher(row.title);
                 if (matcher.matches())
                 {
@@ -221,7 +223,7 @@ public class BlastDatabase extends AbstractSearchDomainService
         command.add("-query");
         command.add(queryFile.getAbsolutePath());
         command.add("-outfmt");
-        command.add("6 stitle bitscore sstart send qstart qend");
+        command.add("6 stitle bitscore sstart send qstart qend mismatch gaps");
         if (parameters.containsKey("task") == false)
         {
             parameters.put("task", defaultTask);
@@ -307,6 +309,8 @@ public class BlastDatabase extends AbstractSearchDomainService
         private int qstart;
         private int qend;
         private int len;
+        private int numberOfMismatchs;
+        private int totalNumberOfGaps;
 
         Row(String line)
         {
@@ -317,6 +321,8 @@ public class BlastDatabase extends AbstractSearchDomainService
             send = asInt(cells);
             qstart = asInt(cells);
             qend = asInt(cells);
+            numberOfMismatchs = asInt(cells);
+            totalNumberOfGaps = asInt(cells);
         }
         
         private int asInt(String[] cells)
