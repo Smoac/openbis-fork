@@ -690,6 +690,14 @@ function MainController(profile) {
 									property : 'score',
 									sortable : true
 								}, {
+									label : 'No Mismatches',
+									property : 'numberOfMismatches',
+									sortable : true
+								}, {
+									label : 'No Gaps',
+									property : 'totalNumberOfGaps',
+									sortable : true
+								}, {
 									label : 'Found at (Property or Path)',
 									property : 'location',
 									sortable : true
@@ -713,10 +721,11 @@ function MainController(profile) {
 											var permId = null;
 											var kind = null;
 											var score = null;
+											var numberOfMismatchs = null;
+											var totalNumberOfGaps = null;
 											var location = null;
 											var sequenceStartEnd = null;
 											var queryStartEnd = null;
-											
 											if(resultLocation.entityKind) { //Is Sample
 												permId = resultLocation.permId;
 												kind = resultLocation.entityKind;
@@ -727,6 +736,8 @@ function MainController(profile) {
 												location = "Path: " + resultLocation.pathInDataSet;
 											}
 											score = result.score;
+											numberOfMismatches = resultLocation.alignmentMatch.numberOfMismatches;
+											totalNumberOfGaps = resultLocation.alignmentMatch.totalNumberOfGaps;
 											sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
 											queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
 											
@@ -734,6 +745,8 @@ function MainController(profile) {
 												kind : kind,
 												permId : permId,
 												score : score,
+												numberOfMismatches : numberOfMismatches,
+												totalNumberOfGaps : totalNumberOfGaps,
 												location : location,
 												sequenceStartEnd : sequenceStartEnd,
 												queryStartEnd : queryStartEnd
