@@ -57,17 +57,55 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 				var vocabulary =  _this._vocabularyManagerModel.vocabularies[idx];
 				dataList.push({
 					code : vocabulary.code,
-					description : vocabulary.description
+					description : vocabulary.description,
+					object : vocabulary
 				});
 			}
 			callback(dataList);
 		}
 		
 		var rowClick = function(e) {
-			var a = 0;
+			_this._showVocabulary(e.data.object)
 		}
 		
 		var dataGrid = new DataGridController(null, columns, getDataList, rowClick);
 		dataGrid.init(this._dataGridContainer);
+		
+		this._dataGridContainer.prepend($("<h2>").append(" Vocabularies"));
+	}
+	
+	this._showVocabulary = function(vocabulary) {
+		var columns = [ {
+			label : 'Code',
+			property : 'code',
+			sortable : true
+		} , {
+			label : 'Label',
+			property : 'label',
+			sortable : true
+		} , {
+			label : 'Description',
+			property : 'description',
+			sortable : true
+		}];
+		
+		var getDataList = function(callback) {
+			var dataList = [];
+			for(var idx = 0; idx < vocabulary.terms.length; idx++) {
+				var term =  vocabulary.terms[idx];
+				dataList.push({
+					code : term.code,
+					label : term.label,
+					description : term.description,
+					object : term
+				});
+			}
+			callback(dataList);
+		}
+		
+		var dataGrid = new DataGridController(null, columns, getDataList, null);
+		dataGrid.init(this._dataGridContainer);
+		
+		this._dataGridContainer.prepend($("<h2>").append(" Terms for " + vocabulary.code));
 	}
 }
