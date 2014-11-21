@@ -20,7 +20,7 @@ function StorageView(storageController, storageModel, gridView) {
 	this._gridView = gridView;
 	
 	this._storageGroupsDropDown = FormUtil.getStoragePropertyGroupsDropdown("", true);
-	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", true);
+	this._defaultStoragesDropDown = FormUtil.getDefaultStoragesDropDown("", false);
 	this._userIdDropdown = $('<select>', { 'id' : 'userIdSelector' , class : 'multiselect' , 'multiple' : 'multiple'});
 	this._gridContainer = $("<div>");
 	this._boxField = FormUtil._getInputField("text", "", "Box Name", null, false);
