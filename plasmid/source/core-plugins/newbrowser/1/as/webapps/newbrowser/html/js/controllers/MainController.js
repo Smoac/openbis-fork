@@ -164,6 +164,11 @@ function MainController(profile) {
 		//
 		
 		switch (newViewChange) {
+			case "showVocabularyManagerPage":
+				document.title = "Vocabulary Manager";
+				this._showVocabularyManager();
+				window.scrollTo(0,0);
+				break;
 			case "showTrashcanPage":
 				document.title = "Trashcan Manager";
 				this._showTrashcan();
@@ -369,6 +374,12 @@ function MainController(profile) {
 		var storageManagerController = new StorageManagerController(this);
 		storageManagerController.init($("#mainContainer"));
 		this.currentView = storageManagerController;
+	}
+	
+	this._showVocabularyManager = function() {
+		var vocabularyManagerController = new VocabularyManagerController(this);
+		vocabularyManagerController.init($("#mainContainer"));
+		this.currentView = vocabularyManagerController;
 	}
 	
 	this._showInspectors = function() {
