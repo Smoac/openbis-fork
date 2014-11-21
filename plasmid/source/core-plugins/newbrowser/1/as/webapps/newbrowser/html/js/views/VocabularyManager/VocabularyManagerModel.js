@@ -15,5 +15,5 @@
  */
 
 function VocabularyManagerModel() {
-
+	this.vocabularies = profile.allVocabularies;
 }
