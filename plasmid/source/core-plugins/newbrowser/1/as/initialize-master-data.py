@@ -530,7 +530,7 @@ createSampleTypeWithProperties("OLIGO", "", [
 	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None],
 	["RESTRICTION_ENZYME", 		"Details",			"Restriction Enzyme",		DataType.MULTILINE_VARCHAR,		None,				"Restriction sites in the oligonucleotide", None],
 	["MODIFICATIONS", 			"Details",			"Modifications",			DataType.MULTILINE_VARCHAR,		None,				"Modifications of the ordered oligonucleotide", None],
-	["SEQUENC", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None],
+	["SEQUENCE", 				"Details",			"Sequence",					DataType.MULTILINE_VARCHAR,		None,				"Sequence of the oligonucleotide", None],
 	["XMLCOMMENTS", 			"Comments",			"Comments List",			DataType.XML,					None,				"Several comments can be added by different users", commentsScriptName],
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);

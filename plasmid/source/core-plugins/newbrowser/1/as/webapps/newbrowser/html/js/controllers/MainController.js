@@ -705,39 +705,42 @@ function MainController(profile) {
 								
 								var getDataList = function(callback) {
 									var dataList = [];
-									for(var i = 0; i < data.result.length; i++) {
-										var result = data.result[i];
-										var resultLocation = result.resultLocation;
-										
-										var permId = null;
-										var kind = null;
-										var score = null;
-										var location = null;
-										var sequenceStartEnd = null;
-										var queryStartEnd = null;
-										
-										if(resultLocation.entityKind) { //Is Sample
-											permId = resultLocation.permId;
-											kind = resultLocation.entityKind;
-											location = "Property: " + resultLocation.propertyType;
-										} else { //Is Data Set File
-											permId = resultLocation.dataSetCode;
-											kind = "DATA_SET";
-											location = "Path: " + resultLocation.pathInDataSet;
+									if(data.result) {
+										for(var i = 0; i < data.result.length; i++) {
+											var result = data.result[i];
+											var resultLocation = result.resultLocation;
+											
+											var permId = null;
+											var kind = null;
+											var score = null;
+											var location = null;
+											var sequenceStartEnd = null;
+											var queryStartEnd = null;
+											
+											if(resultLocation.entityKind) { //Is Sample
+												permId = resultLocation.permId;
+												kind = resultLocation.entityKind;
+												location = "Property: " + resultLocation.propertyType;
+											} else { //Is Data Set File
+												permId = resultLocation.dataSetCode;
+												kind = "DATA_SET";
+												location = "Path: " + resultLocation.pathInDataSet;
+											}
+											score = result.score;
+											sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
+											queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
+											
+											dataList.push({
+												kind : kind,
+												permId : permId,
+												score : score,
+												location : location,
+												sequenceStartEnd : sequenceStartEnd,
+												queryStartEnd : queryStartEnd
+											});
 										}
-										score = result.score;
-										sequenceStartEnd = resultLocation.alignmentMatch.sequenceStart + "-" + resultLocation.alignmentMatch.sequenceEnd;
-										queryStartEnd = resultLocation.alignmentMatch.queryStart + "-" + resultLocation.alignmentMatch.queryEnd;
-										
-										dataList.push({
-											kind : kind,
-											permId : permId,
-											score : score,
-											location : location,
-											sequenceStartEnd : sequenceStartEnd,
-											queryStartEnd : queryStartEnd
-										});
 									}
+									
 									callback(dataList);
 								};
 								
