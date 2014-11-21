@@ -294,7 +294,7 @@ function SideMenuWidgetController(mainController) {
 
                         //Fill Utils
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(false, true, "Utils", "Utils", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
+                                new SideMenuWidgetComponent(false, true, "Utilities", "Utilities", _this._sideMenuWidgetModel.menuStructure, null, null, null, "")
                                 );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
                                 new SideMenuWidgetComponent(true, false, "Sample Browser", "Sample Browser", _this._sideMenuWidgetModel.menuStructure, null, "showSamplesPage", null, "")
