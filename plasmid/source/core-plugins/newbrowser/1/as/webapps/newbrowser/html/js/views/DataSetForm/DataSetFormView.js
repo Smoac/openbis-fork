@@ -307,6 +307,8 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 						} else {
 							$component.val(value);
 						}
+					} else {
+						$component.val(""); //HACK-FIX: Not all browsers show the placeholder in Bootstrap 3 if you don't set an empty value.
 					}
 					
 					$controls.append($component);
