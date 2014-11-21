@@ -145,9 +145,10 @@ var FormUtil = new function() {
 		$component.append($("<option>").attr('value', '').attr('selected', '').text(''));
 		for(var i = 0; i < experimentTypes.length; i++) {
 			var experimentType = experimentTypes[i];
-			var label = Util.getEmptyIfNull(experimentType.description);
-			if(label === "") {
-				label = experimentType.code;
+			var label = experimentType.code;
+			var description = Util.getEmptyIfNull(experimentType.description);
+			if(description !== "") {
+				label += " (" + description + ")";
 			}
 			
 			$component.append($("<option>").attr('value',experimentType.code).text(label));
