@@ -102,6 +102,21 @@ def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, v
         property.setVocabulary(vocabulariesCache[vocabularyCode]);
     return property;
 
+def addStorageGroups(numGroups, sampleType):
+    storageGroup = [
+    ["STORAGE_NAMES_0",        "Physical Storage 0",        "antibody ID data box::location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",    "Storage Name", None],
+    ["STORAGE_ROW_0",          "Physical Storage 0",        "Storage Row",                            DataType.INTEGER,                    None,                "Storage Row", None],
+    ["STORAGE_COLUMN_0",       "Physical Storage 0",        "Storage Column",                         DataType.INTEGER,                    None,                "Storage Column", None],
+    ["STORAGE_BOX_NAME_0",     "Physical Storage 0",        "antibody ID data box::box label",        DataType.VARCHAR,                    None,                "Storage Box Name", None],
+    ["STORAGE_USER_0",         "Physical Storage 0",        "antibody ID data box::frozen by",        DataType.VARCHAR,                    None,                "Storage User Id", None],
+    ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "antibody ID data box::position",         DataType.VARCHAR,                    None,                "Storage User Id", None]
+    ];
+    
+    for storageIdx in range(1,(numGroups + 1)):
+        for property in storageGroup:
+            property[0] = property[0].replace(str(storageIdx-1), str(storageIdx));
+            property[1] = property[1].replace(str(storageIdx-1), str(storageIdx));
+        addPropertiesToSamples([sampleType], storageGroup);
 ##
 ## Manage properties scripts
 ##
@@ -434,9 +449,7 @@ createSampleTypeWithProperties("ANTIBODY", "", [
     ["SOURCE",                         "General",                "source",                             DataType.CONTROLLEDVOCABULARY,       "SOURCE",  "", None],
     ["CREATION_DATE",                  "General",                "creation date",                      DataType.TIMESTAMP,                  None,  "", None],
     ["MODIFICATION_DATE",              "General",                "modification date",                  DataType.TIMESTAMP,                  None,  "", None],
-    ["FROZEN",                         "General",                "frozen",                             DataType.TIMESTAMP,                  None,  "", None],
-    ["BOX_NUMBER",                     "General",                "antibody ID data box::box label",    DataType.VARCHAR,                    None,  "", None],
-    ["FROZEN_BY",                      "General",                "antibody ID data box::frozen by",    DataType.CONTROLLEDVOCABULARY,       "ALL_LAB_MEMBERS",  "", None],
-    ["FREEZER_NAME",                   "General",                "antibody ID data box::location",     DataType.CONTROLLEDVOCABULARY,       "LOCATION",  "", None],
-    ["BOX_POSITION",                   "General",                "antibody ID data box::position",     DataType.VARCHAR,                    None,  "", None]
+    ["FROZEN",                         "General",                "frozen",                             DataType.TIMESTAMP,                  None,  "", None]
 ]);
+
+addStorageGroups(10, "ANTIBODY");
