@@ -92,6 +92,10 @@
       </java>
       <returnvalue type="boolean">true</returnvalue>
     </condition>
+    <condition type="variable" id="isInstallBeeWM">
+      <name>INSTALL_BEEWM</name>
+      <value>true</value>
+   </condition>
   </conditions>
 
   <!-- The panels section. We indicate here which panels we want to use. The order will be respected. -->
@@ -131,6 +135,9 @@
         <action stage="preactivate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetPathinfoDBCheckBoxAction" />
         <action stage="postvalidate" classname="ch.systemsx.cisd.openbis.installer.izpack.SetEnableTechnologiesVariableAction" />
       </actions>
+    </panel>
+
+    <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.BEEWM">
     </panel>
 
     <panel classname="com.izforge.izpack.panels.userinput.UserInputPanel" id="UserInputPanel.MISC" condition="isFirstTimeInstallation">
@@ -209,6 +216,20 @@
       </executable>
     </pack>
     
+    <pack name="BeeWM" required="no" loose="yes" condition="isInstallBeeWM">
+        <description>BeeWM worklow manager.. </description>
+        <file src="@{installer.dist.dir}/beewm" targetdir="$INSTALL_PATH/servers"/>
+        <executable targetfile="${INSTALL_BIN_PATH}/install_beewm.sh" stage="postinstall" keep="true">
+          <args>
+              <arg value="$INSTALL_PATH/servers"/>
+              <arg value="$DSS_ROOT_DIR"/>
+              <arg value="$ADMIN_PASSWORD"/>
+              <arg value="$JAVA_PATH"/>
+            </args>
+        </executable>
+
+    </pack>
+
   </packs>
 
 </installation>

@@ -18,3 +18,9 @@ fi
 
 $BASE/bisup.sh || exit 1;
 $BASE/dssup.sh || exit 2;
+
+#Start up beewm if it's installed
+beewmInstallDir=`echo ${BASE}/../servers/beewm/bee-*`
+if [[ -d ${beewmInstallDir} ]]; then
+        ${beewmInstallDir}/bee.sh start || exit 3;
+fi
