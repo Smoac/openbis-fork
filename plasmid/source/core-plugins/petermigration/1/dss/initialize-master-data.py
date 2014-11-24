@@ -361,13 +361,13 @@ createVocabularyWithTerms("FREEZER", [
 createExperimentTypeWithProperties("ANTIBODY", "BOX TO HOLD SAMPLES OF THIS TYPE FOR ORGANIZATIONAL PURPOSES", []);
 
 createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
-    ["NAME",                 "General", "Name",                     DataType.VARCHAR,             None,    "Name", None],
-    ["EXPERIMENTAL_GOALS",     "General", "Experimental goals",     DataType.MULTILINE_VARCHAR, None,    "Goal of the experiment", None],
-    ["GRANT",                 "General", "Grant",                 DataType.VARCHAR,            None,    "grant name", None],
-    ["START_DATE",             "General", "Start Date",             DataType.TIMESTAMP,         None,    "Start Date", None],
-    ["END_DATE",             "General", "End Date",                 DataType.TIMESTAMP,            None,    "End Date", None],
-    ["EXPERIMENTAL_RESULTS","General", "Experimental results",     DataType.MULTILINE_VARCHAR, None,    "Brief summary of the results obtained", None],
-    ["XMLCOMMENTS",            "Comments","Comments List",            DataType.XML,                None,    "Several comments can be added by different users", commentsScriptName]
+    ["NAME",                   "General", "Name",                     DataType.VARCHAR,             None,    "Name", None],
+    ["EXPERIMENTAL_GOALS",     "General", "Experimental goals",       DataType.MULTILINE_VARCHAR,   None,    "Goal of the experiment", None],
+    ["GRANT",                  "General", "Grant",                    DataType.VARCHAR,             None,    "grant name", None],
+    ["START_DATE",             "General", "Start Date",               DataType.TIMESTAMP,           None,    "Start Date", None],
+    ["END_DATE",               "General", "End Date",                 DataType.TIMESTAMP,           None,    "End Date", None],
+    ["EXPERIMENTAL_RESULTS",   "General", "Experimental results",     DataType.MULTILINE_VARCHAR,   None,    "Brief summary of the results obtained", None],
+    ["XMLCOMMENTS",            "Comments","Comments List",            DataType.XML,                 None,    "Several comments can be added by different users", commentsScriptName]
 ]);
 
 ##
