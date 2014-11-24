@@ -82,6 +82,7 @@ configuration["EXPERIMENTAL_STEP"] = {
                          };
 
 #Global Variables
+annotableType = "<REPLACE_WITH_ANNOTABLE_TYPE>"
 server = CommonServiceProvider.getCommonServer()
 contextOrNull = server.tryToAuthenticateAsSystem()
 propertyTypes = server.listPropertyTypes(contextOrNull.getSessionToken(), False)
@@ -142,7 +143,6 @@ def isValid(dataType, value):
 ## Main Methods
 ##
 def configureUI():
-    annotableType = None
     # Add Headers
     tableBuilder = createTableBuilder()
     tableBuilder.addHeader("identifier")
@@ -178,7 +178,6 @@ def configureUI():
     deleteAction.setRowSelectionRequired() # Delete is enabled when at least 1 row is selected.
 
 def updateFromUI(action):
-    annotableType = None
     converter = propertyConverter()
     elements = list(converter.convertToElements(property))
     
@@ -207,14 +206,12 @@ def updateFromUI(action):
 ## Batch Import Methods
 ##
 def batchColumnNames():
-    annotableType = None
     allTypes = []
     for sampleTypeCode in getAllAnnotableSampleTypesForType(annotableType):
         allTypes.append(sampleTypeCode)
     return allTypes
 
 def updateFromBatchInput(bindings):
-    annotableType = None
     elements = []
     for annotableSampleType in getAllAnnotableSampleTypesForType(annotableType):
         annotatedSamples = bindings.get(annotableSampleType)

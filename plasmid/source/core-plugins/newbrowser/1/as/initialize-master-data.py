@@ -102,22 +102,26 @@ def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, v
 		property.setVocabulary(vocabulariesCache[vocabularyCode]);
 	return property;
 
+def createAnnotationsScriptForType(sampleTypeCode):
+	annotationsScriptName = None;
+	if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
+		annotationsScriptName = "ANNOTATIONS_" + sampleTypeCode;
+		annotationsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "managed.py", 'r').read();
+		annotationsScriptAsString = annotationsScriptAsString.replace("<REPLACE_WITH_ANNOTABLE_TYPE>", sampleTypeCode);
+		annotationsScript = tr.getOrCreateNewScript(annotationsScriptName);
+		annotationsScript.setName(annotationsScriptName);
+		annotationsScript.setDescription("Annotations Handler for " + sampleTypeCode);
+		annotationsScript.setScript(annotationsScriptAsString);
+		annotationsScript.setScriptType("MANAGED_PROPERTY");
+		annotationsScript.setEntityForScript("SAMPLE");
+	return annotationsScriptName;
+
 ##
 ## Manage properties scripts
 ##
-annotationsScriptName = None;
 commentsScriptName = None;
 
 if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
-	annotationsScriptName = "ANNOTATIONS";
-	annotationsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "managed.py", 'r').read();
-	annotationsScript = tr.getOrCreateNewScript(annotationsScriptName);
-	annotationsScript.setName(annotationsScriptName);
-	annotationsScript.setDescription("Annotations Handler");
-	annotationsScript.setScript(annotationsScriptAsString);
-	annotationsScript.setScriptType("MANAGED_PROPERTY");
-	annotationsScript.setEntityForScript("SAMPLE");
-	
 	commentsScriptName = "COMMENTS";
 	commentsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py", 'r').read();
 	commentsScript = tr.getOrCreateNewScript(commentsScriptName);
@@ -462,6 +466,7 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 ## Sample Types - Materials
 ##
 
+annotationsScriptName = createAnnotationsScriptForType("ANTIBODY");
 createSampleTypeWithProperties("ANTIBODY", "", [
 	["NAME", 				"General", 				"Name", 				DataType.VARCHAR,				None,		"Name", None],
 	["HOST", 				"General", 				"Host", 				DataType.CONTROLLEDVOCABULARY,	"HOST", 	"Host used to produce the antibody", None],
@@ -480,6 +485,7 @@ createSampleTypeWithProperties("ANTIBODY", "", [
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("CHEMICAL");
 createSampleTypeWithProperties("CHEMICAL", "", [
 	["NAME", 				"General", 				"Name", 				DataType.MULTILINE_VARCHAR,		None,		"Name", None],
 	["SUPPLIER", 			"Supplier and storage", "Supplier", 			DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None],
@@ -489,6 +495,7 @@ createSampleTypeWithProperties("CHEMICAL", "", [
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("ENZYME");
 createSampleTypeWithProperties("ENZYME", "", [
 	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,		"Name", None],
 	["SUPPLIER", 			"Supplier and storage",	"Supplier",				DataType.MULTILINE_VARCHAR,		None,		"Supplier of the product", None],
@@ -499,6 +506,7 @@ createSampleTypeWithProperties("ENZYME", "", [
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,		"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("MEDIA");
 createSampleTypeWithProperties("MEDIA", "", [
 	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None],
 	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None],
@@ -512,6 +520,7 @@ createSampleTypeWithProperties("MEDIA", "", [
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("SOLUTION_BUFFER");
 createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 	["NAME", 				"General",				"Name",					DataType.MULTILINE_VARCHAR,		None,			"Name", None],
 	["FOR_WHAT", 			"General",				"For what",				DataType.MULTILINE_VARCHAR,		None,			"For what kind of experimental application/readout this sample is used in the lab", None],
@@ -525,6 +534,7 @@ createSampleTypeWithProperties("SOLUTION_BUFFER", "", [
 	["ANNOTATIONS_STATE",	"Comments",				"Annotations State",	DataType.XML,					None,			"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("OLIGO");
 createSampleTypeWithProperties("OLIGO", "", [
 	["TARGET", 					"General",			"Target",					DataType.MULTILINE_VARCHAR,		None,				"Target of the oligonucleotide", None],
 	["DIRECTION", 				"Details",			"Direction",				DataType.CONTROLLEDVOCABULARY, "DIRECTION",			"Direction of the oligonucleotide", None],
@@ -535,6 +545,7 @@ createSampleTypeWithProperties("OLIGO", "", [
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("RNA");
 createSampleTypeWithProperties("RNA", "", [
 	["RNA_NAME", 				"General",				"Name of RNA",			DataType.VARCHAR,				None,				"Name of the RNA: species/number/strand", None],
 	["TARGET", 					"General",				"Target of the RNA",	DataType.VARCHAR,				None,				"Target of the oligonucleotide", None],
@@ -551,6 +562,7 @@ createSampleTypeWithProperties("RNA", "", [
 	["ANNOTATIONS_STATE",		"Comments",				"Annotations State",	DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("PLASMID");
 createSampleTypeWithProperties("PLASMID", "", [
 	["PLASMID_NAME", 					"General",				"Plasmid",							DataType.VARCHAR,				None,								"Plasmid name", None],
 	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
@@ -568,6 +580,7 @@ createSampleTypeWithProperties("PLASMID", "", [
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("BACTERIA");
 createSampleTypeWithProperties("BACTERIA", "", [
 	["BACTERIA_STRAIN_NAME", 			"General",				"Bacteria strain name",				DataType.VARCHAR,				None,								"Bacterial strain name", None],
 	["OWNER", 							"General",				"Owner",							DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
@@ -583,6 +596,7 @@ createSampleTypeWithProperties("BACTERIA", "", [
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",				DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("YEAST");
 createSampleTypeWithProperties("YEAST", "", [
 	["YEAST_STRAIN_NAME", 				"General",				"Yeast strain name",					DataType.MULTILINE_VARCHAR,		None,								"Yeast strain name", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
@@ -601,6 +615,7 @@ createSampleTypeWithProperties("YEAST", "", [
 	["ANNOTATIONS_STATE",				None,					"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("CELL_LINE");
 createSampleTypeWithProperties("CELL_LINE", "", [
 	["CELL_LINE_NAME", 					"General",				"Cell line name",						DataType.VARCHAR,				None,								"Name of the cell line", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
@@ -625,6 +640,7 @@ createSampleTypeWithProperties("CELL_LINE", "", [
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("FLY");
 createSampleTypeWithProperties("FLY", "", [
 	["FLY_STRAIN_NAME", 				"General",				"Fly strain name",						DataType.VARCHAR,				None,								"Fly strain name", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
@@ -667,6 +683,7 @@ addPropertiesToSamples([
 ## Sample Types - Non Materials
 ##
 
+annotationsScriptName = createAnnotationsScriptForType("EXPERIMENTAL_STEP");
 createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
 	["NAME", 							"General",				"Name",									DataType.MULTILINE_VARCHAR,		None,								"Name", None],
 	["OWNER", 							"General",				"Owner",								DataType.CONTROLLEDVOCABULARY,	"OWNER",							"Who produced/owned the sample", None],
@@ -681,6 +698,7 @@ createSampleTypeWithProperties("EXPERIMENTAL_STEP", "", [
 	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("GENERAL_PROTOCOL");
 createSampleTypeWithProperties("GENERAL_PROTOCOL", "", [
 	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None],
 	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None],
@@ -696,6 +714,7 @@ createSampleTypeWithProperties("GENERAL_PROTOCOL", "", [
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("PCR_PROTOCOL");
 createSampleTypeWithProperties("PCR_PROTOCOL", "", [
 	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None],
 	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None],
@@ -710,6 +729,7 @@ createSampleTypeWithProperties("PCR_PROTOCOL", "", [
 	["ANNOTATIONS_STATE",		"Comments",			"Annotations State",		DataType.XML,					None,				"Annotations State", annotationsScriptName]
 ]);
 
+annotationsScriptName = createAnnotationsScriptForType("WESTERN_BLOTTING_PROTOCOL");
 createSampleTypeWithProperties("WESTERN_BLOTTING_PROTOCOL", "", [
 	["NAME", 					"General",			"Name",						DataType.MULTILINE_VARCHAR,		None,				"Name", None],
 	["FOR_WHAT", 				"General",			"For what",					DataType.MULTILINE_VARCHAR,		None,				"For what kind of experimental application/readout this sample is used in the lab", None],
