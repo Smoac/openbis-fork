@@ -163,6 +163,7 @@ public class BlastDatabaseCreationMaintenanceTaskTest extends AbstractFileSystem
     public void setUpTask()
     {
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder.addRegexForLoggingEventsToBeDropped("MACHINE.MonitoringPoolingDataSource.*");
         context = new Mockery();
         configProvider = context.mock(IConfigProvider.class);
         service = context.mock(IEncapsulatedOpenBISService.class);
