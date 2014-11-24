@@ -140,19 +140,23 @@ public class SearchDomainSearcherTest extends AbstractBOTest
 
         assertEquals("E1", results.get(0).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: 11.5, Result location: "
-                + "[Experiment perm id: E1, property type: S, alignment in sequence: [42-45], alignment in query: [7-10]]", 
+                + "[Experiment perm id: E1, property type: S, alignment in sequence: [42-45], "
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(0).getSearchResult().toString());
         assertEquals("S2", results.get(1).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: 10.5, Result location: "
-                + "[Sample perm id: S2, property type: OLIGO, alignment in sequence: [42-45], alignment in query: [7-10]]", 
+                + "[Sample perm id: S2, property type: OLIGO, alignment in sequence: [42-45], "
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(1).getSearchResult().toString());
         assertEquals("S1", results.get(2).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: 9.5, Result location: "
-                + "[Sample perm id: S1, property type: OLIGO, alignment in sequence: [42-45], alignment in query: [7-10]]", 
+                + "[Sample perm id: S1, property type: OLIGO, alignment in sequence: [42-45], "
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(2).getSearchResult().toString());
         assertEquals("DS1", results.get(3).getEntity().getPermId());
         assertEquals("Search Domain: test-db, Score: 0.5, Result location: "
-                + "[Data set perm id: DS1, property type: SEQ, alignment in sequence: [42-45], alignment in query: [7-10]]", 
+                + "[Data set perm id: DS1, property type: SEQ, alignment in sequence: [42-45], "
+                + "alignment in query: [7-10], number of mismatches: 0, total number of gaps: 0]", 
                 results.get(3).getSearchResult().toString());
         assertEquals(4, results.size());
         context.assertIsSatisfied();
