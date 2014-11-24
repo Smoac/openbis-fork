@@ -1,0 +1,1 @@
+code	labelMONOCLONAL	MonoclonalPOLYCLONAL	PolyclonalUNKNOWN	Unknown										
