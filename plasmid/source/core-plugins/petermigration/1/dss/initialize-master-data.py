@@ -125,7 +125,7 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 ##
 ## Sample Types
 ##
-createSampleTypeWithProperties("FLY", "", [
+createSampleTypeWithProperties("ANTIBODY", "", [
     ["FLY_STRAIN_NAME",                 "General",                "Fly strain name",                        DataType.VARCHAR,                None,                                "Fly strain name", None],
     ["OWNER",                             "General",                "Owner",                                DataType.CONTROLLEDVOCABULARY,    "OWNER",                            "Who produced/owned the sample", None],
     ["OWNER_NUMBER",                     "General",                "Owner number",                            DataType.MULTILINE_VARCHAR,        None,                                "Owner number", None],
@@ -141,3 +141,49 @@ createSampleTypeWithProperties("FLY", "", [
     ["XMLCOMMENTS",                     "Comments",                "Comments List",                        DataType.XML,                    None,                                "Several comments can be added by different users", commentsScriptName],
     ["ANNOTATIONS_STATE",                "Comments",                "Annotations State",                    DataType.XML,                    None,                                "Annotations State", annotationsScriptName]
 ]);
+
+
+'NAME'  : ('antibody ID', DataType.VARCHAR),
+  'ANTIBODY_ID_NR': ('antibody_id_nr', DataType.VARCHAR),  
+  'ANTIGEN ': ('antigen', DataType.VARCHAR),
+  'BARCODE' : ('barcode', DataType.VARCHAR),
+  'BARCODE_LABEL' : ('barcode label', DataType.VARCHAR),
+  'ANTIBODY_FACS_BLOCK' : ('block facs', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_IF_BLOCK' : ('block IFF', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_WB_BLOCK' : ('block western', DataType.CONTROLLEDVOCABULARY),
+  'BOX' : ('box', DataType.VARCHAR),
+  'CATALOGUE_NUMBER' : ('catalog id #', DataType.VARCHAR),
+  'CLASS' : ('class', DataType.CONTROLLEDVOCABULARY),
+  'CLONE' : ('clone', DataType.VARCHAR),
+  'COMPANY' : ('company', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_FACS_CONC' : ('conc facs', DataType.CONTROLLEDVOCABULARY), 
+  'ANTIBODY_IF_CONC'  : ('conc IFF', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_IP_CONC' : ('conc ip', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_WB_CONC' : ('conc western', DataType.CONTROLLEDVOCABULARY), 
+  'ANTIBODY_CONCENTRATION' : ('concentration', DataType.VARCHAR),   
+  'ANTIBODY_CROSSREACTIVITY'  : ('crossreactivity', DataType.VARCHAR),  
+  'ANTIBODY_FACS_FIX' : ('fix facs', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_IF_FIX' : ('fix IFF', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_WB_FIX' : ('fix western', DataType.CONTROLLEDVOCABULARY),
+  'COMMENTS'  : ('info', DataType.VARCHAR),
+  'INVESTIGATOR' : ('investigator', DataType.CONTROLLEDVOCABULARY),
+  'LABEL' : ('label', DataType.CONTROLLEDVOCABULARY),
+  'LOTNUMBER' : ('lotnumber', DataType.VARCHAR),
+  'MODIFIED_BY': ('modified by', DataType.CONTROLLEDVOCABULARY), 
+  'MONO_POLYCLONAL' : ('mono/polyclonal', DataType.CONTROLLEDVOCABULARY),
+  'ANTIBODY_FACS_NOTES' : ('notes FACS', DataType.VARCHAR),
+  'ANTIBODY_IF_NOTES' : ('notes IFF', DataType.VARCHAR),
+  'ANTIBODY_IP_NOTES': ('notes IP', DataType.VARCHAR),
+  'ANTIBODY_WB_NOTES' : ('notes western', DataType.VARCHAR),
+  'RACK' : ('rack', DataType.VARCHAR),
+  'PUBLISHED_IN' : ('reference', DataType.VARCHAR),
+  'SERIAL_NUMBER' : ('serial number', DataType.INTEGER),
+  'ANTIGEN_SIZE'  : ('size', DataType.VARCHAR),
+  'SOURCE' : ('source', DataType.CONTROLLEDVOCABULARY),
+  'CREATION_DATE' : ('creation date', DataType.TIMESTAMP),
+  'MODIFICATION_DATE' : ('modification date', DataType.TIMESTAMP),  
+  'FROZEN' : ('frozen', DataType.TIMESTAMP),
+  'BOX_NUMBER' : ('antibody ID data box::box label', DataType.VARCHAR),
+  'FROZEN_BY' : ('antibody ID data box::frozen by', DataType.CONTROLLEDVOCABULARY),
+  'FREEZER_NAME'  : ('antibody ID data box::location', DataType.CONTROLLEDVOCABULARY),
+  'BOX_POSITION': ('antibody ID data box::position', DataType.VARCHAR)
