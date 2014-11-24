@@ -14,6 +14,12 @@
 # limitations under the License.
 #
 
+##
+## Configuration
+##
+PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
+#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = None;
+
 # MasterDataRegistrationTransaction Class
 import os
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
@@ -95,6 +101,21 @@ def createProperty(propertyCode, dataType, propertyLabel, propertyDescription, v
     if dataType == DataType.CONTROLLEDVOCABULARY:
         property.setVocabulary(vocabulariesCache[vocabularyCode]);
     return property;
+
+##
+## Manage properties scripts
+##
+commentsScriptName = None;
+
+if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
+    commentsScriptName = "COMMENTS";
+    commentsScriptAsString = open(PATH_TO_MANAGE_PROPERTIES_SCRIPTS + "comments.py", 'r').read();
+    commentsScript = tr.getOrCreateNewScript(commentsScriptName);
+    commentsScript.setName(commentsScriptName);
+    commentsScript.setDescription("Comments Handler");
+    commentsScript.setScript(commentsScriptAsString);
+    commentsScript.setScriptType("MANAGED_PROPERTY");
+    commentsScript.setEntityForScript("SAMPLE");
 
 ##
 ## Vocabulary Types
