@@ -15,8 +15,10 @@ import ch.systemsx.cisd.etlserver.IArchiveCandidateDiscoverer;
 import ch.systemsx.cisd.openbis.dss.generic.shared.IEncapsulatedOpenBISService;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ArchiverDataSetCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetArchivingStatus;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.MetaprojectIdentifier;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.PhysicalDataSet;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.id.metaproject.MetaprojectIdentifierId;
 
 /**
@@ -73,7 +75,7 @@ public class TagArchiveCandidateDiscoverer implements IArchiveCandidateDiscovere
                 List<AbstractExternalData> list = openbis.listNotArchivedDatasetsWithMetaproject(metaprojectId);
                 for (AbstractExternalData dataSet : list)
                 {
-                    if (dataSetTypeCode == null || dataSet.getDataSetType().getCode().equals(dataSetTypeCode))
+                    if (matches(dataSet, dataSetTypeCode))
                     {
                         result.add(dataSet);
                     }
@@ -81,5 +83,20 @@ public class TagArchiveCandidateDiscoverer implements IArchiveCandidateDiscovere
             }
         }
         return result;
+    }
+
+    private boolean matches(AbstractExternalData dataSet, String dataSetTypeCode)
+    {
+        if (dataSetTypeCode != null && dataSet.getDataSetType().getCode().equals(dataSetTypeCode) == false)
+        {
+            return false;
+        }
+        if (dataSet instanceof PhysicalDataSet == false)
+        {
+            return false;
+        }
+        PhysicalDataSet physicalDataSet = (PhysicalDataSet) dataSet;
+        return DataSetArchivingStatus.AVAILABLE.equals(physicalDataSet.getStatus()) 
+                && physicalDataSet.isPresentInArchive() == false;
     }
 }
