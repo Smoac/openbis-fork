@@ -2,6 +2,15 @@
 import sys
 import definitions
 
+import java.lang.Class as Class;
+import java.sql.Connection as Connection;
+import java.sql.DriverManager as DriverManager;
+import java.sql.PreparedStatement as PreparedStatement;
+import java.sql.ResultSet as ResultSet;
+import java.sql.SQLException as SQLException;
+import java.util.ArrayList as ArrayList;
+import java.util.List as List;
+
 ##
 ## Generic Adaptor Pattern
 ##
@@ -45,22 +54,43 @@ class DTO:
 ##
 
 class FileMakerEntityAdaptor(EntityAdaptor):
-    fileMakerConnString = None
-    fileMakerUser = None
-    fileMakerPass = None
+    connection = None
+    selectQuery = None;
+    definitions = None;
     
     def __init__(self, fileMakerConnString, fileMakerUser, fileMakerPass):
-        self.fileMakerConnString = fileMakerConnString
-        self.fileMakerUser = fileMakerUser
-        self.fileMakerPass = fileMakerPass
-        
-class AntibodyAdaptor(FileMakerEntityAdaptor):
+        Class.forName("com.filemaker.jdbc.Driver").newInstance();
+        self.connection = DriverManager.getConnection(fileMakerConnString+"BOXIT_antibodies_Peter.fmp12",fileMakerUser, fileMakerPass);
+    
     def init(self):
         self.entities = [];
         self.entitiesIdx = -1;
-        pass
+        
+        preparedStatement = self.connection.prepareStatement(self.selectQuery);
+        result = preparedStatement.executeQuery();
+        
+        while result.next():
+            entity = {};
+            for property in self.definitions:
+                entity[property[0]] = result.getString(property[2])
+            self.entities.append(entity)
+            print entity
+        
+        result.close();
+        preparedStatement.close();
+        
+class AntibodyAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        self.selectQuery = "SELECT * FROM \"boxit antibodies\""
+        self.definitions = definitions.antibodyDefinition
+        FileMakerEntityAdaptor.init(self)
 
-adaptors = [AntibodyAdaptor(None, None, None)]
+fmConnString = "jdbc:filemaker://127.0.0.1/"
+fmUser = "designer"
+fmPass = "seattle"
+
+adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass)]
 ##
 ## Generic Process Method
 ##
