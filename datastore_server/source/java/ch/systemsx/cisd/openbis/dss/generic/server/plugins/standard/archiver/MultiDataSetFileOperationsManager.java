@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
@@ -250,17 +251,21 @@ public class MultiDataSetFileOperationsManager extends AbstractDataSetFileOperat
         try
         {
             File destinationFolder = new File(finalDestination.getDestination(), containerLocalPath);
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
             if (createFolderIfNotExists(finalDestination, destinationFolder.getParentFile())
                     || destinationExists(finalDestination, destinationFolder).isSuccess() == false)
             {
                 operationLog.info("Copy archive container from '"
                         + containerFile + "' to '" + destinationFolder.getParentFile());
                 finalDestination.getExecutor().copyDataSetToDestination(containerFile, destinationFolder.getParentFile());
+                operationLog.info("Copying archive container took " + stopWatch);
             } else
             {
                 operationLog.info("Update archive container from '"
                         + containerFile + "' to '" + destinationFolder.getParentFile());
                 finalDestination.getExecutor().syncDataSetWithDestination(containerFile, destinationFolder.getParentFile());
+                operationLog.info("Updating archive container took " + stopWatch);
             }
 
             return Status.OK;
