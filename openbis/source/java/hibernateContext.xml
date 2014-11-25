@@ -12,7 +12,7 @@
     -->
 
     <bean id="hibernate-session-factory"
-        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
+        class="ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.OpenbisAnnotationSessionFactoryBean"
         depends-on="sql-script-provider, hibernate-search-context">
         <property name="dataSource">
             <ref bean="data-source" />

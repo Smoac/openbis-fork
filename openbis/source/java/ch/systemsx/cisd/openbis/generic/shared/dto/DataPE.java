@@ -532,10 +532,13 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.modificationDate = versionDate;
     }
 
+    /**
+     * In the release branch we do not have {@code access_timestamp} column in a database schema. OpenBIS admins have to apply 
+     * a special patch to get it. If they do so, they also have to apply the special java property. Otherwise this annotation will change to 
+     * ColumnNames.MODIFICATION_TIMESTAMP. See {@code ch.systemsx.cisd.openbis.generic.shared.dto.hibernate.OpenbisAnnotationSessionFactoryBean}
+     */
     @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
     @Generated(GenerationTime.ALWAYS)
-    @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
-    @DateBridge(resolution = Resolution.SECOND)
     public Date getAccessDate()
     {
         return accessDate;
