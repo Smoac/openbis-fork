@@ -82,7 +82,7 @@ public class OpenbisAnnotationSessionFactoryBean extends AnnotationSessionFactor
         while (it.hasNext())
         {
             Column column = (Column) it.next();
-            if (column.getName() == ColumnNames.ACCESS_TIMESTAMP)
+            if (column.getName().equals(ColumnNames.ACCESS_TIMESTAMP))
             {
                 column.setName(ColumnNames.MODIFICATION_TIMESTAMP_COLUMN);
             }
