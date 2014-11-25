@@ -179,4 +179,9 @@ public interface IDatasetLister
      */
     List<String> listContainedCodes(String datasetCode);
 
+    /**
+     * @return list of not archived data sets marked with a tag
+     */
+    List<AbstractExternalData> listByMetaprojectIdAndArchivalState(Long metaprojectId, boolean isArchived);
+
 }

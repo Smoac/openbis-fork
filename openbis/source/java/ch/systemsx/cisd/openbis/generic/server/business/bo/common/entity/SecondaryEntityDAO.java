@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Space;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ExperimentIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.IdentifierHelper;
+import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.ProjectIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.dto.identifier.SampleIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTranslator;
 
@@ -53,8 +54,7 @@ import ch.systemsx.cisd.openbis.generic.shared.translator.DatabaseInstanceTransl
 public class SecondaryEntityDAO
 {
     /**
-     * Creates a new instance based on {@link PersistencyResources} and home
-     * {@link DatabaseInstancePE} of specified DAO factory.
+     * Creates a new instance based on {@link PersistencyResources} of specified DAO factory
      */
     public static SecondaryEntityDAO create(IDAOFactory daoFactory)
     {
@@ -114,6 +114,7 @@ public class SecondaryEntityDAO
         project.setId(record.p_id);
         project.setPermId(record.p_perm_id);
         project.setCode(record.p_code);
+        project.setIdentifier(new ProjectIdentifier(space.getCode(), record.p_code).toString());
         project.setSpace(space);
         experiment.setProject(project);
         final ExperimentType experimentType = new ExperimentType();

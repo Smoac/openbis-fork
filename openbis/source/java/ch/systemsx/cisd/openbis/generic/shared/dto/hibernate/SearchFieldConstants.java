@@ -97,4 +97,6 @@ public final class SearchFieldConstants
     public static final String REGISTRATION_DATE = "registration_date";
 
     public static final String MODIFICATION_DATE = "modification_date";
+    
+    public static final String ACCESS_DATE = "access_date";
 }

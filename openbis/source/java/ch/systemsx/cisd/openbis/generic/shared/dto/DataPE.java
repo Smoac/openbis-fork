@@ -104,6 +104,8 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
     /** Registration date of the database instance. */
     private Date registrationDate;
 
+    private Date accessDate;
+    
     private DataSetTypePE dataSetType;
 
     private ExperimentPE experiment;
@@ -327,6 +329,7 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.registrationDate = registrationDate;
     }
 
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = ValidationMessages.DATA_SET_TYPE_NOT_NULL_MESSAGE)
     @JoinColumn(name = ColumnNames.DATA_SET_TYPE_COLUMN)
@@ -529,6 +532,20 @@ public class DataPE extends AbstractIdAndCodeHolder<DataPE> implements
         this.modificationDate = versionDate;
     }
 
+    @Column(name = ColumnNames.ACCESS_TIMESTAMP, nullable = false, insertable = false)
+    @Generated(GenerationTime.ALWAYS)
+    @Field(name = SearchFieldConstants.ACCESS_DATE, index = Index.UN_TOKENIZED, store = Store.NO)
+    @DateBridge(resolution = Resolution.SECOND)
+    public Date getAccessDate()
+    {
+        return accessDate;
+    }
+
+    public void setAccessDate(Date versionDate)
+    {
+        this.accessDate = versionDate;
+    }
+    
     public void setId(final Long id)
     {
         this.id = id;

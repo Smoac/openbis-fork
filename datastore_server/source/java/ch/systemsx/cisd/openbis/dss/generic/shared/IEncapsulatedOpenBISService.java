@@ -24,6 +24,7 @@ import java.util.Map;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
 import ch.systemsx.cisd.openbis.dss.generic.shared.dto.DataSetInformation;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -570,5 +571,11 @@ public interface IEncapsulatedOpenBISService extends IEncapsulatedBasicOpenBISSe
     @ManagedAuthentication
     public InputStream getAttachmentContent(AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId, String fileName,
             Integer versionOrNull);
+
+    /**
+     * Returns list of not archived datasets marked with a tag
+     */
+    @ManagedAuthentication
+    public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(IMetaprojectId metaprojectId);
 
 }

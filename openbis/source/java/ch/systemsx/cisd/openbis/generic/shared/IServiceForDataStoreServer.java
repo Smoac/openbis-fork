@@ -29,6 +29,7 @@ import ch.systemsx.cisd.openbis.common.conversation.annotation.Conversational;
 import ch.systemsx.cisd.openbis.common.conversation.annotation.Progress;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -842,5 +843,11 @@ public interface IServiceForDataStoreServer extends IServer, ISessionProvider
     public AttachmentWithContent getAttachment(String sessionToken, AttachmentHolderKind attachmentHolderKind, Long attachmentHolderId,
             String fileName,
             Integer versionOrNull);
+
+    /**
+     * Returns list of not archived data sets marked with a tag
+     */
+    @Transactional(readOnly = true)
+    public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(String sessionToken, IMetaprojectId metaprojectId);
 
 }

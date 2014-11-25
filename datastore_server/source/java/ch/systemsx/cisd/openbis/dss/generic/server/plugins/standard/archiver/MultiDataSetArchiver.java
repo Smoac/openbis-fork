@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import ch.rinn.restrictions.Private;
+import ch.systemsx.cisd.common.collection.CollectionUtils;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.NotImplementedException;
 import ch.systemsx.cisd.common.exceptions.Status;
@@ -291,6 +292,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
     private void checkArchivedDataSets(IHierarchicalContent archivedContent, List<DatasetDescription> dataSets,
             ArchiverTaskContext context, DatasetProcessingStatuses statuses)
     {
+        operationLog.info("Start sanity check on " + CollectionUtils.abbreviate(dataSets, 10));
         Status status;
         for (DatasetDescription dataset : dataSets)
         {
@@ -320,6 +322,7 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
             }
             statuses.addResult(dataSetCode, status, Operation.ARCHIVE);
         }
+        operationLog.info("Sanity check finished.");
     }
 
     private long getDataSetsSize(List<DatasetDescription> ds)
@@ -418,6 +421,11 @@ public class MultiDataSetArchiver extends AbstractArchiverProcessingPlugin
         MultiDataSetArchiverContainerDTO container = getReadonlyQuery().getContainerForId(containerId);
 
         getFileOperations().restoreDataSetsFromContainerInFinalDestination(container.getPath(), parameterDataSets);
+
+        for (String dataSetCode : dataSetCodes)
+        {
+            getService().notifyDatasetAccess(dataSetCode);
+        }
 
         DatasetProcessingStatuses result = new DatasetProcessingStatuses();
         result.addResult(parameterDataSets, Status.OK, Operation.UNARCHIVE);

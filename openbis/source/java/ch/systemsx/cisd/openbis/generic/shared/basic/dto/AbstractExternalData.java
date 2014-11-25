@@ -91,6 +91,8 @@ public abstract class AbstractExternalData extends
 
     private Collection<Metaproject> metaprojects;
 
+    private Date accessTimestamp;
+
     public AbstractExternalData(boolean isStub)
     {
         this.isStub = isStub;
@@ -354,6 +356,16 @@ public abstract class AbstractExternalData extends
     public String getPermId()
     {
         return getCode();
+    }
+
+    public Date getAccessTimestamp()
+    {
+        return accessTimestamp;
+    }
+
+    public void setAccessTimestamp(Date accessTimestamp)
+    {
+        this.accessTimestamp = accessTimestamp;
     }
 
     /**

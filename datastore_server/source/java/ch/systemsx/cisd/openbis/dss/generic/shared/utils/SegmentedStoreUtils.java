@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ import ch.systemsx.cisd.base.exceptions.CheckedExceptionTunnel;
 import ch.systemsx.cisd.base.exceptions.IOExceptionUnchecked;
 import ch.systemsx.cisd.base.utilities.OSUtilities;
 import ch.systemsx.cisd.common.collection.CollectionUtils;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 import ch.systemsx.cisd.common.exceptions.ConfigurationFailureException;
 import ch.systemsx.cisd.common.exceptions.EnvironmentFailureException;
 import ch.systemsx.cisd.common.exceptions.UserFailureException;
@@ -91,14 +93,15 @@ public class SegmentedStoreUtils
             }
         };
 
-    private static final Comparator<SimpleDataSetInformationDTO> MODIFICATION_TIMESTAMP_COMPARATOR = new Comparator<SimpleDataSetInformationDTO>()
-        {
-            @Override
-            public int compare(SimpleDataSetInformationDTO d1, SimpleDataSetInformationDTO d2)
-            {
-                return d1.getModificationTimestamp().compareTo(d2.getModificationTimestamp());
-            }
-        };
+    private static final SimpleComparator<SimpleDataSetInformationDTO, Date> ACCESS_TIMESTAMP_COMPARATOR =
+            new SimpleComparator<SimpleDataSetInformationDTO, Date>()
+                {
+                    @Override
+                    public Date evaluate(SimpleDataSetInformationDTO item)
+                    {
+                        return item.getAccessTimestamp();
+                    }
+                };
 
     private static final FileFilter FILTER_ON_SHARES = new FileFilter()
         {
@@ -268,14 +271,14 @@ public class SegmentedStoreUtils
         }
         List<DatasetDescription> filteredDataSets = new ArrayList<DatasetDescription>(dataSets);
         List<SimpleDataSetInformationDTO> filteredDataSetsInShare =
-                getAvailableDataSetsInUnarchivingScratchShare(unarchivingScratchShare);
+                getAvailableArchivedDataSetsInUnarchivingScratchShare(unarchivingScratchShare);
 
         removeCommonDataSets(filteredDataSets, filteredDataSetsInShare);
         long requestedSpace = calculateTotalSizeOfDataSetsToKeep(filteredDataSets);
         long actualFreeSpace = unarchivingScratchShare.calculateFreeSpace();
         if (isNotEnoughFreeSpace(requestedSpace, actualFreeSpace))
         {
-            Collections.sort(filteredDataSetsInShare, MODIFICATION_TIMESTAMP_COMPARATOR);
+            Collections.sort(filteredDataSetsInShare, ACCESS_TIMESTAMP_COMPARATOR);
             List<SimpleDataSetInformationDTO> dataSetsToRemoveFromShare =
                     listDataSetsToRemoveFromShare(filteredDataSetsInShare, requestedSpace, actualFreeSpace,
                             unarchivingScratchShare, logger);
@@ -299,13 +302,13 @@ public class SegmentedStoreUtils
                 + FileUtilities.byteCountToDisplaySize(requestedSpace));
     }
 
-    private static List<SimpleDataSetInformationDTO> getAvailableDataSetsInUnarchivingScratchShare(Share unarchivingScratchShare)
+    private static List<SimpleDataSetInformationDTO> getAvailableArchivedDataSetsInUnarchivingScratchShare(Share unarchivingScratchShare)
     {
         List<SimpleDataSetInformationDTO> availableDataSets = new ArrayList<SimpleDataSetInformationDTO>();
         List<SimpleDataSetInformationDTO> dataSets = unarchivingScratchShare.getDataSetsOrderedBySize();
         for (SimpleDataSetInformationDTO dataSet : dataSets)
         {
-            if (dataSet.getStatus().isAvailable())
+            if (dataSet.getStatus().isAvailable() && dataSet.isPresentInArchive())
             {
                 availableDataSets.add(dataSet);
             }

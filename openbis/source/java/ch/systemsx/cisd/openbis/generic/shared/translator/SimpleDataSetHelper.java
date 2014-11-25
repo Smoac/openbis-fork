@@ -60,10 +60,12 @@ public class SimpleDataSetHelper
         result.setDataSetCode(data.getCode());
         result.setRegistrationTimestamp(data.getRegistrationDate());
         result.setModificationTimestamp(data.getModificationDate());
+        result.setAccessTimestamp(data.getAccessTimestamp());
         result.setSpeedHint(data.getSpeedHint());
         result.setDataSetShareId(data.getShareId());
         result.setDataSetLocation(data.getLocation());
         result.setStatus(data.getStatus());
+        result.setPresentInArchive(data.isPresentInArchive());
         result.setDataSetSize(data.getSize());
         result.setDatabaseInstanceCode(data.getExperiment().getProject().getSpace().getInstance()
                 .getCode());

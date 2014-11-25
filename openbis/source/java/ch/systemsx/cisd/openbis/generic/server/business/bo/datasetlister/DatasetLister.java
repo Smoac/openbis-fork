@@ -1155,6 +1155,14 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         dataSet.setRegistrator(getOrCreateActor(record.pers_id_registerer));
         dataSet.setModificationDate(record.modification_timestamp);
         dataSet.setModifier(getOrCreateActor(record.pers_id_modifier));
+        if (dataDAO.isAccessTimestampEnabled())
+        {
+            dataSet.setAccessTimestamp(record.access_timestamp);
+        } else
+        {
+            dataSet.setAccessTimestamp(record.modification_timestamp);
+        }
+
         dataSet.setDataSetProperties(new ArrayList<IEntityProperty>());
 
         if (record.ctnr_id != null)
@@ -1366,6 +1374,14 @@ public class DatasetLister extends AbstractLister implements IDatasetLister
         }
         queryResult.close();
         return result;
+    }
+
+    @Override
+    public List<AbstractExternalData> listByMetaprojectIdAndArchivalState(Long metaprojectId, boolean isArchived)
+    {
+        DataIterator<DatasetRecord> dataSets =
+                query.getDatasetsForMetaprojectAndArchivalState(metaprojectId, isArchived);
+        return enrichDatasets(dataSets);
     }
 
 }

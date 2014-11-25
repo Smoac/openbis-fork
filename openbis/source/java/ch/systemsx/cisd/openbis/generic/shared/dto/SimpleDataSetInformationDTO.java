@@ -42,9 +42,13 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     
     private DataSetArchivingStatus status;
 
+    private boolean isPresentInArchive;
+
     private Date registrationTimestamp;
     
     private Date modificationTimestamp;
+
+    private Date accessTimestamp;
 
     private Long dataSetSize;
 
@@ -139,6 +143,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
         this.status = status;
     }
 
+    public boolean isPresentInArchive()
+    {
+        return isPresentInArchive;
+    }
+
+    public void setPresentInArchive(boolean isPresentInArchive)
+    {
+        this.isPresentInArchive = isPresentInArchive;
+    }
+
     public Date getRegistrationTimestamp()
     {
         return registrationTimestamp;
@@ -157,6 +171,16 @@ public class SimpleDataSetInformationDTO implements Serializable, IDatasetLocati
     public void setModificationTimestamp(Date modificationTimestamp)
     {
         this.modificationTimestamp = modificationTimestamp;
+    }
+
+    public Date getAccessTimestamp()
+    {
+        return accessTimestamp;
+    }
+
+    public void setAccessTimestamp(Date accessTimestamp)
+    {
+        this.accessTimestamp = accessTimestamp;
     }
 
     public int getSpeedHint()

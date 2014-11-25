@@ -33,6 +33,7 @@ import ch.systemsx.cisd.openbis.generic.shared.AbstractServerLogger;
 import ch.systemsx.cisd.openbis.generic.shared.IServiceForDataStoreServer;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.SearchCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.IObjectId;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.EntityOperationsState;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AbstractExternalData;
@@ -875,6 +876,13 @@ public class ServiceForDataStoreServerLogger extends AbstractServerLogger implem
     {
         logAccess(Level.DEBUG, sessionToken, "listAttachments", "ATTACHMENT_HOLDER_KIND(%s), ATTACHMENT_HOLDER_ID(%s)", attachmentHolderKind,
                 attachmentHolderId);
+        return null;
+    }
+
+    @Override
+    public List<AbstractExternalData> listNotArchivedDatasetsWithMetaproject(String sessionToken, final IMetaprojectId metaprojectId)
+    {
+        logAccess(Level.DEBUG, sessionToken, "listNotArchivedDatasetsWithMetaproject", "TAG(%s)", metaprojectId);
         return null;
     }
 
