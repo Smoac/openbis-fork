@@ -11,7 +11,7 @@ import java.io.Writer;
 
 public class UltimateJSEntityGenerator
 {
-    private static final String API_PROJECT_SOURCE_FOLDER = "/Users/juanf/Documents/workspace/openbis_api/source/java/";
+    private static final String API_PROJECT_SOURCE_FOLDER = "/Users/fedoreno/projects/work/openbis/openbis_api/source/java/";
     private static final String[] CLASSES_TO_CONVERT = new String[]{
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment",
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions",
@@ -36,8 +36,6 @@ public class UltimateJSEntityGenerator
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions"
     };
     
-    private static final String JSTEST_PROJECT_SOURCE_FOLDER = "/Users/juanf/Documents/workspace/js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/";
-    
     public static void main(String[] args) throws IOException {
         for (String classToConvert:CLASSES_TO_CONVERT) {
             String javaClass = readFileAsString(API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java");
@@ -51,9 +49,11 @@ public class UltimateJSEntityGenerator
         int lastIndexOfDot = fullClassName.lastIndexOf('.');
         return fullClassName.substring(lastIndexOfDot+1);
     }
-    private static final String translateFromJavaToJS(String toTranslate) {
+
+    private static final String translateFromJavaToJS(String toTranslate)
+    {
         return toTranslate
-                //Remove Java specific features
+                // Remove Java specific features
                 .replaceAll("package.+;", "")
                 .replaceAll("import.+;", "")
                 .replaceAll("@JsonObject.+\\)", "")
@@ -61,18 +61,25 @@ public class UltimateJSEntityGenerator
                 .replaceAll("@JsonIgnore", "")
                 .replaceAll("@Override", "")
                 .replaceAll("private static final long serialVersionUID.+;", "")
-                //Translate private parameters to var
+                // Translate private parameters to var
                 .replaceAll("private .+ ", "var _")
                 .replaceAll("this.", "_")
-                //Translate Class to function
+                // Translate Class to function
                 .replaceAll("public class ([\\w\\[\\]]+).*", "function $1()")
-                //Translate methods
+                // Translate methods
                 .replaceAll("public [\\w\\[\\]]+ ", "function ")
-                //Remove function parameter types
-                .replaceAll("\\([\\w\\[\\]]+ ", "(")
-                //Translate Exceptions
+                // Remove function parameter types
+                .replaceAll("function (\\w+)\\([\\w\\[\\]]+ ", "function $1(")
+                // Special case for fetch* methods with parameters
+                .replaceAll("function fetch(\\w+)\\(((\\w+))\\)", "function setFetch$1($2)")
+                // Translate Exceptions
                 .replaceAll("throw new .+\\(\"(.+)\"\\);", "throw '$1';")
-                //Remove Comments
+                // Translate Equality operators
+                .replaceAll("([\\w]+)\\s*==\\s*null", "!$1")
+                .replaceAll("([\\w]+)\\s*!=\\s*null", "$1")
+                .replaceAll("==", "===")
+                .replaceAll("!=", "!==")
+                // Remove Comments
                 .replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)", "");
     }
     
