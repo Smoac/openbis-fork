@@ -17,7 +17,18 @@ public class UltimateJSEntityGenerator
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentType",
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentTypeFetchOptions",
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person",
-        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person"
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.project.Project",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.project.ProjectFetchOptions",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleType",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleTypeFetchOptions",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.space.Space",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.space.SpaceFetchOptions",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag",
+        "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions"
     };
     
     private static final String JSTEST_PROJECT_SOURCE_FOLDER = "/Users/juanf/Documents/workspace/js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/";
