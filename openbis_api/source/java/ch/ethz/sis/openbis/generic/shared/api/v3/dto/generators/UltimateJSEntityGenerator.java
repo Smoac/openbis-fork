@@ -1,8 +1,14 @@
 package ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 
 public class UltimateJSEntityGenerator
 {
@@ -35,11 +41,17 @@ public class UltimateJSEntityGenerator
     
     public static void main(String[] args) throws IOException {
         for (String classToConvert:CLASSES_TO_CONVERT) {
-            String jsClass = translateFromJavaToJS(readFileAsString(API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java"));
-            System.out.println(jsClass);
+            String javaClass = readFileAsString(API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java");
+            String jsClass = translateFromJavaToJS(javaClass);
+            whriteStringAsFile(JSTEST_PROJECT_SOURCE_FOLDER + getSimpleName(classToConvert) + ".js", jsClass);
+//            System.out.println(jsClass);
         }
     }
     
+    private static String getSimpleName(String fullClassName) {
+        int lastIndexOfDot = fullClassName.lastIndexOf('.');
+        return fullClassName.substring(lastIndexOfDot+1);
+    }
     private static final String translateFromJavaToJS(String toTranslate) {
         return toTranslate
                 //Remove Java specific features
@@ -63,6 +75,18 @@ public class UltimateJSEntityGenerator
                 .replaceAll("throw new .+\\(\"(.+)\"\\);", "throw '$1';")
                 //Remove Comments
                 .replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)", "");
+    }
+    
+    private static final void whriteStringAsFile(String filePath,String string) throws IOException {
+        Writer out = null;
+        try
+        {
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath), "UTF-8"));
+            out.write(string);
+        } finally
+        {
+            out.close();
+        }
     }
     
     private static final String readFileAsString(String filePath) throws IOException {
