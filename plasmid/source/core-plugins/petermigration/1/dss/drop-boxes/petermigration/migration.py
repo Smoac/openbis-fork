@@ -12,12 +12,26 @@ import java.util.ArrayList as ArrayList;
 import java.util.List as List;
 
 ##
+## Generic Process Method
+##
+def process(tr):
+    print "START!"
+    createDataHierarchy(tr)
+    for adaptor in adaptors:
+        while adaptor.next():
+            entity = adaptor.getEntity()
+            if not entity.isInOpenBIS(tr):
+                entity.write(tr)
+    print "FINISH!"
+
+##
 ## Generic Adaptor Pattern
 ##
 class EntityAdaptor:
     entities = None
     entitiesIdx = None
-        
+    definitions = None;
+    
     def init(self):
         self.entities = [];
         self.entitiesIdx = -1;
@@ -27,26 +41,29 @@ class EntityAdaptor:
         if self.entities is None and self.entitiesIdx is None:
             self.init()
         self.entitiesIdx += 1
-        if len(self.entities) < self.entitiesIdx:
+        if len(self.entities) > self.entitiesIdx:
             return True
         else:
             return False
     
+    def addEntity(self, values):
+        self.entities.append(OpenBISDTO(values, self.definitions))
+    
     def getEntity(self):
         return self.entities[self.entitiesIdx]
     
-class DTO:
+class OpenBISDTO:
     values = {}
-    openBISTransaction = None
+    definitions = None
     
-    def __init__(self, values, openBISTransaction):
+    def __init__(self, values, definitions):
         self.values = values
-        self.openBISTransaction = openBISTransaction
+        self.definitions = definitions
         
-    def isInOpenBIS(self):
+    def isInOpenBIS(self, tr):
         pass
     
-    def write(self):
+    def write(self, tr):
         pass
 
 ##
@@ -56,29 +73,25 @@ class DTO:
 class FileMakerEntityAdaptor(EntityAdaptor):
     connection = None
     selectQuery = None;
-    definitions = None;
     
-    def __init__(self, fileMakerConnString, fileMakerUser, fileMakerPass):
+    def __init__(self, fileMakerConnString, fileMakerUser, fileMakerPass, db):
         Class.forName("com.filemaker.jdbc.Driver").newInstance();
-        self.connection = DriverManager.getConnection(fileMakerConnString+"BOXIT_antibodies_Peter.fmp12",fileMakerUser, fileMakerPass);
+        self.connection = DriverManager.getConnection(fileMakerConnString+db,fileMakerUser, fileMakerPass);
     
     def init(self):
-        self.entities = [];
-        self.entitiesIdx = -1;
+        EntityAdaptor.init(self)
         
         preparedStatement = self.connection.prepareStatement(self.selectQuery);
         result = preparedStatement.executeQuery();
         
         while result.next():
-            entity = {};
+            values = {};
             for property in self.definitions:
-                entity[property[0]] = result.getString(property[2])
-            self.entities.append(entity)
-            print entity
-        
+                values[property[0]] = result.getString(property[2])
+            self.addEntity(values)
         result.close();
         preparedStatement.close();
-        
+    
 class AntibodyAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
@@ -86,18 +99,26 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
         self.definitions = definitions.antibodyDefinition
         FileMakerEntityAdaptor.init(self)
 
+    def isInOpenBIS(self, tr):
+        sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"]);
+        return sample is not None
+    
+    def addEntity(self, values):
+        self.entities.append(AntibodyOpenBISDTO(values, self.definitions))
+        
+class AntibodyOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        sample = tr.createNewSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], "ANTIBODY");
+    
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
 fmPass = "seattle"
 
-adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass)]
-##
-## Generic Process Method
-##
-def process(tr):
-    for adaptor in adaptors:
-        if adaptor.next():
-            entity = adaptor.getEntity()
-            if not entity.isInOpenBIS():
-                entity.write()
-    print "FINISH!"
+adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter.fmp12")]
+
+def createDataHierarchy(tr):
+    inventorySpace = tr.getSpace("INVENTORY");
+    if inventorySpace == None:
+        tr.createNewSpace("INVENTORY", None);
+        tr.createNewProject("/INVENTORY/MATERIALS");
+        tr.createNewExperiment("/INVENTORY/MATERIALS/ANTIBODY",         "ANTIBODY");
