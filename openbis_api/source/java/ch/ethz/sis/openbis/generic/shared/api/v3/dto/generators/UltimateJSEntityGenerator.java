@@ -2,12 +2,11 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 public class UltimateJSEntityGenerator
@@ -43,8 +42,8 @@ public class UltimateJSEntityGenerator
         for (String classToConvert:CLASSES_TO_CONVERT) {
             String javaClass = readFileAsString(API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java");
             String jsClass = translateFromJavaToJS(javaClass);
-            whriteStringAsFile(JSTEST_PROJECT_SOURCE_FOLDER + getSimpleName(classToConvert) + ".js", jsClass);
-//            System.out.println(jsClass);
+//            whriteStringAsFile(JSTEST_PROJECT_SOURCE_FOLDER + getSimpleName(classToConvert) + ".js", jsClass);
+            System.out.println(jsClass);
         }
     }
     
@@ -91,7 +90,7 @@ public class UltimateJSEntityGenerator
     
     private static final String readFileAsString(String filePath) throws IOException {
         StringBuffer fileData = new StringBuffer();
-        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF8"));
         char[] buf = new char[1024];
         int numRead=0;
         while((numRead=reader.read(buf)) != -1){
