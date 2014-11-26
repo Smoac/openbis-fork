@@ -131,6 +131,8 @@ public class ExperimentBasedArchivingTaskTest extends AbstractFileSystemTestCase
     public void before()
     {
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO);
+        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
+        logRecorder.addRegexForLoggingEventsToBeDropped("MACHINE.MonitoringPoolingDataSource.*");
         context = new Mockery();
         service = context.mock(IEncapsulatedOpenBISService.class);
         freeSpaceProvider = context.mock(IFreeSpaceProvider.class);
