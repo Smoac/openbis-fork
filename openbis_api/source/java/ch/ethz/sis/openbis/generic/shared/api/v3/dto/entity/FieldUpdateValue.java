@@ -48,7 +48,7 @@ public class FieldUpdateValue<T> implements Serializable
      */
     public boolean isModified()
     {
-        return isModified;
+        return this.isModified;
     }
 
     /**
@@ -56,6 +56,6 @@ public class FieldUpdateValue<T> implements Serializable
      */
     public T getValue()
     {
-        return value;
+        return this.value;
     }
 }

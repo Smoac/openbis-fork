@@ -36,7 +36,7 @@ public class CreateSamplesOperation implements IOperation
 
     public List<SampleCreation> getCreations()
     {
-        return creations;
+        return this.creations;
     }
 
 }

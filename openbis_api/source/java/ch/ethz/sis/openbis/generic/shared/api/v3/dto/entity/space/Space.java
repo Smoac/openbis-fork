@@ -54,7 +54,7 @@ public class Space implements Serializable
     @JsonIgnore
     public SpaceFetchOptions getFetchOptions()
     {
-        return fetchOptions;
+        return this.fetchOptions;
     }
 
     public void setFetchOptions(SpaceFetchOptions fetchOptions)
@@ -65,7 +65,7 @@ public class Space implements Serializable
     @JsonIgnore
     public SpacePermId getPermId()
     {
-        return permId;
+        return this.permId;
     }
 
     public void setPermId(SpacePermId permId)
@@ -76,7 +76,7 @@ public class Space implements Serializable
     @JsonIgnore
     public String getCode()
     {
-        return code;
+        return this.code;
     }
 
     public void setCode(String code)
@@ -87,7 +87,7 @@ public class Space implements Serializable
     @JsonIgnore
     public String getDescription()
     {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description)
@@ -98,7 +98,7 @@ public class Space implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return registrationDate;
+        return this.registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -111,7 +111,7 @@ public class Space implements Serializable
     {
         if (getFetchOptions().hasRegistrator())
         {
-            return registrator;
+            return this.registrator;
         }
         else
         {

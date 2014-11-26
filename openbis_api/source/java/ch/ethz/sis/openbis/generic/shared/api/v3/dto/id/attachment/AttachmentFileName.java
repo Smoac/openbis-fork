@@ -47,7 +47,7 @@ public class AttachmentFileName implements IAttachmentId, Serializable
 
     public String getFileName()
     {
-        return fileName;
+        return this.fileName;
     }
 
     @SuppressWarnings("unused")

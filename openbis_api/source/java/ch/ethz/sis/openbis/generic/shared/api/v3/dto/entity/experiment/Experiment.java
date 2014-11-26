@@ -83,7 +83,7 @@ public class Experiment implements Serializable
     @JsonIgnore
     public ExperimentFetchOptions getFetchOptions()
     {
-        return fetchOptions;
+        return this.fetchOptions;
     }
 
     public void setFetchOptions(ExperimentFetchOptions fetchOptions)
@@ -94,7 +94,7 @@ public class Experiment implements Serializable
     @JsonIgnore
     public ExperimentPermId getPermId()
     {
-        return permId;
+        return this.permId;
     }
 
     public void setPermId(ExperimentPermId permId)
@@ -105,7 +105,7 @@ public class Experiment implements Serializable
     @JsonIgnore
     public ExperimentIdentifier getIdentifier()
     {
-        return identifier;
+        return this.identifier;
     }
 
     public void setIdentifier(ExperimentIdentifier identifier)
@@ -116,7 +116,7 @@ public class Experiment implements Serializable
     @JsonIgnore
     public String getCode()
     {
-        return code;
+        return this.code;
     }
 
     public void setCode(String code)
@@ -127,7 +127,7 @@ public class Experiment implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return registrationDate;
+        return this.registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -138,7 +138,7 @@ public class Experiment implements Serializable
     @JsonIgnore
     public Date getModificationDate()
     {
-        return modificationDate;
+        return this.modificationDate;
     }
 
     public void setModificationDate(Date modificationDate)
@@ -151,7 +151,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasType())
         {
-            return type;
+            return this.type;
         }
         else
         {
@@ -169,7 +169,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasProject())
         {
-            return project;
+            return this.project;
         }
         else
         {
@@ -187,7 +187,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasProperties())
         {
-            return properties;
+            return this.properties;
         }
         else
         {
@@ -205,7 +205,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasTags())
         {
-            return tags;
+            return this.tags;
         }
         else
         {
@@ -223,7 +223,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasRegistrator())
         {
-            return registrator;
+            return this.registrator;
         }
         else
         {
@@ -241,7 +241,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasModifier())
         {
-            return modifier;
+            return this.modifier;
         }
         else
         {
@@ -259,7 +259,7 @@ public class Experiment implements Serializable
     {
         if (getFetchOptions().hasAttachments())
         {
-            return attachments;
+            return this.attachments;
         }
         else
         {
@@ -275,7 +275,7 @@ public class Experiment implements Serializable
     @Override
     public String toString()
     {
-        return "Experiment " + permId;
+        return "Experiment " + this.permId;
     }
 
 }

@@ -33,21 +33,21 @@ public class TagFetchOptions implements Serializable
 
     public PersonFetchOptions fetchOwner()
     {
-        if (owner == null)
+        if (this.owner == null)
         {
-            owner = new PersonFetchOptions();
+            this.owner = new PersonFetchOptions();
         }
-        return owner;
+        return this.owner;
     }
 
     public PersonFetchOptions fetchOwner(PersonFetchOptions fetchOptions)
     {
-        return owner = fetchOptions;
+        return this.owner = fetchOptions;
     }
 
     public boolean hasOwner()
     {
-        return owner != null;
+        return this.owner != null;
     }
 
 }

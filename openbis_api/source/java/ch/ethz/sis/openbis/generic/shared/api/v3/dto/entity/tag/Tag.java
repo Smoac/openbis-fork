@@ -68,7 +68,7 @@ public class Tag implements Serializable
     @JsonIgnore
     public TagPermId getPermId()
     {
-        return permId;
+        return this.permId;
     }
 
     public void setPermId(TagPermId permId)
@@ -79,7 +79,7 @@ public class Tag implements Serializable
     @JsonIgnore
     public String getCode()
     {
-        return code;
+        return this.code;
     }
 
     public void setCode(String code)
@@ -90,7 +90,7 @@ public class Tag implements Serializable
     @JsonIgnore
     public String getDescription()
     {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description)
@@ -101,7 +101,7 @@ public class Tag implements Serializable
     @JsonIgnore
     public Boolean isPrivate()
     {
-        return isPrivate;
+        return this.isPrivate;
     }
 
     public void setPrivate(Boolean isPrivate)
@@ -112,7 +112,7 @@ public class Tag implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return registrationDate;
+        return this.registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -125,7 +125,7 @@ public class Tag implements Serializable
     {
         if (getFetchOptions().hasOwner())
         {
-            return owner;
+            return this.owner;
         }
         else
         {

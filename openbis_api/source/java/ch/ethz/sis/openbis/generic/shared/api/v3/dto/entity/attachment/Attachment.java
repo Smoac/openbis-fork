@@ -80,7 +80,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public String getFileName()
     {
-        return fileName;
+        return this.fileName;
     }
 
     public void setFileName(String fileName)
@@ -91,7 +91,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public String getTitle()
     {
-        return title;
+        return this.title;
     }
 
     public void setTitle(String title)
@@ -102,7 +102,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public String getDescription()
     {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description)
@@ -113,7 +113,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public String getPermlink()
     {
-        return permlink;
+        return this.permlink;
     }
 
     public void setPermlink(String permlink)
@@ -124,7 +124,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public String getLatestVersionPermlink()
     {
-        return latestVersionPermlink;
+        return this.latestVersionPermlink;
     }
 
     public void setLatestVersionPermlink(String latestVersionPermlink)
@@ -135,7 +135,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public Integer getVersion()
     {
-        return version;
+        return this.version;
     }
 
     public void setVersion(Integer version)
@@ -146,7 +146,7 @@ public class Attachment implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return registrationDate;
+        return this.registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -159,7 +159,7 @@ public class Attachment implements Serializable
     {
         if (getFetchOptions().hasRegistrator())
         {
-            return registrator;
+            return this.registrator;
         }
         else
         {
@@ -177,7 +177,7 @@ public class Attachment implements Serializable
     {
         if (getFetchOptions().hasPreviousVersion())
         {
-            return previousVersion;
+            return this.previousVersion;
         }
         else
         {
@@ -195,7 +195,7 @@ public class Attachment implements Serializable
     {
         if (getFetchOptions().hasContent())
         {
-            return content;
+            return this.content;
         }
         else
         {
@@ -211,7 +211,7 @@ public class Attachment implements Serializable
     @Override
     public String toString()
     {
-        return "Attachment " + fileName + ":" + version;
+        return "Attachment " + this.fileName + ":" + this.version;
     }
 
 }

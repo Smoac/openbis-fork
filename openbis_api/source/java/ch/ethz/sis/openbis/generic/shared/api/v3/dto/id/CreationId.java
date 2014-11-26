@@ -40,7 +40,7 @@ public class CreationId implements ISampleId, IDataSetId, IExperimentId, IProjec
 
     public String getCreationId()
     {
-        return creationId;
+        return this.creationId;
     }
 
     public void setCreationId(String creationId)

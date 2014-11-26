@@ -23,7 +23,7 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
 
         public Collection<T> getItems()
         {
-            return items;
+            return this.items;
         }
 
         public void setItems(Collection<T> items)
@@ -60,7 +60,7 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
 
     public List<ListUpdateAction<ACTION>> getActions()
     {
-        return actions;
+        return this.actions;
     }
 
     public boolean hasActions()
@@ -73,7 +73,7 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
     {
         ListUpdateActionRemove<REMOVE> action = new ListUpdateActionRemove<REMOVE>();
         action.setItems(Arrays.asList(items));
-        actions.add((ListUpdateAction<ACTION>) action);
+        this.actions.add((ListUpdateAction<ACTION>) action);
     }
 
     @SuppressWarnings("unchecked")
@@ -81,7 +81,7 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
     {
         ListUpdateActionAdd<ADD> action = new ListUpdateActionAdd<ADD>();
         action.setItems(Arrays.asList(items));
-        actions.add((ListUpdateAction<ACTION>) action);
+        this.actions.add((ListUpdateAction<ACTION>) action);
     }
 
     @SuppressWarnings("unchecked")
@@ -95,7 +95,7 @@ public class ListUpdateValue<ADD, REMOVE, SET, ACTION> implements Serializable
         {
             action.setItems(Arrays.asList(items));
         }
-        actions.add((ListUpdateAction<ACTION>) action);
+        this.actions.add((ListUpdateAction<ACTION>) action);
     }
 
 }

@@ -36,7 +36,7 @@ public class UpdateSamplesOperation implements IOperation
 
     public List<SampleUpdate> getUpdates()
     {
-        return updates;
+        return this.updates;
     }
 
 }

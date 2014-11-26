@@ -33,21 +33,21 @@ public class SpaceFetchOptions implements Serializable
 
     public PersonFetchOptions fetchRegistrator()
     {
-        if (registrator == null)
+        if (this.registrator == null)
         {
-            registrator = new PersonFetchOptions();
+            this.registrator = new PersonFetchOptions();
         }
-        return registrator;
+        return this.registrator;
     }
 
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
-        return registrator = fetchOptions;
+        return this.registrator = fetchOptions;
     }
 
     public boolean hasRegistrator()
     {
-        return registrator != null;
+        return this.registrator != null;
     }
 
 }
