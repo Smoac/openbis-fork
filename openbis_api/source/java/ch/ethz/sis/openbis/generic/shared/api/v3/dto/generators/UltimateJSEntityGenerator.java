@@ -2,16 +2,24 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.uglify.UglifyJS;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.uglify.UglifyOptions;
 
 public class UltimateJSEntityGenerator
 {
-    private static final String API_PROJECT_SOURCE_FOLDER = "/Users/fedoreno/projects/work/openbis/openbis_api/source/java/";
+    private static final String API_PROJECT_SOURCE_FOLDER = "/Users/juanf/Documents/workspace/openbis_api/source/java/";
+//    private static final String API_PROJECT_SOURCE_FOLDER = "/Users/fedoreno/projects/work/openbis/openbis_api/source/java/";
+//    private static final String JSTEST_PROJECT_SOURCE_FOLDER = "/Users/juanf/Documents/workspace/js-test/servers/common/core-plugins/tests/1/as/webapps/openbis-v3-api-test/html/dto/";
+    
     private static final String[] CLASSES_TO_CONVERT = new String[]{
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment",
         "ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.attachment.AttachmentFetchOptions",
@@ -41,7 +49,7 @@ public class UltimateJSEntityGenerator
             String javaClass = readFileAsString(API_PROJECT_SOURCE_FOLDER + classToConvert.replace('.', '/') + ".java");
             String jsClass = translateFromJavaToJS(javaClass);
 //            whriteStringAsFile(JSTEST_PROJECT_SOURCE_FOLDER + getSimpleName(classToConvert) + ".js", jsClass);
-            System.out.println(jsClass);
+            System.out.println(prettyPrint(jsClass));
         }
     }
     
@@ -106,5 +114,25 @@ public class UltimateJSEntityGenerator
         }
         reader.close();
         return fileData.toString();
+    }
+    
+    private static String prettyPrint(String jsClass) throws IOException {
+      UglifyOptions options = new UglifyOptions();
+      options.beautify = true;
+      options.noMangle = true;
+      options.noSqueeze = true;
+      options.noSeqs = true;
+      
+      ArrayList<String> optionsArgList = options.toArgList();
+      
+      File temp = File.createTempFile("temp", "");
+      whriteStringAsFile(temp.getAbsolutePath(), jsClass);
+      
+      optionsArgList.add(temp.getAbsolutePath());
+      String[] args = new String[optionsArgList.size()];
+      
+      args = optionsArgList.toArray(args);
+      UglifyJS uglifyjs = new UglifyJS();
+      return uglifyjs.uglify(args);
     }
 }
