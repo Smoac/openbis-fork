@@ -36,7 +36,7 @@ public class DataSet implements Serializable
     @JsonIgnore
     public DataSetFetchOptions getFetchOptions()
     {
-        return this.fetchOptions;
+        return fetchOptions;
     }
 
     public void setFetchOptions(DataSetFetchOptions fetchOptions)

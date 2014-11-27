@@ -100,7 +100,7 @@ public class Sample implements Serializable
     @JsonIgnore
     public SampleFetchOptions getFetchOptions()
     {
-        return this.fetchOptions;
+        return fetchOptions;
     }
 
     public void setFetchOptions(SampleFetchOptions fetchOptions)
@@ -111,7 +111,7 @@ public class Sample implements Serializable
     @JsonIgnore
     public SamplePermId getPermId()
     {
-        return this.permId;
+        return permId;
     }
 
     public void setPermId(SamplePermId permId)
@@ -122,7 +122,7 @@ public class Sample implements Serializable
     @JsonIgnore
     public SampleIdentifier getIdentifier()
     {
-        return this.identifier;
+        return identifier;
     }
 
     public void setIdentifier(SampleIdentifier identifier)
@@ -133,7 +133,7 @@ public class Sample implements Serializable
     @JsonIgnore
     public String getCode()
     {
-        return this.code;
+        return code;
     }
 
     public void setCode(String code)
@@ -144,7 +144,7 @@ public class Sample implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return this.registrationDate;
+        return registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -155,7 +155,7 @@ public class Sample implements Serializable
     @JsonIgnore
     public Date getModificationDate()
     {
-        return this.modificationDate;
+        return modificationDate;
     }
 
     public void setModificationDate(Date modificationDate)
@@ -168,7 +168,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasType())
         {
-            return this.type;
+            return type;
         }
         else
         {
@@ -186,7 +186,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasSpace())
         {
-            return this.space;
+            return space;
         }
         else
         {
@@ -204,7 +204,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasExperiment())
         {
-            return this.experiment;
+            return experiment;
         }
         else
         {
@@ -222,7 +222,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasProperties())
         {
-            return this.properties;
+            return properties;
         }
         else
         {
@@ -240,7 +240,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasParents())
         {
-            return this.parents;
+            return parents;
         }
         else
         {
@@ -258,7 +258,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasChildren())
         {
-            return this.children;
+            return children;
         }
         else
         {
@@ -276,7 +276,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasContainer())
         {
-            return this.container;
+            return container;
         }
         else
         {
@@ -294,7 +294,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasContained())
         {
-            return this.contained;
+            return contained;
         }
         else
         {
@@ -312,7 +312,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasTags())
         {
-            return this.tags;
+            return tags;
         }
         else
         {
@@ -330,7 +330,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasRegistrator())
         {
-            return this.registrator;
+            return registrator;
         }
         else
         {
@@ -348,7 +348,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasModifier())
         {
-            return this.modifier;
+            return modifier;
         }
         else
         {
@@ -366,7 +366,7 @@ public class Sample implements Serializable
     {
         if (getFetchOptions().hasAttachments())
         {
-            return this.attachments;
+            return attachments;
         }
         else
         {

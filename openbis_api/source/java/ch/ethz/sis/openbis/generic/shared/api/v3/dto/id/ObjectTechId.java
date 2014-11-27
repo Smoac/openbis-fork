@@ -41,7 +41,7 @@ public class ObjectTechId implements IObjectId
     @JsonIgnore
     public Long getTechId()
     {
-        return this.techId;
+        return techId;
     }
 
     //
@@ -65,7 +65,7 @@ public class ObjectTechId implements IObjectId
     @JsonProperty("id")
     private String getIdAsString()
     {
-        return JsonPropertyUtil.toStringOrNull(this.techId);
+        return JsonPropertyUtil.toStringOrNull(techId);
     }
 
     @SuppressWarnings("unused")

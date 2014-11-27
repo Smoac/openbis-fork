@@ -36,7 +36,7 @@ public class CreateSamplesResult implements IOperationResult
 
     public List<SamplePermId> getPermIds()
     {
-        return this.permIds;
+        return permIds;
     }
 
 }

@@ -64,7 +64,7 @@ public class SampleCreation implements Serializable
 
     public IEntityTypeId getTypeId()
     {
-        return this.typeId;
+        return typeId;
     }
 
     public void setTypeId(IEntityTypeId typeId)
@@ -74,7 +74,7 @@ public class SampleCreation implements Serializable
 
     public IExperimentId getExperimentId()
     {
-        return this.experimentId;
+        return experimentId;
     }
 
     public void setExperimentId(IExperimentId experimentId)
@@ -84,7 +84,7 @@ public class SampleCreation implements Serializable
 
     public ISpaceId getSpaceId()
     {
-        return this.spaceId;
+        return spaceId;
     }
 
     public void setSpaceId(ISpaceId spaceId)
@@ -94,7 +94,7 @@ public class SampleCreation implements Serializable
 
     public String getCode()
     {
-        return this.code;
+        return code;
     }
 
     public void setCode(String code)
@@ -104,7 +104,7 @@ public class SampleCreation implements Serializable
 
     public List<? extends ITagId> getTagIds()
     {
-        return this.tagIds;
+        return tagIds;
     }
 
     public void setTagIds(List<? extends ITagId> tagIds)
@@ -114,7 +114,7 @@ public class SampleCreation implements Serializable
 
     public ISampleId getContainerId()
     {
-        return this.containerId;
+        return containerId;
     }
 
     public void setContainerId(ISampleId containerId)
@@ -124,7 +124,7 @@ public class SampleCreation implements Serializable
 
     public List<? extends ISampleId> getContainedIds()
     {
-        return this.containedIds;
+        return containedIds;
     }
 
     public void setContainedIds(List<? extends ISampleId> containedIds)
@@ -134,7 +134,7 @@ public class SampleCreation implements Serializable
 
     public List<? extends ISampleId> getParentIds()
     {
-        return this.parentIds;
+        return parentIds;
     }
 
     public void setParentIds(List<? extends ISampleId> parentIds)
@@ -144,7 +144,7 @@ public class SampleCreation implements Serializable
 
     public List<? extends ISampleId> getChildIds()
     {
-        return this.childIds;
+        return childIds;
     }
 
     public void setChildIds(List<? extends ISampleId> childIds)
@@ -154,7 +154,7 @@ public class SampleCreation implements Serializable
 
     public List<AttachmentCreation> getAttachments()
     {
-        return this.attachments;
+        return attachments;
     }
 
     public void setAttachments(List<AttachmentCreation> attachments)
@@ -170,12 +170,12 @@ public class SampleCreation implements Serializable
 
     public Map<String, String> getProperties()
     {
-        return this.properties;
+        return properties;
     }
 
     public CreationId getCreationId()
     {
-        return this.creationId;
+        return creationId;
     }
 
     public void setCreationId(CreationId creationId)

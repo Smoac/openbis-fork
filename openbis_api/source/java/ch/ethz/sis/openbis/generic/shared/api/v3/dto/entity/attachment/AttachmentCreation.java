@@ -38,7 +38,7 @@ public class AttachmentCreation implements Serializable
     
     public String getFileName()
     {
-        return this.fileName;
+        return fileName;
     }
 
     public void setFileName(String fileName)
@@ -48,7 +48,7 @@ public class AttachmentCreation implements Serializable
 
     public String getTitle()
     {
-        return this.title;
+        return title;
     }
 
     public void setTitle(String title)
@@ -58,7 +58,7 @@ public class AttachmentCreation implements Serializable
 
     public String getDescription()
     {
-        return this.description;
+        return description;
     }
 
     public void setDescription(String description)
@@ -68,7 +68,7 @@ public class AttachmentCreation implements Serializable
 
     public byte[] getContent()
     {
-        return this.content;
+        return content;
     }
 
     public void setContent(byte[] content)

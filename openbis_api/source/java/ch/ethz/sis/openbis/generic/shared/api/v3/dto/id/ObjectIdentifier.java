@@ -40,7 +40,7 @@ public abstract class ObjectIdentifier implements IObjectId
 
     public String getIdentifier()
     {
-        return this.identifier;
+        return identifier;
     }
 
     //

@@ -68,7 +68,7 @@ public class Project implements Serializable
     @JsonIgnore
     public ProjectFetchOptions getFetchOptions()
     {
-        return this.fetchOptions;
+        return fetchOptions;
     }
 
     public void setFetchOptions(ProjectFetchOptions fetchOptions)
@@ -79,7 +79,7 @@ public class Project implements Serializable
     @JsonIgnore
     public ProjectPermId getPermId()
     {
-        return this.permId;
+        return permId;
     }
 
     public void setPermId(ProjectPermId permId)
@@ -90,7 +90,7 @@ public class Project implements Serializable
     @JsonIgnore
     public ProjectIdentifier getIdentifier()
     {
-        return this.identifier;
+        return identifier;
     }
 
     public void setIdentifier(ProjectIdentifier identifier)
@@ -112,7 +112,7 @@ public class Project implements Serializable
     @JsonIgnore
     public String getDescription()
     {
-        return this.description;
+        return description;
     }
 
     public void setDescription(String description)
@@ -123,7 +123,7 @@ public class Project implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return this.registrationDate;
+        return registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -134,7 +134,7 @@ public class Project implements Serializable
     @JsonIgnore
     public Date getModificationDate()
     {
-        return this.modificationDate;
+        return modificationDate;
     }
 
     public void setModificationDate(Date modificationDate)
@@ -147,7 +147,7 @@ public class Project implements Serializable
     {
         if (getFetchOptions().hasSpace())
         {
-            return this.space;
+            return space;
         }
         else
         {
@@ -165,7 +165,7 @@ public class Project implements Serializable
     {
         if (getFetchOptions().hasRegistrator())
         {
-            return this.registrator;
+            return registrator;
         }
         else
         {
@@ -183,7 +183,7 @@ public class Project implements Serializable
     {
         if (getFetchOptions().hasModifier())
         {
-            return this.modifier;
+            return modifier;
         }
         else
         {

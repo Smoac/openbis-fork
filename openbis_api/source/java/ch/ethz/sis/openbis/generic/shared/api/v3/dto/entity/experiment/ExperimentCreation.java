@@ -64,22 +64,22 @@ public class ExperimentCreation implements Serializable
 
     public IEntityTypeId getTypeId()
     {
-        return this.typeId;
+        return typeId;
     }
 
     public IProjectId getProjectId()
     {
-        return this.projectId;
+        return projectId;
     }
 
     public String getCode()
     {
-        return this.code;
+        return code;
     }
 
     public List<? extends ITagId> getTagIds()
     {
-        return this.tagIds;
+        return tagIds;
     }
 
     public void setTagIds(List<? extends ITagId> tagIds)
@@ -95,12 +95,12 @@ public class ExperimentCreation implements Serializable
 
     public Map<String, String> getProperties()
     {
-        return this.properties;
+        return properties;
     }
 
     public List<AttachmentCreation> getAttachments()
     {
-        return this.attachments;
+        return attachments;
     }
 
     public void setAttachments(List<AttachmentCreation> attachments)

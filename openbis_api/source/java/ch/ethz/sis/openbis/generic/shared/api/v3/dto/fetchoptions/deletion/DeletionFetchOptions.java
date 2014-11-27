@@ -32,16 +32,16 @@ public class DeletionFetchOptions implements Serializable
 
     public DeletedObjectFetchOptions fetchDeletedObjects()
     {
-        if (this.deletedObjects == null)
+        if (deletedObjects == null)
         {
-            this.deletedObjects = new DeletedObjectFetchOptions();
+            deletedObjects = new DeletedObjectFetchOptions();
         }
-        return this.deletedObjects;
+        return deletedObjects;
     }
 
     public boolean hasDeletedObjects()
     {
-        return this.deletedObjects != null;
+        return deletedObjects != null;
     }
 
 }

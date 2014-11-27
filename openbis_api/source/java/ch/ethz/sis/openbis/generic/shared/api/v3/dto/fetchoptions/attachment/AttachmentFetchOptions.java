@@ -41,59 +41,59 @@ public class AttachmentFetchOptions implements Serializable
 
     public PersonFetchOptions fetchRegistrator()
     {
-        if (this.registrator == null)
+        if (registrator == null)
         {
-            this.registrator = new PersonFetchOptions();
+            registrator = new PersonFetchOptions();
         }
-        return this.registrator;
+        return registrator;
     }
 
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
-        return this.registrator = fetchOptions;
+        return registrator = fetchOptions;
     }
 
     public boolean hasRegistrator()
     {
-        return this.registrator != null;
+        return registrator != null;
     }
 
     public AttachmentFetchOptions fetchPreviousVersion()
     {
-        if (this.previousVersion == null)
+        if (previousVersion == null)
         {
-            this.previousVersion = new AttachmentFetchOptions();
+            previousVersion = new AttachmentFetchOptions();
         }
-        return this.previousVersion;
+        return previousVersion;
     }
 
     public AttachmentFetchOptions fetchPreviousVersion(AttachmentFetchOptions fetchOptions)
     {
-        return this.previousVersion = fetchOptions;
+        return previousVersion = fetchOptions;
     }
 
     public boolean hasPreviousVersion()
     {
-        return this.previousVersion != null;
+        return previousVersion != null;
     }
 
     public EmptyFetchOptions fetchContent()
     {
-        if (this.content == null)
+        if (content == null)
         {
-            this.content = new EmptyFetchOptions();
+            content = new EmptyFetchOptions();
         }
-        return this.content;
+        return content;
     }
 
     public EmptyFetchOptions fetchContent(EmptyFetchOptions fetchOptions)
     {
-        return this.content = fetchOptions;
+        return content = fetchOptions;
     }
 
     public boolean hasContent()
     {
-        return this.content != null;
+        return content != null;
     }
 
 }

@@ -63,7 +63,7 @@ public class Person implements Serializable
     @JsonIgnore
     public PersonFetchOptions getFetchOptions()
     {
-        return this.fetchOptions;
+        return fetchOptions;
     }
 
     public void setFetchOptions(PersonFetchOptions fetchOptions)
@@ -74,7 +74,7 @@ public class Person implements Serializable
     @JsonIgnore
     public String getUserId()
     {
-        return this.userId;
+        return userId;
     }
 
     public void setUserId(String userId)
@@ -85,7 +85,7 @@ public class Person implements Serializable
     @JsonIgnore
     public String getFirstName()
     {
-        return this.firstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName)
@@ -96,7 +96,7 @@ public class Person implements Serializable
     @JsonIgnore
     public String getLastName()
     {
-        return this.lastName;
+        return lastName;
     }
 
     public void setLastName(String lastName)
@@ -107,7 +107,7 @@ public class Person implements Serializable
     @JsonIgnore
     public String getEmail()
     {
-        return this.email;
+        return email;
     }
 
     public void setEmail(String email)
@@ -118,7 +118,7 @@ public class Person implements Serializable
     @JsonIgnore
     public Date getRegistrationDate()
     {
-        return this.registrationDate;
+        return registrationDate;
     }
 
     public void setRegistrationDate(Date registrationDate)
@@ -129,7 +129,7 @@ public class Person implements Serializable
     @JsonIgnore
     public Boolean isActive()
     {
-        return this.active;
+        return active;
     }
 
     public void setActive(Boolean active)
@@ -142,7 +142,7 @@ public class Person implements Serializable
     {
         if (getFetchOptions().hasSpace())
         {
-            return this.space;
+            return space;
         }
         else
         {
@@ -160,7 +160,7 @@ public class Person implements Serializable
     {
         if (getFetchOptions().hasRegistrator())
         {
-            return this.registrator;
+            return registrator;
         }
         else
         {

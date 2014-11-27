@@ -40,7 +40,7 @@ public abstract class ObjectPermId implements IObjectId
 
     public String getPermId()
     {
-        return this.permId;
+        return permId;
     }
 
     //

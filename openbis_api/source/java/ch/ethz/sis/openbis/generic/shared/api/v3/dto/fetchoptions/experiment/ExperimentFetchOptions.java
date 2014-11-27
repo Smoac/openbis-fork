@@ -56,135 +56,135 @@ public class ExperimentFetchOptions implements Serializable
 
     public ExperimentTypeFetchOptions fetchType()
     {
-        if (this.type == null)
+        if (type == null)
         {
-            this.type = new ExperimentTypeFetchOptions();
+            type = new ExperimentTypeFetchOptions();
         }
-        return this.type;
+        return type;
     }
 
     public ExperimentTypeFetchOptions fetchType(ExperimentTypeFetchOptions fetchOptions)
     {
-        return this.type = fetchOptions;
+        return type = fetchOptions;
     }
 
     public boolean hasType()
     {
-        return this.type != null;
+        return type != null;
     }
 
     public ProjectFetchOptions fetchProject()
     {
-        if (this.project == null)
+        if (project == null)
         {
-            this.project = new ProjectFetchOptions();
+            project = new ProjectFetchOptions();
         }
-        return this.project;
+        return project;
     }
 
     public ProjectFetchOptions fetchProject(ProjectFetchOptions fetchOptions)
     {
-        return this.project = fetchOptions;
+        return project = fetchOptions;
     }
 
     public boolean hasProject()
     {
-        return this.project != null;
+        return project != null;
     }
 
     public PropertyFetchOptions fetchProperties()
     {
-        if (this.properties == null)
+        if (properties == null)
         {
-            this.properties = new PropertyFetchOptions();
+            properties = new PropertyFetchOptions();
         }
-        return this.properties;
+        return properties;
     }
 
     public PropertyFetchOptions fetchProperties(PropertyFetchOptions fetchOptions)
     {
-        return this.properties = fetchOptions;
+        return properties = fetchOptions;
     }
 
     public boolean hasProperties()
     {
-        return this.properties != null;
+        return properties != null;
     }
 
     public TagFetchOptions fetchTags()
     {
-        if (this.tags == null)
+        if (tags == null)
         {
-            this.tags = new TagFetchOptions();
+            tags = new TagFetchOptions();
         }
-        return this.tags;
+        return tags;
     }
 
     public TagFetchOptions fetchTags(TagFetchOptions fetchOptions)
     {
-        return this.tags = fetchOptions;
+        return tags = fetchOptions;
     }
 
     public boolean hasTags()
     {
-        return this.tags != null;
+        return tags != null;
     }
 
     public PersonFetchOptions fetchRegistrator()
     {
-        if (this.registrator == null)
+        if (registrator == null)
         {
-            this.registrator = new PersonFetchOptions();
+            registrator = new PersonFetchOptions();
         }
-        return this.registrator;
+        return registrator;
     }
 
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
-        return this.registrator = fetchOptions;
+        return registrator = fetchOptions;
     }
 
     public boolean hasRegistrator()
     {
-        return this.registrator != null;
+        return registrator != null;
     }
 
     public PersonFetchOptions fetchModifier()
     {
-        if (this.modifier == null)
+        if (modifier == null)
         {
-            this.modifier = new PersonFetchOptions();
+            modifier = new PersonFetchOptions();
         }
-        return this.modifier;
+        return modifier;
     }
 
     public PersonFetchOptions fetchModifier(PersonFetchOptions fetchOptions)
     {
-        return this.modifier = fetchOptions;
+        return modifier = fetchOptions;
     }
 
     public boolean hasModifier()
     {
-        return this.modifier != null;
+        return modifier != null;
     }
 
     public AttachmentFetchOptions fetchAttachments()
     {
-        if (this.attachments == null)
+        if (attachments == null)
         {
-            this.attachments = new AttachmentFetchOptions();
+            attachments = new AttachmentFetchOptions();
         }
-        return this.attachments;
+        return attachments;
     }
 
     public AttachmentFetchOptions fetchAttachments(AttachmentFetchOptions fetchOptions)
     {
-        return this.attachments = fetchOptions;
+        return attachments = fetchOptions;
     }
 
     public boolean hasAttachments()
     {
-        return this.attachments != null;
+        return attachments != null;
     }
 
 }

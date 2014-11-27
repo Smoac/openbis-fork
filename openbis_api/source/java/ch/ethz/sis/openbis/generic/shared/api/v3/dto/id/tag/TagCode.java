@@ -48,7 +48,7 @@ public class TagCode implements ITagId, Serializable
 
     public String getCode()
     {
-        return this.code;
+        return code;
     }
 
     @SuppressWarnings("unused")

@@ -40,59 +40,59 @@ public class ProjectFetchOptions implements Serializable
 
     public SpaceFetchOptions fetchSpace()
     {
-        if (this.space == null)
+        if (space == null)
         {
-            this.space = new SpaceFetchOptions();
+            space = new SpaceFetchOptions();
         }
-        return this.space;
+        return space;
     }
 
     public SpaceFetchOptions fetchSpace(SpaceFetchOptions fetchOptions)
     {
-        return this.space = fetchOptions;
+        return space = fetchOptions;
     }
 
     public boolean hasSpace()
     {
-        return this.space != null;
+        return space != null;
     }
 
     public PersonFetchOptions fetchRegistrator()
     {
-        if (this.registrator == null)
+        if (registrator == null)
         {
-            this.registrator = new PersonFetchOptions();
+            registrator = new PersonFetchOptions();
         }
-        return this.registrator;
+        return registrator;
     }
 
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
-        return this.registrator = fetchOptions;
+        return registrator = fetchOptions;
     }
 
     public boolean hasRegistrator()
     {
-        return this.registrator != null;
+        return registrator != null;
     }
 
     public PersonFetchOptions fetchModifier()
     {
-        if (this.modifier == null)
+        if (modifier == null)
         {
-            this.modifier = new PersonFetchOptions();
+            modifier = new PersonFetchOptions();
         }
-        return this.modifier;
+        return modifier;
     }
 
     public PersonFetchOptions fetchModifier(PersonFetchOptions fetchOptions)
     {
-        return this.modifier = fetchOptions;
+        return modifier = fetchOptions;
     }
 
     public boolean hasModifier()
     {
-        return this.modifier != null;
+        return modifier != null;
     }
 
 }

@@ -50,7 +50,7 @@ public class ExperimentType implements Serializable
     @JsonIgnore
     public ExperimentTypeFetchOptions getFetchOptions()
     {
-        return this.fetchOptions;
+        return fetchOptions;
     }
 
     public void setFetchOptions(ExperimentTypeFetchOptions fetchOptions)
@@ -61,7 +61,7 @@ public class ExperimentType implements Serializable
     @JsonIgnore
     public EntityTypePermId getPermId()
     {
-        return this.permId;
+        return permId;
     }
 
     public void setPermId(EntityTypePermId permId)
@@ -72,7 +72,7 @@ public class ExperimentType implements Serializable
     @JsonIgnore
     public String getCode()
     {
-        return this.code;
+        return code;
     }
 
     public void setCode(String code)
@@ -83,7 +83,7 @@ public class ExperimentType implements Serializable
     @JsonIgnore
     public String getDescription()
     {
-        return this.description;
+        return description;
     }
 
     public void setDescription(String description)
@@ -94,7 +94,7 @@ public class ExperimentType implements Serializable
     @JsonIgnore
     public Date getModificationDate()
     {
-        return this.modificationDate;
+        return modificationDate;
     }
 
     public void setModificationDate(Date modificationDate)

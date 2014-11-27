@@ -73,30 +73,30 @@ public class SampleFetchOptions implements Serializable
 
     public SampleTypeFetchOptions fetchType()
     {
-        if (this.type == null)
+        if (type == null)
         {
-            this.type = new SampleTypeFetchOptions();
+            type = new SampleTypeFetchOptions();
         }
-        return this.type;
+        return type;
     }
 
     public SampleTypeFetchOptions fetchType(SampleTypeFetchOptions fetchOptions)
     {
-        return this.type = fetchOptions;
+        return type = fetchOptions;
     }
 
     public boolean hasType()
     {
-        return this.type != null;
+        return type != null;
     }
 
     public SpaceFetchOptions fetchSpace()
     {
-        if (this.space == null)
+        if (space == null)
         {
-            this.space = new SpaceFetchOptions();
+            space = new SpaceFetchOptions();
         }
-        return this.space;
+        return space;
     }
 
     public SpaceFetchOptions fetchSpace(SpaceFetchOptions fetchOptions)
@@ -106,197 +106,197 @@ public class SampleFetchOptions implements Serializable
 
     public boolean hasSpace()
     {
-        return this.space != null;
+        return space != null;
     }
 
     public ExperimentFetchOptions fetchExperiment()
     {
-        if (this.experiment == null)
+        if (experiment == null)
         {
-            this.experiment = new ExperimentFetchOptions();
+            experiment = new ExperimentFetchOptions();
         }
-        return this.experiment;
+        return experiment;
     }
 
     public ExperimentFetchOptions fetchExperiment(ExperimentFetchOptions fetchOptions)
     {
-        return this.experiment = fetchOptions;
+        return experiment = fetchOptions;
     }
 
     public boolean hasExperiment()
     {
-        return this.experiment != null;
+        return experiment != null;
     }
 
     public PropertyFetchOptions fetchProperties()
     {
-        if (this.properties == null)
+        if (properties == null)
         {
-            this.properties = new PropertyFetchOptions();
+            properties = new PropertyFetchOptions();
         }
-        return this.properties;
+        return properties;
     }
 
     public PropertyFetchOptions fetchProperties(PropertyFetchOptions fetchOptions)
     {
-        return this.properties = fetchOptions;
+        return properties = fetchOptions;
     }
 
     public boolean hasProperties()
     {
-        return this.properties != null;
+        return properties != null;
     }
 
     public SampleFetchOptions fetchParents()
     {
-        if (this.parents == null)
+        if (parents == null)
         {
-            this.parents = new SampleFetchOptions();
+            parents = new SampleFetchOptions();
         }
-        return this.parents;
+        return parents;
     }
 
     public SampleFetchOptions fetchParents(SampleFetchOptions fetchOptions)
     {
-        return this.parents = fetchOptions;
+        return parents = fetchOptions;
     }
 
     public boolean hasParents()
     {
-        return this.parents != null;
+        return parents != null;
     }
 
     public SampleFetchOptions fetchChildren()
     {
-        if (this.children == null)
+        if (children == null)
         {
-            this.children = new SampleFetchOptions();
+            children = new SampleFetchOptions();
         }
-        return this.children;
+        return children;
     }
 
     public SampleFetchOptions fetchChildren(SampleFetchOptions fetchOptions)
     {
-        return this.children = fetchOptions;
+        return children = fetchOptions;
     }
 
     public boolean hasChildren()
     {
-        return this.children != null;
+        return children != null;
     }
 
     public SampleFetchOptions fetchContainer()
     {
-        if (this.container == null)
+        if (container == null)
         {
-            this.container = new SampleFetchOptions();
+            container = new SampleFetchOptions();
         }
-        return this.container;
+        return container;
     }
 
     public SampleFetchOptions fetchContainer(SampleFetchOptions fetchOptions)
     {
-        return this.container = fetchOptions;
+        return container = fetchOptions;
     }
 
     public boolean hasContainer()
     {
-        return this.container != null;
+        return container != null;
     }
 
     public SampleFetchOptions fetchContained()
     {
-        if (this.contained == null)
+        if (contained == null)
         {
-            this.contained = new SampleFetchOptions();
+            contained = new SampleFetchOptions();
         }
-        return this.contained;
+        return contained;
     }
 
     public SampleFetchOptions fetchContained(SampleFetchOptions fetchOptions)
     {
-        return this.contained = fetchOptions;
+        return contained = fetchOptions;
     }
 
     public boolean hasContained()
     {
-        return this.contained != null;
+        return contained != null;
     }
 
     public TagFetchOptions fetchTags()
     {
-        if (this.tags == null)
+        if (tags == null)
         {
-            this.tags = new TagFetchOptions();
+            tags = new TagFetchOptions();
         }
-        return this.tags;
+        return tags;
     }
 
     public TagFetchOptions fetchTags(TagFetchOptions fetchOptions)
     {
-        return this.tags = fetchOptions;
+        return tags = fetchOptions;
     }
 
     public boolean hasTags()
     {
-        return this.tags != null;
+        return tags != null;
     }
 
     public PersonFetchOptions fetchRegistrator()
     {
-        if (this.registrator == null)
+        if (registrator == null)
         {
-            this.registrator = new PersonFetchOptions();
+            registrator = new PersonFetchOptions();
         }
-        return this.registrator;
+        return registrator;
     }
 
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
-        return this.registrator = fetchOptions;
+        return registrator = fetchOptions;
     }
 
     public boolean hasRegistrator()
     {
-        return this.registrator != null;
+        return registrator != null;
     }
 
     public PersonFetchOptions fetchModifier()
     {
-        if (this.modifier == null)
+        if (modifier == null)
         {
-            this.modifier = new PersonFetchOptions();
+            modifier = new PersonFetchOptions();
         }
-        return this.modifier;
+        return modifier;
     }
 
     public PersonFetchOptions fetchModifier(PersonFetchOptions fetchOptions)
     {
-        return this.modifier = fetchOptions;
+        return modifier = fetchOptions;
     }
 
     public boolean hasModifier()
     {
-        return this.modifier != null;
+        return modifier != null;
     }
 
     public AttachmentFetchOptions fetchAttachments()
     {
-        if (this.attachments == null)
+        if (attachments == null)
         {
-            this.attachments = new AttachmentFetchOptions();
+            attachments = new AttachmentFetchOptions();
         }
-        return this.attachments;
+        return attachments;
     }
 
     public AttachmentFetchOptions fetchAttachments(AttachmentFetchOptions fetchOptions)
     {
-        return this.attachments = fetchOptions;
+        return attachments = fetchOptions;
     }
 
     public boolean hasAttachments()
     {
-        return this.attachments != null;
+        return attachments != null;
     }
 
 }

@@ -51,7 +51,7 @@ public class ExperimentUpdate implements Serializable
 
     public IExperimentId getExperimentId()
     {
-        return this.experimentId;
+        return experimentId;
     }
 
     public void setExperimentId(IExperimentId experimentId)
@@ -61,12 +61,12 @@ public class ExperimentUpdate implements Serializable
 
     public void setProperty(String key, String value)
     {
-        this.properties.put(key, value);
+        properties.put(key, value);
     }
 
     public Map<String, String> getProperties()
     {
-        return this.properties;
+        return properties;
     }
 
     public void setProjectId(IProjectId projectId)
@@ -76,22 +76,22 @@ public class ExperimentUpdate implements Serializable
 
     public FieldUpdateValue<IProjectId> getProjectId()
     {
-        return this.projectId;
+        return projectId;
     }
 
     public IdListUpdateValue<ITagId> getTagIds()
     {
-        return this.tagIds;
+        return tagIds;
     }
 
     public AttachmentListUpdateValue getAttachments()
     {
-        return this.attachments;
+        return attachments;
     }
 
     public void setAttachmentsActions(List<ListUpdateAction<Object>> actions)
     {
-        this.attachments.setActions(actions);
+        attachments.setActions(actions);
     }
 
 }

@@ -61,7 +61,7 @@ public class SampleUpdate implements Serializable
 
     public ISampleId getSampleId()
     {
-        return this.sampleId;
+        return sampleId;
     }
 
     public void setSampleId(ISampleId sampleId)
@@ -71,7 +71,7 @@ public class SampleUpdate implements Serializable
 
     public FieldUpdateValue<IExperimentId> getExperimentId()
     {
-        return this.experimentId;
+        return experimentId;
     }
 
     public void setExperimentId(IExperimentId experimentId)
@@ -81,7 +81,7 @@ public class SampleUpdate implements Serializable
 
     public FieldUpdateValue<ISpaceId> getSpaceId()
     {
-        return this.spaceId;
+        return spaceId;
     }
 
     public void setSpaceId(ISpaceId spaceId)
@@ -91,7 +91,7 @@ public class SampleUpdate implements Serializable
 
     public FieldUpdateValue<ISampleId> getContainerId()
     {
-        return this.containerId;
+        return containerId;
     }
 
     public void setContainerId(ISampleId containerId)
@@ -101,62 +101,62 @@ public class SampleUpdate implements Serializable
 
     public void setProperty(String key, String value)
     {
-        this.properties.put(key, value);
+        properties.put(key, value);
     }
 
     public Map<String, String> getProperties()
     {
-        return this.properties;
+        return properties;
     }
 
     public IdListUpdateValue<ITagId> getTagIds()
     {
-        return this.tagIds;
+        return tagIds;
     }
 
     public void setTagActions(List<ListUpdateAction<ITagId>> actions)
     {
-        this.tagIds.setActions(actions);
+        tagIds.setActions(actions);
     }
 
     public IdListUpdateValue<ISampleId> getContainedIds()
     {
-        return this.containedIds;
+        return containedIds;
     }
 
     public void setContainedActions(List<ListUpdateAction<ISampleId>> actions)
     {
-        this.containedIds.setActions(actions);
+        containedIds.setActions(actions);
     }
 
     public IdListUpdateValue<ISampleId> getParentIds()
     {
-        return this.parentIds;
+        return parentIds;
     }
 
     public void setParentActions(List<ListUpdateAction<ISampleId>> actions)
     {
-        this.parentIds.setActions(actions);
+        parentIds.setActions(actions);
     }
 
     public IdListUpdateValue<ISampleId> getChildIds()
     {
-        return this.childIds;
+        return childIds;
     }
 
     public void setChildActions(List<ListUpdateAction<ISampleId>> actions)
     {
-        this.childIds.setActions(actions);
+        childIds.setActions(actions);
     }
 
     public AttachmentListUpdateValue getAttachments()
     {
-        return this.attachments;
+        return attachments;
     }
 
     public void setAttachmentsActions(List<ListUpdateAction<Object>> actions)
     {
-        this.attachments.setActions(actions);
+        attachments.setActions(actions);
     }
 
 }
