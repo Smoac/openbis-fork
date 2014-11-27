@@ -1,6 +1,7 @@
 # some_file.py
 import sys
 import definitions
+import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
 import java.lang.Class as Class;
 import java.sql.Connection as Connection;
@@ -30,7 +31,7 @@ def process(tr):
 class EntityAdaptor:
     entities = None
     entitiesIdx = None
-    definitions = None;
+    definition = None;
     
     def init(self):
         self.entities = [];
@@ -47,18 +48,18 @@ class EntityAdaptor:
             return False
     
     def addEntity(self, values):
-        self.entities.append(OpenBISDTO(values, self.definitions))
+        self.entities.append(OpenBISDTO(values, self.definition))
     
     def getEntity(self):
         return self.entities[self.entitiesIdx]
     
 class OpenBISDTO:
     values = {}
-    definitions = None
+    definition = None
     
-    def __init__(self, values, definitions):
+    def __init__(self, values, definition):
         self.values = values
-        self.definitions = definitions
+        self.definition = definition
         
     def isInOpenBIS(self, tr):
         pass
@@ -86,7 +87,7 @@ class FileMakerEntityAdaptor(EntityAdaptor):
         
         while result.next():
             values = {};
-            for property in self.definitions:
+            for property in self.definition:
                 values[property[0]] = result.getString(property[2])
             self.addEntity(values)
         result.close();
@@ -96,19 +97,29 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
     
     def init(self):
         self.selectQuery = "SELECT * FROM \"boxit antibodies\""
-        self.definitions = definitions.antibodyDefinition
+        self.definition = definitions.antibodyDefinition
         FileMakerEntityAdaptor.init(self)
 
     def isInOpenBIS(self, tr):
-        sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"]);
+        sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"])
         return sample is not None
     
     def addEntity(self, values):
-        self.entities.append(AntibodyOpenBISDTO(values, self.definitions))
+        self.entities.append(AntibodyOpenBISDTO(values, self.definition))
         
 class AntibodyOpenBISDTO(OpenBISDTO):
     def write(self, tr):
+        print self.values
         sample = tr.createNewSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], "ANTIBODY");
+        for propertyCode, propertyValue in self.values.iteritems():
+            propertyDefinition = definitions.getPropertyDefinitionByCode(self.definition, propertyCode)
+            if propertyValue is not None:
+                propertyValue =  unicode(propertyValue)
+            
+            if propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY:
+                pass
+            else :
+                sample.setPropertyValue(propertyCode, propertyValue)
     
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
