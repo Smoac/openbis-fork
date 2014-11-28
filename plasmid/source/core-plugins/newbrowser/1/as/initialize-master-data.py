@@ -35,18 +35,20 @@ tr = service.transaction()
 ##
 ## API Facade
 ##
-def createVocabularyWithTerms(vocabularyCode, terms):
+def createVocabularyWithTerms(vocabularyCode, vocabularyDescription, terms):
 	vocabulary = tr.createNewVocabulary(vocabularyCode);
+	vocabulary.setDescription(vocabularyDescription);
 	addTerms(vocabulary, terms);
 	vocabulariesCache[vocabularyCode] = vocabulary;
 	
 def addTerms(vocabulary, terms):
 	for term in terms:
-		addTermWithLabel(vocabulary, term[0], term[1])
+		addTermWithLabelAndDescription(vocabulary, term[0], term[1], term[2])
 	
-def addTermWithLabel(vocabulary, termCode, termLabel):
+def addTermWithLabelAndDescription(vocabulary, termCode, termLabel, termDescription):
 	newTerm = tr.createNewVocabularyTerm(termCode);
 	newTerm.setLabel(termLabel);
+	newTerm.setDescription(termDescription);
 	vocabulary.addTerm(newTerm);
 	
 def createSampleTypeWithProperties(sampleTypeCode, description, properties):
@@ -134,280 +136,300 @@ if PATH_TO_MANAGE_PROPERTIES_SCRIPTS != None:
 ##
 ## Vocabulary Types
 ##
-createVocabularyWithTerms("HOST", [
-										["MOUSE", "mouse"],
-										["RAT", "rat"],
-										["GUINEA_PIG", "guinea pig"],
-										["RABBIT", "rabbit"],
-										["DONKEY", "donkey"]
+createVocabularyWithTerms("HOST", "Host organism",
+									[
+										["MOUSE", "mouse", None],
+										["RAT", "rat", None],
+										["GUINEA_PIG", "guinea pig", None],
+										["RABBIT", "rabbit", None],
+										["DONKEY", "donkey", None]
 									]);
 
-createVocabularyWithTerms("DETECTION", [
-										["HRP", "horseradish peroxydase"],
-										["FLUORESCENCE", "fluorescent probe"]
+createVocabularyWithTerms("DETECTION", "Protein detection system",
+									[
+										["HRP", "horseradish peroxydase", "The antibody is conjugated with the horseradish peroxydase"],
+										["FLUORESCENCE", "fluorescent probe", "The antibody is conjugated with a fluorescent probe"]
 									]);
 
-createVocabularyWithTerms("STORAGE", [
-										["RT", "room temperature"],
-										["4", "+4 degrees"],
-										["-20", "-20 degrees"],
-										["-80", "-80 degrees"]
+createVocabularyWithTerms("STORAGE", "Different storage conditions",
+									[
+										["RT", "room temperature", None],
+										["4", "+4 degrees", None],
+										["-20", "-20 degrees", None],
+										["-80", "-80 degrees", None],
 									]);
 
-createVocabularyWithTerms("CLONALITY", [
-										["MONOCLONAL", "monoclonal"],
-										["POLYCLONAL", "polyclonal"],
-										["UNKNOWN", "unknown"]
+createVocabularyWithTerms("CLONALITY", "Clonality of the antibody",
+									[
+										["MONOCLONAL", "monoclonal", None],
+										["POLYCLONAL", "polyclonal", None],
+										["UNKNOWN", "unknown", None],
 									]);
 
-createVocabularyWithTerms("BACKBONE", [
-										["PBLUESCRIPT_II_KS_PLUS", "pBluescript II KS +"],
-										["PBSN", "pBSN"],
-										["PSPPOLY_A", "pSPpoly(A)"],
-										["PKERG10Y", "pKERG10y"],
-										["PRS30Y", "pRS30y"],
-										["PRS31Y", "pRS31y"],
-										["PRS40Y", "pRS40y"],
-										["PRS41Y", "pRS41y"],
-										["PRS42Y", "pRS42y"],
-										["PET22B", "pET22b"],
-										["UNKNOWN", "unknown"],
-										["PFA6", "pFA6"],
-										["PGEX4T1", "pGEX4T1"],
-										["PEG202", "pEG202"],
-										["PJEXPRESS", "pJexpress"],
-										["PJEXPRESS2", "pJexpress2"],
-										["POLYLYS-PJEXPRESS2", "polyLys-pJexpress2"],
-										["OSER", "OSER"]
+createVocabularyWithTerms("BACKBONE", "Backbone of the plasmid",
+									[
+										["PBLUESCRIPT_II_KS_PLUS", "pBluescript II KS +", "Commercial vector for cloning in bacteria (Stratagene)"],
+										["PSPPOLY_A", "pSPpoly(A)", "Standard cloning vector. It can be used for in vitro trascription from SP6 promoter. It contains a poly(A) to generate poly(A)+ transcripts in vitro (Promega)"],
+										["PRS30Y", "pRS30y", "Integrative yeast shuttle vector from Sikorski et al, 1989"],
+										["PRS31Y", "pRS31y", "Centromeric yeast shuttle vector from Sikorski et al, 1989"],
+										["PRS40Y", "pRS40y", "Integrative yeast shuttle vector from Sikorski et al, 1992"],
+										["PRS41Y", "pRS41y", "Centromeric yeast shuttle vector from Sikorski et al, 1992"],
+										["PRS42Y", "pRS42y", "2-micron-based yeast shuttle vector from Sikorski et al, 1992"],
+										["UNKNOWN", "unknown", "unknown vector"],
+										["PGEX4T1", "pGEX4T1", "Vector for bacterial expression"]
 									]);
 
-createVocabularyWithTerms("BACTERIAL_ANTIBIOTIC_RESISTANCE", [
-										["BLA", "bla"],
-										["KAN", "kan"],
-										["CAM", "cam"]
+createVocabularyWithTerms("BACTERIAL_ANTIBIOTIC_RESISTANCE", "Bacterial antibiotic resistance",
+									[
+										["BLA", "bla", "Confers resistance to beta-lactam antibiotics like ampicillin, carbenicillin, etc."],
+										["KAN", "kan", "Confers resistance to geneticin"],
+										["CAT", "cat", "Confers resistance to chloramphenicol"]
 									]);
 
-createVocabularyWithTerms("MARKER", [
-										["URA3", "URA3"],
-										["HIS3", "HIS3"],
-										["LEU2", "LEU2"],
-										["TRP1", "TRP1"],
-										["MET15", "MET15"],
-										["LYS2", "LYS2"],
-										["ADE1", "ADE1"],
-										["KANMX", "KanMX"],
-										["NATMX", "NatMX"],
-										["HYGMX", "HygMX"],
-										["URA3MX", "Ura3MX"],
-										["HIS3MX", "His3MX"],
-										["BAR", "bar"],
-										["CY_1", "Cy1"],
-										["E_1", "e1"],
-										["SB_1", "Sb1"],
-										["W_1", "w1"],
-										["Y1", "y1"],
+createVocabularyWithTerms("MARKER", "Marker to select the strain/cell line after transformation/transfection",
+									[
+										["URA3", "URA3", "Complements the ura3- auxotrophy (S. cerevisiae gene)"],
+										["HIS3", "HIS3", "Complements the his3- auxotrophy (S. cerevisiae gene)"],
+										["LEU2", "LEU2", "Complements the leu2- auxotrophy (S. cerevisiae gene)"],
+										["TRP1", "TRP1", "Complements the trp1- auxotrophy (S. cerevisiae gene)"],
+										["MET15", "MET15", "Complements the met15- auxotrophy (S. cerevisiae gene)"],
+										["LYS2", "LYS2", "Complements the lys2- auxotrophy (S. cerevisiae gene)"],
+										["ADE2", "ADE2", "Complements the ade2- auxotrophy (S. cerevisiae gene)"],
+										["KANMX", "KanMX", "Confers resistance to geneticin"],
+										["NATMX", "NatMX", "Confers resistance to nourseothricin"],
+										["HYGMX", "HygMX", "Confers resistance to hygromycin B"],
+										["URA3MX", "Ura3MX", "Complements the ura3- auxotrophy  (not a S. cerevisiae gene)"],
+										["HIS3MX", "His3MX", "Complements the his3- auxotrophy (not a S. cerevisiae gene)"],
+										["CY_1", "Cy1", "Confers Curly phenotype"],
+										["E_1", "e1", "Confers Ebony phenotype"],
+										["SB_1", "Sb1", "Confers Stubble phenotype"],
+										["W_1", "w1", "Confers White eyes phenotype"],
+										["Y1", "y1", "Confers Yellow phenotype"],
 									]);
 
-createVocabularyWithTerms("STERILIZATION", [
-										["AUTOCLAVATION", "autoclavation"],
-										["FILTRATION", "filtration"],
-										["NONE", "none"]
+createVocabularyWithTerms("STERILIZATION", "How the solution/buffer is sterilized when prepared",
+									[
+										["AUTOCLAVATION", "autoclavation", None],
+										["FILTRATION", "filtration", None],
+										["NONE", "none", None]
 									]);
 
-createVocabularyWithTerms("GENETIC_BACKGROUND", [
-										["BY4743", "BY4743"],
-										["BY4741", "BY4741"],
-										["BY4742", "BY4742"],
-										["CEN.PK2-1C", "CEN.PK2-1C"],
-										["CEN.PK2-1D", "CEN.PK2-1D"],
-										["CEN.PK2", "CEN.PK2"],
-										["W303", "W303"],
-										["W303-1A", "W303-1A"],
-										["W303-1B", "W303-1B"],
-										["S288C", "S288C"],
-										["RM11", "RM11"],
-										["RM11-A", "RM11-A"],
-										["RM11-B", "RM11-B"],
-										["UNKNOWN", "unknown"],
-										["FY4", "FY4"]
+createVocabularyWithTerms("GENETIC_BACKGROUND", "Genetic background of the yeast strain",
+									[
+										["BY4743", "BY4743", None],
+										["BY4741", "BY4741", None],
+										["BY4742", "BY4742", None],
+										["CEN.PK2-1C", "CEN.PK2-1C", None],
+										["CEN.PK2-1D", "CEN.PK2-1D", None],
+										["CEN.PK2", "CEN.PK2", None],
+										["W303", "W303", None],
+										["W303-1A", "W303-1A", None],
+										["W303-1B", "W303-1B", None],
+										["S288C", "S288C", None],
+										["RM11", "RM11", None],
+										["RM11-A", "RM11-A", None],
+										["RM11-B", "RM11-B", None],
+										["UNKNOWN", "unknown", None],
+										["FY4", "FY4", None]
 									]);
 
-createVocabularyWithTerms("MATING_TYPE", [
-										["A", "a"],
-										["ALPHA", "alpha"],
-										["DIPLOID", "diploid"],
-										["UNKNOWN", "unknown"]
+createVocabularyWithTerms("MATING_TYPE", "Mating type or ploidy of the yeast strain",
+									[
+										["A", "a", None],
+										["ALPHA", "alpha", None],
+										["DIPLOID", "diploid", None],
+										["UNKNOWN", "unknown", None]
 									]);
 
-createVocabularyWithTerms("BACKGROUND_SPECIFIC_MARKERS", [
-										["MET15_LYS2", "met15- lys2-"],
-										["MET15", "met15-"],
-										["LYS2", "lys2-"],
-										["TRP1_ADE2", "trp1- ade2-"],
-										["TRP1", "trp1-"],
-										["ADE2", "ade2-"],
-										["MET15_TRP1", "met15- trp1-"],
-										["HO_KAN", "ho::kanMX"],
-										["NONE", "none"],
-										["UNKNOWN", "unknown"],
-										["MET15_LYS2_TRP1_ADE2", "met15- lys2- trp1- ade2-"],
-										["LYS2_TRP1", "lys2- trp1-"],
-										["MET15_LYS2_TRP1", "met15- lys2- trp1-"]
+createVocabularyWithTerms("BACKGROUND_SPECIFIC_MARKERS", "Background-specific markers available in the strain for further genetic modifications",
+									[
+										["MET15_LYS2", "met15- lys2-", "The strain is a methionine and lysine auxotroph"],
+										["MET15", "met15-", "The strain is a methionine auxotroph"],
+										["LYS2", "lys2-", "The strain is a lysine auxotroph"],
+										["TRP1_ADE2", "trp1- ade2-", "The strain is a tryptophan and adenine auxotroph"],
+										["TRP1", "trp1-", "The strain is a tryptophan auxotroph"],
+										["ADE2", "ade2-", "The strain is a adenine auxotroph"],
+										["MET15_TRP1", "met15- trp1-", "The strain is a methionine and tryptophan auxotroph"],
+										["NONE", "none", "The strain does not have any background-specific auxotrophies"],
+										["UNKNOWN", "unknown", "No information about the auxotrophy"],
+										["MET15_LYS2_TRP1_ADE2", "met15- lys2- trp1- ade2-", "The strain is a methionine, lysine, tryptophan, and adenine auxotroph"],
+										["LYS2_TRP1", "lys2- trp1-", "The strain is a lysine and tryptophan auxotroph"],
+										["MET15_LYS2_TRP1", "met15- lys2- trp1-", "The strain is a methionine, lysine, and tryptophan auxotroph"]
 									]);
 
-createVocabularyWithTerms("COMMON_MARKERS", [
-										["URA3_HIS3_LEU2", "ura3- his3- leu2-"],
-										["URA3_HIS3", "ura3- his3-"],
-										["URA3_LEU2", "ura3- leu2-"],
-										["URA3", "ura3-"],
-										["HIS3_LEU2", "his3- leu2-"],
-										["HIS3", "his3-"],
-										["LEU2", "leu2-"],
-										["NONE", "none"],
-										["UNKNOWN", "unknown"]
+createVocabularyWithTerms("COMMON_MARKERS", "Common Markers",
+									[
+										["URA3_HIS3_LEU2", "ura3- his3- leu2-", "The strain is a uracil, histidine, and leucine auxotroph"],
+										["URA3_HIS3", "ura3- his3-", "The strain is a uracil and histidine auxotroph"],
+										["URA3_LEU2", "ura3- leu2-", "The strain is a uracil and leucine auxotroph"],
+										["URA3", "ura3-", "The strain is a uracil auxotroph"],
+										["HIS3_LEU2", "his3- leu2-", "The strain is a histidine and leucine auxotroph"],
+										["HIS3", "his3-", "The strain is a histidine auxotroph"],
+										["LEU2", "leu2-", "The strain is a leucine auxotroph"],
+										["NONE", "none", "The strain does not have any background-specific auxotrophies"],
+										["UNKNOWN", "unknown", "No information about the auxotrophy"]
 									]);
 
-createVocabularyWithTerms("ENDOGENOUS_PLASMID", [
-										["CIR_PLUS", "cir+"],
-										["CIR_ZERO", "cir0"],
-										["UNKNOWN", "unknown"]
+createVocabularyWithTerms("ENDOGENOUS_PLASMID", "Presence of an endogenous cir 2-micron plasmid",
+									[
+										["CIR_PLUS", "cir+", "The strain has the endogenous cir 2-micron plasmid"],
+										["CIR_ZERO", "cir0", "The strain does not have the endogenous cir 2-micron plasmid"],
+										["UNKNOWN", "unknown", "No information about the cir 2-micron plasmid"]
 									]);
 
-createVocabularyWithTerms("DIRECTION", [
-										["FORWARD", "forward"],
-										["REVERSE", "reverse"]
+createVocabularyWithTerms("DIRECTION", "Direction of the oligonucleotide",
+									[
+										["FORWARD", "forward", None],
+										["REVERSE", "reverse", None]
 									]);
 
-createVocabularyWithTerms("STRAND", [
-										["DS", "double strand"],
-										["SS", "single strand"]
+createVocabularyWithTerms("STRAND", "Double or single strand RNA",
+									[
+										["DS", "double strand", None],
+										["SS", "single strand", None]
 									]);
 
-createVocabularyWithTerms("RNA_TYPE", [
-										["MIMIC", "mimic"],
-										["INHIBITOR", "inhibitor"]
+createVocabularyWithTerms("RNA_TYPE", "Type of RNA in terms of function: mimic of RNAi or inhibitor of RNAi",
+									[
+										["MIMIC", "mimic", None],
+										["INHIBITOR", "inhibitor", None]
 									]);
 
-createVocabularyWithTerms("RNA_BACKBONE", [
-										["LNA", "LNA"],
-										["2_O_METHYL", "2-O-methylation"]
+createVocabularyWithTerms("RNA_BACKBONE", "Type of backbone, modifications in the backbone",
+									[
+										["LNA", "LNA", "Locked nucleic acid"],
+										["2_O_METHYL", "2-O-methylation", "2-O-methylation modication"]
 									]);
 
-createVocabularyWithTerms("ORIGIN", [
-										["CROSS", "cross"],
-										["TRANSFORMATION", "transformation"],
-										["SPORULATION", "transformation sporulation"],
-										["NEGATIVE_SELECTION", "negative selection"],
-										["TRANSFECTION", "transfection"]
+createVocabularyWithTerms("ORIGIN", "How the strain/cell line was produced",
+									[
+										["CROSS", "cross", "The strain was produced by crossing two parent strains"],
+										["TRANSFORMATION", "transformation", "The strain/ cell line was obtained by transformation"],
+										["SPORULATION", "transformation sporulation", "The strain was obtained by sporulating a parent diploid strain"],
+										["NEGATIVE_SELECTION", "negative selection", "The strain/cell line was obtained by negative selection"],
+										["TRANSFECTION", "transfection", "The strain/cell line was obtained by transfection"]
 									]);
 
-createVocabularyWithTerms("CHECK", [
-										["PCR", "PCR"],
-										["MICROSCOPY", "microscopy"],
-										["WB", "western blotting"],
-										["SB", "southern blotting"],
-										["PCR_MICROSCOPY", "PCR and microscopy"],
-										["FLOWCYTOMETRY", "flow cytometry"],
-										["PCR_FLOWCYTOMETRY", "PCR and flow cytometry"],
-										["MORPHOLOGY", "morphology"],
-										["OTHER", "other"],
-										["NOTHING", "nothing"]
+createVocabularyWithTerms("CHECK", "Check done to verify the modifications introduced in the cell line",
+									[
+										["PCR", "PCR", None],
+										["MICROSCOPY", "microscopy", None],
+										["WB", "western blotting", None],
+										["SB", "southern blotting", None],
+										["PCR_MICROSCOPY", "PCR and microscopy", None],
+										["FLOWCYTOMETRY", "flow cytometry", None],
+										["PCR_FLOWCYTOMETRY", "PCR and flow cytometry", None],
+										["MORPHOLOGY", "morphology", None],
+										["OTHER", "other", None],
+										["NOTHING", "nothing", None]
 									]);
 
-createVocabularyWithTerms("PROTOCOL_TYPE", [
-										["DNA", "DNA method"],
-										["RNA", "RNA method"],
-										["PROTEINS", "proteins method"],
-										["YEAST_BASICS", "yeast basic method"],
-										["BACTERIA_BASICS", "bacteria basic method"],
-										["FLUORESCENCE_MICROSCOPY", "fluorescence microscopy method"],
-										["FLOW_CYTOMETRY", "flow cytometry method"],
-										["CELL_SORTING", "cell sorting method"],
-										["CELL_LINE_BASICS", "cell line basics"]
+createVocabularyWithTerms("PROTOCOL_TYPE", "Type of protocol",
+									[
+										["DNA", "DNA method", None],
+										["RNA", "RNA method", None],
+										["PROTEINS", "proteins method", None],
+										["YEAST_BASICS", "yeast basic method", None],
+										["BACTERIA_BASICS", "bacteria basic method", None],
+										["FLUORESCENCE_MICROSCOPY", "fluorescence microscopy method", None],
+										["FLOW_CYTOMETRY", "flow cytometry method", None],
+										["CELL_SORTING", "cell sorting method", None],
+										["CELL_LINE_BASICS", "cell line basics", None]
 									]);
 
-createVocabularyWithTerms("TEMPLATE", [
-										["DNA", "DNA"],
-										["RNA", "RNA"],
-										["BACTERIA_COLONY", "bacteria colony"],
-										["YEAST_COLONY", "yeast colony"]
+createVocabularyWithTerms("TEMPLATE", "Type of template used in the PCR protocol",
+									[
+										["DNA", "DNA", None],
+										["RNA", "RNA", None],
+										["BACTERIA_COLONY", "bacteria colony", None],
+										["YEAST_COLONY", "yeast colony", None]
 									]);
 
-createVocabularyWithTerms("YES_NO", [
-										["YES", "yes"],
-										["NO", "no"],
-										["UNKNOWN", "unknown"]
+createVocabularyWithTerms("YES_NO", "Yes or No or Unknown Choice",
+									[
+										["YES", "yes", None],
+										["NO", "no", None],
+										["UNKNOWN", "unknown", None]
 									]);
 
-createVocabularyWithTerms("MEMBRANE", [
-										["PVDF", "PVDF"],
-										["NITROCELLULOSE", "nitrocellulose"],
-										["PVDF_NITROCELLULOSE", "Either PVDF or nitrocellulose"]
+createVocabularyWithTerms("MEMBRANE", "Type of membrane used for western blotting",
+									[
+										["PVDF", "PVDF", None],
+										["NITROCELLULOSE", "nitrocellulose", None],
+										["PVDF_NITROCELLULOSE", "Either PVDF or nitrocellulose", None]
 									]);
 
-createVocabularyWithTerms("SPECIES", [
-										["HOMO", "Homo sapiens"],
-										["MOUSE", "Mus musculus"],
-										["RAT", "Rattus norvegicus"],
-										["PIG", "Sus scrofa"],
-										["DROSOPHILA_MELANOGASTER", "Drosophila melanogaster"]
+createVocabularyWithTerms("SPECIES", "Species to which the cell line belongs",
+									[
+										["HOMO", "Homo sapiens", None],
+										["MOUSE", "Mus musculus", None],
+										["RAT", "Rattus norvegicus", None],
+										["PIG", "Sus scrofa", None],
+										["DROSOPHILA_MELANOGASTER", "Drosophila melanogaster", None]
 									]);
 
-createVocabularyWithTerms("CELL_MEDIUM", [
-										["RPMI", "rpmi"],
-										["1640", "1640"],
-										["ISCOVES", "iscoves"],
-										["DMEM", "DMEM"],
-										["DMEM_NUTRIENT_MIXTURE_F-12_HAM", "DMEM nutrient mixture F-12 HAM"],
-										["DMEM_HIGH_GLUC", "DMEM high glucose"],
-										["DMEM_LOW_GLUC", "DMEM low glucose"]
+createVocabularyWithTerms("CELL_MEDIUM", "Medium used to cultivate or manipulate the cell line",
+									[
+										["RPMI", "rpmi", None],
+										["1640", "1640", None],
+										["ISCOVES", "iscoves", None],
+										["DMEM", "DMEM", None],
+										["DMEM_NUTRIENT_MIXTURE_F-12_HAM", "DMEM nutrient mixture F-12 HAM", None],
+										["DMEM_HIGH_GLUC", "DMEM high glucose", None],
+										["DMEM_LOW_GLUC", "DMEM low glucose", None]
 									]);
 
-createVocabularyWithTerms("OWNER", [
-										["FILL_ME_1", "Fill me with the people of your lab"],
-										["FILL_ME_2", "Fill me with the people of your lab 2"]
+createVocabularyWithTerms("OWNER", "Who produced/owns the sample",
+									[
+										["FILL_ME_1", "Fill me with the people of your lab", None],
+										["FILL_ME_2", "Fill me with the people of your lab 2", None]
 									]);
 
-createVocabularyWithTerms("CELL_TYPE", [
-										["FIBROBLAST", "fibroblast"],
-										["NEURON", "neuron"]
+createVocabularyWithTerms("CELL_TYPE", "Cell type",
+									[
+										["FIBROBLAST", "fibroblast", None],
+										["NEURON", "neuron", None]
 									]);
 
-createVocabularyWithTerms("ORGANISM", [
-										["BACTERIA", "Bacteria"],
-										["BUDDING_YEAST", "Saccharomyces cerevisiae"],
-										["MAMMALIAN", "mammalian"],
-										["DROSOPHILA_MELANOGASTER", "Drosophila melanogaster"]
+createVocabularyWithTerms("ORGANISM", "Organism",
+									[
+										["BACTERIA", "Bacteria", None],
+										["BUDDING_YEAST", "Saccharomyces cerevisiae", None],
+										["MAMMALIAN", "mammalian", None],
+										["DROSOPHILA_MELANOGASTER", "Drosophila melanogaster", None]
 									]);
 
-createVocabularyWithTerms("EXPERIMENTAL_READOUT", [
-										["FLOW_CYTOMETRY", "flow citometry"],
-										["SORTING", "cell sorting"],
-										["GROWTH", "growth"],
-										["WESTERN_BLOTTING", "western blottong"],
-										["RT_QPCR", "RT-qPCR"]
+createVocabularyWithTerms("EXPERIMENTAL_READOUT", "Experimental readout used",
+									[
+										["FLOW_CYTOMETRY", "flow citometry", None],
+										["SORTING", "cell sorting", None],
+										["GROWTH", "growth", None],
+										["WESTERN_BLOTTING", "western blottong", None],
+										["RT_QPCR", "RT-qPCR", None]
 									]);
 
-createVocabularyWithTerms("MACHINE", [
-										["LSRII_FORTESSA", "SRII Fortessa"],
-										["TECAN_READER", "Tecan reader"],
-										["BIOLECTOR", "BioLector"],
-										["LICOR_ODYSSEY", "LI-COR Odyssey"],
-										["TI_ECLIPSE", "TI Eclipse (Nikon)"],
-										["SRX_101A", "Konica Minolta SRX-101A"],
-										["LIGHT_CYCLER", "LightCycler 480"]
+createVocabularyWithTerms("MACHINE", "Machine used",
+									[
+										["LSRII_FORTESSA", "SRII Fortessa", None],
+										["TECAN_READER", "Tecan reader", None],
+										["BIOLECTOR", "BioLector", None],
+										["LICOR_ODYSSEY", "LI-COR Odyssey", None],
+										["TI_ECLIPSE", "TI Eclipse (Nikon)", None],
+										["SRX_101A", "Konica Minolta SRX-101A", None],
+										["LIGHT_CYCLER", "LightCycler 480", None]
 									]);
 
-createVocabularyWithTerms("PLASMID_RELATIONSHIP", [
-										["DELETION", "Deletion"],
-										["INTEGRATION", "Integration"],
-										["MODIFICATION", "Modification"],
-										["OTHER", "Other"]
+createVocabularyWithTerms("PLASMID_RELATIONSHIP", "Kind of plasmid relationship",
+								[
+										["DELETION", "Deletion", None],
+										["INTEGRATION", "Integration", None],
+										["MODIFICATION", "Modification", None],
+										["OTHER", "Other", None]
 									]);
 
-createVocabularyWithTerms("STORAGE_NAMES", [
-										["BENCH", "Bench"],
-										["DEFAULT_STORAGE", "Default Storage"]
+createVocabularyWithTerms("STORAGE_NAMES", "Storages available on the lab", [
+										["BENCH", "Bench", None],
+										["DEFAULT_STORAGE", "Default Storage", None]
 									]);
 
 ##
