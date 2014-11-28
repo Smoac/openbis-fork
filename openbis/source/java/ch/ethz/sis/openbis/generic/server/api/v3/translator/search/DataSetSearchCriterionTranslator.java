@@ -16,9 +16,14 @@
 
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetChildrenSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetContainerSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetParentsSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.AssociatedEntityKind;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchSubCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.EntityKind;
 
 /**
@@ -47,20 +52,19 @@ public class DataSetSearchCriterionTranslator extends AbstractCompositeSearchCri
 
         context.popEntityKind();
 
-        // if (criterion instanceof DataSetParentsSearchCriterion)
-        // {
-        // return new SearchCriterionTranslationResult(
-        // new DetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_PARENT, translationResult.getCriteria()));
-        // } else if (criterion instanceof SampleChildrenSearchCriterion)
-        // {
-        // return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CHILD,
-        // translationResult.getCriteria()));
-        // } else if (criterion instanceof SampleContainerSearchCriterion)
-        // {
-        // return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.SAMPLE_CONTAINER,
-        // translationResult.getCriteria()));
-        // } else
-        if (criterion instanceof DataSetSearchCriterion)
+        if (criterion instanceof DataSetParentsSearchCriterion)
+        {
+            return new SearchCriterionTranslationResult(
+                    new DetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_PARENT, translationResult.getCriteria()));
+        } else if (criterion instanceof DataSetChildrenSearchCriterion)
+        {
+            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_CHILD,
+                    translationResult.getCriteria()));
+        } else if (criterion instanceof DataSetContainerSearchCriterion)
+        {
+            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_CONTAINER,
+                    translationResult.getCriteria()));
+        } else if (criterion instanceof DataSetSearchCriterion)
         {
             return translationResult;
         } else
