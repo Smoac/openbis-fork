@@ -57,7 +57,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public ExperimentTypeFetchOptions fetchType()
+    public ExperimentTypeFetchOptions withType()
     {
         if (type == null)
         {
@@ -69,7 +69,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public ExperimentTypeFetchOptions fetchType(ExperimentTypeFetchOptions fetchOptions)
+    public ExperimentTypeFetchOptions withTypeUsing(ExperimentTypeFetchOptions fetchOptions)
     {
         return type = fetchOptions;
     }
@@ -85,7 +85,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public ProjectFetchOptions fetchProject()
+    public ProjectFetchOptions withProject()
     {
         if (project == null)
         {
@@ -97,7 +97,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public ProjectFetchOptions fetchProject(ProjectFetchOptions fetchOptions)
+    public ProjectFetchOptions withProjectUsing(ProjectFetchOptions fetchOptions)
     {
         return project = fetchOptions;
     }
@@ -113,7 +113,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PropertyFetchOptions fetchProperties()
+    public PropertyFetchOptions withProperties()
     {
         if (properties == null)
         {
@@ -125,7 +125,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PropertyFetchOptions fetchProperties(PropertyFetchOptions fetchOptions)
+    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
     {
         return properties = fetchOptions;
     }
@@ -141,7 +141,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public TagFetchOptions fetchTags()
+    public TagFetchOptions withTags()
     {
         if (tags == null)
         {
@@ -153,7 +153,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public TagFetchOptions fetchTags(TagFetchOptions fetchOptions)
+    public TagFetchOptions withTagsUsing(TagFetchOptions fetchOptions)
     {
         return tags = fetchOptions;
     }
@@ -169,7 +169,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator()
+    public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
         {
@@ -181,7 +181,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
@@ -197,7 +197,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchModifier()
+    public PersonFetchOptions withModifier()
     {
         if (modifier == null)
         {
@@ -209,7 +209,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchModifier(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withModifierUsing(PersonFetchOptions fetchOptions)
     {
         return modifier = fetchOptions;
     }
@@ -225,7 +225,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public AttachmentFetchOptions fetchAttachments()
+    public AttachmentFetchOptions withAttachments()
     {
         if (attachments == null)
         {
@@ -237,7 +237,7 @@ public class ExperimentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public AttachmentFetchOptions fetchAttachments(AttachmentFetchOptions fetchOptions)
+    public AttachmentFetchOptions withAttachmentsUsing(AttachmentFetchOptions fetchOptions)
     {
         return attachments = fetchOptions;
     }

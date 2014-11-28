@@ -38,7 +38,7 @@ public class PersonFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public SpaceFetchOptions fetchSpace()
+    public SpaceFetchOptions withSpace()
     {
         if (space == null)
         {
@@ -50,7 +50,7 @@ public class PersonFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public SpaceFetchOptions fetchSpace(SpaceFetchOptions fetchOptions)
+    public SpaceFetchOptions withSpaceUsing(SpaceFetchOptions fetchOptions)
     {
         return space = fetchOptions;
     }
@@ -66,7 +66,7 @@ public class PersonFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator()
+    public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
         {
@@ -78,7 +78,7 @@ public class PersonFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }

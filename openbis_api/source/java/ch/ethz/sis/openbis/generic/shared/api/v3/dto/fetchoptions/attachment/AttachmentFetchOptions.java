@@ -42,7 +42,7 @@ public class AttachmentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator()
+    public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
         {
@@ -54,7 +54,7 @@ public class AttachmentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
@@ -70,7 +70,7 @@ public class AttachmentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public AttachmentFetchOptions fetchPreviousVersion()
+    public AttachmentFetchOptions withPreviousVersion()
     {
         if (previousVersion == null)
         {
@@ -82,7 +82,7 @@ public class AttachmentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public AttachmentFetchOptions fetchPreviousVersion(AttachmentFetchOptions fetchOptions)
+    public AttachmentFetchOptions withPreviousVersionUsing(AttachmentFetchOptions fetchOptions)
     {
         return previousVersion = fetchOptions;
     }
@@ -98,7 +98,7 @@ public class AttachmentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public EmptyFetchOptions fetchContent()
+    public EmptyFetchOptions withContent()
     {
         if (content == null)
         {
@@ -110,7 +110,7 @@ public class AttachmentFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public EmptyFetchOptions fetchContent(EmptyFetchOptions fetchOptions)
+    public EmptyFetchOptions withContentUsing(EmptyFetchOptions fetchOptions)
     {
         return content = fetchOptions;
     }

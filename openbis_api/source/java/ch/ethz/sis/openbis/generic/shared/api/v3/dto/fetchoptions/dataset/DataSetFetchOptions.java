@@ -66,7 +66,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchParents()
+    public DataSetFetchOptions withParents()
     {
         if (parents == null)
         {
@@ -78,7 +78,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchParents(DataSetFetchOptions fetchOptions)
+    public DataSetFetchOptions withParentsUsing(DataSetFetchOptions fetchOptions)
     {
         return parents = fetchOptions;
     }
@@ -94,7 +94,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchChildren()
+    public DataSetFetchOptions withChildren()
     {
         if (children == null)
         {
@@ -106,7 +106,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchChildren(DataSetFetchOptions fetchOptions)
+    public DataSetFetchOptions withChildrenUsing(DataSetFetchOptions fetchOptions)
     {
         return children = fetchOptions;
     }
@@ -122,7 +122,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchContainers()
+    public DataSetFetchOptions withContainers()
     {
         if (containers == null)
         {
@@ -134,7 +134,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchContainers(DataSetFetchOptions fetchOptions)
+    public DataSetFetchOptions withContainersUsing(DataSetFetchOptions fetchOptions)
     {
         return containers = fetchOptions;
     }
@@ -150,7 +150,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchContained()
+    public DataSetFetchOptions withContained()
     {
         if (contained == null)
         {
@@ -162,7 +162,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetFetchOptions fetchContained(DataSetFetchOptions fetchOptions)
+    public DataSetFetchOptions withContainedUsing(DataSetFetchOptions fetchOptions)
     {
         return contained = fetchOptions;
     }
@@ -178,7 +178,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public TagFetchOptions fetchTags()
+    public TagFetchOptions withTags()
     {
         if (tags == null)
         {
@@ -190,7 +190,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public TagFetchOptions fetchTags(TagFetchOptions fetchOptions)
+    public TagFetchOptions withTagsUsing(TagFetchOptions fetchOptions)
     {
         return tags = fetchOptions;
     }
@@ -206,7 +206,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetTypeFetchOptions fetchType()
+    public DataSetTypeFetchOptions withType()
     {
         if (type == null)
         {
@@ -218,7 +218,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public DataSetTypeFetchOptions fetchType(DataSetTypeFetchOptions fetchOptions)
+    public DataSetTypeFetchOptions withTypeUsing(DataSetTypeFetchOptions fetchOptions)
     {
         return type = fetchOptions;
     }
@@ -234,7 +234,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchModifier()
+    public PersonFetchOptions withModifier()
     {
         if (modifier == null)
         {
@@ -246,7 +246,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchModifier(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withModifierUsing(PersonFetchOptions fetchOptions)
     {
         return modifier = fetchOptions;
     }
@@ -262,7 +262,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator()
+    public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
         {
@@ -274,7 +274,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
@@ -290,7 +290,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public ExperimentFetchOptions fetchExperiment()
+    public ExperimentFetchOptions withExperiment()
     {
         if (experiment == null)
         {
@@ -302,7 +302,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public ExperimentFetchOptions fetchExperiment(ExperimentFetchOptions fetchOptions)
+    public ExperimentFetchOptions withExperimentUsing(ExperimentFetchOptions fetchOptions)
     {
         return experiment = fetchOptions;
     }
@@ -318,7 +318,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PropertyFetchOptions fetchProperties()
+    public PropertyFetchOptions withProperties()
     {
         if (properties == null)
         {
@@ -330,7 +330,7 @@ public class DataSetFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PropertyFetchOptions fetchProperties(PropertyFetchOptions fetchOptions)
+    public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
     {
         return properties = fetchOptions;
     }

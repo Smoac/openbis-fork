@@ -34,7 +34,7 @@ public class TagFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchOwner()
+    public PersonFetchOptions withOwner()
     {
         if (owner == null)
         {
@@ -46,7 +46,7 @@ public class TagFetchOptions implements Serializable
     /**
      * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
      */
-    public PersonFetchOptions fetchOwner(PersonFetchOptions fetchOptions)
+    public PersonFetchOptions withOwnerUsing(PersonFetchOptions fetchOptions)
     {
         return owner = fetchOptions;
     }

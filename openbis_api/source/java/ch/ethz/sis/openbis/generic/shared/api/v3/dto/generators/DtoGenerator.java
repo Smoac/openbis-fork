@@ -506,7 +506,7 @@ public class DtoGenerator
     private void printFetchOptionsAccessors(DTOField field)
     {
         printMethodJavaDoc();
-        print("public %s fetch%s()", field.fetchOptions.getSimpleName(), field.getCapitalizedName());
+        print("public %s with%s()", field.fetchOptions.getSimpleName(), field.getCapitalizedName());
         startBlock();
         print("if (%s == null)", field.getPersistentName());
         startBlock();
@@ -517,7 +517,7 @@ public class DtoGenerator
         print("");
 
         printMethodJavaDoc();
-        print("public %s fetch%s(%s fetchOptions)", field.fetchOptions.getSimpleName(), field.getCapitalizedName(),
+        print("public %s with%sUsing(%s fetchOptions)", field.fetchOptions.getSimpleName(), field.getCapitalizedName(),
                 field.fetchOptions.getSimpleName());
         startBlock();
         print("return %s = fetchOptions;", field.getPersistentName());
