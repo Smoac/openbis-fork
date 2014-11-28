@@ -109,17 +109,16 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
         
 class AntibodyOpenBISDTO(OpenBISDTO):
     def write(self, tr):
-        print self.values
         sample = tr.createNewSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], "ANTIBODY");
         for propertyCode, propertyValue in self.values.iteritems():
             propertyDefinition = definitions.getPropertyDefinitionByCode(self.definition, propertyCode)
             if propertyValue is not None:
                 propertyValue =  unicode(propertyValue)
             
-            if propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY:
-                pass
-            else :
-                sample.setPropertyValue(propertyCode, propertyValue)
+            if propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
+                propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+           
+            sample.setPropertyValue(propertyCode, propertyValue)
     
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"

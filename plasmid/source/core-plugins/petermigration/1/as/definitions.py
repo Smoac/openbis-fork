@@ -13,6 +13,14 @@ storageGroupDefinition = [
     ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "antibody ID data box::position",         DataType.VARCHAR,                    None,                "Storage User Id", None]
 ];
 
+def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
+    vocabulary = vocacbularyDefinitions[vocabularyCode]
+    for term in vocabulary:
+        if term[1] == termLabel:
+            return term[0]
+    print repr("NO " + unicode(vocabularyCode) + " : " + unicode(termLabel))
+    return None
+    
 def getPropertyDefinitionByCode(definition, code):
     for property in definition:
         if property[0] == code:
