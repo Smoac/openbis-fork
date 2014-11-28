@@ -438,7 +438,15 @@ $.extend(DefaultProfile.prototype, {
 					for(var j = 0; j < propertyGroup.length; j++) {
 						var propertyType = propertyGroup[j];
 						if (propertyType.dataType === "CONTROLLEDVOCABULARY" && isNaN(propertyType.vocabulary)) {
-							this.allVocabularies.push(propertyType.vocabulary);
+							var add = true;
+							for(var k = 0; k < this.allVocabularies.length; k++) {
+								if(this.allVocabularies[k].code === propertyType.vocabulary.code) {
+									add = false;
+								}
+							}
+							if(add) {
+								this.allVocabularies.push(propertyType.vocabulary);
+							}
 						}
 					}
 				}
