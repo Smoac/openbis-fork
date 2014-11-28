@@ -18,6 +18,7 @@
 ## Configuration
 ##
 PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/juanf/Documents/workspace/openbis/source/core-plugins/petermigration/1/compatibility/";
+#PATH_TO_MANAGE_PROPERTIES_SCRIPTS = "/Users/barillac/openbis-peter/servers/core-plugins/petermigration/1/compatibility/";
 #PATH_TO_MANAGE_PROPERTIES_SCRIPTS = None;
 
 # MasterDataRegistrationTransaction Class
