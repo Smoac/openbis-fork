@@ -39,6 +39,7 @@ tr = service.transaction()
 ##
 def createVocabularyWithTerms(vocabularyCode, terms):
     vocabulary = tr.createNewVocabulary(vocabularyCode);
+    vocabulary.setChosenFromList(True);
     addTerms(vocabulary, terms);
     vocabulariesCache[vocabularyCode] = vocabulary;
     
