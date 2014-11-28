@@ -93,72 +93,111 @@ public class DataSet implements Serializable
     @JsonProperty
     private Map<String, String> properties;
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public DataSetFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setFetchOptions(DataSetFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public DataSetPermId getPermId()
     {
         return permId;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setPermId(DataSetPermId permId)
     {
         this.permId = permId;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public String getCode()
     {
         return code;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setCode(String code)
     {
         this.code = code;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Date getAccessDate()
     {
         return accessDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setAccessDate(Date accessDate)
     {
         this.accessDate = accessDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Boolean isDerived()
     {
         return derived;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setDerived(Boolean derived)
     {
         this.derived = derived;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Boolean isPlaceholder()
     {
         return placeholder;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setPlaceholder(Boolean placeholder)
     {
         this.placeholder = placeholder;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public List<DataSet> getParents()
     {
@@ -172,11 +211,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setParents(List<DataSet> parents)
     {
         this.parents = parents;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public List<DataSet> getChildren()
     {
@@ -190,11 +235,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setChildren(List<DataSet> children)
     {
         this.children = children;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public List<DataSet> getContainers()
     {
@@ -208,11 +259,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setContainers(List<DataSet> containers)
     {
         this.containers = containers;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public List<DataSet> getContained()
     {
@@ -226,11 +283,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setContained(List<DataSet> contained)
     {
         this.contained = contained;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Set<Tag> getTags()
     {
@@ -244,11 +307,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setTags(Set<Tag> tags)
     {
         this.tags = tags;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public DataSetType getType()
     {
@@ -262,22 +331,34 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setType(DataSetType type)
     {
         this.type = type;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Date getModificationDate()
     {
         return modificationDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setModificationDate(Date modificationDate)
     {
         this.modificationDate = modificationDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Person getModifier()
     {
@@ -291,22 +372,34 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setModifier(Person modifier)
     {
         this.modifier = modifier;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Date getRegistrationDate()
     {
         return registrationDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Person getRegistrator()
     {
@@ -320,11 +413,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Experiment getExperiment()
     {
@@ -338,11 +437,17 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setExperiment(Experiment experiment)
     {
         this.experiment = experiment;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Map<String, String> getProperties()
     {
@@ -356,6 +461,9 @@ public class DataSet implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setProperties(Map<String, String> properties)
     {
         this.properties = properties;

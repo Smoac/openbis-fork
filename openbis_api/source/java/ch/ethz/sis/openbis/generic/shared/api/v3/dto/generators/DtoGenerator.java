@@ -412,6 +412,7 @@ public class DtoGenerator
 
     private void printBasicSetter(DTOField field)
     {
+        printMethodJavaDoc();
         print("public void set%s(%s %s)",
                 field.getCapitalizedName(),
                 field.definitionClassName,
@@ -435,6 +436,7 @@ public class DtoGenerator
 
     private void printGetterWithFetchOptions(DTOField field)
     {
+        printMethodJavaDoc();
         print("@JsonIgnore");
         print("public %s get%s()", field.definitionClassName, field.getCapitalizedName());
         startBlock();
@@ -469,6 +471,7 @@ public class DtoGenerator
 
     private void printBasicGetter(DTOField field)
     {
+        printMethodJavaDoc();
         print("@JsonIgnore");
         if (field.definitionClassName.equals("Boolean"))
         {
@@ -502,6 +505,7 @@ public class DtoGenerator
 
     private void printFetchOptionsAccessors(DTOField field)
     {
+        printMethodJavaDoc();
         print("public %s fetch%s()", field.fetchOptions.getSimpleName(), field.getCapitalizedName());
         startBlock();
         print("if (%s == null)", field.getPersistentName());
@@ -512,6 +516,7 @@ public class DtoGenerator
         endBlock();
         print("");
 
+        printMethodJavaDoc();
         print("public %s fetch%s(%s fetchOptions)", field.fetchOptions.getSimpleName(), field.getCapitalizedName(),
                 field.fetchOptions.getSimpleName());
         startBlock();
@@ -519,6 +524,7 @@ public class DtoGenerator
         endBlock();
         print("");
 
+        printMethodJavaDoc();
         print("public boolean has%s()", field.getCapitalizedName());
         startBlock();
         print("return %s != null;", field.getPersistentName());
@@ -553,6 +559,13 @@ public class DtoGenerator
         print(" */");
         print("@JsonObject(\"%s\")", className);
         print("public class %s implements Serializable", className);
+    }
+
+    private void printMethodJavaDoc()
+    {
+        print("/**");
+        print(" * Method automatically generated with {@link %s}", this.getClass().getName());
+        print(" */");
     }
 
     private void printClassHeaderJS(String className)

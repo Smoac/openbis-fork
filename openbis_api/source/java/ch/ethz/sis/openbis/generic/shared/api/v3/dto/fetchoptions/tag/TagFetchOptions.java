@@ -31,6 +31,9 @@ public class TagFetchOptions implements Serializable
     @JsonProperty
     private PersonFetchOptions owner;
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchOwner()
     {
         if (owner == null)
@@ -40,11 +43,17 @@ public class TagFetchOptions implements Serializable
         return owner;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchOwner(PersonFetchOptions fetchOptions)
     {
         return owner = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasOwner()
     {
         return owner != null;

@@ -60,83 +60,128 @@ public class Person implements Serializable
     @JsonProperty
     private Person registrator;
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public PersonFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setFetchOptions(PersonFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public String getUserId()
     {
         return userId;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setUserId(String userId)
     {
         this.userId = userId;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public String getFirstName()
     {
         return firstName;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setFirstName(String firstName)
     {
         this.firstName = firstName;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public String getLastName()
     {
         return lastName;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setLastName(String lastName)
     {
         this.lastName = lastName;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public String getEmail()
     {
         return email;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setEmail(String email)
     {
         this.email = email;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Date getRegistrationDate()
     {
         return registrationDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Boolean isActive()
     {
         return active;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setActive(Boolean active)
     {
         this.active = active;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Space getSpace()
     {
@@ -150,11 +195,17 @@ public class Person implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setSpace(Space space)
     {
         this.space = space;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     @JsonIgnore
     public Person getRegistrator()
     {
@@ -168,6 +219,9 @@ public class Person implements Serializable
         }
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public void setRegistrator(Person registrator)
     {
         this.registrator = registrator;

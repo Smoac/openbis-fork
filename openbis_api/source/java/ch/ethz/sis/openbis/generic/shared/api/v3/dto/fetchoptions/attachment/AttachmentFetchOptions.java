@@ -39,6 +39,9 @@ public class AttachmentFetchOptions implements Serializable
     @JsonProperty
     private EmptyFetchOptions content;
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchRegistrator()
     {
         if (registrator == null)
@@ -48,16 +51,25 @@ public class AttachmentFetchOptions implements Serializable
         return registrator;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public AttachmentFetchOptions fetchPreviousVersion()
     {
         if (previousVersion == null)
@@ -67,16 +79,25 @@ public class AttachmentFetchOptions implements Serializable
         return previousVersion;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public AttachmentFetchOptions fetchPreviousVersion(AttachmentFetchOptions fetchOptions)
     {
         return previousVersion = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasPreviousVersion()
     {
         return previousVersion != null;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public EmptyFetchOptions fetchContent()
     {
         if (content == null)
@@ -86,11 +107,17 @@ public class AttachmentFetchOptions implements Serializable
         return content;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public EmptyFetchOptions fetchContent(EmptyFetchOptions fetchOptions)
     {
         return content = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasContent()
     {
         return content != null;

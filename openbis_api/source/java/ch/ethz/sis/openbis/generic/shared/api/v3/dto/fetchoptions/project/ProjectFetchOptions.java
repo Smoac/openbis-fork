@@ -38,6 +38,9 @@ public class ProjectFetchOptions implements Serializable
     @JsonProperty
     private PersonFetchOptions modifier;
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public SpaceFetchOptions fetchSpace()
     {
         if (space == null)
@@ -47,16 +50,25 @@ public class ProjectFetchOptions implements Serializable
         return space;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public SpaceFetchOptions fetchSpace(SpaceFetchOptions fetchOptions)
     {
         return space = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasSpace()
     {
         return space != null;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchRegistrator()
     {
         if (registrator == null)
@@ -66,16 +78,25 @@ public class ProjectFetchOptions implements Serializable
         return registrator;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchRegistrator(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchModifier()
     {
         if (modifier == null)
@@ -85,11 +106,17 @@ public class ProjectFetchOptions implements Serializable
         return modifier;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public PersonFetchOptions fetchModifier(PersonFetchOptions fetchOptions)
     {
         return modifier = fetchOptions;
     }
 
+    /**
+     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
     public boolean hasModifier()
     {
         return modifier != null;
