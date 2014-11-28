@@ -18,7 +18,7 @@ def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
     for term in vocabulary:
         if term[1] == termLabel:
             return term[0]
-    print repr("NO " + unicode(vocabularyCode) + " : " + unicode(termLabel))
+    #print repr("NOT FOUND: " + unicode(vocabularyCode) + " : " + unicode(termLabel))
     return None
     
 def getPropertyDefinitionByCode(definition, code):

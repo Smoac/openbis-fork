@@ -1,7 +1,9 @@
 # some_file.py
 import sys
 import definitions
+import re
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
+
 
 import java.lang.Class as Class;
 import java.sql.Connection as Connection;
@@ -99,10 +101,6 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
         self.selectQuery = "SELECT * FROM \"boxit antibodies\""
         self.definition = definitions.antibodyDefinition
         FileMakerEntityAdaptor.init(self)
-
-    def isInOpenBIS(self, tr):
-        sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"])
-        return sample is not None
     
     def addEntity(self, values):
         self.entities.append(AntibodyOpenBISDTO(values, self.definition))
@@ -116,9 +114,31 @@ class AntibodyOpenBISDTO(OpenBISDTO):
                 propertyValue =  unicode(propertyValue)
             
             if propertyDefinition[3] == DataType.CONTROLLEDVOCABULARY and propertyValue is not None:
-                propertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
-           
+                posiblePropertyValue = definitions.getVocaularyTermCodeForVocabularyAndTermLabel(propertyDefinition[4], propertyValue)
+                if posiblePropertyValue is not None:
+                    propertyValue = posiblePropertyValue
+                else:  #We rely on the Add Hock Terms if is None
+                    #Create new vocabulary term
+                    vocabulary = tr.getVocabularyForUpdate(propertyDefinition[4])
+                    term = tr.createNewVocabularyTerm()
+                    codeToUse = re.sub(r'\W+','',propertyValue)
+                    labelToUse = propertyValue
+                    if len(codeToUse) is 0:
+                        codeToUse = "None"
+                    if len(codeToUse) > 60:
+                        codeToUse = codeToUse[:60]
+                    term.setCode(codeToUse)
+                    term.setLabel(labelToUse)
+                    term.setOrdinal(vocabulary.getTerms().size())
+                    vocabulary.addTerm(term)
+                    #Uses new vocabulary term
+                    propertyValue = codeToUse
+                    #print "CREATED FOR VOCABULARY " + propertyDefinition[4] + " NEW TERM WITH CODE " + codeToUse
             sample.setPropertyValue(propertyCode, propertyValue)
+    
+    def isInOpenBIS(self, tr):
+        sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"])
+        return sample is not None
     
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
