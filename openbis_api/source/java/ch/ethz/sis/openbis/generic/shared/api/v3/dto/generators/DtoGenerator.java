@@ -4,17 +4,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
-import ch.systemsx.cisd.base.annotation.JsonObject;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import ch.ethz.sis.openbis.generic.shared.api.v3.exceptions.NotFetchedException;
+import ch.systemsx.cisd.base.annotation.JsonObject;
 
 @SuppressWarnings("hiding")
 public class DtoGenerator
@@ -110,14 +111,41 @@ public class DtoGenerator
 
     }
 
-    public void setOutputStream(PrintStream printStream)
+    private void setOutputStream(PrintStream printStream)
     {
         this.outputStream = printStream;
     }
 
+    /**
+     * Add simple field i.e. one that doesn't have fetched content
+     */
     public void addSimpleField(Class<?> c, String name)
     {
         fields.add(new DTOField(name, c, null, null));
+    }
+
+    /**
+     * Add simple boolean field
+     */
+    public void addBooleanField(String name)
+    {
+        addSimpleField(Boolean.class, name);
+    }
+
+    /**
+     * Add simple date field
+     */
+    public void addDateField(String name)
+    {
+        addSimpleField(Date.class, name);
+    }
+
+    /**
+     * Add simple string field
+     */
+    public void addStringField(String name)
+    {
+        addSimpleField(String.class, name);
     }
 
     /**
