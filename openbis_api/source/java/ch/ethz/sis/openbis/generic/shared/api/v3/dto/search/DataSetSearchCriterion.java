@@ -40,6 +40,21 @@ public class DataSetSearchCriterion extends AbstractEntitySearchCriterion<IDataS
         this.relation = relation;
     }
 
+    public DataSetSearchCriterion withParents()
+    {
+        return with(new DataSetSearchCriterion(DataSetSearchRelation.PARENTS));
+    }
+
+    public DataSetSearchCriterion withChildren()
+    {
+        return with(new DataSetSearchCriterion(DataSetSearchRelation.CHILDREN));
+    }
+
+    public DataSetSearchCriterion withContainer()
+    {
+        return with(new DataSetSearchCriterion(DataSetSearchRelation.CONTAINER));
+    }
+
     public DataSetSearchCriterion withOrOperator()
     {
         return (DataSetSearchCriterion) withOperator(SearchOperator.OR);
