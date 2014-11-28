@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.OperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.ISearchDataSetExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IConfirmDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IListDeletionExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.deletion.IRevertDeletionExecutor;
@@ -43,6 +44,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.executor.sample.IUpdateSampleEx
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.TranslationContext;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.IdentityTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.common.MapTranslator;
+import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.dataset.DataSetTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.deletion.DeletionTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.experiment.ExperimentTranslator;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.entity.sample.SampleTranslator;
@@ -51,12 +53,14 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
@@ -67,6 +71,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 import ch.systemsx.cisd.openbis.common.spring.IInvocationLoggerContext;
@@ -83,6 +88,7 @@ import ch.systemsx.cisd.openbis.generic.shared.DatabaseUpdateModification;
 import ch.systemsx.cisd.openbis.generic.shared.IOpenBisSessionManager;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.SamplePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.Session;
@@ -116,6 +122,9 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
 
     @Autowired
     private ISearchSampleExecutor searchSampleExecutor;
+
+    @Autowired
+    private ISearchDataSetExecutor searchDataSetExecutor;
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
@@ -345,6 +354,27 @@ public class ApplicationServerApi extends AbstractServer<IApplicationServerApi> 
             Map<SamplePE, Sample> translatedMap =
                     new SampleTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(samples);
             return new ArrayList<Sample>(translatedMap.values());
+        } catch (Throwable t)
+        {
+            throw ExceptionUtils.create(context, t);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed({ RoleWithHierarchy.SPACE_OBSERVER, RoleWithHierarchy.SPACE_ETL_SERVER })
+    public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
+    {
+        Session session = getSession(sessionToken);
+        OperationContext context = new OperationContext(session);
+
+        try
+        {
+            List<DataPE> dataSets = searchDataSetExecutor.search(context, searchCriterion);
+
+            Map<DataPE, DataSet> translatedMap =
+                    new DataSetTranslator(new TranslationContext(session), managedPropertyEvaluatorFactory, fetchOptions).translate(dataSets);
+            return new ArrayList<DataSet>(translatedMap.values());
         } catch (Throwable t)
         {
             throw ExceptionUtils.create(context, t);

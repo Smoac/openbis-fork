@@ -47,7 +47,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     }
 
     @Override
-    protected O doTranslate(I object)
+    protected final O doTranslate(I object)
     {
         Map<I, O> translated = doTranslate(Collections.singleton(object));
         if (translated.isEmpty())
@@ -60,7 +60,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     }
 
     @Override
-    protected Map<I, O> doTranslate(Collection<I> inputs)
+    protected final Map<I, O> doTranslate(Collection<I> inputs)
     {
         Map<I, O> translated = new LinkedHashMap<I, O>();
         Map<I, O> updated = new HashMap<I, O>();
@@ -91,7 +91,7 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
     }
 
     @SuppressWarnings("unchecked")
-    private void handleAlreadyTranslatedInput(I input, Map<I, O> translated, Map<I, O> updated)
+    private final void handleAlreadyTranslatedInput(I input, Map<I, O> translated, Map<I, O> updated)
     {
         Long id = input.getId();
         O output = (O) getTranslationCache().getTranslatedObject(getClass().getName(), id);
@@ -184,17 +184,17 @@ public abstract class AbstractCachingTranslator<I extends IIdHolder, O, F> exten
      */
     protected abstract void updateObject(I input, O output, Relations relations);
 
-    protected TranslationContext getTranslationContext()
+    protected final TranslationContext getTranslationContext()
     {
         return translationContext;
     }
 
-    protected TranslationCache getTranslationCache()
+    protected final TranslationCache getTranslationCache()
     {
         return getTranslationContext().getTranslationCache();
     }
 
-    protected F getFetchOptions()
+    protected final F getFetchOptions()
     {
         return fetchOptions;
     }

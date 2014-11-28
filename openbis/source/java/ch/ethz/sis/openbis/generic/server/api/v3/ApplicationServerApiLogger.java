@@ -23,12 +23,14 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.Deletion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.experiment.ExperimentDeletionOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.deletion.sample.SampleDeletionOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.ExperimentUpdate;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleCreation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.SampleUpdate;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.deletion.DeletionFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
@@ -39,6 +41,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.ISampleId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.sample.SamplePermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperation;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.operation.IOperationResult;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 import ch.systemsx.cisd.authentication.ISessionManager;
@@ -142,6 +145,13 @@ public class ApplicationServerApiLogger extends AbstractServerLogger implements
     public List<Sample> searchSamples(String sessionToken, SampleSearchCriterion searchCriterion, SampleFetchOptions fetchOptions)
     {
         logAccess(sessionToken, "search-for-samples", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
+        return null;
+    }
+
+    @Override
+    public List<DataSet> searchDataSets(String sessionToken, DataSetSearchCriterion searchCriterion, DataSetFetchOptions fetchOptions)
+    {
+        logAccess(sessionToken, "search-for-data-sets", "SEARCH_CRITERION:\n%s\nFETCH_OPTIONS:\n%s\n", searchCriterion, fetchOptions);
         return null;
     }
 

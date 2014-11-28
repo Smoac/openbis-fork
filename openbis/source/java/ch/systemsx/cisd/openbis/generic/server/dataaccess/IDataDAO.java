@@ -155,6 +155,8 @@ public interface IDataDAO extends IGenericDAO<DataPE>
 
     public List<DataPE> listByCode(Set<String> values);
 
+    public List<DataPE> listByIDs(Collection<Long> dataSetIds);
+
     /**
      * Returns a list of distinct spaces owning the data sets specified by their technical ids.
      */

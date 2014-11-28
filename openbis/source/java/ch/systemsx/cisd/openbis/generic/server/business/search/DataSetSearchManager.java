@@ -124,6 +124,11 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
     public List<AbstractExternalData> searchForDataSets(String userId, DetailedSearchCriteria criteria)
             throws DataAccessException
     {
+        return lister.listByDatasetIds(searchForDataSetIds(userId, criteria));
+    }
+
+    public Collection<Long> searchForDataSetIds(String userId, DetailedSearchCriteria criteria)
+    {
         DetailedSearchCriteria parentCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria childCriteria = new DetailedSearchCriteria();
         DetailedSearchCriteria containerCriteria = new DetailedSearchCriteria();
@@ -167,7 +172,8 @@ public class DataSetSearchManager extends AbstractSearchManager<IDatasetLister>
                     CONTAINER_RELATIONSHIP_HANDLER);
         }
 
-        return lister.listByDatasetIds(restrictResultSetIfNecessary(dataSetIds));
+        Collection<Long> result = restrictResultSetIfNecessary(dataSetIds);
+        return result;
     }
 
     private List<Long> findDataSetIds(String userId, DetailedSearchCriteria criteria,

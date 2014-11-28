@@ -50,6 +50,7 @@ public class SearchCriterionTranslatorFactory extends AbstractSearchCriterionTra
         translators.add(new ProjectSearchCriterionTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new ExperimentSearchCriterionTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         translators.add(new SampleSearchCriterionTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
+        translators.add(new DataSetSearchCriterionTranslator(getDaoFactory(), getEntityAttributeProviderFactory()));
         return translators;
     }
 

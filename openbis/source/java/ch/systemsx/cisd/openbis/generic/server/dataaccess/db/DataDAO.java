@@ -1161,12 +1161,23 @@ final class DataDAO extends AbstractGenericEntityWithPropertiesDAO<DataPE> imple
     @Override
     public List<DataPE> listByCode(Set<String> values)
     {
-        if (values == null || values.isEmpty())
+        return listByIDsOfName("code", values);
+    }
+
+    @Override
+    public List<DataPE> listByIDs(Collection<Long> ids)
+    {
+        return listByIDsOfName("id", ids);
+    }
+
+    public List<DataPE> listByIDsOfName(String idName, Collection<?> dataSetIds)
+    {
+        if (dataSetIds == null || dataSetIds.isEmpty())
         {
             return new ArrayList<DataPE>();
         }
         final List<DataPE> list =
-                DAOUtils.listByCollection(getHibernateTemplate(), DataPE.class, "code", values);
+                DAOUtils.listByCollection(getHibernateTemplate(), DataPE.class, idName, dataSetIds);
         if (operationLog.isDebugEnabled())
         {
             operationLog.debug(String.format("%d data set(s) have been found.", list.size()));
