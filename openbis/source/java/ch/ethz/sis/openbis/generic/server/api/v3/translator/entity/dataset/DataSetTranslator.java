@@ -75,9 +75,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             List<DataSet> children =
                     new ListTranslator().translate(dataPe.getChildren(), new DataSetTranslator(getTranslationContext(),
                             managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchChildren()));
+                                    .withChildren()));
             result.setChildren(children);
-            result.getFetchOptions().fetchChildren(getFetchOptions().fetchChildren());
+            result.getFetchOptions().withChildrenUsing(getFetchOptions().withChildren());
         }
 
         if (getFetchOptions().hasParents())
@@ -85,9 +85,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             List<DataSet> parents =
                     new ListTranslator().translate(dataPe.getParents(), new DataSetTranslator(getTranslationContext(),
                             managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchParents()));
+                                    .withParents()));
             result.setParents(parents);
-            result.getFetchOptions().fetchParents(getFetchOptions().fetchParents());
+            result.getFetchOptions().withParentsUsing(getFetchOptions().withParents());
         }
 
         if (getFetchOptions().hasContained())
@@ -95,9 +95,9 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             List<DataSet> contained =
                     new ListTranslator().translate(dataPe.getContainedDataSets(), new DataSetTranslator(getTranslationContext(),
                             managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchContained()));
+                                    .withContained()));
             result.setContained(contained);
-            result.getFetchOptions().fetchContained(getFetchOptions().fetchContained());
+            result.getFetchOptions().withContainedUsing(getFetchOptions().withContained());
         }
 
         if (getFetchOptions().hasContainers())
@@ -105,59 +105,59 @@ public class DataSetTranslator extends AbstractCachingTranslator<DataPE, DataSet
             List<DataSet> containers =
                     new ListTranslator().translate(dataPe.getContainers(), new DataSetTranslator(getTranslationContext(),
                             managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchContainers()));
+                                    .withContainers()));
             result.setContainers(containers);
-            result.getFetchOptions().fetchContainers(getFetchOptions().fetchContainers());
+            result.getFetchOptions().withContainersUsing(getFetchOptions().withContainers());
         }
 
         if (getFetchOptions().hasExperiment())
         {
             Experiment experiment =
-                    new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().fetchExperiment())
+                    new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withExperiment())
                             .translate(dataPe.getExperiment());
             result.setExperiment(experiment);
-            result.getFetchOptions().fetchExperiment(getFetchOptions().fetchExperiment());
+            result.getFetchOptions().withExperimentUsing(getFetchOptions().withExperiment());
         }
 
         if (getFetchOptions().hasProperties())
         {
-            result.setProperties(new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().fetchProperties())
+            result.setProperties(new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withProperties())
                     .translate(dataPe));
-            result.getFetchOptions().fetchProperties(getFetchOptions().fetchProperties());
+            result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
         }
 
         if (getFetchOptions().hasType())
         {
             DataSetType dataSetType =
                     new DataSetTypeTranslator(getTranslationContext(),
-                            getFetchOptions().fetchType()).translate(dataPe.getDataSetType());
+                            getFetchOptions().withType()).translate(dataPe.getDataSetType());
             result.setType(dataSetType);
-            result.getFetchOptions().fetchType(getFetchOptions().fetchType());
+            result.getFetchOptions().withTypeUsing(getFetchOptions().withType());
         }
 
         if (getFetchOptions().hasTags())
         {
             List<Tag> tags =
                     new ListTranslator().translate(dataPe.getMetaprojects(), new TagTranslator(getTranslationContext(), getFetchOptions()
-                            .fetchTags()));
+                            .withTags()));
             result.setTags(new HashSet<Tag>(tags));
-            result.getFetchOptions().fetchTags(getFetchOptions().fetchTags());
+            result.getFetchOptions().withTagsUsing(getFetchOptions().withTags());
         }
 
         if (getFetchOptions().hasRegistrator())
         {
             Person registrator =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().fetchRegistrator()).translate(dataPe.getRegistrator());
+                    new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(dataPe.getRegistrator());
             result.setRegistrator(registrator);
-            result.getFetchOptions().fetchRegistrator(getFetchOptions().fetchRegistrator());
+            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
 
         if (getFetchOptions().hasModifier())
         {
             Person modifier =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().fetchModifier()).translate(dataPe.getModifier());
+                    new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(dataPe.getModifier());
             result.setModifier(modifier);
-            result.getFetchOptions().fetchModifier(getFetchOptions().fetchModifier());
+            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
         }
     }
 

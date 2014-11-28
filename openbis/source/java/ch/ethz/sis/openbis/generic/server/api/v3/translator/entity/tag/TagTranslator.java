@@ -63,8 +63,8 @@ public class TagTranslator extends AbstractCachingTranslator<MetaprojectPE, Tag,
     {
         if (getFetchOptions().hasOwner())
         {
-            result.setOwner(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchOwner()).translate(tag.getOwner()));
-            result.getFetchOptions().fetchOwner(getFetchOptions().fetchOwner());
+            result.setOwner(new PersonTranslator(getTranslationContext(), getFetchOptions().withOwner()).translate(tag.getOwner()));
+            result.getFetchOptions().withOwnerUsing(getFetchOptions().withOwner());
         }
     }
 

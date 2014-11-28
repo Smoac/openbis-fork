@@ -17,9 +17,9 @@
 package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.assertFalse;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -264,7 +264,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchType();
+        fetchOptions.withType();
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
@@ -297,7 +297,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchType();
+        fetchOptions.withType();
 
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
@@ -321,7 +321,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchAttachments().fetchPreviousVersion().fetchPreviousVersion().fetchContent();
+        fetchOptions.withAttachments().withPreviousVersion().withPreviousVersion().withContent();
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
@@ -360,7 +360,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchProject();
+        fetchOptions.withProject();
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
@@ -392,7 +392,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchProject();
+        fetchOptions.withProject();
 
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
@@ -416,7 +416,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchProperties();
+        fetchOptions.withProperties();
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
@@ -447,7 +447,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchRegistrator();
+        fetchOptions.withRegistrator();
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
@@ -476,7 +476,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchRegistrator();
+        fetchOptions.withRegistrator();
 
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP11");
@@ -500,7 +500,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchModifier();
+        fetchOptions.withModifier();
 
         ExperimentPermId permId = new ExperimentPermId("200811050951882-1028");
 
@@ -529,7 +529,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchModifier();
+        fetchOptions.withModifier();
 
         ExperimentIdentifier identifier1 = new ExperimentIdentifier("/CISD/NEMO/EXP1");
         ExperimentIdentifier identifier2 = new ExperimentIdentifier("/CISD/NEMO/EXP10");
@@ -553,7 +553,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         ExperimentPermId permId = new ExperimentPermId("200811050952663-1030");
 
@@ -588,7 +588,7 @@ public class MapExperimentTest extends AbstractExperimentTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         ExperimentPermId permId1 = new ExperimentPermId("200811050952663-1030");
         ExperimentPermId permId2 = new ExperimentPermId("201206190940555-1032");

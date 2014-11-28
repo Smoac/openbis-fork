@@ -68,9 +68,9 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
     {
         if (getFetchOptions().hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchRegistrator()).translate(attachment
+            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(attachment
                     .getRegistrator()));
-            result.getFetchOptions().fetchRegistrator(getFetchOptions().fetchRegistrator());
+            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
 
         if (getFetchOptions().hasContent())
@@ -100,7 +100,7 @@ public class AttachmentTranslator extends AbstractCachingTranslator<AttachmentPE
 
         if (fetchOptions.hasPreviousVersion() && group.size() > 0)
         {
-            Attachment previousVersion = translate(translationContext, group.subList(1, group.size()), fetchOptions.fetchPreviousVersion());
+            Attachment previousVersion = translate(translationContext, group.subList(1, group.size()), fetchOptions.withPreviousVersion());
             attachment.setPreviousVersion(previousVersion);
         }
 

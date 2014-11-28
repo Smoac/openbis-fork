@@ -80,53 +80,53 @@ public class ExperimentTranslator extends AbstractCachingTranslator<ExperimentPE
         if (getFetchOptions().hasType())
         {
             ExperimentType type =
-                    new ExperimentTypeTranslator(getTranslationContext(), getFetchOptions().fetchType()).translate(experiment.getExperimentType());
+                    new ExperimentTypeTranslator(getTranslationContext(), getFetchOptions().withType()).translate(experiment.getExperimentType());
             result.setType(type);
-            result.getFetchOptions().fetchType(getFetchOptions().fetchType());
+            result.getFetchOptions().withTypeUsing(getFetchOptions().withType());
         }
 
         if (getFetchOptions().hasProperties())
         {
             Map<String, String> properties =
-                    new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().fetchProperties())
+                    new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withProperties())
                             .translate(experiment);
             result.setProperties(properties);
-            result.getFetchOptions().fetchProperties(getFetchOptions().fetchProperties());
+            result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
         }
 
         if (getFetchOptions().hasProject())
         {
-            result.setProject(new ProjectTranslator(getTranslationContext(), getFetchOptions().fetchProject()).translate(experiment.getProject()));
-            result.getFetchOptions().fetchProject(getFetchOptions().fetchProject());
+            result.setProject(new ProjectTranslator(getTranslationContext(), getFetchOptions().withProject()).translate(experiment.getProject()));
+            result.getFetchOptions().withProjectUsing(getFetchOptions().withProject());
         }
 
         if (getFetchOptions().hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchRegistrator()).translate(experiment
+            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(experiment
                     .getRegistrator()));
-            result.getFetchOptions().fetchRegistrator(getFetchOptions().fetchRegistrator());
+            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
 
         if (getFetchOptions().hasModifier())
         {
-            result.setModifier(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchModifier()).translate(experiment
+            result.setModifier(new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(experiment
                     .getModifier()));
-            result.getFetchOptions().fetchModifier(getFetchOptions().fetchModifier());
+            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
         }
 
         if (getFetchOptions().hasTags())
         {
             result.setTags(new SetTranslator().translate(experiment.getMetaprojects(), new TagTranslator(getTranslationContext(), getFetchOptions()
-                    .fetchTags())));
-            result.getFetchOptions().fetchTags(getFetchOptions().fetchTags());
+                    .withTags())));
+            result.getFetchOptions().withTagsUsing(getFetchOptions().withTags());
         }
 
         if (getFetchOptions().hasAttachments())
         {
             ArrayList<Attachment> attachments =
-                    AttachmentTranslator.translate(getTranslationContext(), experiment, getFetchOptions().fetchAttachments());
+                    AttachmentTranslator.translate(getTranslationContext(), experiment, getFetchOptions().withAttachments());
             result.setAttachments(attachments);
-            result.getFetchOptions().fetchAttachments(getFetchOptions().fetchAttachments());
+            result.getFetchOptions().withAttachmentsUsing(getFetchOptions().withAttachments());
         }
 
     }

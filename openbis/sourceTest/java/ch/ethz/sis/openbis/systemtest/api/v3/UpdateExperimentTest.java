@@ -180,8 +180,8 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(experimentUpdate));
 
         SampleFetchOptions sampleFetchOptions = new SampleFetchOptions();
-        sampleFetchOptions.fetchSpace();
-        sampleFetchOptions.fetchExperiment();
+        sampleFetchOptions.withSpace();
+        sampleFetchOptions.withExperiment();
 
         Map<ISampleId, Sample> sampleMap = v3api.mapSamples(sessionToken, sampleIds, sampleFetchOptions);
         Sample sample = sampleMap.get(sampleId);
@@ -253,7 +253,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         v3api.updateExperiments(sessionToken, Arrays.asList(update));
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchProperties();
+        fetchOptions.withProperties();
         Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, ids, fetchOptions);
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());
 
@@ -723,7 +723,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
         assertEquals(experiments.size(), 1);
@@ -736,7 +736,7 @@ public class UpdateExperimentTest extends AbstractExperimentTest
         final String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchAttachments().fetchContent();
+        fetchOptions.withAttachments().withContent();
 
         Map<IExperimentId, Experiment> experiments = v3api.mapExperiments(sessionToken, Arrays.asList(experimentId), fetchOptions);
 

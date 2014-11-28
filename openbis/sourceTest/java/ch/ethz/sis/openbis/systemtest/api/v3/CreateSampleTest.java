@@ -246,7 +246,7 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> permIds = v3api.createSamples(sessionToken, Collections.singletonList(creation));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
+        fetchOptions.withSpace();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, permIds, fetchOptions);
         Sample sample = map.values().iterator().next();
@@ -411,8 +411,8 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchChildren(fetchOptions);
-        fetchOptions.fetchParents(fetchOptions);
+        fetchOptions.withChildrenUsing(fetchOptions);
+        fetchOptions.withParentsUsing(fetchOptions);
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -659,8 +659,8 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sampleParent, sampleChild));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchContained();
-        fetchOptions.fetchContainer();
+        fetchOptions.withContained();
+        fetchOptions.withContainer();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -758,7 +758,7 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sc1, sc2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchContainer();
+        fetchOptions.withContainer();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -784,7 +784,7 @@ public class CreateSampleTest extends AbstractSampleTest
         List<SamplePermId> sampleIds = v3api.createSamples(sessionToken, Arrays.asList(sc1, sc2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchContainer();
+        fetchOptions.withContainer();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -875,13 +875,13 @@ public class CreateSampleTest extends AbstractSampleTest
                 Arrays.asList(samp1, samp2, sampleWithOutSpace));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchType();
-        fetchOptions.fetchSpace();
-        fetchOptions.fetchRegistrator();
-        fetchOptions.fetchAttachments().fetchContent();
-        fetchOptions.fetchContainer();
-        fetchOptions.fetchTags();
-        fetchOptions.fetchParents();
+        fetchOptions.withType();
+        fetchOptions.withSpace();
+        fetchOptions.withRegistrator();
+        fetchOptions.withAttachments().withContent();
+        fetchOptions.withContainer();
+        fetchOptions.withTags();
+        fetchOptions.withParents();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -926,8 +926,8 @@ public class CreateSampleTest extends AbstractSampleTest
         assertEquals(sampleWithoutSpace.getRegistrator().getUserId(), TEST_USER);
 
         SampleFetchOptions onlyParentsAndChildren = new SampleFetchOptions();
-        onlyParentsAndChildren.fetchParents();
-        onlyParentsAndChildren.fetchChildren();
+        onlyParentsAndChildren.withParents();
+        onlyParentsAndChildren.withChildren();
 
         map = v3api.mapSamples(sessionToken, sample2Parents, onlyParentsAndChildren);
         samples = new ArrayList<Sample>(map.values());

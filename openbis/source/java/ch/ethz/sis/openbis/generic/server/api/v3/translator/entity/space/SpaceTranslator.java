@@ -55,9 +55,9 @@ public class SpaceTranslator extends AbstractCachingTranslator<SpacePE, Space, S
     {
         if (getFetchOptions().hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchRegistrator()).translate(space
+            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(space
                     .getRegistrator()));
-            result.getFetchOptions().fetchRegistrator(getFetchOptions().fetchRegistrator());
+            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
     }
 

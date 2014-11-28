@@ -233,7 +233,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setTagIds(Arrays.asList(new TagPermId("/test/TEST_METAPROJECTS")));
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
         Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
@@ -267,7 +267,7 @@ public class CreateExperimentTest extends AbstractExperimentTest
         creation.setTagIds(Arrays.asList(new TagPermId("/test/NEW_TAG_THAT_SHOULD_BE_CREATED")));
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         List<ExperimentPermId> permIds = v3api.createExperiments(sessionToken, Arrays.asList(creation));
         Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
@@ -388,13 +388,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(permIds.size(), 1);
 
         ExperimentFetchOptions fetchOptions = new ExperimentFetchOptions();
-        fetchOptions.fetchType();
-        fetchOptions.fetchProject();
-        fetchOptions.fetchModifier();
-        fetchOptions.fetchRegistrator();
-        fetchOptions.fetchProperties();
-        fetchOptions.fetchAttachments().fetchContent();
-        fetchOptions.fetchTags();
+        fetchOptions.withType();
+        fetchOptions.withProject();
+        fetchOptions.withModifier();
+        fetchOptions.withRegistrator();
+        fetchOptions.withProperties();
+        fetchOptions.withAttachments().withContent();
+        fetchOptions.withTags();
 
         Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, permIds, fetchOptions);
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());
@@ -451,13 +451,13 @@ public class CreateExperimentTest extends AbstractExperimentTest
         assertEquals(result.size(), 2);
 
         ExperimentFetchOptions experimentFetchOptions = new ExperimentFetchOptions();
-        experimentFetchOptions.fetchType();
-        experimentFetchOptions.fetchProject();
-        experimentFetchOptions.fetchModifier();
-        experimentFetchOptions.fetchRegistrator();
-        experimentFetchOptions.fetchProperties();
-        experimentFetchOptions.fetchAttachments().fetchContent();
-        experimentFetchOptions.fetchTags();
+        experimentFetchOptions.withType();
+        experimentFetchOptions.withProject();
+        experimentFetchOptions.withModifier();
+        experimentFetchOptions.withRegistrator();
+        experimentFetchOptions.withProperties();
+        experimentFetchOptions.withAttachments().withContent();
+        experimentFetchOptions.withTags();
 
         Map<IExperimentId, Experiment> map = v3api.mapExperiments(sessionToken, result, experimentFetchOptions);
         List<Experiment> experiments = new ArrayList<Experiment>(map.values());

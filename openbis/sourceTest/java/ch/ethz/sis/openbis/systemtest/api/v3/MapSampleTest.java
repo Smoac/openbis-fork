@@ -260,8 +260,8 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
-        fetchOptions.fetchContained().fetchContainer().fetchExperiment();
-        fetchOptions.fetchProperties();
+        fetchOptions.withContained().withContainer().withExperiment();
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091250077-1050")), fetchOptions);
@@ -297,8 +297,8 @@ public class MapSampleTest extends AbstractSampleTest
         List<SamplePermId> newSamplePermIds = v3api.createSamples(sessionToken, Collections.singletonList(newSample));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchModifier().fetchRegistrator();
-        fetchOptions.fetchRegistrator();
+        fetchOptions.withModifier().withRegistrator();
+        fetchOptions.withRegistrator();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, newSamplePermIds,
@@ -332,7 +332,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchModifier();
+        fetchOptions.withModifier();
 
         SamplePermId permId1 = new SamplePermId("200811050919915-8");
         SamplePermId permId2 = new SamplePermId("200902091219327-1025");
@@ -356,8 +356,8 @@ public class MapSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        TagFetchOptions tagfe = fetchOptions.fetchTags();
-        tagfe.fetchOwner();
+        TagFetchOptions tagfe = fetchOptions.withTags();
+        tagfe.withOwner();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("201206191219327-1055")),
@@ -395,7 +395,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_SPACE_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         SamplePermId permId1 = new SamplePermId("201206191219327-1054");
         SamplePermId permId2 = new SamplePermId("201206191219327-1055");
@@ -418,7 +418,7 @@ public class MapSampleTest extends AbstractSampleTest
     {
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
+        fetchOptions.withSpace();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200902091219327-1025")), fetchOptions);
@@ -439,7 +439,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
+        fetchOptions.withSpace();
 
         SamplePermId permId1 = new SamplePermId("201206191219327-1054");
         SamplePermId permId2 = new SamplePermId("201206191219327-1055");
@@ -465,7 +465,7 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
-        fetchOptions.fetchParents().fetchProperties();
+        fetchOptions.withParents().withProperties();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-982")), fetchOptions);
@@ -531,7 +531,7 @@ public class MapSampleTest extends AbstractSampleTest
         grandparent2Creation.setTypeId(new EntityTypePermId("CELL_PLATE"));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchParents().fetchParents();
+        fetchOptions.withParents().withParents();
 
         List<SamplePermId> sampleIds =
                 v3api.createSamples(sessionToken,
@@ -567,7 +567,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchParents();
+        fetchOptions.withParents();
 
         SamplePermId permId1 = new SamplePermId("200811050946559-980");
         SamplePermId permId2 = new SamplePermId("200811050946559-982");
@@ -593,7 +593,7 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
-        fetchOptions.fetchChildren();
+        fetchOptions.withChildren();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050929940-1019")), fetchOptions);
@@ -625,7 +625,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchChildren();
+        fetchOptions.withChildren();
 
         SamplePermId permId1 = new SamplePermId("200811050944030-975");
         SamplePermId permId2 = new SamplePermId("200811050945092-976");
@@ -651,8 +651,8 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
-        fetchOptions.fetchContained().fetchContainer();
-        fetchOptions.fetchProperties();
+        fetchOptions.withContained().withContainer();
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050919915-8")), fetchOptions);
@@ -690,7 +690,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchContainer();
+        fetchOptions.withContainer();
 
         SamplePermId permId1 = new SamplePermId("200811050919915-9");
         SamplePermId permId2 = new SamplePermId("200811050919915-10");
@@ -719,8 +719,8 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch contained, with the container and loop.
-        fetchOptions.fetchContained().fetchContainer(fetchOptions);
-        fetchOptions.fetchProperties();
+        fetchOptions.withContained().withContainerUsing(fetchOptions);
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050919915-8")), fetchOptions);
@@ -760,7 +760,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
-        fetchOptions.fetchExperiment();
+        fetchOptions.withExperiment();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Arrays.asList(new SamplePermId("200811050946559-979"), new SampleIdentifier("/CISD/RP1-B1X"),
@@ -792,7 +792,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchExperiment();
+        fetchOptions.withExperiment();
 
         SamplePermId permId1 = new SamplePermId("201206191219327-1054");
         SamplePermId permId2 = new SamplePermId("201206191219327-1055");
@@ -819,7 +819,7 @@ public class MapSampleTest extends AbstractSampleTest
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
 
         // fetch parents and their properties
-        fetchOptions.fetchType();
+        fetchOptions.withType();
 
         Map<ISampleId, Sample> map =
                 v3api.mapSamples(sessionToken, Collections.singletonList(new SamplePermId("200811050946559-979")), fetchOptions);
@@ -852,7 +852,7 @@ public class MapSampleTest extends AbstractSampleTest
         String sessionToken = v3api.login(TEST_USER, PASSWORD);
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchType();
+        fetchOptions.withType();
 
         SamplePermId permId1 = new SamplePermId("200902091219327-1025");
         SamplePermId permId2 = new SamplePermId("200902091250077-1026");

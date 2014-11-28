@@ -79,9 +79,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
-        fetchOptions.fetchExperiment();
-        fetchOptions.fetchProperties();
+        fetchOptions.withSpace();
+        fetchOptions.withExperiment();
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -223,9 +223,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
-        fetchOptions.fetchExperiment();
-        fetchOptions.fetchProperties();
+        fetchOptions.withSpace();
+        fetchOptions.withExperiment();
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -304,9 +304,9 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchSpace();
-        fetchOptions.fetchExperiment();
-        fetchOptions.fetchProperties();
+        fetchOptions.withSpace();
+        fetchOptions.withExperiment();
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -364,7 +364,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchExperiment();
+        fetchOptions.withExperiment();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -448,7 +448,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchExperiment();
+        fetchOptions.withExperiment();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -547,7 +547,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchProperties();
+        fetchOptions.withProperties();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -583,8 +583,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(updateContained));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchContainer();
-        fetchOptions.fetchContained();
+        fetchOptions.withContainer();
+        fetchOptions.withContained();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -722,8 +722,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(updateContainer1, updateContainer2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchContainer();
-        fetchOptions.fetchContained();
+        fetchOptions.withContainer();
+        fetchOptions.withContained();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -872,8 +872,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(updateChild1, updateChild2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchParents();
-        fetchOptions.fetchChildren();
+        fetchOptions.withParents();
+        fetchOptions.withChildren();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -1022,8 +1022,8 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(updateParent1, updateParent2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchParents();
-        fetchOptions.fetchChildren();
+        fetchOptions.withParents();
+        fetchOptions.withChildren();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());
@@ -1173,7 +1173,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update1, update2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchAttachments().fetchContent();
+        fetchOptions.withAttachments().withContent();
 
         Map<ISampleId, Sample> samples = v3api.mapSamples(sessionToken, sampleIds, fetchOptions);
 
@@ -1224,7 +1224,7 @@ public class UpdateSampleTest extends AbstractSampleTest
         v3api.updateSamples(sessionToken, Arrays.asList(update1, update2));
 
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        fetchOptions.fetchTags();
+        fetchOptions.withTags();
 
         Map<ISampleId, Sample> map = v3api.mapSamples(sessionToken, ids, fetchOptions);
         List<Sample> samples = new ArrayList<Sample>(map.values());

@@ -92,28 +92,28 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         if (getFetchOptions().hasExperiment())
         {
             result.setExperiment(relations.get(SampleExperimentRelation.class).getTranslated(samplePe));
-            result.getFetchOptions().fetchExperiment(getFetchOptions().fetchExperiment());
+            result.getFetchOptions().withExperimentUsing(getFetchOptions().withExperiment());
         }
 
         if (getFetchOptions().hasSpace())
         {
-            Space space = new SpaceTranslator(getTranslationContext(), getFetchOptions().fetchSpace()).translate(samplePe
+            Space space = new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace()).translate(samplePe
                     .getSpace());
             result.setSpace(space);
-            result.getFetchOptions().fetchSpace(getFetchOptions().fetchSpace());
+            result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
         }
 
         if (getFetchOptions().hasProperties())
         {
-            result.setProperties(new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().fetchProperties())
+            result.setProperties(new PropertyTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withProperties())
                     .translate(samplePe));
-            result.getFetchOptions().fetchProperties(getFetchOptions().fetchProperties());
+            result.getFetchOptions().withPropertiesUsing(getFetchOptions().withProperties());
         }
 
         if (getFetchOptions().hasParents())
         {
             result.setParents(relations.get(SampleParentsRelation.class).getTranslatedList(samplePe));
-            result.getFetchOptions().fetchParents(getFetchOptions().fetchParents());
+            result.getFetchOptions().withParentsUsing(getFetchOptions().withParents());
         }
 
         if (getFetchOptions().hasChildren())
@@ -121,18 +121,18 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
             List<Sample> children =
                     new ListTranslator().translate(samplePe.getChildren(), new SampleTranslator(getTranslationContext(),
                             managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchChildren()));
+                                    .withChildren()));
             result.setChildren(children);
-            result.getFetchOptions().fetchChildren(getFetchOptions().fetchChildren());
+            result.getFetchOptions().withChildrenUsing(getFetchOptions().withChildren());
         }
 
         if (getFetchOptions().hasContainer())
         {
             Sample container =
-                    new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().fetchContainer())
+                    new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions().withContainer())
                             .translate(samplePe.getContainer());
             result.setContainer(container);
-            result.getFetchOptions().fetchContainer(getFetchOptions().fetchContainer());
+            result.getFetchOptions().withContainerUsing(getFetchOptions().withContainer());
         }
 
         if (getFetchOptions().hasContained())
@@ -140,50 +140,50 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
             List<Sample> contained =
                     new ListTranslator().translate(samplePe.getContained(), new SampleTranslator(getTranslationContext(),
                             managedPropertyEvaluatorFactory, getFetchOptions()
-                                    .fetchContained()));
+                                    .withContained()));
             result.setContained(contained);
-            result.getFetchOptions().fetchContained(getFetchOptions().fetchContained());
+            result.getFetchOptions().withContainedUsing(getFetchOptions().withContained());
         }
 
         if (getFetchOptions().hasType())
         {
             SampleType sampleType =
-                    new SampleTypeTranslator(getTranslationContext(), getFetchOptions().fetchType()).translate(samplePe.getSampleType());
+                    new SampleTypeTranslator(getTranslationContext(), getFetchOptions().withType()).translate(samplePe.getSampleType());
             result.setType(sampleType);
-            result.getFetchOptions().fetchType(getFetchOptions().fetchType());
+            result.getFetchOptions().withTypeUsing(getFetchOptions().withType());
         }
 
         if (getFetchOptions().hasTags())
         {
             List<Tag> tags =
                     new ListTranslator().translate(samplePe.getMetaprojects(), new TagTranslator(getTranslationContext(), getFetchOptions()
-                            .fetchTags()));
+                            .withTags()));
             result.setTags(new HashSet<Tag>(tags));
-            result.getFetchOptions().fetchTags(getFetchOptions().fetchTags());
+            result.getFetchOptions().withTagsUsing(getFetchOptions().withTags());
         }
 
         if (getFetchOptions().hasRegistrator())
         {
             Person registrator =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().fetchRegistrator()).translate(samplePe.getRegistrator());
+                    new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(samplePe.getRegistrator());
             result.setRegistrator(registrator);
-            result.getFetchOptions().fetchRegistrator(getFetchOptions().fetchRegistrator());
+            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
 
         if (getFetchOptions().hasModifier())
         {
             Person modifier =
-                    new PersonTranslator(getTranslationContext(), getFetchOptions().fetchModifier()).translate(samplePe.getModifier());
+                    new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(samplePe.getModifier());
             result.setModifier(modifier);
-            result.getFetchOptions().fetchModifier(getFetchOptions().fetchModifier());
+            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
         }
 
         if (getFetchOptions().hasAttachments())
         {
             ArrayList<Attachment> attachments =
-                    AttachmentTranslator.translate(getTranslationContext(), samplePe, getFetchOptions().fetchAttachments());
+                    AttachmentTranslator.translate(getTranslationContext(), samplePe, getFetchOptions().withAttachments());
             result.setAttachments(attachments);
-            result.getFetchOptions().fetchAttachments(getFetchOptions().fetchAttachments());
+            result.getFetchOptions().withAttachmentsUsing(getFetchOptions().withAttachments());
         }
     }
 
@@ -213,7 +213,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         protected Map<ExperimentPE, Experiment> getTranslatedMap(Collection<ExperimentPE> originalCollection)
         {
             return new ExperimentTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
-                    .fetchExperiment()).translate(originalCollection);
+                    .withExperiment()).translate(originalCollection);
         }
 
     }
@@ -254,7 +254,7 @@ public class SampleTranslator extends AbstractCachingTranslator<SamplePE, Sample
         protected Map<SamplePE, Sample> getTranslatedMap(Collection<SamplePE> originalCollection)
         {
             return new SampleTranslator(getTranslationContext(), managedPropertyEvaluatorFactory, getFetchOptions()
-                    .fetchParents()).translate(originalCollection);
+                    .withParents()).translate(originalCollection);
         }
 
     }

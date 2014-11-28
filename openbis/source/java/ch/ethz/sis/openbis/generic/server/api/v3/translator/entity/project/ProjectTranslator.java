@@ -66,22 +66,22 @@ public class ProjectTranslator extends AbstractCachingTranslator<ProjectPE, Proj
     {
         if (getFetchOptions().hasSpace())
         {
-            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().fetchSpace()).translate(project.getSpace()));
-            result.getFetchOptions().fetchSpace(getFetchOptions().fetchSpace());
+            result.setSpace(new SpaceTranslator(getTranslationContext(), getFetchOptions().withSpace()).translate(project.getSpace()));
+            result.getFetchOptions().withSpaceUsing(getFetchOptions().withSpace());
         }
 
         if (getFetchOptions().hasRegistrator())
         {
-            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchRegistrator()).translate(project
+            result.setRegistrator(new PersonTranslator(getTranslationContext(), getFetchOptions().withRegistrator()).translate(project
                     .getRegistrator()));
-            result.getFetchOptions().fetchRegistrator(getFetchOptions().fetchRegistrator());
+            result.getFetchOptions().withRegistratorUsing(getFetchOptions().withRegistrator());
         }
 
         if (getFetchOptions().hasModifier())
         {
-            result.setModifier(new PersonTranslator(getTranslationContext(), getFetchOptions().fetchModifier()).translate(project
+            result.setModifier(new PersonTranslator(getTranslationContext(), getFetchOptions().withModifier()).translate(project
                     .getModifier()));
-            result.getFetchOptions().fetchModifier(getFetchOptions().fetchModifier());
+            result.getFetchOptions().withModifierUsing(getFetchOptions().withModifier());
         }
 
     }
