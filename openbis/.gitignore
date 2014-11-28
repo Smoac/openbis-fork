@@ -1,3 +1,6 @@
+.classpath
+.project
+.settings
 /tomcat
 /targets
 /test-output
@@ -7,3 +10,4 @@
 /.dynamic_property_evaluator_queue
 /build
 /bin
+sourceTest/lucene/
