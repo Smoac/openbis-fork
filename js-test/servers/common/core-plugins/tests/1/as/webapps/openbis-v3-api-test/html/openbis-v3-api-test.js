@@ -56,26 +56,26 @@ var createFacadeAndLogin = function(action) {
 
 var createExperimentFetchOptions = function() {
 	var fo = new ExperimentFetchOptions();
-	fo.fetchType();
-	fo.fetchProject().fetchSpace();
-	fo.fetchProperties();
-	fo.fetchTags();
-	fo.fetchRegistrator();
-	fo.fetchModifier();
-	fo.fetchAttachments();
+	fo.withType();
+	fo.withProject().withSpace();
+	fo.withProperties();
+	fo.withTags();
+	fo.withRegistrator();
+	fo.withModifier();
+	fo.withAttachments();
 	return fo;
 }
 
 var createSampleFetchOptions = function() {
 	var fo = new SampleFetchOptions();
-	fo.fetchType();
-	fo.fetchExperiment().fetchProject().fetchSpace();
-	fo.fetchSpace();
-	fo.fetchProperties();
-	fo.fetchTags();
-	fo.fetchRegistrator();
-	fo.fetchModifier();
-	fo.fetchAttachments();
+	fo.withType();
+	fo.withExperiment().withProject().withSpace();
+	fo.withSpace();
+	fo.withProperties();
+	fo.withTags();
+	fo.withRegistrator();
+	fo.withModifier();
+	fo.withAttachments();
 	return fo;
 }
 
@@ -208,9 +208,16 @@ test("createExperiments()", function() {
 				"code" : "CREATE_JSON_TAG"
 			} ]
 		} ];
+		
+		var experimentCreation = new ExperimentCreation();
+		experimentCreation.setTypeId(new EntityTypePermId("UNKNOWN"));
+		experimentCreation.setCode(code);
+		experimentCreation.setProjectId(new ProjectIdentifier("/TEST/TEST-PROJECT"));
+		experimentCreation.setTagIds([new TagCode("CREATE_JSON_TAG")]);
+
 		var fetchOptions = createExperimentFetchOptions();
 
-		facade.createExperiments(creations, function(permIds) {
+		facade.createExperiments([experimentCreation], function(permIds) {
 			facade.mapExperiments(permIds, fetchOptions, function(experiments) {
 				assertObjectsCount(Object.keys(experiments), 1);
 

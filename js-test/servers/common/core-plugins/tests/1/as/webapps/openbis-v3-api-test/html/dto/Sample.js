@@ -1,268 +1,295 @@
-var Sample = function()
-{
-    this['@type'] = 'Sample';
-    this.getFetchOptions = function()
-    {
-        return fetchOptions;
-    }
+/**
+ *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ */
+var Sample = function() {
+	this['@type'] = 'Sample';
+};
 
-    this.setFetchOptions = function(fetchOptions)
-    {
+stjs.extend(Sample, null, [Serializable], function(constructor, prototype) {
+    constructor.serialVersionUID = 1;
+    prototype.fetchOptions = null;
+    prototype.permId = null;
+    prototype.identifier = null;
+    prototype.code = null;
+    prototype.registrationDate = null;
+    prototype.modificationDate = null;
+    prototype.type = null;
+    prototype.space = null;
+    prototype.experiment = null;
+    prototype.properties = null;
+    prototype.parents = null;
+    prototype.children = null;
+    prototype.container = null;
+    prototype.contained = null;
+    prototype.tags = null;
+    prototype.registrator = null;
+    prototype.modifier = null;
+    prototype.attachments = null;
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getFetchOptions = function() {
+        return this.fetchOptions;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setFetchOptions = function(fetchOptions) {
         this.fetchOptions = fetchOptions;
-    }
-
-    this.getPermId = function()
-    {
-        return permId;
-    }
-
-    this.setPermId = function(permId)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getPermId = function() {
+        return this.permId;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setPermId = function(permId) {
         this.permId = permId;
-    }
-
-    this.getIdentifier = function()
-    {
-        return identifier;
-    }
-
-    this.setIdentifier = function(identifier)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getIdentifier = function() {
+        return this.identifier;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setIdentifier = function(identifier) {
         this.identifier = identifier;
-    }
-
-    this.getCode = function()
-    {
-        return code;
-    }
-
-    this.setCode = function(code)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getCode = function() {
+        return this.code;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setCode = function(code) {
         this.code = code;
-    }
-
-    this.getRegistrationDate = function()
-    {
-        return registrationDate;
-    }
-
-    this.setRegistrationDate = function(registrationDate)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getRegistrationDate = function() {
+        return this.registrationDate;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setRegistrationDate = function(registrationDate) {
         this.registrationDate = registrationDate;
-    }
-
-    this.getModificationDate = function()
-    {
-        return modificationDate;
-    }
-
-    this.setModificationDate = function(modificationDate)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getModificationDate = function() {
+        return this.modificationDate;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setModificationDate = function(modificationDate) {
         this.modificationDate = modificationDate;
-    }
-
-    this.getType = function()
-    {
-        if (this.getFetchOptions().hasType())
-        {
-            return type;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getType = function() {
+        if (this.getFetchOptions().hasType()) {
+            return this.type;
+        } else {
+             throw new NotFetchedException("Sample type has not been fetched.");
         }
-        else
-        {
-            throw 'Sample type has not been fetched.'
-        }
-    }
-
-    this.setType = function(type)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setType = function(type) {
         this.type = type;
-    }
-
-    this.getSpace = function()
-    {
-        if (this.getFetchOptions().hasSpace())
-        {
-            return space;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getSpace = function() {
+        if (this.getFetchOptions().hasSpace()) {
+            return this.space;
+        } else {
+             throw new NotFetchedException("Space has not been fetched.");
         }
-        else
-        {
-            throw 'Space has not been fetched.'
-        }
-    }
-
-    this.setSpace = function(space)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setSpace = function(space) {
         this.space = space;
-    }
-
-    this.getExperiment = function()
-    {
-        if (this.getFetchOptions().hasExperiment())
-        {
-            return experiment;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getExperiment = function() {
+        if (this.getFetchOptions().hasExperiment()) {
+            return this.experiment;
+        } else {
+             throw new NotFetchedException("Experiment has not been fetched.");
         }
-        else
-        {
-            throw 'Experiment has not been fetched.'
-        }
-    }
-
-    this.setExperiment = function(experiment)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setExperiment = function(experiment) {
         this.experiment = experiment;
-    }
-
-    this.getProperties = function()
-    {
-        if (this.getFetchOptions().hasProperties())
-        {
-            return properties;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getProperties = function() {
+        if (this.getFetchOptions().hasProperties()) {
+            return this.properties;
+        } else {
+             throw new NotFetchedException("Properties has not been fetched.");
         }
-        else
-        {
-            throw 'Properties has not been fetched.'
-        }
-    }
-
-    this.setProperties = function(properties)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setProperties = function(properties) {
         this.properties = properties;
-    }
-
-    this.getParents = function()
-    {
-        if (this.getFetchOptions().hasParents())
-        {
-            return parents;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getParents = function() {
+        if (this.getFetchOptions().hasParents()) {
+            return this.parents;
+        } else {
+             throw new NotFetchedException("Parents has not been fetched.");
         }
-        else
-        {
-            throw 'Parents has not been fetched.'
-        }
-    }
-
-    this.setParents = function(parents)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setParents = function(parents) {
         this.parents = parents;
-    }
-
-    this.getChildren = function()
-    {
-        if (this.getFetchOptions().hasChildren())
-        {
-            return children;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getChildren = function() {
+        if (this.getFetchOptions().hasChildren()) {
+            return this.children;
+        } else {
+             throw new NotFetchedException("Children has not been fetched.");
         }
-        else
-        {
-            throw 'Children has not been fetched.'
-        }
-    }
-
-    this.setChildren = function(children)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setChildren = function(children) {
         this.children = children;
-    }
-
-    this.getContainer = function()
-    {
-        if (this.getFetchOptions().hasContainer())
-        {
-            return container;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getContainer = function() {
+        if (this.getFetchOptions().hasContainer()) {
+            return this.container;
+        } else {
+             throw new NotFetchedException("Container sample has not been fetched.");
         }
-        else
-        {
-            throw 'Container sample has not been fetched.'
-        }
-    }
-
-    this.setContainer = function(container)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setContainer = function(container) {
         this.container = container;
-    }
-
-    this.getContained = function()
-    {
-        if (this.getFetchOptions().hasContained())
-        {
-            return contained;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getContained = function() {
+        if (this.getFetchOptions().hasContained()) {
+            return this.contained;
+        } else {
+             throw new NotFetchedException("Contained samples has not been fetched.");
         }
-        else
-        {
-            throw 'Contained samples has not been fetched.'
-        }
-    }
-
-    this.setContained = function(contained)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setContained = function(contained) {
         this.contained = contained;
-    }
-
-    this.getTags = function()
-    {
-        if (this.getFetchOptions().hasTags())
-        {
-            return tags;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getTags = function() {
+        if (this.getFetchOptions().hasTags()) {
+            return this.tags;
+        } else {
+             throw new NotFetchedException("Tags has not been fetched.");
         }
-        else
-        {
-            throw 'Tags has not been fetched.'
-        }
-    }
-
-    this.setTags = function(tags)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setTags = function(tags) {
         this.tags = tags;
-    }
-
-    this.getRegistrator = function()
-    {
-        if (this.getFetchOptions().hasRegistrator())
-        {
-            return registrator;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getRegistrator = function() {
+        if (this.getFetchOptions().hasRegistrator()) {
+            return this.registrator;
+        } else {
+             throw new NotFetchedException("Registrator has not been fetched.");
         }
-        else
-        {
-            throw 'Registrator has not been fetched.'
-        }
-    }
-
-    this.setRegistrator = function(registrator)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setRegistrator = function(registrator) {
         this.registrator = registrator;
-    }
-
-    this.getModifier = function()
-    {
-        if (this.getFetchOptions().hasModifier())
-        {
-            return modifier;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getModifier = function() {
+        if (this.getFetchOptions().hasModifier()) {
+            return this.modifier;
+        } else {
+             throw new NotFetchedException("Modifier has not been fetched.");
         }
-        else
-        {
-            throw 'Modifier has not been fetched.'
-        }
-    }
-
-    this.setModifier = function(modifier)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setModifier = function(modifier) {
         this.modifier = modifier;
-    }
-
-    this.getAttachments = function()
-    {
-        if (this.getFetchOptions().hasAttachments())
-        {
-            return attachments;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getAttachments = function() {
+        if (this.getFetchOptions().hasAttachments()) {
+            return this.attachments;
+        } else {
+             throw new NotFetchedException("Attachments has not been fetched.");
         }
-        else
-        {
-            throw 'Attachments has not been fetched.'
-        }
-    }
-
-    this.setAttachments = function(attachments)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setAttachments = function(attachments) {
         this.attachments = attachments;
-    }
-
-}
+    };
+    prototype.toString = function() {
+        return "Sample " + this.permId;
+    };
+}, {fetchOptions: "SampleFetchOptions", permId: "SamplePermId", identifier: "SampleIdentifier", registrationDate: "Date", modificationDate: "Date", type: "SampleType", space: "Space", experiment: "Experiment", properties: {name: "Map", arguments: [null, null]}, parents: {name: "List", arguments: ["Sample"]}, children: {name: "List", arguments: ["Sample"]}, container: "Sample", contained: {name: "List", arguments: ["Sample"]}, tags: {name: "Set", arguments: ["Tag"]}, registrator: "Person", modifier: "Person", attachments: {name: "List", arguments: ["Attachment"]}});

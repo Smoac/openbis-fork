@@ -1,71 +1,92 @@
-var Space = function()
-{
-    this['@type'] = 'Space';
-    this.getFetchOptions = function()
-    {
-        return fetchOptions;
-    }
+/**
+ *  Class automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+ */
+var Space = function() {
+	this['@type'] = 'Space';
+};
 
-    this.setFetchOptions = function(fetchOptions)
-    {
+stjs.extend(Space, null, [Serializable], function(constructor, prototype) {
+    constructor.serialVersionUID = 1;
+    prototype.fetchOptions = null;
+    prototype.permId = null;
+    prototype.code = null;
+    prototype.description = null;
+    prototype.registrationDate = null;
+    prototype.registrator = null;
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getFetchOptions = function() {
+        return this.fetchOptions;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setFetchOptions = function(fetchOptions) {
         this.fetchOptions = fetchOptions;
-    }
-
-    this.getPermId = function()
-    {
-        return permId;
-    }
-
-    this.setPermId = function(permId)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getPermId = function() {
+        return this.permId;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setPermId = function(permId) {
         this.permId = permId;
-    }
-
-    this.getCode = function()
-    {
-        return code;
-    }
-
-    this.setCode = function(code)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getCode = function() {
+        return this.code;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setCode = function(code) {
         this.code = code;
-    }
-
-    this.getDescription = function()
-    {
-        return description;
-    }
-
-    this.setDescription = function(description)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getDescription = function() {
+        return this.description;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setDescription = function(description) {
         this.description = description;
-    }
-
-    this.getRegistrationDate = function()
-    {
-        return registrationDate;
-    }
-
-    this.setRegistrationDate = function(registrationDate)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getRegistrationDate = function() {
+        return this.registrationDate;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setRegistrationDate = function(registrationDate) {
         this.registrationDate = registrationDate;
-    }
-
-    this.getRegistrator = function()
-    {
-        if (this.getFetchOptions().hasRegistrator())
-        {
-            return registrator;
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.getRegistrator = function() {
+        if (this.getFetchOptions().hasRegistrator()) {
+            return this.registrator;
+        } else {
+             throw new NotFetchedException("Registrator has not been fetched.");
         }
-        else
-        {
-            throw 'Registrator has not been fetched.'
-        }
-    }
-
-    this.setRegistrator = function(registrator)
-    {
+    };
+    /**
+     *  Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+     */
+    prototype.setRegistrator = function(registrator) {
         this.registrator = registrator;
-    }
-
-}
+    };
+}, {fetchOptions: "SpaceFetchOptions", permId: "SpacePermId", registrationDate: "Date", registrator: "Person"});
