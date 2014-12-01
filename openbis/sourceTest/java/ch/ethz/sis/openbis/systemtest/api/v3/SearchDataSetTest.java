@@ -20,15 +20,14 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 
+import junit.framework.Assert;
+
 import org.testng.annotations.Test;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
-import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 
 /**
  * @author pkupczyk
@@ -94,14 +93,30 @@ public class SearchDataSetTest extends AbstractDataSetTest
         testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159222-2", "20081105092159333-3");
     }
 
-    // @Test
-    // public void testSearchWithIdSetToPermId()
-    // {
-    // ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
-    // criterion.withId().thatEquals(new ExperimentPermId("200811050951882-1028"));
-    // testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP1");
-    // }
-    //
+    @Test
+    public void testSearchWithExperimentWithPermIdThatEquals()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withExperiment().withPermId().thatEquals("200902091255058-1035");
+        testSearch(TEST_USER, criterion, "20081105092159333-3", "20110805092359990-17");
+    }
+    
+    @Test
+    public void testSearchWithExperimentWithProperty()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withExperiment().withProperty("GENDER");
+        testSearch(TEST_USER, criterion, "20081105092159333-3", "20110805092359990-17", "20081105092159188-3");
+    }
+
+    @Test
+    public void testSearchWithExperimentWithPropertyThatEquals()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withExperiment().withProperty("GENDER").thatEquals("MALE");
+        testSearch(TEST_USER, criterion, "20081105092159188-3");
+    }
+    
     // @Test
     // public void testSearchWithPermId()
     // {
@@ -598,14 +613,20 @@ public class SearchDataSetTest extends AbstractDataSetTest
         v3api.logout(sessionToken);
     }
 
-    private void testSearch(String user, ExperimentSearchCriterion criterion, int expectedCount)
+    private void assertSearchFails(String user, String expectedFailureMessage, DataSetSearchCriterion criterion)
     {
         String sessionToken = v3api.login(user, PASSWORD);
-
-        List<Experiment> experiments =
-                v3api.searchExperiments(sessionToken, criterion, new ExperimentFetchOptions());
-
-        assertEquals(experiments.size(), expectedCount);
-        v3api.logout(sessionToken);
+        try
+        {
+            v3api.searchDataSets(sessionToken, criterion, new DataSetFetchOptions());
+            Assert.fail("Exception expected");
+        } catch (Exception ex)
+        {
+            assertEquals(ex.getMessage(), expectedFailureMessage);
+        } finally
+        {
+            v3api.logout(sessionToken);
+        }
+   
     }
 }

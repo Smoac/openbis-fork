@@ -18,36 +18,19 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
-@JsonObject("StringFieldSearchCriterion")
-public class StringFieldSearchCriterion extends AbstractFieldSearchCriterion<AbstractStringValue>
+@JsonObject("AnyStringValue")
+public class AnyStringValue extends AbstractStringValue
 {
-
     private static final long serialVersionUID = 1L;
 
-    StringFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
+    public AnyStringValue()
     {
-        super(fieldName, fieldType);
-        setFieldValue(new AnyStringValue());
+        super(null);
     }
 
-    public void thatEquals(String string)
+    @Override
+    public String toString()
     {
-        setFieldValue(new StringEqualToValue(string));
+        return "any value";
     }
-
-    public void thatStartsWith(String prefix)
-    {
-        setFieldValue(new StringStartsWithValue(prefix));
-    }
-
-    public void thatEndsWith(String suffix)
-    {
-        setFieldValue(new StringEndsWithValue(suffix));
-    }
-
-    public void thatContains(String string)
-    {
-        setFieldValue(new StringContainsValue(string));
-    }
-
 }

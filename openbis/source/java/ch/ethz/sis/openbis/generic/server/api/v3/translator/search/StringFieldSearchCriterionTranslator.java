@@ -17,6 +17,7 @@
 package ch.ethz.sis.openbis.generic.server.api.v3.translator.search;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractStringValue;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AnyStringValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringContainsValue;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.StringEndsWithValue;
@@ -67,9 +68,15 @@ public class StringFieldSearchCriterionTranslator extends AbstractFieldSearchCri
         {
             StringContainsValue endsWithValue = (StringContainsValue) valueObject;
             value = "*" + endsWithValue.getValue() + "*";
-        } else
+        } else if (valueObject instanceof AnyStringValue)
+        {
+            value = "*";
+        } else if (valueObject != null)
         {
             throw new IllegalArgumentException("Unknown string field value: " + valueObject);
+        } else
+        {
+            throw new IllegalArgumentException("Unspecified value of criterion '" + criterion + "'.");
         }
 
         return new SearchCriterionTranslationResult(new DetailedSearchCriterion(getDetailedSearchField(context, stringCriterion), value));

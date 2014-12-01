@@ -230,6 +230,14 @@ public class SearchExperimentTest extends AbstractExperimentTest
     }
 
     @Test
+    public void testSearchWithProperty()
+    {
+        ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
+        criterion.withProperty("COMMENT");
+        testSearch(TEST_USER, criterion, "/CISD/NEMO/EXP-TEST-1");
+    }
+    
+    @Test
     public void testSearchWithPropertyThatContains()
     {
         ExperimentSearchCriterion criterion = new ExperimentSearchCriterion();
