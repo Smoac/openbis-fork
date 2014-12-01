@@ -30,6 +30,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.IOperationContext;
+import ch.ethz.sis.openbis.generic.server.api.v3.executor.dataset.IMapDataSetByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.entity.IMapEntityTypeByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.experiment.IMapExperimentByIdExecutor;
 import ch.ethz.sis.openbis.generic.server.api.v3.executor.project.IMapProjectByIdExecutor;
@@ -42,6 +43,7 @@ import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriteri
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchCriterionTranslatorFactory;
 import ch.ethz.sis.openbis.generic.server.api.v3.translator.search.SearchTranslationContext;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.IObjectId;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.IDataSetId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.entitytype.IEntityTypeId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.experiment.IExperimentId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.project.IProjectId;
@@ -51,6 +53,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.tag.ITagId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractCompositeSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.AbstractObjectSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.CodeSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.EntityTypeSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ExperimentSearchCriterion;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.ISearchCriterion;
@@ -61,6 +64,7 @@ import ch.systemsx.cisd.openbis.generic.server.ComponentNames;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ICommonBusinessObjectFactory;
 import ch.systemsx.cisd.openbis.generic.server.dataaccess.IDAOFactory;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DetailedSearchCriteria;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DataPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.EntityTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.MetaprojectPE;
@@ -87,6 +91,9 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
 
     @Autowired
     private IMapSampleByIdExecutor mapSampleByIdExecutor;
+
+    @Autowired
+    private IMapDataSetByIdExecutor mapDataSetByIdExecutor;
 
     @Autowired
     private IMapEntityTypeByIdExecutor mapEntityTypeByIdExecutor;
@@ -132,6 +139,8 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
         replacers.add(new ExperimentTypeIdCriterionReplacer());
         replacers.add(new SampleIdCriterionReplacer());
         replacers.add(new SampleTypeIdCriterionReplacer());
+        replacers.add(new DataSetIdCriterionReplacer());
+        replacers.add(new DataSetTypeIdCriterionReplacer());
         replacers.add(new TagIdCriterionReplacer());
 
         Map<ICriterionReplacer, Set<ISearchCriterion>> toReplaceMap = new HashMap<ICriterionReplacer, Set<ISearchCriterion>>();
@@ -397,6 +406,37 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
 
     }
 
+    private class DataSetIdCriterionReplacer extends AbstractIdCriterionReplacer<IDataSetId, DataPE>
+    {
+
+        @Override
+        protected Class<IDataSetId> getIdClass()
+        {
+            return IDataSetId.class;
+        }
+
+        @Override
+        protected Map<IDataSetId, DataPE> getObjectMap(IOperationContext context, Collection<IDataSetId> dataSetIds)
+        {
+            return mapDataSetByIdExecutor.map(context, dataSetIds);
+        }
+
+        @Override
+        protected ISearchCriterion createReplacement(IOperationContext context, ISearchCriterion criterion, DataPE dataSet)
+        {
+            PermIdSearchCriterion replacement = new PermIdSearchCriterion();
+            if (dataSet == null)
+            {
+                replacement.thatEquals("#");
+            } else
+            {
+                replacement.thatEquals(dataSet.getPermId());
+            }
+            return replacement;
+        }
+
+    }
+
     private class TagIdCriterionReplacer extends AbstractIdCriterionReplacer<ITagId, MetaprojectPE>
     {
 
@@ -511,6 +551,23 @@ public abstract class AbstractSearchObjectExecutor<CRITERION extends AbstractObj
         protected Class<?> getEntityCriterionClass()
         {
             return SampleSearchCriterion.class;
+        }
+
+    }
+
+    private class DataSetTypeIdCriterionReplacer extends AbstractEntityTypeIdCriterionReplacer
+    {
+
+        @Override
+        protected EntityKind getEntityKind()
+        {
+            return EntityKind.DATA_SET;
+        }
+
+        @Override
+        protected Class<?> getEntityCriterionClass()
+        {
+            return DataSetSearchCriterion.class;
         }
 
     }
