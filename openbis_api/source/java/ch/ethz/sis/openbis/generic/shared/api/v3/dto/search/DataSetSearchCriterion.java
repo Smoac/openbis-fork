@@ -42,17 +42,17 @@ public class DataSetSearchCriterion extends AbstractEntitySearchCriterion<IDataS
 
     public DataSetSearchCriterion withParents()
     {
-        return with(new DataSetSearchCriterion(DataSetSearchRelation.PARENTS));
+        return with(new DataSetParentsSearchCriterion());
     }
 
     public DataSetSearchCriterion withChildren()
     {
-        return with(new DataSetSearchCriterion(DataSetSearchRelation.CHILDREN));
+        return with(new DataSetChildrenSearchCriterion());
     }
 
     public DataSetSearchCriterion withContainer()
     {
-        return with(new DataSetSearchCriterion(DataSetSearchRelation.CONTAINER));
+        return with(new DataSetContainerSearchCriterion());
     }
 
     public DataSetSearchCriterion withOrOperator()
