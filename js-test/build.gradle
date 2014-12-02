@@ -62,8 +62,8 @@ test {
     ignoreFailures = true
     systemProperty 'selenium.dss-runtime-classpath', configurations.externalDss.asPath
     systemProperty 'jetty.home', '../../../targets/gradle'
-	systemProperty 'ui-test.start-page', 'http://localhost:20000/openbis'
-	systemProperty 'org.mortbay.util.FileResource.checkAliases', 'false'
+    systemProperty 'ui-test.start-page', 'http://localhost:20000/openbis'
+    systemProperty 'org.mortbay.util.FileResource.checkAliases', 'false'
     
     workingDir = 'servers/common/openBIS-server'
 }
@@ -71,6 +71,7 @@ test.dependsOn copyWar
 
 task deleteLink(type: Exec) {
     executable "rm"
-    args "-rf", "${project.projectDir.absolutePath}/targets/gradle/webapps/webapp/webapp"
+    args "-rf", "${project.projectDir.absolutePath}/targets/gradle/webapps/openbis/webapp", 
+                "${project.projectDir.absolutePath}/targets/gradle/webapps/webapp/webapp"
 }
 clean.dependsOn deleteLink
