@@ -41,6 +41,7 @@ import org.testng.annotations.BeforeMethod;
 import ch.ethz.sis.openbis.generic.shared.api.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.Attachment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.attachment.AttachmentCreation;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
@@ -253,6 +254,54 @@ public class AbstractTest extends SystemTestCase
             });
     }
 
+    protected void assertParentsNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                dataSet.getParents();
+            }
+        });
+    }
+    
+    protected void assertChildrenNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+        {
+            @Override
+            public void execute()
+            {
+                dataSet.getChildren();
+            }
+        });
+    }
+    
+    protected void assertContainersNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getContainers();
+                }
+            });
+    }
+
+    protected void assertContainedNotFetched(final DataSet dataSet)
+    {
+        assertNotFetched(new IDelegatedAction()
+            {
+                @Override
+                public void execute()
+                {
+                    dataSet.getContained();
+                }
+            });
+    }
+
     protected void assertTagsNotFetched(final Sample sample)
     {
         assertNotFetched(new IDelegatedAction()
@@ -378,7 +427,7 @@ public class AbstractTest extends SystemTestCase
         try
         {
             action.execute();
-            fail("Requested element was not fetched");
+            fail("NotFetchedException expected");
         } catch (NotFetchedException e)
         {
             // ok

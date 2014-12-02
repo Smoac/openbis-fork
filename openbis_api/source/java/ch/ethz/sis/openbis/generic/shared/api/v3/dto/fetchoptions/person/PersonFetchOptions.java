@@ -35,9 +35,7 @@ public class PersonFetchOptions implements Serializable
     @JsonProperty
     private PersonFetchOptions registrator;
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public SpaceFetchOptions withSpace()
     {
         if (space == null)
@@ -47,25 +45,19 @@ public class PersonFetchOptions implements Serializable
         return space;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public SpaceFetchOptions withSpaceUsing(SpaceFetchOptions fetchOptions)
     {
         return space = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasSpace()
     {
         return space != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -75,17 +67,13 @@ public class PersonFetchOptions implements Serializable
         return registrator;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasRegistrator()
     {
         return registrator != null;

@@ -54,9 +54,7 @@ public class ExperimentFetchOptions implements Serializable
     @JsonProperty
     private AttachmentFetchOptions attachments;
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public ExperimentTypeFetchOptions withType()
     {
         if (type == null)
@@ -66,25 +64,19 @@ public class ExperimentFetchOptions implements Serializable
         return type;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public ExperimentTypeFetchOptions withTypeUsing(ExperimentTypeFetchOptions fetchOptions)
     {
         return type = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasType()
     {
         return type != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public ProjectFetchOptions withProject()
     {
         if (project == null)
@@ -94,25 +86,19 @@ public class ExperimentFetchOptions implements Serializable
         return project;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public ProjectFetchOptions withProjectUsing(ProjectFetchOptions fetchOptions)
     {
         return project = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasProject()
     {
         return project != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PropertyFetchOptions withProperties()
     {
         if (properties == null)
@@ -122,25 +108,19 @@ public class ExperimentFetchOptions implements Serializable
         return properties;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PropertyFetchOptions withPropertiesUsing(PropertyFetchOptions fetchOptions)
     {
         return properties = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasProperties()
     {
         return properties != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public TagFetchOptions withTags()
     {
         if (tags == null)
@@ -150,25 +130,19 @@ public class ExperimentFetchOptions implements Serializable
         return tags;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public TagFetchOptions withTagsUsing(TagFetchOptions fetchOptions)
     {
         return tags = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasTags()
     {
         return tags != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistrator()
     {
         if (registrator == null)
@@ -178,25 +152,19 @@ public class ExperimentFetchOptions implements Serializable
         return registrator;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withRegistratorUsing(PersonFetchOptions fetchOptions)
     {
         return registrator = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasRegistrator()
     {
         return registrator != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withModifier()
     {
         if (modifier == null)
@@ -206,25 +174,19 @@ public class ExperimentFetchOptions implements Serializable
         return modifier;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public PersonFetchOptions withModifierUsing(PersonFetchOptions fetchOptions)
     {
         return modifier = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasModifier()
     {
         return modifier != null;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public AttachmentFetchOptions withAttachments()
     {
         if (attachments == null)
@@ -234,17 +196,13 @@ public class ExperimentFetchOptions implements Serializable
         return attachments;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public AttachmentFetchOptions withAttachmentsUsing(AttachmentFetchOptions fetchOptions)
     {
         return attachments = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public boolean hasAttachments()
     {
         return attachments != null;

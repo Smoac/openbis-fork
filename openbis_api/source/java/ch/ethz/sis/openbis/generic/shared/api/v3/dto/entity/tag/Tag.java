@@ -54,111 +54,85 @@ public class Tag implements Serializable
     @JsonProperty
     private Person owner;
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public TagFetchOptions getFetchOptions()
     {
         return fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setFetchOptions(TagFetchOptions fetchOptions)
     {
         this.fetchOptions = fetchOptions;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public TagPermId getPermId()
     {
         return permId;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setPermId(TagPermId permId)
     {
         this.permId = permId;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public String getCode()
     {
         return code;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setCode(String code)
     {
         this.code = code;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public String getDescription()
     {
         return description;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setDescription(String description)
     {
         this.description = description;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public Boolean isPrivate()
     {
         return isPrivate;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setPrivate(Boolean isPrivate)
     {
         this.isPrivate = isPrivate;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public Date getRegistrationDate()
     {
         return registrationDate;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setRegistrationDate(Date registrationDate)
     {
         this.registrationDate = registrationDate;
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     @JsonIgnore
     public Person getOwner()
     {
@@ -172,9 +146,7 @@ public class Tag implements Serializable
         }
     }
 
-    /**
-     * Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
-     */
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
     public void setOwner(Person owner)
     {
         this.owner = owner;

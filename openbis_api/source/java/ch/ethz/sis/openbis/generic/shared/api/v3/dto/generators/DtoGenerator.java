@@ -563,9 +563,7 @@ public class DtoGenerator
 
     private void printMethodJavaDoc()
     {
-        print("/**");
-        print(" * Method automatically generated with {@link %s}", this.getClass().getName());
-        print(" */");
+        print("// Method automatically generated with {@link %s}", this.getClass().getName());
     }
 
     private void printClassHeaderJS(String className)

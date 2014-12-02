@@ -170,7 +170,7 @@ public class Generator extends AbstractGenerator
         gen.addFetchedField("List<DataSet>", List.class.getName(), "contained", "Contained data sets", DataSetFetchOptions.class);
         addTags(gen);
 
-        gen.addFetchedField(DataSetType.class, "type", "Sample type", DataSetTypeFetchOptions.class);
+        gen.addFetchedField(DataSetType.class, "type", "Data Set type", DataSetTypeFetchOptions.class);
         // add data set type
         // add data store
         addModificationDate(gen);
