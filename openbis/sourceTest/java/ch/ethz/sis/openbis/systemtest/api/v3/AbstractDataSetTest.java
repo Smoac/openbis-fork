@@ -7,9 +7,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
+import ch.systemsx.cisd.common.collection.SimpleComparator;
 
 public class AbstractDataSetTest extends AbstractTest
 {
+    protected static final SimpleComparator<DataSet, String> DATA_SET_COMPARATOR = new SimpleComparator<DataSet, String>()
+            {
+                @Override
+                public String evaluate(DataSet item)
+                {
+                    return item.getCode();
+                }
+            };
+ 
 
     protected static void assertIdentifiers(Collection<DataSet> dataSets, String... expectedCodesIdentifiers)
     {

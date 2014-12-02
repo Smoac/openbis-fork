@@ -53,12 +53,16 @@ public class DataSetSearchCriterion extends AbstractEntitySearchCriterion<IDataS
     public DataSetSearchCriterion withContainer()
     {
         return with(new DataSetContainerSearchCriterion());
-        
     }
 
     public ExperimentSearchCriterion withExperiment()
     {
         return with(new ExperimentSearchCriterion());
+    }
+    
+    public SampleSearchCriterion withSample()
+    {
+        return with(new SampleSearchCriterion());
     }
     
     public DataSetSearchCriterion withOrOperator()

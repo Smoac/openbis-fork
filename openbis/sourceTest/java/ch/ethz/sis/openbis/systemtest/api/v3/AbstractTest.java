@@ -21,8 +21,10 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.fail;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -534,4 +536,9 @@ public class AbstractTest extends SystemTestCase
         }
     }
 
+    protected void assertEqualsDate(Date actualDate, String expectedDate)
+    {
+        assertEquals(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(actualDate), expectedDate);
+    }
+    
 }

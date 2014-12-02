@@ -47,30 +47,33 @@ public class DataSetSearchCriterionTranslator extends AbstractCompositeSearchCri
     protected SearchCriterionTranslationResult doTranslate(SearchTranslationContext context, ISearchCriterion criterion)
     {
         context.pushEntityKind(EntityKind.DATA_SET);
-
         SearchCriterionTranslationResult translationResult = super.doTranslate(context, criterion);
-
         context.popEntityKind();
-
-        if (criterion instanceof DataSetParentsSearchCriterion)
-        {
-            return new SearchCriterionTranslationResult(
-                    new DetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_PARENT, translationResult.getCriteria()));
-        } else if (criterion instanceof DataSetChildrenSearchCriterion)
-        {
-            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_CHILD,
-                    translationResult.getCriteria()));
-        } else if (criterion instanceof DataSetContainerSearchCriterion)
-        {
-            return new SearchCriterionTranslationResult(new DetailedSearchSubCriteria(AssociatedEntityKind.DATA_SET_CONTAINER,
-                    translationResult.getCriteria()));
-        } else if (criterion instanceof DataSetSearchCriterion)
+        
+        if (criterion instanceof DataSetSearchCriterion && context.peekEntityKind() == null)
         {
             return translationResult;
+        }
+
+        AssociatedEntityKind entityKind;
+        if (criterion instanceof DataSetParentsSearchCriterion)
+        {
+            entityKind = AssociatedEntityKind.DATA_SET_PARENT;
+        } else if (criterion instanceof DataSetChildrenSearchCriterion)
+        {
+            entityKind = AssociatedEntityKind.DATA_SET_CHILD;
+        } else if (criterion instanceof DataSetContainerSearchCriterion)
+        {
+            entityKind = AssociatedEntityKind.DATA_SET_CONTAINER;
+        } else if (criterion instanceof DataSetSearchCriterion)
+        {
+            entityKind = AssociatedEntityKind.DATA_SET;
         } else
         {
             throw new IllegalArgumentException("Unknown criterion: " + criterion);
         }
+        return new SearchCriterionTranslationResult(
+                new DetailedSearchSubCriteria(entityKind, translationResult.getCriteria()));
     }
 
 }

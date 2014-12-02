@@ -18,7 +18,11 @@ package ch.ethz.sis.openbis.systemtest.api.v3;
 
 import static org.testng.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.TreeMap;
 
 import junit.framework.Assert;
 
@@ -28,13 +32,13 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.DataSetSearchCriterion;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.search.SampleSearchCriterion;
 
 /**
  * @author pkupczyk
  */
 public class SearchDataSetTest extends AbstractDataSetTest
 {
-
     @Test
     public void testSearchWithIdSetToPermId()
     {
@@ -76,6 +80,23 @@ public class SearchDataSetTest extends AbstractDataSetTest
         criterion.withProperty("COMMENT").thatContains("non-virt");
         testSearch(TEST_USER, criterion, "20110509092359990-11", "20110509092359990-12");
     }
+    
+    @Test
+    public void testSearchWithRegistrationDateIsEarlierThan()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withRegistrationDate().thatIsEarlierThanOrEqualTo("2008-11-05 09:22:00");
+        testSearch(TEST_USER, criterion, "20081105092159188-3");
+    }
+    
+    @Test
+    public void testSearchWithModicationDateIsLaterThan()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withModificationDate().thatIsLaterThanOrEqualTo("2011-05-01");
+        criterion.withContainer().withCode().thatContains("2");
+        testSearch(TEST_USER, criterion, "20110509092359990-11", "COMPONENT_2A", "20110509092359990-12");
+    }
 
     @Test
     public void testSearchWithContainer()
@@ -93,6 +114,23 @@ public class SearchDataSetTest extends AbstractDataSetTest
         testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159222-2", "20081105092159333-3");
     }
 
+    @Test
+    public void testSearchWithChildrenWithPropertyEquals()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withProperty("GENDER").thatEquals("FEMALE");
+        criterion.withChildren().withCode().thatEquals("20081105092259000-9");
+        testSearch(TEST_USER, criterion, "20081105092159111-1");
+    }
+    
+    @Test
+    public void testSearchWithParent()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withParents().withCode().thatEquals("20081105092159111-1");
+        testSearch(TEST_USER, criterion, "20081105092259000-9");
+    }
+    
     @Test
     public void testSearchWithExperimentWithPermIdThatEquals()
     {
@@ -115,6 +153,56 @@ public class SearchDataSetTest extends AbstractDataSetTest
         DataSetSearchCriterion criterion = new DataSetSearchCriterion();
         criterion.withExperiment().withProperty("GENDER").thatEquals("MALE");
         testSearch(TEST_USER, criterion, "20081105092159188-3");
+    }
+    
+    @Test
+    public void testSearchWithExperimentYoungerThan()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withExperiment().withRegistrationDate().thatIsLaterThanOrEqualTo("2009-02-09 12:11:00");
+        testSearch(TEST_USER, criterion, "20081105092159333-3", "20110805092359990-17");
+    }
+    
+    @Test
+    public void testSearchWithSampleWithAnyPropertyThatContains()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withSample().withAnyProperty().thatContains("er");
+        testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17", "20081105092159222-2");
+    }
+    
+    @Test
+    public void testSearchWithSampleWithPropertiesThatContains()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        SampleSearchCriterion sampleSearchCriterion = criterion.withSample().withOrOperator();
+        sampleSearchCriterion.withProperty("BACTERIUM").thatContains("M-X");
+        sampleSearchCriterion.withProperty("ORGANISM").thatContains("LY");
+        testSearch(TEST_USER, criterion, "20081105092159111-1", "20081105092159333-3", "20110805092359990-17");
+    }
+    
+    @Test
+    public void testSearchWithFetchOptionExperiment()
+    {
+        DataSetSearchCriterion criterion = new DataSetSearchCriterion();
+        criterion.withPermId().thatEquals("20110805092359990-17");
+        DataSetFetchOptions fetchOptions = new DataSetFetchOptions();
+        fetchOptions.withExperiment().withProperties();
+        
+        List<DataSet> dataSets = searchDataSets(TEST_USER, criterion, fetchOptions);
+        
+        Collections.sort(dataSets, DATA_SET_COMPARATOR);
+        assertEquals(dataSets.get(0).getCode(), "20110805092359990-17");
+        assertEquals(dataSets.get(0).getPermId().toString(), "20110805092359990-17");
+        assertEqualsDate(dataSets.get(0).getAccessDate(), "2014-04-01 09:56:25");
+        assertEqualsDate(dataSets.get(0).getModificationDate(), "2009-03-23 15:34:44");
+        assertEqualsDate(dataSets.get(0).getRegistrationDate(), "2009-02-09 12:21:47");
+        assertEquals(dataSets.get(0).isDerived(), Boolean.FALSE);
+        assertEquals(dataSets.get(0).isPlaceholder(), Boolean.FALSE);
+        assertEquals(dataSets.get(0).getExperiment().getIdentifier().toString(), "/CISD/NEMO/EXP-TEST-2");
+        assertEquals(new TreeMap<String, String>(dataSets.get(0).getExperiment().getProperties()).toString(), 
+                "{DESCRIPTION=very important expertiment, GENDER=FEMALE, PURCHASE_DATE=2009-02-09 10:00:00 +0100}");
+        assertEquals(dataSets.size(), 1);
     }
     
     // @Test
@@ -604,13 +692,17 @@ public class SearchDataSetTest extends AbstractDataSetTest
 
     private void testSearch(String user, DataSetSearchCriterion criterion, String... expectedIdentifiers)
     {
-        String sessionToken = v3api.login(user, PASSWORD);
-
-        List<DataSet> dataSets =
-                v3api.searchDataSets(sessionToken, criterion, new DataSetFetchOptions());
+        List<DataSet> dataSets = searchDataSets(user, criterion, new DataSetFetchOptions());
 
         assertIdentifiers(dataSets, expectedIdentifiers);
+    }
+
+    private List<DataSet> searchDataSets(String user, DataSetSearchCriterion criterion, DataSetFetchOptions fetchOptions)
+    {
+        String sessionToken = v3api.login(user, PASSWORD);
+        List<DataSet> dataSets = v3api.searchDataSets(sessionToken, criterion, fetchOptions);
         v3api.logout(sessionToken);
+        return dataSets;
     }
 
     private void assertSearchFails(String user, String expectedFailureMessage, DataSetSearchCriterion criterion)
