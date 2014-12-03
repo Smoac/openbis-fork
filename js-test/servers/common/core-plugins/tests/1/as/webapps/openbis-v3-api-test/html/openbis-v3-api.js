@@ -123,6 +123,18 @@ var openbis = function() {
 			});
 		}
 
+		this.searchDataSets = function(dataSetSearchCriterion, dataSetFetchOptions, onSuccess, onError) {
+			_private.ajaxRequest({
+				url : openbisUrl,
+				data : {
+					"method" : "searchDataSets",
+					"params" : [ _private.sessionToken, dataSetSearchCriterion, dataSetFetchOptions ]
+				},
+				success : onSuccess,
+				error : onError
+			});
+		}
+
 		this.createExperiments = function(experimentCreations, onSuccess, onError) {
 			_private.ajaxRequest({
 				url : openbisUrl,
