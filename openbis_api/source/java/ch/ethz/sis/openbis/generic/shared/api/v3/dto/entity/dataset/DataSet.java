@@ -18,6 +18,7 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.dataset.DataSetType;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.experiment.Experiment;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.person.Person;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.sample.Sample;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.entity.tag.Tag;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSetFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.id.dataset.DataSetPermId;
@@ -89,6 +90,9 @@ public class DataSet implements Serializable
 
     @JsonProperty
     private Experiment experiment;
+
+    @JsonProperty
+    private Sample sample;
 
     @JsonProperty
     private Map<String, String> properties;
@@ -375,6 +379,26 @@ public class DataSet implements Serializable
     public void setExperiment(Experiment experiment)
     {
         this.experiment = experiment;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    @JsonIgnore
+    public Sample getSample()
+    {
+        if (getFetchOptions().hasSample())
+        {
+            return sample;
+        }
+        else
+        {
+            throw new NotFetchedException("Sample has not been fetched.");
+        }
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public void setSample(Sample sample)
+    {
+        this.sample = sample;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

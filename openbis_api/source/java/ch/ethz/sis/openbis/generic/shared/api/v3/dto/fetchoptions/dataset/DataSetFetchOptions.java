@@ -20,6 +20,7 @@ import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.dataset.DataSe
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.experiment.ExperimentFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.person.PersonFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.property.PropertyFetchOptions;
+import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.sample.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.shared.api.v3.dto.fetchoptions.tag.TagFetchOptions;
 import ch.systemsx.cisd.base.annotation.JsonObject;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -59,6 +60,9 @@ public class DataSetFetchOptions implements Serializable
 
     @JsonProperty
     private ExperimentFetchOptions experiment;
+
+    @JsonProperty
+    private SampleFetchOptions sample;
 
     @JsonProperty
     private PropertyFetchOptions properties;
@@ -259,6 +263,28 @@ public class DataSetFetchOptions implements Serializable
     public boolean hasExperiment()
     {
         return experiment != null;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSample()
+    {
+        if (sample == null)
+        {
+            sample = new SampleFetchOptions();
+        }
+        return sample;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public SampleFetchOptions withSampleUsing(SampleFetchOptions fetchOptions)
+    {
+        return sample = fetchOptions;
+    }
+
+    // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}
+    public boolean hasSample()
+    {
+        return sample != null;
     }
 
     // Method automatically generated with {@link ch.ethz.sis.openbis.generic.shared.api.v3.dto.generators.DtoGenerator}

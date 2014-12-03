@@ -179,6 +179,7 @@ public class Generator extends AbstractGenerator
         addRegistrator(gen);
 
         addExperiment(gen);
+        addSample(gen);
         addProperties(gen);
 
         return gen;
