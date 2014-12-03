@@ -82,7 +82,15 @@ var openbis = function() {
 					"method" : "mapExperiments",
 					"params" : [ _private.sessionToken, experimentIds, experimentFetchOptions ]
 				},
-				success : onSuccess,
+				success : function(experiments) {
+					var experimentDTOs = {};
+					for(var experimentPermId  in experiments) {
+						var experimentJson = experiments[experimentPermId];
+						var newExperiment = stjsUtil.fromJson(experimentJson);
+						experimentDTOs[newExperiment.getPermId().getPermId()] = newExperiment;
+					}
+					onSuccess(experimentDTOs);
+				},
 				error : onError
 			});
 		}
@@ -117,18 +125,6 @@ var openbis = function() {
 				data : {
 					"method" : "searchSamples",
 					"params" : [ _private.sessionToken, sampleSearchCriterion, sampleFetchOptions ]
-				},
-				success : onSuccess,
-				error : onError
-			});
-		}
-
-		this.searchDataSets = function(dataSetSearchCriterion, dataSetFetchOptions, onSuccess, onError) {
-			_private.ajaxRequest({
-				url : openbisUrl,
-				data : {
-					"method" : "searchDataSets",
-					"params" : [ _private.sessionToken, dataSetSearchCriterion, dataSetFetchOptions ]
 				},
 				success : onSuccess,
 				error : onError
