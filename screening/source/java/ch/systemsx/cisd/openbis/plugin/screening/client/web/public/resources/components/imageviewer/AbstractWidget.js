@@ -1,4 +1,5 @@
-define([ "jquery", "components/common/ListenerManager" ], function($, ListenerManager) {
+define([ "jquery", "components/common/ListenerManager",
+		"components/imageviewer/LoadingWidget" ], function($, ListenerManager, LoadingWidget) {
 
 	//
 	// ABSTRACT WIDGET
@@ -38,6 +39,10 @@ define([ "jquery", "components/common/ListenerManager" ], function($, ListenerMa
 			if (this.loaded) {
 				doRender();
 			} else {
+				var loading = new LoadingWidget();
+				loading.setLoading(true);
+				this.panel.append(loading.render());
+
 				this.load(function() {
 					thisWidget.loaded = true;
 					thisWidget.notifyLoadListeners();

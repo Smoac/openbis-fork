@@ -1,4 +1,4 @@
-define([ "jquery", "components/imageviewer/AbstractView" ], function($, AbstractView) {
+define([ "jquery" ], function($) {
 
 	//
 	// LOADING VIEW
@@ -8,10 +8,10 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		this.init(controller);
 	}
 
-	$.extend(LoadingView.prototype, AbstractView.prototype, {
+	$.extend(LoadingView.prototype, {
 
 		init : function(controller) {
-			AbstractView.prototype.init.call(this, controller);
+			this.controller = controller;
 			this.panel = $("<div>");
 		},
 
@@ -20,7 +20,7 @@ define([ "jquery", "components/imageviewer/AbstractView" ], function($, Abstract
 		},
 
 		refresh : function() {
-			this.panel.text(this.controller.isLoading() ? "loading..." : "");
+			this.panel.text(this.controller.isLoading() ? "Loading..." : "");
 		}
 
 	});

@@ -1,4 +1,5 @@
-define([ "jquery", "components/imageviewer/AbstractWidget", "components/imageviewer/LoadingView" ], function($, AbstractWidget, LoadingView) {
+define([ "jquery", "components/imageviewer/LoadingView" ], function($,
+		LoadingView) {
 
 	//
 	// LOADING WIDGET
@@ -8,10 +9,30 @@ define([ "jquery", "components/imageviewer/AbstractWidget", "components/imagevie
 		this.init();
 	}
 
-	$.extend(LoadingWidget.prototype, AbstractWidget.prototype, {
+	$.extend(LoadingWidget.prototype, {
 
 		init : function() {
-			AbstractWidget.prototype.init.call(this, new LoadingView(this));
+			this.view = new LoadingView(this);
+		},
+
+		render : function() {
+			if (this.rendered) {
+				return this.panel;
+			}
+
+			this.panel = $("<div>");
+			this.panel.append(this.view.render());
+			this.rendered = true;
+
+			return this.panel;
+		},
+
+		refresh : function() {
+			if (!this.rendered) {
+				return;
+			}
+
+			this.view.refresh();
 		},
 
 		setLoading : function(loading) {
