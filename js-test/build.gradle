@@ -71,7 +71,7 @@ test.dependsOn copyWar
 
 task deleteLink(type: Exec) {
     executable "rm"
-    args "-rf", "${project.projectDir.absolutePath}/targets/gradle/webapps/openbis/webapp", 
+    args "-rf", "${project.projectDir.absolutePath}/targets/gradle/webapps/openbis", 
                 "${project.projectDir.absolutePath}/targets/gradle/webapps/webapp/webapp"
 }
 clean.dependsOn deleteLink
