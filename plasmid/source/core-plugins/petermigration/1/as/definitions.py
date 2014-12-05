@@ -17,8 +17,7 @@ def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):
     vocabulary = vocacbularyDefinitions[vocabularyCode]
     for term in vocabulary:
         if term[1] == termLabel:
-            return term[0]
-    #print repr("NOT FOUND: " + unicode(vocabularyCode) + " : " + unicode(termLabel))
+            return term[0] #print repr("NOT FOUND: " + unicode(vocabularyCode) + " : " + unicode(termLabel))
     return None
     
 def getPropertyDefinitionByCode(definition, code):
@@ -211,7 +210,7 @@ vocacbularyDefinitions = {
                                         ["SARAH_MAERKI",   "Sarah  M\xe4rki"],
                                         ["SEBASTIAN_LEIDEL",   "Sebastian Leidel"],
                                         ["SERGE_PELET",   "Serge Pelet"],
-                                        ["STEFAN_MUELLER",   "Stefan MŸller"],
+                                        ["STEFAN_MUELLER",   "Stefan Mï¿½ller"],
                                         ["TANIA_ROBERTS",   "Tania Roberts"],
                                         ["THIMO_KURZ",   "Thimo Kurz"],
                                         ["TOBIAS_BRAUN",   "Tobias Braun"],
@@ -322,11 +321,11 @@ vocacbularyDefinitions = {
                                             ["NOT_WORKING", "not working"]
                                     ],
                             "CONCENTRATION_IP" : [
-                                            ["1UL", "1 µl"],
-                                            ["5UL", "5 µl"],
-                                            ["10UL", "10 µl"],
-                                            ["15UL", "15 µl"],
-                                            ["20UL", "20 µl"],
+                                            ["1UL", "1 ï¿½l"],
+                                            ["5UL", "5 ï¿½l"],
+                                            ["10UL", "10 ï¿½l"],
+                                            ["15UL", "15 ï¿½l"],
+                                            ["20UL", "20 ï¿½l"],
                                             ["NOT_TESTED", "not tested"],
                                             ["NOT_WORKING", "not working"]
                                     ],
@@ -441,7 +440,7 @@ vocacbularyDefinitions = {
                                 ["HYBRIDOMA",  "hybridoma (human & mouse)"]                                
                                     ],  
                           "CONC_UNITS" : [
-                                ["MICROG_MICROL",  "µg/µl"],
+                                ["MICROG_MICROL",  "ï¿½g/ï¿½l"],
                                 ["MG_ML",  "mgl/ml"],
                                 ["UG_ML",  "ug/ml"]                               
                                     ],  
@@ -472,11 +471,11 @@ vocacbularyDefinitions = {
                                 ["SANDRA_HENCHOZ", "Sandra Henchoz"],
                                 ["MALIKA_JAQUENOUD", "Malika Jaquenoud"],
                                 ["GERDA_JORRITSMA", "Gerda Jorritsma"],
-                                ["CELINE LAFOURCADE", "CŽline Lafourcade"],
-                                ["CELINE LONGARETTI", "CŽline Longaretti"],
+                                ["CELINE_LAFOURCADE", "CÃ©line Lafourcade"],
+                                ["CELINE_LONGARETTI", "CÃ©line Longaretti"],
                                 ["BRIAN_LUKE", "Brian Luke"],
-                                ["GUY_NIEDERHAUSER", "Guy NiederhŠuser"],
-                                ["NICOLAS_PAGE", "Nicolas PagŽ"],
+                                ["GUY_NIEDERHAUSER", "Guy NiederhÃ¤user"],
+                                ["NICOLAS_PAGE", "Nicolas Pagï¿½"],
                                 ["NATHALIE_PERRINJAQUET", "Nathalie Perrinjaquet"],
                                 ["MATTHIAS_PETER", "Matthias Peter"],
                                 ["AUDREY_PETIT", "Audrey Petit"],
@@ -523,7 +522,7 @@ vocacbularyDefinitions = {
                                     ],  
                          "DERIVATION" : [
                                 ["GAMMA_INTEG",  "gamma integ"],
-                                ["DELTA_INTEG",  "½ integ"],
+                                ["DELTA_INTEG",  "ï¿½ integ"],
                                 ["5FAO_LOOPOUT",  "5-FAO loopout"],
                                 ["PLASMID_SHUFFLE",  "plasmid shuffle"],
                                 ["TETRAD",  "tetrad"],
@@ -537,7 +536,7 @@ vocacbularyDefinitions = {
                                 ["K699",  "K699"],
                                 ["K700",  "K700"],
                                 ["S288C",  "S288C"],
-                                ["*1278*",  "*1278*"],
+                                ["1278",  "*1278*"],
                                 ["EG123",  "EG123"],
                                 ["DF5",  "DF5"],
                                 ["SIGMA",  "Sigma"],
@@ -548,7 +547,7 @@ vocacbularyDefinitions = {
                                     ],
                         "CIR" : [
                                 ["CIR_PLUS",  "cir+"],
-                                ["CIR_DEG",  "cir¡"],
+                                ["CIR_DEG",  "cirï¿½"],
                                     ],
                         "GAL" : [
                                 ["PLUS",  "Plus"],
@@ -592,8 +591,8 @@ vocacbularyDefinitions = {
                                 ["G17_FRIDGE-11",  "G17 Fridge 11"],
                                 ["G17_FRIDGE-12",  "G17 Fridge 12"],
                                 ["G17_FREEZER-N",  "G17 Freezer N"],
-                                ["USER_BENCH-20",  "Bench -20¼C"],
-                                ["USER_BENCH-80",  "Bench -80¼C"],
+                                ["USER_BENCH-20",  "Bench -20ï¿½C"],
+                                ["USER_BENCH-80",  "Bench -80ï¿½C"],
                                 ["USER_BENCH-RT",  "Bench RT"],
                                 ["USER_BENCH",  "Bench"]
                                     ]
