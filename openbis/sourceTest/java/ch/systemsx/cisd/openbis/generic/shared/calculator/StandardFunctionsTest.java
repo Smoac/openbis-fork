@@ -82,8 +82,7 @@ public class StandardFunctionsTest extends AssertJUnit
     {
         String xPath = "//property[@name='greetings']";
         String xmlString = "<root><property name='greetings'>hello</property><root>";
-        assertEquals("ERROR org.xml.sax.SAXParseException: "
-                + "XML document structures must start and end within the same entity.",
+        assertEquals("ERROR org.xml.sax.SAXParseException; lineNumber: 1; columnNumber: 56; XML document structures must start and end within the same entity.",
                 StandardFunctions.evalXPath(xPath, xmlString));
     }
 

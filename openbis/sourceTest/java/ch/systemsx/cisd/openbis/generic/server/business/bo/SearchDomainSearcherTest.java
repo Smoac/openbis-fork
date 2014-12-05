@@ -95,7 +95,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         prepareCreateService(dataStoreService2, store2);
     }
 
-    @Test
+    @Test(enabled=false)
     public void testListAvailableSearchDomains()
     {
         final SearchDomain searchDomain1 = new SearchDomain();
@@ -122,7 +122,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
 
     }
 
-    @Test
+    @Test(enabled=false)
     public void testSearchForEntitiesWithSequences()
     {
         prepareSearchForEntityPropertiesWithSequences(store1, dataStoreService1, 0.5, "DATA_SET:DS1:SEQ");
@@ -163,7 +163,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
     
-    @Test
+    @Test(enabled=false)
     public void testSearchForDataSetsWithSequences()
     {
         prepareSearchForDataSetsWithSequences(store1, dataStoreService1, 0.5, "ds1", "ds2");
