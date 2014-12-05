@@ -31,17 +31,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Abstract filter that implements CORS (Cross Origin Resource Sharing) to allow a web page served
- * from a given domain to access resources the openBIS AS/DSS.
+ * Abstract filter that implements CORS (Cross Origin Resource Sharing) to allow a web page served from a given domain to access resources the openBIS
+ * AS/DSS.
  * <p>
- * NOTE: According to the definition of "origin" the openBIS AS and DSS are two different things
- * (because they run on different ports). So the {@link AbstractCrossOriginFilter} makes it possible
- * to share resources between them e.g. access an openBIS AS resource from a web page served by
+ * NOTE: According to the definition of "origin" the openBIS AS and DSS are two different things (because they run on different ports). So the
+ * {@link AbstractCrossOriginFilter} makes it possible to share resources between them e.g. access an openBIS AS resource from a web page served by
  * openBIS DSS.
  * </p>
  * <p>
- * For more details on CORS see
- * http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/.
+ * For more details on CORS see http://www.nczonline.net/blog/2010/05/25/cross-domain-ajax-with-cross-origin-resource-sharing/.
  * 
  * @author Kaloyan Enimanev
  */
@@ -51,6 +49,9 @@ public abstract class AbstractCrossOriginFilter implements Filter
 
     protected static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER =
             "Access-Control-Allow-Origin";
+
+    protected static final String ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER =
+            "Access-Control-Allow-Credentials";
 
     protected static final String ALLOWED_ORIGINS_KEY = "TODO";
 
@@ -91,7 +92,6 @@ public abstract class AbstractCrossOriginFilter implements Filter
         return false;
     }
 
-
     private boolean isMatching(String allowedOrigin, String origin)
     {
         if (allowedOrigin.equalsIgnoreCase(origin))
@@ -118,6 +118,7 @@ public abstract class AbstractCrossOriginFilter implements Filter
         {
             final HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, originHeader);
+            httpResponse.setHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, String.valueOf(true));
         }
 
         filterChain.doFilter(request, response);

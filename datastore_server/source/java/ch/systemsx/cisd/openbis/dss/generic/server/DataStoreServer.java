@@ -70,6 +70,7 @@ import ch.systemsx.cisd.common.logging.LogFactory;
 import ch.systemsx.cisd.common.logging.LogInitializer;
 import ch.systemsx.cisd.common.properties.ExtendedProperties;
 import ch.systemsx.cisd.common.resource.IInitializable;
+import ch.systemsx.cisd.common.servlet.InitializeRequestContextHolderFilter;
 import ch.systemsx.cisd.openbis.common.api.server.RpcServiceNameServer;
 import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationClientManagerRemote;
 import ch.systemsx.cisd.openbis.common.conversation.manager.IServiceConversationServerManagerRemote;
@@ -329,6 +330,7 @@ public class DataStoreServer
         context.addServlet(new ServletHolder(new HttpInvokerServlet(jsonV1ServiceExporter,
                 jsonRpcV1Path)), jsonRpcV1Path);
         context.addFilter(DssCrossOriginFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+        context.addFilter(InitializeRequestContextHolderFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
 
         HttpInvokerServiceExporter nameServiceExporter =
                 ServiceProvider.getRpcNameServiceExporter();
