@@ -65,7 +65,8 @@ function DataSetViewer(containerId, profile, sample, serverFacade, datastoreDown
 			if( haveExtension !== -1 && (haveExtension + 1 < file.pathInDataSet.length)) {
 				var extension = file.pathInDataSet.substring(haveExtension + 1, file.pathInDataSet.length).toLowerCase();
 				
-				return 	extension === "jpg" || extension === "jpeg" ||
+				return 	extension === "svg" ||
+						extension === "jpg" || extension === "jpeg" ||
 						extension === "png" ||
 						extension === "gif";
 			}
