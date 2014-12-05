@@ -87,11 +87,12 @@ function DataSetFormView(dataSetFormController, dataSetFormModel) {
 			$wrapper.append($dataSetTypeLabel);
 		}
 		
+		var ownerName = "Sample";
 		var owner = this._dataSetFormModel.sample.identifier;
 		if(this._dataSetFormModel.sample.experimentIdentifierOrNull) {
 			owner = this._dataSetFormModel.sample.experimentIdentifierOrNull + "/" + this._dataSetFormModel.sample.code;
 		}
-		$wrapper.append(FormUtil.getFieldForLabelWithText("Owner", owner));
+		$wrapper.append(FormUtil.getFieldForLabelWithText(ownerName, owner));
 		
 		//Metadata Container
 		$wrapper.append($('<div>', { 'id' : 'metadataContainer'}));
