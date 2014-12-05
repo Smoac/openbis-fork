@@ -635,7 +635,7 @@ createSampleTypeWithProperties("YEAST", "", [
 	["PUBLICATION", 					"Comments",				"Publication",							DataType.MULTILINE_VARCHAR,		None,								"Publication from where the information was first found OR technical sheet given by the manufacturer", None],
 	["NOTES", 							"Comments", 			"Notes",								DataType.MULTILINE_VARCHAR,		None,								"Notes", None],
 	["XMLCOMMENTS", 					"Comments",				"Comments List",						DataType.XML,					None,								"Several comments can be added by different users", commentsScriptName],
-	["ANNOTATIONS_STATE",				None,					"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
+	["ANNOTATIONS_STATE",				"Comments",				"Annotations State",					DataType.XML,					None,								"Annotations State", annotationsScriptName]
 ]);
 
 annotationsScriptName = createAnnotationsScriptForType("CELL_LINE");
