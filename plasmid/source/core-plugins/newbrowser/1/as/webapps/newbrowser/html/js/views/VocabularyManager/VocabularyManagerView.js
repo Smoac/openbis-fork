@@ -32,7 +32,7 @@ function VocabularyManagerView(vocabularyManagerController, vocabularyManagerMod
 			"onsubmit" : ""
 		});
 		
-		$containerColumn.append($("<h1>").append(" Vocabulary Manager"));
+		$containerColumn.append($("<h1>").append(" Vocabulary Viewer"));
 		this._showVocabularies();
 		$containerColumn.append(this._dataGridContainer);
 		$container.append($containerColumn);

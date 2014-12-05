@@ -308,7 +308,7 @@ function SideMenuWidgetController(mainController) {
                                 new SideMenuWidgetComponent(true, false, "Trashcan", "Trashcan", _this._sideMenuWidgetModel.menuStructure, null, "showTrashcanPage", null, "")
                                 );
                         _this._sideMenuWidgetModel.menuStructure.newMenuIfSelected.children.push(
-                                new SideMenuWidgetComponent(true, false, "Vocabulary Manager", "Vocabulary Manager", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
+                                new SideMenuWidgetComponent(true, false, "Vocabulary Viewer", "Vocabulary Viewer", _this._sideMenuWidgetModel.menuStructure, null, "showVocabularyManagerPage", null, "")
                                 );
                         _this._sideMenuWidgetView.repaintFirst($container);
                     });
