@@ -99,6 +99,12 @@ public interface IEncapsulatedBasicOpenBISService
     public List<Sample> searchForSamples(SearchCriteria searchCriteria);
 
     /**
+     * {@link IServiceForDataStoreServer#searchForExperiments(String, SearchCriteria)}
+     */
+    @ManagedAuthentication
+    public List<Experiment> searchForExperiments(SearchCriteria searchCriteria);
+    
+    /**
      * Gets a sample with the specified identifier. Sample is enriched with properties and the
      * experiment with properties.
      * 

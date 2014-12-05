@@ -16,48 +16,37 @@
 
 package ch.systemsx.cisd.openbis.generic.shared.api.v1.dto;
 
-import java.io.Serializable;
-
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
 /**
- * A class specifying the search domain of a {@link SearchDomainSearchResult}.
- *
+ * Extension of {@link EntityPropertySearchResultLocation} for BLAST search. Matching sequence/query start
+ * and end are available. 
+ * 
  * @author Franz-Josef Elmer
  */
-@JsonObject("SearchDomain")
-public class SearchDomain implements Serializable
+@JsonObject("EntityPropertyBlastSearchResultLocation")
+public class EntityPropertyBlastSearchResultLocation extends EntityPropertySearchResultLocation
 {
     private static final long serialVersionUID = 1L;
     
-    private String name;
     
-    private String label;
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getLabel()
-    {
-        return label == null ? name : label;
-    }
-
-    public void setLabel(String label)
-    {
-        this.label = label;
-    }
+    private AlignmentMatch alignmentMatch;
     
+    public AlignmentMatch getAlignmentMatch()
+    {
+        return alignmentMatch;
+    }
+
+    public void setAlignmentMatch(AlignmentMatch alignmentMatch)
+    {
+        this.alignmentMatch = alignmentMatch;
+        setPosition(alignmentMatch.getSequenceStart());
+    }
+
     @Override
     public String toString()
     {
-        return label == null ? name : label + " [" + name + "]";
+        return  renderEntityKind() + " perm id: " + getPermId() + ", property type: " + getPropertyType() 
+                + ", " + alignmentMatch;
     }
-    
 }

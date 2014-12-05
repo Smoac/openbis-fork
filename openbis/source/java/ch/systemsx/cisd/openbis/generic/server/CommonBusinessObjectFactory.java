@@ -60,6 +60,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.IRoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.ISearchDomainSearcher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ISpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ITrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.IVocabularyBO;
@@ -74,6 +75,7 @@ import ch.systemsx.cisd.openbis.generic.server.business.bo.RoleAssignmentTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SampleTable;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.ScriptBO;
+import ch.systemsx.cisd.openbis.generic.server.business.bo.SearchDomainSearcher;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.SpaceBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.TrashBO;
 import ch.systemsx.cisd.openbis.generic.server.business.bo.VocabularyBO;
@@ -200,6 +202,13 @@ public final class CommonBusinessObjectFactory extends AbstractBusinessObjectFac
         return new DataSetTable(getDaoFactory(), getDSSFactory(), session,
                 getRelationshipService(), getConversationClient(),
                 getManagedPropertyEvaluatorFactory(), getMultiplexer());
+    }
+
+    @Override
+    public ISearchDomainSearcher createSearchDomainSearcher(Session session)
+    {
+        return new SearchDomainSearcher(getDaoFactory(), session, getManagedPropertyEvaluatorFactory(), 
+                getDSSFactory());
     }
 
     @Override

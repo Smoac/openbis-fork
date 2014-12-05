@@ -820,6 +820,12 @@ public final class EncapsulatedOpenBISService implements IEncapsulatedOpenBISSer
     }
 
     @Override
+    public List<Experiment> searchForExperiments(SearchCriteria searchCriteria)
+    {
+        return service.searchForExperiments(session.getSessionToken(), searchCriteria);
+    }
+
+    @Override
     public List<Project> listProjects()
     {
         return service.listProjects(session.getSessionToken());

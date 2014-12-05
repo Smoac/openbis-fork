@@ -182,12 +182,12 @@ public class DataStoreServiceTest extends AssertJUnit
     }
 
     @Test
-    public void testSearchForDataSetsWithSequencesUndefinedDatabases()
+    public void testSearchForEntitiesWithSequencesUndefinedDatabases()
     {
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider();
 
-        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken, 
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
 
         assertEquals(0, result.size());
@@ -195,12 +195,12 @@ public class DataStoreServiceTest extends AssertJUnit
     }
     
     @Test
-    public void testSearchForDataSetsWithSequencesUnAvailableDatabases()
+    public void testSearchForEntitiesWithSequencesUnAvailableDatabases()
     {
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("-1", "-2");
         
-        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken, 
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
         assertEquals(0, result.size());
@@ -208,12 +208,12 @@ public class DataStoreServiceTest extends AssertJUnit
     }
     
     @Test
-    public void testSearchForDataSetsWithSequencesWithUnspecifiedDatabase()
+    public void testSearchForEntitiesWithSequencesWithUnspecifiedDatabase()
     {
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("1", "2");
         
-        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken, 
                 null, SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
         assertEquals("DS-1", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
@@ -222,12 +222,12 @@ public class DataStoreServiceTest extends AssertJUnit
     }
     
     @Test
-    public void testSearchForDataSetsWithSequencesWithSpecifiedAndAvailableDatabase()
+    public void testSearchForEntitiesWithSequencesWithSpecifiedAndAvailableDatabase()
     {
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("1", "2");
         
-        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken, 
                 "db-2", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
         assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());
@@ -236,12 +236,12 @@ public class DataStoreServiceTest extends AssertJUnit
     }
 
     @Test
-    public void testSearchForDataSetsWithSequencesWithSpecifiedButUnailableDatabase()
+    public void testSearchForEntitiesWithSequencesWithSpecifiedButUnailableDatabase()
     {
         pluginTaskParameters = context.mock(IPluginTaskInfoProvider.class);
         preparePluginTaskInfoProvider("-1", "2", "-3", "4");
         
-        List<SearchDomainSearchResult> result = createService().searchForDataSetsWithSequences(sessionToken, 
+        List<SearchDomainSearchResult> result = createService().searchForEntitiesWithSequences(sessionToken, 
                 "db-3", SEQUENCE_SNIPPET, OPTIONAL_PARAMETERS);
         
         assertEquals("DS-2", ((DataSetFileSearchResultLocation) result.get(0).getResultLocation()).getDataSetCode());

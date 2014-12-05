@@ -31,18 +31,18 @@ import ch.systemsx.cisd.common.filesystem.FileUtilities;
  *
  * @author Franz-Josef Elmer
  */
-public class FastaFileBuilderTest extends AbstractFileSystemTestCase
+public class FastaFileBuilderForDataSetFilesTest extends AbstractFileSystemTestCase
 {
     private static final String DATA_SET_CODE = "11358-13";
     private File tempFolder;
-    private FastaFileBuilder builder;
+    private FastaFileBuilderForDataSetFiles builder;
 
     @BeforeMethod
     public void setUpTempFolder()
     {
         tempFolder = new File(workingDirectory, "temp");
         tempFolder.mkdirs();
-        builder = new FastaFileBuilder(tempFolder, DATA_SET_CODE);
+        builder = new FastaFileBuilderForDataSetFiles(tempFolder, DATA_SET_CODE);
     }
 
     @Test

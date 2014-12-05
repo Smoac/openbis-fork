@@ -174,17 +174,17 @@ public interface IDataStoreService
     public void cleanupSession(String userSessionToken);
 
     /**
-     * Searches for the specified sequence snippet. If no preferred sequence database is specified the first available one will be used. If the
-     * preferred sequence database doesn't exist or isn't available also the first available database will be used.
+     * Searches for the specified sequence snippet. If no preferred search domain is specified the first available one will be used. If the
+     * preferred search domain doesn't exist or isn't available also the first one will be used.
      * 
-     * @param preferredSequenceDatabaseOrNull The key of the preferred sequence database or <code>null</code>.
+     * @param preferredSearchDomainOrNull The key of the preferred search domain or <code>null</code>.
      * @param sequenceSnippet Snippet of nucleotid or aminoacid sequence.
      * @param optionalParametersOrNull Optional parameters. Can be <code>null</code>. The semantics depends on the type of the used sequence database.
      * @since 10
      */
     @Conversational(progress = Progress.AUTOMATIC)
-    public List<SearchDomainSearchResult> searchForDataSetsWithSequences(String sessionToken,
-            String preferredSequenceDatabaseOrNull, String sequenceSnippet,
+    public List<SearchDomainSearchResult> searchForEntitiesWithSequences(String sessionToken,
+            String preferredSearchDomainOrNull, String sequenceSnippet,
             Map<String, String> optionalParametersOrNull);
 
     /**

@@ -422,6 +422,7 @@ public class MultiDataSetArchiverTest extends AbstractFileSystemTestCase
     public void setUpTestEnvironment()
     {
         logRecorder = new BufferedAppender("%-5p %c - %m%n", Level.INFO, "OPERATION.*");
+        logRecorder.addRegexForLoggingEventsToBeDropped("OPERATION.*FullTextIndex.*");
         transaction = new MockMultiDataSetArchiverDBTransaction();
         store = new File(workingDirectory, "store");
         share = new File(store, "1");
