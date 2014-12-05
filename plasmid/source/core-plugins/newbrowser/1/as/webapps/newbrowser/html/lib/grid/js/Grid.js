@@ -51,9 +51,19 @@ $.extend(Grid.prototype, {
 		columnList.click(function(e) {
 			e.stopPropagation();
 		});
-
+		
+		var defaultNumColumns = 5; //Including last always
+		
 		thisGrid.columns.forEach(function(column, columnIndex) {
-			var checkbox = $("<input>").attr("type", "checkbox").attr("value", column.property).attr("checked", "checked").attr("style", "margin-left: 5px;");
+			checkbox = $("<input>")
+				.attr("type", "checkbox")
+				.attr("value", column.property)
+				.attr("style", "margin-left: 5px;");
+			
+			if(columnIndex < (defaultNumColumns - 1) || (columnIndex+1 === thisGrid.columns.length)) {
+				checkbox.attr("checked", "checked");
+			}
+			
 			checkbox.change(function() {
 				thisGrid.panel.repeater('render');
 			});
