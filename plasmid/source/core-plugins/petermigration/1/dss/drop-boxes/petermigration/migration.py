@@ -25,11 +25,13 @@ def process(tr):
     for adaptor in adaptors:
         while adaptor.next():
             entity = adaptor.getEntity()
+            entity.getIdentifier(tr)
             if not entity.isInOpenBIS(tr):
                 entity.write(tr)
-                print entity.getIdentifier(tr) + " - Updated"
+                #print entity.getIdentifier(tr) + " - Updated"
             else:
-                print entity.getIdentifier(tr) + " - Already up to date"
+                pass
+                #print entity.getIdentifier(tr) + " - Already up to date"
     print "FINISH!"
 
 ##
@@ -80,6 +82,7 @@ class OpenBISDTO:
 ##
 ## Costumer specific logic
 ##
+antibodyID2Number = {};
 
 class FileMakerEntityAdaptor(EntityAdaptor):
     connection = None
@@ -148,10 +151,78 @@ class AntibodyOpenBISDTO(OpenBISDTO):
             sample.setPropertyValue(propertyCode, propertyValue)
     
     def getIdentifier(self, tr):
-        return self.values["ANTIBODY_ID_NR"];
+        antibodyID2Number[unicode(self.values["NAME"])] = unicode(self.values["ANTIBODY_ID_NR"])
+        return self.values["ANTIBODY_ID_NR"]
     
     def isInOpenBIS(self, tr):
-        code = self.values["ANTIBODY_ID_NR"];
+        code = self.values["ANTIBODY_ID_NR"]
+        sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"])
+        if sample is not None:
+            lastModificationData = self.values["MODIFICATION_DATE"].strip()
+            lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+            lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+            return lastModificationOpenBIS == lastModificationData
+        else :
+            return False
+    
+class AntibodyBoxAdaptor(FileMakerEntityAdaptor):
+    
+    def init(self):
+        emptyAntibodyBox = 0
+        antibodyBoxes = {}
+        
+        self.selectQuery = "SELECT * FROM \"antibody boxes\""
+        EntityAdaptor.init(self)
+        
+        preparedStatement = self.connection.prepareStatement(self.selectQuery);
+        result = preparedStatement.executeQuery();
+        while result.next():
+            values = {};
+            values["NAME"] = unicode(result.getString("antibody ID"))
+            if values["NAME"] is not None:
+                if values["NAME"] in antibodyID2Number:
+                    values["ANTIBODY_ID_NR"] = antibodyID2Number[values["NAME"]]
+                    values["MODIFICATION_DATE"] = unicode(result.getString("modification date"))
+#                     values["STORAGE_NAMES"] = unicode(result.getString("location"))
+#                     values["STORAGE_ROW"] = unicode(result.getString("Storage Row"))
+#                     values["STORAGE_COLUMN"] = unicode(result.getString("Storage Column"))
+#                     values["STORAGE_BOX_NAME"] = unicode(result.getString("box label"))
+#                     values["STORAGE_USER"] = unicode(result.getString("frozen by"))
+#                     values["STORAGE_BOX_POSITION"] = unicode(result.getString("position"))
+                    allboxes = [];
+                    print "if key " + values["ANTIBODY_ID_NR"]
+                    if values["ANTIBODY_ID_NR"] in antibodyBoxes:
+                        allboxes = antibodyBoxes[values["ANTIBODY_ID_NR"]]
+                    else:
+                        antibodyBoxes[values["ANTIBODY_ID_NR"]] = allboxes
+                    allboxes.append(values);
+                else:
+                    #The antibody is not there. What the *#%$&
+                    emptyAntibodyBox += 1
+            else:
+                #The antibody is not there. What the *#%$&
+                emptyAntibodyBox += 1
+        
+        print "Antibody not found: " + str(emptyAntibodyBox)
+        
+        for antibodyCode, allAntibodyBoxes in antibodyBoxes.iteritems():
+            self.addEntity({
+                        "ANTIBODY_ID_NR" : antibodyCode,
+                        "*BOXESLIST" : allAntibodyBoxes
+            })
+        
+        result.close();
+        preparedStatement.close();
+    
+    def addEntity(self, values):
+        self.entities.append(AntibodyBoxOpenBISDTO(values, self.definition))
+
+class AntibodyBoxOpenBISDTO(OpenBISDTO):
+    def write(self, tr):
+        print "Write box for " + self.values["ANTIBODY_ID_NR"]
+        
+    def isInOpenBIS(self, tr):
+        code = self.values["ANTIBODY_ID_NR"]
         sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"])
         if sample is not None:
             lastModificationData = self.values["MODIFICATION_DATE"].strip()
@@ -165,7 +236,11 @@ fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
 fmPass = "seattle"
 
-adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter.fmp12")]
+fmConnStringServer = "jdbc:filemaker://fm.ethz.ch/"
+fmUserServer= "sistemp"
+fmPassServer = "ibcimsb2014"
+
+adaptors = [AntibodyAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibodies_Peter.fmp12"), AntibodyBoxAdaptor(fmConnString, fmUser, fmPass, "BOXIT_antibody_boxes_Peter")]
 
 def createDataHierarchy(tr):
     inventorySpace = tr.getSpace("INVENTORY");
