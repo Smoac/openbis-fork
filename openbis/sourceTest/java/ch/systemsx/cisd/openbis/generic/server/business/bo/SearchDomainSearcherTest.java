@@ -43,6 +43,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DataSetKind;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataSetTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.DataStorePE;
+import ch.systemsx.cisd.openbis.generic.shared.dto.DatabaseInstancePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentPE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExperimentTypePE;
 import ch.systemsx.cisd.openbis.generic.shared.dto.ExternalDataPE;
@@ -95,7 +96,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         prepareCreateService(dataStoreService2, store2);
     }
 
-    @Test(enabled=false)
+    @Test
     public void testListAvailableSearchDomains()
     {
         final SearchDomain searchDomain1 = new SearchDomain();
@@ -122,7 +123,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
 
     }
 
-    @Test(enabled=false)
+    @Test
     public void testSearchForEntitiesWithSequences()
     {
         prepareSearchForEntityPropertiesWithSequences(store1, dataStoreService1, 0.5, "DATA_SET:DS1:SEQ");
@@ -163,7 +164,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         context.assertIsSatisfied();
     }
     
-    @Test(enabled=false)
+    @Test
     public void testSearchForDataSetsWithSequences()
     {
         prepareSearchForDataSetsWithSequences(store1, dataStoreService1, 0.5, "ds1", "ds2");
@@ -180,22 +181,22 @@ public class SearchDomainSearcherTest extends AbstractBOTest
                 + "identifier: [id-ds3], position: 42]",
                 results.get(0).getSearchResult().toString());
         assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(0).getEntity()).getCode());
-        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
+        assertEquals("CISD:/G1/P1/exp1", ((AbstractExternalData) results.get(0).getEntity()).getExperiment().getIdentifier());
         assertEquals("Search Domain: test-db, Score: 13.5, Result location: [Data set: ds3, path: ds3/path, "
                 + "identifier: [id-ds3], position: 42]",
                 results.get(1).getSearchResult().toString());
         assertEquals(ds3.getCode(), ((AbstractExternalData) results.get(1).getEntity()).getCode());
-        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
+        assertEquals("CISD:/G1/P1/exp1", ((AbstractExternalData) results.get(1).getEntity()).getExperiment().getIdentifier());
         assertEquals("Search Domain: test-db, Score: 1.5, Result location: [Data set: ds2, path: ds2/path, "
                 + "identifier: [id-ds2], position: 42]",
                 results.get(2).getSearchResult().toString());
         assertEquals(ds2.getCode(), ((AbstractExternalData) results.get(2).getEntity()).getCode());
-        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(2).getEntity()).getExperiment().getIdentifier());
+        assertEquals("CISD:/G1/P1/exp1", ((AbstractExternalData) results.get(2).getEntity()).getExperiment().getIdentifier());
         assertEquals("Search Domain: test-db, Score: 0.5, Result location: [Data set: ds1, path: ds1/path, "
                 + "identifier: [id-ds1], position: 42]",
                 results.get(3).getSearchResult().toString());
         assertEquals(ds1.getCode(), ((AbstractExternalData) results.get(3).getEntity()).getCode());
-        assertEquals("/G1/P1/exp1", ((AbstractExternalData) results.get(3).getEntity()).getExperiment().getIdentifier());
+        assertEquals("CISD:/G1/P1/exp1", ((AbstractExternalData) results.get(3).getEntity()).getExperiment().getIdentifier());
         assertEquals(4, results.size());
         context.assertIsSatisfied();
     }
@@ -327,6 +328,9 @@ public class SearchDomainSearcherTest extends AbstractBOTest
 
     private ExternalDataPE createDataSet(String code, DataStorePE dataStore)
     {
+    	DatabaseInstancePE dbInstance = new DatabaseInstancePE();
+        dbInstance.setCode("CISD");
+    	dbInstance.setId(2L);
         ExternalDataPE data = new ExternalDataPE();
         data.setId((long) code.hashCode());
         data.setCode(code);
@@ -339,6 +343,7 @@ public class SearchDomainSearcherTest extends AbstractBOTest
         project.setCode("p1");
         SpacePE group = new SpacePE();
         group.setCode("g1");
+        group.setDatabaseInstance(dbInstance);
         project.setSpace(group);
         experiment.setProject(project);
         data.setExperiment(experiment);
@@ -369,11 +374,16 @@ public class SearchDomainSearcherTest extends AbstractBOTest
     
     private ExperimentPE createExperiment(String permID)
     {
+    	DatabaseInstancePE dbInstance = new DatabaseInstancePE();
+        dbInstance.setCode("CISD");
+    	dbInstance.setId(2L);
+    	SpacePE space = new SpacePE();
+    	space.setDatabaseInstance(dbInstance);
         ExperimentPE experiment = new ExperimentPE();
         experiment.setPermId(permID);
         experiment.setExperimentType(new ExperimentTypePE());
         ProjectPE project = new ProjectPE();
-        project.setSpace(new SpacePE());
+        project.setSpace(space);
         experiment.setProject(project);
         return experiment;
     }
