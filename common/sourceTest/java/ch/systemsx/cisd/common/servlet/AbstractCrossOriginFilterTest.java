@@ -111,19 +111,22 @@ public class AbstractCrossOriginFilterTest extends AssertJUnit
     private void assertAllowedOrigin(CrossOriginFilterImpl filter, final String origin)
             throws Exception
     {
-        
-        context.checking(new Expectations() {
+
+        context.checking(new Expectations()
             {
+                {
                     one(request).getHeader(AbstractCrossOriginFilter.ORIGIN_HEADER);
                     will(returnValue(origin));
-                
+
                     // origin allowed
                     one(response).setHeader(
                             AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin);
-                    
+                    one(response).setHeader(
+                            AbstractCrossOriginFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER, String.valueOf(true));
+
                     one(filterChain).doFilter(request, response);
-            }
-        });
+                }
+            });
         filter.doFilter(request, response, filterChain);
         context.assertIsSatisfied();
     }
