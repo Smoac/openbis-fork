@@ -2,6 +2,8 @@
 import sys
 import definitions
 import re
+import random
+from datetime import datetime
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
 
@@ -25,6 +27,9 @@ def process(tr):
             entity = adaptor.getEntity()
             if not entity.isInOpenBIS(tr):
                 entity.write(tr)
+                print entity.getIdentifier(tr) + " - Updated"
+            else:
+                print entity.getIdentifier(tr) + " - Already up to date"
     print "FINISH!"
 
 ##
@@ -62,7 +67,10 @@ class OpenBISDTO:
     def __init__(self, values, definition):
         self.values = values
         self.definition = definition
-        
+    
+    def getIdentifier(self, tr):
+        pass
+    
     def isInOpenBIS(self, tr):
         pass
     
@@ -107,7 +115,10 @@ class AntibodyAdaptor(FileMakerEntityAdaptor):
         
 class AntibodyOpenBISDTO(OpenBISDTO):
     def write(self, tr):
-        sample = tr.createNewSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], "ANTIBODY");
+        sample = tr.getSampleForUpdate("/INVENTORY/"+self.values["ANTIBODY_ID_NR"]);
+        if sample is None:
+            sample = tr.createNewSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"], "ANTIBODY");
+        
         for propertyCode, propertyValue in self.values.iteritems():
             propertyDefinition = definitions.getPropertyDefinitionByCode(self.definition, propertyCode)
             if propertyValue is not None:
@@ -124,7 +135,7 @@ class AntibodyOpenBISDTO(OpenBISDTO):
                     codeToUse = re.sub(r'\W+','',propertyValue)
                     labelToUse = propertyValue
                     if len(codeToUse) is 0:
-                        codeToUse = "None"
+                        codeToUse = "None" + str(random.random())
                     if len(codeToUse) > 60:
                         codeToUse = codeToUse[:60]
                     term.setCode(codeToUse)
@@ -136,9 +147,19 @@ class AntibodyOpenBISDTO(OpenBISDTO):
                     #print "CREATED FOR VOCABULARY " + propertyDefinition[4] + " NEW TERM WITH CODE " + codeToUse
             sample.setPropertyValue(propertyCode, propertyValue)
     
+    def getIdentifier(self, tr):
+        return self.values["ANTIBODY_ID_NR"];
+    
     def isInOpenBIS(self, tr):
+        code = self.values["ANTIBODY_ID_NR"];
         sample = tr.getSample("/INVENTORY/"+self.values["ANTIBODY_ID_NR"])
-        return sample is not None
+        if sample is not None:
+            lastModificationData = self.values["MODIFICATION_DATE"].strip()
+            lastModificationData = str(datetime.strptime(lastModificationData, "%Y-%m-%d"))[:10]
+            lastModificationOpenBIS = sample.getPropertyValue("MODIFICATION_DATE")[:10]
+            return lastModificationOpenBIS == lastModificationData
+        else :
+            return False
     
 fmConnString = "jdbc:filemaker://127.0.0.1/"
 fmUser = "designer"
