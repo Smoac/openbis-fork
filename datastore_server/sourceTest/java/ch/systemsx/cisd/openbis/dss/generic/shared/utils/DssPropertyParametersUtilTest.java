@@ -64,7 +64,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         File expectedDir = new File(System.getProperty("user.dir"), "dss-tmp");
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateNewFile(EMPTY_TEST_FILE);
+        prepareForCreateTempFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -85,7 +85,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         properties.setProperty(DssPropertyParametersUtil.DSS_TEMP_DIR_PATH, expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateNewFile(EMPTY_TEST_FILE);
+        prepareForCreateTempFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -130,7 +130,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         properties.setProperty(DssPropertyParametersUtil.DSS_TEMP_DIR_PATH, expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateNewFile(EMPTY_TEST_FILE);
+        prepareForCreateTempFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, false);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -157,7 +157,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
         File expectedDir = new File(System.getProperty("user.dir"), "log-registrations");
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateNewFile(EMPTY_TEST_FILE);
+        prepareForCreateTempFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -180,7 +180,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
                 expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateNewFile(EMPTY_TEST_FILE);
+        prepareForCreateTempFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, true);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -228,7 +228,7 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
                 expectedDir.getPath());
         prepareForMkdirs(expectedDir);
         prepareForExists(expectedDir);
-        prepareForCreateNewFile(EMPTY_TEST_FILE);
+        prepareForCreateTempFile(EMPTY_TEST_FILE);
         File movedEmptyTestFile = new File(expectedDir, EMPTY_TEST_FILE.getName());
         prepareForRenameFile(EMPTY_TEST_FILE, movedEmptyTestFile, false);
         prepareForDeleteFile(EMPTY_TEST_FILE);
@@ -283,13 +283,13 @@ public class DssPropertyParametersUtilTest extends AssertJUnit
             });
     }
 
-    private void prepareForCreateNewFile(final File file)
+    private void prepareForCreateTempFile(final File file)
     {
         context.checking(new Expectations()
             {
                 {
-                    one(fileOperations).createNewFile(file);
-                    will(returnValue(true));
+                    one(fileOperations).createTempFile(file.getName(), "");
+                    will(returnValue(file));
                 }
             });
     }

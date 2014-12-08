@@ -231,19 +231,31 @@ public class DssPropertyParametersUtil
             String dirDescription, String pathKey)
     {
         assertDirExists(fileOperations, dir, dirDescription, pathKey);
-        File emptyTestFileInDir = new File(dir, EMPTY_TEST_FILE.getName());
+
+        File emptyTestFile = null;
+        File emptyTestFileInDir = null;
+
         try
         {
-            fileOperations.createNewFile(EMPTY_TEST_FILE);
-            if (fileOperations.rename(EMPTY_TEST_FILE, emptyTestFileInDir) == false)
+            // make the file name unique so that multiple threads can safely perform this check at the same time
+            emptyTestFile = fileOperations.createTempFile(EMPTY_TEST_FILE.getName(), "");
+            emptyTestFileInDir = new File(dir, emptyTestFile.getName());
+
+            if (fileOperations.rename(emptyTestFile, emptyTestFileInDir) == false)
             {
                 throw createException(NON_LOCAL_DIR_TEMPLATE.createFreshCopy(), dir,
                         dirDescription, pathKey);
             }
         } finally
         {
-            fileOperations.delete(EMPTY_TEST_FILE);
-            fileOperations.delete(emptyTestFileInDir);
+            if (emptyTestFile != null)
+            {
+                fileOperations.delete(emptyTestFile);
+            }
+            if (emptyTestFileInDir != null)
+            {
+                fileOperations.delete(emptyTestFileInDir);
+            }
         }
     }
 
