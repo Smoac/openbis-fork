@@ -3,14 +3,15 @@
 
 import ch.systemsx.cisd.openbis.generic.server.jython.api.v1.DataType as DataType
 
+numberOfStorageGroups = 10
 
 storageGroupDefinition = [
-    ["STORAGE_NAMES_0",        "Physical Storage 0",        "antibody ID data box::location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",    "Storage Name", None],
-    ["STORAGE_ROW_0",          "Physical Storage 0",        "Storage Row",                            DataType.INTEGER,                    None,                "Storage Row", None],
-    ["STORAGE_COLUMN_0",       "Physical Storage 0",        "Storage Column",                         DataType.INTEGER,                    None,                "Storage Column", None],
-    ["STORAGE_BOX_NAME_0",     "Physical Storage 0",        "antibody ID data box::box label",        DataType.VARCHAR,                    None,                "Storage Box Name", None],
-    ["STORAGE_USER_0",         "Physical Storage 0",        "antibody ID data box::frozen by",        DataType.VARCHAR,                    None,                "Storage User Id", None],
-    ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "antibody ID data box::position",         DataType.VARCHAR,                    None,                "Storage User Id", None]
+    ["STORAGE_NAMES_0",        "Physical Storage 0",        "location",         DataType.CONTROLLEDVOCABULARY,      "FREEZER",    "Storage Name", None],
+    ["STORAGE_ROW_0",          "Physical Storage 0",        "Storage Row",      DataType.INTEGER,                    None,                "Storage Row", None],
+    ["STORAGE_COLUMN_0",       "Physical Storage 0",        "Storage Column",   DataType.INTEGER,                    None,                "Storage Column", None],
+    ["STORAGE_BOX_NAME_0",     "Physical Storage 0",        "box label",        DataType.VARCHAR,                    None,                "Storage Box Name", None],
+    ["STORAGE_USER_0",         "Physical Storage 0",        "frozen by",        DataType.VARCHAR,                    None,                "Storage User Id", None],
+    ["STORAGE_BOX_POSITION_0", "Physical Storage 0",        "position",         DataType.VARCHAR,                    None,                "Storage User Id", None]
 ];
 
 def getVocaularyTermCodeForVocabularyAndTermLabel(vocabularyCode, termLabel):

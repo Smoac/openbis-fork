@@ -155,4 +155,4 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 ##
 createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
 
-addStorageGroups(10, "ANTIBODY");
+addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
