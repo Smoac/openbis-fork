@@ -157,3 +157,10 @@ createExperimentTypeWithProperties("DEFAULT_EXPERIMENT", "Default Experiment", [
 createSampleTypeWithProperties("ANTIBODY", "", definitions.antibodyDefinition);
 
 addStorageGroups(definitions.numberOfStorageGroups, "ANTIBODY");
+
+##
+## Data set Types
+##
+createDataSetTypeWithProperties("DOCUMENT", "PHYSICAL", "", [
+    ["NOTES", "General information", "Notes", DataType.MULTILINE_VARCHAR, None, "Notes regarding the dataset", None],
+]);
