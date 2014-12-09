@@ -249,14 +249,14 @@ class AntibodyBoxOpenBISDTO(OpenBISDTO):
                 if propertyCode == "STORAGE_NAME":
                     freezerName = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("FREEZER", propertyValue)
                     if freezerName is None:
-                        print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+                        #print repr("NOT FOUND FEEZER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
                         propertyValue = None
                     else:
                         propertyValue = freezerName
                 if propertyCode == "STORAGE_USER":
                     storageUser = definitions.getVocaularyTermCodeForVocabularyAndTermLabel("ALL_LAB_MEMBERS", propertyValue)
                     if storageUser is None:
-                        print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
+                        #print repr("NOT FOUND USER: " + self.values["ANTIBODY_ID_NR"] + " : '" + unicode(propertyValue) + "'")
                         propertyValue = None
                     else:
                         propertyValue = storageUser
