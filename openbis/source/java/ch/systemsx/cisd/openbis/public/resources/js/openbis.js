@@ -1114,6 +1114,19 @@ openbis.prototype.listDeletions = function(fetchOptions, action) {
 }
 
 /**
+ * @see GeneralInformationService.listPersons(String)
+ * @method
+ */
+openbis.prototype.listPersons = function(action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoServiceUrl,
+		data: { "method" : "listPersons",
+				"params" : [ this.getSession() ] },
+		success: action
+	});
+}
+
+/**
  * ==========================================================================================
  * ch.systemsx.cisd.openbis.generic.shared.api.v1.IGeneralInformationChangingService methods
  * ==========================================================================================

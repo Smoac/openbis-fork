@@ -116,6 +116,7 @@ import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListMaterialCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.ListSampleCriteria;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Metaproject;
+import ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.RoleWithHierarchy;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.SearchDomainSearchResultWithFullEntity;
 import ch.systemsx.cisd.openbis.generic.shared.dto.AttachmentHolderPE;
@@ -146,7 +147,7 @@ import ch.systemsx.cisd.openbis.generic.shared.util.HibernateUtils;
 public class GeneralInformationService extends AbstractServer<IGeneralInformationService> implements
         IGeneralInformationService
 {
-    public static final int MINOR_VERSION = 30;
+    public static final int MINOR_VERSION = 31;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer commonServer;
@@ -1351,4 +1352,18 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
+    public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person> listPersons(String sessionToken)
+    {
+        List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person> persons = commonServer.listPersons(sessionToken);
+        List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person> personsResult = new ArrayList<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person>();
+        
+        for(Person person:persons) {
+            personsResult.add(Translator.translate(person));
+        }
+        
+        return personsResult;
+    }
 }

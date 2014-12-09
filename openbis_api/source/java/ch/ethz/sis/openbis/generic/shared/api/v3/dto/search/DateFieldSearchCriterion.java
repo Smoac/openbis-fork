@@ -18,8 +18,9 @@ package ch.ethz.sis.openbis.generic.shared.api.v3.dto.search;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import ch.systemsx.cisd.base.annotation.JsonObject;
 
@@ -29,8 +30,14 @@ public class DateFieldSearchCriterion extends AbstractFieldSearchCriterion<IDate
 
     private static final long serialVersionUID = 1L;
 
-    private static final IDateFormat[] DATE_FORMATS = new IDateFormat[] { new ShortDateFormat(), new NormalDateFormat(), new LongDateFormat() };
-
+    private static final List<IDateFormat> DATE_FORMATS = new ArrayList<IDateFormat>();
+    
+    static {
+        DATE_FORMATS.add(new ShortDateFormat());
+        DATE_FORMATS.add(new NormalDateFormat());
+        DATE_FORMATS.add(new LongDateFormat());
+    }
+    
     private ITimeZone timeZone = new ServerTimeZone();
 
     DateFieldSearchCriterion(String fieldName, SearchFieldType fieldType)
@@ -116,7 +123,7 @@ public class DateFieldSearchCriterion extends AbstractFieldSearchCriterion<IDate
             }
 
             throw new IllegalArgumentException("Date value: " + value + " does not match any of the supported formats: "
-                    + Arrays.toString(DATE_FORMATS));
+                    + DATE_FORMATS);
         }
     }
 

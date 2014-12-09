@@ -41,6 +41,7 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.ExperimentType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Material;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MaterialIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments;
+import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Project;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.PropertyType;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Role;
@@ -503,6 +504,13 @@ class GeneralInformationServiceLogger extends AbstractServerLogger implements
     public List<Deletion> listDeletions(String sessionToken, EnumSet<DeletionFetchOption> fetchOptions)
     {
         logAccess(sessionToken, "listDeletions", "fetchOptions(%s)", fetchOptions);
+        return null;
+    }
+
+    @Override
+    public List<Person> listPersons(String sessionToken)
+    {
+        logAccess(sessionToken, "listPersons");
         return null;
     }
 
