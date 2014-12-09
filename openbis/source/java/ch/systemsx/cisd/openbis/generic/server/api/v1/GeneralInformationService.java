@@ -1353,8 +1353,6 @@ public class GeneralInformationService extends AbstractServer<IGeneralInformatio
     }
 
     @Override
-    @Transactional(readOnly = true)
-    @RolesAllowed(RoleWithHierarchy.INSTANCE_ADMIN)
     public List<ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.Person> listPersons(String sessionToken)
     {
         List<ch.systemsx.cisd.openbis.generic.shared.basic.dto.Person> persons = commonServer.listPersons(sessionToken);
