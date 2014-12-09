@@ -193,12 +193,17 @@ public class DefaultTabItem implements ITabItem
         {
             lastModificationStateUpdaterOrNull.update();
         }
-        if (component instanceof IComponentWithActivation)
-        {
-            ((IComponentWithActivation) component).activate();
-        }
 
         GWTUtils.updatePageTitle(getTabTitleUpdater().getCurrentTitle());
+    }
+
+    @Override
+    public void onRefresh(String linkOrNull)
+    {
+        if (component instanceof IComponentWithRefresh)
+        {
+            ((IComponentWithRefresh) component).refresh();
+        }
     }
 
     @Override

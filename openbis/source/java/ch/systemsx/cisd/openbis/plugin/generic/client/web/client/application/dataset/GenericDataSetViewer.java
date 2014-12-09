@@ -41,7 +41,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.IViewConte
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.TabContent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithActivation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.ActionMenu;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.menu.IActionMenuItem;
@@ -76,7 +76,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.IGenericClientS
  * @author Piotr Buczek
  */
 abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSplit<AbstractExternalData>
-        implements IDatabaseModificationObserver, IComponentWithActivation
+        implements IDatabaseModificationObserver, IComponentWithRefresh
 {
     public static final String PREFIX = "generic-dataset-viewer_";
 
@@ -549,7 +549,7 @@ abstract public class GenericDataSetViewer extends AbstractViewerWithVerticalSpl
     }
 
     @Override
-    public void activate()
+    public void refresh()
     {
         if (rightPanel != null)
         {

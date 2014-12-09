@@ -31,13 +31,19 @@ public interface ITabItem extends IClosableItem
     public TabTitleUpdater getTabTitleUpdater();
 
     /**
-     * Performs operations relevant to the tab when it is activated, namely when we opened this tab
-     * for the first time or we switched from another tab to this one.
+     * Performs operations relevant to the tab when it is activated, namely when we opened this tab for the first time or we switched from another tab
+     * to this one.
      * <p>
      * Usually refreshes the tab if it was detected that relevant database objects have changed.
      * </p>
      */
     public void onActivate(String linkOrNull);
+
+    /**
+     * Performs operations relevant to the tab when it is refreshed, namely when we opened this tab for the first time, we switched from another tab
+     * to this one or this tab has been requested to be refreshed.
+     */
+    public void onRefresh(String linkOrNull);
 
     /**
      * Returns true if the confirmation dialog should be displayed before closing the tab.

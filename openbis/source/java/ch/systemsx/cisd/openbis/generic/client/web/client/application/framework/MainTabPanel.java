@@ -118,8 +118,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
     /**
      * Set the currently selected tab to the given <i>tabItem</i>.
      * <p>
-     * If the tab could not be found (meaning that it has not been created yet), then a new tab will
-     * be generated out of given {@link ITabItem}.
+     * If the tab could not be found (meaning that it has not been created yet), then a new tab will be generated out of given {@link ITabItem}.
      * </p>
      */
     @Override
@@ -279,6 +278,7 @@ public class MainTabPanel extends TabPanel implements IMainPanel
             tabItem.getTabTitleUpdater().bind(this);
             addListener(Events.BeforeClose, createBeforeCloseListener());
             addListener(Events.Close, createCloseTabListener());
+            addListener(Events.BeforeSelect, createRefreshTabListener());
             addListener(Events.Select, createActivateTabListener());
         }
 
@@ -349,6 +349,21 @@ public class MainTabPanel extends TabPanel implements IMainPanel
                         if (be.getType().equals(Events.Select))
                         {
                             tabItem.onActivate(linkOrNull);
+                        }
+                    }
+                };
+        }
+
+        private Listener<TabPanelEvent> createRefreshTabListener()
+        {
+            return new Listener<TabPanelEvent>()
+                {
+                    @Override
+                    public final void handleEvent(final TabPanelEvent be)
+                    {
+                        if (be.getType().equals(Events.BeforeSelect))
+                        {
+                            tabItem.onRefresh(linkOrNull);
                         }
                     }
                 };

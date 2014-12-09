@@ -42,7 +42,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithActivation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.PropertyValueRenderers;
@@ -81,7 +81,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Pro
  * @author Christian Ribeaud
  */
 abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSplit<Sample> implements
-        IDatabaseModificationObserver, IComponentWithActivation
+        IDatabaseModificationObserver, IComponentWithRefresh
 {
     private static final String GENERIC_SAMPLE_VIEWER = "generic-sample-viewer";
 
@@ -555,7 +555,7 @@ abstract public class GenericSampleViewer extends AbstractViewerWithVerticalSpli
     }
 
     @Override
-    public void activate()
+    public void refresh()
     {
         if (rightPanel != null)
         {

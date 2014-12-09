@@ -37,7 +37,7 @@ import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.CompositeDatabaseModificationObserverWithMainObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DatabaseModificationAwareComponent;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.DisplayTypeIDGenerator;
-import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithActivation;
+import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IComponentWithRefresh;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.framework.IDatabaseModificationObserver;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.AbstractViewerWithVerticalSplit;
 import ch.systemsx.cisd.openbis.generic.client.web.client.application.ui.deletion.RevertDeletionConfirmationDialog;
@@ -66,7 +66,7 @@ import ch.systemsx.cisd.openbis.plugin.generic.client.web.client.application.Abs
  * @author Izabela Adamczyk
  */
 public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Experiment> implements
-        IDatabaseModificationObserver, IComponentWithActivation
+        IDatabaseModificationObserver, IComponentWithRefresh
 {
     private static final String GENERIC_EXPERIMENT_VIEWER = "generic-experiment-viewer";
 
@@ -376,7 +376,7 @@ public class GenericExperimentViewer extends AbstractViewerWithVerticalSplit<Exp
     }
 
     @Override
-    public void activate()
+    public void refresh()
     {
         if (rightPanel != null)
         {

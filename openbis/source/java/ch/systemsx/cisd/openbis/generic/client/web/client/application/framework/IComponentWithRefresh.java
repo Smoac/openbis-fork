@@ -19,9 +19,9 @@ package ch.systemsx.cisd.openbis.generic.client.web.client.application.framework
 /**
  * @author pkupczyk
  */
-public interface IComponentWithActivation
+public interface IComponentWithRefresh
 {
 
-    public void activate();
+    public void refresh();
 
 }
