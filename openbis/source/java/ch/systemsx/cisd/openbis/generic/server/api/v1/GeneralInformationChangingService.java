@@ -16,7 +16,6 @@
 
 package ch.systemsx.cisd.openbis.generic.server.api.v1;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,6 @@ import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.MetaprojectAssignments
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.NewVocabularyTerm;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.WebAppSettings;
 import ch.systemsx.cisd.openbis.generic.shared.api.v1.dto.id.metaproject.IMetaprojectId;
-import ch.systemsx.cisd.openbis.generic.shared.basic.IEntityInformationHolderWithIdentifier;
 import ch.systemsx.cisd.openbis.generic.shared.basic.TechId;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.BatchRegistrationResult;
 import ch.systemsx.cisd.openbis.generic.shared.basic.dto.DatabaseModificationKind.ObjectKind;
@@ -62,7 +60,7 @@ public class GeneralInformationChangingService extends
         AbstractServer<IGeneralInformationChangingService> implements
         IGeneralInformationChangingService
 {
-    public static final int MINOR_VERSION = 6;
+    public static final int MINOR_VERSION = 7;
 
     @Resource(name = ch.systemsx.cisd.openbis.generic.shared.ResourceNames.COMMON_SERVER)
     private ICommonServer server;
@@ -333,6 +331,12 @@ public class GeneralInformationChangingService extends
     public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds)
     {
         server.deletePermanentlyForced(sessionToken, TechId.createList(deletionIds));
+    }
+    
+    @Override
+    public void registerPerson(String sessionToken, String userID)
+    {
+        server.registerPerson(sessionToken, userID);
     }
     
 }

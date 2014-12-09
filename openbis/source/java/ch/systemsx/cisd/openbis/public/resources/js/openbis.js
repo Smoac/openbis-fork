@@ -1420,6 +1420,20 @@ openbis.prototype.deletePermanentlyForced = function(deletionIds, action) {
 }
 
 /**
+ * @see IGeneralInformationChangingService.registerPerson(String, String)
+ * @method
+ */
+openbis.prototype.registerPerson = function(userId, action) {
+	this._internal.ajaxRequest({
+		url: this._internal.generalInfoChangingServiceUrl,
+		data: { "method" : "registerPerson",
+				"params" : [ this.getSession(),
+				             userId ] },
+		success: action
+	});
+}
+
+/**
  * ============================================================================
  * ch.systemsx.cisd.openbis.plugin.query.shared.api.v1.IQueryApiServer methods
  * ============================================================================

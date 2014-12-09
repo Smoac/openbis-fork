@@ -262,4 +262,12 @@ public interface IGeneralInformationChangingService extends IRpcService
      */
     public void deletePermanentlyForced(String sessionToken, List<Long> deletionIds);
 
+    /**
+     * Registers Person, this person should be available in one of the configured login systems to be usable.
+     * 
+     * @param userID user to be added to the system
+     * @since 1.7
+     */
+    public void registerPerson(String sessionToken, String userID);
+
 }

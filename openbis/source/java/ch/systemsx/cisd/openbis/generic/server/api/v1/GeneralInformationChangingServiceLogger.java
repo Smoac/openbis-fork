@@ -231,5 +231,11 @@ class GeneralInformationChangingServiceLogger extends AbstractServerLogger imple
     {
         return 0;
     }
+
+    @Override
+    public void registerPerson(String sessionToken, String userID)
+    {
+        logAccess(sessionToken, "userID", userID);
+    }
     
 }
